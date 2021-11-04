@@ -2,7 +2,6 @@
 
 # C/C++安全规则集合 ![Version](https://img.shields.io/badge/version-1.0.0--alpha-brightgreen)
 
-&emsp;  
 &emsp;&emsp;针对C、C++语言，本文收录了409种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
@@ -306,31 +305,32 @@
   - [R8.5 由const修饰的参数应为引用或指针](#ID_paramPassedByValue)
   - [R8.6 局部变量在使用前必须初始化](#ID_localInitialization)
   - [R8.7 成员变量须在声明处或构造时初始化](#ID_memberInitialization)
-  - [R8.8 成员初始化应遵循声明的顺序](#ID_disorderedInitialization)
-  - [R8.9 在构造函数中不应调用虚函数](#ID_virtualCallInConstructor)
-  - [R8.10 在析构函数中不应调用虚函数](#ID_virtualCallInDestuctor)
-  - [R8.11 拷贝构造函数应避免复制之外的功能](#ID_sideEffectCopyConstructor)
-  - [R8.12 赋值运算符应妥善处理参数就是自身对象时的情况](#ID_this_selfJudgement)
-  - [R8.13 不应存在得不到执行机会的代码](#ID_unreachableCode)
-  - [R8.14 有返回值的函数其所有分枝都应有明确的返回值](#ID_notAllBranchReturn)
-  - [R8.15 不可返回局部对象的地址或引用](#ID_localAddressFlowOut)
-  - [R8.16 函数返回值不应为const对象](#ID_returnConstObject)
-  - [R8.17 返回值应与函数的返回类型相符](#ID_returnOdd)
-  - [R8.18 函数返回值不应为相同的常量](#ID_returnSameConst)
-  - [R8.19 基本类型的返回值不应使用const修饰](#ID_returnSuperfluousConst)
-  - [R8.20 属性为noreturn的函数中不应出现return语句](#ID_unsuitableReturn)
-  - [R8.21 属性为noreturn的函数返回类型只应为void](#ID_unsuitableReturnType)
-  - [R8.22 不应出现多余的跳转语句](#ID_redundantJump)
-  - [R8.23 函数的标签数量应在规定范围之内](#ID_tooManyLabels)
-  - [R8.24 函数的行数应在规定范围之内](#ID_tooManyLines)
-  - [R8.25 lambda表达式的行数应在规定范围之内](#ID_tooManyLambdaLines)
-  - [R8.26 函数参数的数量应在规定范围之内](#ID_tooManyParams)
-  - [R8.27 禁止goto语句向平级的或更深层的其他作用域跳转](#ID_forbidGotoBlocks)
-  - [R8.28 禁止goto语句向前跳转](#ID_forbidGotoBack)
-  - [R8.29 禁用goto语句](#ID_forbidGoto)
-  - [R8.30 禁用setjmp、longjmp](#ID_forbidLongjmp)
-  - [R8.31 避免无限制的递归实现](#ID_recursion)
-  - [R8.32 不应存在重复的函数实现](#ID_functionRepetition)
+  - [R8.8 在面向构造或析构函数体的catch块中不可访问非静态成员](#ID_illMemberAccess)
+  - [R8.9 成员初始化应遵循声明的顺序](#ID_disorderedInitialization)
+  - [R8.10 在构造函数中不应调用虚函数](#ID_virtualCallInConstructor)
+  - [R8.11 在析构函数中不应调用虚函数](#ID_virtualCallInDestuctor)
+  - [R8.12 拷贝构造函数应避免复制之外的功能](#ID_sideEffectCopyConstructor)
+  - [R8.13 赋值运算符应妥善处理参数就是自身对象时的情况](#ID_this_selfJudgement)
+  - [R8.14 不应存在得不到执行机会的代码](#ID_unreachableCode)
+  - [R8.15 有返回值的函数其所有分枝都应有明确的返回值](#ID_notAllBranchReturn)
+  - [R8.16 不可返回局部对象的地址或引用](#ID_localAddressFlowOut)
+  - [R8.17 函数返回值不应为const对象](#ID_returnConstObject)
+  - [R8.18 返回值应与函数的返回类型相符](#ID_returnOdd)
+  - [R8.19 函数返回值不应为相同的常量](#ID_returnSameConst)
+  - [R8.20 基本类型的返回值不应使用const修饰](#ID_returnSuperfluousConst)
+  - [R8.21 属性为noreturn的函数中不应出现return语句](#ID_unsuitableReturn)
+  - [R8.22 属性为noreturn的函数返回类型只应为void](#ID_unsuitableReturnType)
+  - [R8.23 不应出现多余的跳转语句](#ID_redundantJump)
+  - [R8.24 函数的标签数量应在规定范围之内](#ID_tooManyLabels)
+  - [R8.25 函数的行数应在规定范围之内](#ID_tooManyLines)
+  - [R8.26 lambda表达式的行数应在规定范围之内](#ID_tooManyLambdaLines)
+  - [R8.27 函数参数的数量应在规定范围之内](#ID_tooManyParams)
+  - [R8.28 禁止goto语句向平级的或更深层的其他作用域跳转](#ID_forbidGotoBlocks)
+  - [R8.29 禁止goto语句向前跳转](#ID_forbidGotoBack)
+  - [R8.30 禁用goto语句](#ID_forbidGoto)
+  - [R8.31 禁用setjmp、longjmp](#ID_forbidLongjmp)
+  - [R8.32 避免无限制的递归实现](#ID_recursion)
+  - [R8.33 不应存在重复的函数实现](#ID_functionRepetition)
 <br/>
 
 <span id="__Control">**[9. Control](#control)**</span>
@@ -394,13 +394,12 @@
     - [R9.6.3 catch块序列中针对派生类的应排在前面，针对基类的应排在后面](#ID_try_disorderedHandlers)
     - [R9.6.4 try块不应嵌套](#ID_try_forbidNest)
   - [9.7 Catch](#control.catch)
-    - [R9.7.1 catch块不应被分号隔断](#ID_catch_semicolon)
-    - [R9.7.2 应通过对象的引用捕获异常](#ID_catch_value)
-    - [R9.7.3 捕获多态类异常时不应产生切片问题](#ID_catch_slicing)
-    - [R9.7.4 不应存在空的catch块](#ID_catch_emptyBlock)
-    - [R9.7.5 捕获异常后不应直接重新抛出异常，需对异常进行有效处理](#ID_catch_justRethrow)
-    - [R9.7.6 不应捕获过于宽泛的异常](#ID_catch_generic)
-    - [R9.7.7 不应捕获非异常类型](#ID_catch_nonExceptionType)
+    - [R9.7.1 应通过对象的引用捕获异常](#ID_catch_value)
+    - [R9.7.2 捕获多态类异常时不应产生切片问题](#ID_catch_slicing)
+    - [R9.7.3 不应存在空的catch块](#ID_catch_emptyBlock)
+    - [R9.7.4 捕获异常后不应直接重新抛出异常，需对异常进行有效处理](#ID_catch_justRethrow)
+    - [R9.7.5 不应捕获过于宽泛的异常](#ID_catch_generic)
+    - [R9.7.6 不应捕获非异常类型](#ID_catch_nonExceptionType)
 <br/>
 
 <span id="__Expression">**[10. Expression](#expression)**</span>
@@ -3634,11 +3633,11 @@ int foo() {            // Non-compliant, add inline or move it to a cpp file
     return 1;
 }
 
-constexpr int bar() {  // Compliant
+inline int bar() {     // Compliant
     return 2;
 }
 
-inline int baz() {     // Compliant
+constexpr int baz() {  // Compliant
     return 3;
 }
 ```
@@ -8337,7 +8336,60 @@ C++ Core Guidelines C.41
 <br/>
 <br/>
 
-### <span id="ID_disorderedInitialization">▌R8.8 成员初始化应遵循声明的顺序</span>
+### <span id="ID_illMemberAccess">▌R8.8 在面向构造或析构函数体的catch块中不可访问非静态成员</span>
+
+ID_illMemberAccess&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
+
+<hr/>
+
+当流程进入面向构造或析构函数体的catch块时，非静态成员的生命周期已经结束，如果再次访问会导致标准未定义的错误。  
+  
+示例：
+```
+class A {
+public:
+    A() try {        // Function-try-block
+        ....
+    } catch (...) {  // A handler of the function-try-block
+        access(i);   // Non-compliant, ‘i’ may no longer exist 
+    }
+
+   ~A() try {
+        ....
+    } catch (...) {
+        access(i);   // Non-compliant, ‘i’ may no longer exist 
+    }
+
+private:
+    int i;
+};
+```
+例中access(i)等访问是有问题的。  
+  
+应调整实现或将“function\-try\-block”改为普通“try\-block”：
+```
+A::A() {
+    try {
+        ....
+    }
+    catch (...) {
+        access(i);   // OK
+    }
+}
+```
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2011 15.3(10)-undefined  
+<br/>
+
+#### 参考
+MISRA C++ 2008 15-3-3  
+<br/>
+<br/>
+
+### <span id="ID_disorderedInitialization">▌R8.9 成员初始化应遵循声明的顺序</span>
 
 ID_disorderedInitialization&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
@@ -8391,7 +8443,7 @@ C++ Core Guidelines C.47
 <br/>
 <br/>
 
-### <span id="ID_virtualCallInConstructor">▌R8.9 在构造函数中不应调用虚函数</span>
+### <span id="ID_virtualCallInConstructor">▌R8.10 在构造函数中不应调用虚函数</span>
 
 ID_virtualCallInConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -8427,7 +8479,7 @@ Effective C++ item 9
 <br/>
 <br/>
 
-### <span id="ID_virtualCallInDestuctor">▌R8.10 在析构函数中不应调用虚函数</span>
+### <span id="ID_virtualCallInDestuctor">▌R8.11 在析构函数中不应调用虚函数</span>
 
 ID_virtualCallInDestuctor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -8460,7 +8512,7 @@ Effective C++ item 9
 <br/>
 <br/>
 
-### <span id="ID_sideEffectCopyConstructor">▌R8.11 拷贝构造函数应避免复制之外的功能</span>
+### <span id="ID_sideEffectCopyConstructor">▌R8.12 拷贝构造函数应避免复制之外的功能</span>
 
 ID_sideEffectCopyConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -8510,7 +8562,7 @@ MISRA C++ 2008 12-8-1
 <br/>
 <br/>
 
-### <span id="ID_this_selfJudgement">▌R8.12 赋值运算符应妥善处理参数就是自身对象时的情况</span>
+### <span id="ID_this_selfJudgement">▌R8.13 赋值运算符应妥善处理参数就是自身对象时的情况</span>
 
 ID_this_selfJudgement&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -8549,7 +8601,7 @@ C++ Core Guidelines C.62
 <br/>
 <br/>
 
-### <span id="ID_unreachableCode">▌R8.13 不应存在得不到执行机会的代码</span>
+### <span id="ID_unreachableCode">▌R8.14 不应存在得不到执行机会的代码</span>
 
 ID_unreachableCode&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
@@ -8602,7 +8654,7 @@ MISRA C++ 2008 0-1-1
 <br/>
 <br/>
 
-### <span id="ID_notAllBranchReturn">▌R8.14 有返回值的函数其所有分枝都应有明确的返回值</span>
+### <span id="ID_notAllBranchReturn">▌R8.15 有返回值的函数其所有分枝都应有明确的返回值</span>
 
 ID_notAllBranchReturn&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
@@ -8649,7 +8701,7 @@ MISRA C++ 2008 8-4-3
 <br/>
 <br/>
 
-### <span id="ID_localAddressFlowOut">▌R8.15 不可返回局部对象的地址或引用</span>
+### <span id="ID_localAddressFlowOut">▌R8.16 不可返回局部对象的地址或引用</span>
 
 ID_localAddressFlowOut&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
@@ -8685,7 +8737,7 @@ C++ Core Guidelines F.43
 <br/>
 <br/>
 
-### <span id="ID_returnConstObject">▌R8.16 函数返回值不应为const对象</span>
+### <span id="ID_returnConstObject">▌R8.17 函数返回值不应为const对象</span>
 
 ID_returnConstObject&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
@@ -8720,7 +8772,7 @@ C++ Core Guidelines F.20
 <br/>
 <br/>
 
-### <span id="ID_returnOdd">▌R8.17 返回值应与函数的返回类型相符</span>
+### <span id="ID_returnOdd">▌R8.18 返回值应与函数的返回类型相符</span>
 
 ID_returnOdd&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -8747,7 +8799,7 @@ MISRA C++ 2008 4-10-1
 <br/>
 <br/>
 
-### <span id="ID_returnSameConst">▌R8.18 函数返回值不应为相同的常量</span>
+### <span id="ID_returnSameConst">▌R8.19 函数返回值不应为相同的常量</span>
 
 ID_returnSameConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -8773,7 +8825,7 @@ bool foo(int a) {
 <br/>
 <br/>
 
-### <span id="ID_returnSuperfluousConst">▌R8.19 基本类型的返回值不应使用const修饰</span>
+### <span id="ID_returnSuperfluousConst">▌R8.20 基本类型的返回值不应使用const修饰</span>
 
 ID_returnSuperfluousConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -8804,7 +8856,7 @@ ISO/IEC 14882:2011 3.10(1)
 <br/>
 <br/>
 
-### <span id="ID_unsuitableReturn">▌R8.20 属性为noreturn的函数中不应出现return语句</span>
+### <span id="ID_unsuitableReturn">▌R8.21 属性为noreturn的函数中不应出现return语句</span>
 
 ID_unsuitableReturn&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -8825,7 +8877,7 @@ ID_unsuitableReturn&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 <br/>
 <br/>
 
-### <span id="ID_unsuitableReturnType">▌R8.21 属性为noreturn的函数返回类型只应为void</span>
+### <span id="ID_unsuitableReturnType">▌R8.22 属性为noreturn的函数返回类型只应为void</span>
 
 ID_unsuitableReturnType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -8842,7 +8894,7 @@ ID_unsuitableReturnType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 <br/>
 <br/>
 
-### <span id="ID_redundantJump">▌R8.22 不应出现多余的跳转语句</span>
+### <span id="ID_redundantJump">▌R8.23 不应出现多余的跳转语句</span>
 
 ID_redundantJump&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -8874,7 +8926,7 @@ L:
 <br/>
 <br/>
 
-### <span id="ID_tooManyLabels">▌R8.23 函数的标签数量应在规定范围之内</span>
+### <span id="ID_tooManyLabels">▌R8.24 函数的标签数量应在规定范围之内</span>
 
 ID_tooManyLabels&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -8906,7 +8958,7 @@ ID_function/maxLabelCount：标签数量上限，超过则报出
 <br/>
 <br/>
 
-### <span id="ID_tooManyLines">▌R8.24 函数的行数应在规定范围之内</span>
+### <span id="ID_tooManyLines">▌R8.25 函数的行数应在规定范围之内</span>
 
 ID_tooManyLines&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -8936,7 +8988,7 @@ C++ Core Guidelines F.3
 <br/>
 <br/>
 
-### <span id="ID_tooManyLambdaLines">▌R8.25 lambda表达式的行数应在规定范围之内</span>
+### <span id="ID_tooManyLambdaLines">▌R8.26 lambda表达式的行数应在规定范围之内</span>
 
 ID_tooManyLambdaLines&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -8969,7 +9021,7 @@ ID_function/maxLambdaLineCount：行数上限，超过则报出
 <br/>
 <br/>
 
-### <span id="ID_tooManyParams">▌R8.26 函数参数的数量应在规定范围之内</span>
+### <span id="ID_tooManyParams">▌R8.27 函数参数的数量应在规定范围之内</span>
 
 ID_tooManyParams&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9015,7 +9067,7 @@ C++ Core Guidelines I.23
 <br/>
 <br/>
 
-### <span id="ID_forbidGotoBlocks">▌R8.27 禁止goto语句向平级的或更深层的其他作用域跳转</span>
+### <span id="ID_forbidGotoBlocks">▌R8.28 禁止goto语句向平级的或更深层的其他作用域跳转</span>
 
 ID_forbidGotoBlocks&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function warning
 
@@ -9057,7 +9109,7 @@ MISRA C++ 2008 6-6-1
 <br/>
 <br/>
 
-### <span id="ID_forbidGotoBack">▌R8.28 禁止goto语句向前跳转</span>
+### <span id="ID_forbidGotoBack">▌R8.29 禁止goto语句向前跳转</span>
 
 ID_forbidGotoBack&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function suggestion
 
@@ -9095,7 +9147,7 @@ MISRA C++ 2008 6-6-2
 <br/>
 <br/>
 
-### <span id="ID_forbidGoto">▌R8.29 禁用goto语句</span>
+### <span id="ID_forbidGoto">▌R8.30 禁用goto语句</span>
 
 ID_forbidGoto&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function suggestion
 
@@ -9118,7 +9170,7 @@ MISRA C 2012 15.1
 <br/>
 <br/>
 
-### <span id="ID_forbidLongjmp">▌R8.30 禁用setjmp、longjmp</span>
+### <span id="ID_forbidLongjmp">▌R8.31 禁用setjmp、longjmp</span>
 
 ID_forbidLongjmp&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function warning
 
@@ -9162,7 +9214,7 @@ C++ Core Guidelines SL.C.1
 <br/>
 <br/>
 
-### <span id="ID_recursion">▌R8.31 避免无限制的递归实现</span>
+### <span id="ID_recursion">▌R8.32 避免无限制的递归实现</span>
 
 ID_recursion&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9182,7 +9234,7 @@ MISRA C++ 2008 7-5-4
 <br/>
 <br/>
 
-### <span id="ID_functionRepetition">▌R8.32 不应存在重复的函数实现</span>
+### <span id="ID_functionRepetition">▌R8.33 不应存在重复的函数实现</span>
 
 ID_functionRepetition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
@@ -11050,31 +11102,7 @@ C++ Core Guidelines E.17
 
 ### <span id="control.catch">9.7 Catch</span>
 
-### <span id="ID_catch_semicolon">▌R9.7.1 catch块不应被分号隔断</span>
-
-ID_catch_semicolon&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: control error
-
-<hr/>
-
-catch块不应被分号隔断。  
-  
-示例：
-```
-catch (const Exception&);  // Non-compliant, see the semicolon
-{
-    ....
-}
-```
-分号使catch块失效，这可能是笔误，也可能是有人恶意篡改了代码，应立即修正。
-<br/>
-<br/>
-
-#### 参考
-CWE-670  
-<br/>
-<br/>
-
-### <span id="ID_catch_value">▌R9.7.2 应通过对象的引用捕获异常</span>
+### <span id="ID_catch_value">▌R9.7.1 应通过对象的引用捕获异常</span>
 
 ID_catch_value&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
@@ -11112,7 +11140,7 @@ MISRA C++ 2008 15-3-5
 <br/>
 <br/>
 
-### <span id="ID_catch_slicing">▌R9.7.3 捕获多态类异常时不应产生切片问题</span>
+### <span id="ID_catch_slicing">▌R9.7.2 捕获多态类异常时不应产生切片问题</span>
 
 ID_catch_slicing&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
@@ -11154,7 +11182,7 @@ C++ Core Guidelines ES.63
 <br/>
 <br/>
 
-### <span id="ID_catch_emptyBlock">▌R9.7.4 不应存在空的catch块</span>
+### <span id="ID_catch_emptyBlock">▌R9.7.3 不应存在空的catch块</span>
 
 ID_catch_emptyBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
 
@@ -11195,7 +11223,7 @@ CWE-391
 <br/>
 <br/>
 
-### <span id="ID_catch_justRethrow">▌R9.7.5 捕获异常后不应直接重新抛出异常，需对异常进行有效处理</span>
+### <span id="ID_catch_justRethrow">▌R9.7.4 捕获异常后不应直接重新抛出异常，需对异常进行有效处理</span>
 
 ID_catch_justRethrow&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
@@ -11219,7 +11247,7 @@ void foo() {
 <br/>
 <br/>
 
-### <span id="ID_catch_generic">▌R9.7.6 不应捕获过于宽泛的异常</span>
+### <span id="ID_catch_generic">▌R9.7.5 不应捕获过于宽泛的异常</span>
 
 ID_catch_generic&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
@@ -11261,7 +11289,7 @@ CWE-396
 <br/>
 <br/>
 
-### <span id="ID_catch_nonExceptionType">▌R9.7.7 不应捕获非异常类型</span>
+### <span id="ID_catch_nonExceptionType">▌R9.7.6 不应捕获非异常类型</span>
 
 ID_catch_nonExceptionType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
