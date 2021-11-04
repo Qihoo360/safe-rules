@@ -1,9 +1,8 @@
-<img src="logo.png" align="right" />
+<img src="logo.png" align="right"/>
 
-# C/C++安全规则集合
+# C/C++安全规则集合 ![Version](https://img.shields.io/badge/version-1.0.0--alpha-brightgreen)
 
-> 当前版本：v1.0  
-> 联系方式：g-cqm-admin@360.cn
+> mail: g-cqm-admin@360.cn
 
 &emsp;&emsp;针对C、C++语言，本文收录了409种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
@@ -137,12 +136,12 @@
     - [R3.2.6 由多个语句组成的宏定义应该用do\-while(0)括起来](#ID_macro_stmtNotEnclosed)
     - [R3.2.7 宏的实参个数不可小于形参个数](#ID_macro_insufficientArgs)
     - [R3.2.8 宏的实参个数不可大于形参个数](#ID_macro_redundantArgs)
-    - [R3.2.9 宏参数不应存在副作用](#ID_macro_sideEffectArgs)
+    - [R3.2.9 宏参数不应有副作用](#ID_macro_sideEffectArgs)
     - [R3.2.10 宏参数数量应在规定范围之内](#ID_macro_tooManyParams)
     - [R3.2.11 宏名称中不应存在拼写错误](#ID_macro_misspelling)
     - [R3.2.12 不应使用宏定义常量](#ID_macro_const)
     - [R3.2.13 不应使用宏定义类型](#ID_macro_typeid)
-    - [R3.2.14 可由函数实现的功能不应使用宏完成](#ID_macro_function)
+    - [R3.2.14 可由函数实现的功能不应使用宏实现](#ID_macro_function)
     - [R3.2.15 在C\+\+代码中不应使用宏offsetof](#ID_deprecatedOffsetof)
     - [R3.2.16 在宏定义中由\#修饰的参数后不应出现\#\#](#ID_macro_complexConcat)
   - [3.3 Directive](#precompile.directive)
@@ -466,7 +465,7 @@
     - [R10.5.9 sizeof不可作用于void](#ID_sizeof_void)
   - [10.6 Assertion](#expression.assertion)
     - [R10.6.1 断言中的表达式不应恒为真](#ID_badAssertion)
-    - [R10.6.2 断言中的表达式不应存在副作用](#ID_sideEffectAssertion)
+    - [R10.6.2 断言中的表达式不应有副作用](#ID_sideEffectAssertion)
     - [R10.6.3 断言中的表达式不应过于复杂](#ID_complexAssertion)
   - [10.7 Complexity](#expression.complexity)
     - [R10.7.1 表达式的运算符不应超过规定数量](#ID_complexExpression)
@@ -501,7 +500,7 @@
   - [R12.4 类型转换时不应去掉const、volatile等属性](#ID_qualifierCastedAway)
   - [R12.5 不应强制转换无继承关系的类型](#ID_castNoInheritance)
   - [R12.6 不应强制转换非公有继承关系的类型](#ID_castNonPublicInheritance)
-  - [R12.7 多态类型与基础类型不应相互转换](#ID_castViolatePolymorphism)
+  - [R12.7 多态类型与基本类型不应相互转换](#ID_castViolatePolymorphism)
   - [R12.8 不可直接转换不同的字符串类型](#ID_charWCharCast)
   - [R12.9 避免类型转换造成的指针运算错误](#ID_arrayPointerCast)
   - [R12.10 对函数以及函数指针不应进行类型转换](#ID_functionPointerCast)
@@ -518,7 +517,7 @@
   - [R13.2 数组下标不可越界](#ID_arrayIndexOverflow)
   - [R13.3 为缓冲区分配足够的空间](#ID_insufficientBuffer)
   - [R13.4 memset等函数不应作用于带有虚函数的对象](#ID_nonPODFilling)
-  - [R13.5 memset等函数填充长度相关的参数不应有误](#ID_badLength)
+  - [R13.5 memset等函数长度相关的参数不应有误](#ID_badLength)
   - [R13.6 memset等函数填充值相关的参数不应有误](#ID_valueOverflow)
 <br/>
 
@@ -684,8 +683,8 @@ ID_unsafeCleanup&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 示例：
 ```
 void foo() {
-    char user[32] = {0};
-    char password[32] = {0};
+    char user[32] = {};
+    char password[32] = {};
     if (get_input(user, password, 32)) {
         login(user, password);
     }
@@ -996,26 +995,33 @@ ID_improperNullTermination&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warnin
 
 <hr/>
 
-语言要求基本字符串以'\\0'结尾（宽字符串以L'\\0'结尾），程序应保证有足够的空间安置'\\0'（或L'\\0'）结尾。  
+语言要求字符串以空字符结尾，程序应保证有足够的内存空间安置空字符，否则会破坏程序基本的执行机制，造成严重问题。  
+  
+空字符指'\\0'、L'\\0'、u'\\0'、U'\\0'，分别对应char\*、wchar\_t\*、char16\_t\*、char32\_t\*等字符串类型。  
   
 示例：
 ```
 void foo(const char* p) {
     char a[4];
-    strncpy(a, p, sizeof(a));  // Non-compliant
-    ....
+    strncpy(a, p, sizeof(a));
+    printf("%s\n", strupr(a));  // To upper case and print, dangerous
 }
 ```
-strncpy等函数不会在缓冲区的结尾安置'\\0'，一旦p的长度超过a，就会导致内存访问错误。  
+设例示代码将字符串复制到数组中，然后转为大写并打印，strncpy函数不会在数组的结尾安置空字符'\\0'，一旦p所指字符串的长度超过3，就会导致内存访问错误。  
   
 应改为：
 ```
-void foo(const char* p) {
-    char a[4] = {0};
-    strncpy(a, p, sizeof(a) - 1);  // Compliant
-    ....
+void foo1(const char* p) {
+    char a[4] = "";                 // Initialize all to '\0'
+    strncpy(a, p, sizeof(a));
+    if (a[3] == '\0') {             // Right
+        printf("%s\n", strupr(a));  // OK
+    } else {
+        ....                        // String length exceptions
+    }
 }
 ```
+将所有数组元素初始化为'\\0'，调用strncpy函数后如果数组最后一个元素是'\\0'，说明输入字符串的长度符合要求，否则可做出相应的异常处理。
 <br/>
 <br/>
 
@@ -1594,7 +1600,7 @@ ID_illAccess&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
 ```
 void foo(const char* path) {
     FILE* p = NULL;
-    char buf[100] = {0};
+    char buf[100] = {};
     if (path != NULL) {
         p = fopen(path, "rb");
     }
@@ -1668,7 +1674,7 @@ ID_doubleFree&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
 示例：
 ```
 void foo(const char* path) {
-    char buf[100] = {0};
+    char buf[100] = {};
     FILE* p = fopen(path, "r");
     if (condition) {
         fread(buf, 1, 100, p);
@@ -2474,6 +2480,8 @@ __STDC__、__STDC_MB_MIGHT_NEQ_WC__、__STDC_VERSION__
 __STDC_ISO_10646__、__STDCPP_STRICT_POINTER_SAFETY__、
 __STDCPP_THREADS__
 ```
+除此之外，平台、环境、框架相关的宏也不应在代码中重新定义。  
+  
 示例：
 ```
 #define __GNUC__ 1  // Non-compliant
@@ -2483,7 +2491,7 @@ __STDCPP_THREADS__
 ```
 #define NDEBUG 0  // Non-compliant
 ```
-只应由项目的编译设置决定  
+只应由项目的编译设置决定，不可在代码中写死  
 
 ```
 #define assert(x) ((void)x)  // Non-compliant
@@ -2547,6 +2555,8 @@ __STDC__、__STDC_MB_MIGHT_NEQ_WC__、__STDC_VERSION__
 __STDC_ISO_10646__、__STDCPP_STRICT_POINTER_SAFETY__、
 __STDCPP_THREADS__
 ```
+除此之外，平台、环境、框架相关的宏也不可被取消定义。  
+  
 示例：
 ```
 #undef __LINE__     // Non-compliant
@@ -2750,13 +2760,13 @@ CWE-628
 <br/>
 <br/>
 
-### <span id="ID_macro_sideEffectArgs">▌R3.2.9 宏参数不应存在副作用</span>
+### <span id="ID_macro_sideEffectArgs">▌R3.2.9 宏参数不应有副作用</span>
 
 ID_macro_sideEffectArgs&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 <hr/>
 
-如果宏的参数存在副作用，而且在宏的定义中没有引用到该参数，或者多次引用到该参数，会引发非预期的错误。  
+如果宏的参数有副作用，如果在宏定义中没有或多次引用到该参数，会引发非预期的错误。  
   
 示例：
 ```
@@ -2892,7 +2902,7 @@ C++ Core Guidelines ES.30
 <br/>
 <br/>
 
-### <span id="ID_macro_function">▌R3.2.14 可由函数实现的功能不应使用宏完成</span>
+### <span id="ID_macro_function">▌R3.2.14 可由函数实现的功能不应使用宏实现</span>
 
 ID_macro_function&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
@@ -3023,24 +3033,28 @@ ID_missingHeaderGuard&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 // Header file foo.h
 #ifndef LIBRARY_FOO_H
 #define LIBRARY_FOO_H
-// ... Declarations ...
-#endif // LIBRARY_FOO_H
+....
+#endif
 ```
-建议守卫名称遵循“模块名\_文件名”的形式，头文件守卫名称不应有重复。  
+例中foo.h是“Library”模块中的头文件，宏LIBRARY\_FOO\_H即可作为它的守卫，保证头文件被重复引入也不会出现问题，守卫名称不可有重复，建议守卫名称遵循“模块名\_文件名”的形式。  
   
-对于\#pragma once本规则也认可，但这并不是C/C\+\+的标准方式，只是大多数编译器均有支持。  
-这种方式由编译器维护一个文件列表，如果发现文件中有\#pragma once指令就将文件路径加入列表，当这个文件再次被include时便不会加载，而宏守卫的方式仍然要对文件进行预编译，所以\#pragma once方式在编译效率上会更高一些。  
+\#pragma once指令也可作为头文件守卫，但并不是C/C\+\+的标准方式，只是多数编译器均有支持。这种方式由编译器维护一个列表，引入头文件时，如果发现文件中有\#pragma once指令就将文件路径加入列表，当这个文件再次被include时便不会加载，而宏守卫的方式仍然要对文件进行预编译，所以\#pragma once方式在编译效率上会更高一些。  
   
-宏守卫用宏名区分头文件，所以不能有重复。宏的引入可以使头文件相关的设定更加灵活，比如声明头文件之间的依赖或排斥关系，设bar.h依赖foo.h，在\#include "bar.h"之前必须\#include "foo.h"，可在bar.h中设置：  
-
+宏守卫用宏名区分头文件，所以不能有重复。宏的引入可以使相关设定更灵活，比如声明头文件之间的依赖或排斥关系，如果bar.h依赖foo.h，在\#include "bar.h"之前必须\#include "foo.h"，可在bar.h中设置：
 ```
-// Header file bar.h:
+// Header file bar.h
 #ifndef LIBRARY_FOO_H
 #error foo.h should be included first
 #endif
 ```
-本规则建议使用宏守卫的方式。
+这样如果不满足条件无法通过编译。  
+  
+本规则建议使用宏守卫的方式，但\#pragma once方法也是惯用写法，不妨通过配置项决定其是否合规。
 <br/>
+<br/>
+
+#### 配置
+ID_missingHeaderGuard/allowPragmaOnce：为true时#pragma once也可作为符合要求的头文件守卫  
 <br/>
 
 #### 参考
@@ -5522,11 +5536,13 @@ ID_hideMember&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 ```
 class A {
     int i = 0;          // Member object ‘i’
+
 public:
     int foo() {
         int i = 0;      // Non-compliant, hides the member ‘i’
         return bar(i);
     }
+
     int bar(int i) {    // Non-compliant, hides the member ‘i’
         return i + i;   // Which ‘i’ is used?
     }
@@ -5536,11 +5552,13 @@ public:
 ```
 class A {
     int _i = 0;         // Member object ‘_i’
+
 public:
     int foo() {
         int i = 0;      // OK
         return bar(i);
     }
+
     int bar(int i) {    // OK
         return _i + i;
     }
@@ -5572,8 +5590,10 @@ public:
     A() {
         A(0);  // Non-compliant, just created an inaccessible temporary object
     }
+
     A(int x): a(x)
     {}
+
 private:
     int a;
 };
@@ -5776,7 +5796,7 @@ ID_invalidParamArraySize&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 int foo(int a[100]);  // Non-compliant
 
 int bar() {
-    int a[50] = {0};
+    int a[50] = {};
     return foo(a);    // It can be compiled
 }
 ```
@@ -5936,7 +5956,7 @@ class A {
 };
 
 class B: public A {
-    int foo();  // Non-compliant
+    int foo();          // Non-compliant
     virtual int bar();  // Non-compliant
 };
 ```
@@ -6117,11 +6137,13 @@ ID_nonStdAssignmentRetType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warni
 ```
 class A {
     int i = 0;
+
 public:
     A& operator = (int x) {  // Compliant
         i = x;
         return *this;
     }
+
     A& operator = (const A& rhs) {  // Compliant
         i = rhs.i;
         return *this;
@@ -6130,6 +6152,7 @@ public:
 
 class B {
     int i = 0;
+
 public:
     void operator = (int x) { i = x; }  // Non-compliant, should return B&
     void operator = (const B& rhs) { i = rhs.i; }  // Non-compliant
@@ -6785,7 +6808,7 @@ void foo() {
     ....
 }
 ```
-这种栈空间分配是无法控制失败情况的，应改为在堆上分配，或优化算法减小空间成本。
+局部数组在栈上分配空间，是无法控制失败情况的，应改在堆上分配，或优化算法减小空间成本。
 <br/>
 <br/>
 
@@ -7059,7 +7082,7 @@ ID_forbidFunctionVoidPtr&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration war
 
 与接口相关的数据类型应保持精确，不应将参数或返回值声明为void\*。  
   
-如果参数或返回值需要面对多种不同类型的数据，应使用模版机制。  
+在C\+\+语言中，如果参数或返回值需要面对多种不同类型的数据，应合理使用重载或模版机制。  
   
 示例：
 ```
@@ -7069,8 +7092,22 @@ public:
     void bar(void*);  // Non-compliant
 };
 ```
+例中foo和bar函数的返回值以及参数是不符合要求的。  
+  
+C语言中存在大量的库函数不符合本规则要求，在C\+\+语言中应避免使用，如：
+```
+int buf[123];
+memset(buf, 0, 123);  // Logic error, should be ‘123 * sizeof(int)’
+```
+例中memset函数的第一个形式参数就是void\*型，只能通过更底层的二进制方式访问对象序列，是一种对类型设计的破坏，应改用STL标准库提供的方法：
+```
+int buf[123];
+std::fill_n(buf, 123, 0);  // Safe and brief
+```
+改用类型明确的方法可以使很多问题在编译期得到控制。  
+  
 例外：  
-语言规定new运算符的返回类型为void\*，delete运算符的参数类型为void\*，这些情况可被排除。
+C\+\+语言规定new运算符的返回类型为void\*，delete运算符的参数类型为void\*，这些情况可被排除。
 <br/>
 <br/>
 
@@ -7091,7 +7128,7 @@ ID_forbidMemberVoidPtr&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration warni
 
 与接口相关的数据类型应保持精确，不应将类成员声明为void\*，尤其是非private成员，更不应声明为void\*。  
   
-如果成员需要面对多种不同类型的数据，应使用模版机制。  
+在C\+\+语言中，如果成员需要面对多种不同类型的数据，应合理使用模版机制。  
   
 示例：
 ```
@@ -7688,12 +7725,12 @@ int bar() noexcept;          // Compliant
 ```
 int bar() throw();           // Let it go?
 ```
-空的异常规格说明与noexcept等价，是一种惯用写法，可根据配置项放宽要求，本规则不建议使用throw关键字。
+空的throw异常规格说明与noexcept等价，是一种惯用写法，可根据配置项放宽要求，本规则不建议使用throw关键字。
 <br/>
 <br/>
 
 #### 配置
-ID_declaration/forbidEmptyThrowSpecification：为true时报出空异常规格说明，否则放过  
+ID_declaration/forbidEmptyThrowSpecification：为true时报出空throw异常规格说明，否则放过  
 <br/>
 
 #### 依据
@@ -8307,7 +8344,7 @@ ID_disorderedInitialization&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
 <hr/>
 
-根据C\+\+标准，类的成员初始化顺序是按其声明的顺序进行的，如果用后面的成员初始化前面的成员，就会造成错误。  
+类成员的初始化顺序是按声明的顺序进行的，如果用后面的成员初始化前面的成员，就会造成错误。  
   
 示例：
 ```
@@ -8522,13 +8559,13 @@ ID_unreachableCode&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 得不到执行机会的代码往往意味着逻辑错误，或者是遗迹代码。  
   
 其成因主要有：  
-1. 代码之前的所有分枝都提前结束了函数的执行  
-2. 代码之前的必经分枝中存在永远也不会结束的代码  
-3. 代码所在分枝的条件恒为假  
-4. 代码所在分枝被其它分枝遮盖  
+1. 之前的所有分枝都提前结束了函数的执行  
+2. 之前的必经分枝中存在永远也不会结束的代码  
+3. 所在分枝的条件恒为假  
+4. 所在分枝被其它分枝遮盖  
   
-第3点特化为ID\_constLogicExpression和ID\_invalidCondition。  
-第4点特化为ID\_if\_identicalCondition和ID\_if\_hiddenCondition。  
+第3点特化为：ID\_constLogicExpression、ID\_invalidCondition  
+第4点特化为：ID\_if\_identicalCondition、ID\_if\_hiddenCondition  
   
 示例：
 ```
@@ -8690,12 +8727,12 @@ ID_returnOdd&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-返回值与函数返回类型不符的情况：  
- ● 返回值应为bool型，却返回了非true或false、非0或1的常量  
- ● 返回值应为指针，却返回了非0、非NULL、非nullptr等常量  
- ● 返回值应为整数，却返回了NULL、true、false等常量  
+返回值与返回类型不符的情况：  
+ ● 返回类型为bool型，却返回了非true非false、非0非1的常量  
+ ● 返回类型为指针，却返回了非0、非NULL、非nullptr等常量  
+ ● 返回类型为整数，却返回了NULL、true、false等常量  
   
-这些情况可能是代码在维护过程中产生的不一致问题，也可能意味着逻辑错误，而且容易误导代码的阅读者，所以需谨慎对待。  
+这些问题可能是在维护过程中产生的，也可能意味着逻辑错误，而且很容易造成误导，需谨慎对待。  
   
 示例：
 ```
@@ -8844,7 +8881,7 @@ ID_tooManyLabels&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-函数的标签过多意味着函数内部的跳转逻辑过于复杂，违反结构化设计理念，应适当重构。  
+标签过多意味着函数内部的跳转逻辑过于复杂，违反结构化设计理念，应适当重构。  
   
 对于C代码，建议一个函数最多只有一个标签，作为函数统一的出口，或资源回收过程的入口。  
 对于C\+\+代码，不建议使用标签。  
@@ -9281,7 +9318,7 @@ ID_if_identicalBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: control error
 
 <hr/>
 
-如果if分枝和else分枝的代码完全相同会使条件判断失去意义，往往是由复制粘贴造成的错误。  
+if分枝和else分枝完全相同会使条件判断失去意义，往往是由复制粘贴造成的错误。  
   
 示例：
 ```
@@ -9358,7 +9395,7 @@ ID_if_identicalImplicitElseBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control war
 
 <hr/>
 
-带有return、throw或break等子句的if语句，其同一作用域的后续代码相当于它的else分枝内容，本规则称其为“隐含的else分枝”，显然隐含的else分枝与if分枝完全相同也是没有意义的，很可能是由复制粘贴造成的错误。  
+带有return、throw或break等子句的if语句，其同一作用域的后续代码相当于它的else分枝，显然这种隐含的else分枝与if分枝完全相同是没有意义的，很可能是由复制粘贴造成的错误。  
   
 示例：
 ```
@@ -13141,14 +13178,15 @@ ID_assertion/names：断言函数或宏的名称，如assert、_ASSERT_EXPR等�
 <br/>
 <br/>
 
-### <span id="ID_sideEffectAssertion">▌R10.6.2 断言中的表达式不应存在副作用</span>
+### <span id="ID_sideEffectAssertion">▌R10.6.2 断言中的表达式不应有副作用</span>
 
 ID_sideEffectAssertion&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
 <hr/>
 
-断言中的表达式如果存在副作用，不能保证在所有的编译设置下都有效，造成逻辑错误。  
-如标准断言assert就会受宏NDEBUG的影响，当宏NDEBUG有定义时assert中的表达式不会被执行。  
+断言中的表达式如果有副作用，不能保证在所有编译设置下都有效。  
+  
+如标准断言assert会受宏NDEBUG的影响，当宏NDEBUG有定义时assert中的表达式不会被执行。  
   
 示例：
 ```
@@ -13249,7 +13287,7 @@ new表达式只应作为“=”的直接右子表达式，或直接作为参数�
   
 示例：
 ```
-int i = *new int(123);         // Non-compliant
+int& i = *new int(123);        // Non-compliant
 
 if (new int[123]) {            // Non-compliant
   ....
@@ -14025,7 +14063,7 @@ ID_castNoInheritance&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
 <hr/>
 
-无继承关系的类型之间没有逻辑关系，不应进行强制类型转换，否则意味着设计缺陷或逻辑错误。  
+无继承关系的类型之间没有逻辑关系，不应强制转换，否则意味着设计缺陷或逻辑错误。  
   
 示例：
 ```
@@ -14112,29 +14150,37 @@ void foo(B* b) {
 <br/>
 <br/>
 
-### <span id="ID_castViolatePolymorphism">▌R12.7 多态类型与基础类型不应相互转换</span>
+### <span id="ID_castViolatePolymorphism">▌R12.7 多态类型与基本类型不应相互转换</span>
 
 ID_castViolatePolymorphism&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
 <hr/>
 
-多态类型会维护用户不可见的数据以保证多态机制的执行，将其与基础类型转换会破坏这种机制。  
+多态类型会维护虚表指针等用户不可见的数据以保证多态机制的执行，将其与基本类型转换会破坏这种机制。  
   
 示例：
 ```
-class A {
-    ....
-public:
-    virtual ~A();
+struct A {
+    virtual ~A() = 0;
+
     void save() const {
-        write_file((void*)this, sizeof(*this), "filename");  // Non-compliant
+        FILE* fp = fopen("dat", "wb");
+        fwrite(this, sizeof(A), 1, fp);   // Non-compliant
+        fclose(fp);
     }
+
     void load() {
-        read_file((void*)this, sizeof(*this), "filename");   // Non-compliant
+        FILE* fp = fopen("dat", "rb");
+        fread(this, sizeof(A), 1, fp);    // Non-compliant
+        fclose(fp);
     }
+
+    ....
 };
 ```
-例中save函数将A对象写入文件，load函数从文件中读取A对象，但忽略了虚函数表等问题，从文件中读取的A对象其虚函数的执行将是混乱的。
+例中A是多态类型，save函数将对象写入文件，fwrite的第一个参数this被隐式转为void\*，不符合本规则要求。对象的虚表指针等数据一并被写入文件，但虚表指针是运行时数据不应被保存，load函数从文件中读取对象便破坏了运行时数据。  
+  
+注意，正常的代码不应显式访问虚表指针等运行时数据，否则是不可移植的，标准只定义了多态类的行为，并未规定具体实现方式。
 <br/>
 <br/>
 
@@ -14452,7 +14498,7 @@ void foo() {
     ....
 }
 ```
-例中external\_interface是项目外部的一个接口，它的实现方式完全不受控制，返回类型也不是有效类型，这种情况甚至需要某种“hacking”才能使用这个接口，已经不属于正常的开发范围了，可以用reinterpret\_cast强调这是一种非正常的转换，但需注明这种情况产生的原因，以及是否有改进的余地等信息。
+例中external\_interface是项目外部的一个接口，它的实现方式完全不受控制，返回类型也不是有效类型，甚至需要某种“hacking”才能使用这个接口，这已经不属于正常的开发范围了，可以用reinterpret\_cast强调这是一种非正常的转换，但需注明这种情况产生的原因，以及是否有改进的余地等信息。
 <br/>
 <br/>
 
@@ -14522,7 +14568,7 @@ ID_arrayIndexOverflow&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: buffer error
 示例：
 ```
 int foo() {
-    int a[10] = {0};
+    int a[10] = {};
     ....
     return a[10];  // Non-compliant, overflow
 }
@@ -14577,17 +14623,31 @@ ID_insufficientBuffer&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: buffer warning
   
 示例：
 ```
-void foo(size_t n) {
-  int* p = (int*)malloc(n);  // Rather suspicious, may be ‘n * sizeof(int)’?
+void foo() {
+  int* p = (int*)malloc(123);  // Non-compliant
   ....
 }
 ```
-需要注意数组的逻辑大小和实际字节大小的区别，不应漏掉sizeof因子。  
+例中foo函数为int型数组分配了123个字节的空间，而123不能被sizeof(int)整除，最后一个元素会越界。  
+  
+应改为：
+```
+void foo() {
+  int* p = (int*)malloc(123 * sizeof(int));  // Compliant
+  ....
+}
+```
+需要注意数组的逻辑大小和字节大小的区别，不应漏掉sizeof因子。  
   
 又如：
 ```
 void bar(const char* s) {
-  char* p = (char*)malloc(strlen(s));  // Rather suspicious, may be ‘strlen(s) + 1’?
+  char* p = (char*)malloc(strlen(s));  // May be ‘strlen(s) + 1’?
+  ....
+}
+
+void baz(const wchar_t* s) {
+  wchar_t* p = (wchar_t*)malloc(wcslen(s));  // May be ‘(wcslen(s) + 1) * sizeof(*s)’?
   ....
 }
 ```
@@ -14640,49 +14700,73 @@ C++ Core Guidelines C.90
 <br/>
 <br/>
 
-### <span id="ID_badLength">▌R13.5 memset等函数填充长度相关的参数不应有误</span>
+### <span id="ID_badLength">▌R13.5 memset等函数长度相关的参数不应有误</span>
 
 ID_badLength&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: buffer error
 
 <hr/>
 
-memset、memcpy、memmove等具有填充功能的函数，表示填充区域长度的参数不应存在常见笔误。  
+对于memset、memcpy、memmove、memcmp及同类函数，表示长度的参数不应存在常见笔误。  
   
 示例：
 ```
 char buf[1024];
-memset(buf, 1024, 0);        // Non-compliant
+memset(buf, 1024, 0);  // Non-compliant
 ```
-长度和填充值参数被写反是常见的笔误，应改为：
+应改为：
 ```
-memset(buf, 0, 1024);        // Compliant
+memset(buf, 0, 1024);  // Compliant
 ```
+长度和填充值参数被写反是常见的笔误。  
+  
 又如：
+```
+int arr[1024];
+memset(buf, 0, 1024);  // Rather suspicious
+memset(buf, 1, 123);   // Non-compliant
+```
+memset等函数的长度单位为字节，不应与对象序列的逻辑长度有冲突，应改为：
+```
+memset(buf, 0, 1024 * sizeof(int));  // Compliant
+memset(buf, 1, 123 * sizeof(int));   // Compliant
+```
+要注意不应遗漏sizeof因子。  
+  
+又如，设p为对象的指针：
+```
+memset(p, 0, sizeof(p));   // Non-compliant
+```
+应改为：
+```
+memset(p, 0, sizeof(*p));  // Compliant
+```
+sizeof作用于指针并不能获取到对象的大小，可参见ID\_sizeof\_pointer的进一步讨论。  
+  
+又如，设a、b是对象：
 ```
 memset(&a, 0, sizeof(&a));   // Non-compliant
 memcpy(&a, &b, sizeof(&a));  // Non-compliant
 ```
-这也是常见的复制粘贴错误，应改为：
+应改为：
 ```
 memset(&a, 0, sizeof(a));    // Compliant
 memcpy(&a, &b, sizeof(a));   // Compliant
 ```
+这是常见的复制粘贴错误。  
+  
 又如：
 ```
-SecureZeroMemory(this, sizeof(this));   // Non-compliant
+if (memcmp(&a, &b, sizeof(a) != 0)) {  // Non-compliant
+    ....
+}
 ```
-应改为：
+长度参数不应为比较表达式，应改为：
 ```
-SecureZeroMemory(this, sizeof(*this));  // Compliant
+if (memcmp(&a, &b, sizeof(a)) != 0) {  // Compliant
+    ....
+}
 ```
-又如：
-```
-if (memset(&a, 0, sizeof(a) != 0))      // Non-compliant
-```
-长度参数不应为比较表达式，这也是常见的笔误，应改为：
-```
-if (memset(&a, 0, sizeof(a)) != 0)      // Compliant
-```
+括号的错误嵌套也是常见的笔误。
 <br/>
 <br/>
 
@@ -14698,14 +14782,20 @@ ID_valueOverflow&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: buffer error
 
 <hr/>
 
-对于memset等函数，填充值相关的参数不应超过一个字节的存储范围，否则没有意义。  
+memset、memset\_s等函数的填充值参数会被转为unsigned char型，所以其值不应超出一个字节的范围。  
   
 示例：
 ```
+char buf[32];
 memset(buf, 1024, 32);  // Non-compliant
 ```
-例中填充值为1024，超出了一个字节的范围，很可能是参数被写反了，这种问题也属于常见笔误。
+例中填充值为1024，超出了一个字节的范围，在实际代码中也可能是长度参数与填充值参数被写反了。
 <br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 7.24.6.1(2)  
+ISO/IEC 9899:2011 K.3.7.4.1(4)  
 <br/>
 
 #### 参考
@@ -15114,7 +15204,7 @@ ID_invalidNullCheck&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 
 <hr/>
 
-当指针的值一定不为空时，再对其进行检查是无效的，往往意味着逻辑错误。  
+当指针的值一定不为空时，再对其进行检查是没有意义的，往往意味着逻辑错误。  
   
 示例：
 ```
@@ -15126,7 +15216,9 @@ void bar() {
     }
 }
 ```
-标准规定默认new运算符的返回值不会为空，所以这种检查和相关错误处理是无效的，应改为：
+标准规定默认new运算符的返回值不会为空，如果分配失败则抛出异常，所以这种检查和相关错误处理是无效的。  
+  
+应改为：
 ```
 void bar() {
     if (int* p = new(std::nothrow) int[100]) {  // Compliant
@@ -15136,6 +15228,15 @@ void bar() {
     }
 }
 ```
+又如：
+```
+void foo(T* p) {
+    if (p) {  // Meaningless
+        delete p;
+    }
+}
+```
+对于可接受空指针的接口，不必总在调用前判断指针是否为空，否则会使代码变得繁琐。delete关键字或free函数可以作用于空指针，不会产生不良后果，所以调用之前的检查是没有意义的。
 <br/>
 <br/>
 
@@ -15313,7 +15414,7 @@ ID_missingResetNull&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: pointer suggestion
 
 <hr/>
 
-指针指向的动态内存空间被回收后指针不再有效，这时应将指针置为空指针，可避免重复释放造成的问题，如果后续对指针仍有错误的读写，也可使问题立即显现出来，不至于造成难以排查的问题。  
+指针指向的动态内存空间被回收后指针不再有效，这时应将指针设为空指针，可避免重复释放造成的问题，如果后续对指针仍有错误的读写，也可使问题立即显现出来，不至于造成难以排查的问题。  
   
 尤其是在析构函数中，建议所有需要释放的成员指针在释放后都置为空指针。  
   
