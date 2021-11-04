@@ -7252,11 +7252,13 @@ ID_forbidVariadicFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration wa
 ```
 string format(const char* fmt, ...);  // Non-compliant
 ```
-例中format函数与sprintf函数功能相似，由参数fmt设定输出格式，将其他参数转为字符串后依次替换fmt中的$字符，然后返回结果字符串，如调用format("$: $", "value", 123)则返回字符串“value: 123”。  
+假设例中format函数与sprintf函数功能相似，由参数fmt设定输出格式，将其他参数转为字符串后依次替换fmt中的$字符，然后返回结果字符串，如调用format("$: $", "value", 123)则返回字符串“value: 123”。  
   
-如用C语言的可变参数列表实现，则只能以fmt为依据获取后续参数，当实际参数的个数或类型与fmt指定的不符时就会造成严重问题。  
+如用C语言的可变参数列表实现，则只能在运行时以fmt为依据获取后续参数，当实际参数的个数或类型与fmt指定的不符时会造成严重问题。  
   
-在C\+\+代码中应采用模版参数包来完成这种功能，下面给出一种简单实现： 
+在C\+\+代码中可采用模版参数包来完成这种功能，在编译期即可确保参数的类型和个数与要求的一致。  
+  
+下面给出一种简单实现： 
 ```
 template <class T, class ...Args>
 void get_argstrs(vector<string>& vs, const T& arg, const Args& ...rest) {
@@ -12845,16 +12847,14 @@ public:
 
 void fun() {
     A a;
-    a.~A();  // Explicit destructor call
+    a.~A();  // Explicit call of destructor
              // ~A() twice called, crash...
-} 
+}
 ```
-例中对象a的析构函数被显式调用，之后a的生命周期结束，被自动销毁，而其成员p在析构函数显式调用时已被释放，这就造成重复释放，导致异常。  
+例中对象a的析构函数被显式调用，之后a的生命周期结束会再次调用析构函数，造成内存的重复释放。  
   
 修正方法：  
-去掉显示调用，或保证相关资源不会被重复释放，如在delete\[\] p之后，将p设为nullptr。  
-  
-对于代码不可控的第三方库，系统库或标准库中类的对象，不要显示调用其析构函数。而在自己项目中，建议在释放指针后，将指针设为nullptr，防止重复释放。
+去掉显示调用，或保证相关资源不会被重复释放，如在delete\[\] p之后，将p设为nullptr。
 <br/>
 <br/>
 
@@ -12869,7 +12869,7 @@ ID_forbidCStringFormat&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: expression sugges
 
 <hr/>
 
-由可变参数列表实现的字符串格式化方法在编译期无法限定各参数的类型，单方面要求使用者小心谨慎是不可靠的，极易产生各种错误。  
+由可变参数列表实现的字符串格式化函数是不安全的，在编译期无法限定参数的类型和数量，极易产生各种错误。  
   
 示例：
 ```
@@ -12882,19 +12882,17 @@ printf("%x %d", a, b);      // Non-compliant
 printf("%lx %ld", a, b);    // Non-compliant
 printf("%llx %lld", a, b);  // Non-compliant
 ```
-size\_t、ptrdiff\_t等类型是由实现定义的，标准没有规定其是否一定对应unsigned int、long或long long类型，而%d、%lx、%llx只对应int、long、long long类型，所以示例代码都是不合理的。
+size\_t、ptrdiff\_t等类型是由实现定义的，标准没有规定其是否一定对应unsigned int、long或long long类型，而%d、%lx、%llx只对应int、long、long long类型，所以示例代码都是不合理的。  
+  
+在C语言中正确的作法是a对应%zx，b对应%zd，如：
 ```
 printf("%zx %zd", a, b);    // Non-compliant in C++, even if the result is correct
 ```
-在C语言中正确的作法是a对应%zx，b对应%zd。  
-  
-参数的类型与个数和占位符必须严格对应，否则就会导致标准未定义的错误，当参数较多时极易出错。C\+\+语言提供了更好的方法以规避这种问题，所以C\+\+代码中不应再使用C风格的字符串格式化方法。
+参数的类型与个数和占位符必须严格对应，否则就会导致标准未定义的错误，当参数较多时极易出错，C\+\+语言提供了更好的方法以规避这种问题，所以C\+\+代码中不应再使用C风格的字符串格式化方法。
 ```
 std::cout << std::hex << a << ' ' << std::dec << b;  // Compliant
 ```
-利用C\+\+标准输入输出流可以有效规避这种问题，然而当参数较多时在形态上可能较为“松散”，其可读性可能不如printf等函数，可利用模版参数包的方法实现printf函数的形式和功能，并保证编译期的类型检查，可参见在ID\_forbidVariadicFunction中给出的简单示例，C\+\+20的std::format也提供了更多的格式化方法。  
-  
-另外，sprintf、scanf等函数也属于公认的不安全函数，在C\+\+代码中更不应使用。
+利用C\+\+标准输入输出流可以有效规避这种问题，然而当参数较多时在形态上可能较为“松散”，其可读性可能不如printf等函数，可利用模版参数包的方法实现printf函数的形式和功能，并保证编译期的类型检查，可参见在ID\_forbidVariadicFunction中给出的简单示例，C\+\+20的std::format也提供了更多的格式化方法。
 <br/>
 <br/>
 

@@ -2753,7 +2753,7 @@
     "ID_forbidCStringFormat": {
         "checkPoint": "C++代码中应禁用C风格字符串格式化方法",
         "level": "suggestion",
-        "comment": "由可变参数列表实现的字符串格式化方法在编译期无法限定各参数的类型，单方面要求使用者小心谨慎是不可靠的，极易产生各种错误。",
+        "comment": "由可变参数列表实现的字符串格式化函数是不安全的，在编译期无法限定参数的类型和数量，极易产生各种错误。",
         "tag": "expression",
         "related": "ID_forbidVariadicFunction",
         "standard": "ISO/IEC 14882:2011 7.16.1.1(2)-undefined",
