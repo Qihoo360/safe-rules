@@ -14,8 +14,8 @@
 
 &emsp;&emsp;目前主要面向C和C++语言，适用于桌面、服务端及嵌入式软件系统：
 
-&emsp;&emsp;[c-cpp-rules.md](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md)：C/C++语言相关规则的详细说明文档  
-&emsp;&emsp;[c-cpp-rules.json](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.json)：C/C++语言相关规则的结构化json文档  
+&emsp;&emsp;[c-cpp-rules.md](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md)：C/C++相关规则的详细说明文档  
+&emsp;&emsp;[c-cpp-rules.json](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.json)：C/C++相关规则的结构化json文档  
 
 &emsp;&emsp;紧随语言标准，融汇C++ Core Guidelines、SEI CERT、MISRA等权威规范体系，并持有独特的观点，为软件开发及测试等相关团队提供准确而全面的指引是本项目的宗旨。欢迎指正错误并提供扩展意见，由于本项目相关文档是自动生成的，请不要直接编辑各文档，可在Issue区发表高见，管理员修正数据库后会在致谢列表中存档。  
 
