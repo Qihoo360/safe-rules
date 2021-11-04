@@ -2,6 +2,8 @@
 
 # C/C++安全规则集合 ![Version](https://img.shields.io/badge/version-1.0.0--alpha-brightgreen)
 
+> Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
+
 &emsp;&emsp;针对C、C++语言，本文收录了409种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
@@ -394,8 +396,8 @@
     - [R9.6.3 catch块序列中针对派生类的应排在前面，针对基类的应排在后面](#ID_try_disorderedHandlers)
     - [R9.6.4 try块不应嵌套](#ID_try_forbidNest)
   - [9.7 Catch](#control.catch)
-    - [R9.7.1 应通过对象的引用捕获异常](#ID_catch_value)
-    - [R9.7.2 捕获多态类异常时不应产生切片问题](#ID_catch_slicing)
+    - [R9.7.1 应通过引用捕获异常](#ID_catch_value)
+    - [R9.7.2 捕获异常时不应产生对象切片问题](#ID_catch_slicing)
     - [R9.7.3 不应存在空的catch块](#ID_catch_emptyBlock)
     - [R9.7.4 捕获异常后不应直接重新抛出异常，需对异常进行有效处理](#ID_catch_justRethrow)
     - [R9.7.5 不应捕获过于宽泛的异常](#ID_catch_generic)
@@ -448,7 +450,7 @@
     - [R10.4.2 C风格的格式化字符串与其参数的类型应严格一致](#ID_inconsistentFormatArgType)
     - [R10.4.3 非基本类型的对象不应传入可变参数列表](#ID_userObjectAsVariadicArgument)
     - [R10.4.4 函数返回值不应被忽略](#ID_returnValueIgnored)
-    - [R10.4.5 不应出现对象切片问题](#ID_objectSlicing)
+    - [R10.4.5 避免对象切片](#ID_objectSlicing)
     - [R10.4.6 不应显式调用析构函数](#ID_explicitDtorCall)
     - [R10.4.7 C\+\+代码中应禁用C风格字符串格式化方法](#ID_forbidCStringFormat)
   - [10.5 Sizeof](#expression.sizeof)
@@ -2685,7 +2687,7 @@ if (x > y)
   a ^= b; b ^= a; a ^= b;\
 } while(0)
 ```
-这样在使用宏时必须以分号结尾（否则无法通过编译），使宏在使用风格上与函数相同，更便于阅读。
+这样在使用宏时必须以分号结尾（否则无法通过编译），使宏在使用风格上与函数相同，易于阅读。
 <br/>
 <br/>
 
@@ -7935,11 +7937,11 @@ ID_throwPointer&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: exception suggestion
 
 <hr/>
 
-如果将指针作为异常抛出，并且该指针指向动态创建的对象，则可能不清楚哪个函数负责销毁它，以及何时销毁。  
+如果将指针作为异常抛出，并且该指针指向动态创建的对象，会增加不必要的内存管理开销，也容易造成意料之外的错误。  
   
 示例：
 ```
-class E {};
+class E { .... };
 
 void foo(int i) {
     static E e1;
@@ -7950,7 +7952,7 @@ void foo(int i) {
         throw e2;   // Non-compliant
     }
 }
-
+	
 void bar(int i) {
     try {
         foo(i);
@@ -7959,7 +7961,7 @@ void bar(int i) {
     }
 }
 ```
-在本例中，对于捕获的异常指针不论释放还是不释放都有问题，故应改为抛出对象的方式。
+例中对捕获的异常指针不论释放还是不释放都有问题，改为抛出对象的方式可有效避免这种问题。
 <br/>
 <br/>
 
@@ -8143,9 +8145,7 @@ ID_paramMayBeSlicing&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-多态类的对象作为参数时不应采用值传递的方式，否则易因为对象切片产生意料之外的错误。  
-  
-将派生类对象通过传值的方式转换为基类对象时，只能产生一个基类的对象，是违反多态机制的，所以函数的参数如果为多态类型，应采用指针或引用的方式，否则难免会在调用时产生误解或错误。  
+将派生类对象通过传值的方式转换为基类对象后，不再遵循多态机制，易产生意料之外的错误，应采用指针或引用的方式传递多态类对象。  
   
 示例：
 ```
@@ -11102,13 +11102,13 @@ C++ Core Guidelines E.17
 
 ### <span id="control.catch">9.7 Catch</span>
 
-### <span id="ID_catch_value">▌R9.7.1 应通过对象的引用捕获异常</span>
+### <span id="ID_catch_value">▌R9.7.1 应通过引用捕获异常</span>
 
 ID_catch_value&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
 <hr/>
 
-如果按传值方式捕获异常对象会造成不必要的复制成本，也可能产生对象切片问题。  
+如果按传值的方式捕获异常会造成不必要的复制开销，也可能产生对象切片问题；如果通过指针捕获异常，会增加不必要的内存管理开销，通过引用捕获异常才是合理的方式。  
   
 示例：
 ```
@@ -11118,19 +11118,23 @@ try {
     ....
 }
 ```
+例中Exception是异常类，用传值的方式捕获异常是不符合要求的。  
+  
 应改为：
 ```
 try {
     ....
-} catch (Exception& e) {   // Compliant, const reference is better
+} catch (Exception& e) {   // Compliant
     ....
 }
 ```
+通过指针捕获异常也是不符合要求的，可参见ID\_throwPointer中的示例与讨论。
 <br/>
 <br/>
 
 #### 相关
 ID_catch_slicing  
+ID_throwPointer  
 <br/>
 
 #### 参考
@@ -11140,23 +11144,23 @@ MISRA C++ 2008 15-3-5
 <br/>
 <br/>
 
-### <span id="ID_catch_slicing">▌R9.7.2 捕获多态类异常时不应产生切片问题</span>
+### <span id="ID_catch_slicing">▌R9.7.2 捕获异常时不应产生对象切片问题</span>
 
 ID_catch_slicing&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
 <hr/>
 
-如果catch块的参数是多态类的对象，则会产生对象切片问题，造成对异常的错误处理，故参数应改为对象的引用。  
+如果按传值的方式捕获多态类的异常对象，会使对象的多态性失效，造成错误的异常处理。  
   
-本规则是ID\_catch\_value的特化。  
+本规则是ID\_catch\_value与ID\_objectSlicing的特化。  
   
 示例：
 ```
 class Exception {
 public:
-    explicit Exception(const char* p);
+    Exception();
     virtual ~Exception();
-    virtual const char* what() const;
+    virtual const char* what() const { return nullptr; }
 };
 
 void foo() {
@@ -11168,12 +11172,13 @@ void foo() {
     }
 }
 ```
-例中对Exception对象的捕捉存在切片问题，导致what等函数的执行丧失了多态性，造成对异常的错误处理。
+如果例中Exception类是所有异常类的基类，不论哪个异常被捕获，what函数只能返回nullptr，丧失了多态性，造成了异常的错误处理。
 <br/>
 <br/>
 
 #### 相关
 ID_catch_value  
+ID_objectSlicing  
 <br/>
 
 #### 参考
@@ -12772,33 +12777,40 @@ MISRA C++ 2008 0-1-7
 <br/>
 <br/>
 
-### <span id="ID_objectSlicing">▌R10.4.5 不应出现对象切片问题</span>
+### <span id="ID_objectSlicing">▌R10.4.5 避免对象切片</span>
 
 ID_objectSlicing&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-多态类型的对象不应按值传递的方式作为函数的参数，否则容易因为对象切片问题而产生意料之外的错误。  
-  
-将派生类对象通过传值的方式转换为基类对象时，只能产生一个基类的对象，是违反多态机制的，所以参数应采用指针或引用的方式。  
+将派生类对象复制为基类对象的行为称为“对象切片”，基类对象不再持有派生类的属性，不再遵循多态机制，意味着某种精度上的损失，往往会造成意料之外的错误。  
   
 示例：
 ```
-struct A {
-    virtual int fun();
-};
-
-struct B: A {
-    int fun() override;
-};
+struct A { .... };
+struct B: A { .... };
 
 void foo(A);
 
-void bar() {
-    B b;
-    foo(b);  // Non-compliant
-}
+A a;
+B b;
+
+a = b;   // Slicing
+foo(b);  // Slicing
+vector<A> v{b};  // Slicing
+v.push_back(b);  // Slicing
 ```
+尤其是函数传参或容器收纳对象时发生切片，会引起相当大的困惑，明明传入的是派生类对象，但虚函数都不生效了，所以要求多态性的接口或容器均应使用指针或引用。  
+  
+在少数情况下，对象切片可能也有其逻辑意义，但不建议“隐式切片”，应定义特定名称的函数标明这是一种特殊处理，如：
+```
+A a;
+B b;
+
+a = b;   // Bad, implicit slicing
+a = to_base_object(b);   // OK
+```
+其中to\_base\_object是一个返回基类对象的函数，表示有意为之。
 <br/>
 <br/>
 
@@ -12807,8 +12819,8 @@ ID_paramMayBeSlicing
 <br/>
 
 #### 参考
-C++ Core Guidelines C.145  
 C++ Core Guidelines ES.63  
+C++ Core Guidelines C.145  
 SEI CERT OOP51-CPP  
 <br/>
 <br/>
@@ -13935,7 +13947,7 @@ template <class To, class From>
 To checked_cast(From x) {
     To t = static_cast<To>(x);
     if ((From)t != x) {
-        throw BadCast("...");
+        throw BadCast("....");
     }
     return t;
 }
@@ -13945,7 +13957,7 @@ void foo(int i) {
     ....
 }
 ```
-在实际项目中还需要考虑将负数转为无符号数、浮点数转为整数等问题是否存在逻辑意义。
+在实际代码中还需要考虑将负数转为无符号数、浮点数转为整数等问题是否存在逻辑意义。
 <br/>
 <br/>
 
@@ -13982,7 +13994,7 @@ void foo(A* a) {
     ....
 }
 ```
-例中foo接口对B类型进行特殊处理，不利于代码的维护，当这种特殊处理数量较多时，应利用虚函数、函数重载、模版等方法进行合理重构。
+例中foo接口对B类型进行特殊处理，是不利于维护的，当这种特殊处理较多时，应利用虚函数、重载或模版等方法进行合理重构。
 ```
 class A {
     ....
@@ -14600,7 +14612,9 @@ int foo() {
     return a[10];  // Non-compliant, overflow
 }
 ```
-如果数据被访问的位置可受用户控制，更应该判断是否在有效范围内：
+例中数组声明的大小是10，其下标有效范围是0至9，10不能再作为下标，这也是常见笔误。  
+  
+如果数组下标可受用户控制，更应该判断是否在有效范围内：
 ```
 const char* bar() {
     static const char* fruits[] = {
@@ -14617,7 +14631,7 @@ const char* bar() {
     };
     int i = userInput();
     if (i >= 0 && i < 3) {
-        return fruits[i];  // Compliant
+        return fruits[i];    // Compliant
     }
     return nullptr;
 }

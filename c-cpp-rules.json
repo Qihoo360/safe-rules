@@ -321,7 +321,7 @@
     "ID_throwPointer": {
         "checkPoint": "不应将指针作为异常抛出",
         "level": "suggestion",
-        "comment": "如果将指针作为异常抛出，并且该指针指向动态创建的对象，则可能不清楚哪个函数负责销毁它，以及何时销毁。",
+        "comment": "如果将指针作为异常抛出，并且该指针指向动态创建的对象，会增加不必要的内存管理开销，也容易造成意料之外的错误。",
         "tag": "exception",
         "reference": "MISRA C++ 2008 15-0-2"
         },
@@ -438,19 +438,19 @@
         "reference": "C++ Core Guidelines E.17"
         },
     "ID_catch_value": {
-        "checkPoint": "应通过对象的引用捕获异常",
+        "checkPoint": "应通过引用捕获异常",
         "level": "warning",
-        "comment": "如果按传值方式捕获异常对象会造成不必要的复制成本，也可能产生对象切片问题。",
+        "comment": "如果按传值的方式捕获异常会造成不必要的复制开销，也可能产生对象切片问题；如果通过指针捕获异常，会增加不必要的内存管理开销，通过引用捕获异常才是合理的方式。",
         "tag": "control",
-        "related": "ID_catch_slicing",
+        "related": "ID_catch_slicing,ID_throwPointer",
         "reference": "C++ Core Guidelines E.15,C++ Core Guidelines ES.63,MISRA C++ 2008 15-3-5"
         },
     "ID_catch_slicing": {
-        "checkPoint": "捕获多态类异常时不应产生切片问题",
+        "checkPoint": "捕获异常时不应产生对象切片问题",
         "level": "warning",
         "comment": "如果catch块的参数是多态类的对象，则会产生对象切片问题，造成对异常的错误处理，故参数应改为对象的引用。",
         "tag": "control",
-        "related": "ID_catch_value",
+        "related": "ID_catch_value,ID_objectSlicing",
         "reference": "C++ Core Guidelines C.145,C++ Core Guidelines ES.63"
         },
     "ID_catch_generic": {
@@ -1197,12 +1197,12 @@
         "reference": "C++ Core Guidelines Type.3,MISRA C 2004 11.5,MISRA C 2012 11.8,MISRA C++ 2008 5-2-5"
         },
     "ID_objectSlicing": {
-        "checkPoint": "不应出现对象切片问题",
+        "checkPoint": "避免对象切片",
         "level": "warning",
-        "comment": "多态类型的对象不应按值传递的方式作为函数的参数，否则容易因为对象切片问题而产生意料之外的错误。",
+        "comment": "将派生类对象复制为基类对象的行为称为“对象切片”，基类对象不再持有派生类的属性，多态性也不再有效，意味着某种精度上的损失，往往会造成意料之外的错误。",
         "tag": "expression",
         "related": "ID_paramMayBeSlicing",
-        "reference": "C++ Core Guidelines C.145,C++ Core Guidelines ES.63,SEI CERT OOP51-CPP"
+        "reference": "C++ Core Guidelines ES.63,C++ Core Guidelines C.145,SEI CERT OOP51-CPP"
         },
     "ID_userObjectAsVariadicArgument": {
         "checkPoint": "非基本类型的对象不应传入可变参数列表",
@@ -1717,7 +1717,7 @@
     "ID_paramMayBeSlicing": {
         "checkPoint": "多态类的对象作为参数时不应采用值传递的方式",
         "level": "warning",
-        "comment": "多态类的对象作为参数时不应采用值传递的方式，否则易因为对象切片产生意料之外的错误。",
+        "comment": "将派生类对象通过传值的方式转换为基类对象后，不再遵循多态机制，易产生意料之外的错误，应采用指针或引用的方式传递多态类对象。",
         "tag": "function",
         "related": "ID_objectSlicing",
         "reference": "C++ Core Guidelines C.145,C++ Core Guidelines ES.63"
