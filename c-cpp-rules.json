@@ -2255,13 +2255,6 @@
         "tag": "control",
         "reference": "CWE-1071"
         },
-    "ID_catch_semicolon": {
-        "checkPoint": "catch块不应被分号隔断",
-        "level": "error",
-        "comment": "catch块不应被分号隔断。",
-        "tag": "control",
-        "reference": "CWE-670"
-        },
     "ID_catch_emptyBlock": {
         "checkPoint": "不应存在空的catch块",
         "level": "suggestion",
@@ -2773,6 +2766,14 @@
         "tag": "pointer",
         "standard": "ISO/IEC 14882:2003 4.1(1),ISO/IEC 14882:2011 4.1(1)",
         "reference": "CWE-1025"
+        },
+    "ID_illMemberAccess": {
+        "checkPoint": "在面向构造或析构函数体的catch块中不可访问非静态成员",
+        "level": "error",
+        "comment": "当流程进入面向构造或析构函数体的catch块时，非静态成员的生命周期已经结束，如果再次访问会导致标准未定义的错误。",
+        "tag": "function",
+        "standard": "ISO/IEC 14882:2011 15.3(10)-undefined",
+        "reference": "MISRA C++ 2008 15-3-3"
         },
     "ID_this_selfJudgement": {
         "checkPoint": "赋值运算符应妥善处理参数就是自身对象时的情况",
