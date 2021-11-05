@@ -2604,7 +2604,7 @@
     "ID_sensitiveName": {
         "checkPoint": "在公共成员或全局对象中不应记录敏感数据",
         "level": "warning",
-        "comment": "在可被外部代码引用的对象中记录敏感数据有可能被引用者误用或窃取。",
+        "comment": "公共成员、全局对象可被外部代码引用，如果存有敏感数据则可能会被误用或窃取。",
         "tag": "security",
         "reference": "CWE-766"
         },
@@ -2677,9 +2677,9 @@
         "reference": "CWE-682"
         },
     "ID_sizeof_sideEffect": {
-        "checkPoint": "sizeof表达式不应有副作用",
+        "checkPoint": "sizeof不应作用于有副作用的表达式",
         "level": "warning",
-        "comment": "sizeof只关注类型信息，而其中的自增、自减、赋值、函数调用以及表达式的求值均不会得以实际执行。",
+        "comment": "sizeof只关注类型，其子表达式不会被求值，如果存在可以影响程序状态的运算符或函数调用，也不会有实际效果。",
         "tag": "expression",
         "standard": "ISO/IEC 14882:2003 5.3.3(1),ISO/IEC 14882:2011 5.3.3(1),ISO/IEC 14882:2017 8.3.3(1)",
         "reference": "SEI CERT EXP52-CPP,MISRA C 2004 12.3,MISRA C 2012 13.6,MISRA C++ 2008 5-3-4"
@@ -2751,9 +2751,9 @@
         "reference": "CWE-200"
         },
     "ID_forbidCStringFormat": {
-        "checkPoint": "C++代码中应禁用C风格字符串格式化方法",
+        "checkPoint": "在C++代码中禁用C风格字符串格式化方法",
         "level": "suggestion",
-        "comment": "由可变参数列表实现的字符串格式化函数是不安全的，在编译期无法限定参数的类型和数量，极易产生各种错误。",
+        "comment": "C风格字符串格式化方法（如printf、sprintf等），即由可变参数列表实现的格式化方法是不安全的，在编译期无法限定参数的类型和数量，极易产生各种错误。",
         "tag": "expression",
         "related": "ID_forbidVariadicFunction",
         "standard": "ISO/IEC 14882:2011 7.16.1.1(2)-undefined",

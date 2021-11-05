@@ -452,9 +452,9 @@
     - [R10.4.4 函数返回值不应被忽略](#ID_returnValueIgnored)
     - [R10.4.5 避免对象切片](#ID_objectSlicing)
     - [R10.4.6 不应显式调用析构函数](#ID_explicitDtorCall)
-    - [R10.4.7 C\+\+代码中应禁用C风格字符串格式化方法](#ID_forbidCStringFormat)
+    - [R10.4.7 在C\+\+代码中禁用C风格字符串格式化方法](#ID_forbidCStringFormat)
   - [10.5 Sizeof](#expression.sizeof)
-    - [R10.5.1 sizeof表达式不应有副作用](#ID_sizeof_sideEffect)
+    - [R10.5.1 sizeof不应作用于有副作用的表达式](#ID_sizeof_sideEffect)
     - [R10.5.2 sizeof的结果不应与0以及负数比较](#ID_sizeof_zeroComparison)
     - [R10.5.3 对数组参数不应使用sizeof](#ID_sizeof_arrayParameter)
     - [R10.5.4 sizeof不应作用于逻辑表达式](#ID_sizeof_oddExpression)
@@ -695,7 +695,7 @@ void foo() {
   
 C11提供了memset\_s函数以避免这种问题，某些平台和库也提供了相关支持，如SecureZeroMemory、explicit\_bzero、OPENSSL\_cleanse等不会被优化掉的函数。  
   
-对于C\+\+语言，可将敏感数据地址设为volatile型以避免编译器的优化，再用std::fill等方法清理，如：
+对于C\+\+语言，可将敏感数据地址设为volatile以避免编译器的优化，再用std::fill等方法清理，如：
 ```
 void foo() {
     ....
@@ -733,7 +733,7 @@ ID_sensitiveName&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-在可被外部代码引用的对象中记录敏感数据有可能被引用者误用或窃取。  
+公共成员、全局对象可被外部代码引用，如果存有敏感数据则可能会被误用或窃取。  
   
 示例：
 ```
@@ -780,7 +780,7 @@ Result foo() {
     return res;
 }
 ```
-例中将用户输入不加判断直接加入SQL脚本是有风险的，如果用户输入“xxx' or 'x'='x”一类的字符串则相当于执行的是“select \* from users where user='xxx' or 'x'='x'”，一个恒为真的条件使where限制失效，造成所有数据被返回。  
+将用户的输入直接拼入SQL脚本是不安全的，如果用户输入“xxx' or 'x'='x”一类的字符串则相当于执行的是“select \* from users where user='xxx' or 'x'='x'”，一个恒为真的条件使where限制失效，造成所有数据被返回。  
   
 又如：
 ```
@@ -789,7 +789,7 @@ string bar() {
     return read_file(path);
 }
 ```
-这段代码意在将用户输入限制在/myhome/mydata目录下，然而这么做是不够安全的，如果用户的输入是带有“../”这种相对路径的形式，则仍可绕过限制，所以在read\_file之前应判断路径的可靠性。
+这段代码意在将用户输入限制在/myhome/mydata目录下，然而这么做是不安全的，如果用户的输入是带有“../”这种相对路径的形式，则仍可绕过限制，所以在read\_file之前应判断路径的可靠性。
 <br/>
 <br/>
 
@@ -808,7 +808,7 @@ ID_TOCTOU&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 攻击者可以在两次通过路径访问同一文件的中途对该文件作手脚，从而造成不良后果。  
   
-这种问题称为TOCTOU（Time\-of\-check Time\-of\-use）竞态条件。在实际编码过程中，往往需要先检查文件的某种状态，如果状态满足条件的话，再使用这文件，如果“检查”和“使用”都是通过路径完成的，攻击者可以在中途将文件替换成不满足条件的文件，如将文件替换成指向另一个文件的链接，从而对系统造成破坏。  
+这种问题称为TOCTOU（Time\-of\-check Time\-of\-use）竞态条件。有时需要先检查文件的某种状态，如果状态满足条件的话，再使用这文件，如果“检查”和“使用”都是通过路径完成的，攻击者可以在中途将文件替换成不满足条件的文件，如将文件替换成指向另一个文件的链接，从而对系统造成破坏。  
   
 示例：
 ```
@@ -6274,7 +6274,7 @@ int bar(A* a) {
     return a->foo();
 }
 ```
-如果将B类型的指针传入bar函数，将执行A::foo，然而参数实际指向的是B类型的对象，但B::foo不会被执行，这就形成了逻辑上的矛盾，在实际编码过程中，这种情况会造成很多意料之外的问题。
+如果将B类型的指针传入bar函数，将执行A::foo，然而参数实际指向的是B类型的对象，但B::foo不会被执行，这就形成了逻辑上的矛盾，造成意料之外的问题。
 <br/>
 <br/>
 
@@ -7252,9 +7252,9 @@ ID_forbidVariadicFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration wa
 ```
 string format(const char* fmt, ...);  // Non-compliant
 ```
-假设例中format函数与sprintf函数功能相似，由参数fmt设定输出格式，将其他参数转为字符串后依次替换fmt中的$字符，然后返回结果字符串，如调用format("$: $", "value", 123)则返回字符串“value: 123”。  
+假设format函数与sprintf函数功能相似，由参数fmt设定输出格式，将其他参数转为字符串后依次替换fmt中的$字符，然后返回结果字符串，如调用format("$: $", "value", 123)则返回字符串“value: 123”。  
   
-如用C语言的可变参数列表实现，则只能在运行时以fmt为依据获取后续参数，当实际参数的个数或类型与fmt指定的不符时会造成严重问题。  
+如用C语言的可变参数列表实现，则只能在运行时以fmt为依据获取后续参数，当实际参数与fmt不符时会造成严重问题。  
   
 在C\+\+代码中可采用模版参数包来完成这种功能，在编译期即可确保参数的类型和个数与要求的一致。  
   
@@ -7288,7 +7288,7 @@ string format(const char* fmt, const Args& ...args) {  // Compliant
     return res;
 }
 ```
-示例代码先将参数都转为string类型存入容器，再将fmt中的$依次替换成容器中的字符串，这个过程中参数的个数和类型是可以主动判断的，如果参数不能转为字符串则不会通过编译，如果参数个数与$字符的个数不符也很容易作出处理。
+示例代码先将参数都转为string对象存入容器，再将fmt中的“$”依次替换成容器中的字符串，这个过程中参数的个数和类型是可以主动判断的，如果参数不能转为字符串则不会通过编译，如果参数个数与$字符的个数不符也很容易作出处理。
 <br/>
 <br/>
 
@@ -8182,7 +8182,7 @@ ID_paramNotUsed&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
   
 如果某个参数确实不需要被用到，建议尽量从函数的声明中将其删除，如果需要遵循某种约定而必须保留参数的话（如虚函数或回调函数），不妨在参数的声明中将参数的名称删掉，使该参数成为抽象声明，并佐以一定的注释说明。  
   
-有时编译器会对没有用到的参数给出警告，为了消除警告有人会采用“参数 = 参数”或“(void)参数”的方式来消除警告，是不可取的，如：
+有时编译器会对没有用到的参数给出警告，为了消除警告有人会采用“参数 = 参数”或“(void)参数”的方式来消除警告，这是不可取的，如：
 ```
 void fun(int a) {
   a = a;  // Or ‘(void)a’, not recommended
@@ -12863,13 +12863,13 @@ ID_missingResetNull
 <br/>
 <br/>
 
-### <span id="ID_forbidCStringFormat">▌R10.4.7 C++代码中应禁用C风格字符串格式化方法</span>
+### <span id="ID_forbidCStringFormat">▌R10.4.7 在C++代码中禁用C风格字符串格式化方法</span>
 
 ID_forbidCStringFormat&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: expression suggestion
 
 <hr/>
 
-由可变参数列表实现的字符串格式化函数是不安全的，在编译期无法限定参数的类型和数量，极易产生各种错误。  
+C风格字符串格式化方法（如printf、sprintf等），即由可变参数列表实现的格式化方法是不安全的，在编译期无法限定参数的类型和数量，极易产生各种错误。  
   
 示例：
 ```
@@ -12892,7 +12892,7 @@ printf("%zx %zd", a, b);    // Non-compliant in C++, even if the result is corre
 ```
 std::cout << std::hex << a << ' ' << std::dec << b;  // Compliant
 ```
-利用C\+\+标准输入输出流可以有效规避这种问题，然而当参数较多时在形态上可能较为“松散”，其可读性可能不如printf等函数，可利用模版参数包的方法实现printf函数的形式和功能，并保证编译期的类型检查，可参见在ID\_forbidVariadicFunction中给出的简单示例，C\+\+20的std::format也提供了更多的格式化方法。
+利用C\+\+输入输出流可有效规避printf等函数的问题，然而当参数较多时在形态上可能较为“松散”，其可读性可能不如printf等函数，对于这个问题可参见ID\_forbidVariadicFunction中的示例，可以用一种更安全的方法实现printf函数的功能。另外，C\+\+20的std::format也提供了更多的格式化方法。
 <br/>
 <br/>
 
@@ -12911,13 +12911,13 @@ C++ Core Guidelines SL.io.3
 
 ### <span id="expression.sizeof">10.5 Sizeof</span>
 
-### <span id="ID_sizeof_sideEffect">▌R10.5.1 sizeof表达式不应有副作用</span>
+### <span id="ID_sizeof_sideEffect">▌R10.5.1 sizeof不应作用于有副作用的表达式</span>
 
 ID_sizeof_sideEffect&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-sizeof只关注类型信息，而其中的自增、自减、赋值、函数调用以及表达式的求值均不会得以实际执行。  
+sizeof只关注类型，其子表达式不会被求值，如果存在可以影响程序状态的运算符或函数调用，也不会有实际效果。  
   
 示例：
 ```
