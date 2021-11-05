@@ -3043,7 +3043,7 @@
     "ID_dataRaces": {
         "checkPoint": "多线程读写共享数据应遵循合理的同步机制",
         "level": "warning",
-        "comment": "多线程读写共享数据，如果没有合理的同步机制会造成严重的错误。",
+        "comment": "多线程读写共享数据，没有合理的同步机制会造成混乱。",
         "tag": "security",
         "reference": "CWE-362,C++ Core Guidelines CP.2"
         },

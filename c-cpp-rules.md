@@ -866,7 +866,7 @@ ID_dataRaces&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-多线程读写共享数据，如果没有合理的同步机制会造成严重的错误。  
+多线程读写共享数据，没有合理的同步机制会造成混乱。  
   
 示例：
 ```
@@ -875,45 +875,53 @@ int foo() {       // Call in multiple threads
     return id++;  // Data races
 }
 ```
-例中foo函数意在每次被调用都能返回一个不同的整数，但如果放到多个不同的线程中，由于id\+\+不具备原子性，不同的线程很可能得到相同的值，产生了逻辑错误，所以在读写整数id这种多线程的共享数据时，需引入合理的同步机制：
+例中foo函数意在每次被调用都能返回一个不同的整数，但多个线程同时读写变量会造成混乱，应改为：
 ```
-int get_id() {
-    static atomic<int> id = 0;
-    return static_cast<int>(id++);  // OK
+int foo() {
+    static atomic<int> id(0);
+    return id.fetch_add(1);  // OK
 }
 ```
-修正后的共享数据id为原子类型的对象，可保证其自增操作按顺序执行，每次调用foo函数都能返回不同的值。  
+其中atomic是C\+\+标准原子类，fetch\_add将对象持有的整数增1并返回之前的值，可以保证线程对整数的操作是有序进行的，不会造成混乱。  
   
-对于独立的共享变量可以引入原子操作的方法，而对于具有相关性操作的共享数据应引入锁机制，下列代码是有问题的：
+对于具有相关性操作的共享数据应引入锁机制，下列代码是有问题的：
 ```
-int v;
+class A {
+    int v;
 
-void foo() {
-    switch (v) {            // ‘v’ may be changed by another threads
-    case 0:
-        do_something0(v);   // ‘v’ may be not 0 here, data races
-        break;
-    case 1:
-        do_something1(v);   // ‘v’ may be not 1 here, data races
-        break;
-    default:
-        do_something2(v);   // ‘v’ may be 1 or 0 here, data races
-        break;
+public:
+    void bar() {
+        switch (v) {            // ‘v’ may be changed by another threads
+        case 0:
+            do_something0(v);   // ‘v’ may be not 0 here, data races
+            break;
+        default:
+            do_something1(v);   // ‘v’ may be 0 here, data races
+            break;
+        }
     }
-}
+    ....
+};
 ```
-由于共享变量v的值是多线程可修改的，所以会造成变量值不受当前函数控制的问题，在分枝结构中甚至会使流程跳转到不可控的地址，对相关作用域加锁可解决这种问题：
+假设A的对象是多线程共享的，成员v的值可被多个线程修改，所以会造成变量值不受当前函数控制的问题，在分枝结构中甚至会使流程跳转到不可控的地址。  
+  
+对相关作用域加锁可解决这种问题：
 ```
-int v;
-mutex m;
+class A {
+    int v;
+    mutex m;
 
-void foo() {
-    lock_guard<mutex> g(m);  // Right
-    switch (v) {
-        ....
+public:
+    void bar() {
+        lock_guard<mutex> guard(m);  // Right
+        switch (v) {
+            ....
+        }
     }
-}
+    ....
+};
 ```
+其中guard对象是C\+\+标准守卫对象，对象创建时加锁，生命周期结束时解锁，与bar函数可以同时执行的函数中也应定义guard对象， 这样即可保证对变量v的读写得以有序进行。
 <br/>
 <br/>
 
