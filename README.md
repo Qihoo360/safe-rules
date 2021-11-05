@@ -1,7 +1,5 @@
 <div align="center">
 
-<img src="main-logo.png">
-  
 # 代码安全规则集合
   
 [![Version](https://img.shields.io/badge/v-1.0-blue)](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md)
