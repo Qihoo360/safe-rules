@@ -79,21 +79,21 @@
   - [R1.1 敏感数据不应以明文形式写入代码](#ID_plainSensitiveInfo)
   - [R1.2 敏感数据不可被系统外界感知](#ID_secretLeak)
   - [R1.3 敏感数据在使用后应被有效清理](#ID_unsafeCleanup)
-  - [R1.4 在公共成员或全局对象中不应记录敏感数据](#ID_sensitiveName)
-  - [R1.5 须对用户输入进行预判，拒绝可产生不良后果的输入](#ID_hijack)
+  - [R1.4 公共成员或全局对象不应记录敏感数据](#ID_sensitiveName)
+  - [R1.5 预判由用户输入造成的不良后果](#ID_hijack)
   - [R1.6 避免在一个事务中通过路径多次访问同一文件](#ID_TOCTOU)
-  - [R1.7 多线程读写共享数据应遵循合理的同步机制](#ID_dataRaces)
+  - [R1.7 访问共享数据应遵循合理的同步机制](#ID_dataRaces)
   - [R1.8 对文件设定合理的权限](#ID_unlimitedAuthority)
   - [R1.9 对用户设置合理的权限](#ID_nullACL)
-  - [R1.10 确保字符串以空字符结尾](#ID_improperNullTermination)
-  - [R1.11 不应引用危险符号名称](#ID_dangerousName)
-  - [R1.12 避免调用具有危险性的函数](#ID_dangerousFunction)
-  - [R1.13 不应调用已过时的函数](#ID_obsoleteFunction)
-  - [R1.14 禁用不安全的字符串函数](#ID_unsafeStringFunction)
+  - [R1.10 不应引用危险符号名称](#ID_dangerousName)
+  - [R1.11 避免调用具有危险性的函数](#ID_dangerousFunction)
+  - [R1.12 不应调用已过时的函数](#ID_obsoleteFunction)
+  - [R1.13 禁用不安全的字符串函数](#ID_unsafeStringFunction)
+  - [R1.14 确保字符串以空字符结尾](#ID_improperNullTermination)
   - [R1.15 避免使用由实现定义的库函数](#ID_implementationDefinedFunction)
   - [R1.16 除数不可存在值为0的可能性](#ID_divideByZero)
   - [R1.17 禁用atof、atoi、atol以及atoll等函数](#ID_forbidAtox)
-  - [R1.18 C风格的格式化字符串应为常量](#ID_variableFormatString)
+  - [R1.18 格式化字符串应为常量](#ID_variableFormatString)
   - [R1.19 与程序实现相关的信息不可被外界感知](#ID_addressExposure)
   - [R1.20 不应硬编码IP地址](#ID_hardcodedIP)
   - [R1.21 避免使用errno](#ID_deprecatedErrno)
@@ -727,7 +727,7 @@ SEI CERT MSC06-C
 <br/>
 <br/>
 
-### <span id="ID_sensitiveName">▌R1.4 在公共成员或全局对象中不应记录敏感数据</span>
+### <span id="ID_sensitiveName">▌R1.4 公共成员或全局对象不应记录敏感数据</span>
 
 ID_sensitiveName&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
@@ -763,13 +763,13 @@ CWE-766
 <br/>
 <br/>
 
-### <span id="ID_hijack">▌R1.5 须对用户输入进行预判，拒绝可产生不良后果的输入</span>
+### <span id="ID_hijack">▌R1.5 预判由用户输入造成的不良后果</span>
 
 ID_hijack&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-须对用户输入的脚本、路径、资源数量等信息进行预判，对产生不良后果的输入予以拒绝。  
+须对用户输入的脚本、路径、资源请求等信息进行预判，对产生不良后果的输入予以拒绝。  
   
 示例：
 ```
@@ -860,13 +860,13 @@ CWE-367
 <br/>
 <br/>
 
-### <span id="ID_dataRaces">▌R1.7 多线程读写共享数据应遵循合理的同步机制</span>
+### <span id="ID_dataRaces">▌R1.7 访问共享数据应遵循合理的同步机制</span>
 
 ID_dataRaces&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-多线程读写共享数据，没有合理的同步机制会造成混乱。  
+共享数据可被多个执行单位或硬件读写，需要合理控制访问的先后顺序。  
   
 示例：
 ```
@@ -875,7 +875,9 @@ int foo() {       // Call in multiple threads
     return id++;  // Data races
 }
 ```
-例中foo函数意在每次被调用都能返回一个不同的整数，但多个线程同时读写变量会造成混乱，应改为：
+例中foo函数意在每次被调用都能返回一个不同的整数，但多个线程同时读写变量会造成混乱，对id这种函数内的静态变量处理不当是多线程相关错误的常见原因。  
+  
+应改为：
 ```
 int foo() {
     static atomic<int> id(0);
@@ -884,44 +886,22 @@ int foo() {
 ```
 其中atomic是C\+\+标准原子类，fetch\_add将对象持有的整数增1并返回之前的值，可以保证线程对整数的操作是有序进行的，不会造成混乱。  
   
-对于具有相关性操作的共享数据应引入锁机制，下列代码是有问题的：
+不同的访问顺序会对结果产生影响，往往意味着错误，这种问题称为“竞态条件（Race Conditon）”。
 ```
-class A {
-    int v;
-
-public:
-    void bar() {
-        switch (v) {            // ‘v’ may be changed by another threads
-        case 0:
-            do_something0(v);   // ‘v’ may be not 0 here, data races
-            break;
-        default:
-            do_something1(v);   // ‘v’ may be 0 here, data races
-            break;
-        }
+void bar() {
+    int* p = baz();  // Points to shared data
+    if (*p == 0) {   // ‘*p’ is changing
+        ....
     }
-    ....
-};
-```
-假设A的对象是多线程共享的，成员v的值可被多个线程修改，所以会造成变量值不受当前函数控制的问题，在分枝结构中甚至会使流程跳转到不可控的地址。  
-  
-对相关作用域加锁可解决这种问题：
-```
-class A {
-    int v;
-    mutex m;
-
-public:
-    void bar() {
-        lock_guard<mutex> guard(m);  // Right
-        switch (v) {
-            ....
-        }
+    else if (*p == 1) {  // ‘*p’ is changing
+        ....
     }
-    ....
-};
+    else {
+        ....
+    }
+}
 ```
-其中guard对象是C\+\+标准守卫对象，对象创建时加锁，生命周期结束时解锁，与bar函数可以同时执行的函数中也应定义guard对象， 这样即可保证对变量v的读写得以有序进行。
+如果指针p指向共享数据，那么bar函数中的条件分枝是不可靠的，攻击者可以通过控制共享数据实现对关键流程的劫持，所以应合理使用锁、信号量等同步手段保证共享数据的可靠性。
 <br/>
 <br/>
 
@@ -947,9 +927,9 @@ fp = fopen("bar.txt", "w");  // Old method
 ....
 fclose(fp);
 ```
-例中umask函数开放了所有用户对bar.txt文件的读写权限，这是不安全的，其他用户很可能窃取或篡改文件中的数据。  
+例中umask函数开放了所有用户对bar.txt文件的读写权限，这是不安全的，很可能遭到攻击者的窃取或篡改。  
   
-由于历史原因，C语言的fopen函数和C\+\+语言的fstream类都不能有效确保创建的文件只能被当前用户访问，C11提供了fopen\_s函数，C\+\+17提供了std::filesystem::permissions等方法对这种问题进行了改进。  
+由于历史原因，C语言的fopen和C\+\+语言的fstream都不能确保创建的文件只能被当前用户访问，C11提供了fopen\_s函数，C\+\+17提供了std::filesystem::permissions等方法填补了这方面的需求。  
   
 fopen\_s函数简例：
 ```
@@ -997,56 +977,7 @@ CWE-732
 <br/>
 <br/>
 
-### <span id="ID_improperNullTermination">▌R1.10 确保字符串以空字符结尾</span>
-
-ID_improperNullTermination&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
-
-<hr/>
-
-语言要求字符串以空字符结尾，程序应保证有足够的内存空间安置空字符，否则会破坏程序基本的执行机制，造成严重问题。  
-  
-空字符指'\\0'、L'\\0'、u'\\0'、U'\\0'，分别对应char\*、wchar\_t\*、char16\_t\*、char32\_t\*等字符串类型。  
-  
-示例：
-```
-void foo(const char* p) {
-    char a[4];
-    strncpy(a, p, sizeof(a));
-    printf("%s\n", strupr(a));  // To upper case and print, dangerous
-}
-```
-设例示代码将字符串复制到数组中，然后转为大写并打印，strncpy函数不会在数组的结尾安置空字符'\\0'，一旦p所指字符串的长度超过3，就会导致内存访问错误。  
-  
-应改为：
-```
-void foo1(const char* p) {
-    char a[4] = "";                 // Initialize all to '\0'
-    strncpy(a, p, sizeof(a));
-    if (a[3] == '\0') {             // Right
-        printf("%s\n", strupr(a));  // OK
-    } else {
-        ....                        // String length exceptions
-    }
-}
-```
-将所有数组元素初始化为'\\0'，调用strncpy函数后如果数组最后一个元素是'\\0'，说明输入字符串的长度符合要求，否则可做出相应的异常处理。
-<br/>
-<br/>
-
-#### 相关
-ID_unsafeStringFunction  
-<br/>
-
-#### 依据
-ISO/IEC 9899:2011 7.24.2.4  
-<br/>
-
-#### 参考
-CWE-170  
-<br/>
-<br/>
-
-### <span id="ID_dangerousName">▌R1.11 不应引用危险符号名称</span>
+### <span id="ID_dangerousName">▌R1.10 不应引用危险符号名称</span>
 
 ID_dangerousName&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
@@ -1106,7 +1037,7 @@ CWE-327
 <br/>
 <br/>
 
-### <span id="ID_dangerousFunction">▌R1.12 避免调用具有危险性的函数</span>
+### <span id="ID_dangerousFunction">▌R1.11 避免调用具有危险性的函数</span>
 
 ID_dangerousFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
@@ -1154,7 +1085,7 @@ CWE-676
 <br/>
 <br/>
 
-### <span id="ID_obsoleteFunction">▌R1.13 不应调用已过时的函数</span>
+### <span id="ID_obsoleteFunction">▌R1.12 不应调用已过时的函数</span>
 
 ID_obsoleteFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
@@ -1193,7 +1124,7 @@ CWE-477
 <br/>
 <br/>
 
-### <span id="ID_unsafeStringFunction">▌R1.14 禁用不安全的字符串函数</span>
+### <span id="ID_unsafeStringFunction">▌R1.13 禁用不安全的字符串函数</span>
 
 ID_unsafeStringFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: security warning
 
@@ -1237,6 +1168,55 @@ CWE-119
 CWE-120  
 CWE-676  
 MISRA C++ 2008 18–0–5  
+<br/>
+<br/>
+
+### <span id="ID_improperNullTermination">▌R1.14 确保字符串以空字符结尾</span>
+
+ID_improperNullTermination&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
+
+<hr/>
+
+语言要求字符串以空字符结尾，程序应保证有足够的内存空间安置空字符，否则会破坏程序基本的执行机制，造成严重问题。  
+  
+空字符指'\\0'、L'\\0'、u'\\0'、U'\\0'，分别对应char\*、wchar\_t\*、char16\_t\*、char32\_t\*等字符串类型。  
+  
+示例：
+```
+void foo(const char* p) {
+    char a[4];
+    strncpy(a, p, sizeof(a));
+    printf("%s\n", strupr(a));  // To upper case and print, dangerous
+}
+```
+设例示代码将字符串复制到数组中，然后转为大写并打印，strncpy函数不会在数组的结尾安置空字符'\\0'，一旦p所指字符串的长度超过3，就会导致内存访问错误。  
+  
+应改为：
+```
+void foo1(const char* p) {
+    char a[4] = "";                 // Initialize all to '\0'
+    strncpy(a, p, sizeof(a));
+    if (a[3] == '\0') {             // Right
+        printf("%s\n", strupr(a));  // OK
+    } else {
+        ....                        // String length exceptions
+    }
+}
+```
+将所有数组元素初始化为'\\0'，调用strncpy函数后如果数组最后一个元素是'\\0'，说明输入字符串的长度符合要求，否则可做出相应的异常处理。
+<br/>
+<br/>
+
+#### 相关
+ID_unsafeStringFunction  
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 7.24.2.4  
+<br/>
+
+#### 参考
+CWE-170  
 <br/>
 <br/>
 
@@ -1374,13 +1354,13 @@ MISRA C++ 2008 18-0-2
 <br/>
 <br/>
 
-### <span id="ID_variableFormatString">▌R1.18 C风格的格式化字符串应为常量</span>
+### <span id="ID_variableFormatString">▌R1.18 格式化字符串应为常量</span>
 
 ID_variableFormatString&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-C风格的格式化字符串不应受到外部输入的影响，最好直接写成常量字符串的形式。  
+格式化字符串不应受到外部输入的影响，最好直接写成常量字符串的形式。  
   
 示例：
 ```
@@ -3702,13 +3682,18 @@ ID_nonConstGlobalObject&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 ```
 char foo;         // Non-compliant
 extern char bar;  // Non-compliant, worse
-void baz() { do_something(foo, bar); }
+
+void baz() {
+    do_something(foo, bar);
+}
 ```
 改进方法（将全局变量和与其相关的函数封装成类）：
 ```
 class A {
 public:
-    void baz() { do_something(foo, bar); }
+    void baz() {
+        do_something(foo, bar);
+    }
 private:
     char foo;  // Compliant
     char bar;  // Compliant

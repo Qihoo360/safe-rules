@@ -2602,7 +2602,7 @@
         "reference": "CWE-822,CWE-825,C++ Core Guidelines ES.65"
         },
     "ID_sensitiveName": {
-        "checkPoint": "在公共成员或全局对象中不应记录敏感数据",
+        "checkPoint": "公共成员或全局对象不应记录敏感数据",
         "level": "warning",
         "comment": "公共成员、全局对象可被外部代码引用，如果存有敏感数据则可能会被误用或窃取。",
         "tag": "security",
@@ -2735,9 +2735,9 @@
         "reference": "CWE-686,SEI CERT FIO47-C"
         },
     "ID_variableFormatString": {
-        "checkPoint": "C风格的格式化字符串应为常量",
+        "checkPoint": "格式化字符串应为常量",
         "level": "warning",
-        "comment": "C风格的格式化字符串不应受到外部输入的影响，最好直接写成常量字符串的形式。",
+        "comment": "格式化字符串不应受到外部输入的影响，最好直接写成常量字符串的形式。",
         "tag": "security",
         "related": "ID_hijack",
         "reference": "CWE-134"
@@ -3041,9 +3041,9 @@
         "reference": "CWE-266,CWE-732,SEI CERT FIO06-C"
         },
     "ID_dataRaces": {
-        "checkPoint": "多线程读写共享数据应遵循合理的同步机制",
+        "checkPoint": "访问共享数据应遵循合理的同步机制",
         "level": "warning",
-        "comment": "多线程读写共享数据，没有合理的同步机制会造成混乱。",
+        "comment": "共享数据可被多个执行单位或硬件读写，需要合理控制访问的先后顺序。",
         "tag": "security",
         "reference": "CWE-362,C++ Core Guidelines CP.2"
         },
@@ -3056,7 +3056,7 @@
         "reference": "CWE-367"
         },
     "ID_hijack": {
-        "checkPoint": "须对用户输入进行预判，拒绝可产生不良后果的输入",
+        "checkPoint": "预判由用户输入造成的不良后果",
         "level": "warning",
         "comment": "须对用户输入的脚本、路径、资源数量等信息进行预判，对产生不良后果的输入予以拒绝。",
         "tag": "security",
