@@ -185,8 +185,8 @@
     - [R5.1.3 类的非常量数据成员均应为private](#ID_nonPrivateData)
     - [R5.1.4 类的非常量数据成员不应定义为protected](#ID_protectedData)
     - [R5.1.5 对于菱形继承应将基类设为虚基类](#ID_diamondInheritance)
-    - [R5.1.6 带模版的赋值运算符不应覆盖拷贝或移动赋值运算符](#ID_roughTemplateAssignOperator)
-    - [R5.1.7 带模版的构造函数不应覆盖拷贝或移动构造函数](#ID_roughTemplateConstructor)
+    - [R5.1.6 带模板的赋值运算符不应覆盖拷贝或移动赋值运算符](#ID_roughTemplateAssignOperator)
+    - [R5.1.7 带模板的构造函数不应覆盖拷贝或移动构造函数](#ID_roughTemplateConstructor)
     - [R5.1.8 存在拷贝构造函数或析构函数时，不应缺少拷贝赋值运算符](#ID_missingCopyAssignOperator)
     - [R5.1.9 存在赋值运算符或析构函数时，不应缺少拷贝构造函数](#ID_missingCopyConstructor)
     - [R5.1.10 存在拷贝构造函数或赋值运算符时，不应缺少析构函数](#ID_missingDestructor)
@@ -1189,11 +1189,11 @@ void foo(const char* p) {
     printf("%s\n", strupr(a));  // To upper case and print, dangerous
 }
 ```
-设例示代码将字符串复制到数组中，然后转为大写并打印，strncpy函数不会在数组的结尾安置空字符'\\0'，一旦p所指字符串的长度超过3，就会导致内存访问错误。  
+例示代码将字符串复制到数组中，然后转为大写并打印，strncpy函数不会在数组的结尾安置空字符'\\0'，一旦p所指字符串的长度超过3，就会导致内存访问错误。  
   
 应改为：
 ```
-void foo1(const char* p) {
+void foo(const char* p) {
     char a[4] = "";                 // Initialize all to '\0'
     strncpy(a, p, sizeof(a));
     if (a[3] == '\0') {             // Right
@@ -1331,13 +1331,13 @@ int foo(const char* s) {
     int v = 0;
     std::stringstream ss(s);
     ss >> v;
-    if (ss.fail()) {  // Or !ss.eof() || ss.fail()
+    if (ss.fail()) {  // Or ‘!ss.eof() || ss.fail()’
         throw some_exception();
     }
     return v;
 }
 ```
-本例通过ss.fail判断字符串是否可以正确地转为int型变量。
+本例通过ss.fail()判断字符串前面的字符是否可以转为int型变量，也可以通过!ss.eof()||ss.fail()判断字符串整体是否可以转为int型变量。
 <br/>
 <br/>
 
@@ -1360,17 +1360,20 @@ ID_variableFormatString&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-格式化字符串不应受到外部输入的影响，最好直接写成常量字符串的形式。  
+出于可读性和安全性的考量，格式化字符串最好直接写成常量字符串的形式。  
+  
+本规则是ID\_hijack的特化。  
   
 示例：
 ```
+int a, b, c;
 const char* fmt = foo();
 ....
 printf(fmt, a, b, c);  // Non-compliant
 ```
-例中格式化字符串fmt是变量，提高了产生错误和漏洞的风险，而且这种方式较为严重地降低了代码的可读性。  
+例中格式化字符串fmt是变量，这种方式较为严重地降低了代码的可读性，而且要注意如果fmt可受外界影 响，则可能被攻击者利用造成不良后果。  
   
-应改为常量：
+应将fmt改为常量：
 ```
 printf("%d %d %d", a, b, c);  // Compliant
 ```
@@ -1392,7 +1395,7 @@ ID_addressExposure&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-函数地址、缓冲区地址与长度、对象的地址等信息不可被外界感知，否则会成为攻击者的线索。  
+函数或对象的地址、缓冲区的地址和长度等信息不可被外界感知，否则会成为攻击者的线索。  
   
 示例：
 ```
@@ -1582,7 +1585,7 @@ ID_illAccess&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
 
 <hr/>
 
-访问未初始化或已释放的资源属于逻辑错误，导致标准未定义的行为。  
+访问未初始化或已释放的资源属于逻辑错误，也会导致标准未定义的行为。  
   
 示例：
 ```
@@ -2373,7 +2376,7 @@ ID_forbidCHeaderInCpp&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompile warning
 
 在C\+\+语言中应使用C\+\+标准头文件，stdio.h、stdlib.h等C语言头文件不在C\+\+标准之内，应改用cstdio、cstdlib等符合C\+\+标准的头文件。  
   
-C标准头文件均有对应的C\+\+版本，C\+\+版本提供了更适合C\+\+语言的命名空间、模版以及函数重载等功能。另外，按C\+\+惯例，语言相关的标准头文件无扩展名，自定义及平台相关的以.h为扩展名，遵循统一的命名规范也有必要的。  
+C标准头文件均有对应的C\+\+版本，C\+\+版本提供了更适合C\+\+语言的命名空间、模板以及函数重载等功能。另外，按C\+\+惯例，语言相关的标准头文件无扩展名，自定义及平台相关的以.h为扩展名，遵循统一的命名规范也有必要的。  
   
 示例：
 ```
@@ -3340,7 +3343,7 @@ ID_stdNamespaceModified&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
 <hr/>
 
-可以为用户定义的类型特化某些标准模版类，除此之外对std命名空间添加、修改甚至删除任何代码所导致的后果都是标准未定义的。  
+可以为用户定义的类型特化某些标准模板类，除此之外对std命名空间添加、修改甚至删除任何代码所导致的后果都是标准未定义的。  
   
 示例：
 ```
@@ -3358,7 +3361,7 @@ namespace std
     };
 }
 ```
-例中对hash标准模版类的特化是可被允许的，但在std命名空间中添加的foo函数是不被允许的。  
+例中对hash标准模板类的特化是可被允许的，但在std命名空间中添加的foo函数是不被允许的。  
   
 应去掉std命名空间作用域声明，改为：
 ```
@@ -3614,7 +3617,7 @@ ID_definedInHeader&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
 <hr/>
 
-在头文件中实现的函数，如果不是内联、静态、模版函数，则可能随着头文件被包含而被引入不同的编译单元（translate\-unit）中，造成编译冲突。  
+在头文件中实现的函数，如果不是内联、静态、模板函数，则可能随着头文件被包含而被引入不同的编译单元（translate\-unit）中，造成编译冲突。  
   
 示例：
 ```
@@ -4182,13 +4185,13 @@ C++ Core Guidelines C.137
 <br/>
 <br/>
 
-### <span id="ID_roughTemplateAssignOperator">▌R5.1.6 带模版的赋值运算符不应覆盖拷贝或移动赋值运算符</span>
+### <span id="ID_roughTemplateAssignOperator">▌R5.1.6 带模板的赋值运算符不应覆盖拷贝或移动赋值运算符</span>
 
 ID_roughTemplateAssignOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
 
 <hr/>
 
-带模版的赋值运算符覆盖拷贝或移动赋值运算符，很可能导致意料之外的错误。  
+带模板的赋值运算符覆盖拷贝或移动赋值运算符，很可能导致意料之外的错误。  
   
 示例：
 ```
@@ -4222,13 +4225,13 @@ MISRA C++ 2008 14-5-3
 <br/>
 <br/>
 
-### <span id="ID_roughTemplateConstructor">▌R5.1.7 带模版的构造函数不应覆盖拷贝或移动构造函数</span>
+### <span id="ID_roughTemplateConstructor">▌R5.1.7 带模板的构造函数不应覆盖拷贝或移动构造函数</span>
 
 ID_roughTemplateConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
 
 <hr/>
 
-带模版的构造函数覆盖拷贝或移动构造函数，很可能导致意料之外的错误。  
+带模板的构造函数覆盖拷贝或移动构造函数，很可能导致意料之外的错误。  
   
 示例：
 ```
@@ -6121,8 +6124,8 @@ ID_nonStdAssignmentRetType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warni
 
 按赋值表达式的标准语法要求，以及C\+\+语言的惯例，拷贝赋值、移动赋值应返回所属类的非const引用，便于调用者使用并满足泛型编程的要求。  
   
-对“=”的合理重载，可以使对象的赋值表达式作为子表达式灵活地出现在各种语句中，这也是“泛型程序设计”的必要条件，使算法的代码实现即可以适应普通变量，也可以适应自定义对象。如果类的对象与标准模版库相关，则其赋值运算符应满足本规则的要求。  
-如果“=”运算符没有返回所属类的非const引用，便无法满足连续赋值等表达式的语法要求，对标准模版类的使用上会受到限制。  
+对“=”的合理重载，可以使对象的赋值表达式作为子表达式灵活地出现在各种语句中，这也是“泛型程序设计”的必要条件，使算法的代码实现即可以适应普通变量，也可以适应自定义对象。如果类的对象与标准模板库相关，则其赋值运算符应满足本规则的要求。  
+如果“=”运算符没有返回所属类的非const引用，便无法满足连续赋值等表达式的语法要求，对标准模板类的使用上会受到限制。  
   
 对于“\+=”、“\-=”等复合赋值运算符也有相同的要求。  
   
@@ -7075,7 +7078,7 @@ ID_forbidFunctionVoidPtr&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration war
 
 与接口相关的数据类型应保持精确，不应将参数或返回值声明为void\*。  
   
-在C\+\+语言中，如果参数或返回值需要面对多种不同类型的数据，应合理使用重载或模版机制。  
+在C\+\+语言中，如果参数或返回值需要面对多种不同类型的数据，应合理使用重载或模板机制。  
   
 示例：
 ```
@@ -7121,7 +7124,7 @@ ID_forbidMemberVoidPtr&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration warni
 
 与接口相关的数据类型应保持精确，不应将类成员声明为void\*，尤其是非private成员，更不应声明为void\*。  
   
-在C\+\+语言中，如果成员需要面对多种不同类型的数据，应合理使用模版机制。  
+在C\+\+语言中，如果成员需要面对多种不同类型的数据，应合理使用模板机制。  
   
 示例：
 ```
@@ -7245,13 +7248,30 @@ ID_forbidVariadicFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration wa
 ```
 string format(const char* fmt, ...);  // Non-compliant
 ```
-假设format函数与sprintf函数功能相似，由参数fmt设定输出格式，将其他参数转为字符串后依次替换fmt中的$字符，然后返回结果字符串，如调用format("$: $", "value", 123)则返回字符串“value: 123”。  
+假设format函数与sprintf函数功能相似，由参数fmt设定格式，将其他参数转为字符串后依次替换fmt中的占位符并返回结果。设'@'和'$'为占位符，分别对应字符串和整数，如调用format("@: $", "value", 123)则返回字符串"value: 123"。  
   
-如用C语言的可变参数列表实现，则只能在运行时以fmt为依据获取后续参数，当实际参数与fmt不符时会造成严重问题。  
+如果用可变参数列表实现：
+```
+string format(const char* fmt, ...) {
+    string res;
+    va_list vl;
+    va_start(vl, fmt);
+    for (auto* p = fmt; *p; p++) {
+        stringstream ss;
+        switch(*p) { 
+            case '@': ss << va_arg(vl, char*); break;
+            case '$': ss << va_arg(vl, int); break;
+            default:  ss << *p; break;
+        }
+        res.append(ss.str());
+    }
+    va_end(vl);
+    return res;
+}
+```
+例中va\_start、va\_arg、va\_end是可变参数列表的标准支持，这种方法只能在运行时以fmt为依据获取后续参数，当实际参数与fmt不符时会造成严重问题，单纯地要求代码编写者小心谨慎是不可靠的，改用更安全的方法才是明智的选择。  
   
-在C\+\+代码中可采用模版参数包来完成这种功能，在编译期即可确保参数的类型和个数与要求的一致。  
-  
-下面给出一种简单实现： 
+在C\+\+代码中可采用模板参数包来实现这种功能：
 ```
 template <class T, class ...Args>
 void get_argstrs(vector<string>& vs, const T& arg, const Args& ...rest) {
@@ -7271,7 +7291,7 @@ string format(const char* fmt, const Args& ...args) {  // Compliant
         const size_t n = strlen(fmt);
         get_argstrs(vs, args...);
         for (size_t i = 0, j = 0; i < n; i++) {
-            if (fmt[i] == '$' && j < vs.size()) {
+            if ((fmt[i] == '@' || fmt[j] == '$') && j < vs.size()) {
                 res.append(vs[j++]);
             } else {
                 res.push_back(fmt[i]);
@@ -7281,7 +7301,9 @@ string format(const char* fmt, const Args& ...args) {  // Compliant
     return res;
 }
 ```
-示例代码先将参数都转为string对象存入容器，再将fmt中的“$”依次替换成容器中的字符串，这个过程中参数的个数和类型是可以主动判断的，如果参数不能转为字符串则不会通过编译，如果参数个数与$字符的个数不符也很容易作出处理。
+示例代码用get\_argstrs函数递归地将参数都转为string对象存入容器，再将fmt中的'@'和'$'依次替换成容器中的字符串，实际上这种实现是可以不区分'@'和'$'的，这个过程中参数的个数和类型是可以由代码主动判断的，如果参数不能转为字符串则不会通过编译，如果参数个数与占位符不符也容易作出处理。  
+  
+模板参数包、constexpr等特性是C\+\+语言在编译理论上的重大突破，合理运用这些特性可以有效提升代码的安全性和可维护性。
 <br/>
 <br/>
 
@@ -13985,7 +14007,7 @@ void foo(A* a) {
     ....
 }
 ```
-例中foo接口对B类型进行特殊处理，是不利于维护的，当这种特殊处理较多时，应利用虚函数、重载或模版等方法进行合理重构。
+例中foo接口对B类型进行特殊处理，是不利于维护的，当这种特殊处理较多时，应利用虚函数、重载或模板等方法进行合理重构。
 ```
 class A {
     ....
