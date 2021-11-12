@@ -443,8 +443,8 @@
     - [R10.3.4 不同类型的枚举值不应进行比较](#ID_differentEnumComparison)
     - [R10.3.5 比较运算符左右子表达式不应重复](#ID_selfComparison)
     - [R10.3.6 比较运算不应作为另一个比较运算的直接子表达式](#ID_successiveComparison)
-    - [R10.3.7 不应使用memcmp等函数比较非基类型的数据](#ID_accessPaddingData)
-    - [R10.3.8 不应将strcmp、wcscmp等函数的返回值与非零常量比较](#ID_strcmpNoneZeroComparison)
+    - [R10.3.7 不应访问填充数据](#ID_accessPaddingData)
+    - [R10.3.8 不可臆断返回值的意义](#ID_strcmpNoneZeroComparison)
   - [10.4 Call](#expression.call)
     - [R10.4.1 C风格的格式化字符串与其参数的个数应严格一致](#ID_inconsistentFormatArgNum)
     - [R10.4.2 C风格的格式化字符串与其参数的类型应严格一致](#ID_inconsistentFormatArgType)
@@ -12561,13 +12561,13 @@ CWE-1025
 <br/>
 <br/>
 
-### <span id="ID_accessPaddingData">▌R10.3.7 不应使用memcmp等函数比较非基类型的数据</span>
+### <span id="ID_accessPaddingData">▌R10.3.7 不应访问填充数据</span>
 
 ID_accessPaddingData&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-类的成员之间可能存在填充数据，这种数据只为实现“内存对齐”而无数值意义，填充数据的值是标准未声明的。  
+变量之间可能存在填充数据，这种数据只为实现“内存对齐”而无数值意义，而且填充数据的值是标准未声明的。  
   
 示例：
 ```
@@ -12582,7 +12582,7 @@ void foo(A* x, A* y) {
     }
 }
 ```
-A的成员a和b之间存在填充数据，比较填充数据的值是没有意义的。  
+如果按常见的4或8字节对齐，A的成员a和b之间会存在填充数据，填充数据参与比较将得到错误的结果。  
   
 应改为：
 ```
@@ -12601,26 +12601,56 @@ ISO/IEC 9899:2011 6.2.6.2(5)-unspecified
 <br/>
 <br/>
 
-### <span id="ID_strcmpNoneZeroComparison">▌R10.3.8 不应将strcmp、wcscmp等函数的返回值与非零常量比较</span>
+### <span id="ID_strcmpNoneZeroComparison">▌R10.3.8 不可臆断返回值的意义</span>
 
 ID_strcmpNoneZeroComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
 <hr/>
 
-strcmp、wcscmp等函数比较两个字符串大小，返回0、大于0或小于0的值，一种常见的错误是认为其返回值为0、1或\-1。  
+对接口的使用应遵循接口文档，不可臆断返回值的意义，否则造成逻辑错误。  
   
 示例：
+```
+void foo(const std::string& s) {
+    if (s.find("bar")) {   // Non-compliant
+        ....
+    }
+}
+```
+例中find函数返回"bar"在s中的位置，当s中不存在"bar"时将返回std::string::npos，将find函数的返回值转为bool型是没有逻辑意义的。  
+  
+应改为：
+```
+void foo(const std::string& s) {
+    if (s.find("bar") != std::string::npos) {   // Compliant
+        ....
+    }
+}
+```
+想当然地认为返回0表示失败或不存在，非0表示成功或存在，是造成错误的常见原因。  
+  
+又如：
 ```
 bool gt(const char* a, const char* b) {
     return strcmp(a, b) == 1;  // Non-compliant
 }
 ```
+strcmp函数的返回值可以是等于、大于或小于0的任意整数，分别对应字符串的等于、大于或小于关系，认为其只能返回0、1或\-1是一种常见的误解。  
+  
 应改为：
 ```
 bool gt(const char* a, const char* b) {
-    return strcmp(a, b) > 0;  // Compliant
+    return strcmp(a, b) > 0;   // Compliant
 }
 ```
+strcmp、wcscmp以及memcmp等函数不应与0之外的任何值比较。  
+  
+下列函数的返回值不应与0比较，也不应转为bool型：  
+ ● open、create等Linux系统调用，失败时返回负数，成功时返回非负数  
+ ● CreateFile、CreateNamedPipe等Windows API，失败时返回INVALID\_HANDLE\_VALUE，而不是0  
+ ● HRESULT型Windows API返回值，负数表示失败、非负数表示成功  
+  
+另外，有相当一部分函数成功时返回0，失败时返回非0，如access、chmod、rename等Linux系统调用，成功时返回0，失败时返回\-1，故不可将其返回值误当作bool型使用。
 <br/>
 <br/>
 
