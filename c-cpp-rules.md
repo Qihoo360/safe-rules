@@ -331,7 +331,7 @@
   - [R8.29 禁止goto语句向前跳转](#ID_forbidGotoBack)
   - [R8.30 禁用goto语句](#ID_forbidGoto)
   - [R8.31 禁用setjmp、longjmp](#ID_forbidLongjmp)
-  - [R8.32 避免无限制的递归实现](#ID_recursion)
+  - [R8.32 避免递归实现](#ID_recursion)
   - [R8.33 不应存在重复的函数实现](#ID_functionRepetition)
 <br/>
 
@@ -9231,17 +9231,34 @@ C++ Core Guidelines SL.C.1
 <br/>
 <br/>
 
-### <span id="ID_recursion">▌R8.32 避免无限制的递归实现</span>
+### <span id="ID_recursion">▌R8.32 避免递归实现</span>
 
 ID_recursion&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-避免无限制的递归实现。  
-
+递归实现，如函数直接或间接地调用自身，易导致难以控制的堆栈溢出错误。  
+  
+示例：
 ```
-TODO
+size_t foo(size_t n) {
+    return n + foo(n - 1);  // Non-compliant
+}
 ```
+例中foo函数无条件地调用自身，是一种逻辑错误，导致无限的递归调用。  
+  
+又如：
+```
+size_t bar(size_t n) {
+    if (n > 1) {
+        return n + bar(n - 1);  // Non-compliant
+    }
+    return n;
+}
+```
+例中bar函数设置了递归条件，但仍是不可取的，当参数n较大时仍然可以造成堆栈溢出错误。  
+  
+对于一般的功能，应尽量采用迭代、堆栈等非递归手段实现，对于难以使用非递归方式实现的特殊算法，应做到递归深度可控。
 <br/>
 <br/>
 
