@@ -251,7 +251,7 @@
     "ID_illAccess": {
         "checkPoint": "不可访问未初始化或已释放的资源",
         "level": "error",
-        "comment": "访问未初始化或已释放的资源属于逻辑错误，导致标准未定义的行为。",
+        "comment": "访问未初始化或已释放的资源属于逻辑错误，也会导致标准未定义的行为。",
         "tag": "resource",
         "related": "ID_danglingDeref,ID_localInitialization",
         "standard": "ISO/IEC 9899:2011 7.22.3.3(2)-undefined,ISO/IEC 14882:2011 3.7.4.2(4)-undefined",
@@ -1568,9 +1568,9 @@
         "reference": "C++ Core Guidelines R.13"
         },
     "ID_recursion": {
-        "checkPoint": "避免无限制的递归实现",
+        "checkPoint": "避免递归实现",
         "level": "warning",
-        "comment": "避免无限制的递归实现。",
+        "comment": "递归实现，如函数直接或间接地调用自身，易导致难以控制的堆栈溢出错误。",
         "tag": "function",
         "reference": "MISRA C 2012 17.2,MISRA C++ 2008 7-5-4"
         },
@@ -1776,7 +1776,7 @@
     "ID_definedInHeader": {
         "checkPoint": "函数不应在头文件中实现",
         "level": "warning",
-        "comment": "在头文件中实现的函数，如果不是内联、静态、模版函数，则可能随着头文件被包含而被引入不同的编译单元（translate-unit）中，造成编译冲突。",
+        "comment": "在头文件中实现的函数，如果不是内联、静态、模板函数，则可能随着头文件被包含而被引入不同的编译单元（translate-unit）中，造成编译冲突。",
         "tag": "global",
         "reference": "C++ Core Guidelines SF.2"
         },
@@ -1848,17 +1848,17 @@
         "reference": "C++ Core Guidelines C.137"
         },
     "ID_roughTemplateConstructor": {
-        "checkPoint": "带模版的构造函数不应覆盖拷贝或移动构造函数",
+        "checkPoint": "带模板的构造函数不应覆盖拷贝或移动构造函数",
         "level": "warning",
-        "comment": "带模版的构造函数覆盖拷贝或移动构造函数，很可能导致意料之外的错误。",
+        "comment": "带模板的构造函数覆盖拷贝或移动构造函数，很可能导致意料之外的错误。",
         "tag": "type",
         "related": "ID_roughTemplateAssignOperator",
         "reference": "MISRA C++ 2008 14-5-2"
         },
     "ID_roughTemplateAssignOperator": {
-        "checkPoint": "带模版的赋值运算符不应覆盖拷贝或移动赋值运算符",
+        "checkPoint": "带模板的赋值运算符不应覆盖拷贝或移动赋值运算符",
         "level": "warning",
-        "comment": "带模版的赋值运算符覆盖拷贝或移动赋值运算符，很可能导致意料之外的错误。",
+        "comment": "带模板的赋值运算符覆盖拷贝或移动赋值运算符，很可能导致意料之外的错误。",
         "tag": "type",
         "related": "ID_roughTemplateConstructor",
         "reference": "MISRA C++ 2008 14-5-3"
@@ -1887,7 +1887,7 @@
     "ID_stdNamespaceModified": {
         "checkPoint": "不可修改std命名空间",
         "level": "warning",
-        "comment": "可以为用户定义的类型特化某些标准模版类，除此之外对std命名空间添加、修改甚至删除任何代码所导致的后果都是标准未定义的。",
+        "comment": "可以为用户定义的类型特化某些标准模板类，除此之外对std命名空间添加、修改甚至删除任何代码所导致的后果都是标准未定义的。",
         "tag": "global",
         "standard": "ISO/IEC 14882:2011 17.6.4.2.1(1 2),ISO/IEC 14882:2017 20.5.4.2.1(1 2)",
         "reference": "SEI CERT DCL58-CPP"
@@ -2702,16 +2702,16 @@
         "reference": "CWE-467"
         },
     "ID_accessPaddingData": {
-        "checkPoint": "不应使用memcmp等函数比较非基类型的数据",
+        "checkPoint": "不应访问填充数据",
         "level": "warning",
-        "comment": "类的成员之间可能存在填充数据，这种数据只为实现“内存对齐”而无数值意义，填充数据的值是标准未声明的。",
+        "comment": "变量之间可能存在填充数据，这种数据只为实现“内存对齐”而无数值意义，而且填充数据的值是标准未声明的。",
         "tag": "expression",
         "standard": "ISO/IEC 9899:2011 6.2.6.2(5)-unspecified"
         },
     "ID_strcmpNoneZeroComparison": {
-        "checkPoint": "不应将strcmp、wcscmp等函数的返回值与非零常量比较",
+        "checkPoint": "不可臆断返回值的意义",
         "level": "error",
-        "comment": "strcmp、wcscmp等函数比较两个字符串大小，返回0、大于0或小于0的值，一种常见的错误是认为其返回值为0、1或-1。",
+        "comment": "对接口的使用应遵循接口文档，不可臆断返回值的意义，否则造成逻辑错误。",
         "tag": "expression",
         "standard": "ISO/IEC 9899:1999 7.21.4,ISO/IEC 9899:2011 7.24.4",
         "reference": "CWE-253"
@@ -2737,7 +2737,7 @@
     "ID_variableFormatString": {
         "checkPoint": "格式化字符串应为常量",
         "level": "warning",
-        "comment": "格式化字符串不应受到外部输入的影响，最好直接写成常量字符串的形式。",
+        "comment": "出于可读性和安全性的考量，格式化字符串最好直接写成常量字符串的形式。",
         "tag": "security",
         "related": "ID_hijack",
         "reference": "CWE-134"
@@ -2745,7 +2745,7 @@
     "ID_addressExposure": {
         "checkPoint": "与程序实现相关的信息不可被外界感知",
         "level": "warning",
-        "comment": "函数地址、缓冲区地址与长度、对象的地址等信息不可被外界感知，否则会成为攻击者的线索。",
+        "comment": "函数或对象的地址、缓冲区的地址和长度等信息不可被外界感知，否则会成为攻击者的线索。",
         "tag": "security",
         "related": "ID_hardcodedIP",
         "reference": "CWE-200"
