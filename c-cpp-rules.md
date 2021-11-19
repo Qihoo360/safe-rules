@@ -433,7 +433,7 @@
     - [R10.2.16 异或运算符左右子表达式不应重复](#ID_selfExclusiveOr)
     - [R10.2.17 负号不应作用于无符号整数](#ID_minusOnUnsigned)
     - [R10.2.18 不应重复使用一元运算符](#ID_repeatedUnaryOperators)
-    - [R10.2.19 常量表达式结果不应溢出](#ID_evalOverflow)
+    - [R10.2.19 运算结果不应溢出](#ID_evalOverflow)
     - [R10.2.20 位运算符不应作用于有符号整数](#ID_bitwiseOperOnSigned)
     - [R10.2.21 移位数量不可超过相关类型比特位的数量](#ID_illShiftCount)
   - [10.3 Comparison](#expression.comparison)
@@ -12241,23 +12241,50 @@ bool f = !!!a;  // Non-compliant
 <br/>
 <br/>
 
-### <span id="ID_evalOverflow">▌R10.2.19 常量表达式结果不应溢出</span>
+### <span id="ID_evalOverflow">▌R10.2.19 运算结果不应溢出</span>
 
 ID_evalOverflow&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-溢出即结果超出了对应类型的范围，对于有符号整数意味着标准未定义的错误，对于无符号整数往往意味着意料之外的结果。  
+运算结果超出对应类型的存储范围往往意味着错误。  
+  
+这种情况对于有符号整数，会引发标准未定义的行为，而对于无符号整数，则只保留有效范围内的值，相当于一种模运算，标准认为这是一种“语言特性”，规定无符号整数不存在溢出，然而实践表明，运算结果超出无符号整数的范围很容易引起意料之外的问题，所以不论是否有符号，均应规避这种问题。  
   
 示例：
 ```
-unsigned a = 0xffffffff + 1;  // Non-compliant
+uint64_t a = 0xffffffffU + 1;  // Non-compliant
+```
+例中0xffffffffU是32位无符号整数的最大值，根据C/C\+\+语言的计算规则，0xffffffffU \+ 1仍是32位无符号整数，不会自动转为64位整数，所以a的值是0，而不会是0x100000000。  
+  
+应改为：
+```
+uint64_t a = 0xffffffffULL + 1;  // Compliant
+```
+又如：
+```
+int32_t a = foo();
+int32_t b = bar();
+int64_t c = a * b;  // Rather suspicious
+```
+例中a和b是32位整数，a\*b仍为32位整数，如果a\*b的预期结果超过了32位就会造成溢出，这也是很常见的错误。  
+  
+应改为：
+```
+int64_t c = static_cast<int64_t>(a) * b;  // OK
 ```
 <br/>
 <br/>
 
+#### 依据
+ISO/IEC 9899:2011 6.5(5)-undefined  
+ISO/IEC 9899:2011 6.2.5(9)  
+<br/>
+
 #### 参考
 CWE-190  
+C++ Core Guidelines ES.103  
+C++ Core Guidelines ES.104  
 <br/>
 <br/>
 

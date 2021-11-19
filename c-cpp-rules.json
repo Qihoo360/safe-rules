@@ -1076,11 +1076,12 @@
         "reference": "C++ Core Guidelines SF.8,MISRA C 2004 19.15,MISRA C++ 2008 16-2-3"
         },
     "ID_evalOverflow": {
-        "checkPoint": "常量表达式结果不应溢出",
+        "checkPoint": "运算结果不应溢出",
         "level": "warning",
-        "comment": "常量表达式结果不应溢出。",
+        "comment": "运算结果超出对应类型的存储范围往往意味着错误。",
         "tag": "expression",
-        "reference": "CWE-190"
+        "standard": "ISO/IEC 9899:2011 6.5(5)-undefined,ISO/IEC 9899:2011 6.2.5(9)",
+        "reference": "CWE-190,C++ Core Guidelines ES.103,C++ Core Guidelines ES.104"
     },
     "ID_constLogicExpression": {
         "checkPoint": "逻辑表达式及其子表达式的结果不应为常量",
