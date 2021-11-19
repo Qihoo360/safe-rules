@@ -1075,7 +1075,7 @@
         "tag": "precompile",
         "reference": "C++ Core Guidelines SF.8,MISRA C 2004 19.15,MISRA C++ 2008 16-2-3"
         },
-    "ID_constValueOverflow": {
+    "ID_evalOverflow": {
         "checkPoint": "常量表达式结果不应溢出",
         "level": "warning",
         "comment": "常量表达式结果不应溢出。",
@@ -2708,7 +2708,7 @@
         "tag": "expression",
         "standard": "ISO/IEC 9899:2011 6.2.6.2(5)-unspecified"
         },
-    "ID_strcmpNoneZeroComparison": {
+    "ID_wrongUseOfReturnValue": {
         "checkPoint": "不可臆断返回值的意义",
         "level": "error",
         "comment": "对接口的使用应遵循接口文档，不可臆断返回值的意义，否则造成逻辑错误。",

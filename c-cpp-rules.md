@@ -433,7 +433,7 @@
     - [R10.2.16 异或运算符左右子表达式不应重复](#ID_selfExclusiveOr)
     - [R10.2.17 负号不应作用于无符号整数](#ID_minusOnUnsigned)
     - [R10.2.18 不应重复使用一元运算符](#ID_repeatedUnaryOperators)
-    - [R10.2.19 常量表达式结果不应溢出](#ID_constValueOverflow)
+    - [R10.2.19 常量表达式结果不应溢出](#ID_evalOverflow)
     - [R10.2.20 位运算符不应作用于有符号整数](#ID_bitwiseOperOnSigned)
     - [R10.2.21 移位数量不可超过相关类型比特位的数量](#ID_illShiftCount)
   - [10.3 Comparison](#expression.comparison)
@@ -444,7 +444,7 @@
     - [R10.3.5 比较运算符左右子表达式不应重复](#ID_selfComparison)
     - [R10.3.6 比较运算不应作为另一个比较运算的直接子表达式](#ID_successiveComparison)
     - [R10.3.7 不应访问填充数据](#ID_accessPaddingData)
-    - [R10.3.8 不可臆断返回值的意义](#ID_strcmpNoneZeroComparison)
+    - [R10.3.8 不可臆断返回值的意义](#ID_wrongUseOfReturnValue)
   - [10.4 Call](#expression.call)
     - [R10.4.1 C风格的格式化字符串与其参数的个数应严格一致](#ID_inconsistentFormatArgNum)
     - [R10.4.2 C风格的格式化字符串与其参数的类型应严格一致](#ID_inconsistentFormatArgType)
@@ -12241,17 +12241,17 @@ bool f = !!!a;  // Non-compliant
 <br/>
 <br/>
 
-### <span id="ID_constValueOverflow">▌R10.2.19 常量表达式结果不应溢出</span>
+### <span id="ID_evalOverflow">▌R10.2.19 常量表达式结果不应溢出</span>
 
-ID_constValueOverflow&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
+ID_evalOverflow&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-常量表达式结果不应溢出。  
+溢出即结果超出了对应类型的范围，对于有符号整数意味着标准未定义的错误，对于无符号整数往往意味着意料之外的结果。  
   
 示例：
 ```
-auto a = 0xffffffff + 1;  // Non-compliant
+unsigned a = 0xffffffff + 1;  // Non-compliant
 ```
 <br/>
 <br/>
@@ -12618,9 +12618,9 @@ ISO/IEC 9899:2011 6.2.6.2(5)-unspecified
 <br/>
 <br/>
 
-### <span id="ID_strcmpNoneZeroComparison">▌R10.3.8 不可臆断返回值的意义</span>
+### <span id="ID_wrongUseOfReturnValue">▌R10.3.8 不可臆断返回值的意义</span>
 
-ID_strcmpNoneZeroComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
+ID_wrongUseOfReturnValue&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
 <hr/>
 
