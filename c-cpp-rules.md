@@ -437,7 +437,7 @@
     - [R10.2.20 位运算符不应作用于有符号整数](#ID_bitwiseOperOnSigned)
     - [R10.2.21 移位数量不可超过相关类型比特位的数量](#ID_illShiftCount)
   - [10.3 Comparison](#expression.comparison)
-    - [R10.3.1 应在正确的范围内进行比较](#ID_illComparison)
+    - [R10.3.1 比较运算应在正确的范围内进行](#ID_illComparison)
     - [R10.3.2 不应使用==或!=判断浮点数是否相等](#ID_illFloatComparison)
     - [R10.3.3 指针不可与字符串常量直接比较](#ID_illPtrStrComparison)
     - [R10.3.4 不同类型的枚举值不应进行比较](#ID_differentEnumComparison)
@@ -12368,7 +12368,7 @@ MISRA C++ 2008 5-8-1
 
 ### <span id="expression.comparison">10.3 Comparison</span>
 
-### <span id="ID_illComparison">▌R10.3.1 应在正确的范围内进行比较</span>
+### <span id="ID_illComparison">▌R10.3.1 比较运算应在正确的范围内进行</span>
 
 ID_illComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
