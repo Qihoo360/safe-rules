@@ -437,7 +437,7 @@
     - [R10.2.20 位运算符不应作用于有符号整数](#ID_bitwiseOperOnSigned)
     - [R10.2.21 移位数量不可超过相关类型比特位的数量](#ID_illShiftCount)
   - [10.3 Comparison](#expression.comparison)
-    - [R10.3.1 比较运算应在正确的范围内进行](#ID_illComparison)
+    - [R10.3.1 应在正确的范围内进行比较](#ID_illComparison)
     - [R10.3.2 不应使用==或!=判断浮点数是否相等](#ID_illFloatComparison)
     - [R10.3.3 指针不可与字符串常量直接比较](#ID_illPtrStrComparison)
     - [R10.3.4 不同类型的枚举值不应进行比较](#ID_differentEnumComparison)
@@ -10560,6 +10560,7 @@ void foo(char c) {
     }
 }
 ```
+例中变量c的值不可能为256，所以case 256对应的分枝永远不会被执行。
 <br/>
 <br/>
 
@@ -12196,7 +12197,7 @@ unsigned int a = 1;
 long long b = -a;    // Non-compliant, b is 4294967295, confusing
 ```
 例外：  
-unsigned char、unsigned short等可以promote为int的无符号类型被放过。  
+unsigned char、unsigned short等可以提升为int的无符号类型被放过。  
 \-1U、\-1UL、\-1ULL作为UINT\_MAX、ULONG\_MAX、ULLONG\_MAX的惯用简写形式被放过。
 <br/>
 <br/>
@@ -12294,7 +12295,7 @@ ID_bitwiseOperOnSigned&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-有符号整数的符号位对于位运算符来说是没有逻辑意义的，对负数进行位运算往往意味着逻辑错误。  
+符号位在位运算方面没有逻辑意义，对负数进行位运算往往意味着逻辑错误。  
   
 示例：
 ```
@@ -12348,7 +12349,7 @@ uint64_t foo(uint32_t u) {
 应改为：
 ```
 uint64_t foo(uint32_t u) {
-    return (uint64_t)u << 32;  // Compliant
+    return static_cast<uint64_t>(u) << 32;  // Compliant
 }
 ```
 <br/>
@@ -12367,25 +12368,24 @@ MISRA C++ 2008 5-8-1
 
 ### <span id="expression.comparison">10.3 Comparison</span>
 
-### <span id="ID_illComparison">▌R10.3.1 比较运算应在正确的范围内进行</span>
+### <span id="ID_illComparison">▌R10.3.1 应在正确的范围内进行比较</span>
 
 ID_illComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
 <hr/>
 
-比较运算应在正确的范围内进行，否则易造成恒为真或恒为假的无效结果。判断无符号变量小于0或大于等于0是没有意义的，或者用来比较的数值超出了变量的取值范围也是没有意义的。  
+应在正确的范围内进行比较，否则会造成恒为真或恒为假的无效结果。  
   
 示例：
 ```
-void foo(string& txt, string& sep) {
-  size_t n = txt.length();
-  size_t start = txt.find_first_not_of(sep);
-  while (start >= 0 && start < n) {  // Non-compliant, start >= 0 is always true
-      ....
-  }
+void foo(string& txt, string& sub) {
+    size_t n = txt.find(sub);
+    if (n >= 0) {  // Non-compliant, always true
+        ....
+    }
 }
 ```
-其中start >= 0恒为真，是不必要的条件。  
+无符号变量不可能小于0，也一定大于等于0，例中n >= 0恒为真，是没有意义的条件。  
   
 又如：
 ```
@@ -12396,23 +12396,21 @@ void fun(X x) {
     }
 }
 ```
-例中x为无符号短整型变量，其取值范围为\[0,65535\]，x == \-1永远为假。  
-由C/C\+\+语言的类型转换机制，有符号和无符号的字符型及短整型变量与整数进行比较时，会将该变量转为整型再进行计算。本例中的x转为整型后恒为正数，\-1为负数，故不可能相等，即使该函数按fun(\-1)调用也不会得到正确的结果，因为这相当于整型的65535与整形的\-1相比较。  
+例中x为无符号短整型变量，其取值范围为\[0,65535\]，x == \-1恒为假。x会被提升为int型再与\-1比较，x恒为正数，\-1为负数，故不可能相等。  
   
-又如，对于有符号字符型变量，与其进行比较的数值不在\[\-128，127\]之中时，也是无效的比较：
+又如，对于有符号字符型变量，与其比较的数值不在\[\-128，127\]范围内时，也是无效的：
 ```
 CodePage encodingDetect(const char* src) {
-  char b0 = src[0];
-  char b1 = src[1];
-  char b2 = src[2];
-  if (b0 == 0xef && b1 == 0xbb && b2 == 0xbf) {  // Non-compliant, always false
-      return cpUtf8;
-  }
-  ....
+    char b0 = src[0];
+    char b1 = src[1];
+    char b2 = src[2];
+    if (b0 == 0xef && b1 == 0xbb && b2 == 0xbf) {  // Non-compliant, always false
+        return cpUtf8;
+    }
+    ....
 }
 ```
-和上个例子一样，即使b0的二进制绝对值确实为0xef，但由于类型转换，b0转为整型后为负数，0xef转为整型后为正数，故结果为假。  
-将b0、b1、b2设为无符号字符类型可解决这个问题。本例中char为有符号字符类型，可通过扫描设置决定char是否有符号，默认为有符号类型。
+即使例中b0的二进制绝对值确实为0xef，但由于类型提升，b0转为int型后为负数，0xef为正数，比较的结果恒为假。char型变量是否有符号由实现定义，可参见ID\_plainNumericChar的进一步说明，将b0等变量设为unsigned char可解决这个问题。
 <br/>
 <br/>
 
