@@ -601,7 +601,7 @@ void foo(User* u) {
   
 保护措施包括但不限于：  
  ● 避免敏感数据由内存交换到外存  
- ● 避免如除零、无效指针解引用等问题造成core dump  
+ ● 避免如除零、无效指针解引用等问题造成“[core dump](https://en.wikipedia.org/wiki/Core_dump)”  
  ● 应具备反调试机制，使外界无法获得进程的内部数据  
  ● 应具备反注入机制，使外界无法篡改程序的行为  
   
@@ -808,7 +808,7 @@ ID_TOCTOU&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 攻击者可以在两次通过路径访问同一文件的中途对该文件作手脚，从而造成不良后果。  
   
-这种问题称为TOCTOU（Time\-of\-check Time\-of\-use）竞态条件。有时需要先检查文件的某种状态，如果状态满足条件的话，再使用这文件，如果“检查”和“使用”都是通过路径完成的，攻击者可以在中途将文件替换成不满足条件的文件，如将文件替换成指向另一个文件的链接，从而对系统造成破坏。  
+这种问题称为“[TOCTOU（Time\-of\-check to time\-of\-use）](https://en.wikipedia.org/wiki/Time-of-check_to_time-of-use)”。有时需要先检查文件的某种状态，如果状态满足条件的话，再使用这文件，如果“检查”和“使用”都是通过路径完成的，攻击者可以在中途将文件替换成不满足条件的文件，如将文件替换成指向另一个文件的链接，从而对系统造成破坏。  
   
 示例：
 ```
@@ -886,7 +886,7 @@ int foo() {
 ```
 其中atomic是C\+\+标准原子类，fetch\_add将对象持有的整数增1并返回之前的值，可以保证线程对整数的操作是有序进行的，不会造成混乱。  
   
-不同的访问顺序会对结果产生影响，往往意味着错误，这种问题称为“竞态条件（Race Conditon）”。
+不同的访问顺序会对结果产生影响，往往意味着错误，这种问题称为“[竞态条件（race conditon）](https://en.wikipedia.org/wiki/Race_condition)”。
 ```
 void bar() {
     int* p = baz();  // Points to shared data
@@ -1287,9 +1287,9 @@ void foo() {
     return 100 / n;  // Non-compliant, must determine whether ‘n’ is 0
 }
 ```
-当除数为0时，对于整形数据的除法，进程往往会崩溃，对于浮点型数据的除法，一般会产生NaN这种无效的结果。  
+当除数为0时，对于整形数据的除法，进程往往会崩溃，对于浮点型数据的除法，一般会产生“[NaN](https://en.wikipedia.org/wiki/NaN)”这种无效的结果。  
   
-崩溃会给用户不好的体验，而且要注意如果崩溃可由外部输入引起，会被攻击者利用从而迫使程序无法正常工作，具有高可靠性要求的服务类程序更应该注意这一点。对于客户端程序，也要防止攻击者对崩溃产生的core dump进行恶意调试，避免泄露敏感数据，程序的健壮性与安全性是紧密相关的。
+崩溃会给用户不好的体验，而且要注意如果崩溃可由外部输入引起，会被攻击者利用从而迫使程序无法正常工作，具有高可靠性要求的服务类程序更应该注意这一点。对于客户端程序，也要防止攻击者对崩溃产生的“[core dump](https://en.wikipedia.org/wiki/Core_dump)”进行恶意调试，避免泄露敏感数据，程序的健壮性与安全性是紧密相关的。
 <br/>
 <br/>
 
@@ -1547,7 +1547,7 @@ ID_memoryLeak&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
 <hr/>
 
-已分配内存的地址不可被遗失，否则相关内存无法被访问也无法被回收，这种问题称为“内存泄漏”，会导致可用内存被耗尽，使程序无法正确运行。  
+已分配内存的地址不可被遗失，否则相关内存无法被访问也无法被回收，这种问题称为“[内存泄漏（memory leak）](https://en.wikipedia.org/wiki/Memory_leak)”，会导致可用内存被耗尽，使程序无法正确运行。  
   
 程序需要保证内存分配与回收之间的流程可达，且不可被异常中断，所在线程也不可在中途停止。  
   
@@ -1861,7 +1861,7 @@ void baz() {
   
 在C\+\+程序设计中应尽量使用标准库提供的容器或unique\_ptr、shared\_ptr等资源管理手段，避免new和delete等方法的显式调用。对于遵循C\+\+11之后标准的代码，建议用make\_unique函数代替new运算符。  
   
-如需进一步理解资源的对象化管理方法，可参见RAII等模式。  
+如需进一步理解资源的对象化管理方法，可参见“[RAII（Resource Acquisition Is Initialization）](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization)”等机制。  
   
 对系统API尤其是资源相关的API应进行合理封装，不应直接被业务代码引用，如：
 ```
@@ -1966,7 +1966,7 @@ public:
     }
 };
 ```
-如果对成员b的内存分配失败，抛出bad\_alloc异常，A的析构函数不会被执行，已分配的资源无法被正确回收，但已构造完毕的对象还是会正常析构的，所以应将资源相关的成员指针对象化，利用RAII等模式使相关资源可以被自动回收。  
+如果对成员b的内存分配失败，抛出bad\_alloc异常，A的析构函数不会被执行，已分配的资源无法被正确回收，但已构造完毕的对象还是会正常析构的，所以应将资源相关的成员指针对象化，利用“[RAII](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization)”等机制使相关资源可以被自动回收。  
   
 应改为：
 ```
@@ -4276,7 +4276,7 @@ ID_missingCopyAssignOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
  2. 析构函数  
  3. 赋值运算符  
   
-当这三个函数中的任何一个函数被定义时，其它两个函数也需要被定义，请参见ID\_missingCopyConstructor中对“Rule of three”的解释。  
+当这三个函数中的任何一个函数被定义时，其它两个函数也需要被定义，请参见ID\_missingCopyConstructor中对“[Rule of three](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming))”的解释。  
   
 值得强调的是，如果确实不需要赋值运算符，需明确将其声明为“=delete”，如果确实只需要浅拷贝，需将其声明为“=default”，这样明确了复制对象时的行为，规避意料之外的错误。  
   
@@ -4324,10 +4324,10 @@ ID_missingCopyConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
  2. 析构函数  
  3. 赋值运算符  
   
-当这三个函数中的任何一个函数被定义时，说明对象的复制以及资源的分配与回收需要遵循某种特定的行为，所以其它两个函数也需要被定义，否则容易造成冲突或泄漏，这条规则称为“Rule of three”。  
+当这三个函数中的任何一个函数被定义时，说明对象的复制以及资源的分配与回收需要遵循某种特定的行为，所以其它两个函数也需要被定义，否则容易造成冲突或泄漏，这条规则称为“[Rule of three](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming))”。  
 如果不显式定义，编译器虽然也会自动生成相关函数，但可能难以满足实际需求。  
   
-请注意，当类只负责成员的组合而且不需要特殊的复制行为时，这三个函数就都不要定义，这条规则称为“Rule of zero”，在类的设计上应尽量遵循“Rule of zero”，从而达到简约代码的目的。  
+请注意，当类只负责成员的组合而且不需要特殊的复制行为时，这三个函数就都不要定义，这条规则称为“[Rule of zero](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-zero)”，在类的设计上应尽量遵循“[Rule of zero](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-zero)”，从而达到简约代码的目的。  
   
 同理，在C\+\+11中，对于：  
  1. 拷贝构造函数  
@@ -4336,7 +4336,7 @@ ID_missingCopyConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
  4. 移动拷贝构造函数  
  5. 移动赋值运算符  
   
-当这五个函数中的任何一个函数被定义时，其他四个函数也需要显示定义，这条规则称为“Rule of five”。  
+当这五个函数中的任何一个函数被定义时，其他四个函数也需要显示定义，这条规则称为“[Rule of five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming)#Rule_of_Five)”。  
   
 如果确实不需要某个函数，也需要用“=delete”指明，以明确约束对象的行为。
 <br/>
@@ -4363,7 +4363,7 @@ ID_missingDestructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
  2. 析构函数  
  3. 赋值运算符  
   
-当这三个函数中的任何一个函数被定义时，其它两个函数也需要被定义，请参见ID\_missingCopyConstructor中对“Rule of three”的解释。  
+当这三个函数中的任何一个函数被定义时，其它两个函数也需要被定义，请参见ID\_missingCopyConstructor中对“[Rule of three](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming))”的解释。  
   
 示例：
 ```
@@ -4461,7 +4461,7 @@ ID_missingMoveAssignOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
 
 <hr/>
 
-存在移动构造函数时，不应缺少移动赋值运算符，详见“Rule of five”。
+存在移动构造函数时，不应缺少移动赋值运算符，详见“[Rule of five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming)#Rule_of_Five)”。
 <br/>
 <br/>
 
@@ -4480,7 +4480,7 @@ ID_missingMoveConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
 
 <hr/>
 
-存在移动赋值运算符，不应缺少移动构造函数，详见“Rule of five”。
+存在移动赋值运算符，不应缺少移动构造函数，详见“[Rule of five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming)#Rule_of_Five)”。
 <br/>
 <br/>
 
@@ -7271,7 +7271,7 @@ string format(const char* fmt, ...) {
 ```
 例中va\_start、va\_arg、va\_end是可变参数列表的标准支持，这种方法只能在运行时以fmt为依据获取后续参数，当实际参数与fmt不符时会造成严重问题，单纯地要求代码编写者小心谨慎是不可靠的，改用更安全的方法才是明智的选择。  
   
-在C\+\+代码中可采用模板参数包来实现这种功能：
+在C\+\+代码中可采用“[模板参数包](https://en.cppreference.com/w/cpp/language/parameter_pack)”来实现这种功能：
 ```
 template <class T, class ...Args>
 void get_argstrs(vector<string>& vs, const T& arg, const Args& ...rest) {
@@ -7303,7 +7303,7 @@ string format(const char* fmt, const Args& ...args) {  // Compliant
 ```
 示例代码用get\_argstrs函数递归地将参数都转为string对象存入容器，再将fmt中的'@'和'$'依次替换成容器中的字符串，实际上这种实现是可以不区分'@'和'$'的，这个过程中参数的个数和类型是可以由代码主动判断的，如果参数不能转为字符串则不会通过编译，如果参数个数与占位符不符也容易作出处理。  
   
-模板参数包、constexpr等特性是C\+\+语言在编译理论上的重大突破，合理运用这些特性可以有效提升代码的安全性和可维护性。
+“[模板参数包](https://en.cppreference.com/w/cpp/language/parameter_pack)”、“[constexpr](https://en.cppreference.com/w/cpp/language/constexpr)”等特性是C\+\+语言在编译理论上的重大突破，合理运用这些特性可以有效提升代码的安全性和可维护性。
 <br/>
 <br/>
 
@@ -8563,9 +8563,9 @@ void bar() {
     ....
 }
 ```
-bar函数用foo函数返回的对象初始化a对象，理论上应执行拷贝构造函数，但标准允许编译器将foo函数返回的临时对象直接作为a对象，这种优化称为“copy elision”，拷贝构造函数被执行的次数可能与预期不符，所以拷贝构造函数不应存在超出复制的副作用。  
+bar函数用foo函数返回的对象初始化a对象，理论上应执行拷贝构造函数，但标准允许编译器将foo函数返回的临时对象直接作为a对象，这种优化称为“[copy elision](https://en.wikipedia.org/wiki/Copy_elision)”，拷贝构造函数被执行的次数可能与预期不符，所以拷贝构造函数不应存在超出复制的副作用。  
   
-进一步可参见RVO与NRVO相关介绍。
+进一步可参见“[RVO（Return Value Optimization）](https://en.wikipedia.org/wiki/Copy_elision#Return_value_optimization)”的相关介绍。
 <br/>
 <br/>
 
@@ -11678,7 +11678,7 @@ ID_missingSideEffect&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
 <hr/>
 
-不能对程序状态产生影响的语句称为无副作用（side effect）的语句，也可以说是没有效果的语句，往往属于笔误或调试痕迹，应当修正或去除。  
+不能对程序状态产生影响的语句称为无“[副作用（side effect）](https://en.wikipedia.org/wiki/Side_effect_(computer_science))”的语句，也可以说是没有效果的语句，往往属于笔误或调试痕迹，应当修正或去除。  
   
 示例（设a、b、p为变量或指针）：
 ```
@@ -12197,8 +12197,8 @@ unsigned int a = 1;
 long long b = -a;    // Non-compliant, b is 4294967295, confusing
 ```
 例外：  
-unsigned char、unsigned short等可以提升为int的无符号类型被放过。  
-\-1U、\-1UL、\-1ULL作为UINT\_MAX、ULONG\_MAX、ULLONG\_MAX的惯用简写形式被放过。
+unsigned char、unsigned short等可以“[类型提升](https://en.wikipedia.org/wiki/Type_conversion#Type_promotion)”为int的无符号类型可被放过。  
+\-1U、\-1UL、\-1ULL作为UINT\_MAX、ULONG\_MAX、ULLONG\_MAX的惯用简写形式可被放过。
 <br/>
 <br/>
 
@@ -12396,9 +12396,9 @@ void fun(X x) {
     }
 }
 ```
-例中x为无符号短整型变量，其取值范围为\[0,65535\]，x == \-1恒为假。x会被提升为int型再与\-1比较，x恒为正数，\-1为负数，故不可能相等。  
+例中x为无符号短整型变量，其取值范围为\[0, 65535\]，x == \-1恒为假。由于“[类型提升](https://en.wikipedia.org/wiki/Type_conversion#Type_promotion)”，x会被转为int型再与\-1比较，x恒为正数，\-1为负数，故不可能相等。  
   
-又如，对于有符号字符型变量，与其比较的数值不在\[\-128，127\]范围内时，也是无效的：
+又如，对于有符号字符型变量，与其比较的数值不在\[\-128, 127\]范围内时，也是无效的：
 ```
 CodePage encodingDetect(const char* src) {
     char b0 = src[0];
@@ -12410,7 +12410,7 @@ CodePage encodingDetect(const char* src) {
     ....
 }
 ```
-即使例中b0的二进制绝对值确实为0xef，但由于类型提升，b0转为int型后为负数，0xef为正数，比较的结果恒为假。char型变量是否有符号由实现定义，可参见ID\_plainNumericChar的进一步说明，将b0等变量设为unsigned char可解决这个问题。
+即使例中b0的二进制绝对值确实为0xef，但由于“[类型提升](https://en.wikipedia.org/wiki/Type_conversion#Type_promotion)”，b0转为int型后为负数，0xef为正数，比较的结果恒为假。char型变量是否有符号由实现定义，可参见ID\_plainNumericChar的进一步说明，将b0等变量设为unsigned char可解决这个问题。
 <br/>
 <br/>
 
@@ -12557,7 +12557,7 @@ a < a    // Non-compliant
 a <= a   // Non-compliant
 ```
 例外：  
-如果a为浮点数类型，判断a是否为无效值（NaN）的惯用方法是判断a != a是否为真，对于这种情况可以放过。
+如果a为浮点数类型，判断a是否为无效值“[NaN](https://en.wikipedia.org/wiki/NaN)”的惯用方法是判断a != a是否为真，对于这种情况可以放过。
 <br/>
 <br/>
 
@@ -12609,7 +12609,7 @@ ID_accessPaddingData&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-变量之间可能存在填充数据，这种数据只为实现“内存对齐”而无数值意义，而且填充数据的值是标准未声明的。  
+变量之间可能存在填充数据，这种数据只为实现“[内存对齐](https://en.wikipedia.org/wiki/Data_structure_alignment)”而无数值意义，而且填充数据的值是标准未声明的。  
   
 示例：
 ```
@@ -15041,7 +15041,7 @@ void bar(T* p) {
 ```
 例中对p\->bar的调用超出了p的检查范围，这也属于常见指针错误。  
   
-解引用空指针一般会使进程崩溃，给用户不好的体验，而且要注意如果崩溃可由外部输入引起，会被攻击者利用从而迫使程序无法正常工作，具有高可靠性要求的服务类程序应该注意这一点。对于客户端程序，也要防止攻击者对崩溃产生的core dump进行恶意调试，避免泄露敏感数据，程序的健壮性与安全性是紧密相关的。
+解引用空指针一般会使进程崩溃，给用户不好的体验，而且要注意如果崩溃可由外部输入引起，会被攻击者利用从而迫使程序无法正常工作，具有高可靠性要求的服务类程序更应该注意这一点。对于客户端程序，也要防止攻击者对崩溃产生的“[core dump](https://en.wikipedia.org/wiki/Core_dump)”进行恶意调试，避免泄露敏感数据，程序的健壮性与安全性是紧密相关的。
 <br/>
 <br/>
 
