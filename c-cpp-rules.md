@@ -1289,7 +1289,7 @@ void foo() {
 ```
 当除数为0时，对于整形数据的除法，进程往往会崩溃，对于浮点型数据的除法，一般会产生“[NaN](https://en.wikipedia.org/wiki/NaN)”这种无效的结果。  
   
-崩溃会给用户不好的体验，而且要注意如果崩溃可由外部输入引起，会被攻击者利用从而迫使程序无法正常工作，具有高可靠性要求的服务类程序更应该注意这一点。对于客户端程序，也要防止攻击者对崩溃产生的“[core dump](https://en.wikipedia.org/wiki/Core_dump)”进行恶意调试，避免泄露敏感数据，程序的健壮性与安全性是紧密相关的。
+崩溃会给用户不好的体验，而且要注意如果崩溃可由外部输入引起，会被攻击者利用从而迫使程序无法正常工作，具有高可靠性要求的服务类程序更应该注意这一点，可参见“[拒绝服务攻击](https://en.wikipedia.org/wiki/Denial-of-service_attack)”的进一步说明。对于客户端程序，也要防止攻击者对崩溃产生的“[core dump](https://en.wikipedia.org/wiki/Core_dump)”进行恶意调试，避免泄露敏感数据，总之程序的健壮性与安全性是紧密相关的。
 <br/>
 <br/>
 
@@ -6180,7 +6180,7 @@ ID_nonStdCopyAssignmentParam&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration war
 
 <hr/>
 
-拷贝赋值运算符的参数不应为值传递，否则会造成不必要的复制，以及对象切片等问题。  
+拷贝赋值运算符的参数不应为值传递，否则会造成不必要的复制，以及“[对象切片](https://en.wikipedia.org/wiki/Object_slicing)”等问题。  
   
 示例：
 ```
@@ -7792,7 +7792,7 @@ void bar() {
     }
 }
 ```
-注意，例中foo函数虽然捕获的是EDerive对象，但throw e;抛出的是EBase对象，这也是一种切片问题，造成了对象类型的“精度损失”。  
+注意，例中foo函数虽然捕获的是EDerive对象，但throw e;抛出的是EBase对象，这也是一种“[对象切片](https://en.wikipedia.org/wiki/Object_slicing)”问题，造成了对象类型的“精度损失”。  
 将throw e;改为throw;可解决这种问题。
 <br/>
 <br/>
@@ -11126,7 +11126,25 @@ ID_try_forbidNest&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: control suggestion
 
 <hr/>
 
-嵌套的try\-catch结构会使程序的控制流变得复杂，较难看出异常究竟是从哪个try块抛出在哪个catch块被处理，不利于维护。
+嵌套的try\-catch结构会使程序的控制流变得复杂，较难看出异常究竟是从哪个try块抛出在哪个catch块被处理，不利于维护。  
+  
+示例：
+```
+void foo()
+{
+    try {
+        try {       // Non-compliant
+            bar();
+        }
+        catch (const E0&) {
+            ....
+        }
+    }
+    catch (const E1&) {
+        ....
+    }
+}
+```
 <br/>
 <br/>
 
@@ -11143,7 +11161,7 @@ ID_catch_value&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
 <hr/>
 
-如果按传值的方式捕获异常会造成不必要的复制开销，也可能产生对象切片问题；如果通过指针捕获异常，会增加不必要的内存管理开销，通过引用捕获异常才是合理的方式。  
+如果按传值的方式捕获异常会造成不必要的复制开销，也可能产生“[对象切片](https://en.wikipedia.org/wiki/Object_slicing)”问题；如果通过指针捕获异常，会增加不必要的内存管理开销，通过引用捕获异常才是合理的方式。  
   
 示例：
 ```
@@ -12872,7 +12890,7 @@ ID_objectSlicing&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-将派生类对象复制为基类对象的行为称为“对象切片”，基类对象不再持有派生类的属性，不再遵循多态机制，意味着某种精度上的损失，往往会造成意料之外的错误。  
+将派生类对象复制为基类对象的行为称为“[对象切片（object slicing）](https://en.wikipedia.org/wiki/Object_slicing)”，基类对象不再持有派生类的属性，不再遵循多态机制，意味着某种精度上的损失，往往会造成意料之外的错误。  
   
 示例：
 ```
@@ -15041,7 +15059,7 @@ void bar(T* p) {
 ```
 例中对p\->bar的调用超出了p的检查范围，这也属于常见指针错误。  
   
-解引用空指针一般会使进程崩溃，给用户不好的体验，而且要注意如果崩溃可由外部输入引起，会被攻击者利用从而迫使程序无法正常工作，具有高可靠性要求的服务类程序更应该注意这一点。对于客户端程序，也要防止攻击者对崩溃产生的“[core dump](https://en.wikipedia.org/wiki/Core_dump)”进行恶意调试，避免泄露敏感数据，程序的健壮性与安全性是紧密相关的。
+解引用空指针一般会使进程崩溃，给用户不好的体验，而且要注意如果崩溃可由外部输入引起，会被攻击者利用从而迫使程序无法正常工作，具有高可靠性要求的服务类程序更应该注意这一点，可参见“[拒绝服务攻击](https://en.wikipedia.org/wiki/Denial-of-service_attack)”的进一步说明。对于客户端程序，也要防止攻击者对崩溃产生的“[core dump](https://en.wikipedia.org/wiki/Core_dump)”进行恶意调试，避免泄露敏感数据，总之程序的健壮性与安全性是紧密相关的。
 <br/>
 <br/>
 
