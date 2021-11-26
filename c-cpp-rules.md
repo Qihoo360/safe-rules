@@ -187,8 +187,8 @@
     - [R5.1.5 对于菱形继承应将基类设为虚基类](#ID_diamondInheritance)
     - [R5.1.6 带模板的赋值运算符不应覆盖拷贝或移动赋值运算符](#ID_roughTemplateAssignOperator)
     - [R5.1.7 带模板的构造函数不应覆盖拷贝或移动构造函数](#ID_roughTemplateConstructor)
-    - [R5.1.8 存在拷贝构造函数或析构函数时，不应缺少拷贝赋值运算符](#ID_missingCopyAssignOperator)
-    - [R5.1.9 存在赋值运算符或析构函数时，不应缺少拷贝构造函数](#ID_missingCopyConstructor)
+    - [R5.1.8 存在赋值运算符或析构函数时，不应缺少拷贝构造函数](#ID_missingCopyConstructor)
+    - [R5.1.9 存在拷贝构造函数或析构函数时，不应缺少拷贝赋值运算符](#ID_missingCopyAssignOperator)
     - [R5.1.10 存在拷贝构造函数或赋值运算符时，不应缺少析构函数](#ID_missingDestructor)
     - [R5.1.11 有虚函数的基类应具有虚析构函数](#ID_missingVirtualDestructor)
     - [R5.1.12 存在移动构造函数时，不应缺少移动赋值运算符](#ID_missingMoveAssignOperator)
@@ -4265,55 +4265,7 @@ MISRA C++ 2008 14-5-2
 <br/>
 <br/>
 
-### <span id="ID_missingCopyAssignOperator">▌R5.1.8 存在拷贝构造函数或析构函数时，不应缺少拷贝赋值运算符</span>
-
-ID_missingCopyAssignOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
-
-<hr/>
-
-三个紧密相关的函数：  
- 1. 拷贝构造函数  
- 2. 析构函数  
- 3. 赋值运算符  
-  
-当这三个函数中的任何一个函数被定义时，其它两个函数也需要被定义，详见“[Rule of three](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming))”。  
-  
-值得强调的是，如果确实不需要赋值运算符，需明确将其声明为“=delete”，如果确实只需要浅拷贝，需将其声明为“=default”，这样明确了复制对象时的行为，规避意料之外的错误。  
-  
-示例：
-```
-class A {  // Non-compliant, missing assignment operator
-public:
-    A();
-    A(const A&);
-   ~A();
-};
-```
-应明确赋值运算符的行为：
-```
-class A {  // Compliant
-public:
-    A();
-    A(const A&);
-   ~A();
-
-    A& operator=(const A&);  // Assignment operator
-};
-```
-<br/>
-<br/>
-
-#### 相关
-ID_missingDestructor  
-ID_missingCopyConstructor  
-<br/>
-
-#### 参考
-C++ Core Guidelines C.21  
-<br/>
-<br/>
-
-### <span id="ID_missingCopyConstructor">▌R5.1.9 存在赋值运算符或析构函数时，不应缺少拷贝构造函数</span>
+### <span id="ID_missingCopyConstructor">▌R5.1.8 存在赋值运算符或析构函数时，不应缺少拷贝构造函数</span>
 
 ID_missingCopyConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
 
@@ -4368,6 +4320,54 @@ struct B {
 #### 相关
 ID_missingDestructor  
 ID_missingCopyAssignOperator  
+<br/>
+
+#### 参考
+C++ Core Guidelines C.21  
+<br/>
+<br/>
+
+### <span id="ID_missingCopyAssignOperator">▌R5.1.9 存在拷贝构造函数或析构函数时，不应缺少拷贝赋值运算符</span>
+
+ID_missingCopyAssignOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
+
+<hr/>
+
+三个紧密相关的函数：  
+ 1. 拷贝构造函数  
+ 2. 析构函数  
+ 3. 赋值运算符  
+  
+当这三个函数中的任何一个函数被定义时，其它两个函数也需要被定义，详见“[Rule of three](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming))”。  
+  
+值得强调的是，如果确实不需要赋值运算符，需明确将其声明为“=delete”，如果确实只需要浅拷贝，需将其声明为“=default”，这样明确了复制对象时的行为，规避意料之外的错误。  
+  
+示例：
+```
+class A {  // Non-compliant, missing assignment operator
+public:
+    A();
+    A(const A&);
+   ~A();
+};
+```
+应明确赋值运算符的行为：
+```
+class A {  // Compliant
+public:
+    A();
+    A(const A&);
+   ~A();
+
+    A& operator=(const A&);  // Assignment operator
+};
+```
+<br/>
+<br/>
+
+#### 相关
+ID_missingDestructor  
+ID_missingCopyConstructor  
 <br/>
 
 #### 参考
