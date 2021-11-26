@@ -789,7 +789,9 @@ string bar() {
     return read_file(path);
 }
 ```
-这段代码意在将用户输入限制在/myhome/mydata目录下，然而这么做是不安全的，如果用户的输入是带有“../”这种相对路径的形式，则仍可绕过限制，所以在read\_file之前应判断路径的可靠性。
+这段代码意在将用户输入限制在/myhome/mydata目录下，然而这么做是不安全的，如果用户的输入是带有“../”这种相对路径的形式，则仍可绕过限制，所以在read\_file之前应判断路径的可靠性。  
+  
+注意，“用户输入”不单指人的输入，不受程序直接控制的数据，如源自外存、硬件或其他进程的输入均在此范围内。
 <br/>
 <br/>
 
@@ -4351,7 +4353,7 @@ public:
    ~A();
 };
 ```
-应明确赋值运算符的行为：
+应明确定义赋值运算符：
 ```
 class A {  // Compliant
 public:
@@ -4397,14 +4399,15 @@ public:
     A& operator=(const A&);
 };
 ```
-应明确析构函数的行为：
+应明确定义析构函数：
 ```
 class A {  // Compliant
 public:
     A();
     A(const A&);
     A& operator=(const A&);
-   ~A();  // Destructor
+
+   ~A();   // Destructor
 };
 ```
 <br/>
@@ -4428,7 +4431,7 @@ ID_missingVirtualDestructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
 
 <hr/>
 
-为了避免意料之外的资源泄漏，所有有虚函数的基类，都应该具有虚析构函数。  
+为了避免意料之外的资源泄漏，有虚函数的基类，都应该具有虚析构函数。  
   
 当通过基类指针析构派生类对象时，如果基类没有虚析构函数，那么派生类对象的析构函数是无法被执行的，造成不易排查的资源泄漏，如：
 ```
@@ -4457,7 +4460,7 @@ public:
 ```
 A* p = new B(32);
 cout << p->size();  // OK, output 32
-delete p;           // But only A::~A is called, B::x leaks
+delete p;           // But only ‘A::~A’ is called, ‘B::x’ leaks
 ```
 由于A的析构函数不是虚函数，所以delete p只调用了A的析构函数，导致派生类对象中的资源没有得到释放。
 <br/>
@@ -4491,7 +4494,7 @@ ID_missingMoveAssignOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
  4. 移动拷贝构造函数  
  5. 移动赋值运算符  
   
-当这五个函数中的任何一个函数被定义时，其它四个函数也需要被定义，详见“[Rule of five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming)#Rule_of_Five)”。尤其是存在移动构造函数时，不应缺少移动赋值运算符。
+当这五个函数中的任何一个函数被定义时，其它四个函数也需要被定义，详见“[Rule of five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming)#Rule_of_Five)”，尤其是存在移动构造函数时，不应缺少移动赋值运算符。
 <br/>
 <br/>
 
@@ -4517,7 +4520,7 @@ ID_missingMoveConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
  4. 移动拷贝构造函数  
  5. 移动赋值运算符  
   
-当这五个函数中的任何一个函数被定义时，其它四个函数也需要被定义，详见“[Rule of five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming)#Rule_of_Five)”。尤其是存在移动赋值运算符时，不应缺少移动构造函数。
+当这五个函数中的任何一个函数被定义时，其它四个函数也需要被定义，详见“[Rule of five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming)#Rule_of_Five)”，尤其是存在移动赋值运算符时，不应缺少移动构造函数。
 <br/>
 <br/>
 
@@ -7474,10 +7477,10 @@ ID_exceptionUnsafe&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
 <hr/>
 
-当产生异常时，应保证：  
+当产生异常时，保证：  
  ● 相关资源不会泄漏  
  ● 相关对象处于正确状态  
-是保证C\+\+异常机制可以正确工作的重要基础。  
+是C\+\+异常机制可以正确工作的重要基础。  
   
 示例：
 ```
