@@ -4491,7 +4491,7 @@ ID_missingMoveAssignOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
  4. 移动拷贝构造函数  
  5. 移动赋值运算符  
   
-当这五个函数中的任何一个函数被定义时，其它四个函数也需要被定义，尤其是存在移动构造函数时，不应缺少移动赋值运算符，详见“[Rule of five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming)#Rule_of_Five)”。
+当这五个函数中的任何一个函数被定义时，其它四个函数也需要被定义，详见“[Rule of five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming)#Rule_of_Five)”。尤其是存在移动构造函数时，不应缺少移动赋值运算符。
 <br/>
 <br/>
 
@@ -4517,7 +4517,7 @@ ID_missingMoveConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
  4. 移动拷贝构造函数  
  5. 移动赋值运算符  
   
-当这五个函数中的任何一个函数被定义时，其它四个函数也需要被定义，尤其是存在移动赋值运算符时，不应缺少移动构造函数，详见“[Rule of five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming)#Rule_of_Five)”。
+当这五个函数中的任何一个函数被定义时，其它四个函数也需要被定义，详见“[Rule of five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming)#Rule_of_Five)”。尤其是存在移动赋值运算符时，不应缺少移动构造函数。
 <br/>
 <br/>
 
