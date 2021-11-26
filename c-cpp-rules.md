@@ -4517,7 +4517,7 @@ ID_missingMoveConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
  4. 移动拷贝构造函数  
  5. 移动赋值运算符  
   
-当这五个函数中的任何一个函数被定义时，其它四个函数也需要被定义，尤其是存在移动赋值运算符，不应缺少移动构造函数，详见“[Rule of five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming)#Rule_of_Five)”。
+当这五个函数中的任何一个函数被定义时，其它四个函数也需要被定义，尤其是存在移动赋值运算符时，不应缺少移动构造函数，详见“[Rule of five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming)#Rule_of_Five)”。
 <br/>
 <br/>
 
@@ -4545,17 +4545,25 @@ public:
   String(int capacity);   // Missing ‘explicit’
   ....
 };
-String str = 100;   // Odd, either str is "100" or str can hold 100 chars??
+
+void foo(const String&);
+
+int bar() {
+  foo(100);  // Can be compiled, but very odd
+}
 ```
+由于String类的构造函数接受一个int型参数，foo(100)相当于将100隐式转为String类的对象，这种隐式转换是怪异的，也往往意味着意料之外的错误。  
+  
 应改为：
 ```
 class String {
 public:
-  explicit String(int capacity);
+  explicit String(int capacity);  // OK
   ....
 };
-String str(100);   // Better
 ```
+这样foo(100)这种写法便不会通过编译。  
+  
 例外：  
 对于拷贝、移动构造函数不受本规则约束，如果将拷贝、移动构造函数声明为explicit则无法再按值传递参数或按值返回对象。  
 
