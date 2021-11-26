@@ -83,7 +83,7 @@
     "ID_bitwiseOperOnSigned": {
         "checkPoint": "位运算符不应作用于有符号整数",
         "level": "warning",
-        "comment": "有符号整数的符号位对于位运算符来说是没有逻辑意义的，对负数进行位运算往往意味着逻辑错误。",
+        "comment": "符号位在位运算方面没有逻辑意义，对负数进行位运算往往意味着逻辑错误。",
         "tag": "expression",
         "standard": "ISO/IEC 14882:2011 5.8(2)-undefined,ISO/IEC 14882:2011 5.8(3)-implementation",
         "reference": "CWE-682,MISRA C 2004 12.7,MISRA C 2012 10.1,MISRA C++ 2008 5-0-21,C++ Core Guidelines ES.101"
@@ -209,7 +209,7 @@
     "ID_memoryLeak": {
         "checkPoint": "不可失去对已分配内存的控制",
         "level": "warning",
-        "comment": "已分配内存的地址不可被遗失，否则相关内存无法被访问也无法被回收，这种问题称为“内存泄漏”，会导致可用内存被耗尽，使程序无法正确运行。",
+        "comment": "已分配内存的地址不可被遗失，否则相关内存无法被访问也无法被回收，这种问题称为“内存泄漏（memory leak）”，会导致可用内存被耗尽，使程序无法正确运行。",
         "tag": "resource",
         "related": "ID_resourceLeak,ID_ownerlessResource",
         "reference": "C++ Core Guidelines P.8,C++ Core Guidelines E.13"
@@ -797,7 +797,7 @@
     "ID_nonStdCopyAssignmentParam": {
         "checkPoint": "拷贝赋值运算符的参数应为同类对象的const左值引用",
         "level": "warning",
-        "comment": "拷贝赋值运算符的参数不应为值传递，否则会造成不必要的复制，以及对象切片等问题。",
+        "comment": "拷贝赋值运算符的参数不应为值传递，否则会造成不必要的复制，以及“对象切片”等问题。",
         "tag": "declaration",
         "reference": "C++ Core Guidelines C.60"
     },
@@ -1124,7 +1124,7 @@
     "ID_illComparison": {
         "checkPoint": "比较运算应在正确的范围内进行",
         "level": "error",
-        "comment": "比较运算应在正确的范围内进行，否则易造成恒为真或恒为假的无效结果。判断无符号变量小于0或大于等于0是没有意义的，或者用来比较的数值超出了变量的取值范围也是没有意义的。",
+        "comment": "应在正确的范围内进行比较，否则会造成恒为真或恒为假的无效结果。",
         "tag": "expression",
         "related": "ID_switch_caseOutOfRange",
         "reference": "CWE-697,CWE-1024,CWE-1025"
@@ -1313,7 +1313,7 @@
     "ID_missingSideEffect": {
         "checkPoint": "不应出现没有效果的语句",
         "level": "error",
-        "comment": "不能对程序状态产生影响的语句称为无副作用（side effect）的语句，也可以说是没有效果的语句，往往属于笔误或调试痕迹，应当修正或去除。",
+        "comment": "不能对程序状态产生影响的语句称为无“副作用（side effect）”的语句，也可以说是没有效果的语句，往往属于笔误或调试痕迹，应当修正或去除。",
         "tag": "expression",
         "reference": "CWE-1164,CWE-482,MISRA C 2004 14.2,MISRA C 2012 2.2,MISRA C++ 2008 0-1-9"
         },
@@ -1836,7 +1836,7 @@
     "ID_missingVirtualDestructor": {
         "checkPoint": "有虚函数的基类应具有虚析构函数",
         "level": "warning",
-        "comment": "为了避免意料之外的资源泄漏，所有有虚函数的基类，都应该具有虚析构函数。",
+        "comment": "为了避免意料之外的资源泄漏，有虚函数的基类，都应该具有虚析构函数。",
         "tag": "type",
         "standard": "ISO/IEC 14882:2003 12.4(7) 5.3.5(3),ISO/IEC 14882:2011 12.4(9) 5.3.5(3),ISO/IEC 14882:2017 15.4(10) 8.3.5(3)",
         "reference": "CWE-1079,CWE-1087,CWE-1045,C++ Core Guidelines C.35,C++ Core Guidelines C.127"
