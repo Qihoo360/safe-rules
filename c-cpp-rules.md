@@ -4276,7 +4276,7 @@ ID_missingCopyAssignOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
  2. 析构函数  
  3. 赋值运算符  
   
-当这三个函数中的任何一个函数被定义时，其它两个函数也需要被定义，请参见ID\_missingCopyConstructor中对“[Rule of three](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming))”的解释。  
+当这三个函数中的任何一个函数被定义时，其它两个函数也需要被定义，详见“[Rule of three](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming))”。  
   
 值得强调的是，如果确实不需要赋值运算符，需明确将其声明为“=delete”，如果确实只需要浅拷贝，需将其声明为“=default”，这样明确了复制对象时的行为，规避意料之外的错误。  
   
@@ -4324,19 +4324,42 @@ ID_missingCopyConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
  2. 析构函数  
  3. 赋值运算符  
   
-当这三个函数中的任何一个函数被定义时，说明对象的复制以及资源的分配与回收需要遵循某种特定的行为，所以其它两个函数也需要被定义，否则容易造成冲突或泄漏，这条规则称为“[Rule of three](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming))”。  
+当这三个函数中的任何一个函数被定义时，说明对象在复制以及资源的分配与回收方面存在某种特定的行为，所以其他两个函数也需要被定义，否则容易造成冲突或泄漏，这种规则称为“[Rule of three](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming))”。  
 如果不显式定义，编译器虽然也会自动生成相关函数，但可能难以满足实际需求。  
   
-请注意，当类只负责成员的组合而且不需要特殊的复制行为时，这三个函数就都不要定义，这条规则称为“[Rule of zero](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-zero)”，在类的设计上应尽量遵循“[Rule of zero](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-zero)”，从而达到简约代码的目的。  
+示例：
+```
+struct A {    // Non-compliant
+    int* p;
+
+    A(): p(new int[123]) {}
+   ~A() { delete[] p; }
+};
+```
+例中A存在析构函数，但没有拷贝构造函数和赋值运算符，一旦发生对象的复制，由于是“浅拷贝”，所以在析构时会导致p被重复释放。  
   
-同理，在C\+\+11中，对于：  
+请注意，当类只负责成员的组合而没有特殊的复制行为时，这三个函数就都不要定义，这种规则称为“[Rule of zero](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-zero)”，在类的设计上应尽量遵循“[Rule of zero](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-zero)”，从而达到简化代码的目的。  
+  
+示例：
+```
+struct B {
+    std::string a, b;
+
+    B(const B& rhs): a(rhs.a), b(rhs.b) {}   // Verbose
+    B& operator = (const B& rhs) { a = rhs.a; b = rhs.b; }   // Verbose
+   ~B() {}   // Verbose
+};
+```
+例中B只涉及字符串对象的组合，所以其拷贝构造、赋值运算符及析构函数是不必要的，应该去掉，编译器会进行更好的处理。  
+  
+同理，在遵循C\+\+11以之后标准的代码中，对于：  
  1. 拷贝构造函数  
  2. 析构函数  
  3. 赋值运算符  
  4. 移动拷贝构造函数  
  5. 移动赋值运算符  
   
-当这五个函数中的任何一个函数被定义时，其他四个函数也需要显示定义，这条规则称为“[Rule of five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming)#Rule_of_Five)”。  
+当这五个函数中的任何一个函数被定义时，其他四个函数也需要显示定义，这种规则称为“[Rule of five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming)#Rule_of_Five)”。  
   
 如果确实不需要某个函数，也需要用“=delete”指明，以明确约束对象的行为。
 <br/>
@@ -4363,7 +4386,7 @@ ID_missingDestructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
  2. 析构函数  
  3. 赋值运算符  
   
-当这三个函数中的任何一个函数被定义时，其它两个函数也需要被定义，请参见ID\_missingCopyConstructor中对“[Rule of three](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming))”的解释。  
+当这三个函数中的任何一个函数被定义时，其它两个函数也需要被定义，详见“[Rule of three](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming))”。  
   
 示例：
 ```
@@ -4461,7 +4484,14 @@ ID_missingMoveAssignOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
 
 <hr/>
 
-存在移动构造函数时，不应缺少移动赋值运算符，详见“[Rule of five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming)#Rule_of_Five)”。
+五个紧密相关的函数：  
+ 1. 拷贝构造函数  
+ 2. 析构函数  
+ 3. 赋值运算符  
+ 4. 移动拷贝构造函数  
+ 5. 移动赋值运算符  
+  
+当这五个函数中的任何一个函数被定义时，其它四个函数也需要被定义，尤其是存在移动构造函数时，不应缺少移动赋值运算符，详见“[Rule of five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming)#Rule_of_Five)”。
 <br/>
 <br/>
 
@@ -4480,7 +4510,14 @@ ID_missingMoveConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
 
 <hr/>
 
-存在移动赋值运算符，不应缺少移动构造函数，详见“[Rule of five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming)#Rule_of_Five)”。
+五个紧密相关的函数：  
+ 1. 拷贝构造函数  
+ 2. 析构函数  
+ 3. 赋值运算符  
+ 4. 移动拷贝构造函数  
+ 5. 移动赋值运算符  
+  
+当这五个函数中的任何一个函数被定义时，其它四个函数也需要被定义，尤其是存在移动赋值运算符，不应缺少移动构造函数，详见“[Rule of five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming)#Rule_of_Five)”。
 <br/>
 <br/>
 
