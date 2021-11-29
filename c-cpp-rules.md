@@ -1320,8 +1320,8 @@ ID_forbidAtox&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: security warning
   
 示例：
 ```
-cout << atoi("abcdefg") << endl;  // Non-compliant
-cout << atoi("100000000000") << endl;  // Non-compliant
+cout << atoi("abcdefg") << '\n';  // Non-compliant
+cout << atoi("100000000000") << '\n';  // Non-compliant
 ```
 例中字符串“abcdefg”不表示数字，字符串“100000000000”超出了正常int型变量的范围，这些情况会导致标准未定义的问题。  
   
@@ -5114,14 +5114,14 @@ union U {  // Non-compliant
 
 U u;
 u.i = 1000;
-cout << u.c << endl;  // Equivalent to a cast without any restrictions
+cout << u.c << '\n';  // Equivalent to a cast without any restrictions
 ```
 对联合体的使用也相当于一种没有限制的强制类型转换，在C\+\+中建议用std::variant或std::any取代联合体：
 ```
 std::variant<int, char> u;
 u = 123;
-cout << get<int>(u) << endl;   // OK
-cout << get<char>(u) << endl;  // Throw ‘std::bad_variant_access’
+cout << get<int>(u) << '\n';   // OK
+cout << get<char>(u) << '\n';  // Throw ‘std::bad_variant_access’
 ```
 std::variant可以有效记录对象当前持有的类型，如果以不正确的类型访问对象会及时抛出异常。  
   
@@ -5523,7 +5523,7 @@ struct A {
 
 int main() {
     A a;
-    std::cout << sizeof(a) << std::endl;  // What is output?
+    std::cout << sizeof(a) << '\n';  // What is output?
 }
 ```
 输出8  
@@ -5694,7 +5694,7 @@ public:
 };
 
 A* p = new B;
-cout << p->foo() << endl;  // What is output?
+cout << p->foo() << '\n';  // What is output?
 ```
 输出1，这种虚函数的非多态行为是非常令人困惑的。
 <br/>
@@ -6719,9 +6719,9 @@ struct X {
 
 int main() {
     X x;
-    x.a = 1; std::cout << x.a << std::endl;  // What is output?
-    x.b = 1; std::cout << x.b << std::endl;
-    x.c = 1; std::cout << x.c << std::endl;
+    x.a = 1; cout << x.a << '\n';  // What is output?
+    x.b = 1; cout << x.b << '\n';
+    x.c = 1; cout << x.c << '\n';
 }
 ```
 按常规思维，x.b和x.c为1与预期相符，x.a预期是1，但实际是\-1。
@@ -10077,7 +10077,7 @@ for (float f = 0.f; f < 1.f; f += 0.001f) {  // Non-compliant
     ....
     n++;
 }
-cout << n << endl;  // Not 1000
+cout << n << '\n';  // Not 1000
 ```
 本例按常识应循环1000次，然而由于f无法精确表示0.001，导致实际循环次数与预期产生偏差。  
   
@@ -12827,7 +12827,7 @@ void foo(const std::string& msg) {
 应改为：
 ```
 void foo(const std::string& msg) {
-    std::cout << "Message: " << msg << std::endl;  // Compliant
+    std::cout << "Message: " << msg << '\n';  // Compliant
 }
 ```
 由于可变参数列表自身的局限，很难在编译时发现这种问题，而且在实现上也很难针对错误情况进行处理，故建议在C\+\+代码中禁用C风格的格式化函数。
@@ -13022,30 +13022,33 @@ ID_forbidCStringFormat&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: expression sugges
 
 <hr/>
 
-C风格字符串格式化方法（如printf、sprintf等），即由可变参数列表实现的格式化方法是不安全的，在编译期无法限定参数的类型和数量，极易产生各种错误。  
+printf、sprintf等C风格字符串格式化方法，即由可变参数列表实现的格式化方法，主要问题有：  
+ ● 在编译期无法保证安全性，易出错或造成可移植性问题，提高了测试成本  
+ ● 与C\+\+的强类型理念不符，也不在C\+\+标准之内  
+ ● 只接受基本类型的参数，不利于数据的对象化管理  
   
 示例：
 ```
 size_t a = -1;
 ptrdiff_t b = -2;
 ```
-如果按16进制打印a，10进制打印b：
+如果要按16进制打印a，10进制打印b：
 ```
-printf("%x %d", a, b);      // Non-compliant
-printf("%lx %ld", a, b);    // Non-compliant
-printf("%llx %lld", a, b);  // Non-compliant
+printf("%x %d", a, b);  // Non-compliant, #1
+printf("%lx %ld", a, b);  // Non-compliant, #2
+printf("%llx %lld", a, b);  // Non-compliant, #3
 ```
-size\_t、ptrdiff\_t等类型是由实现定义的，标准没有规定其是否一定对应unsigned int、long或long long类型，而%d、%lx、%llx只对应int、long、long long类型，所以示例代码都是不合理的。  
+size\_t、ptrdiff\_t等类型是由实现定义的，标准没有规定其是否一定对应unsigned int、long或long long类型，而%d、%lx、%llx只对应int、long、long long类型，所以示例代码都是不合理的。\#1在64位环境中会丢失数据，\#3在32位环境中会造成参数栈读取错误，\#2只在某些环境下可以正常工作不具备可移值性。  
   
 在C语言中正确的作法是a对应%zx，b对应%zd，如：
 ```
-printf("%zx %zd", a, b);    // Non-compliant in C++, even if the result is correct
+printf("%zx %zd", a, b);  // Non-compliant in C++, even if the result is correct
 ```
-参数的类型与个数和占位符必须严格对应，否则就会导致标准未定义的错误，当参数较多时极易出错，C\+\+语言提供了更好的方法以规避这种问题，所以C\+\+代码中不应再使用C风格的字符串格式化方法。
+参数的类型与个数和占位符必须严格对应，否则就会导致标准未定义的错误，当参数较多时极易出错，利用C\+\+ iostream可有效规避这些问题：
 ```
 std::cout << std::hex << a << ' ' << std::dec << b;  // Compliant
 ```
-利用C\+\+输入输出流可有效规避printf等函数的问题，然而当参数较多时在形态上可能较为“松散”，其可读性可能不如printf等函数，对于这个问题可参见ID\_forbidVariadicFunction中的示例，可以用一种更安全的方法实现printf函数的功能。另外，C\+\+20的std::format也提供了更多的格式化方法。
+然而当参数较多时，利用iostream的方式在形态上可能较为“松散”，其可读性可能不如printf等函数，对于这个问题可参见ID\_forbidVariadicFunction中的示例，用“[模板参数包](https://en.cppreference.com/w/cpp/language/parameter_pack)”等更安全的方法实现printf函数的功能。另外，C\+\+20的“[std::format](https://en.cppreference.com/w/cpp/utility/format/format)”也提供了更多的格式化方法。
 <br/>
 <br/>
 
@@ -13076,7 +13079,7 @@ sizeof只关注类型，其子表达式不会被求值，如果存在可以影�
 ```
 int a = 0;
 cout << sizeof(a++) << ' ';  // Non-compliant
-cout << a << endl;  // What is output?
+cout << a << '\n';  // What is output?
 ```
 输出4 0，a\+\+不会被执行。
 <br/>
@@ -13507,7 +13510,7 @@ void fun() {
     int a[5] = {1, 2, 3, 4};
     4[a] = 5;                      // Non-compliant, use a[4] instead
     for (int i = 0; i < 4; i++) {
-        cout << i + 1[a] << endl;  // Non-compliant, may be a[i + 1]
+        cout << i + 1[a] << '\n';  // Non-compliant, may be a[i + 1]
     }
 }
 ```
@@ -13592,7 +13595,7 @@ ID_literal_suspiciousChar&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: literal warning
 由于C/C\+\+语言允许在单引号内写入多个字符来表示一个整形常量，如：
 ```
 auto i = '/t';
-cout << typeid(i).name() << i << endl;  // What is output?
+cout << typeid(i).name() << ' ' << i;  // What is output?
 ```
 这种语言特性可以让一些笔误通过编译，使问题不易察觉。  
   
@@ -13600,7 +13603,7 @@ cout << typeid(i).name() << i << endl;  // What is output?
 ```
 auto* tab = wcschr(str, L'/t');
 ```
-在某些编译器上执行结果和下列代码一样：
+在某些环境中执行结果和下列代码一样：
 ```
 auto* tab = wcschr(str, L'/');
 ```
@@ -13769,9 +13772,9 @@ ID_literal_misspelling&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: literal warning
 ```
 void showMessage(int errCode) {
     if (errCode) {
-        cout << "Error" << endl;
+        cout << "Error\n";
     } else {
-        cout << "Successfull" << endl;  // Non-compliant
+        cout << "Successfull\n";  // Non-compliant
     }
 }
 ```
@@ -14603,7 +14606,7 @@ struct C: A, B {
 int main() {
   C c;
   cout << static_cast<B*>(&c)->b << ' ';
-  cout << reinterpret_cast<B*>(&c)->b << endl; // Non-compliant, what is output?
+  cout << reinterpret_cast<B*>(&c)->b << '\n'; // Non-compliant, what is output?
 }
 ```
 输出2 1  
@@ -15584,7 +15587,7 @@ struct A {
 
 A* p = foo();
 // Suppose an error has occurred and a null pointer is returned
-cout << p->getX() << endl;
+cout << p->getX() << '\n';
 ```
 假设foo函数不应返回空指针，而某个错误导致其返回了空指针，程序本应崩溃，而getX函数却逃避了崩溃，这非但不能真正地解决问题，反而使问题难以定位，使程序难以调试，大大降低了可维护性。
 <br/>
@@ -15743,11 +15746,11 @@ ID_deprecatedNULL&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style suggestion
 示例：
 ```
 void foo(int*) {
-    cout << "foo(int*)" << endl;
+    cout << "foo(int*)\n";
 }
 
 void foo(int) {
-    cout << "foo(int)" << endl;
+    cout << "foo(int)\n";
 }
 
 int main() {
