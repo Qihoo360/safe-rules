@@ -1195,6 +1195,7 @@
         "level": "warning",
         "comment": "类型转换时去掉const、volatile等属性使相关机制失去了意义，这往往意味着设计上的缺陷，也会导致标准未定义的错误。",
         "tag": "cast",
+        "standard": "ISO/IEC 14882:2003 7.1.5.1(4 5)-undefined,ISO/IEC 14882:2011 7.1.6.1(4)-undefined",
         "reference": "C++ Core Guidelines Type.3,MISRA C 2004 11.5,MISRA C 2012 11.8,MISRA C++ 2008 5-2-5"
         },
     "ID_objectSlicing": {
@@ -1233,14 +1234,16 @@
     "ID_castNonPublicInheritance": {
         "checkPoint": "不应强制转换非公有继承关系的类型",
         "level": "warning",
-        "comment": "公有继承表示派生类是基类的一种扩展，而非公有继承往往表示派生类是基类的一种“例外”，这种情况下将派生类转为非公有的基类是有问题的。",
+        "comment": "公有继承表示派生类是基类的某种扩展，而非公有继承往往表示派生类是基类的某种“例外”，基类的方法不再适用于派生类的对象。",
+        "standard": "ISO/IEC 9899:2011 4.10(3)",
         "tag": "cast"
         },
     "ID_redundantCast": {
         "checkPoint": "不应存在多余的类型转换",
         "level": "warning",
-        "comment": "转换前后的类型完全相同是没有意义的，可能意味着某种笔误。",
-        "tag": "cast"
+        "comment": "转换前后的类型完全相同是没有意义的，很可能意味着某种笔误。",
+        "tag": "cast",
+        "reference": "CWE-704"
         },
     "ID_functionPointerCast": {
         "checkPoint": "对函数以及函数指针不应进行类型转换",
@@ -1263,7 +1266,7 @@
         "level": "warning",
         "comment": "向下类型转换如果不用dynamic_cast难以保证安全性。",
         "tag": "cast",
-        "standard": "ISO/IEC 14882:2011 5.2.7",
+        "standard": "ISO/IEC 14882:2011 5.2.7,ISO/IEC 14882:2003 5.2.9(5 8)-undefined,ISO/IEC 14882:2011 5.2.9(11 12)-undefined",
         "related": "ID_downCast",
         "reference": "MISRA C++ 2008 5-2-2,C++ Core Guidelines Type.2"
         },
@@ -1476,7 +1479,8 @@
         "config": {
             "ID_assertion/names": "断言函数或宏的名称，如assert、_ASSERT_EXPR等，用“|”分隔"
             },
-        "tag": "expression"
+        "tag": "expression",
+        "standard": "ISO/IEC 9899:2011 7.2"
         },
     "ID_sideEffectAssertion": {
         "checkPoint": "断言中的表达式不应有副作用",
@@ -1486,6 +1490,7 @@
             "ID_assertion/names": "断言函数或宏的名称，如assert、_ASSERT_EXPR等，用“|”分隔"
             },
         "tag": "expression",
+        "standard": "ISO/IEC 9899:2011 7.2",
         "related": "ID_macro_sideEffectArgs",
         "reference": "SEI CERT PRE31-C"
         },
@@ -1580,6 +1585,7 @@
         "level": "error",
         "comment": "类成员的初始化顺序是按声明的顺序进行的，如果用后面的成员初始化前面的成员，就会造成错误。",
         "tag": "function",
+        "standard": "ISO/IEC 14882:2003 12.6.2(5),ISO/IEC 14882:2011 12.6.2(10)",
         "reference": "C++ Core Guidelines C.47"
         },
     "ID_memberInitialization": {
@@ -1801,14 +1807,16 @@
     "ID_unsuitableReturn": {
         "checkPoint": "属性为noreturn的函数中不应出现return语句",
         "level": "warning",
-        "comment": "属性为noreturn的函数中出现return语句说明函数还是可以正常返回的，这种矛盾会对调用者造成很大困扰。",
-        "tag": "function"
+        "comment": "属性为noreturn的函数中出现return语句说明函数还是可以正常返回的，这种矛盾会对调用者造成很大困扰，而且会导致标准未定义的问题。",
+        "tag": "function",
+        "standard": "ISO/IEC 14882:2011 7.6.3(2)-undefined"
         },
     "ID_unsuitableReturnType": {
         "checkPoint": "属性为noreturn的函数返回类型只应为void",
         "level": "warning",
         "comment": "属性为noreturn的函数返回类型不是void说明函数还是有返回值的，这种矛盾会对调用者造成很大困扰。",
-        "tag": "function"
+        "tag": "function",
+        "standard": "ISO/IEC 14882:2011 7.6.3(2)-undefined"
         },
     "ID_overloadLogicOperator": {
         "checkPoint": "不应重载“逻辑与”和“逻辑或”运算符",
@@ -1829,8 +1837,9 @@
     "ID_overloadAddressOperator": {
         "checkPoint": "不应重载取地址运算符",
         "level": "suggestion",
-        "comment": "对于取地址运算符，重载之后可以返回任意地址，极易误用，建议禁止重载该运算符。",
+        "comment": "取地址运算符（一元&运算符），重载之后可以返回任意地址，极易误用，建议禁止重载该运算符。",
         "tag": "declaration",
+        "standard": "ISO/IEC 14882:2003 5.3.1(4)-undefined,ISO/IEC 14882:2011 5.3.1(5)-undefined",
         "reference": "C++ Core Guidelines C.166,MISRA C++ 2008 5-3-3"
         },
     "ID_missingVirtualDestructor": {
@@ -1846,6 +1855,7 @@
         "level": "suggestion",
         "comment": "当一个类有多个基类，而这些基类又同时继承于某个类时，就出现了“菱形继承”问题。在派生类的实例中，基类的成员将有多个不同的实例，这造成了逻辑上的重复与存储上的负担。如果一定需要“菱形继承”，建议将基类设为虚基类。",
         "tag": "type",
+        "standard": "ISO/IEC 14882:2011 10.1(4 5 6 7),ISO/IEC 14882:2003 5.2.9(5 8)-undefined,ISO/IEC 14882:2011 5.2.9(11 12)-undefined",
         "reference": "C++ Core Guidelines C.137"
         },
     "ID_roughTemplateConstructor": {
@@ -1905,6 +1915,7 @@
         "comment": "头文件中定义了匿名命名空间，即相当于在头文件中定义了静态数据，头文件被多个源文件包含时便会造成数据冗余。",
         "tag": "global",
         "related": "ID_staticInHeader",
+        "standard": "ISO/IEC 14882:2011 7.3.1.1",
         "reference": "C++ Core Guidelines SF.21,MISRA C++ 2008 7-3-3"
         },
     "ID_topInlineNamespace": {
@@ -2651,6 +2662,7 @@
         "level": "suggestion",
         "comment": "对于硬件无关的功能性代码不妨禁用volatile关键字，否则误用该关键字会引发优化及同步相关的多种问题。",
         "tag": "declaration",
+        "standard": "ISO/IEC 14882:2003 7.1.5.1(8),ISO/IEC 14882:2011 7.1.6.1(7)",
         "reference": "C++ Core Guidelines CP.8,C++ Core Guidelines CP.200"
         },
     "ID_sizeof_arrayParameter": {
