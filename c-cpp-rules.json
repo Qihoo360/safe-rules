@@ -1211,7 +1211,7 @@
         "level": "error",
         "comment": "非基本类型的对象与可变参数列表的机制很难相容，如果这种对象被传入可变参数列表，往往意味着错误。",
         "tag": "expression",
-        "standard": "ISO/IEC 14882:2011 5.2.2(7)-implementation,ISO/IEC 14882:2011 7.16.1.1(2)-undefined",
+        "standard": "ISO/IEC 14882:2011 5.2.2(7)-implementation",
         "reference": "CWE-686,SEI CERT EXP47-C"
         },
     "ID_downCast": {
@@ -2735,7 +2735,7 @@
         "comment": "对于C风格的格式化函数（如printf、fprintf、sprintf等），格式化字符串与其对应参数的个数应严格一致，否则会引发严重的运行时堆栈错误。",
         "tag": "expression",
         "related": "ID_inconsistentFormatArgType,ID_forbidCStringFormat",
-        "standard": "ISO/IEC 14882:2011 7.16.1.1(2)-undefined",
+        "standard": "ISO/IEC 9899:2011 7.16.1.1(2)-undefined,ISO/IEC 9899:2011 7.21.6.1(2)-undefined",
         "reference": "SEI CERT FIO47-C"
         },
     "ID_inconsistentFormatArgType": {
@@ -2744,7 +2744,7 @@
         "comment": "对于C风格的格式化函数（如printf、fprintf、sprintf等），格式化字符串与其对应参数的类型应严格一致，否则会引发严重的运行时堆栈错误。",
         "tag": "expression",
         "related": "ID_userObjectAsVariadicArgument,ID_inconsistentFormatArgNum,ID_forbidCStringFormat",
-        "standard": "ISO/IEC 14882:2011 7.16.1.1(2)-undefined",
+        "standard": "ISO/IEC 9899:2011 7.16.1.1(2)-undefined,ISO/IEC 9899:2011 7.21.6.1(2)-undefined",
         "reference": "CWE-686,SEI CERT FIO47-C"
         },
     "ID_variableFormatString": {
@@ -2769,7 +2769,7 @@
         "comment": "C风格字符串格式化方法（如printf、sprintf等），即由可变参数列表实现的格式化方法是不安全的，在编译期无法限定参数的类型和数量，极易产生各种错误。",
         "tag": "expression",
         "related": "ID_forbidVariadicFunction",
-        "standard": "ISO/IEC 14882:2011 7.16.1.1(2)-undefined",
+        "standard": "ISO/IEC 9899:2011 7.16.1.1(2)-undefined,ISO/IEC 9899:2011 7.21.6.1(2)-undefined",
         "reference": "C++ Core Guidelines SL.io.3"
         },
     "ID_this_zeroComparison": {

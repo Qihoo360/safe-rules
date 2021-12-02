@@ -12833,7 +12833,8 @@ ID_forbidCStringFormat
 <br/>
 
 #### 依据
-ISO/IEC 14882:2011 7.16.1.1(2)-undefined  
+ISO/IEC 9899:2011 7.16.1.1(2)-undefined  
+ISO/IEC 9899:2011 7.21.6.1(2)-undefined  
 <br/>
 
 #### 参考
@@ -12874,7 +12875,8 @@ ID_forbidCStringFormat
 <br/>
 
 #### 依据
-ISO/IEC 14882:2011 7.16.1.1(2)-undefined  
+ISO/IEC 9899:2011 7.16.1.1(2)-undefined  
+ISO/IEC 9899:2011 7.21.6.1(2)-undefined  
 <br/>
 
 #### 参考
@@ -12920,7 +12922,6 @@ void foo(const A& a) {
 
 #### 依据
 ISO/IEC 14882:2011 5.2.2(7)-implementation  
-ISO/IEC 14882:2011 7.16.1.1(2)-undefined  
 <br/>
 
 #### 参考
@@ -13090,7 +13091,8 @@ ID_forbidVariadicFunction
 <br/>
 
 #### 依据
-ISO/IEC 14882:2011 7.16.1.1(2)-undefined  
+ISO/IEC 9899:2011 7.16.1.1(2)-undefined  
+ISO/IEC 9899:2011 7.21.6.1(2)-undefined  
 <br/>
 
 #### 参考
@@ -14236,6 +14238,7 @@ ID_ptrIntCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 ```
 class A {
     std::vector<int> v;
+
 public:
     void save(int* p) {
         v.emplace_back((int)p);  // Non-compliant
