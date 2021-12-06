@@ -180,24 +180,24 @@
 
 <span id="__Type">**[5. Type](#type)**</span>
   - [5.1 Class](#type.class)
-    - [R5.1.1 数据成员的数量应在规定范围之内](#ID_tooManyFields)
-    - [R5.1.2 类不应即有public数据成员又有private数据成员](#ID_mixPublicPrivateData)
-    - [R5.1.3 类的非常量数据成员均应为private](#ID_nonPrivateData)
-    - [R5.1.4 类的非常量数据成员不应定义为protected](#ID_protectedData)
+    - [R5.1.1 类的非常量数据成员均应为private](#ID_nonPrivateData)
+    - [R5.1.2 类的非常量数据成员不应定义为protected](#ID_protectedData)
+    - [R5.1.3 类不应即有public数据成员又有private数据成员](#ID_mixPublicPrivateData)
+    - [R5.1.4 有虚函数的基类应具有虚析构函数](#ID_missingVirtualDestructor)
     - [R5.1.5 对于菱形继承应将基类设为虚基类](#ID_diamondInheritance)
-    - [R5.1.6 带模板的赋值运算符不应覆盖拷贝或移动赋值运算符](#ID_roughTemplateAssignOperator)
-    - [R5.1.7 带模板的构造函数不应覆盖拷贝或移动构造函数](#ID_roughTemplateConstructor)
-    - [R5.1.8 存在赋值运算符或析构函数时，不应缺少拷贝构造函数](#ID_missingCopyConstructor)
-    - [R5.1.9 存在拷贝构造函数或析构函数时，不应缺少拷贝赋值运算符](#ID_missingCopyAssignOperator)
-    - [R5.1.10 存在拷贝构造函数或赋值运算符时，不应缺少析构函数](#ID_missingDestructor)
-    - [R5.1.11 有虚函数的基类应具有虚析构函数](#ID_missingVirtualDestructor)
-    - [R5.1.12 存在移动构造函数时，不应缺少移动赋值运算符](#ID_missingMoveAssignOperator)
-    - [R5.1.13 存在移动赋值运算符，不应缺少移动构造函数](#ID_missingMoveConstructor)
-    - [R5.1.14 可接受一个参数的构造函数需用explicit关键字限定](#ID_missingExplicitConstructor)
-    - [R5.1.15 重载的类型转换运算符需用explicit关键字限定](#ID_missingExplicitConvertor)
-    - [R5.1.16 不应过度使用explicit关键字](#ID_excessiveExplicit)
-    - [R5.1.17 重载的new和delete运算符应配对出现](#ID_incompleteNewDeletePair)
-    - [R5.1.18 抽象类禁用拷贝赋值运算符](#ID_unsuitableCopyAssignOperator)
+    - [R5.1.6 存在赋值运算符或析构函数时，不应缺少拷贝构造函数](#ID_missingCopyConstructor)
+    - [R5.1.7 存在拷贝构造函数或析构函数时，不应缺少拷贝赋值运算符](#ID_missingCopyAssignOperator)
+    - [R5.1.8 存在拷贝构造函数或赋值运算符时，不应缺少析构函数](#ID_missingDestructor)
+    - [R5.1.9 存在移动构造函数时，不应缺少移动赋值运算符](#ID_missingMoveAssignOperator)
+    - [R5.1.10 存在移动赋值运算符，不应缺少移动构造函数](#ID_missingMoveConstructor)
+    - [R5.1.11 可接受一个参数的构造函数需用explicit关键字限定](#ID_missingExplicitConstructor)
+    - [R5.1.12 重载的类型转换运算符需用explicit关键字限定](#ID_missingExplicitConvertor)
+    - [R5.1.13 不应过度使用explicit关键字](#ID_excessiveExplicit)
+    - [R5.1.14 带模板的赋值运算符不应覆盖拷贝或移动赋值运算符](#ID_roughTemplateAssignOperator)
+    - [R5.1.15 带模板的构造函数不应覆盖拷贝或移动构造函数](#ID_roughTemplateConstructor)
+    - [R5.1.16 重载的new和delete运算符应配对出现](#ID_incompleteNewDeletePair)
+    - [R5.1.17 抽象类禁用拷贝赋值运算符](#ID_unsuitableCopyAssignOperator)
+    - [R5.1.18 数据成员的数量应在规定范围之内](#ID_tooManyFields)
     - [R5.1.19 存在构造、析构或虚函数的类不应采用struct关键字](#ID_unsuitableStructTag)
     - [R5.1.20 不应出现无效的匿名类](#ID_invalidAnonymousType)
   - [5.2 Enum](#type.enum)
@@ -213,12 +213,12 @@
 
 <span id="__Declaration">**[6. Declaration](#declaration)**</span>
   - [6.1 Naming](#declaration.naming)
-    - [R6.1.1 命名空间、类型、对象、函数的命名应遵循合理的方式](#ID_badName)
+    - [R6.1.1 遵循合理的命名方式](#ID_badName)
     - [R6.1.2 不应定义具有保留意义的名称](#ID_reservedName)
-    - [R6.1.3 命名空间、类型、对象、函数的名称中不应存在拼写错误](#ID_misspelling)
-    - [R6.1.4 局部名称不应被覆盖](#ID_hideLocal)
-    - [R6.1.5 成员名称不应被覆盖](#ID_hideMember)
-    - [R6.1.6 同一命名空间内的类型名称不应与对象或函数名称相同](#ID_duplicatedName)
+    - [R6.1.3 局部名称不应被覆盖](#ID_hideLocal)
+    - [R6.1.4 成员名称不应被覆盖](#ID_hideMember)
+    - [R6.1.5 同一命名空间内的类型名称不应与对象或函数名称相同](#ID_duplicatedName)
+    - [R6.1.6 不应存在拼写错误](#ID_misspelling)
   - [6.2 Qualifier](#declaration.qualifier)
     - [R6.2.1 const、volatile不可修饰引用](#ID_qualifierInvalid)
     - [R6.2.2 const、volatile不应重复](#ID_qualifierRepeated)
@@ -3981,87 +3981,7 @@ C++ Core Guidelines NL.7
 
 ### <span id="type.class">5.1 Class</span>
 
-### <span id="ID_tooManyFields">▌R5.1.1 数据成员的数量应在规定范围之内</span>
-
-ID_tooManyFields&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
-
-<hr/>
-
-类或联合体的数据成员过多意味着一个逻辑或功能单位承担了过多的职责，违反了模块化设计理念，是难以维护的。  
-  
-示例：
-```
-class C
-{
-    // ... 3000 members ...
-    // Who has the courage to read?
-};
-
-union U
-{
-    // ... 3000 members ...
-    // It's actually the hell...
-};
-```
-<br/>
-<br/>
-
-#### 配置
-ID_class/maxFieldsCount：类数据成员的数量上限，超过则报出  
-ID_union/maxFieldsCount：联合体数据成员的数量上限，超过则报出  
-<br/>
-<br/>
-
-### <span id="ID_mixPublicPrivateData">▌R5.1.2 类不应即有public数据成员又有private数据成员</span>
-
-ID_mixPublicPrivateData&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestion
-
-<hr/>
-
-类的设计应遵循：  
- ● 成员之间没有依赖关系，且都可以随意被读写时，则都应声明为public  
- ● 成员之间有依赖关系，或成员的状态会影响到整个对象的状态时，则都应声明为private  
-否则应对类进行改造或拆分。  
-  
-面向对象的封装理念更倾向于将所有数据成员都设为private，由成员函数按指定逻辑控制每个成员的读写方法，以供外部访问，对代码的职责进行有效的划分，从而提高可维护性并降低风险，关于封装的进一步讨论可参见ID\_nonPrivateData。  
-  
-示例：
-```
-class A {  // Non-compliant
-public:
-    int n;
-    ....
-private:
-    int d;
-};
-```
-应改为：
-```
-class A {  // Compliant
-public:
-    int method_for_n();
-    ....
-private:
-    int n, d;
-};
-```
-例外：  
-常量数据成员不可被改变，所以可不受本规则约束。
-<br/>
-<br/>
-
-#### 相关
-ID_nonPrivateData  
-ID_protectedData  
-<br/>
-
-#### 参考
-C++ Core Guidelines C.9  
-C++ Core Guidelines C.134  
-<br/>
-<br/>
-
-### <span id="ID_nonPrivateData">▌R5.1.3 类的非常量数据成员均应为private</span>
+### <span id="ID_nonPrivateData">▌R5.1.1 类的非常量数据成员均应为private</span>
 
 ID_nonPrivateData&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestion
 
@@ -4117,7 +4037,7 @@ MISRA C++ 2008 11-0-1
 <br/>
 <br/>
 
-### <span id="ID_protectedData">▌R5.1.4 类的非常量数据成员不应定义为protected</span>
+### <span id="ID_protectedData">▌R5.1.2 类的非常量数据成员不应定义为protected</span>
 
 ID_protectedData&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestion
 
@@ -4156,6 +4076,111 @@ ID_nonPrivateData
 #### 参考
 C++ Core Guidelines C.9  
 C++ Core Guidelines C.133  
+<br/>
+<br/>
+
+### <span id="ID_mixPublicPrivateData">▌R5.1.3 类不应即有public数据成员又有private数据成员</span>
+
+ID_mixPublicPrivateData&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestion
+
+<hr/>
+
+类的设计应遵循：  
+ ● 成员之间没有依赖关系，且都可以随意被读写时，则都应声明为public  
+ ● 成员之间有依赖关系，或成员的状态会影响到整个对象的状态时，则都应声明为private  
+否则应对类进行改造或拆分。  
+  
+面向对象的封装理念更倾向于将所有数据成员都设为private，由成员函数按指定逻辑控制每个成员的读写方法，以供外部访问，对代码的职责进行有效的划分，从而提高可维护性并降低风险，关于封装的进一步讨论可参见ID\_nonPrivateData。  
+  
+示例：
+```
+class A {  // Non-compliant
+public:
+    int n;
+    ....
+private:
+    int d;
+};
+```
+应改为：
+```
+class A {  // Compliant
+public:
+    int method_for_n();
+    ....
+private:
+    int n, d;
+};
+```
+例外：  
+常量数据成员不可被改变，所以可不受本规则约束。
+<br/>
+<br/>
+
+#### 相关
+ID_nonPrivateData  
+ID_protectedData  
+<br/>
+
+#### 参考
+C++ Core Guidelines C.9  
+C++ Core Guidelines C.134  
+<br/>
+<br/>
+
+### <span id="ID_missingVirtualDestructor">▌R5.1.4 有虚函数的基类应具有虚析构函数</span>
+
+ID_missingVirtualDestructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
+
+<hr/>
+
+为了避免意料之外的资源泄漏，有虚函数的基类，都应该具有虚析构函数。  
+  
+当通过基类指针析构派生类对象时，如果基类没有虚析构函数，那么派生类对象的析构函数是无法被执行的，造成不易排查的资源泄漏，如：
+```
+class A {
+public:
+    A() {}
+   ~A() {}  // Non-compliant, missing ‘virtual’
+    virtual size_t size() = 0;
+};
+
+class B: public A {
+    int* x;
+    size_t n;
+public:
+    B(size_t s): n(s), x(new int[s]) {
+    }
+   ~B() {
+       delete[] x;
+    }
+    size_t size() override {
+        return n;
+    }
+};
+```
+按下列调用：
+```
+A* p = new B(32);
+cout << p->size();  // OK, output 32
+delete p;           // But only ‘A::~A’ is called, ‘B::x’ leaks
+```
+由于A的析构函数不是虚函数，所以delete p只调用了A的析构函数，导致派生类对象中的资源没有得到释放。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 12.4(7) 5.3.5(3)  
+ISO/IEC 14882:2011 12.4(9) 5.3.5(3)  
+ISO/IEC 14882:2017 15.4(10) 8.3.5(3)  
+<br/>
+
+#### 参考
+CWE-1079  
+CWE-1087  
+CWE-1045  
+C++ Core Guidelines C.35  
+C++ Core Guidelines C.127  
 <br/>
 <br/>
 
@@ -4207,87 +4232,7 @@ C++ Core Guidelines C.137
 <br/>
 <br/>
 
-### <span id="ID_roughTemplateAssignOperator">▌R5.1.6 带模板的赋值运算符不应覆盖拷贝或移动赋值运算符</span>
-
-ID_roughTemplateAssignOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
-
-<hr/>
-
-带模板的赋值运算符覆盖拷贝或移动赋值运算符，很可能导致意料之外的错误。  
-  
-示例：
-```
-class A {
-public:
-    template <class T> A& operator = (T x);  // Non-compliant
-    ....
-};
-```
-例中的赋值运算符可以同时作为普通赋值运算符、拷贝赋值运算符和移动赋值运算符，是一种混乱的设计。  
-  
-应明确其拷贝赋和移动赋值运算符：
-```
-class A {
-public:
-    A& operator = (const A&);
-    A& operator = (A&&);
-    template <class T> A& operator = (T x);  // Compliant
-    ....
-};
-```
-<br/>
-<br/>
-
-#### 相关
-ID_roughTemplateConstructor  
-<br/>
-
-#### 参考
-MISRA C++ 2008 14-5-3  
-<br/>
-<br/>
-
-### <span id="ID_roughTemplateConstructor">▌R5.1.7 带模板的构造函数不应覆盖拷贝或移动构造函数</span>
-
-ID_roughTemplateConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
-
-<hr/>
-
-带模板的构造函数覆盖拷贝或移动构造函数，很可能导致意料之外的错误。  
-  
-示例：
-```
-class A {
-public:
-    template <class T> A(T x);  // Non-compliant
-    ....
-};
-```
-例中的构造函数可以同时作为普通构造函数、拷贝构造函数和移动构造函数，是一种混乱的设计。  
-  
-应明确其拷贝和移动构造函数：
-```
-class A {
-public:
-    A(const A&);
-    A(A&&);
-    template <class T> A(T x);  // Compliant
-    ....
-};
-```
-<br/>
-<br/>
-
-#### 相关
-ID_roughTemplateAssignOperator  
-<br/>
-
-#### 参考
-MISRA C++ 2008 14-5-2  
-<br/>
-<br/>
-
-### <span id="ID_missingCopyConstructor">▌R5.1.8 存在赋值运算符或析构函数时，不应缺少拷贝构造函数</span>
+### <span id="ID_missingCopyConstructor">▌R5.1.6 存在赋值运算符或析构函数时，不应缺少拷贝构造函数</span>
 
 ID_missingCopyConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
 
@@ -4349,7 +4294,7 @@ C++ Core Guidelines C.21
 <br/>
 <br/>
 
-### <span id="ID_missingCopyAssignOperator">▌R5.1.9 存在拷贝构造函数或析构函数时，不应缺少拷贝赋值运算符</span>
+### <span id="ID_missingCopyAssignOperator">▌R5.1.7 存在拷贝构造函数或析构函数时，不应缺少拷贝赋值运算符</span>
 
 ID_missingCopyAssignOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
 
@@ -4397,7 +4342,7 @@ C++ Core Guidelines C.21
 <br/>
 <br/>
 
-### <span id="ID_missingDestructor">▌R5.1.10 存在拷贝构造函数或赋值运算符时，不应缺少析构函数</span>
+### <span id="ID_missingDestructor">▌R5.1.8 存在拷贝构造函数或赋值运算符时，不应缺少析构函数</span>
 
 ID_missingDestructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
 
@@ -4445,63 +4390,7 @@ C++ Core Guidelines C.33
 <br/>
 <br/>
 
-### <span id="ID_missingVirtualDestructor">▌R5.1.11 有虚函数的基类应具有虚析构函数</span>
-
-ID_missingVirtualDestructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
-
-<hr/>
-
-为了避免意料之外的资源泄漏，有虚函数的基类，都应该具有虚析构函数。  
-  
-当通过基类指针析构派生类对象时，如果基类没有虚析构函数，那么派生类对象的析构函数是无法被执行的，造成不易排查的资源泄漏，如：
-```
-class A {
-public:
-    A() {}
-   ~A() {}  // Non-compliant, missing ‘virtual’
-    virtual size_t size() = 0;
-};
-
-class B: public A {
-    int* x;
-    size_t n;
-public:
-    B(size_t s): n(s), x(new int[s]) {
-    }
-   ~B() {
-       delete[] x;
-    }
-    size_t size() override {
-        return n;
-    }
-};
-```
-按下列调用：
-```
-A* p = new B(32);
-cout << p->size();  // OK, output 32
-delete p;           // But only ‘A::~A’ is called, ‘B::x’ leaks
-```
-由于A的析构函数不是虚函数，所以delete p只调用了A的析构函数，导致派生类对象中的资源没有得到释放。
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 14882:2003 12.4(7) 5.3.5(3)  
-ISO/IEC 14882:2011 12.4(9) 5.3.5(3)  
-ISO/IEC 14882:2017 15.4(10) 8.3.5(3)  
-<br/>
-
-#### 参考
-CWE-1079  
-CWE-1087  
-CWE-1045  
-C++ Core Guidelines C.35  
-C++ Core Guidelines C.127  
-<br/>
-<br/>
-
-### <span id="ID_missingMoveAssignOperator">▌R5.1.12 存在移动构造函数时，不应缺少移动赋值运算符</span>
+### <span id="ID_missingMoveAssignOperator">▌R5.1.9 存在移动构造函数时，不应缺少移动赋值运算符</span>
 
 ID_missingMoveAssignOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
 
@@ -4527,7 +4416,7 @@ C++ Core Guidelines C.21
 <br/>
 <br/>
 
-### <span id="ID_missingMoveConstructor">▌R5.1.13 存在移动赋值运算符，不应缺少移动构造函数</span>
+### <span id="ID_missingMoveConstructor">▌R5.1.10 存在移动赋值运算符，不应缺少移动构造函数</span>
 
 ID_missingMoveConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
 
@@ -4553,7 +4442,7 @@ C++ Core Guidelines C.21
 <br/>
 <br/>
 
-### <span id="ID_missingExplicitConstructor">▌R5.1.14 可接受一个参数的构造函数需用explicit关键字限定</span>
+### <span id="ID_missingExplicitConstructor">▌R5.1.11 可接受一个参数的构造函数需用explicit关键字限定</span>
 
 ID_missingExplicitConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestion
 
@@ -4612,7 +4501,7 @@ MISRA C++ 2008 12-1-3
 <br/>
 <br/>
 
-### <span id="ID_missingExplicitConvertor">▌R5.1.15 重载的类型转换运算符需用explicit关键字限定</span>
+### <span id="ID_missingExplicitConvertor">▌R5.1.12 重载的类型转换运算符需用explicit关键字限定</span>
 
 ID_missingExplicitConvertor&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestion
 
@@ -4665,7 +4554,7 @@ C++ Core Guidelines C.164
 <br/>
 <br/>
 
-### <span id="ID_excessiveExplicit">▌R5.1.16 不应过度使用explicit关键字</span>
+### <span id="ID_excessiveExplicit">▌R5.1.13 不应过度使用explicit关键字</span>
 
 ID_excessiveExplicit&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
 
@@ -4702,7 +4591,87 @@ C++ Core Guidelines C.46
 <br/>
 <br/>
 
-### <span id="ID_incompleteNewDeletePair">▌R5.1.17 重载的new和delete运算符应配对出现</span>
+### <span id="ID_roughTemplateAssignOperator">▌R5.1.14 带模板的赋值运算符不应覆盖拷贝或移动赋值运算符</span>
+
+ID_roughTemplateAssignOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
+
+<hr/>
+
+带模板的赋值运算符覆盖拷贝或移动赋值运算符，很可能导致意料之外的错误。  
+  
+示例：
+```
+class A {
+public:
+    template <class T> A& operator = (T x);  // Non-compliant
+    ....
+};
+```
+例中的赋值运算符可以同时作为普通赋值运算符、拷贝赋值运算符和移动赋值运算符，是一种混乱的设计。  
+  
+应明确其拷贝赋和移动赋值运算符：
+```
+class A {
+public:
+    A& operator = (const A&);
+    A& operator = (A&&);
+    template <class T> A& operator = (T x);  // Compliant
+    ....
+};
+```
+<br/>
+<br/>
+
+#### 相关
+ID_roughTemplateConstructor  
+<br/>
+
+#### 参考
+MISRA C++ 2008 14-5-3  
+<br/>
+<br/>
+
+### <span id="ID_roughTemplateConstructor">▌R5.1.15 带模板的构造函数不应覆盖拷贝或移动构造函数</span>
+
+ID_roughTemplateConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
+
+<hr/>
+
+带模板的构造函数覆盖拷贝或移动构造函数，很可能导致意料之外的错误。  
+  
+示例：
+```
+class A {
+public:
+    template <class T> A(T x);  // Non-compliant
+    ....
+};
+```
+例中的构造函数可以同时作为普通构造函数、拷贝构造函数和移动构造函数，是一种混乱的设计。  
+  
+应明确其拷贝和移动构造函数：
+```
+class A {
+public:
+    A(const A&);
+    A(A&&);
+    template <class T> A(T x);  // Compliant
+    ....
+};
+```
+<br/>
+<br/>
+
+#### 相关
+ID_roughTemplateAssignOperator  
+<br/>
+
+#### 参考
+MISRA C++ 2008 14-5-2  
+<br/>
+<br/>
+
+### <span id="ID_incompleteNewDeletePair">▌R5.1.16 重载的new和delete运算符应配对出现</span>
 
 ID_incompleteNewDeletePair&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestion
 
@@ -4742,7 +4711,7 @@ C++ Core Guidelines R.15
 <br/>
 <br/>
 
-### <span id="ID_unsuitableCopyAssignOperator">▌R5.1.18 抽象类禁用拷贝赋值运算符</span>
+### <span id="ID_unsuitableCopyAssignOperator">▌R5.1.17 抽象类禁用拷贝赋值运算符</span>
 
 ID_unsuitableCopyAssignOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: type warning
 
@@ -4779,6 +4748,37 @@ struct A {
 #### 参考
 MISRA C++ 2008 12-8-2  
 C++ Core Guidelines C.67  
+<br/>
+<br/>
+
+### <span id="ID_tooManyFields">▌R5.1.18 数据成员的数量应在规定范围之内</span>
+
+ID_tooManyFields&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
+
+<hr/>
+
+类或联合体的数据成员过多意味着一个逻辑或功能单位承担了过多的职责，违反了模块化设计理念，是难以维护的。  
+  
+示例：
+```
+class C
+{
+    // ... 3000 members ...
+    // Who has the courage to read?
+};
+
+union U
+{
+    // ... 3000 members ...
+    // It's actually the hell...
+};
+```
+<br/>
+<br/>
+
+#### 配置
+ID_class/maxFieldsCount：类数据成员的数量上限，超过则报出  
+ID_union/maxFieldsCount：联合体数据成员的数量上限，超过则报出  
 <br/>
 <br/>
 
@@ -5164,7 +5164,7 @@ MISRA C++ 2008 9-5-1
 
 ### <span id="declaration.naming">6.1 Naming</span>
 
-### <span id="ID_badName">▌R6.1.1 命名空间、类型、对象、函数的命名应遵循合理的方式</span>
+### <span id="ID_badName">▌R6.1.1 遵循合理的命名方式</span>
 
 ID_badName&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -5261,29 +5261,7 @@ private:
 <br/>
 <br/>
 
-### <span id="ID_misspelling">▌R6.1.3 命名空间、类型、对象、函数的名称中不应存在拼写错误</span>
-
-ID_misspelling&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
-
-<hr/>
-
-代码中不应存在拼写错误，尤其是供他人调用的代码，如命名空间名称、类的公有成员名称，全局函数名称等，更不应存在拼写错误。  
-  
-错误拼写会使代码的使用者对代码的质量产生疑虑，而且这种代码被大量引用后也不便于改正。  
-  
-示例：
-```
-class A {
-public:
-    virtual void destory() = 0;  // Non-compliant, should be ‘destroy’
-};
-```
-例中“destory”函数的名称有拼写错误，应改为“destroy”。
-<br/>
-<br/>
-<br/>
-
-### <span id="ID_hideLocal">▌R6.1.4 局部名称不应被覆盖</span>
+### <span id="ID_hideLocal">▌R6.1.3 局部名称不应被覆盖</span>
 
 ID_hideLocal&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
@@ -5314,7 +5292,7 @@ MISRA C++ 2008 2-10-2
 <br/>
 <br/>
 
-### <span id="ID_hideMember">▌R6.1.5 成员名称不应被覆盖</span>
+### <span id="ID_hideMember">▌R6.1.4 成员名称不应被覆盖</span>
 
 ID_hideMember&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
@@ -5365,7 +5343,7 @@ MISRA C++ 2008 2-10-2
 <br/>
 <br/>
 
-### <span id="ID_duplicatedName">▌R6.1.6 同一命名空间内的类型名称不应与对象或函数名称相同</span>
+### <span id="ID_duplicatedName">▌R6.1.5 同一命名空间内的类型名称不应与对象或函数名称相同</span>
 
 ID_duplicatedName&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -5392,6 +5370,28 @@ size_t x = sizeof(A);  // What is ‘A’?
 #### 参考
 MISRA C++ 2008 2-10-6  
 C++ Core Guidelines ES.8  
+<br/>
+<br/>
+
+### <span id="ID_misspelling">▌R6.1.6 不应存在拼写错误</span>
+
+ID_misspelling&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
+
+<hr/>
+
+代码中不应存在拼写错误，尤其是供他人调用的代码，如命名空间名称、类的公有成员名称，全局函数名称等，更不应存在拼写错误。  
+  
+错误拼写会使代码的使用者对代码的质量产生疑虑，而且这种代码被大量引用后也不便于改正。  
+  
+示例：
+```
+class A {
+public:
+    virtual void destory() = 0;  // Non-compliant, should be ‘destroy’
+};
+```
+例中“destory”函数的名称有拼写错误，应改为“destroy”。
+<br/>
 <br/>
 <br/>
 
