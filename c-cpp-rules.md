@@ -212,73 +212,83 @@
 <br/>
 
 <span id="__Declaration">**[6. Declaration](#declaration)**</span>
-  - [R6.1 命名空间、类型、对象、函数的命名应遵循合理的方式](#ID_badName)
-  - [R6.2 不应定义具有保留意义的名称](#ID_reservedName)
-  - [R6.3 命名空间、类型、对象、函数的名称中不应存在拼写错误](#ID_misspelling)
-  - [R6.4 用auto声明指针或引用时应显式标明\*、&等符号](#ID_missingStar)
-  - [R6.5 const、volatile限定类型时应出现在左侧](#ID_badQualifierPosition)
-  - [R6.6 inline、virtual、static、typedef等关键字应出现在类型名的左侧](#ID_badSpecifierPosition)
-  - [R6.7 对常量的定义不应为引用](#ID_constLiteralReference)
-  - [R6.8 避免使用std::auto\_ptr](#ID_deprecatedAutoPtr)
-  - [R6.9 不建议虚函数的参数有默认值](#ID_deprecatedDefaultArgument)
-  - [R6.10 不应使用已过时的关键字](#ID_deprecatedSpecifier)
-  - [R6.11 同一命名空间内的类型名称不应与对象或函数名称相同](#ID_duplicatedName)
-  - [R6.12 位域长度不应超过类型约定的大小](#ID_exceededBitfield)
-  - [R6.13 局部名称不应被覆盖](#ID_hideLocal)
-  - [R6.14 成员名称不应被覆盖](#ID_hideMember)
-  - [R6.15 不应产生不受控制的无效临时对象](#ID_inaccessibleTmpObject)
-  - [R6.16 虚函数参数的默认值应与基类中声明的一致](#ID_inconsistentDefaultArgument)
-  - [R6.17 不应使用多余的inline关键字](#ID_inlineRedundant)
-  - [R6.18 extern关键字不应作用于类成员的声明或定义](#ID_invalidExternSpecifier)
-  - [R6.19 不应将union设为final](#ID_invalidFinal)
-  - [R6.20 不应出现不会被用到的局部声明](#ID_invalidLocalDeclaration)
-  - [R6.21 不应将数组作为函数的形式参数](#ID_invalidParamArraySize)
-  - [R6.22 不应出现无效的声明限定符](#ID_invalidSpecifier)
-  - [R6.23 不应存在没有用到的标签](#ID_label_unused)
-  - [R6.24 不建议在函数作用域外将lambda表达式定义为具名对象](#ID_lambdaOutOfFunction)
-  - [R6.25 指向常量字符串的指针应有const限定符修饰](#ID_missingConst)
-  - [R6.26 所有重写的虚函数都应声明为override或final](#ID_missingExplicitOverride)
-  - [R6.27 函数原型声明中的参数应具有合理的名称](#ID_missingParamName)
-  - [R6.28 C代码中函数参数列表如果为空须声明为“(void)”](#ID_missingVoid)
-  - [R6.29 不应将函数或函数指针和其他声明写在同一个语句中](#ID_mixedDeclarations)
-  - [R6.30 不建议将类型定义和对象声明写在一个语句中](#ID_mixedTypeObjDefinition)
-  - [R6.31 拷贝赋值、移动赋值运算符应返回所属类的非const引用](#ID_nonStdAssignmentRetType)
-  - [R6.32 拷贝赋值运算符的参数应为同类对象的const左值引用](#ID_nonStdCopyAssignmentParam)
-  - [R6.33 移动赋值运算符的参数应为同类对象的非const右值引用](#ID_nonStdMoveAssignmentParam)
-  - [R6.34 派生类不应重新定义与基类相同的非虚函数](#ID_nonVirtualOverride)
-  - [R6.35 不应重载取地址运算符](#ID_overloadAddressOperator)
-  - [R6.36 不应重载逗号运算符](#ID_overloadComma)
-  - [R6.37 不应重载“逻辑与”和“逻辑或”运算符](#ID_overloadLogicOperator)
-  - [R6.38 const或volatile不可修饰引用](#ID_qualifierInvalid)
-  - [R6.39 const或volatile不应重复](#ID_qualifierRepeated)
-  - [R6.40 override和final关键字不应同时出现](#ID_redundantOverride)
-  - [R6.41 当有override或final关键字时，不应再出现virtual关键字](#ID_redundantVirtual)
-  - [R6.42 const、volatile等关键字不应出现在基本类型名称的中间](#ID_sandwichedModifier)
-  - [R6.43 对象初始化不可依赖自身的值](#ID_selfDependentInitialization)
-  - [R6.44 参与数值运算的char变量需显式声明signed或unsigned](#ID_plainNumericChar)
-  - [R6.45 表示二进制数据的char指针或数组应显式声明unsigned](#ID_plainBinaryChar)
-  - [R6.46 有符号变量的位域长度不应为1](#ID_singleSignedBitfield)
-  - [R6.47 不应存在未被使用的本地static函数](#ID_staticNotUsed)
-  - [R6.48 C\+\+代码中函数参数列表如果为空不应声明为“(void)”](#ID_superfluousVoid)
-  - [R6.49 在一个语句中不应声明过多对象或函数](#ID_tooManyDeclarators)
-  - [R6.50 初始化列表中的项目数量不应过多](#ID_tooManyInitItems)
-  - [R6.51 局部数组的长度不应过大](#ID_unsuitableArraySize)
-  - [R6.52 enum的底层类型（underlying type）中不应出现const或volatile](#ID_uselessQualifier)
-  - [R6.53 拷贝赋值、移动赋值运算符不应为虚函数](#ID_virtualAssignment)
-  - [R6.54 比较运算符不应为虚函数](#ID_virtualComparison)
-  - [R6.55 final类中不应声明虚函数](#ID_virtualInFinal)
-  - [R6.56 禁用位域](#ID_forbidBitfield)
-  - [R6.57 禁止对枚举变量声明位域](#ID_forbidEnumBitfield)
-  - [R6.58 禁用柔性数组](#ID_forbidFlexibleArray)
-  - [R6.59 接口的参数或返回值不应被声明为void\*](#ID_forbidFunctionVoidPtr)
-  - [R6.60 类成员不应被声明为void\*](#ID_forbidMemberVoidPtr)
-  - [R6.61 禁用restrict指针](#ID_forbidRestrictPtr)
-  - [R6.62 声明数组参数的大小时禁用static关键字](#ID_forbidStaticArrSize)
-  - [R6.63 禁用可变参数列表](#ID_forbidVariadicFunction)
-  - [R6.64 慎用volatile关键字](#ID_forbidVolatile)
-  - [R6.65 不建议采用复杂的声明](#ID_complexDeclaration)
-  - [R6.66 不建议采用复杂的参数声明](#ID_complexParameter)
-  - [R6.67 不建议在using别名中定义新的类](#ID_complexUsingAlias)
+  - [6.1 Naming](#declaration.naming)
+    - [R6.1.1 命名空间、类型、对象、函数的命名应遵循合理的方式](#ID_badName)
+    - [R6.1.2 不应定义具有保留意义的名称](#ID_reservedName)
+    - [R6.1.3 命名空间、类型、对象、函数的名称中不应存在拼写错误](#ID_misspelling)
+    - [R6.1.4 局部名称不应被覆盖](#ID_hideLocal)
+    - [R6.1.5 成员名称不应被覆盖](#ID_hideMember)
+    - [R6.1.6 同一命名空间内的类型名称不应与对象或函数名称相同](#ID_duplicatedName)
+  - [6.2 Qualifier](#declaration.qualifier)
+    - [R6.2.1 const、volatile不可修饰引用](#ID_qualifierInvalid)
+    - [R6.2.2 const、volatile不应重复](#ID_qualifierRepeated)
+    - [R6.2.3 const、volatile限定类型时应出现在左侧](#ID_badQualifierPosition)
+    - [R6.2.4 const、volatile等关键字不应出现在基本类型名称的中间](#ID_sandwichedModifier)
+    - [R6.2.5 指向常量字符串的指针应有const关键字修饰](#ID_missingConst)
+    - [R6.2.6 enum的底层类型（underlying type）中不应出现const或volatile](#ID_uselessQualifier)
+    - [R6.2.7 对常量的定义不应为引用](#ID_constLiteralReference)
+    - [R6.2.8 慎用volatile关键字](#ID_forbidVolatile)
+    - [R6.2.9 禁用restrict指针](#ID_forbidRestrictPtr)
+  - [6.3 Specifier](#declaration.specifier)
+    - [R6.3.1 不应使用已过时的关键字](#ID_deprecatedSpecifier)
+    - [R6.3.2 不应使用多余的inline关键字](#ID_inlineRedundant)
+    - [R6.3.3 extern关键字不应作用于类成员的声明或定义](#ID_invalidExternSpecifier)
+    - [R6.3.4 所有重写的虚函数都应声明为override或final](#ID_missingExplicitOverride)
+    - [R6.3.5 override和final关键字不应同时出现](#ID_redundantOverride)
+    - [R6.3.6 当有override或final关键字时，不应再出现virtual关键字](#ID_redundantVirtual)
+    - [R6.3.7 不应将union设为final](#ID_invalidFinal)
+    - [R6.3.8 不应出现无效的声明限定符](#ID_invalidSpecifier)
+    - [R6.3.9 inline、virtual、static、typedef等关键字应出现在类型名的左侧](#ID_badSpecifierPosition)
+  - [6.4 Declarator](#declaration.declarator)
+    - [R6.4.1 用auto声明指针或引用时应显式标明\*、&等符号](#ID_missingStar)
+    - [R6.4.2 禁用可变参数列表](#ID_forbidVariadicFunction)
+    - [R6.4.3 禁用柔性数组](#ID_forbidFlexibleArray)
+    - [R6.4.4 接口的参数或返回值不应被声明为void\*](#ID_forbidFunctionVoidPtr)
+    - [R6.4.5 类成员不应被声明为void\*](#ID_forbidMemberVoidPtr)
+    - [R6.4.6 局部数组的长度不应过大](#ID_unsuitableArraySize)
+    - [R6.4.7 不应将函数或函数指针和其他声明写在同一个语句中](#ID_mixedDeclarations)
+    - [R6.4.8 不建议将类型定义和对象声明写在一个语句中](#ID_mixedTypeObjDefinition)
+  - [6.5 Object](#declaration.object)
+    - [R6.5.1 不应产生不受控制的无效临时对象](#ID_inaccessibleTmpObject)
+    - [R6.5.2 不应出现不会被用到的局部声明](#ID_invalidLocalDeclaration)
+    - [R6.5.3 对象初始化不可依赖自身的值](#ID_selfDependentInitialization)
+    - [R6.5.4 参与数值运算的char变量需显式声明signed或unsigned](#ID_plainNumericChar)
+    - [R6.5.5 表示二进制数据的char指针或数组应显式声明unsigned](#ID_plainBinaryChar)
+  - [6.6 Parameter](#declaration.parameter)
+    - [R6.6.1 函数原型声明中的参数应具有合理的名称](#ID_missingParamName)
+    - [R6.6.2 不建议虚函数的参数有默认值](#ID_deprecatedDefaultArgument)
+    - [R6.6.3 虚函数参数的默认值应与基类中声明的一致](#ID_inconsistentDefaultArgument)
+    - [R6.6.4 不应将数组作为函数的形式参数](#ID_invalidParamArraySize)
+    - [R6.6.5 C代码中函数参数列表如果为空须声明为“(void)”](#ID_missingVoid)
+    - [R6.6.6 C\+\+代码中函数参数列表如果为空不应声明为“(void)”](#ID_superfluousVoid)
+    - [R6.6.7 声明数组参数的大小时禁用static关键字](#ID_forbidStaticArrSize)
+  - [6.7 Function](#declaration.function)
+    - [R6.7.1 拷贝赋值、移动赋值运算符应返回所属类的非const引用](#ID_nonStdAssignmentRetType)
+    - [R6.7.2 拷贝赋值运算符的参数应为同类对象的const左值引用](#ID_nonStdCopyAssignmentParam)
+    - [R6.7.3 移动赋值运算符的参数应为同类对象的非const右值引用](#ID_nonStdMoveAssignmentParam)
+    - [R6.7.4 派生类不应重新定义与基类相同的非虚函数](#ID_nonVirtualOverride)
+    - [R6.7.5 不应重载取地址运算符](#ID_overloadAddressOperator)
+    - [R6.7.6 不应重载逗号运算符](#ID_overloadComma)
+    - [R6.7.7 不应重载“逻辑与”和“逻辑或”运算符](#ID_overloadLogicOperator)
+    - [R6.7.8 不建议在函数作用域外将lambda表达式定义为具名对象](#ID_lambdaOutOfFunction)
+    - [R6.7.9 拷贝赋值、移动赋值运算符不应为虚函数](#ID_virtualAssignment)
+    - [R6.7.10 比较运算符不应为虚函数](#ID_virtualComparison)
+    - [R6.7.11 final类中不应声明虚函数](#ID_virtualInFinal)
+  - [6.8 Bitfield](#declaration.bitfield)
+    - [R6.8.1 位域长度不应超过类型约定的大小](#ID_exceededBitfield)
+    - [R6.8.2 有符号变量的位域长度不应为1](#ID_singleSignedBitfield)
+    - [R6.8.3 禁止对枚举变量声明位域](#ID_forbidEnumBitfield)
+    - [R6.8.4 禁用位域](#ID_forbidBitfield)
+  - [6.9 Complexity](#declaration.complexity)
+    - [R6.9.1 不建议采用复杂的声明](#ID_complexDeclaration)
+    - [R6.9.2 不建议采用复杂的参数声明](#ID_complexParameter)
+    - [R6.9.3 不建议在using别名中定义新的类](#ID_complexUsingAlias)
+    - [R6.9.4 在一个语句中不应声明过多对象或函数](#ID_tooManyDeclarators)
+    - [R6.9.5 初始化列表中的项目数量不应过多](#ID_tooManyInitItems)
+  - [6.10 Other](#declaration.other)
+    - [R6.10.1 不应存在没有用到的标签](#ID_labelNotUsed)
+    - [R6.10.2 不应存在未被使用的本地static函数](#ID_staticNotUsed)
+    - [R6.10.3 避免使用std::auto\_ptr](#ID_deprecatedAutoPtr)
 <br/>
 
 <span id="__Exception">**[7. Exception](#exception)**</span>
@@ -5152,7 +5162,9 @@ MISRA C++ 2008 9-5-1
 
 ## <span id="declaration">6. Declaration</span>
 
-### <span id="ID_badName">▌R6.1 命名空间、类型、对象、函数的命名应遵循合理的方式</span>
+### <span id="declaration.naming">6.1 Naming</span>
+
+### <span id="ID_badName">▌R6.1.1 命名空间、类型、对象、函数的命名应遵循合理的方式</span>
 
 ID_badName&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -5222,7 +5234,7 @@ MISRA C 2012 5.1
 <br/>
 <br/>
 
-### <span id="ID_reservedName">▌R6.2 不应定义具有保留意义的名称</span>
+### <span id="ID_reservedName">▌R6.1.2 不应定义具有保留意义的名称</span>
 
 ID_reservedName&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -5249,7 +5261,7 @@ private:
 <br/>
 <br/>
 
-### <span id="ID_misspelling">▌R6.3 命名空间、类型、对象、函数的名称中不应存在拼写错误</span>
+### <span id="ID_misspelling">▌R6.1.3 命名空间、类型、对象、函数的名称中不应存在拼写错误</span>
 
 ID_misspelling&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -5271,283 +5283,7 @@ public:
 <br/>
 <br/>
 
-### <span id="ID_missingStar">▌R6.4 用auto声明指针或引用时应显式标明*、&等符号</span>
-
-ID_missingStar&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
-
-<hr/>
-
-用auto声明指针时显式标明\*号有利于提高代码可读性，否则会使人误以为是某种非指针的对象。在声明引用时必须显式标明&号或&&号，否则成为对象声明，导致逻辑错误或造成不必要的复制开销。  
-  
-示例：
-```
-int* foo();
-int& bar();
-
-auto p = foo();   // Bad
-auto* q = foo();  // Good
-
-auto r = bar();   // Becareful, ‘r’ is not a reference
-```
-<br/>
-<br/>
-<br/>
-
-### <span id="ID_badQualifierPosition">▌R6.5 const、volatile限定类型时应出现在左侧</span>
-
-ID_badQualifierPosition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
-
-<hr/>
-
-语言允许const、volatile出现在类型名的左侧，也可以出现在其右侧，甚至可以出现在基本类型名的中间，为了提高可读性，应对其位置进行统一规范。  
-  
-示例：
-```
-unsigned int const a = 0;          // Non-compliant
-long double const volatile b = 0;  // Non-compliant
-```
-应改为：
-```
-const unsigned int a = 0;          // Compliant
-const volatile long double b = 0;  // Compliant
-```
-const、volatile出现在类型名右侧时，易与\*号造成误解，如：
-```
-const char const* p = "....";      // Non-compliant
-```
-应改为：
-```
-const char * const p = "....";     // Compliant
-```
-<br/>
-<br/>
-
-#### 相关
-ID_sandwichedModifier  
-ID_badSpecifierPosition  
-<br/>
-
-#### 参考
-C++ Core Guidelines NL.26  
-<br/>
-<br/>
-
-### <span id="ID_badSpecifierPosition">▌R6.6 inline、virtual、static、typedef等关键字应出现在类型名的左侧</span>
-
-ID_badSpecifierPosition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
-
-<hr/>
-
-语言允许inline、virtual、static、typedef等关键字可以出现在类型名的左侧，也可以出现在其右侧，甚至可以出现在基本类型名的中间，为了提高可读性，应对其位置进行统一规范。  
-  
-示例：
-```
-struct A {
-    long long typedef ll_t;     // Non-compliant
-    bool static foo();          // Non-compliant
-    char friend bar();          // Non-compliant
-    unsigned inline int baz();  // Non-compliant
-};
-```
-应统一规定其出现在类型名的左侧：
-```
-struct A {
-    typedef long long ll_t;     // Compliant
-    static bool foo();          // Compliant
-    friend char bar();          // Compliant
-    inline unsigned int baz();  // Compliant
-};
-```
-本规则对下列关键字有同样的要求：
-```
-inline、virtual、explicit
-register、static、thread_local、extern、mutable
-friend、typedef、constexpr
-```
-对于const和volatile也建议出现在类型名的左侧。
-<br/>
-<br/>
-
-#### 相关
-ID_sandwichedModifier  
-ID_badQualifierPosition  
-<br/>
-<br/>
-
-### <span id="ID_constLiteralReference">▌R6.7 对常量的定义不应为引用</span>
-
-ID_constLiteralReference&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
-
-<hr/>
-
-虽然C\+\+语言十分灵活，可以通过多种方式达到同一种目的，但应该选择最简洁且通俗易懂的方式实现。  
-  
-示例：
-```
-const int& i = 1024;   // Non-compliant
-const int&& j = 1024;  // Non-compliant
-```
-应改为：
-```
-const int i = 1024;  // Compliant
-const int j = 1024;  // Compliant
-```
-<br/>
-<br/>
-<br/>
-
-### <span id="ID_deprecatedAutoPtr">▌R6.8 避免使用std::auto_ptr</span>
-
-ID_deprecatedAutoPtr&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
-
-<hr/>
-
-std::auto\_ptr在C\+\+11标准中已被废弃，应使用std::unique\_ptr。
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 14882:2011 D.10-deprecated  
-<br/>
-
-#### 参考
-C++ Core Guidelines R.20  
-<br/>
-<br/>
-
-### <span id="ID_deprecatedDefaultArgument">▌R6.9 不建议虚函数的参数有默认值</span>
-
-ID_deprecatedDefaultArgument&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
-
-<hr/>
-
-虚函数参数的默认值不受多态规则控制，通过基类指针或引用调用派生类重写的虚函数时，默认值仍采用基类中的定义，易造成混淆，建议虚函数参数不使用默认值。  
-  
-示例：
-```
-class A {
-public:
-    virtual int foo(int i = 0);  // Bad
-};
-```
-应尽量去掉默认参数值，或改用重载函数的方式：
-```
-class A {
-public:
-    virtual int foo();  // OK
-    virtual int foo(int i);  // OK
-};
-```
-<br/>
-<br/>
-
-#### 相关
-ID_inconsistentDefaultArgument  
-<br/>
-
-#### 依据
-ISO/IEC 14882:2003 8.3.6(10)  
-ISO/IEC 14882:2011 8.3.6(10)  
-ISO/IEC 14882:2017 11.3.6(10)  
-<br/>
-
-#### 参考
-CWE-628  
-C++ Core Guidelines C.140  
-MISRA C++ 2008 8-3-1  
-<br/>
-<br/>
-
-### <span id="ID_deprecatedSpecifier">▌R6.10 不应使用已过时的关键字</span>
-
-ID_deprecatedSpecifier&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
-
-<hr/>
-
-根据C\+\+11标准，register等关键字已过时，不应再使用。另外，auto关键字也不应再作为存储类说明符（storage class specifier）继续使用。  
-  
-示例：
-```
-class A {
-public:
-    register int a;  // Non-compliant
-    auto int b;      // Non-compliant
-    int foo(register int x);  // Non-compliant
-};
-```
-本规则对于C\+\+适用，对于C可适当放宽要求。
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 14882:2011 D.2(1)-deprecated  
-ISO/IEC 14882:2011 7.1.6.4  
-<br/>
-<br/>
-
-### <span id="ID_duplicatedName">▌R6.11 同一命名空间内的类型名称不应与对象或函数名称相同</span>
-
-ID_duplicatedName&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
-
-<hr/>
-
-如果不同的代码元素使用相同的名称，极易造成困扰。  
-  
-示例：
-```
-struct A {
-    int a, b, c;
-};
-
-enum {
-    A, B, C    // Non-compliant
-};
-
-size_t x = sizeof(A);  // What is ‘A’?
-```
-例中类名A与枚举值A重名，sizeof(A)的意义是非常令人困惑的。
-<br/>
-<br/>
-
-#### 参考
-MISRA C++ 2008 2-10-6  
-C++ Core Guidelines ES.8  
-<br/>
-<br/>
-
-### <span id="ID_exceededBitfield">▌R6.12 位域长度不应超过类型约定的大小</span>
-
-ID_exceededBitfield&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
-
-<hr/>
-
-位域长度不应超过类型约定的大小，否则没有意义且会造成不必要的空间浪费，出现这种问题往往意味着设计上的错误。  
-  
-C语言规定位域长度不可超过类型约定的大小否则不可编译，而C\+\+语言规定可以超过，但超过的部分会作为“padding bits”不参与数据的存储。  
-  
-示例：
-```
-struct A {
-    int x: 50;  // Non-compliant
-};
-
-int main() {
-    A a;
-    std::cout << sizeof(a) << '\n';  // What is output?
-}
-```
-输出8  
-例中成员x自身的位域长度仍为32，而多出来的大小会形成一个不可访问的填充值。
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 9899:2011 6.7.2.1(4)  
-ISO/IEC 14882:2011 9.6(1)  
-<br/>
-<br/>
-
-### <span id="ID_hideLocal">▌R6.13 局部名称不应被覆盖</span>
+### <span id="ID_hideLocal">▌R6.1.4 局部名称不应被覆盖</span>
 
 ID_hideLocal&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
@@ -5578,7 +5314,7 @@ MISRA C++ 2008 2-10-2
 <br/>
 <br/>
 
-### <span id="ID_hideMember">▌R6.14 成员名称不应被覆盖</span>
+### <span id="ID_hideMember">▌R6.1.5 成员名称不应被覆盖</span>
 
 ID_hideMember&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
@@ -5629,344 +5365,185 @@ MISRA C++ 2008 2-10-2
 <br/>
 <br/>
 
-### <span id="ID_inaccessibleTmpObject">▌R6.15 不应产生不受控制的无效临时对象</span>
+### <span id="ID_duplicatedName">▌R6.1.6 同一命名空间内的类型名称不应与对象或函数名称相同</span>
 
-ID_inaccessibleTmpObject&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: declaration error
+ID_duplicatedName&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-无名不受控制的临时对象在构造之后会立即析构，在逻辑上没有意义，往往意味着错误。  
+如果不同的代码元素使用相同的名称，极易造成困扰。  
   
 示例：
 ```
-class A {
-public:
-    A() {
-        A(0);  // Non-compliant, just created an inaccessible temporary object
-    }
-
-    A(int x): a(x)
-    {}
-
-private:
-    int a;
+struct A {
+    int a, b, c;
 };
+
+enum {
+    A, B, C    // Non-compliant
+};
+
+size_t x = sizeof(A);  // What is ‘A’?
 ```
-例中A(0);只是生成了一个无用的临时对象，各成员并没有被正确初始化。如果要调用A::A(int)来完成初始化，应改为this\->A::A(0);的形式。  
-  
-又如：
-```
-void fun() {
-    LockGuard();   // Meaningless
-    do_something_critical();
-} 
-```
-设LockGuard是某种锁的类名，那么LockGuard();一行只生成了一个临时对象，该对象会立即析构，起不到作用，这也是一种常见的错误。  
-  
-应改为：
-```
-void fun() {
-    LockGuard guard;  // Compliant
-    do_something_critical();
-}
-```
+例中类名A与枚举值A重名，sizeof(A)的意义是非常令人困惑的。
 <br/>
 <br/>
 
 #### 参考
-CWE-665  
-C++ Core Guidelines ES.84  
+MISRA C++ 2008 2-10-6  
+C++ Core Guidelines ES.8  
 <br/>
 <br/>
 
-### <span id="ID_inconsistentDefaultArgument">▌R6.16 虚函数参数的默认值应与基类中声明的一致</span>
+### <span id="declaration.qualifier">6.2 Qualifier</span>
 
-ID_inconsistentDefaultArgument&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: declaration error
+### <span id="ID_qualifierInvalid">▌R6.2.1 const、volatile不可修饰引用</span>
+
+ID_qualifierInvalid&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: declaration error
 
 <hr/>
 
-虚函数参数的默认值不受多态规则控制，通过基类指针或引用调用派生类重写的虚函数时，默认值仍采用基类中的定义。  
+C\+\+标准规定，const或volatile可修饰指针，但不可修饰引用，否则起不到任何作用。  
   
 示例：
 ```
-class A {
-public:
-    virtual int foo(int i = 0) {
-        return i;
-    }
-};
-
-class B: public A {
-public:
-    int foo(int i = 1) override {  // Non-compliant
-        return i + 1;
-    }
-};
-
-A* p = new B;
-cout << p->foo() << '\n';  // What is output?
+int a = 0;
+int &const i = a;     // Non-compliant
+int &volatile j = a;  // Non-compliant
+typedef int& int_r;
+const int_r r0 = a;   // Non-compliant, r0 is not a const-reference at all
+const int_r& r1 = a;  // Non-compliant, r1 is not a const-reference at all
 ```
-输出1，这种虚函数的非多态行为是非常令人困惑的。
+例中声明的引用均无效，应去掉限定符，或改为：
+```
+const int& i = a;     // Compliant
+volatile int& j = a;  // Compliant
+int_r r = a;          // Compliant
+```
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 8.3.2(1)  
+ISO/IEC 14882:2011 8.3.2(1)  
+ISO/IEC 14882:2017 11.3.2(1)  
+<br/>
+<br/>
+
+### <span id="ID_qualifierRepeated">▌R6.2.2 const、volatile不应重复</span>
+
+ID_qualifierRepeated&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: declaration error
+
+<hr/>
+
+重复的const或volatile限定符是没意义的，也可能意味着某种错误。  
+  
+示例：
+```
+const const char* p0 = "....";   // Non-compliant
+const char const* p1 = "....";   // Non-compliant
+char* const const p2 = "....";   // Non-compliant
+```
+第一和第二种情况，const重复修饰char，很可能应该修饰\*号，属于常见笔误，应改为：
+```
+const char * const p1 = "....";  // Compliant
+```
+第三种情况，const重复修饰\*号，符合语言文法，但没有实际意义，很可能应该修饰char，应改为：
+```
+const char * const p2 = "....";  // Compliant
+```
 <br/>
 <br/>
 
 #### 相关
-ID_deprecatedDefaultArgument  
-<br/>
-
-#### 依据
-ISO/IEC 14882:2003 8.3.6(10)  
-ISO/IEC 14882:2011 8.3.6(10)  
-ISO/IEC 14882:2017 11.3.6(10)  
-<br/>
-
-#### 参考
-CWE-628  
-C++ Core Guidelines C.140  
-MISRA C++ 2008 8-3-1  
+ID_badQualifierPosition  
 <br/>
 <br/>
 
-### <span id="ID_inlineRedundant">▌R6.17 不应使用多余的inline关键字</span>
+### <span id="ID_badQualifierPosition">▌R6.2.3 const、volatile限定类型时应出现在左侧</span>
 
-ID_inlineRedundant&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
+ID_badQualifierPosition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-constexpr关键字修饰的函数已经相当于被声明为inline，不应再重复声明。  
+语言允许const、volatile出现在类型名的左侧，也可以出现在其右侧，甚至可以出现在基本类型名的中间，为了提高可读性，应对其位置进行统一规范。  
   
 示例：
 ```
-inline constexpr int foo(int n) {  // Non-compliant, ‘inline’ is redundant
-    return n + 1;
-}
+unsigned int const a = 0;          // Non-compliant
+long double const volatile b = 0;  // Non-compliant
 ```
 应改为：
 ```
-constexpr int foo(int n) {  // Compliant
-    return n + 1;
-}
+const unsigned int a = 0;          // Compliant
+const volatile long double b = 0;  // Compliant
 ```
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 14882:2011 7.1.5(2)  
-<br/>
-<br/>
-
-### <span id="ID_invalidExternSpecifier">▌R6.18 extern关键字不应作用于类成员的声明或定义</span>
-
-ID_invalidExternSpecifier&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
-
-<hr/>
-
-extern关键字作用于类成员的声明或定义是没有意义的，为语言用法错误。  
-  
-示例：
+const、volatile出现在类型名右侧时，易与\*号造成误解，如：
 ```
-class A {
-    void foo();
-};
-
-extern void A::foo() {  // Non-compliant, drop ‘extern’
-    ....
-}
+const char const* p = "....";      // Non-compliant
 ```
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 14882:2003 9.2(6)  
-ISO/IEC 14882:2011 9.2(6)  
-ISO/IEC 14882:2017 12.2(9)  
-<br/>
-<br/>
-
-### <span id="ID_invalidFinal">▌R6.19 不应将union设为final</span>
-
-ID_invalidFinal&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
-
-<hr/>
-
-标准规定union不可作为基类，所以将union声明为final是没有意义的，为语言运用错误。  
-  
-示例：
-```
-union U final  // Non-compliant, meaningless
-{
-    int a, b, c;
-};
-```
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 9899:2011 9.5(2)  
-<br/>
-<br/>
-
-### <span id="ID_invalidLocalDeclaration">▌R6.20 不应出现不会被用到的局部声明</span>
-
-ID_invalidLocalDeclaration&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
-
-<hr/>
-
-不会被用到的局部声明是没有意义的，往往意味着笔误或者代码功能不完整。  
-  
-示例：
-```
-int foo(int a, int b) {
-    if (a)
-        int b = a + 1;  // Non-compliant
-    return b;
-}
-```
-例中if作用域中的最后一个元素是对象的声明，是没有意义的，这种情况也是较为常见的笔误。  
-  
 应改为：
 ```
-int foo(int a, int b) {
-    if (a) {
-        b = a + 1;  // OK
-    }
-    return b;
-}
-```
-<br/>
-<br/>
-<br/>
-
-### <span id="ID_invalidParamArraySize">▌R6.21 不应将数组作为函数的形式参数</span>
-
-ID_invalidParamArraySize&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
-
-<hr/>
-
-在形式参数中对数组大小的声明起不到实际的限制作用。  
-  
-示例：
-```
-int foo(int a[100]);  // Non-compliant
-
-int bar() {
-    int a[50] = {};
-    return foo(a);    // It can be compiled
-}
-```
-在C\+\+语言中可改为数组的引用：
-```
-void foo(int (&a)[100]);   // Compliant
-
-template <size_t size>
-void foo(int(&a)[size]) {  // Compliant
-    ....
-}
+const char * const p = "....";     // Compliant
 ```
 <br/>
 <br/>
 
-#### 依据
-ISO/IEC 9899:1999 6.7.5.3(7)  
-ISO/IEC 9899:2011 6.7.6.3(7)  
+#### 相关
+ID_sandwichedModifier  
+ID_badSpecifierPosition  
 <br/>
 
 #### 参考
-C++ Core Guidelines I.13  
-C++ Core Guidelines R.14  
-MISRA C++ 2008 5-2-12  
+C++ Core Guidelines NL.26  
 <br/>
 <br/>
 
-### <span id="ID_invalidSpecifier">▌R6.22 不应出现无效的声明限定符</span>
+### <span id="ID_sandwichedModifier">▌R6.2.4 const、volatile等关键字不应出现在基本类型名称的中间</span>
 
-ID_invalidSpecifier&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
+ID_sandwichedModifier&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-只定义类型，不定义对象时不应使用typedef、static等声明限定符，这种情况多为笔误或遗迹代码，应当去除。  
+某些基本类型可由多个符号组成，const或volatile等关键字不应出现在这些符号的中间，否则可读性较差。  
   
 示例：
 ```
-static class A;    // Non-compliant
-typedef struct B;  // Non-compliant
-const union C;     // Non-compliant
+const long volatile long cvll = 0;    // Non-compliant
+long const double volatile cvld = 0;  // Non-compliant
+```
+应改为：
+```
+const volatile long long cvll = 0;    // Compliant
+const volatile long double cvld = 0;  // Compliant
+```
+本规则对下列关键字有同样的要求：
+```
+const、volatile
+inline、virtual、explicit
+register、static、thread_local、extern、mutable
+friend、typedef、constexpr
 ```
 <br/>
 <br/>
-<br/>
 
-### <span id="ID_label_unused">▌R6.23 不应存在没有用到的标签</span>
-
-ID_label_unused&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
-
-<hr/>
-
-没有用到的标签意味着goto语句的缺失，也可能是残留代码，应当去除。  
-  
-示例：
-```
-int foo() {
-    int i = 0;
-lab:               // Non-compliant
-    return bar(i);
-}
-```
-标签只应与goto语句对应，不可有其他用途，如：
-```
-int bar(int x) {
-    int i = 0;
-strange_comment:   // Non-compliant
-    return x + i;
-}
-```
-例中标签被当作注释，这是一种怪异的用法，也可能会干扰编译器的优化。
-<br/>
+#### 相关
+ID_badQualifierPosition  
+ID_badSpecifierPosition  
 <br/>
 
 #### 参考
-MISRA C 2012 2.6  
+C++ Core Guidelines NL.26  
 <br/>
 <br/>
 
-### <span id="ID_lambdaOutOfFunction">▌R6.24 不建议在函数作用域外将lambda表达式定义为具名对象</span>
-
-ID_lambdaOutOfFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
-
-<hr/>
-
-不建议在函数作用域外将lambda表达式定义为具名对象，应采用普通函数定义的方式。  
-  
-示例：
-```
-namespace N {
-    auto foo = [](int a, int b) {  // Non-compliant
-        return a + b;
-    };
-}
-```
-这种写法与lambda表达式的匿名特性相矛盾，而且foo是不能被重载的。  
-  
-应改为常规函数：
-```
-namespace N {
-    int foo(int a, int b) {  // Compliant
-        return a + b;
-    }
-}
-```
-虽然C\+\+语言十分灵活，可以通过多种方式达到同一种目的，但应该选择最简洁且通俗易懂的方式实现。
-<br/>
-<br/>
-<br/>
-
-### <span id="ID_missingConst">▌R6.25 指向常量字符串的指针应有const限定符修饰</span>
+### <span id="ID_missingConst">▌R6.2.5 指向常量字符串的指针应有const关键字修饰</span>
 
 ID_missingConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-定义指向常量字符串的指针时应有const限定符修饰，否则常量字符串被修改会导致标准未定义的问题。  
+定义指向常量字符串的指针时应有const关键字修饰，否则常量字符串被修改会导致标准未定义的问题。  
   
 示例：
 ```
@@ -5994,7 +5571,223 @@ MISRA C 2012 7.4
 <br/>
 <br/>
 
-### <span id="ID_missingExplicitOverride">▌R6.26 所有重写的虚函数都应声明为override或final</span>
+### <span id="ID_uselessQualifier">▌R6.2.6 enum的底层类型（underlying type）中不应出现const或volatile</span>
+
+ID_uselessQualifier&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
+
+<hr/>
+
+enum或enum class的底层类型（underlying type）中出现const或volatile是没有意义的，会被编译器忽略，为语言用法错误。  
+  
+示例：
+```
+enum E: volatile unsigned int  // Non-compliant, ‘volatile’ is invalid
+{
+    e0, e1, e2
+};
+E e = e0;  // ‘e’ is not volatile
+```
+应改为：
+```
+enum E: unsigned int  // Compliant
+{
+    e0, e1, e2
+};
+volatile E e = e0;  // OK, ‘e’ is volatile
+```
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2011 7.2(2)  
+ISO/IEC 14882:2011 10.2(2)  
+<br/>
+<br/>
+
+### <span id="ID_constLiteralReference">▌R6.2.7 对常量的定义不应为引用</span>
+
+ID_constLiteralReference&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
+
+<hr/>
+
+虽然C\+\+语言十分灵活，可以通过多种方式达到同一种目的，但应该选择最简洁且通俗易懂的方式实现。  
+  
+示例：
+```
+const int& i = 1024;   // Non-compliant
+const int&& j = 1024;  // Non-compliant
+```
+应改为：
+```
+const int i = 1024;  // Compliant
+const int j = 1024;  // Compliant
+```
+<br/>
+<br/>
+<br/>
+
+### <span id="ID_forbidVolatile">▌R6.2.8 慎用volatile关键字</span>
+
+ID_forbidVolatile&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration suggestion
+
+<hr/>
+
+对于硬件无关的功能性代码不妨禁用volatile关键字，否则误用该关键字会引发优化及同步相关的多种问题。  
+  
+volatile关键字仅保证编译器不会对其修饰的变量进行额外优化，确保其有稳定的地址以供读写，在并发编程中容易使人产生误解，其实该关键字在C/C\+\+语言中与同步机制并无关系。  
+  
+当需要访问某个硬件地址，而其它进程或硬件可能会修改该地址上的数据时，应将其指针声明为volatile：
+```
+volatile int* vp = get_hardware_address();
+```
+如果当前进程不需要主动改变数据，则可加const修饰符：
+```
+const volatile int* cvp = get_hardware_address();
+```
+这样一来vp或cvp的值一直会与内存地址对应，利用\*vp或\*cvp总会执行从内存的读取操作，而不会因为编译器的优化而被忽略，可能需要保证进程之间的同步，但这与volatile关键字是没有关系的，这一点与Java等语言有较大区别，需要特别注意。  
+  
+除此之外，利用volatile关键字阻止编译优化的特性可实现一些安全措施，参见ID\_unsafeCleanup。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 7.1.5.1(8)  
+ISO/IEC 14882:2011 7.1.6.1(7)  
+<br/>
+
+#### 参考
+C++ Core Guidelines CP.8  
+C++ Core Guidelines CP.200  
+<br/>
+<br/>
+
+### <span id="ID_forbidRestrictPtr">▌R6.2.9 禁用restrict指针</span>
+
+ID_forbidRestrictPtr&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration warning
+
+<hr/>
+
+C语言中的restrict指针要求其他指针不能再指向相同区域，有助于编译器优化，但不符合这种限制时会导致标准未定义的错误，相当于增加了误用的风险，也提高了测试成本。  
+  
+示例：
+```
+void foo(int c[]) {
+    int *restrict a = &c[0];    // Non-compliant
+    int *restrict b = &c[1];    // Non-compliant
+    ....
+    a = b;                      // Undefined behavior
+    ....
+}
+
+int bar(int *restrict x, int *restrict y) {  // Non-compliant
+    return *x + *y;
+}
+
+int baz(int* p) {
+    return bar(p, p);  // Undefined behavior
+}
+```
+restrict指针虽然有助于编译器优化，但应在效率的提高和存在的风险之间进行取舍，非系统库中的代码、改动频繁的代码不建议使用restrict指针，而且这种优化大部分情况下也难以真正解决效率的瓶颈问题。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.7.3.1(4 9 11)-undefined  
+ISO/IEC 9899:2011 6.7.3.1(4 9 11)-undefined  
+<br/>
+
+#### 参考
+MISRA C 2012 8.14  
+SEI CERT EXP43-C  
+<br/>
+<br/>
+
+### <span id="declaration.specifier">6.3 Specifier</span>
+
+### <span id="ID_deprecatedSpecifier">▌R6.3.1 不应使用已过时的关键字</span>
+
+ID_deprecatedSpecifier&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
+
+<hr/>
+
+根据C\+\+11标准，register等关键字已过时，不应再使用。另外，auto关键字也不应再作为存储类说明符（storage class specifier）继续使用。  
+  
+示例：
+```
+class A {
+public:
+    register int a;  // Non-compliant
+    auto int b;      // Non-compliant
+    int foo(register int x);  // Non-compliant
+};
+```
+本规则对于C\+\+适用，对于C可适当放宽要求。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2011 D.2(1)-deprecated  
+ISO/IEC 14882:2011 7.1.6.4  
+<br/>
+<br/>
+
+### <span id="ID_inlineRedundant">▌R6.3.2 不应使用多余的inline关键字</span>
+
+ID_inlineRedundant&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
+
+<hr/>
+
+constexpr关键字修饰的函数已经相当于被声明为inline，不应再重复声明。  
+  
+示例：
+```
+inline constexpr int foo(int n) {  // Non-compliant, ‘inline’ is redundant
+    return n + 1;
+}
+```
+应改为：
+```
+constexpr int foo(int n) {  // Compliant
+    return n + 1;
+}
+```
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2011 7.1.5(2)  
+<br/>
+<br/>
+
+### <span id="ID_invalidExternSpecifier">▌R6.3.3 extern关键字不应作用于类成员的声明或定义</span>
+
+ID_invalidExternSpecifier&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
+
+<hr/>
+
+extern关键字作用于类成员的声明或定义是没有意义的，为语言用法错误。  
+  
+示例：
+```
+class A {
+    void foo();
+};
+
+extern void A::foo() {  // Non-compliant, drop ‘extern’
+    ....
+}
+```
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 9.2(6)  
+ISO/IEC 14882:2011 9.2(6)  
+ISO/IEC 14882:2017 12.2(9)  
+<br/>
+<br/>
+
+### <span id="ID_missingExplicitOverride">▌R6.3.4 所有重写的虚函数都应声明为override或final</span>
 
 ID_missingExplicitOverride&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -6036,491 +5829,7 @@ C++ Core Guidelines C.128
 <br/>
 <br/>
 
-### <span id="ID_missingParamName">▌R6.27 函数原型声明中的参数应具有合理的名称</span>
-
-ID_missingParamName&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
-
-<hr/>
-
-参数名称可以对参数的用途起到最直接的说明作用，建议对外公开的接口参数都要有合理的名称。  
-  
-示例：
-```
-char* strstr(const char* haystack, const char* needle);  // Good
-```
-这是标准库函数strstr的原型声明，利用形象的比喻，表示要在haystack中查找needle。  
-  
-如果将声明改为如下形式，是令人费解的：
-```
-char* strstr(const char*, const char*);  // Bad
-char* strstr(const char* a, const char* b);  // Bad
-```
-<br/>
-<br/>
-
-#### 参考
-MISRA C 2004 16.3  
-MISRA C 2012 8.2  
-<br/>
-<br/>
-
-### <span id="ID_missingVoid">▌R6.28 C代码中函数参数列表如果为空须声明为“(void)”</span>
-
-ID_missingVoid&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
-
-<hr/>
-
-在C语言中，如果函数的参数列表声明为空的括号，表示函数的参数还没有声明，而不是表示没有参数。这便引入了相当大的不确定性，为了减少混乱，没有参数的参数列表应声明为“(void)”。  
-  
-示例：
-```
-// In a.h
-int foo();  // Non-compliant
-
-// In a.c
-#include "a.h"
-
-int foo(int a) {
-    return a + 1;
-}
-
-// In main.c
-#include <stdio.h>
-#include "a.h"
-
-int main() {
-    printf("%d\n", foo(1));  // Output: 2
-    printf("%d\n", foo());   // Can be compiled, but what is output?
-}
-```
-例中foo(1)和foo()两种调用都可以通过编译，然而声明与实现不一致的问题总是令人困惑的，如果明确将参数声明为void或int a则可以解决这种问题。  
-  
-应改为：
-```
-int foo(void);   // Compliant, ‘foo(1)’ cannot be compiled
-```
-或者：
-```
-int foo(int a);  // Compliant, ‘foo()’ cannot be compiled
-```
-<br/>
-<br/>
-
-#### 相关
-ID_superfluousVoid  
-<br/>
-
-#### 依据
-ISO/IEC 9899:2011 6.7.6.3(14)  
-ISO/IEC 9899:2011 6.11.6(1)  
-<br/>
-
-#### 参考
-MISRA C 2004 16.5  
-<br/>
-<br/>
-
-### <span id="ID_mixedDeclarations">▌R6.29 不应将函数或函数指针和其他声明写在同一个语句中</span>
-
-ID_mixedDeclarations&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
-
-<hr/>
-
-每条语句只应声明一个函数或函数指针，否则可读性较差。  
-  
-示例：
-```
-int* foo(int, int), bar(0), baz(char, long);  // Non-compliant, very bad
-```
-应改为：
-```
-int* foo(int, int);   // Compliant
-int bar = 0;          // Compliant
-int baz(char, long);  // Compliant
-```
-<br/>
-<br/>
-
-#### 参考
-C++ Core Guidelines ES.10  
-<br/>
-<br/>
-
-### <span id="ID_mixedTypeObjDefinition">▌R6.30 不建议将类型定义和对象声明写在一个语句中</span>
-
-ID_mixedTypeObjDefinition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
-
-<hr/>
-
-不建议将类型定义和对象声明写在一个语句中，否则可读性较差。  
-  
-示例：
-```
-struct _A
-{
-    int a, b, c;
-} A;  // Bad
-
-typedef struct _B
-{
-    int x, y, z;
-} B;  // Bad
-```
-<br/>
-<br/>
-
-#### 参考
-C++ Core Guidelines C.7  
-<br/>
-<br/>
-
-### <span id="ID_nonStdAssignmentRetType">▌R6.31 拷贝赋值、移动赋值运算符应返回所属类的非const引用</span>
-
-ID_nonStdAssignmentRetType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
-
-<hr/>
-
-按赋值表达式的标准语法要求，以及C\+\+语言的惯例，拷贝赋值、移动赋值应返回所属类的非const引用，便于调用者使用并满足泛型编程的要求。  
-  
-对“=”的合理重载，可以使对象的赋值表达式作为子表达式灵活地出现在各种语句中，这也是“泛型程序设计”的必要条件，使算法的代码实现即可以适应普通变量，也可以适应自定义对象。如果类的对象与标准模板库相关，则其赋值运算符应满足本规则的要求。  
-如果“=”运算符没有返回所属类的非const引用，便无法满足连续赋值等表达式的语法要求，对标准模板类的使用上会受到限制。  
-  
-对于“\+=”、“\-=”等复合赋值运算符也有相同的要求。  
-  
-示例：
-```
-class A {
-    int i = 0;
-
-public:
-    A& operator = (int x) {  // Compliant
-        i = x;
-        return *this;
-    }
-
-    A& operator = (const A& rhs) {  // Compliant
-        i = rhs.i;
-        return *this;
-    }
-};
-
-class B {
-    int i = 0;
-
-public:
-    void operator = (int x) { i = x; }  // Non-compliant, should return B&
-    void operator = (const B& rhs) { i = rhs.i; }  // Non-compliant
-};
-
-template <class T>
-void foo(T& x, T& y) {
-    x = y = 1;
-}
-
-A u, v;
-B w, x;
-foo(u, v);  // OK
-foo(w, x);  // Compile error
-```
-<br/>
-<br/>
-
-#### 参考
-C++ Core Guidelines F.47  
-C++ Core Guidelines C.60  
-C++ Core Guidelines C.63  
-<br/>
-<br/>
-
-### <span id="ID_nonStdCopyAssignmentParam">▌R6.32 拷贝赋值运算符的参数应为同类对象的const左值引用</span>
-
-ID_nonStdCopyAssignmentParam&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
-
-<hr/>
-
-拷贝赋值运算符的参数不应为值传递，否则会造成不必要的复制，以及“[对象切片](https://en.wikipedia.org/wiki/Object_slicing)”等问题。  
-  
-示例：
-```
-class A {
-public:
-    A& operator = (A);  // Non-compliant
-};
-```
-应改为：
-```
-class A {
-public:
-    A& operator = (const A&);  // Compliant
-};
-```
-<br/>
-<br/>
-
-#### 参考
-C++ Core Guidelines C.60  
-<br/>
-<br/>
-
-### <span id="ID_nonStdMoveAssignmentParam">▌R6.33 移动赋值运算符的参数应为同类对象的非const右值引用</span>
-
-ID_nonStdMoveAssignmentParam&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
-
-<hr/>
-
-移动赋值运算符的参数不可为const右值引用，否则将失去移动赋值的意义。  
-  
-示例：
-```
-struct A {
-    char* p;
-    A& operator = (const A&& a) {  // Non-compliant
-        free(p);
-        p = copy(a.p);             // Not necessary
-    }
-    ....
-};
-```
-例中赋值运算符不是真正的移动赋值运算符，仍是一种低效实现。  
-应将a.p与this\->p交换，利用a的析构函数完成资源的释放，这才是真正意义上的移动赋值。  
-  
-应改为：
-```
-struct A {
-    char* p;
-    A& operator = (A&& a) noexcept {  // Compliant
-        char* tmp = p;
-        p = a.p;
-        a.p = tmp;
-    }
-    ....
-};
-```
-<br/>
-<br/>
-
-#### 参考
-C++ Core Guidelines C.63  
-<br/>
-<br/>
-
-### <span id="ID_nonVirtualOverride">▌R6.34 派生类不应重新定义与基类相同的非虚函数</span>
-
-ID_nonVirtualOverride&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
-
-<hr/>
-
-派生类不应重新定义与基类相同的非虚函数，否则与多态机制相矛盾，易造成意料之外的问题。  
-  
-示例：
-```
-class A {
-public:
-    int foo() const { return 0; }
-};
-
-class B: public A {
-public:
-    int foo() const { return 1; }  // Non-compliant
-};
-
-int bar(A* a) {
-    return a->foo();
-}
-```
-如果将B类型的指针传入bar函数，将执行A::foo，然而参数实际指向的是B类型的对象，但B::foo不会被执行，这就形成了逻辑上的矛盾，造成意料之外的问题。
-<br/>
-<br/>
-
-#### 参考
-Effective C++ item 36  
-<br/>
-<br/>
-
-### <span id="ID_overloadAddressOperator">▌R6.35 不应重载取地址运算符</span>
-
-ID_overloadAddressOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
-
-<hr/>
-
-取地址运算符（一元&运算符），重载之后可以返回任意地址，极易误用，建议禁止重载该运算符。  
-  
-请注意，语言标准规定可以获取不完整类型的对象地址，但如果该对象的完整类型重载了取地址运算符，则该行为是未定义的。  
-  
-示例：
-```
-class X;
-X* foo(X& x) {
-    return &x;  // Undefined behaviour
-}
-
-class X {
-public:
-    X* operator &() {  // Non-compliant
-        return nullptr;
-    }
-};
-
-X* bar(X& x) {
-    return &x;  // Call ‘X::operator&’
-}
-```
-例中foo函数会引发标准未定义的问题，可能会返回x对象的实际地址，而bar函数会调用重载了的取地址运算符，这种问题会造成混乱。
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 14882:2003 5.3.1(4)-undefined  
-ISO/IEC 14882:2011 5.3.1(5)-undefined  
-<br/>
-
-#### 参考
-C++ Core Guidelines C.166  
-MISRA C++ 2008 5-3-3  
-<br/>
-<br/>
-
-### <span id="ID_overloadComma">▌R6.36 不应重载逗号运算符</span>
-
-ID_overloadComma&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
-
-<hr/>
-
-对于内置逗号表达式，C\+\+明确规定要从左到右计算子表达式的值，而对逗号运算符的重载打破了这一规则，往往会造成不符合预期的计算结果。  
-可参见ID\_overloadLogicOperator对这种问题的详细说明。  
-  
-示例：
-```
-struct A;
-A& operator , (const A&, const A&);  // Non-compliant
-```
-<br/>
-<br/>
-
-#### 相关
-ID_overloadLogicOperator  
-<br/>
-
-#### 参考
-MISRA C++ 2008 5-2-11  
-<br/>
-<br/>
-
-### <span id="ID_overloadLogicOperator">▌R6.37 不应重载“逻辑与”和“逻辑或”运算符</span>
-
-ID_overloadLogicOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
-
-<hr/>
-
-对“逻辑与”、“逻辑或”等运算符的重载会影响效率，甚至造成与预期完全不符的结果。  
-  
-C/C\+\+语言明确地规定了内置的逗号、逻辑与、逻辑或等表达式的子表达式求值顺序。对于逻辑表达式，从左到右计算子表达式的值，当可以确定整个表达式的值时立即结束计算，如果还有其它子表达式未求值也不再计算了，这种规则称为“短路规则”，意在提升执行效率，然而对运算符的重载却打破了这一规则。  
-  
-示例：
-```
-class A {
-    int i;
-public:
-    A(int x = 0): i(x) {
-    }
-    bool valid() const {
-        return i != 0;
-    }
-    A& assign(const A& a) {
-        i = a.i;
-        return *this;
-    }
-};
-
-bool operator && (const A& a, const A& b) {  // Non-compliant
-    return a.valid() && b.valid();
-}
-```
-注意表达式（设a和b为A的对象）：
-```
-b && a.assign(b)
-```
-按常理，此表达式的意思应该是如果b在某种意义上“有效”，那么就将b赋给a，所以b的值应该先被求出，如果满足条件，再执行后边的动作。  
-但由于&&被重载，变成了一个函数调用，其左子表达式和右子表达式成了函数的参数，C\+\+标准对函数参数的求值顺序并无明确规定，所以常规逻辑表达式的计算顺序无法得到保证。目前MSVC、g\+\+等主流编译器默认情况下都是从右到左计算参数的值，这个例子中a.assign(b)将会先被执行，这与预期完全不符。  
-  
-解决方法：  
-去掉对&&的重载，对类A引入与bool类型的转换。
-<br/>
-<br/>
-
-#### 相关
-ID_overloadComma  
-<br/>
-
-#### 参考
-MISRA C++ 2008 5-2-11  
-<br/>
-<br/>
-
-### <span id="ID_qualifierInvalid">▌R6.38 const或volatile不可修饰引用</span>
-
-ID_qualifierInvalid&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: declaration error
-
-<hr/>
-
-C\+\+标准规定，const或volatile可修饰指针，但不可修饰引用，否则起不到任何作用。  
-  
-示例：
-```
-int a = 0;
-int &const i = a;     // Non-compliant
-int &volatile j = a;  // Non-compliant
-typedef int& int_r;
-const int_r r0 = a;   // Non-compliant, r0 is not a const-reference at all
-const int_r& r1 = a;  // Non-compliant, r1 is not a const-reference at all
-```
-例中声明的引用均无效，应去掉限定符，或改为：
-```
-const int& i = a;     // Compliant
-volatile int& j = a;  // Compliant
-int_r r = a;          // Compliant
-```
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 14882:2003 8.3.2(1)  
-ISO/IEC 14882:2011 8.3.2(1)  
-ISO/IEC 14882:2017 11.3.2(1)  
-<br/>
-<br/>
-
-### <span id="ID_qualifierRepeated">▌R6.39 const或volatile不应重复</span>
-
-ID_qualifierRepeated&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: declaration error
-
-<hr/>
-
-重复的const或volatile限定符是没意义的，也可能意味着某种错误。  
-  
-示例：
-```
-const const char* p0 = "....";   // Non-compliant
-const char const* p1 = "....";   // Non-compliant
-char* const const p2 = "....";   // Non-compliant
-```
-第一和第二种情况，const重复修饰char，很可能应该修饰\*号，属于常见笔误，应改为：
-```
-const char * const p1 = "....";  // Compliant
-```
-第三种情况，const重复修饰\*号，符合语言文法，但没有实际意义，很可能应该修饰char，应改为：
-```
-const char * const p2 = "....";  // Compliant
-```
-<br/>
-<br/>
-
-#### 相关
-ID_badQualifierPosition  
-<br/>
-<br/>
-
-### <span id="ID_redundantOverride">▌R6.40 override和final关键字不应同时出现</span>
+### <span id="ID_redundantOverride">▌R6.3.5 override和final关键字不应同时出现</span>
 
 ID_redundantOverride&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -6543,7 +5852,7 @@ C++ Core Guidelines C.128
 <br/>
 <br/>
 
-### <span id="ID_redundantVirtual">▌R6.41 当有override或final关键字时，不应再出现virtual关键字</span>
+### <span id="ID_redundantVirtual">▌R6.3.6 当有override或final关键字时，不应再出现virtual关键字</span>
 
 ID_redundantVirtual&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -6567,739 +5876,114 @@ C++ Core Guidelines C.128
 <br/>
 <br/>
 
-### <span id="ID_sandwichedModifier">▌R6.42 const、volatile等关键字不应出现在基本类型名称的中间</span>
+### <span id="ID_invalidFinal">▌R6.3.7 不应将union设为final</span>
 
-ID_sandwichedModifier&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
+ID_invalidFinal&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-某些基本类型可由多个符号组成，const或volatile等关键字不应出现在这些符号的中间，否则可读性较差。  
+标准规定union不可作为基类，所以将union声明为final是没有意义的，为语言运用错误。  
   
 示例：
 ```
-const long volatile long cvll = 0;    // Non-compliant
-long const double volatile cvld = 0;  // Non-compliant
-```
-应改为：
-```
-const volatile long long cvll = 0;    // Compliant
-const volatile long double cvld = 0;  // Compliant
-```
-本规则对下列关键字有同样的要求：
-```
-const、volatile
-inline、virtual、explicit
-register、static、thread_local、extern、mutable
-friend、typedef、constexpr
-```
-<br/>
-<br/>
-
-#### 相关
-ID_badQualifierPosition  
-ID_badSpecifierPosition  
-<br/>
-
-#### 参考
-C++ Core Guidelines NL.26  
-<br/>
-<br/>
-
-### <span id="ID_selfDependentInitialization">▌R6.43 对象初始化不可依赖自身的值</span>
-
-ID_selfDependentInitialization&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: declaration error
-
-<hr/>
-
-对象初始化依赖自身的值属于逻辑错误。  
-  
-示例：
-```
-void foo(int i) {
-    if (i > 0) {
-        int i = i + 1;  // Non-compliant
-        bar(i);
-    }
-}
-```
-例中局部变量i的初始化依赖自身的值，这种问题往往是错误地定义了与外层作用域中名称相同的对象。  
-  
-应改为：
-```
-void foo(int i) {
-    if (i > 0) {
-        int j = i + 1;  // OK
-        bar(j);
-    }
-}
-```
-<br/>
-<br/>
-<br/>
-
-### <span id="ID_plainNumericChar">▌R6.44 参与数值运算的char变量需显式声明signed或unsigned</span>
-
-ID_plainNumericChar&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
-
-<hr/>
-
-没有signed或unsigned限制的char变量，其符号是由实现定义的，具有可移植性要求的代码需明确其符号。  
-  
-示例：
-```
-bool foo(char c) {          // Non-compliant
-    return c < 180;         // May be always true
-}
-
-void bar() {
-    int i = 2;
-    char c = 180;           // Non-compliant
-    printf("%d", i * c);    // What is output?
-}
-```
-foo函数可能只会返回true，而bar函数可能输出\-152也可能输出360。  
-char型变量在PC桌面、服务端等环境中一般是有符号的，在移动端或嵌入式系统中往往是无符号的，需明确其具体实现。
-```
-bool foo(unsigned char c) { // Compliant
-    return c < 180;
-}
-
-void bar() {
-    int i = 2;
-    unsigned char c = 180;  // Compliant
-    printf("%d", i * c);    // 360
-}
-```
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 14882:2003 3.9.1(1)-implementation  
-ISO/IEC 14882:2011 3.9.1(1)-implementation  
-<br/>
-
-#### 参考
-MISRA C++ 2008 5-0-11  
-SEI CERT INT07-C  
-<br/>
-<br/>
-
-### <span id="ID_plainBinaryChar">▌R6.45 表示二进制数据的char指针或数组应显式声明unsigned</span>
-
-ID_plainBinaryChar&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
-
-<hr/>
-
-char类型的符号由实现定义，二进制数据不应受符号位干扰，应显式声明unsigned。  
-  
-示例：
-```
-char buf[100];  // Non-compliant
-FILE* fp = fopen("foo.bin", "wb");
-if (fp) {
-    fread(buf, 1, 100, fp);
-    ....
-}
-```
-应改为：
-```
-unsigned char buf[100];  // Compliant
-```
-这样做也可有效区分二进制数据与字符串，提高可维护性。
-<br/>
-<br/>
-
-#### 相关
-ID_plainNumericChar  
-<br/>
-<br/>
-
-### <span id="ID_singleSignedBitfield">▌R6.46 有符号变量的位域长度不应为1</span>
-
-ID_singleSignedBitfield&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
-
-<hr/>
-
-有符号变量的位域长度如果为1表示只有一个比特位，而该比特位是符号位，极易造成意料之外的错误。  
-  
-本规则不针对匿名成员。  
-  
-示例：
-```
-struct X {
-    int a: 1;           // Non-compliant
-    unsigned int b: 1;  // Compliant
-    int c: 2;           // Compliant
-};
-
-int main() {
-    X x;
-    x.a = 1; cout << x.a << '\n';  // What is output?
-    x.b = 1; cout << x.b << '\n';
-    x.c = 1; cout << x.c << '\n';
-}
-```
-按常规思维，x.b和x.c为1与预期相符，x.a预期是1，但实际是\-1。
-<br/>
-<br/>
-
-#### 参考
-MISRA C++ 2008 9-6-4  
-<br/>
-<br/>
-
-### <span id="ID_staticNotUsed">▌R6.47 不应存在未被使用的本地static函数</span>
-
-ID_staticNotUsed&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
-
-<hr/>
-
-未被使用的本地static函数得不到任何执行机会，应删除或修正调用关系。
-<br/>
-<br/>
-
-#### 参考
-MISRA C++ 2008 0-1-10  
-<br/>
-<br/>
-
-### <span id="ID_superfluousVoid">▌R6.48 C++代码中函数参数列表如果为空不应声明为“(void)”</span>
-
-ID_superfluousVoid&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
-
-<hr/>
-
-与C语言不同，在C\+\+中如果函数的参数列表声明为空的括号，与声明为“(void)”的方式完全相同，均表示没有参数，所以如果在C\+\+仍采用C的声明方式就显得很啰嗦。  
-  
-示例：
-```
-class A {
-public:
-    A(void);  // Verbose
-   ~A(void);  // Verbose
-
-    int foo(void);  // Verbose
-    int bar();      // OK
-};
-```
-<br/>
-<br/>
-
-#### 相关
-ID_missingVoid  
-<br/>
-
-#### 依据
-ISO/IEC 14882:2003 C.1.6 Clause 8  
-ISO/IEC 14882:2011 C.1.7 Clause 8  
-ISO/IEC 14882:2017 C.1.7 Clause 11  
-<br/>
-
-#### 参考
-C++ Core Guidelines NL.25  
-<br/>
-<br/>
-
-### <span id="ID_tooManyDeclarators">▌R6.49 在一个语句中不应声明过多对象或函数</span>
-
-ID_tooManyDeclarators&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
-
-<hr/>
-
-在一个语句中不应声明过多对象或函数，建议在每个语句中只声明一个对象或函数，提高可读性也可减少笔误。  
-  
-示例：
-```
-int* a, b[10], c, d(int), e = 0;  // Bad
-```
-例中只有a是指针，也只有e被初始化，d为函数，将它们分开声明是更好的选择。
-<br/>
-<br/>
-
-#### 配置
-ID_declaration/maxDeclaratorCount：一个声明语句能包含的对象个数上限，超过则报出  
-<br/>
-
-#### 参考
-C++ Core Guidelines ES.10  
-MISRA C++ 2008 8-0-1  
-<br/>
-<br/>
-
-### <span id="ID_tooManyInitItems">▌R6.50 初始化列表中的项目数量不应过多</span>
-
-ID_tooManyInitItems&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
-
-<hr/>
-
-当初始化列表中的项目过多时应考虑将数据移入资源或数据文件，并考虑一定的加密措施，使数据更安全，也更利于维护。  
-  
-示例：
-```
-std::string arr[] = {
-    "rabbit",
-    "hamster",
-    // ... 3000 items ...
-    // It's really hard to maintain
-    "puppie",
-};
-```
-<br/>
-<br/>
-
-#### 配置
-ID_expression/maxInitItemCount：初始化项目的最大个数，超过则报出  
-<br/>
-<br/>
-
-### <span id="ID_unsuitableArraySize">▌R6.51 局部数组的长度不应过大</span>
-
-ID_unsuitableArraySize&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
-
-<hr/>
-
-局部数组的长度过大增加函数堆栈的压力，易导致溢出错误。  
-  
-示例：
-```
-void foo() {
-    int arr[1024 * 1024 * 1024];  // Non-compliant, too large
-    ....
-}
-```
-局部数组在栈上分配空间，是无法控制失败情况的，应改在堆上分配，或优化算法减小空间成本。
-<br/>
-<br/>
-
-#### 配置
-ID_declaration/maxLocalArraySize：局部数组的长度上限，超过则报出  
-<br/>
-
-#### 参考
-CWE-770  
-SEI CERT MEM05-C  
-<br/>
-<br/>
-
-### <span id="ID_uselessQualifier">▌R6.52 enum的底层类型（underlying type）中不应出现const或volatile</span>
-
-ID_uselessQualifier&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
-
-<hr/>
-
-enum或enum class的底层类型（underlying type）中出现const或volatile是没有意义的，会被编译器忽略，为语言用法错误。  
-  
-示例：
-```
-enum E: volatile unsigned int  // Non-compliant, ‘volatile’ is invalid
+union U final  // Non-compliant, meaningless
 {
-    e0, e1, e2
-};
-E e = e0;  // ‘e’ is not volatile
-```
-应改为：
-```
-enum E: unsigned int  // Compliant
-{
-    e0, e1, e2
-};
-volatile E e = e0;  // OK, ‘e’ is volatile
-```
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 14882:2011 7.2(2)  
-ISO/IEC 14882:2011 10.2(2)  
-<br/>
-<br/>
-
-### <span id="ID_virtualAssignment">▌R6.53 拷贝赋值、移动赋值运算符不应为虚函数</span>
-
-ID_virtualAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
-
-<hr/>
-
-由于拷贝赋值、移动赋值运算符的返回值应为所属类的非const引用，这与虚函数的机制是相矛盾的，将赋值运算符设为虚函数很可能是没有作用的。  
-  
-示例：
-```
-class A {
-public:
-    virtual A& operator = (const A&);
-};
-
-class B {
-public:
-    virtual B& operator = (const B&);  // Not override
-    virtual A& operator = (const A&);  // Override, but too complex
-};
-```
-<br/>
-<br/>
-
-#### 相关
-ID_nonStdAssignmentRetType  
-<br/>
-
-#### 参考
-C++ Core Guidelines C.60  
-C++ Core Guidelines C.63  
-<br/>
-<br/>
-
-### <span id="ID_virtualComparison">▌R6.54 比较运算符不应为虚函数</span>
-
-ID_virtualComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
-
-<hr/>
-
-对于重载的比较运算符，很难正确触发C\+\+的多态机制，将其设为虚函数很可能引发意料之外的错误。  
-  
-运算符==、!=、<、>、 <=、>=均受本规则限制。  
-  
-示例（选自C\+\+ Core Guidelines）：
-```
-class B {
-  string name;
-  int number;
-  virtual bool operator==(const B& a) const
-  {
-    return name == a.name && number == a.number;
-  }
-  // ...
-};
-
-class D : B {
-  char character;
-  virtual bool operator==(const D& a) const
-  {
-    return name == a.name && number == a.number && character == a.character;
-  }
-  // ...
-};
-
-B b = ...
-D d = ...
-b == d;    // compares name and number, ignores d's character
-d == b;    // error: no == defined
-D d2;
-d == d2;   // compares name, number, and character
-B& b2 = d2;
-b2 == d;   // compares name and number, ignores d2's and d's character
-```
-<br/>
-<br/>
-
-#### 参考
-C++ Core Guidelines C.87  
-<br/>
-<br/>
-
-### <span id="ID_virtualInFinal">▌R6.55 final类中不应声明虚函数</span>
-
-ID_virtualInFinal&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
-
-<hr/>
-
-final类不再产生派生类，其中的virutal函数也不会再被重写，故不应声明虚函数。  
-  
-示例：
-```
-class A final {
-public:
-    virtual int foo();  // Non-compliant, a new virutal function in final class
-};
-
-class B {
-public:
-    virtual int bar();
-};
-
-class C final: public B {
-public:
-    virtual int bar();  // Non-compliant, use keyword ‘override’ or ‘final’
+    int a, b, c;
 };
 ```
 <br/>
 <br/>
 
 #### 依据
-ISO/IEC 9899:2011 9(3)  
+ISO/IEC 9899:2011 9.5(2)  
 <br/>
 <br/>
 
-### <span id="ID_forbidBitfield">▌R6.56 禁用位域</span>
+### <span id="ID_invalidSpecifier">▌R6.3.8 不应出现无效的声明限定符</span>
 
-ID_forbidBitfield&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration suggestion
+ID_invalidSpecifier&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-引入位域的本意是为了节省空间，然而位域改变了变量约定俗成的取值范围，易造成理解上的偏差，也会造成维护困难。  
-  
-位域与“引用”等C\+\+概念有冲突，而且C\+\+标准在位域的内存分配或数据对齐等方面定义的不够充分，存在很多由实现定义的内容，所以应改用某种更有效的算法达到节省空间或时间的目的。
-<br/>
-<br/>
-
-#### 相关
-ID_exceededBitfield  
-ID_singleSignedBitfield  
-ID_forbidEnumBitfield  
-<br/>
-
-#### 依据
-ISO/IEC 14882:2003 9.6(1)-implementation  
-ISO/IEC 14882:2003 9.6(3)  
-ISO/IEC 14882:2011 9.6(1)-implementation  
-ISO/IEC 14882:2011 9.6(3)  
-ISO/IEC 14882:2017 12.2.4(1)-implementation  
-ISO/IEC 14882:2017 12.2.4(3)  
-<br/>
-<br/>
-
-### <span id="ID_forbidEnumBitfield">▌R6.57 禁止对枚举变量声明位域</span>
-
-ID_forbidEnumBitfield&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration warning
-
-<hr/>
-
-枚举变量的值可以为有符号整数，由于符号位的存在极易导致意料之外的结果，且不利于枚举类型的扩展，故禁止对枚举变量声明位域。  
+只定义类型，不定义对象时不应使用typedef、static等声明限定符，这种情况多为笔误或遗迹代码，应当去除。  
   
 示例：
 ```
-enum E {
-    A, B, C, D
-};
-
-struct X {
-    E e: 2;  // Non-compliant
-};
-
-int main() {
-    X x;
-    x.e = D;
-    if (x.e == D) {  // What is output?
-        std::cout << "OK";
-    } else {
-        std::cout << "Oops";
-    }
-}
+static class A;    // Non-compliant
+typedef struct B;  // Non-compliant
+const union C;     // Non-compliant
 ```
-输出为Oops  
-例中E各枚举值的范围是\[0,3\]，按常规思维，位域长度为2即可满足所有枚举值的范围，然而由于符号位的存在否定了这一点，导致x.e用D赋值后再与D比较竟然得到不相等的结果（因为D的值为3而x.e的值为\-1）。
 <br/>
-<br/>
-
-#### 相关
-ID_singleSignedBitfield  
-<br/>
-
-#### 参考
-MISRA C++ 2008 9-6-3  
 <br/>
 <br/>
 
-### <span id="ID_forbidFlexibleArray">▌R6.58 禁用柔性数组</span>
+### <span id="ID_badSpecifierPosition">▌R6.3.9 inline、virtual、static、typedef等关键字应出现在类型名的左侧</span>
 
-ID_forbidFlexibleArray&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration suggestion
+ID_badSpecifierPosition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-柔性数组（flexible array）一般是指结构体最后不完整定义的数组成员，表示不占用空间的指针，这种数组在C99中有所定义，但不在C\+\+标准之中，在C\+\+代码中不应使用。  
+语言允许inline、virtual、static、typedef等关键字可以出现在类型名的左侧，也可以出现在其右侧，甚至可以出现在基本类型名的中间，为了提高可读性，应对其位置进行统一规范。  
   
 示例：
 ```
 struct A {
-    int len;
-    int dat[];  // Non-compliant
-};
-
-A* cpy(const A* p) {
-    A* a = (A*)malloc(sizeof(A) + p->len * sizeof(int));
-    *a = *p;   // Error, only p->len is copied
-    return a;
-}
-```
-例中\*a=\*p这种拷贝赋值运算会漏掉数组的内容，而且数组不会计入sizeof的结果，易引起意料之外的错误，所以在C语言中也不建议使用这种柔性数组。
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 9899:1999 6.7.2.1(16)  
-<br/>
-
-#### 参考
-MISRA C 2012 18.7  
-<br/>
-<br/>
-
-### <span id="ID_forbidFunctionVoidPtr">▌R6.59 接口的参数或返回值不应被声明为void*</span>
-
-ID_forbidFunctionVoidPtr&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration warning
-
-<hr/>
-
-与接口相关的数据类型应保持精确，不应将参数或返回值声明为void\*。  
-  
-在C\+\+语言中，如果参数或返回值需要面对多种不同类型的数据，应合理使用重载或模板机制。  
-  
-示例：
-```
-class A {
-public:
-    void* foo();      // Non-compliant
-    void bar(void*);  // Non-compliant
+    long long typedef ll_t;     // Non-compliant
+    bool static foo();          // Non-compliant
+    char friend bar();          // Non-compliant
+    unsigned inline int baz();  // Non-compliant
 };
 ```
-例中foo和bar函数的返回值以及参数是不符合要求的。  
-  
-C语言中存在大量的库函数不符合本规则要求，在C\+\+语言中应避免使用，如：
+应统一规定其出现在类型名的左侧：
 ```
-int buf[123];
-memset(buf, 0, 123);  // Logic error, should be ‘123 * sizeof(int)’
+struct A {
+    typedef long long ll_t;     // Compliant
+    static bool foo();          // Compliant
+    friend char bar();          // Compliant
+    inline unsigned int baz();  // Compliant
+};
 ```
-例中memset函数的第一个形式参数就是void\*型，只能通过更底层的二进制方式访问对象序列，是一种对类型设计的破坏，应改用STL标准库提供的方法：
+本规则对下列关键字有同样的要求：
 ```
-int buf[123];
-std::fill_n(buf, 123, 0);  // Safe and brief
+inline、virtual、explicit
+register、static、thread_local、extern、mutable
+friend、typedef、constexpr
 ```
-改用类型明确的方法可以使很多问题在编译期得到控制。  
-  
-例外：  
-C\+\+语言规定new运算符的返回类型为void\*，delete运算符的参数类型为void\*，这些情况可被排除。
+对于const和volatile也建议出现在类型名的左侧。
 <br/>
 <br/>
 
 #### 相关
-ID_forbidMemberVoidPtr  
-<br/>
-
-#### 参考
-C++ Core Guidelines I.4  
+ID_sandwichedModifier  
+ID_badQualifierPosition  
 <br/>
 <br/>
 
-### <span id="ID_forbidMemberVoidPtr">▌R6.60 类成员不应被声明为void*</span>
+### <span id="declaration.declarator">6.4 Declarator</span>
 
-ID_forbidMemberVoidPtr&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration warning
+### <span id="ID_missingStar">▌R6.4.1 用auto声明指针或引用时应显式标明*、&等符号</span>
+
+ID_missingStar&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-与接口相关的数据类型应保持精确，不应将类成员声明为void\*，尤其是非private成员，更不应声明为void\*。  
-  
-在C\+\+语言中，如果成员需要面对多种不同类型的数据，应合理使用模板机制。  
+用auto声明指针时显式标明\*号有利于提高代码可读性，否则会使人误以为是某种非指针的对象。在声明引用时必须显式标明&号或&&号，否则成为对象声明，导致逻辑错误或造成不必要的复制开销。  
   
 示例：
 ```
-class A {
-public:
-    void* dat;  // Non-compliant
-    ....
-};
-```
-应改为：
-```
-template <class T>
-class A {
-public:
-    T* method_about_dat();
-private:
-    T* dat;     // Compliant
-    ....
-};
+int* foo();
+int& bar();
+
+auto p = foo();   // Bad
+auto* q = foo();  // Good
+
+auto r = bar();   // Becareful, ‘r’ is not a reference
 ```
 <br/>
 <br/>
-
-#### 相关
-ID_forbidFunctionVoidPtr  
 <br/>
 
-#### 参考
-C++ Core Guidelines I.4  
-<br/>
-<br/>
-
-### <span id="ID_forbidRestrictPtr">▌R6.61 禁用restrict指针</span>
-
-ID_forbidRestrictPtr&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration warning
-
-<hr/>
-
-C语言中的restrict指针要求其他指针不能再指向相同区域，有助于编译器优化，但不符合这种限制时会导致标准未定义的错误，相当于增加了误用的风险，也提高了测试成本。  
-  
-示例：
-```
-void foo(int c[]) {
-    int *restrict a = &c[0];    // Non-compliant
-    int *restrict b = &c[1];    // Non-compliant
-    ....
-    a = b;                      // Undefined behavior
-    ....
-}
-
-int bar(int *restrict x, int *restrict y) {  // Non-compliant
-    return *x + *y;
-}
-
-int baz(int* p) {
-    return bar(p, p);  // Undefined behavior
-}
-```
-restrict指针虽然有助于编译器优化，但应在效率的提高和存在的风险之间进行取舍，非系统库中的代码、改动频繁的代码不建议使用restrict指针，而且这种优化大部分情况下也难以真正解决效率的瓶颈问题。
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 9899:1999 6.7.3.1(4 9 11)-undefined  
-ISO/IEC 9899:2011 6.7.3.1(4 9 11)-undefined  
-<br/>
-
-#### 参考
-MISRA C 2012 8.14  
-SEI CERT EXP43-C  
-<br/>
-<br/>
-
-### <span id="ID_forbidStaticArrSize">▌R6.62 声明数组参数的大小时禁用static关键字</span>
-
-ID_forbidStaticArrSize&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration warning
-
-<hr/>
-
-C语言规定数组作为形式参数时，可用static关键字修饰大小，要求传入数组的大小不能小于由static 关键字修饰的值，这种机制有助于编译器优化，但不符合这种限制时会导致标准未定义错误，相当于增加了误用的风险，也提高了测试成本。  
-  
-示例：
-```
-int foo(int a[static 5], int n) {  // Non-compliant
-    int i;
-    int s = 0;
-    for (i = 0; i < n; i++) {
-        s += a[i];
-    }
-    return s;
-}
-
-int bar() {
-    int a[3] = {1, 2, 3};
-    return foo(a, 3);      // Undefined behavior
-}
-```
-这种机制虽然有助于编译器优化，但应在效率的提高和存在的风险之间进行取舍，非系统库中的代码、改动频繁的代码不建议使用这种机制，而且这种优化大部分情况下也难以真正解决效率的瓶颈问题。
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 9899:1999 6.7.6.3(7)  
-ISO/IEC 9899:2011 6.7.6.3(7)  
-<br/>
-
-#### 参考
-MISRA C 2012 17.6  
-<br/>
-<br/>
-
-### <span id="ID_forbidVariadicFunction">▌R6.63 禁用可变参数列表</span>
+### <span id="ID_forbidVariadicFunction">▌R6.4.2 禁用可变参数列表</span>
 
 ID_forbidVariadicFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration warning
 
@@ -7378,42 +6062,1267 @@ MISRA C++ 2008 8-4-1
 <br/>
 <br/>
 
-### <span id="ID_forbidVolatile">▌R6.64 慎用volatile关键字</span>
+### <span id="ID_forbidFlexibleArray">▌R6.4.3 禁用柔性数组</span>
 
-ID_forbidVolatile&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration suggestion
+ID_forbidFlexibleArray&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration suggestion
 
 <hr/>
 
-对于硬件无关的功能性代码不妨禁用volatile关键字，否则误用该关键字会引发优化及同步相关的多种问题。  
+柔性数组（flexible array）一般是指结构体最后不完整定义的数组成员，表示不占用空间的指针，这种数组在C99中有所定义，但不在C\+\+标准之中，在C\+\+代码中不应使用。  
   
-volatile关键字仅保证编译器不会对其修饰的变量进行额外优化，确保其有稳定的地址以供读写，在并发编程中容易使人产生误解，其实该关键字在C/C\+\+语言中与同步机制并无关系。  
-  
-当需要访问某个硬件地址，而其它进程或硬件可能会修改该地址上的数据时，应将其指针声明为volatile：
+示例：
 ```
-volatile int* vp = get_hardware_address();
+struct A {
+    int len;
+    int dat[];  // Non-compliant
+};
+
+A* cpy(const A* p) {
+    A* a = (A*)malloc(sizeof(A) + p->len * sizeof(int));
+    *a = *p;   // Error, only p->len is copied
+    return a;
+}
 ```
-如果当前进程不需要主动改变数据，则可加const修饰符：
-```
-const volatile int* cvp = get_hardware_address();
-```
-这样一来vp或cvp的值一直会与内存地址对应，利用\*vp或\*cvp总会执行从内存的读取操作，而不会因为编译器的优化而被忽略，可能需要保证进程之间的同步，但这与volatile关键字是没有关系的，这一点与Java等语言有较大区别，需要特别注意。  
-  
-除此之外，利用volatile关键字阻止编译优化的特性可实现一些安全措施，参见ID\_unsafeCleanup。
+例中\*a=\*p这种拷贝赋值运算会漏掉数组的内容，而且数组不会计入sizeof的结果，易引起意料之外的错误，所以在C语言中也不建议使用这种柔性数组。
 <br/>
 <br/>
 
 #### 依据
-ISO/IEC 14882:2003 7.1.5.1(8)  
-ISO/IEC 14882:2011 7.1.6.1(7)  
+ISO/IEC 9899:1999 6.7.2.1(16)  
 <br/>
 
 #### 参考
-C++ Core Guidelines CP.8  
-C++ Core Guidelines CP.200  
+MISRA C 2012 18.7  
 <br/>
 <br/>
 
-### <span id="ID_complexDeclaration">▌R6.65 不建议采用复杂的声明</span>
+### <span id="ID_forbidFunctionVoidPtr">▌R6.4.4 接口的参数或返回值不应被声明为void*</span>
+
+ID_forbidFunctionVoidPtr&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration warning
+
+<hr/>
+
+与接口相关的数据类型应保持精确，不应将参数或返回值声明为void\*。  
+  
+在C\+\+语言中，如果参数或返回值需要面对多种不同类型的数据，应合理使用重载或模板机制。  
+  
+示例：
+```
+class A {
+public:
+    void* foo();      // Non-compliant
+    void bar(void*);  // Non-compliant
+};
+```
+例中foo和bar函数的返回值以及参数是不符合要求的。  
+  
+C语言中存在大量的库函数不符合本规则要求，在C\+\+语言中应避免使用，如：
+```
+int buf[123];
+memset(buf, 0, 123);  // Logic error, should be ‘123 * sizeof(int)’
+```
+例中memset函数的第一个形式参数就是void\*型，只能通过更底层的二进制方式访问对象序列，是一种对类型设计的破坏，应改用STL标准库提供的方法：
+```
+int buf[123];
+std::fill_n(buf, 123, 0);  // Safe and brief
+```
+改用类型明确的方法可以使很多问题在编译期得到控制。  
+  
+例外：  
+C\+\+语言规定new运算符的返回类型为void\*，delete运算符的参数类型为void\*，这些情况可被排除。
+<br/>
+<br/>
+
+#### 相关
+ID_forbidMemberVoidPtr  
+<br/>
+
+#### 参考
+C++ Core Guidelines I.4  
+<br/>
+<br/>
+
+### <span id="ID_forbidMemberVoidPtr">▌R6.4.5 类成员不应被声明为void*</span>
+
+ID_forbidMemberVoidPtr&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration warning
+
+<hr/>
+
+与接口相关的数据类型应保持精确，不应将类成员声明为void\*，尤其是非private成员，更不应声明为void\*。  
+  
+在C\+\+语言中，如果成员需要面对多种不同类型的数据，应合理使用模板机制。  
+  
+示例：
+```
+class A {
+public:
+    void* dat;  // Non-compliant
+    ....
+};
+```
+应改为：
+```
+template <class T>
+class A {
+public:
+    T* method_about_dat();
+private:
+    T* dat;     // Compliant
+    ....
+};
+```
+<br/>
+<br/>
+
+#### 相关
+ID_forbidFunctionVoidPtr  
+<br/>
+
+#### 参考
+C++ Core Guidelines I.4  
+<br/>
+<br/>
+
+### <span id="ID_unsuitableArraySize">▌R6.4.6 局部数组的长度不应过大</span>
+
+ID_unsuitableArraySize&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
+
+<hr/>
+
+局部数组的长度过大增加函数堆栈的压力，易导致溢出错误。  
+  
+示例：
+```
+void foo() {
+    int arr[1024 * 1024 * 1024];  // Non-compliant, too large
+    ....
+}
+```
+局部数组在栈上分配空间，是无法控制失败情况的，应改在堆上分配，或优化算法减小空间成本。
+<br/>
+<br/>
+
+#### 配置
+ID_declaration/maxLocalArraySize：局部数组的长度上限，超过则报出  
+<br/>
+
+#### 参考
+CWE-770  
+SEI CERT MEM05-C  
+<br/>
+<br/>
+
+### <span id="ID_mixedDeclarations">▌R6.4.7 不应将函数或函数指针和其他声明写在同一个语句中</span>
+
+ID_mixedDeclarations&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
+
+<hr/>
+
+每条语句只应声明一个函数或函数指针，否则可读性较差。  
+  
+示例：
+```
+int* foo(int, int), bar(0), baz(char, long);  // Non-compliant, very bad
+```
+应改为：
+```
+int* foo(int, int);   // Compliant
+int bar = 0;          // Compliant
+int baz(char, long);  // Compliant
+```
+<br/>
+<br/>
+
+#### 参考
+C++ Core Guidelines ES.10  
+<br/>
+<br/>
+
+### <span id="ID_mixedTypeObjDefinition">▌R6.4.8 不建议将类型定义和对象声明写在一个语句中</span>
+
+ID_mixedTypeObjDefinition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
+
+<hr/>
+
+不建议将类型定义和对象声明写在一个语句中，否则可读性较差。  
+  
+示例：
+```
+struct _A
+{
+    int a, b, c;
+} A;  // Bad
+
+typedef struct _B
+{
+    int x, y, z;
+} B;  // Bad
+```
+<br/>
+<br/>
+
+#### 参考
+C++ Core Guidelines C.7  
+<br/>
+<br/>
+
+### <span id="declaration.object">6.5 Object</span>
+
+### <span id="ID_inaccessibleTmpObject">▌R6.5.1 不应产生不受控制的无效临时对象</span>
+
+ID_inaccessibleTmpObject&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: declaration error
+
+<hr/>
+
+无名不受控制的临时对象在构造之后会立即析构，在逻辑上没有意义，往往意味着错误。  
+  
+示例：
+```
+class A {
+public:
+    A() {
+        A(0);  // Non-compliant, just created an inaccessible temporary object
+    }
+
+    A(int x): a(x)
+    {}
+
+private:
+    int a;
+};
+```
+例中A(0);只是生成了一个无用的临时对象，各成员并没有被正确初始化。如果要调用A::A(int)来完成初始化，应改为this\->A::A(0);的形式。  
+  
+又如：
+```
+void fun() {
+    LockGuard();   // Meaningless
+    do_something_critical();
+} 
+```
+设LockGuard是某种锁的类名，那么LockGuard();一行只生成了一个临时对象，该对象会立即析构，起不到作用，这也是一种常见的错误。  
+  
+应改为：
+```
+void fun() {
+    LockGuard guard;  // Compliant
+    do_something_critical();
+}
+```
+<br/>
+<br/>
+
+#### 参考
+CWE-665  
+C++ Core Guidelines ES.84  
+<br/>
+<br/>
+
+### <span id="ID_invalidLocalDeclaration">▌R6.5.2 不应出现不会被用到的局部声明</span>
+
+ID_invalidLocalDeclaration&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
+
+<hr/>
+
+不会被用到的局部声明是没有意义的，往往意味着笔误或者代码功能不完整。  
+  
+示例：
+```
+int foo(int a, int b) {
+    if (a)
+        int b = a + 1;  // Non-compliant
+    return b;
+}
+```
+例中if作用域中的最后一个元素是对象的声明，是没有意义的，这种情况也是较为常见的笔误。  
+  
+应改为：
+```
+int foo(int a, int b) {
+    if (a) {
+        b = a + 1;  // OK
+    }
+    return b;
+}
+```
+<br/>
+<br/>
+<br/>
+
+### <span id="ID_selfDependentInitialization">▌R6.5.3 对象初始化不可依赖自身的值</span>
+
+ID_selfDependentInitialization&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: declaration error
+
+<hr/>
+
+对象初始化依赖自身的值属于逻辑错误。  
+  
+示例：
+```
+void foo(int i) {
+    if (i > 0) {
+        int i = i + 1;  // Non-compliant
+        bar(i);
+    }
+}
+```
+例中局部变量i的初始化依赖自身的值，这种问题往往是错误地定义了与外层作用域中名称相同的对象。  
+  
+应改为：
+```
+void foo(int i) {
+    if (i > 0) {
+        int j = i + 1;  // OK
+        bar(j);
+    }
+}
+```
+<br/>
+<br/>
+<br/>
+
+### <span id="ID_plainNumericChar">▌R6.5.4 参与数值运算的char变量需显式声明signed或unsigned</span>
+
+ID_plainNumericChar&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
+
+<hr/>
+
+没有signed或unsigned限制的char变量，其符号是由实现定义的，具有可移植性要求的代码需明确其符号。  
+  
+示例：
+```
+bool foo(char c) {          // Non-compliant
+    return c < 180;         // May be always true
+}
+
+void bar() {
+    int i = 2;
+    char c = 180;           // Non-compliant
+    printf("%d", i * c);    // What is output?
+}
+```
+foo函数可能只会返回true，而bar函数可能输出\-152也可能输出360。  
+char型变量在PC桌面、服务端等环境中一般是有符号的，在移动端或嵌入式系统中往往是无符号的，需明确其具体实现。
+```
+bool foo(unsigned char c) { // Compliant
+    return c < 180;
+}
+
+void bar() {
+    int i = 2;
+    unsigned char c = 180;  // Compliant
+    printf("%d", i * c);    // 360
+}
+```
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 3.9.1(1)-implementation  
+ISO/IEC 14882:2011 3.9.1(1)-implementation  
+<br/>
+
+#### 参考
+MISRA C++ 2008 5-0-11  
+SEI CERT INT07-C  
+<br/>
+<br/>
+
+### <span id="ID_plainBinaryChar">▌R6.5.5 表示二进制数据的char指针或数组应显式声明unsigned</span>
+
+ID_plainBinaryChar&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
+
+<hr/>
+
+char类型的符号由实现定义，二进制数据不应受符号位干扰，应显式声明unsigned。  
+  
+示例：
+```
+char buf[100];  // Non-compliant
+FILE* fp = fopen("foo.bin", "wb");
+if (fp) {
+    fread(buf, 1, 100, fp);
+    ....
+}
+```
+应改为：
+```
+unsigned char buf[100];  // Compliant
+```
+这样做也可有效区分二进制数据与字符串，提高可维护性。
+<br/>
+<br/>
+
+#### 相关
+ID_plainNumericChar  
+<br/>
+<br/>
+
+### <span id="declaration.parameter">6.6 Parameter</span>
+
+### <span id="ID_missingParamName">▌R6.6.1 函数原型声明中的参数应具有合理的名称</span>
+
+ID_missingParamName&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
+
+<hr/>
+
+参数名称可以对参数的用途起到最直接的说明作用，建议对外公开的接口参数都要有合理的名称。  
+  
+示例：
+```
+char* strstr(const char* haystack, const char* needle);  // Good
+```
+这是标准库函数strstr的原型声明，利用形象的比喻，表示要在haystack中查找needle。  
+  
+如果将声明改为如下形式，是令人费解的：
+```
+char* strstr(const char*, const char*);  // Bad
+char* strstr(const char* a, const char* b);  // Bad
+```
+<br/>
+<br/>
+
+#### 参考
+MISRA C 2004 16.3  
+MISRA C 2012 8.2  
+<br/>
+<br/>
+
+### <span id="ID_deprecatedDefaultArgument">▌R6.6.2 不建议虚函数的参数有默认值</span>
+
+ID_deprecatedDefaultArgument&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
+
+<hr/>
+
+虚函数参数的默认值不受多态规则控制，通过基类指针或引用调用派生类重写的虚函数时，默认值仍采用基类中的定义，易造成混淆，建议虚函数参数不使用默认值。  
+  
+示例：
+```
+class A {
+public:
+    virtual int foo(int i = 0);  // Bad
+};
+```
+应尽量去掉默认参数值，或改用重载函数的方式：
+```
+class A {
+public:
+    virtual int foo();  // OK
+    virtual int foo(int i);  // OK
+};
+```
+<br/>
+<br/>
+
+#### 相关
+ID_inconsistentDefaultArgument  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 8.3.6(10)  
+ISO/IEC 14882:2011 8.3.6(10)  
+ISO/IEC 14882:2017 11.3.6(10)  
+<br/>
+
+#### 参考
+CWE-628  
+C++ Core Guidelines C.140  
+MISRA C++ 2008 8-3-1  
+<br/>
+<br/>
+
+### <span id="ID_inconsistentDefaultArgument">▌R6.6.3 虚函数参数的默认值应与基类中声明的一致</span>
+
+ID_inconsistentDefaultArgument&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: declaration error
+
+<hr/>
+
+虚函数参数的默认值不受多态规则控制，通过基类指针或引用调用派生类重写的虚函数时，默认值仍采用基类中的定义。  
+  
+示例：
+```
+class A {
+public:
+    virtual int foo(int i = 0) {
+        return i;
+    }
+};
+
+class B: public A {
+public:
+    int foo(int i = 1) override {  // Non-compliant
+        return i + 1;
+    }
+};
+
+A* p = new B;
+cout << p->foo() << '\n';  // What is output?
+```
+输出1，这种虚函数的非多态行为是非常令人困惑的。
+<br/>
+<br/>
+
+#### 相关
+ID_deprecatedDefaultArgument  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 8.3.6(10)  
+ISO/IEC 14882:2011 8.3.6(10)  
+ISO/IEC 14882:2017 11.3.6(10)  
+<br/>
+
+#### 参考
+CWE-628  
+C++ Core Guidelines C.140  
+MISRA C++ 2008 8-3-1  
+<br/>
+<br/>
+
+### <span id="ID_invalidParamArraySize">▌R6.6.4 不应将数组作为函数的形式参数</span>
+
+ID_invalidParamArraySize&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
+
+<hr/>
+
+在形式参数中对数组大小的声明起不到实际的限制作用。  
+  
+示例：
+```
+int foo(int a[100]);  // Non-compliant
+
+int bar() {
+    int a[50] = {};
+    return foo(a);    // It can be compiled
+}
+```
+在C\+\+语言中可改为数组的引用：
+```
+void foo(int (&a)[100]);   // Compliant
+
+template <size_t size>
+void foo(int(&a)[size]) {  // Compliant
+    ....
+}
+```
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.7.5.3(7)  
+ISO/IEC 9899:2011 6.7.6.3(7)  
+<br/>
+
+#### 参考
+C++ Core Guidelines I.13  
+C++ Core Guidelines R.14  
+MISRA C++ 2008 5-2-12  
+<br/>
+<br/>
+
+### <span id="ID_missingVoid">▌R6.6.5 C代码中函数参数列表如果为空须声明为“(void)”</span>
+
+ID_missingVoid&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
+
+<hr/>
+
+在C语言中，如果函数的参数列表声明为空的括号，表示函数的参数还没有声明，而不是表示没有参数。这便引入了相当大的不确定性，为了减少混乱，没有参数的参数列表应声明为“(void)”。  
+  
+示例：
+```
+// In a.h
+int foo();  // Non-compliant
+
+// In a.c
+#include "a.h"
+
+int foo(int a) {
+    return a + 1;
+}
+
+// In main.c
+#include <stdio.h>
+#include "a.h"
+
+int main() {
+    printf("%d\n", foo(1));  // Output: 2
+    printf("%d\n", foo());   // Can be compiled, but what is output?
+}
+```
+例中foo(1)和foo()两种调用都可以通过编译，然而声明与实现不一致的问题总是令人困惑的，如果明确将参数声明为void或int a则可以解决这种问题。  
+  
+应改为：
+```
+int foo(void);   // Compliant, ‘foo(1)’ cannot be compiled
+```
+或者：
+```
+int foo(int a);  // Compliant, ‘foo()’ cannot be compiled
+```
+<br/>
+<br/>
+
+#### 相关
+ID_superfluousVoid  
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 6.7.6.3(14)  
+ISO/IEC 9899:2011 6.11.6(1)  
+<br/>
+
+#### 参考
+MISRA C 2004 16.5  
+<br/>
+<br/>
+
+### <span id="ID_superfluousVoid">▌R6.6.6 C++代码中函数参数列表如果为空不应声明为“(void)”</span>
+
+ID_superfluousVoid&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
+
+<hr/>
+
+与C语言不同，在C\+\+中如果函数的参数列表声明为空的括号，与声明为“(void)”的方式完全相同，均表示没有参数，所以如果在C\+\+仍采用C的声明方式就显得很啰嗦。  
+  
+示例：
+```
+class A {
+public:
+    A(void);  // Verbose
+   ~A(void);  // Verbose
+
+    int foo(void);  // Verbose
+    int bar();      // OK
+};
+```
+<br/>
+<br/>
+
+#### 相关
+ID_missingVoid  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 C.1.6 Clause 8  
+ISO/IEC 14882:2011 C.1.7 Clause 8  
+ISO/IEC 14882:2017 C.1.7 Clause 11  
+<br/>
+
+#### 参考
+C++ Core Guidelines NL.25  
+<br/>
+<br/>
+
+### <span id="ID_forbidStaticArrSize">▌R6.6.7 声明数组参数的大小时禁用static关键字</span>
+
+ID_forbidStaticArrSize&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration warning
+
+<hr/>
+
+C语言规定数组作为形式参数时，可用static关键字修饰大小，要求传入数组的大小不能小于由static 关键字修饰的值，这种机制有助于编译器优化，但不符合这种限制时会导致标准未定义错误，相当于增加了误用的风险，也提高了测试成本。  
+  
+示例：
+```
+int foo(int a[static 5], int n) {  // Non-compliant
+    int i;
+    int s = 0;
+    for (i = 0; i < n; i++) {
+        s += a[i];
+    }
+    return s;
+}
+
+int bar() {
+    int a[3] = {1, 2, 3};
+    return foo(a, 3);      // Undefined behavior
+}
+```
+这种机制虽然有助于编译器优化，但应在效率的提高和存在的风险之间进行取舍，非系统库中的代码、改动频繁的代码不建议使用这种机制，而且这种优化大部分情况下也难以真正解决效率的瓶颈问题。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.7.6.3(7)  
+ISO/IEC 9899:2011 6.7.6.3(7)  
+<br/>
+
+#### 参考
+MISRA C 2012 17.6  
+<br/>
+<br/>
+
+### <span id="declaration.function">6.7 Function</span>
+
+### <span id="ID_nonStdAssignmentRetType">▌R6.7.1 拷贝赋值、移动赋值运算符应返回所属类的非const引用</span>
+
+ID_nonStdAssignmentRetType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
+
+<hr/>
+
+按赋值表达式的标准语法要求，以及C\+\+语言的惯例，拷贝赋值、移动赋值应返回所属类的非const引用，便于调用者使用并满足泛型编程的要求。  
+  
+对“=”的合理重载，可以使对象的赋值表达式作为子表达式灵活地出现在各种语句中，这也是“泛型程序设计”的必要条件，使算法的代码实现即可以适应普通变量，也可以适应自定义对象。如果类的对象与标准模板库相关，则其赋值运算符应满足本规则的要求。  
+如果“=”运算符没有返回所属类的非const引用，便无法满足连续赋值等表达式的语法要求，对标准模板类的使用上会受到限制。  
+  
+对于“\+=”、“\-=”等复合赋值运算符也有相同的要求。  
+  
+示例：
+```
+class A {
+    int i = 0;
+
+public:
+    A& operator = (int x) {  // Compliant
+        i = x;
+        return *this;
+    }
+
+    A& operator = (const A& rhs) {  // Compliant
+        i = rhs.i;
+        return *this;
+    }
+};
+
+class B {
+    int i = 0;
+
+public:
+    void operator = (int x) { i = x; }  // Non-compliant, should return B&
+    void operator = (const B& rhs) { i = rhs.i; }  // Non-compliant
+};
+
+template <class T>
+void foo(T& x, T& y) {
+    x = y = 1;
+}
+
+A u, v;
+B w, x;
+foo(u, v);  // OK
+foo(w, x);  // Compile error
+```
+<br/>
+<br/>
+
+#### 参考
+C++ Core Guidelines F.47  
+C++ Core Guidelines C.60  
+C++ Core Guidelines C.63  
+<br/>
+<br/>
+
+### <span id="ID_nonStdCopyAssignmentParam">▌R6.7.2 拷贝赋值运算符的参数应为同类对象的const左值引用</span>
+
+ID_nonStdCopyAssignmentParam&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
+
+<hr/>
+
+拷贝赋值运算符的参数不应为值传递，否则会造成不必要的复制，以及“[对象切片](https://en.wikipedia.org/wiki/Object_slicing)”等问题。  
+  
+示例：
+```
+class A {
+public:
+    A& operator = (A);  // Non-compliant
+};
+```
+应改为：
+```
+class A {
+public:
+    A& operator = (const A&);  // Compliant
+};
+```
+<br/>
+<br/>
+
+#### 参考
+C++ Core Guidelines C.60  
+<br/>
+<br/>
+
+### <span id="ID_nonStdMoveAssignmentParam">▌R6.7.3 移动赋值运算符的参数应为同类对象的非const右值引用</span>
+
+ID_nonStdMoveAssignmentParam&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
+
+<hr/>
+
+移动赋值运算符的参数不可为const右值引用，否则将失去移动赋值的意义。  
+  
+示例：
+```
+struct A {
+    char* p;
+    A& operator = (const A&& a) {  // Non-compliant
+        free(p);
+        p = copy(a.p);             // Not necessary
+    }
+    ....
+};
+```
+例中赋值运算符不是真正的移动赋值运算符，仍是一种低效实现。  
+应将a.p与this\->p交换，利用a的析构函数完成资源的释放，这才是真正意义上的移动赋值。  
+  
+应改为：
+```
+struct A {
+    char* p;
+    A& operator = (A&& a) noexcept {  // Compliant
+        char* tmp = p;
+        p = a.p;
+        a.p = tmp;
+    }
+    ....
+};
+```
+<br/>
+<br/>
+
+#### 参考
+C++ Core Guidelines C.63  
+<br/>
+<br/>
+
+### <span id="ID_nonVirtualOverride">▌R6.7.4 派生类不应重新定义与基类相同的非虚函数</span>
+
+ID_nonVirtualOverride&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
+
+<hr/>
+
+派生类不应重新定义与基类相同的非虚函数，否则与多态机制相矛盾，易造成意料之外的问题。  
+  
+示例：
+```
+class A {
+public:
+    int foo() const { return 0; }
+};
+
+class B: public A {
+public:
+    int foo() const { return 1; }  // Non-compliant
+};
+
+int bar(A* a) {
+    return a->foo();
+}
+```
+如果将B类型的指针传入bar函数，将执行A::foo，然而参数实际指向的是B类型的对象，但B::foo不会被执行，这就形成了逻辑上的矛盾，造成意料之外的问题。
+<br/>
+<br/>
+
+#### 参考
+Effective C++ item 36  
+<br/>
+<br/>
+
+### <span id="ID_overloadAddressOperator">▌R6.7.5 不应重载取地址运算符</span>
+
+ID_overloadAddressOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
+
+<hr/>
+
+取地址运算符（一元&运算符），重载之后可以返回任意地址，极易误用，建议禁止重载该运算符。  
+  
+请注意，语言标准规定可以获取不完整类型的对象地址，但如果该对象的完整类型重载了取地址运算符，则该行为是未定义的。  
+  
+示例：
+```
+class X;
+X* foo(X& x) {
+    return &x;  // Undefined behaviour
+}
+
+class X {
+public:
+    X* operator &() {  // Non-compliant
+        return nullptr;
+    }
+};
+
+X* bar(X& x) {
+    return &x;  // Call ‘X::operator&’
+}
+```
+例中foo函数会引发标准未定义的问题，可能会返回x对象的实际地址，而bar函数会调用重载了的取地址运算符，这种问题会造成混乱。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 5.3.1(4)-undefined  
+ISO/IEC 14882:2011 5.3.1(5)-undefined  
+<br/>
+
+#### 参考
+C++ Core Guidelines C.166  
+MISRA C++ 2008 5-3-3  
+<br/>
+<br/>
+
+### <span id="ID_overloadComma">▌R6.7.6 不应重载逗号运算符</span>
+
+ID_overloadComma&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
+
+<hr/>
+
+对于内置逗号表达式，C\+\+明确规定要从左到右计算子表达式的值，而对逗号运算符的重载打破了这一规则，往往会造成不符合预期的计算结果。  
+可参见ID\_overloadLogicOperator对这种问题的详细说明。  
+  
+示例：
+```
+struct A;
+A& operator , (const A&, const A&);  // Non-compliant
+```
+<br/>
+<br/>
+
+#### 相关
+ID_overloadLogicOperator  
+<br/>
+
+#### 参考
+MISRA C++ 2008 5-2-11  
+<br/>
+<br/>
+
+### <span id="ID_overloadLogicOperator">▌R6.7.7 不应重载“逻辑与”和“逻辑或”运算符</span>
+
+ID_overloadLogicOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
+
+<hr/>
+
+对“逻辑与”、“逻辑或”等运算符的重载会影响效率，甚至造成与预期完全不符的结果。  
+  
+C/C\+\+语言明确地规定了内置的逗号、逻辑与、逻辑或等表达式的子表达式求值顺序。对于逻辑表达式，从左到右计算子表达式的值，当可以确定整个表达式的值时立即结束计算，如果还有其它子表达式未求值也不再计算了，这种规则称为“短路规则”，意在提升执行效率，然而对运算符的重载却打破了这一规则。  
+  
+示例：
+```
+class A {
+    int i;
+public:
+    A(int x = 0): i(x) {
+    }
+    bool valid() const {
+        return i != 0;
+    }
+    A& assign(const A& a) {
+        i = a.i;
+        return *this;
+    }
+};
+
+bool operator && (const A& a, const A& b) {  // Non-compliant
+    return a.valid() && b.valid();
+}
+```
+注意表达式（设a和b为A的对象）：
+```
+b && a.assign(b)
+```
+按常理，此表达式的意思应该是如果b在某种意义上“有效”，那么就将b赋给a，所以b的值应该先被求出，如果满足条件，再执行后边的动作。  
+但由于&&被重载，变成了一个函数调用，其左子表达式和右子表达式成了函数的参数，C\+\+标准对函数参数的求值顺序并无明确规定，所以常规逻辑表达式的计算顺序无法得到保证。目前MSVC、g\+\+等主流编译器默认情况下都是从右到左计算参数的值，这个例子中a.assign(b)将会先被执行，这与预期完全不符。  
+  
+解决方法：  
+去掉对&&的重载，对类A引入与bool类型的转换。
+<br/>
+<br/>
+
+#### 相关
+ID_overloadComma  
+<br/>
+
+#### 参考
+MISRA C++ 2008 5-2-11  
+<br/>
+<br/>
+
+### <span id="ID_lambdaOutOfFunction">▌R6.7.8 不建议在函数作用域外将lambda表达式定义为具名对象</span>
+
+ID_lambdaOutOfFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
+
+<hr/>
+
+不建议在函数作用域外将lambda表达式定义为具名对象，应采用普通函数定义的方式。  
+  
+示例：
+```
+namespace N {
+    auto foo = [](int a, int b) {  // Non-compliant
+        return a + b;
+    };
+}
+```
+这种写法与lambda表达式的匿名特性相矛盾，而且foo是不能被重载的。  
+  
+应改为常规函数：
+```
+namespace N {
+    int foo(int a, int b) {  // Compliant
+        return a + b;
+    }
+}
+```
+虽然C\+\+语言十分灵活，可以通过多种方式达到同一种目的，但应该选择最简洁且通俗易懂的方式实现。
+<br/>
+<br/>
+<br/>
+
+### <span id="ID_virtualAssignment">▌R6.7.9 拷贝赋值、移动赋值运算符不应为虚函数</span>
+
+ID_virtualAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
+
+<hr/>
+
+由于拷贝赋值、移动赋值运算符的返回值应为所属类的非const引用，这与虚函数的机制是相矛盾的，将赋值运算符设为虚函数很可能是没有作用的。  
+  
+示例：
+```
+class A {
+public:
+    virtual A& operator = (const A&);
+};
+
+class B {
+public:
+    virtual B& operator = (const B&);  // Not override
+    virtual A& operator = (const A&);  // Override, but too complex
+};
+```
+<br/>
+<br/>
+
+#### 相关
+ID_nonStdAssignmentRetType  
+<br/>
+
+#### 参考
+C++ Core Guidelines C.60  
+C++ Core Guidelines C.63  
+<br/>
+<br/>
+
+### <span id="ID_virtualComparison">▌R6.7.10 比较运算符不应为虚函数</span>
+
+ID_virtualComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
+
+<hr/>
+
+对于重载的比较运算符，很难正确触发C\+\+的多态机制，将其设为虚函数很可能引发意料之外的错误。  
+  
+运算符==、!=、<、>、 <=、>=均受本规则限制。  
+  
+示例（选自C\+\+ Core Guidelines）：
+```
+class B {
+  string name;
+  int number;
+  virtual bool operator==(const B& a) const
+  {
+    return name == a.name && number == a.number;
+  }
+  // ...
+};
+
+class D : B {
+  char character;
+  virtual bool operator==(const D& a) const
+  {
+    return name == a.name && number == a.number && character == a.character;
+  }
+  // ...
+};
+
+B b = ...
+D d = ...
+b == d;    // compares name and number, ignores d's character
+d == b;    // error: no == defined
+D d2;
+d == d2;   // compares name, number, and character
+B& b2 = d2;
+b2 == d;   // compares name and number, ignores d2's and d's character
+```
+<br/>
+<br/>
+
+#### 参考
+C++ Core Guidelines C.87  
+<br/>
+<br/>
+
+### <span id="ID_virtualInFinal">▌R6.7.11 final类中不应声明虚函数</span>
+
+ID_virtualInFinal&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
+
+<hr/>
+
+final类不再产生派生类，其中的virutal函数也不会再被重写，故不应声明虚函数。  
+  
+示例：
+```
+class A final {
+public:
+    virtual int foo();  // Non-compliant, a new virutal function in final class
+};
+
+class B {
+public:
+    virtual int bar();
+};
+
+class C final: public B {
+public:
+    virtual int bar();  // Non-compliant, use keyword ‘override’ or ‘final’
+};
+```
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 9(3)  
+<br/>
+<br/>
+
+### <span id="declaration.bitfield">6.8 Bitfield</span>
+
+### <span id="ID_exceededBitfield">▌R6.8.1 位域长度不应超过类型约定的大小</span>
+
+ID_exceededBitfield&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
+
+<hr/>
+
+位域长度不应超过类型约定的大小，否则没有意义且会造成不必要的空间浪费，出现这种问题往往意味着设计上的错误。  
+  
+C语言规定位域长度不可超过类型约定的大小否则不可编译，而C\+\+语言规定可以超过，但超过的部分会作为“padding bits”不参与数据的存储。  
+  
+示例：
+```
+struct A {
+    int x: 50;  // Non-compliant
+};
+
+int main() {
+    A a;
+    std::cout << sizeof(a) << '\n';  // What is output?
+}
+```
+输出8  
+例中成员x自身的位域长度仍为32，而多出来的大小会形成一个不可访问的填充值。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 6.7.2.1(4)  
+ISO/IEC 14882:2011 9.6(1)  
+<br/>
+<br/>
+
+### <span id="ID_singleSignedBitfield">▌R6.8.2 有符号变量的位域长度不应为1</span>
+
+ID_singleSignedBitfield&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
+
+<hr/>
+
+有符号变量的位域长度如果为1表示只有一个比特位，而该比特位是符号位，极易造成意料之外的错误。  
+  
+本规则不针对匿名成员。  
+  
+示例：
+```
+struct X {
+    int a: 1;           // Non-compliant
+    unsigned int b: 1;  // Compliant
+    int c: 2;           // Compliant
+};
+
+int main() {
+    X x;
+    x.a = 1; cout << x.a << '\n';  // What is output?
+    x.b = 1; cout << x.b << '\n';
+    x.c = 1; cout << x.c << '\n';
+}
+```
+按常规思维，x.b和x.c为1与预期相符，x.a预期是1，但实际是\-1。
+<br/>
+<br/>
+
+#### 参考
+MISRA C++ 2008 9-6-4  
+<br/>
+<br/>
+
+### <span id="ID_forbidEnumBitfield">▌R6.8.3 禁止对枚举变量声明位域</span>
+
+ID_forbidEnumBitfield&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration warning
+
+<hr/>
+
+枚举变量的值可以为有符号整数，由于符号位的存在极易导致意料之外的结果，且不利于枚举类型的扩展，故禁止对枚举变量声明位域。  
+  
+示例：
+```
+enum E {
+    A, B, C, D
+};
+
+struct X {
+    E e: 2;  // Non-compliant
+};
+
+int main() {
+    X x;
+    x.e = D;
+    if (x.e == D) {  // What is output?
+        std::cout << "OK";
+    } else {
+        std::cout << "Oops";
+    }
+}
+```
+输出为Oops  
+例中E各枚举值的范围是\[0,3\]，按常规思维，位域长度为2即可满足所有枚举值的范围，然而由于符号位的存在否定了这一点，导致x.e用D赋值后再与D比较竟然得到不相等的结果（因为D的值为3而x.e的值为\-1）。
+<br/>
+<br/>
+
+#### 相关
+ID_singleSignedBitfield  
+<br/>
+
+#### 参考
+MISRA C++ 2008 9-6-3  
+<br/>
+<br/>
+
+### <span id="ID_forbidBitfield">▌R6.8.4 禁用位域</span>
+
+ID_forbidBitfield&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration suggestion
+
+<hr/>
+
+引入位域的本意是为了节省空间，然而位域改变了变量约定俗成的取值范围，易造成理解上的偏差，也会造成维护困难。  
+  
+位域与“引用”等C\+\+概念有冲突，而且C\+\+标准在位域的内存分配或数据对齐等方面定义的不够充分，存在很多由实现定义的内容，所以应改用某种更有效的算法达到节省空间或时间的目的。
+<br/>
+<br/>
+
+#### 相关
+ID_exceededBitfield  
+ID_singleSignedBitfield  
+ID_forbidEnumBitfield  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 9.6(1)-implementation  
+ISO/IEC 14882:2003 9.6(3)  
+ISO/IEC 14882:2011 9.6(1)-implementation  
+ISO/IEC 14882:2011 9.6(3)  
+ISO/IEC 14882:2017 12.2.4(1)-implementation  
+ISO/IEC 14882:2017 12.2.4(3)  
+<br/>
+<br/>
+
+### <span id="declaration.complexity">6.9 Complexity</span>
+
+### <span id="ID_complexDeclaration">▌R6.9.1 不建议采用复杂的声明</span>
 
 ID_complexDeclaration&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -7442,7 +7351,7 @@ ID_complexParameter
 <br/>
 <br/>
 
-### <span id="ID_complexParameter">▌R6.66 不建议采用复杂的参数声明</span>
+### <span id="ID_complexParameter">▌R6.9.2 不建议采用复杂的参数声明</span>
 
 ID_complexParameter&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -7464,7 +7373,7 @@ int foo(fp_t fp);  // Good
 <br/>
 <br/>
 
-### <span id="ID_complexUsingAlias">▌R6.67 不建议在using别名中定义新的类</span>
+### <span id="ID_complexUsingAlias">▌R6.9.3 不建议在using别名中定义新的类</span>
 
 ID_complexUsingAlias&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -7486,6 +7395,127 @@ struct A {
 ```
 虽然C\+\+语言十分灵活，可以通过多种方式达到同一种目的，但应该选择最简洁且通俗易懂的方式实现。
 <br/>
+<br/>
+<br/>
+
+### <span id="ID_tooManyDeclarators">▌R6.9.4 在一个语句中不应声明过多对象或函数</span>
+
+ID_tooManyDeclarators&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
+
+<hr/>
+
+在一个语句中不应声明过多对象或函数，建议在每个语句中只声明一个对象或函数，提高可读性也可减少笔误。  
+  
+示例：
+```
+int* a, b[10], c, d(int), e = 0;  // Bad
+```
+例中只有a是指针，也只有e被初始化，d为函数，将它们分开声明是更好的选择。
+<br/>
+<br/>
+
+#### 配置
+ID_declaration/maxDeclaratorCount：一个声明语句能包含的对象个数上限，超过则报出  
+<br/>
+
+#### 参考
+C++ Core Guidelines ES.10  
+MISRA C++ 2008 8-0-1  
+<br/>
+<br/>
+
+### <span id="ID_tooManyInitItems">▌R6.9.5 初始化列表中的项目数量不应过多</span>
+
+ID_tooManyInitItems&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
+
+<hr/>
+
+当初始化列表中的项目过多时应考虑将数据移入资源或数据文件，并考虑一定的加密措施，使数据更安全，也更利于维护。  
+  
+示例：
+```
+std::string arr[] = {
+    "rabbit",
+    "hamster",
+    // ... 3000 items ...
+    // It's really hard to maintain
+    "puppie",
+};
+```
+<br/>
+<br/>
+
+#### 配置
+ID_expression/maxInitItemCount：初始化项目的最大个数，超过则报出  
+<br/>
+<br/>
+
+### <span id="declaration.other">6.10 Other</span>
+
+### <span id="ID_labelNotUsed">▌R6.10.1 不应存在没有用到的标签</span>
+
+ID_labelNotUsed&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
+
+<hr/>
+
+没有用到的标签意味着goto语句的缺失，也可能是残留代码，应当去除。  
+  
+示例：
+```
+int foo() {
+    int i = 0;
+lab:               // Non-compliant
+    return bar(i);
+}
+```
+标签只应与goto语句对应，不可有其他用途，如：
+```
+int bar(int x) {
+    int i = 0;
+strange_comment:   // Non-compliant
+    return x + i;
+}
+```
+例中标签被当作注释，这是一种怪异的用法，也可能会干扰编译器的优化。
+<br/>
+<br/>
+
+#### 参考
+MISRA C 2012 2.6  
+<br/>
+<br/>
+
+### <span id="ID_staticNotUsed">▌R6.10.2 不应存在未被使用的本地static函数</span>
+
+ID_staticNotUsed&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
+
+<hr/>
+
+未被使用的本地static函数得不到任何执行机会，应删除或修正调用关系。
+<br/>
+<br/>
+
+#### 参考
+MISRA C++ 2008 0-1-10  
+<br/>
+<br/>
+
+### <span id="ID_deprecatedAutoPtr">▌R6.10.3 避免使用std::auto_ptr</span>
+
+ID_deprecatedAutoPtr&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
+
+<hr/>
+
+std::auto\_ptr在C\+\+11标准中已被废弃，应使用std::unique\_ptr。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2011 D.10-deprecated  
+<br/>
+
+#### 参考
+C++ Core Guidelines R.20  
 <br/>
 <br/>
 

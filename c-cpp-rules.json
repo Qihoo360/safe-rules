@@ -772,9 +772,9 @@
         "reference": "CWE-1109,MISRA C 2004 5.2,MISRA C 2012 5.3,MISRA C++ 2008 2-10-2"
         },
     "ID_missingConst": {
-        "checkPoint": "指向常量字符串的指针应有const限定符修饰",
+        "checkPoint": "指向常量字符串的指针应有const关键字修饰",
         "level": "warning",
-        "comment": "定义指向常量字符串的指针时应有const限定符修饰，否则常量字符串被修改会导致标准未定义的问题。",
+        "comment": "定义指向常量字符串的指针时应有const关键字修饰，否则常量字符串被修改会导致标准未定义的问题。",
         "tag": "declaration",
         "standard": "ISO/IEC 14882:2003 2.13.4(2)-undefined,ISO/IEC 14882:2011 2.14.5(12)-undefined,ISO/IEC 14882:2011 5.13.5(16)-undefined",
         "reference": "MISRA C 2012 7.4"
@@ -952,7 +952,7 @@
         "standard": "ISO/IEC 14882:2003 9.6(1)-implementation,ISO/IEC 14882:2003 9.6(3),ISO/IEC 14882:2011 9.6(1)-implementation,ISO/IEC 14882:2011 9.6(3),ISO/IEC 14882:2017 12.2.4(1)-implementation,ISO/IEC 14882:2017 12.2.4(3)",
         "related": "ID_exceededBitfield,ID_singleSignedBitfield,ID_forbidEnumBitfield"
         },
-    "ID_label_unused": {
+    "ID_labelNotUsed": {
         "checkPoint": "不应存在没有用到的标签",
         "level": "warning",
         "comment": "没有用到的标签意味着goto语句的缺失，也可能是残留代码，应当去除。",
@@ -2644,14 +2644,14 @@
         "reference": "CWE-130"
         },
     "ID_qualifierInvalid": {
-        "checkPoint": "const或volatile不可修饰引用",
+        "checkPoint": "const、volatile不可修饰引用",
         "level": "error",
         "comment": "C++标准规定，const或volatile可修饰指针，但不可修饰引用，否则起不到任何作用。",
         "tag": "declaration",
         "standard": "ISO/IEC 14882:2003 8.3.2(1),ISO/IEC 14882:2011 8.3.2(1),ISO/IEC 14882:2017 11.3.2(1)"
         },
     "ID_qualifierRepeated": {
-        "checkPoint": "const或volatile不应重复",
+        "checkPoint": "const、volatile不应重复",
         "level": "error",
         "comment": "重复的const或volatile限定符是没意义的，也可能意味着某种错误。",
         "tag": "declaration",
