@@ -48,7 +48,7 @@
         "level": "warning",
         "comment": "指针转为整数，或整数转为指针（尤其是小于64位的整数或有符号的整数），容易造成地址不完整、寻址错误、降低可移植性等问题。",
         "tag": "cast",
-        "standard": "ISO/IEC 14882:2003 5.2.10(4 5)-implementation,ISO/IEC 14882:2011 5.2.10(4 5)-implementation",
+        "standard": "ISO/IEC 9899:2011 6.3.2.3(5)-implementation,ISO/IEC 14882:2003 5.2.10(4 5)-implementation,ISO/IEC 14882:2011 5.2.10(4 5)-implementation",
         "reference": "SEI CERT INT36-C,MISRA C 2004 11.3,MISRA C 2012 11.4,MISRA C++ 2008 5-2-8,MISRA C++ 2008 5-2-9"
         },
     "ID_zeroAsPtrValue": {
@@ -177,6 +177,28 @@
         "tag": "declaration",
         "standard": "ISO/IEC 9899:1999 6.7.5.3(7),ISO/IEC 9899:2011 6.7.6.3(7)",
         "reference": "C++ Core Guidelines I.13,C++ Core Guidelines R.14,MISRA C++ 2008 5-2-12"
+        },
+    "ID_illMemberCall": {
+        "checkPoint": "基类对象构造完毕之前不可调用成员函数",
+        "level": "warning",
+        "comment": "基类对象未构造完毕时调用成员函数会导致标准未定义的错误。",
+        "tag": "function",
+        "standard": "ISO/IEC 14882:2011 12.6.2(13)-undefined"
+        },
+    "ID_incompleteVAMacros": {
+        "checkPoint": "va_start或va_copy应配合va_end使用",
+        "level": "warning",
+        "comment": "可变参数列表相关的va_start或va_copy和va_end应在同一函数中使用，否则会导致标准未定义的错误。",
+        "tag": "function",
+        "related": "ID_forbidVariadicFunction",
+        "standard": "ISO/IEC 9899:2011 7.16.1.3(2)-undefined"
+        },
+    "ID_functionSpecialization": {
+        "checkPoint": "函数模版不应被特化",
+        "level": "warning",
+        "comment": "特化的函数模板不参与重载函数的选取，不属于常规用法，且容易造成混乱。",
+        "tag": "function",
+        "reference": "C++ Core Guidelines T.144,MISRA C++ 2008 14-8-1"
         },
     "ID_tooManyLines": {
         "checkPoint": "函数的行数应在规定范围之内",
@@ -313,7 +335,7 @@
     "ID_plainSensitiveInfo": {
         "checkPoint": "敏感数据不应以明文形式写入代码",
         "level": "warning",
-        "comment": "敏感数据以明文形式写入代码易造成信息泄露。",
+        "comment": "敏感数据以明文形式写入代码易造成泄露。",
         "tag": "security",
         "related": "ID_secretLeak",
         "reference": "CWE-798,CWE-259,SEI CERT MSC41-C"
@@ -719,21 +741,6 @@
         "tag": "declaration",
         "reference": "C++ Core Guidelines ES.10,MISRA C++ 2008 8-0-1"
         },
-    "ID_tooManyInitItems": {
-        "checkPoint": "初始化列表中的项目数量不应过多",
-        "level": "suggestion",
-        "comment": "当初始化列表中的项目过多时应考虑将数据移入资源或数据文件，并考虑一定的加密措施，使数据更安全，也更利于维护。",
-        "config": {
-            "ID_expression/maxInitItemCount": "初始化项目的最大个数，超过则报出"
-            },
-        "tag": "declaration"
-        },
-    "ID_invalidSpecifier": {
-        "checkPoint": "不应出现无效的声明限定符",
-        "level": "warning",
-        "comment": "只定义类型，不定义对象时不应使用typedef、static等声明限定符，这种情况多为笔误或遗迹代码，应当去除。",
-        "tag": "declaration"
-        },
     "ID_sandwichedModifier": {
         "checkPoint": "const、volatile等关键字不应出现在基本类型名称的中间",
         "level": "suggestion",
@@ -834,7 +841,7 @@
         "checkPoint": "main函数不应被重载，也不应声明为inline、static或constexpr",
         "level": "warning",
         "comment": "main函数作为程序的入口是一个特殊的函数，链接器需要对其特殊处理，标准规定main函数不应被重载，也不应声明为inline、static或constexpr。",
-        "tag": "global",
+        "tag": "function",
         "standard": "ISO/IEC 14882:2003 3.6.1(2 3),ISO/IEC 14882:2011 3.6.1(2 3),ISO/IEC 14882:2017 6.6.1(2 3)"
         },
     "ID_constLiteralReference": {
@@ -898,9 +905,9 @@
         "tag": "declaration"
         },
     "ID_exceptionUnsafe": {
-        "checkPoint": "需确保异常的安全性",
+        "checkPoint": "确保异常的安全性",
         "level": "warning",
-        "comment": "需确保异常的安全性。",
+        "comment": "确保异常的安全性。",
         "tag": "exception",
         "related": "ID_resourceLeak,ID_ownerlessResource,ID_throwInSwap",
         "reference": "Effective C++ item 29"
@@ -1130,7 +1137,7 @@
         "reference": "CWE-697,CWE-1024,CWE-1025"
         },
     "ID_illPtrStrComparison": {
-        "checkPoint": "指针不可与字符串常量直接比较",
+        "checkPoint": "指针不应与字符串常量直接比较",
         "level": "error",
         "comment": "直接比较指针和字符串常量的结果往往总是false，应改用字符串比较函数。",
         "tag": "expression",
@@ -1314,16 +1321,16 @@
         "reference": "MISRA C++ 2008 5-2-4,C++ Core Guidelines ES.49"
         },
     "ID_missingSideEffect": {
-        "checkPoint": "不应出现没有效果的语句",
+        "checkPoint": "不应存在没有效果的表达式",
         "level": "error",
         "comment": "不能对程序状态产生影响的语句称为无“副作用（side effect）”的语句，也可以说是没有效果的语句，往往属于笔误或调试痕迹，应当修正或去除。",
         "tag": "expression",
         "reference": "CWE-1164,CWE-482,MISRA C 2004 14.2,MISRA C 2012 2.2,MISRA C++ 2008 0-1-9"
         },
     "ID_returnValueIgnored": {
-        "checkPoint": "函数返回值不应被忽略",
+        "checkPoint": "返回值不应被忽略",
         "level": "warning",
-        "comment": "函数返回值不应被忽略，尤其是与资源分配、信息获取、状态判断有关的返回值。",
+        "comment": "返回值不应被忽略，尤其是与资源分配、信息获取、状态判断有关的返回值。",
         "tag": "expression",
         "reference": "MISRA C 2012 17.7,MISRA C++ 2008 0-1-7"
         },
@@ -1454,7 +1461,7 @@
         "reference": "MISRA C 2004 12.4,MISRA C 2012 13.5,MISRA C++ 2008 5-14-1"
         },
     "ID_evaluationOrderReliance": {
-        "checkPoint": "各子表达式的求值不应依赖特定的顺序",
+        "checkPoint": "子表达式的求值不应依赖特定的顺序",
         "level": "warning",
         "comment": "注意子表达式的求值顺序，不同的求值顺序不应导致主表达式有不同的结果。",
         "tag": "expression",
@@ -1462,7 +1469,7 @@
         "reference": "CWE-758,C++ Core Guidelines ES.43,C++ Core Guidelines ES.44"
         },
     "ID_complexExpression": {
-        "checkPoint": "表达式的运算符不应超过规定数量",
+        "checkPoint": "运算符不应超过规定数量",
         "level": "suggestion",
         "comment": "运算符超过一定数量意味着表达式过于复杂，易包含潜在的错误，更不利于调试与维护，应进行适当拆分。",
         "config": {
@@ -1589,11 +1596,17 @@
         "reference": "C++ Core Guidelines C.47"
         },
     "ID_memberInitialization": {
-        "checkPoint": "成员变量须在声明处或构造时初始化",
+        "checkPoint": "成员须在声明处或构造时初始化",
         "level": "warning",
-        "comment": "由于成员变量声明的位置和使用的位置相距较远，所以更容易造成未初始化先使用的问题，应该在声明处或构造函数中对所有需要显式初始化的成员进行初始化。",
+        "comment": "由于成员声明的位置和使用的位置相距较远，所以更容易造成未初始化先使用的问题，应该在声明处或构造函数中初始化所有需要初始化的成员。",
         "tag": "function",
         "reference": "CWE-908,CWE-824,C++ Core Guidelines C.41"
+        },
+    "ID_invalidWrite": {
+        "checkPoint": "避免无效的写入",
+        "level": "warning",
+        "comment": "对于内存中的数据，写入之后应被读取，否则没有意义。",
+        "tag": "function"
         },
     "ID_memberDeallocation": {
         "checkPoint": "对象申请的资源须在析构函数中释放",
@@ -1618,7 +1631,7 @@
         "reference": "C++ Core Guidelines C.82,Effective C++ item 9"
         },
     "ID_sideEffectCopyConstructor": {
-        "checkPoint": "拷贝构造函数应避免复制之外的功能",
+        "checkPoint": "拷贝构造函数应避免实现复制之外的功能",
         "level": "warning",
         "comment": "拷贝构造函数可以被优化而不被执行，而且这种优化是由实现定义的。",
         "tag": "function",
@@ -1730,9 +1743,9 @@
         "reference": "C++ Core Guidelines C.145,C++ Core Guidelines ES.63"
         },
     "ID_relyOnExternalObject": {
-        "checkPoint": "全局对象的初始化不应依赖尚未初始化的其他对象",
+        "checkPoint": "全局对象的初始化不可依赖尚未初始化的其他对象",
         "level": "warning",
-        "comment": "全局对象的初始化不应依赖其他源文件中定义的对象，也不应依赖在其后面定义的对象。",
+        "comment": "全局对象的初始化不可依赖其他源文件中定义的对象，也不可依赖在其后面定义的对象。",
         "tag": "global",
         "standard": "ISO/IEC 14882:2011 3.6.2(2 3),ISO/IEC 14882:2017 6.6.2(3),ISO/IEC 14882:2017 6.6.3(2)",
         "reference": "C++ Core Guidelines I.22"
@@ -1784,7 +1797,7 @@
         "checkPoint": "函数不应在头文件中实现",
         "level": "warning",
         "comment": "在头文件中实现的函数，如果不是内联、静态、模板函数，则可能随着头文件被包含而被引入不同的编译单元（translate-unit）中，造成编译冲突。",
-        "tag": "global",
+        "tag": "function",
         "reference": "C++ Core Guidelines SF.2"
         },
     "ID_complexInlineFunction": {
@@ -1794,7 +1807,7 @@
         "config": {
             "ID_function/maxInlineFunctionLineCount": "内联函数行数上限，超过则报出"
             },
-        "tag": "global",
+        "tag": "function",
         "reference": "C++ Core Guidelines F.5"
         },
     "ID_nonVirtualOverride": {
@@ -1888,12 +1901,6 @@
         "comment": "如果重载内存的分配方式，一定要重载相应的回收方式，反之亦然，否则容易造成分配与回收的冲突。",
         "tag": "type",
         "reference": "C++ Core Guidelines R.15"
-        },
-    "ID_invalidAnonymousType": {
-        "checkPoint": "不应出现无效的匿名类",
-        "level": "warning",
-        "comment": "函数体之外的匿名类、联合体或结构体，以及函数体之内的匿名类或结构体是没有意义的，多为遗迹代码，应当去除。",
-        "tag": "type"
         },
     "ID_stdNamespaceModified": {
         "checkPoint": "不可修改std命名空间",
@@ -2096,9 +2103,9 @@
         "reference": "CWE-670"
         },
     "ID_while_uncondBroken": {
-        "checkPoint": "while语句中不应存在无条件的throw、break、continue或return语句",
+        "checkPoint": "while语句中不应存在无条件的跳转语句",
         "level": "error",
-        "comment": "不受条件限制的break或return语句会使循环失效，不受条件限制的continue句语会使其后面的代码失效，如果其后没有代码，该continue语句是没有意义的。",
+        "comment": "不受条件限制的return、throw或break语句会使循环失效，不受条件限制的continue句语会使其后面的代码失效，如果其后没有代码，该continue语句是没有意义的。",
         "tag": "control",
         "related": "ID_for_uncondBroken",
         "reference": "CWE-670"
@@ -2173,9 +2180,9 @@
         "reference": "CWE-670"
         },
     "ID_for_uncondBroken": {
-        "checkPoint": "for循环中不应存在无条件的throw、break、continue或return语句",
+        "checkPoint": "for循环中不应存在无条件的跳转语句",
         "level": "error",
-        "comment": "无条件的break或return语句会使循环失效，无条件的continue句语会使其后面的代码失效，如果其后没有代码时，该continue语句是没有意义的。",
+        "comment": "无条件的return、throw或break语句会使循环失效，无条件的continue句语会使其后面的代码失效，如果其后没有代码时，该continue语句是没有意义的。",
         "tag": "control",
         "related": "ID_while_uncondBroken",
         "reference": "CWE-670"
@@ -2339,16 +2346,6 @@
         "tag": "literal",
         "reference": "MISRA C 2004 7.1,MISRA C 2012 7.1,MISRA C++ 2008 2-13-2"
         },
-    "ID_literal_tooLarge": {
-        "checkPoint": "字符串常量不应超过规定长度",
-        "level": "warning",
-        "comment": "大段的文本内容不应存在于代码之中，应存入数据文件中，并配以一定的加密措施，否则不利于维护，每次细微的调整都会牵扯到代码的编译。",
-        "config": {
-            "ID_literal/maxStringLiteralLength": "字符串常量长度上限，超过则报出"
-            },
-        "tag": "literal",
-        "related": "ID_literal_magicString"
-        },
     "ID_literal_confusingSuffix": {
         "checkPoint": "整数或浮点数常量的后缀应使用大写字母",
         "level": "warning",
@@ -2365,7 +2362,7 @@
         "standard": "ISO/IEC 14882:2003 2.14.2(2) 2.14.4(1),ISO/IEC 14882:2011 2.14.2(2) 2.14.4(1),ISO/IEC 14882:2017 5.13.2(2) 5.13.4(1)"
         },
     "ID_literal_magicNumber": {
-        "checkPoint": "代码中不应出现magic number",
+        "checkPoint": "不应存在magic number",
         "level": "suggestion",
         "comment": "对于直接出现在代码中的字面数值（magic number），建议改用具有适当名称的常量表示，提高代码可读性，且便于维护。",
         "config": {
@@ -2376,7 +2373,7 @@
         "reference": "C++ Core Guidelines ES.45"
         },
     "ID_literal_magicString": {
-        "checkPoint": "代码中不应出现magic string",
+        "checkPoint": "不应存在magic string",
         "level": "suggestion",
         "comment": "对于直接出现在代码中的字符串常量（magic string），建议改用具有适当名称的常量表示，提高代码可读性，且便于维护。",
         "tag": "literal",
@@ -2605,7 +2602,7 @@
         "reference": "CWE-476,C++ Core Guidelines C.148"
         },
     "ID_danglingDeref": {
-        "checkPoint": "对已经被释放的指针不应再次解引用",
+        "checkPoint": "不可解引用已被释放的指针",
         "level": "error",
         "comment": "已经被释放的指针指向无效的内存空间，如果再次对其解引用会造成标准未定义的错误。",
         "tag": "pointer",
@@ -2823,7 +2820,7 @@
         "tag": "declaration"
         },
     "ID_badName": {
-        "checkPoint": "命名空间、类型、对象、函数的命名应遵循合理的方式",
+        "checkPoint": "遵循合理的命名方式",
         "level": "suggestion",
         "comment": "代码中的各种名称应遵循易于读写，并可准确表达代码意图的方式。",
         "config": {
@@ -2847,7 +2844,7 @@
         "reference": "MISRA C++ 2008 2-10-6,C++ Core Guidelines ES.8"
         },
     "ID_misspelling": {
-        "checkPoint": "命名空间、类型、对象、函数的名称中不应存在拼写错误",
+        "checkPoint": "不应存在拼写错误",
         "level": "suggestion",
         "comment": "代码中不应存在拼写错误，尤其是供他人调用的代码，如命名空间名称、类的公有成员名称，全局函数名称等，更不应存在拼写错误。",
         "tag": "declaration"
