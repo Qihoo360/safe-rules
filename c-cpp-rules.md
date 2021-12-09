@@ -129,8 +129,8 @@
     - [R3.1.5 在C\+\+代码中不应引用C头文件](#ID_forbidCHeaderInCpp)
   - [3.2 Macro](#precompile.macro)
     - [R3.2.1 宏的命名应遵循合理的方式](#ID_macro_badName)
-    - [R3.2.2 禁止定义具有保留意义的宏名称](#ID_macro_defineReserved)
-    - [R3.2.3 禁止取消定义具有保留意义的宏名称](#ID_macro_undefReserved)
+    - [R3.2.2 不可定义具有保留意义的宏名称](#ID_macro_defineReserved)
+    - [R3.2.3 不可取消定义具有保留意义的宏名称](#ID_macro_undefReserved)
     - [R3.2.4 可作为子表达式的宏定义应该用括号括起来](#ID_macro_expNotEnclosed)
     - [R3.2.5 宏参数在宏定义的表达式中应该用括号括起来](#ID_macro_paramNotEnclosed)
     - [R3.2.6 由多个语句组成的宏定义应该用do\-while(0)括起来](#ID_macro_stmtNotEnclosed)
@@ -226,16 +226,17 @@
     - [R6.2.8 慎用volatile关键字](#ID_forbidVolatile)
     - [R6.2.9 禁用restrict指针](#ID_forbidRestrictPtr)
   - [6.3 Specifier](#declaration.specifier)
-    - [R6.3.1 不应使用已过时的关键字](#ID_deprecatedSpecifier)
-    - [R6.3.2 不应使用多余的inline关键字](#ID_inlineRedundant)
-    - [R6.3.3 extern关键字不应作用于类成员的声明或定义](#ID_invalidExternSpecifier)
-    - [R6.3.4 所有重写的虚函数都应声明为override或final](#ID_missingExplicitOverride)
-    - [R6.3.5 override和final关键字不应同时出现](#ID_redundantOverride)
-    - [R6.3.6 当有override或final关键字时，不应再出现virtual关键字](#ID_redundantVirtual)
-    - [R6.3.7 不应将union设为final](#ID_invalidFinal)
-    - [R6.3.8 inline、virtual、static、typedef等关键字应出现在类型名的左侧](#ID_badSpecifierPosition)
+    - [R6.3.1 使用auto关键字时需注意代码的可读性](#ID_abusedAuto)
+    - [R6.3.2 不应使用已过时的关键字](#ID_deprecatedSpecifier)
+    - [R6.3.3 不应使用多余的inline关键字](#ID_inlineRedundant)
+    - [R6.3.4 extern关键字不应作用于类成员的声明或定义](#ID_invalidExternSpecifier)
+    - [R6.3.5 所有重写的虚函数都应声明为override或final](#ID_missingExplicitOverride)
+    - [R6.3.6 override和final关键字不应同时出现](#ID_redundantOverride)
+    - [R6.3.7 当有override或final关键字时，不应再出现virtual关键字](#ID_redundantVirtual)
+    - [R6.3.8 不应将union设为final](#ID_invalidFinal)
+    - [R6.3.9 inline、virtual、static、typedef等关键字应出现在类型名的左侧](#ID_badSpecifierPosition)
   - [6.4 Declarator](#declaration.declarator)
-    - [R6.4.1 用auto声明指针或引用时应显式标明\*、&等符号](#ID_missingStar)
+    - [R6.4.1 用auto声明指针或引用时应显式标明\*、&等符号](#ID_roughAuto)
     - [R6.4.2 禁用可变参数列表](#ID_forbidVariadicFunction)
     - [R6.4.3 禁用柔性数组](#ID_forbidFlexibleArray)
     - [R6.4.4 接口的参数或返回值不应被声明为void\*](#ID_forbidFunctionVoidPtr)
@@ -268,11 +269,10 @@
     - [R6.7.8 拷贝赋值、移动赋值运算符不应为虚函数](#ID_virtualAssignment)
     - [R6.7.9 比较运算符不应为虚函数](#ID_virtualComparison)
     - [R6.7.10 final类中不应声明虚函数](#ID_virtualInFinal)
-    - [R6.7.11 不建议在函数作用域外将lambda表达式定义为具名对象](#ID_lambdaOutOfFunction)
   - [6.8 Bitfield](#declaration.bitfield)
     - [R6.8.1 位域长度不应超过类型约定的大小](#ID_exceededBitfield)
     - [R6.8.2 有符号变量的位域长度不应为1](#ID_singleSignedBitfield)
-    - [R6.8.3 禁止对枚举变量声明位域](#ID_forbidEnumBitfield)
+    - [R6.8.3 不应对枚举变量声明位域](#ID_forbidEnumBitfield)
     - [R6.8.4 禁用位域](#ID_forbidBitfield)
   - [6.9 Complexity](#declaration.complexity)
     - [R6.9.1 不建议采用复杂的声明](#ID_complexDeclaration)
@@ -2467,9 +2467,9 @@ C++ Core Guidelines ES.9
 <br/>
 <br/>
 
-### <span id="ID_macro_defineReserved">▌R3.2.2 禁止定义具有保留意义的宏名称</span>
+### <span id="ID_macro_defineReserved">▌R3.2.2 不可定义具有保留意义的宏名称</span>
 
-ID_macro_defineReserved&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompile warning
+ID_macro_defineReserved&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 <hr/>
 
@@ -2527,6 +2527,7 @@ NULL|NDEBUG|EOF=Reserved name should not be defined or undefined
 
 #### 相关
 ID_macro_undefReserved  
+ID_reservedName  
 <br/>
 
 #### 依据
@@ -2542,9 +2543,9 @@ MISRA C++ 2008 17-0-1
 <br/>
 <br/>
 
-### <span id="ID_macro_undefReserved">▌R3.2.3 禁止取消定义具有保留意义的宏名称</span>
+### <span id="ID_macro_undefReserved">▌R3.2.3 不可取消定义具有保留意义的宏名称</span>
 
-ID_macro_undefReserved&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompile warning
+ID_macro_undefReserved&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 <hr/>
 
@@ -2585,6 +2586,7 @@ NULL|NDEBUG|EOF=Reserved name should not be defined or undefined
 
 #### 相关
 ID_macro_defineReserved  
+ID_reservedName  
 <br/>
 
 #### 依据
@@ -5046,7 +5048,7 @@ ID_badName&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-代码中的各种名称应遵循易于读写，并可准确表达代码意图的方式。  
+应遵循易于读写，并可准确表达代码意图的命名方式。  
   
 不应出现：  
  ● 超长的名称  
@@ -5081,7 +5083,7 @@ struct BinExpr {
     BinExpr* sub1;   // Bad
 };
 ```
-设BinExpr是二元“表达式”类，sub0、sub1为左右子表达式，这种命名方式应改进：
+设BinExpr是“二元表达式”类，sub0、sub1为左右子表达式，这种命名方式应改进：
 ```
 struct BinExpr {
     BinExpr* left;   // Better
@@ -5105,6 +5107,7 @@ ISO/IEC 9899:2011 6.4.2.1(6)-undefined
 
 #### 参考
 C++ Core Guidelines NL.19  
+C++ Core Guidelines ES.8  
 MISRA C 2004 5.1  
 MISRA C 2012 5.1  
 <br/>
@@ -5116,7 +5119,9 @@ ID_reservedName&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-命名空间、类型、对象、函数等名称不应与关键字名称、系统或标准库中的名称重复，否则极易造成阅读和维护上的困扰。  
+自定义的名称不应与关键字、标准库或系统中的名称重复，否则极易造成阅读和维护上的困扰。  
+  
+对于宏，本规则特化为ID\_macro\_defineReserved、ID\_macro\_undefReserved，如果宏名称出现这种问题，会导致标准未定义的错误。  
   
 示例：
 ```
@@ -5134,6 +5139,20 @@ private:
 ```
 例中成员变量errno与标准库中的errno名称重复，导致在阅读成员函数代码时无法区分该变量到底是自定义的还是系统定义的，造成不必要的困扰。
 <br/>
+<br/>
+
+#### 相关
+ID_macro_defineReserved  
+ID_macro_undefReserved  
+<br/>
+
+#### 参考
+SEI CERT DCL37-C  
+SEI CERT DCL51-CPP  
+MISRA C 2012 21.2  
+MISRA C++ 2008 17-0-1  
+MISRA C++ 2008 17-0-2  
+MISRA C++ 2008 17-0-3  
 <br/>
 <br/>
 
@@ -5245,7 +5264,6 @@ size_t x = sizeof(A);  // What is ‘A’?
 
 #### 参考
 MISRA C++ 2008 2-10-6  
-C++ Core Guidelines ES.8  
 <br/>
 <br/>
 
@@ -5580,7 +5598,84 @@ SEI CERT EXP43-C
 
 ### <span id="declaration.specifier">6.3 Specifier</span>
 
-### <span id="ID_deprecatedSpecifier">▌R6.3.1 不应使用已过时的关键字</span>
+### <span id="ID_abusedAuto">▌R6.3.1 使用auto关键字时需注意代码的可读性</span>
+
+ID_abusedAuto&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
+
+<hr/>
+
+auto关键字隐藏了类型名称，在使用时需注意不应降低代码的可读性。  
+  
+非局部对象不宜用auto声明，如接口返回类型、参数、全局对象等，局部对象的类型对程序的行为有显著影响时，也不宜用auto声明，如参与重载函数的选取等。  
+  
+示例：
+```
+auto foo() {
+    ....
+}
+
+auto bar() {
+    auto x = foo();
+    ....
+    return x;
+}
+
+auto baz = bar();  // What the hell is ‘baz’??
+```
+如果想确定baz对象的类型，必须通读所有与之相关的代码，可读性很差。  
+  
+将代码中所有可以替换成auto的标识符全部替换成auto，其结果是不可想象的，与Python等语言不同，C\+\+语言存在重载、模版等多种严格依赖于类型的特性，如果类型名称不明确，必然会造成阅读和维护等方面的障碍。  
+  
+下面给出auto关键字的合理用法：
+```
+Type* a = static_cast<Type*>(foo());  // Repeated type name
+unique_ptr<Type[]> b = make_unique<Type[]>(10);  // Repeated type name
+```
+重复的类型名称使代码变得繁琐，这种情况使用auto是更好的方法：
+```
+auto* a = static_cast<Type*>(foo());  // OK
+auto b = make_unique<Type[]>(10);  // OK
+```
+又如：
+```
+vector<Type> v{ .... };
+vector<Type>::iterator i = v.begin();   // Verbose
+```
+begin函数返回迭代器是一种常识，且迭代器类型名称往往较长，这种情况应使用auto：
+```
+auto i = v.begin();   // OK
+```
+又如：
+```
+struct SomeClass {
+    struct Sub{ .... };
+    Sub foo();
+};
+
+SomeClass::Sub SomeClass::foo() {  // Repeated ‘SomeClass’
+    ....
+}
+```
+重复的类作用域名称十分繁琐，用auto关键字配合后置返回类型可提升可读性：
+```
+auto SomeClass::foo() -> Sub {  // OK
+    ....
+}
+```
+总之，使用auto关键字的目的应是提升可读性，不可图一时之快而滥用。
+<br/>
+<br/>
+
+#### 相关
+ID_roughAuto  
+<br/>
+
+#### 参考
+C++ Core Guidelines ES.11  
+<br/>
+<br/>
+
+### <span id="ID_deprecatedSpecifier">▌R6.3.2 不应使用已过时的关键字</span>
 
 ID_deprecatedSpecifier&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
@@ -5607,7 +5702,7 @@ ISO/IEC 14882:2011 7.1.6.4
 <br/>
 <br/>
 
-### <span id="ID_inlineRedundant">▌R6.3.2 不应使用多余的inline关键字</span>
+### <span id="ID_inlineRedundant">▌R6.3.3 不应使用多余的inline关键字</span>
 
 ID_inlineRedundant&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -5635,7 +5730,7 @@ ISO/IEC 14882:2011 7.1.5(2)
 <br/>
 <br/>
 
-### <span id="ID_invalidExternSpecifier">▌R6.3.3 extern关键字不应作用于类成员的声明或定义</span>
+### <span id="ID_invalidExternSpecifier">▌R6.3.4 extern关键字不应作用于类成员的声明或定义</span>
 
 ID_invalidExternSpecifier&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
@@ -5663,7 +5758,7 @@ ISO/IEC 14882:2017 12.2(9)
 <br/>
 <br/>
 
-### <span id="ID_missingExplicitOverride">▌R6.3.4 所有重写的虚函数都应声明为override或final</span>
+### <span id="ID_missingExplicitOverride">▌R6.3.5 所有重写的虚函数都应声明为override或final</span>
 
 ID_missingExplicitOverride&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -5705,7 +5800,7 @@ C++ Core Guidelines C.128
 <br/>
 <br/>
 
-### <span id="ID_redundantOverride">▌R6.3.5 override和final关键字不应同时出现</span>
+### <span id="ID_redundantOverride">▌R6.3.6 override和final关键字不应同时出现</span>
 
 ID_redundantOverride&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -5728,7 +5823,7 @@ C++ Core Guidelines C.128
 <br/>
 <br/>
 
-### <span id="ID_redundantVirtual">▌R6.3.6 当有override或final关键字时，不应再出现virtual关键字</span>
+### <span id="ID_redundantVirtual">▌R6.3.7 当有override或final关键字时，不应再出现virtual关键字</span>
 
 ID_redundantVirtual&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -5752,7 +5847,7 @@ C++ Core Guidelines C.128
 <br/>
 <br/>
 
-### <span id="ID_invalidFinal">▌R6.3.7 不应将union设为final</span>
+### <span id="ID_invalidFinal">▌R6.3.8 不应将union设为final</span>
 
 ID_invalidFinal&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
@@ -5775,7 +5870,7 @@ ISO/IEC 9899:2011 9.5(2)
 <br/>
 <br/>
 
-### <span id="ID_badSpecifierPosition">▌R6.3.8 inline、virtual、static、typedef等关键字应出现在类型名的左侧</span>
+### <span id="ID_badSpecifierPosition">▌R6.3.9 inline、virtual、static、typedef等关键字应出现在类型名的左侧</span>
 
 ID_badSpecifierPosition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -5819,13 +5914,13 @@ ID_badQualifierPosition
 
 ### <span id="declaration.declarator">6.4 Declarator</span>
 
-### <span id="ID_missingStar">▌R6.4.1 用auto声明指针或引用时应显式标明*、&等符号</span>
+### <span id="ID_roughAuto">▌R6.4.1 用auto声明指针或引用时应显式标明*、&等符号</span>
 
-ID_missingStar&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
+ID_roughAuto&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-用auto声明指针时显式标明\*号有利于提高代码可读性，否则会使人误以为是某种非指针的对象。在声明引用时必须显式标明&号或&&号，否则成为对象声明，导致逻辑错误或造成不必要的复制开销。  
+用auto声明指针时显式标明\*号有利于提高代码可读性，否则会使人误以为是某种非指针的对象。在声明引用时必须显式标明&或&&号，否则成为对象声明，导致逻辑错误或造成不必要的复制开销。  
   
 示例：
 ```
@@ -5836,6 +5931,10 @@ auto p = foo();   // Bad
 auto* q = foo();  // Good
 
 auto r = bar();   // Becareful, ‘r’ is not a reference
+
+for (auto e: container) {  // Is it necessary to copy elements?
+    ....
+}
 ```
 <br/>
 <br/>
@@ -7009,37 +7108,6 @@ ISO/IEC 9899:2011 9(3)
 <br/>
 <br/>
 
-### <span id="ID_lambdaOutOfFunction">▌R6.7.11 不建议在函数作用域外将lambda表达式定义为具名对象</span>
-
-ID_lambdaOutOfFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
-
-<hr/>
-
-不建议在函数作用域外将lambda表达式定义为具名对象，应采用普通函数定义的方式。  
-  
-示例：
-```
-namespace N {
-    auto foo = [](int a, int b) {  // Non-compliant
-        return a + b;
-    };
-}
-```
-这种写法与lambda表达式的匿名特性相矛盾，而且foo是不能被重载的。  
-  
-应改为常规函数：
-```
-namespace N {
-    int foo(int a, int b) {  // Compliant
-        return a + b;
-    }
-}
-```
-虽然C\+\+语言十分灵活，可以通过多种方式达到同一种目的，但应该选择最简洁且通俗易懂的方式实现。
-<br/>
-<br/>
-<br/>
-
 ### <span id="declaration.bitfield">6.8 Bitfield</span>
 
 ### <span id="ID_exceededBitfield">▌R6.8.1 位域长度不应超过类型约定的大小</span>
@@ -7108,13 +7176,13 @@ MISRA C++ 2008 9-6-4
 <br/>
 <br/>
 
-### <span id="ID_forbidEnumBitfield">▌R6.8.3 禁止对枚举变量声明位域</span>
+### <span id="ID_forbidEnumBitfield">▌R6.8.3 不应对枚举变量声明位域</span>
 
 ID_forbidEnumBitfield&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration warning
 
 <hr/>
 
-枚举变量的值可以为有符号整数，由于符号位的存在极易导致意料之外的结果，且不利于枚举类型的扩展，故禁止对枚举变量声明位域。  
+枚举变量的值可以是有符号整数，由于符号位的存在极易导致意料之外的结果，且不利于枚举类型的扩展，故不应对枚举变量声明位域。  
   
 示例：
 ```
@@ -7247,7 +7315,7 @@ using A = struct {  // Non-compliant
 ```
 应改为：
 ```
-struct A {
+struct A {  // Compliant
     int a, b, c;
 };
 ```

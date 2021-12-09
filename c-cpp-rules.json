@@ -689,12 +689,6 @@
         "comment": "不建议在using别名中定义新的类，类的定义应采用常规方式。",
         "tag": "declaration"
         },
-    "ID_lambdaOutOfFunction": {
-        "checkPoint": "不建议在函数作用域外将lambda表达式定义为具名对象",
-        "level": "suggestion",
-        "comment": "不建议在函数作用域外将lambda表达式定义为具名对象，应采用普通函数定义的方式。",
-        "tag": "declaration"
-        },
     "ID_staticNotUsed": {
         "checkPoint": "不应存在未被使用的本地static函数",
         "level": "suggestion",
@@ -851,9 +845,9 @@
         "tag": "declaration"
         },
     "ID_forbidEnumBitfield": {
-        "checkPoint": "禁止对枚举变量声明位域",
+        "checkPoint": "不应对枚举变量声明位域",
         "level": "warning",
-        "comment": "枚举变量的值可以为有符号整数，由于符号位的存在极易导致意料之外的结果，且不利于枚举类型的扩展，故禁止对枚举变量声明位域。",
+        "comment": "枚举变量的值可以是有符号整数，由于符号位的存在极易导致意料之外的结果，且不利于枚举类型的扩展，故不应对枚举变量声明位域。",
         "tag": "declaration",
         "related": "ID_singleSignedBitfield",
         "reference": "MISRA C++ 2008 9-6-3"
@@ -1750,10 +1744,18 @@
         "standard": "ISO/IEC 14882:2011 3.6.2(2 3),ISO/IEC 14882:2017 6.6.2(3),ISO/IEC 14882:2017 6.6.3(2)",
         "reference": "C++ Core Guidelines I.22"
         },
-    "ID_missingStar": {
+    "ID_abusedAuto": {
+        "checkPoint": "使用auto关键字时需注意代码的可读性",
+        "level": "suggestion",
+        "comment": "auto关键字隐藏了类型名称，在使用时需注意不应降低代码的可读性。",
+        "tag": "declaration",
+        "related": "ID_roughAuto",
+        "reference": "C++ Core Guidelines ES.11"
+        },
+    "ID_roughAuto": {
         "checkPoint": "用auto声明指针或引用时应显式标明*、&等符号",
         "level": "suggestion",
-        "comment": "用auto声明指针时显式标明*号有利于提高代码可读性，否则会使人误以为是某种非指针的对象。在声明引用时必须显式标明&号或&&号，否则成为对象声明，导致逻辑错误或造成不必要的复制开销。",
+        "comment": "用auto声明指针时显式标明*号有利于提高代码可读性，否则会使人误以为是某种非指针的对象。在声明引用时必须显式标明&或&&号，否则成为对象声明，导致逻辑错误或造成不必要的复制开销。",
         "tag": "declaration"
         },
     "ID_selfDependentInitialization": {
@@ -2495,22 +2497,22 @@
         "reference": "CWE-483"
         },
     "ID_macro_defineReserved": {
-        "checkPoint": "禁止定义具有保留意义的宏名称",
+        "checkPoint": "不可定义具有保留意义的宏名称",
         "level": "warning",
         "comment": "定义与关键字或其他保留名称相同的宏，会使代码陷入难以维护的境地，也会导致标准未定义的问题。",
         "config": { "//": "详见说明" },
         "tag": "precompile",
         "standard": "ISO/IEC 14882:2003 16.8(3)-undefined,ISO/IEC 14882:2011 16.8(4)-undefined,ISO/IEC 14882:2017 19.8(4)-undefined",
-        "related": "ID_macro_undefReserved",
+        "related": "ID_macro_undefReserved,ID_reservedName",
         "reference": "MISRA C 2012 21.1,MISRA C 2012 20.4,MISRA C++ 2008 17-0-1"
         },
     "ID_macro_undefReserved": {
-        "checkPoint": "禁止取消定义具有保留意义的宏名称",
+        "checkPoint": "不可取消定义具有保留意义的宏名称",
         "level": "warning",
         "comment": "取消定义（undef）具有保留意义的宏名称，会使代码陷入难以维护的境地，也会导致标准未定义的问题。",
         "tag": "precompile",
         "standard": "ISO/IEC 14882:2003 16.8(3)-undefined,ISO/IEC 14882:2011 16.8(4)-undefined,ISO/IEC 14882:2017 19.8(4)-undefined",
-        "related": "ID_macro_defineReserved",
+        "related": "ID_macro_defineReserved,ID_reservedName",
         "reference": "MISRA C 2012 21.1,MISRA C 2012 20.5,MISRA C++ 2008 17-0-1,MISRA C++ 2008 16-0-3"
         },
     "ID_macro_complexConcat": {
@@ -2822,26 +2824,28 @@
     "ID_badName": {
         "checkPoint": "遵循合理的命名方式",
         "level": "suggestion",
-        "comment": "代码中的各种名称应遵循易于读写，并可准确表达代码意图的方式。",
+        "comment": "应遵循易于读写，并可准确表达代码意图的命名方式。",
         "config": {
             "ID_declaration/maxWordLength": "连续无大小写变化的字符个数上限，超过则报出"
             },
         "tag": "declaration",
         "standard": "ISO/IEC 9899:1999 5.2.4.1(1),ISO/IEC 9899:1999 6.4.2.1(6)-undefined,ISO/IEC 9899:2011 5.2.4.1(1),ISO/IEC 9899:2011 6.4.2.1(6)-undefined",
-        "reference": "C++ Core Guidelines NL.19,MISRA C 2004 5.1,MISRA C 2012 5.1"
+        "reference": "C++ Core Guidelines NL.19,C++ Core Guidelines ES.8,MISRA C 2004 5.1,MISRA C 2012 5.1"
         },
     "ID_reservedName": {
         "checkPoint": "不应定义具有保留意义的名称",
         "level": "suggestion",
-        "comment": "命名空间、类型、对象、函数等名称不应与关键字名称、系统或标准库中的名称重复，否则极易造成阅读和维护上的困扰。",
-        "tag": "declaration"
+        "comment": "自定义的名称不应与关键字、标准库或系统中的名称重复，否则极易造成阅读和维护上的困扰。",
+        "tag": "declaration",
+        "related": "ID_macro_defineReserved,ID_macro_undefReserved",
+        "reference": "SEI CERT DCL37-C,SEI CERT DCL51-CPP,MISRA C 2012 21.2,MISRA C++ 2008 17-0-1,MISRA C++ 2008 17-0-2,MISRA C++ 2008 17-0-3"
         },
     "ID_duplicatedName": {
         "checkPoint": "同一命名空间内的类型名称不应与对象或函数名称相同",
         "level": "suggestion",
         "comment": "如果不同的代码元素使用相同的名称，极易造成困扰。",
         "tag": "declaration",
-        "reference": "MISRA C++ 2008 2-10-6,C++ Core Guidelines ES.8"
+        "reference": "MISRA C++ 2008 2-10-6"
         },
     "ID_misspelling": {
         "checkPoint": "不应存在拼写错误",
