@@ -673,20 +673,7 @@
     "ID_complexDeclaration": {
         "checkPoint": "不建议采用复杂的声明",
         "level": "suggestion",
-        "comment": "对于返回函数指针的函数、返回数组指针的函数、函数指针的数组等复合型声明，应先将各子类型取别名，再用简单声明的方式书写，否则可读性较差。",
-        "tag": "declaration",
-        "related": "ID_complexParameter"
-        },
-    "ID_complexParameter": {
-        "checkPoint": "不建议采用复杂的参数声明",
-        "level": "suggestion",
-        "comment": "函数指针、数组指针等类型作为函数参数时，应先将其类型取别名，再用简单声明的方式书写，否则可读性较差。",
-        "tag": "declaration"
-        },
-    "ID_complexUsingAlias": {
-        "checkPoint": "不建议在using别名中定义新的类",
-        "level": "suggestion",
-        "comment": "不建议在using别名中定义新的类，类的定义应采用常规方式。",
+        "comment": "复杂的声明可读性较差，容易造成理解上的偏差。",
         "tag": "declaration"
         },
     "ID_staticNotUsed": {
@@ -716,6 +703,7 @@
         "level": "suggestion",
         "comment": "每条语句只应声明一个函数或函数指针，否则可读性较差。",
         "tag": "declaration",
+        "related": "ID_tooManyDeclarators",
         "reference": "C++ Core Guidelines ES.10"
         },
     "ID_mixedTypeObjDefinition": {
@@ -1561,11 +1549,11 @@
         "reference": "MISRA C 2004 20.4,MISRA C 2012 21.3,MISRA C++ 2008 18-4-1,C++ Core Guidelines R.5"
         },
     "ID_useAfterMove": {
-        "checkPoint": "对象被move之后的值不应再被使用",
+        "checkPoint": "对象被move之后不应再被使用",
         "level": "warning",
         "comment": "对象被move相当于将自己的数据转让给了别的对象，move之后对象的值在逻辑上不在有效，不应再被使用。",
         "tag": "resource",
-        "reference": "SEI CERT EXP63-CPP"
+        "reference": "SEI CERT EXP63-CPP,C++ Core Guidelines ES.56"
         },
     "ID_multiAllocation": {
         "checkPoint": "在一个语句中最多执行一次显式资源分配",
@@ -2649,6 +2637,14 @@
         "tag": "declaration",
         "standard": "ISO/IEC 14882:2003 8.3.2(1),ISO/IEC 14882:2011 8.3.2(1),ISO/IEC 14882:2017 11.3.2(1)"
         },
+    "ID_qualifierForPtrAlias": {
+        "checkPoint": "const、volatile修饰指针类型的别名是可疑的",
+        "level": "suspicious",
+        "comment": "如果const、volatile修饰指针类型的别名，很可能会造成意料之外的问题。",
+        "tag": "declaration",
+        "related": "ID_qualifierInvalid",
+        "reference": "SEI CERT DCL05-C"
+        },
     "ID_qualifierRepeated": {
         "checkPoint": "const、volatile不应重复",
         "level": "error",
@@ -3099,6 +3095,14 @@
         "tag": "type",
         "related": "ID_nonPrivateData,ID_protectedData",
         "reference": "C++ Core Guidelines C.9,C++ Core Guidelines C.134"
+        },
+    "ID_returnRValueReference": {
+        "checkPoint": "函数不应返回右值引用",
+        "level": "suggestion",
+        "comment": "函数返回右值引用的实际价值有限，而且很容易产生错误。",
+        "tag": "function",
+        "related": "ID_localAddressFlowOut",
+        "reference": "C++ Core Guidelines F.45"
         },
     "ID_returnConstObject": {
         "checkPoint": "函数返回值不应为const对象",

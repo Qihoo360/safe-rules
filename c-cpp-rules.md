@@ -108,7 +108,7 @@
   - [R2.6 资源的分配与回收方法应配套使用](#ID_incompatibleDealloc)
   - [R2.7 用new分配的单个对象应该用delete释放，不应该用delete\[\]释放](#ID_excessiveDelete)
   - [R2.8 用new分配的数组应使用delete\[\]释放，不应使用delete释放](#ID_insufficientDelete)
-  - [R2.9 对象被move之后的值不应再被使用](#ID_useAfterMove)
+  - [R2.9 对象被move之后不应再被使用](#ID_useAfterMove)
   - [R2.10 对象申请的资源须在析构函数中释放](#ID_memberDeallocation)
   - [R2.11 如果构造函数抛出异常需确保相关资源没有泄漏](#ID_throwInConstructor)
   - [R2.12 C\+\+代码中禁用malloc、free等内存分配与回收函数](#ID_forbidMallocAndFree)
@@ -216,15 +216,16 @@
     - [R6.1.5 同一命名空间内的类型名称不应与对象或函数名称相同](#ID_duplicatedName)
     - [R6.1.6 不应存在拼写错误](#ID_misspelling)
   - [6.2 Qualifier](#declaration.qualifier)
-    - [R6.2.1 const、volatile不可修饰引用](#ID_qualifierInvalid)
-    - [R6.2.2 const、volatile不应重复](#ID_qualifierRepeated)
-    - [R6.2.3 const、volatile限定类型时应出现在左侧](#ID_badQualifierPosition)
-    - [R6.2.4 const、volatile等关键字不应出现在基本类型名称的中间](#ID_sandwichedModifier)
-    - [R6.2.5 指向常量字符串的指针应有const关键字修饰](#ID_missingConst)
-    - [R6.2.6 enum的底层类型（underlying type）中不应出现const或volatile](#ID_uselessQualifier)
-    - [R6.2.7 对常量的定义不应为引用](#ID_constLiteralReference)
-    - [R6.2.8 慎用volatile关键字](#ID_forbidVolatile)
+    - [R6.2.1 const、volatile不应重复](#ID_qualifierRepeated)
+    - [R6.2.2 const、volatile修饰指针类型的别名是可疑的](#ID_qualifierForPtrAlias)
+    - [R6.2.3 const、volatile不可修饰引用](#ID_qualifierInvalid)
+    - [R6.2.4 const、volatile限定类型时应出现在左侧](#ID_badQualifierPosition)
+    - [R6.2.5 const、volatile等关键字不应出现在基本类型名称的中间](#ID_sandwichedModifier)
+    - [R6.2.6 指向常量字符串的指针应有const关键字修饰](#ID_missingConst)
+    - [R6.2.7 enum的底层类型（underlying type）中不应出现const或volatile](#ID_uselessQualifier)
+    - [R6.2.8 对常量的定义不应为引用](#ID_constLiteralReference)
     - [R6.2.9 禁用restrict指针](#ID_forbidRestrictPtr)
+    - [R6.2.10 慎用volatile关键字](#ID_forbidVolatile)
   - [6.3 Specifier](#declaration.specifier)
     - [R6.3.1 使用auto关键字时需注意代码的可读性](#ID_abusedAuto)
     - [R6.3.2 不应使用已过时的关键字](#ID_deprecatedSpecifier)
@@ -242,8 +243,9 @@
     - [R6.4.4 接口的参数或返回值不应被声明为void\*](#ID_forbidFunctionVoidPtr)
     - [R6.4.5 类成员不应被声明为void\*](#ID_forbidMemberVoidPtr)
     - [R6.4.6 局部数组的长度不应过大](#ID_unsuitableArraySize)
-    - [R6.4.7 不应将函数或函数指针和其他声明写在同一个语句中](#ID_mixedDeclarations)
-    - [R6.4.8 不建议将类型定义和对象声明写在一个语句中](#ID_mixedTypeObjDefinition)
+    - [R6.4.7 不建议将类型定义和对象声明写在一个语句中](#ID_mixedTypeObjDefinition)
+    - [R6.4.8 不应将函数或函数指针和其他声明写在同一个语句中](#ID_mixedDeclarations)
+    - [R6.4.9 在一个语句中不应声明过多对象或函数](#ID_tooManyDeclarators)
   - [6.5 Object](#declaration.object)
     - [R6.5.1 不应产生不受控制的无效临时对象](#ID_inaccessibleTmpObject)
     - [R6.5.2 不应出现不会被用到的局部声明](#ID_invalidLocalDeclaration)
@@ -276,9 +278,6 @@
     - [R6.8.4 禁用位域](#ID_forbidBitfield)
   - [6.9 Complexity](#declaration.complexity)
     - [R6.9.1 不建议采用复杂的声明](#ID_complexDeclaration)
-    - [R6.9.2 不建议采用复杂的参数声明](#ID_complexParameter)
-    - [R6.9.3 不建议在using别名中定义新的类](#ID_complexUsingAlias)
-    - [R6.9.4 在一个语句中不应声明过多对象或函数](#ID_tooManyDeclarators)
   - [6.10 Other](#declaration.other)
     - [R6.10.1 不应存在没有用到的标签](#ID_labelNotUsed)
     - [R6.10.2 不应存在未被使用的本地static函数](#ID_staticNotUsed)
@@ -307,24 +306,24 @@
   - [R8.1 main函数返回值的类型只应为int](#ID_mainReturnsNonInt)
   - [R8.2 main函数不应被重载，也不应声明为inline、static或constexpr](#ID_illFormedMain)
   - [R8.3 函数不应在头文件中实现](#ID_definedInHeader)
-  - [R8.4 不应定义过于复杂的内联函数](#ID_complexInlineFunction)
-  - [R8.5 函数的参数名称在声明和实现处应保持一致](#ID_inconsistentParamName)
-  - [R8.6 多态类的对象作为参数时不应采用值传递的方式](#ID_paramMayBeSlicing)
-  - [R8.7 不应存在未被使用的具名形式参数](#ID_paramNotUsed)
-  - [R8.8 由const修饰的参数应为引用或指针](#ID_paramPassedByValue)
-  - [R8.9 局部变量在使用前必须初始化](#ID_localInitialization)
-  - [R8.10 成员须在声明处或构造时初始化](#ID_memberInitialization)
-  - [R8.11 基类对象构造完毕之前不可调用成员函数](#ID_illMemberCall)
-  - [R8.12 在面向构造或析构函数体的catch块中不可访问非静态成员](#ID_illMemberAccess)
-  - [R8.13 成员初始化应遵循声明的顺序](#ID_disorderedInitialization)
-  - [R8.14 在构造函数中不应调用虚函数](#ID_virtualCallInConstructor)
-  - [R8.15 在析构函数中不应调用虚函数](#ID_virtualCallInDestuctor)
-  - [R8.16 拷贝构造函数应避免实现复制之外的功能](#ID_sideEffectCopyConstructor)
-  - [R8.17 赋值运算符应妥善处理参数就是自身对象时的情况](#ID_this_selfJudgement)
+  - [R8.4 函数的参数名称在声明和实现处应保持一致](#ID_inconsistentParamName)
+  - [R8.5 多态类的对象作为参数时不应采用值传递的方式](#ID_paramMayBeSlicing)
+  - [R8.6 不应存在未被使用的具名形式参数](#ID_paramNotUsed)
+  - [R8.7 由const修饰的参数应为引用或指针](#ID_paramPassedByValue)
+  - [R8.8 局部变量在使用前必须初始化](#ID_localInitialization)
+  - [R8.9 成员须在声明处或构造时初始化](#ID_memberInitialization)
+  - [R8.10 基类对象构造完毕之前不可调用成员函数](#ID_illMemberCall)
+  - [R8.11 在面向构造或析构函数体的catch块中不可访问非静态成员](#ID_illMemberAccess)
+  - [R8.12 成员初始化应遵循声明的顺序](#ID_disorderedInitialization)
+  - [R8.13 在构造函数中不应调用虚函数](#ID_virtualCallInConstructor)
+  - [R8.14 在析构函数中不应调用虚函数](#ID_virtualCallInDestuctor)
+  - [R8.15 拷贝构造函数应避免实现复制之外的功能](#ID_sideEffectCopyConstructor)
+  - [R8.16 赋值运算符应妥善处理参数就是自身对象时的情况](#ID_this_selfJudgement)
+  - [R8.17 避免无效的写入](#ID_invalidWrite)
   - [R8.18 不应存在得不到执行机会的代码](#ID_unreachableCode)
   - [R8.19 有返回值的函数其所有分枝都应有明确的返回值](#ID_notAllBranchReturn)
   - [R8.20 不可返回局部对象的地址或引用](#ID_localAddressFlowOut)
-  - [R8.21 避免无效的写入](#ID_invalidWrite)
+  - [R8.21 函数不应返回右值引用](#ID_returnRValueReference)
   - [R8.22 函数返回值不应为const对象](#ID_returnConstObject)
   - [R8.23 返回值应与函数的返回类型相符](#ID_returnOdd)
   - [R8.24 函数返回值不应为相同的常量](#ID_returnSameConst)
@@ -336,14 +335,15 @@
   - [R8.30 函数模版不应被特化](#ID_functionSpecialization)
   - [R8.31 函数的标签数量应在规定范围之内](#ID_tooManyLabels)
   - [R8.32 函数的行数应在规定范围之内](#ID_tooManyLines)
-  - [R8.33 lambda表达式的行数应在规定范围之内](#ID_tooManyLambdaLines)
-  - [R8.34 函数参数的数量应在规定范围之内](#ID_tooManyParams)
-  - [R8.35 禁止goto语句向平级的或更深层的其他作用域跳转](#ID_forbidGotoBlocks)
-  - [R8.36 禁止goto语句向前跳转](#ID_forbidGotoBack)
-  - [R8.37 禁用goto语句](#ID_forbidGoto)
-  - [R8.38 禁用setjmp、longjmp](#ID_forbidLongjmp)
-  - [R8.39 避免递归实现](#ID_recursion)
-  - [R8.40 不应存在重复的函数实现](#ID_functionRepetition)
+  - [R8.33 不应定义过于复杂的内联函数](#ID_complexInlineFunction)
+  - [R8.34 lambda表达式的行数应在规定范围之内](#ID_tooManyLambdaLines)
+  - [R8.35 函数参数的数量应在规定范围之内](#ID_tooManyParams)
+  - [R8.36 禁止goto语句向平级的或更深层的其他作用域跳转](#ID_forbidGotoBlocks)
+  - [R8.37 禁止goto语句向前跳转](#ID_forbidGotoBack)
+  - [R8.38 禁用goto语句](#ID_forbidGoto)
+  - [R8.39 禁用setjmp、longjmp](#ID_forbidLongjmp)
+  - [R8.40 避免递归实现](#ID_recursion)
+  - [R8.41 不应存在重复的函数实现](#ID_functionRepetition)
 <br/>
 
 <span id="__Control">**[9. Control](#control)**</span>
@@ -1858,7 +1858,7 @@ C++ Core Guidelines ES.61
 <br/>
 <br/>
 
-### <span id="ID_useAfterMove">▌R2.9 对象被move之后的值不应再被使用</span>
+### <span id="ID_useAfterMove">▌R2.9 对象被move之后不应再被使用</span>
 
 ID_useAfterMove&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -1880,6 +1880,7 @@ string fun() {
 
 #### 参考
 SEI CERT EXP63-CPP  
+C++ Core Guidelines ES.56  
 <br/>
 <br/>
 
@@ -5291,40 +5292,7 @@ public:
 
 ### <span id="declaration.qualifier">6.2 Qualifier</span>
 
-### <span id="ID_qualifierInvalid">▌R6.2.1 const、volatile不可修饰引用</span>
-
-ID_qualifierInvalid&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: declaration error
-
-<hr/>
-
-C\+\+标准规定，const或volatile可修饰指针，但不可修饰引用，否则起不到任何作用。  
-  
-示例：
-```
-int a = 0;
-int &const i = a;     // Non-compliant
-int &volatile j = a;  // Non-compliant
-typedef int& int_r;
-const int_r r0 = a;   // Non-compliant, r0 is not a const-reference at all
-const int_r& r1 = a;  // Non-compliant, r1 is not a const-reference at all
-```
-例中声明的引用均无效，应去掉限定符，或改为：
-```
-const int& i = a;     // Compliant
-volatile int& j = a;  // Compliant
-int_r r = a;          // Compliant
-```
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 14882:2003 8.3.2(1)  
-ISO/IEC 14882:2011 8.3.2(1)  
-ISO/IEC 14882:2017 11.3.2(1)  
-<br/>
-<br/>
-
-### <span id="ID_qualifierRepeated">▌R6.2.2 const、volatile不应重复</span>
+### <span id="ID_qualifierRepeated">▌R6.2.1 const、volatile不应重复</span>
 
 ID_qualifierRepeated&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: declaration error
 
@@ -5354,7 +5322,89 @@ ID_badQualifierPosition
 <br/>
 <br/>
 
-### <span id="ID_badQualifierPosition">▌R6.2.3 const、volatile限定类型时应出现在左侧</span>
+### <span id="ID_qualifierForPtrAlias">▌R6.2.2 const、volatile修饰指针类型的别名是可疑的</span>
+
+ID_qualifierForPtrAlias&emsp;&emsp;&emsp;&emsp;&nbsp;:question: declaration suspicious
+
+<hr/>
+
+如果const、volatile修饰指针类型的别名，很可能会造成意料之外的问题。  
+  
+示例：
+```
+struct Type {
+    void foo();
+    void foo() const;
+};
+typedef Type* Alias;
+
+void bar(const Alias a) {  // Rather suspicious
+    a->foo();  // Calls ‘void Type::foo();’
+}
+```
+例中“const Alias a”很容易引起误解，好像对象是不可被改变的，但实际上a的类型是Type \*const，const限定的是指针，而不是指针指向的对象，这种情况下，对象仍可以被修改，其调用的函数也可能与预期不符。  
+  
+应避免为对象的指针类型定义别名，如果必须定义应提供常量和非常量两种别名，如：
+```
+typedef Type* Alias;
+typedef const Type* ConstAlias;
+
+void bar(ConstAlias a) {
+    a->foo();  // Calls ‘void Type::foo() const;’
+}
+```
+注意，如果const、volatile修饰引用的别名则是错误的，详见ID\_qualifierInvalid。
+<br/>
+<br/>
+
+#### 相关
+ID_qualifierInvalid  
+<br/>
+
+#### 参考
+SEI CERT DCL05-C  
+<br/>
+<br/>
+
+### <span id="ID_qualifierInvalid">▌R6.2.3 const、volatile不可修饰引用</span>
+
+ID_qualifierInvalid&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: declaration error
+
+<hr/>
+
+C\+\+标准规定，const或volatile可修饰指针，但不可修饰引用，否则起不到任何作用。  
+  
+示例：
+```
+int a = 0;
+int &const i = a;     // Non-compliant
+int &volatile j = a;  // Non-compliant
+```
+例中声明的const和volatile均无效，i可被随意修改，j也可能被优化。  
+  
+应去掉限定符，或使限定符修饰引用的对象：
+```
+const int& i = a;     // Compliant
+volatile int& j = a;  // Compliant
+```
+注意，如果限定符修饰引用类型的别名，会引起很大误解，如：
+```
+typedef int& int_r;   // Alias
+const int_r r0 = a;   // Non-compliant, r0 is not a const-reference at all
+const int_r& r1 = a;  // Non-compliant, r1 is not a const-reference at all
+```
+例中r0和r1很像常量对象的引用，但实际上仍然a的值仍可以通过这种引用被随意修改，所以应避免对引用类型定义别名。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 8.3.2(1)  
+ISO/IEC 14882:2011 8.3.2(1)  
+ISO/IEC 14882:2017 11.3.2(1)  
+<br/>
+<br/>
+
+### <span id="ID_badQualifierPosition">▌R6.2.4 const、volatile限定类型时应出现在左侧</span>
 
 ID_badQualifierPosition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -5393,7 +5443,7 @@ C++ Core Guidelines NL.26
 <br/>
 <br/>
 
-### <span id="ID_sandwichedModifier">▌R6.2.4 const、volatile等关键字不应出现在基本类型名称的中间</span>
+### <span id="ID_sandwichedModifier">▌R6.2.5 const、volatile等关键字不应出现在基本类型名称的中间</span>
 
 ID_sandwichedModifier&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -5431,7 +5481,7 @@ C++ Core Guidelines NL.26
 <br/>
 <br/>
 
-### <span id="ID_missingConst">▌R6.2.5 指向常量字符串的指针应有const关键字修饰</span>
+### <span id="ID_missingConst">▌R6.2.6 指向常量字符串的指针应有const关键字修饰</span>
 
 ID_missingConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
@@ -5465,7 +5515,7 @@ MISRA C 2012 7.4
 <br/>
 <br/>
 
-### <span id="ID_uselessQualifier">▌R6.2.6 enum的底层类型（underlying type）中不应出现const或volatile</span>
+### <span id="ID_uselessQualifier">▌R6.2.7 enum的底层类型（underlying type）中不应出现const或volatile</span>
 
 ID_uselessQualifier&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
@@ -5498,7 +5548,7 @@ ISO/IEC 14882:2011 10.2(2)
 <br/>
 <br/>
 
-### <span id="ID_constLiteralReference">▌R6.2.7 对常量的定义不应为引用</span>
+### <span id="ID_constLiteralReference">▌R6.2.8 对常量的定义不应为引用</span>
 
 ID_constLiteralReference&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
@@ -5517,41 +5567,6 @@ const int i = 1024;  // Compliant
 const int j = 1024;  // Compliant
 ```
 <br/>
-<br/>
-<br/>
-
-### <span id="ID_forbidVolatile">▌R6.2.8 慎用volatile关键字</span>
-
-ID_forbidVolatile&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration suggestion
-
-<hr/>
-
-对于硬件无关的功能性代码不妨禁用volatile关键字，否则误用该关键字会引发优化及同步相关的多种问题。  
-  
-volatile关键字仅保证编译器不会对其修饰的变量进行额外优化，确保其有稳定的地址以供读写，在并发编程中容易使人产生误解，其实该关键字在C/C\+\+语言中与同步机制并无关系。  
-  
-当需要访问某个硬件地址，而其它进程或硬件可能会修改该地址上的数据时，应将其指针声明为volatile：
-```
-volatile int* vp = get_hardware_address();
-```
-如果当前进程不需要主动改变数据，则可加const修饰符：
-```
-const volatile int* cvp = get_hardware_address();
-```
-这样一来vp或cvp的值一直会与内存地址对应，利用\*vp或\*cvp总会执行从内存的读取操作，而不会因为编译器的优化而被忽略，可能需要保证进程之间的同步，但这与volatile关键字是没有关系的，这一点与Java等语言有较大区别，需要特别注意。  
-  
-除此之外，利用volatile关键字阻止编译优化的特性可实现一些安全措施，参见ID\_unsafeCleanup。
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 14882:2003 7.1.5.1(8)  
-ISO/IEC 14882:2011 7.1.6.1(7)  
-<br/>
-
-#### 参考
-C++ Core Guidelines CP.8  
-C++ Core Guidelines CP.200  
 <br/>
 <br/>
 
@@ -5593,6 +5608,41 @@ ISO/IEC 9899:2011 6.7.3.1(4 9 11)-undefined
 #### 参考
 MISRA C 2012 8.14  
 SEI CERT EXP43-C  
+<br/>
+<br/>
+
+### <span id="ID_forbidVolatile">▌R6.2.10 慎用volatile关键字</span>
+
+ID_forbidVolatile&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration suggestion
+
+<hr/>
+
+对于硬件无关的功能性代码不妨禁用volatile关键字，否则误用该关键字会引发优化及同步相关的多种问题。  
+  
+volatile关键字仅保证编译器不会对其修饰的变量进行额外优化，确保其有稳定的地址以供读写，在并发编程中容易使人产生误解，其实该关键字在C/C\+\+语言中与同步机制并无关系。  
+  
+当需要访问某个硬件地址，而其它进程或硬件可能会修改该地址上的数据时，应将其指针声明为volatile：
+```
+volatile int* vp = get_hardware_address();
+```
+如果当前进程不需要主动改变数据，则可加const修饰符：
+```
+const volatile int* cvp = get_hardware_address();
+```
+这样一来vp或cvp的值一直会与内存地址对应，利用\*vp或\*cvp总会执行从内存的读取操作，而不会因为编译器的优化而被忽略，可能需要保证进程之间的同步，但这与volatile关键字是没有关系的，这一点与Java等语言有较大区别，需要特别注意。  
+  
+除此之外，利用volatile关键字阻止编译优化的特性可实现一些安全措施，参见ID\_unsafeCleanup。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 7.1.5.1(8)  
+ISO/IEC 14882:2011 7.1.6.1(7)  
+<br/>
+
+#### 参考
+C++ Core Guidelines CP.8  
+C++ Core Guidelines CP.200  
 <br/>
 <br/>
 
@@ -6169,33 +6219,7 @@ SEI CERT MEM05-C
 <br/>
 <br/>
 
-### <span id="ID_mixedDeclarations">▌R6.4.7 不应将函数或函数指针和其他声明写在同一个语句中</span>
-
-ID_mixedDeclarations&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
-
-<hr/>
-
-每条语句只应声明一个函数或函数指针，否则可读性较差。  
-  
-示例：
-```
-int* foo(int, int), bar(0), baz(char, long);  // Non-compliant, very bad
-```
-应改为：
-```
-int* foo(int, int);   // Compliant
-int bar = 0;          // Compliant
-int baz(char, long);  // Compliant
-```
-<br/>
-<br/>
-
-#### 参考
-C++ Core Guidelines ES.10  
-<br/>
-<br/>
-
-### <span id="ID_mixedTypeObjDefinition">▌R6.4.8 不建议将类型定义和对象声明写在一个语句中</span>
+### <span id="ID_mixedTypeObjDefinition">▌R6.4.7 不建议将类型定义和对象声明写在一个语句中</span>
 
 ID_mixedTypeObjDefinition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -6220,6 +6244,64 @@ typedef struct _B
 
 #### 参考
 C++ Core Guidelines C.7  
+<br/>
+<br/>
+
+### <span id="ID_mixedDeclarations">▌R6.4.8 不应将函数或函数指针和其他声明写在同一个语句中</span>
+
+ID_mixedDeclarations&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
+
+<hr/>
+
+每条语句只应声明一个函数或函数指针，否则可读性较差。  
+  
+示例：
+```
+int* foo(int), bar(0), (*baz)(char);  // Non-compliant, very bad
+```
+例中foo是函数，bar是整数，baz是函数指针，这种混在一起的声明是非常混乱的。  
+  
+应分开声明：
+```
+int* foo(int);    // Compliant
+int bar = 0;      // Compliant
+int (*baz)(char); // Compliant
+```
+<br/>
+<br/>
+
+#### 相关
+ID_tooManyDeclarators  
+<br/>
+
+#### 参考
+C++ Core Guidelines ES.10  
+<br/>
+<br/>
+
+### <span id="ID_tooManyDeclarators">▌R6.4.9 在一个语句中不应声明过多对象或函数</span>
+
+ID_tooManyDeclarators&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
+
+<hr/>
+
+在一个语句中不应声明过多对象或函数，建议在每个语句中只声明一个对象或函数，提高可读性也可减少笔误。  
+  
+示例：
+```
+int* a, b[10], c, d(int), e = 0;  // Bad
+```
+例中只有a是指针，也只有e被初始化，d为函数，将它们分开声明是更好的选择。
+<br/>
+<br/>
+
+#### 配置
+ID_declaration/maxDeclaratorCount：一个声明语句能包含的对象个数上限，超过则报出  
+<br/>
+
+#### 参考
+C++ Core Guidelines ES.10  
+MISRA C++ 2008 8-0-1  
 <br/>
 <br/>
 
@@ -7254,13 +7336,21 @@ ID_complexDeclaration&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-对于返回函数指针的函数、返回数组指针的函数、函数指针的数组等复合型声明，应先将各子类型取别名，再用简单声明的方式书写，否则可读性较差。  
+复杂的声明可读性较差，容易造成理解上的偏差。  
+  
+对于：  
+ ● 函数指针的数组  
+ ● 返回函数指针、数组指针的函数  
+ ● 以函数指针、数组指针为参数的函数  
+等复合型声明，应先将各子类型取别名，再用简单声明的方式书写。  
   
 示例：
 ```
 int (*foo(int))(bool);  // Bad, returns a function pointer
 int (*foo(char))[123];  // Bad, returns an array pointer
 ```
+例中有两个foo函数，但看起来像是函数指针，而且参数列表也显得混乱。  
+  
 应改为：
 ```
 typedef int(*funptr)(bool);
@@ -7269,84 +7359,13 @@ typedef int(*arrptr)[123];
 funptr foo(int);   // Good
 arrptr foo(char);  // Good
 ```
-<br/>
-<br/>
-
-#### 相关
-ID_complexParameter  
-<br/>
-<br/>
-
-### <span id="ID_complexParameter">▌R6.9.2 不建议采用复杂的参数声明</span>
-
-ID_complexParameter&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
-
-<hr/>
-
-函数指针、数组指针等类型作为函数参数时，应先将其类型取别名，再用简单声明的方式书写，否则可读性较差。  
-  
-示例：
+另外，指针的星号个数不宜超过两个，否则意味着指针的解引用逻辑过于复杂。
 ```
-int foo(int(*fp)(int, int));  // Bad
+T *** x;  // Bad
+T * const * * const * y;  // Horrible
 ```
-应改为：
-```
-typedef int(*fp_t)(int, int);
-
-int foo(fp_t fp);  // Good
-```
+其中T为任意类型，如果发现这种指针，意味着需要改进对相关数据的访问方式。
 <br/>
-<br/>
-<br/>
-
-### <span id="ID_complexUsingAlias">▌R6.9.3 不建议在using别名中定义新的类</span>
-
-ID_complexUsingAlias&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
-
-<hr/>
-
-不建议在using别名中定义新的类，类的定义应采用常规方式。  
-  
-示例：
-```
-using A = struct {  // Non-compliant
-    int a, b, c;
-};
-```
-应改为：
-```
-struct A {  // Compliant
-    int a, b, c;
-};
-```
-虽然C\+\+语言十分灵活，可以通过多种方式达到同一种目的，但应该选择最简洁且通俗易懂的方式实现。
-<br/>
-<br/>
-<br/>
-
-### <span id="ID_tooManyDeclarators">▌R6.9.4 在一个语句中不应声明过多对象或函数</span>
-
-ID_tooManyDeclarators&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
-
-<hr/>
-
-在一个语句中不应声明过多对象或函数，建议在每个语句中只声明一个对象或函数，提高可读性也可减少笔误。  
-  
-示例：
-```
-int* a, b[10], c, d(int), e = 0;  // Bad
-```
-例中只有a是指针，也只有e被初始化，d为函数，将它们分开声明是更好的选择。
-<br/>
-<br/>
-
-#### 配置
-ID_declaration/maxDeclaratorCount：一个声明语句能包含的对象个数上限，超过则报出  
-<br/>
-
-#### 参考
-C++ Core Guidelines ES.10  
-MISRA C++ 2008 8-0-1  
 <br/>
 <br/>
 
@@ -8195,32 +8214,7 @@ C++ Core Guidelines SF.2
 <br/>
 <br/>
 
-### <span id="ID_complexInlineFunction">▌R8.4 不应定义过于复杂的内联函数</span>
-
-ID_complexInlineFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
-
-<hr/>
-
-不适合将函数声明为内联的情况：  
- ● 行数超过指定限制  
- ● 存在循环或异常处理语句  
- ● 存在switch分枝语句    
- ● 函数存在递归实现  
-  
-建议内联函数的实现不要超过3个语句。
-<br/>
-<br/>
-
-#### 配置
-ID_function/maxInlineFunctionLineCount：内联函数行数上限，超过则报出  
-<br/>
-
-#### 参考
-C++ Core Guidelines F.5  
-<br/>
-<br/>
-
-### <span id="ID_inconsistentParamName">▌R8.5 函数的参数名称在声明和实现处应保持一致</span>
+### <span id="ID_inconsistentParamName">▌R8.4 函数的参数名称在声明和实现处应保持一致</span>
 
 ID_inconsistentParamName&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -8244,7 +8238,7 @@ MISRA C++ 2008 8-4-2
 <br/>
 <br/>
 
-### <span id="ID_paramMayBeSlicing">▌R8.6 多态类的对象作为参数时不应采用值传递的方式</span>
+### <span id="ID_paramMayBeSlicing">▌R8.5 多态类的对象作为参数时不应采用值传递的方式</span>
 
 ID_paramMayBeSlicing&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -8275,7 +8269,7 @@ C++ Core Guidelines ES.63
 <br/>
 <br/>
 
-### <span id="ID_paramNotUsed">▌R8.7 不应存在未被使用的具名形式参数</span>
+### <span id="ID_paramNotUsed">▌R8.6 不应存在未被使用的具名形式参数</span>
 
 ID_paramNotUsed&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
@@ -8309,7 +8303,7 @@ MISRA C++ 2008 0-1-11
 <br/>
 <br/>
 
-### <span id="ID_paramPassedByValue">▌R8.8 由const修饰的参数应为引用或指针</span>
+### <span id="ID_paramPassedByValue">▌R8.7 由const修饰的参数应为引用或指针</span>
 
 ID_paramPassedByValue&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -8338,7 +8332,7 @@ C++ Core Guidelines F.16
 <br/>
 <br/>
 
-### <span id="ID_localInitialization">▌R8.9 局部变量在使用前必须初始化</span>
+### <span id="ID_localInitialization">▌R8.8 局部变量在使用前必须初始化</span>
 
 ID_localInitialization&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
@@ -8399,7 +8393,7 @@ MISRA C++ 2008 8-5-1
 <br/>
 <br/>
 
-### <span id="ID_memberInitialization">▌R8.10 成员须在声明处或构造时初始化</span>
+### <span id="ID_memberInitialization">▌R8.9 成员须在声明处或构造时初始化</span>
 
 ID_memberInitialization&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -8441,7 +8435,7 @@ C++ Core Guidelines C.41
 <br/>
 <br/>
 
-### <span id="ID_illMemberCall">▌R8.11 基类对象构造完毕之前不可调用成员函数</span>
+### <span id="ID_illMemberCall">▌R8.10 基类对象构造完毕之前不可调用成员函数</span>
 
 ID_illMemberCall&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -8470,7 +8464,7 @@ ISO/IEC 14882:2011 12.6.2(13)-undefined
 <br/>
 <br/>
 
-### <span id="ID_illMemberAccess">▌R8.12 在面向构造或析构函数体的catch块中不可访问非静态成员</span>
+### <span id="ID_illMemberAccess">▌R8.11 在面向构造或析构函数体的catch块中不可访问非静态成员</span>
 
 ID_illMemberAccess&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
@@ -8523,7 +8517,7 @@ MISRA C++ 2008 15-3-3
 <br/>
 <br/>
 
-### <span id="ID_disorderedInitialization">▌R8.13 成员初始化应遵循声明的顺序</span>
+### <span id="ID_disorderedInitialization">▌R8.12 成员初始化应遵循声明的顺序</span>
 
 ID_disorderedInitialization&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
@@ -8582,7 +8576,7 @@ C++ Core Guidelines C.47
 <br/>
 <br/>
 
-### <span id="ID_virtualCallInConstructor">▌R8.14 在构造函数中不应调用虚函数</span>
+### <span id="ID_virtualCallInConstructor">▌R8.13 在构造函数中不应调用虚函数</span>
 
 ID_virtualCallInConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -8618,7 +8612,7 @@ Effective C++ item 9
 <br/>
 <br/>
 
-### <span id="ID_virtualCallInDestuctor">▌R8.15 在析构函数中不应调用虚函数</span>
+### <span id="ID_virtualCallInDestuctor">▌R8.14 在析构函数中不应调用虚函数</span>
 
 ID_virtualCallInDestuctor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -8651,7 +8645,7 @@ Effective C++ item 9
 <br/>
 <br/>
 
-### <span id="ID_sideEffectCopyConstructor">▌R8.16 拷贝构造函数应避免实现复制之外的功能</span>
+### <span id="ID_sideEffectCopyConstructor">▌R8.15 拷贝构造函数应避免实现复制之外的功能</span>
 
 ID_sideEffectCopyConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -8701,7 +8695,7 @@ MISRA C++ 2008 12-8-1
 <br/>
 <br/>
 
-### <span id="ID_this_selfJudgement">▌R8.17 赋值运算符应妥善处理参数就是自身对象时的情况</span>
+### <span id="ID_this_selfJudgement">▌R8.16 赋值运算符应妥善处理参数就是自身对象时的情况</span>
 
 ID_this_selfJudgement&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -8737,6 +8731,53 @@ A& A::operator = (const A& rhs) {
 
 #### 参考
 C++ Core Guidelines C.62  
+<br/>
+<br/>
+
+### <span id="ID_invalidWrite">▌R8.17 避免无效的写入</span>
+
+ID_invalidWrite&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
+
+<hr/>
+
+对于内存中的数据，写入之后应被读取，如果出现：  
+1. 写入后未经读取再次被无条件写入  
+2. 写入后未经读取即结束了函数的执行  
+  
+那么这样的写入是无效的，出现这种问题往往意味着逻辑错误或功能不完整。  
+  
+示例：
+```
+void foo(int& a, int& b) {
+    a = 123;  // Non-compliant
+    a = 456;
+}
+```
+例中参数a被赋值为123之后，无条件地又被赋值为456，显然第一次赋值是没有意义的，很有可能是漏掉了什么。  
+  
+又如：
+```
+int bar() {
+    int i = baz();
+    return i++;  // Non-compliant
+}
+```
+例中bar函数返回变量i自增前的值，自增运算是没有意义的。  
+  
+例外，变量的初始化可不受本规则限制，如：
+```
+int baz() {
+    int n = 0;  // OK
+    if (cond) {
+        n = 123;
+    } else {
+        n = 456;
+    }
+    return n;
+}
+```
+例中局部变量n初始化后经由if\-else分枝，在其两个分枝中都被赋值，也相当于被无条件写入，但变量在声明处初始化是值得提倡的，故这种情况不受本规则限制。
+<br/>
 <br/>
 <br/>
 
@@ -8861,6 +8902,12 @@ int& bar() {
     ....
     return i;   // Non-compliant
 }
+
+int&& baz() {
+    int i = 0;
+    ....
+    return std::move(i);   // Non-compliant
+}
 ```
 <br/>
 <br/>
@@ -8876,50 +8923,70 @@ C++ Core Guidelines F.43
 <br/>
 <br/>
 
-### <span id="ID_invalidWrite">▌R8.21 避免无效的写入</span>
+### <span id="ID_returnRValueReference">▌R8.21 函数不应返回右值引用</span>
 
-ID_invalidWrite&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
+ID_returnRValueReference&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
 <hr/>
 
-对于内存中的数据，写入之后应被读取，如果出现：  
-1. 写入后未经读取再次被无条件写入  
-2. 写入后未经读取即结束了函数的执行  
-  
-那么这样的写入是无效的，出现这种问题往往意味着逻辑错误或功能不完整。  
+函数返回右值引用的实际价值有限，而且很容易产生错误。  
   
 示例：
 ```
-void foo(int& a, int& b) {
-    a = 123;  // Non-compliant
-    a = 456;
+struct A {....};
+
+A&& foo() {  // Non-compliant
+    return A();
+}
+
+void bar() {
+    A&& a = foo();
+    access(a);     // Undefined behavior, ‘a’ refers to an invalid object
 }
 ```
-例中参数a被赋值为123之后，无条件地又被赋值为456，显然第一次赋值是没有意义的，很有可能是漏掉了什么。  
+例中foo函数返回类型为右值引用，这种情况下如果返回临时对象，那么一定是错误的，临时对象在函数返回前析构，返回的是无效引用。  
   
-又如：
+也不应返回局部对象的右值引用，如：
 ```
-int bar() {
-    int i = baz();
-    return i++;  // Non-compliant
+A&& baz() {  // Non-compliant
+    A a;
+    ....
+    return std::move(a);
 }
 ```
-例中bar函数返回变量i自增前的值，自增运算是没有意义的。  
+和返回临时对象一样，对象a在函数返回时析构，返回的也是无效引用。  
   
-例外，变量的初始化可不受本规则限制，如：
+应直接返回对象，而不是对象的右值引用：
 ```
-int baz() {
-    int n = 0;  // OK
-    if (cond) {
-        n = 123;
-    } else {
-        n = 456;
-    }
-    return n;
+A foo() {  // Compliant
+    return A();
+}
+
+A baz() {  // Compliant
+    A a;
+    ....
+    return a;
 }
 ```
-例中局部变量n初始化后经由if\-else分枝，在其两个分枝中都被赋值，也相当于被无条件写入，但变量在声明处初始化是值得提倡的，故这种情况不受本规则限制。
+对于函数引用的参数，或函数作用域之外的对象，如果通过move返回右值引用，如：
+```
+A&& baz(A& a) {  // Non-compliant
+    do_something_to(a);
+    return std::move(a);
+}
+```
+这种情况在运行机制上可能没有问题，但满足的实际需求较为有限，而且相当于将do\_something\_to(a)和move(a)两种事务合在一个函数中，在某种程度上违反了“[单一职责原则](https://en.wikipedia.org/wiki/Single-responsibility_principle)”。  
+  
+综上所述，应统一要求函数不应返回右值引用。
 <br/>
+<br/>
+
+#### 相关
+ID_localAddressFlowOut  
+<br/>
+
+#### 参考
+C++ Core Guidelines F.45  
 <br/>
 <br/>
 
@@ -9261,7 +9328,32 @@ C++ Core Guidelines F.3
 <br/>
 <br/>
 
-### <span id="ID_tooManyLambdaLines">▌R8.33 lambda表达式的行数应在规定范围之内</span>
+### <span id="ID_complexInlineFunction">▌R8.33 不应定义过于复杂的内联函数</span>
+
+ID_complexInlineFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
+
+<hr/>
+
+不适合将函数声明为内联的情况：  
+ ● 行数超过指定限制  
+ ● 存在循环或异常处理语句  
+ ● 存在switch分枝语句    
+ ● 函数存在递归实现  
+  
+建议内联函数的实现不要超过3个语句。
+<br/>
+<br/>
+
+#### 配置
+ID_function/maxInlineFunctionLineCount：内联函数行数上限，超过则报出  
+<br/>
+
+#### 参考
+C++ Core Guidelines F.5  
+<br/>
+<br/>
+
+### <span id="ID_tooManyLambdaLines">▌R8.34 lambda表达式的行数应在规定范围之内</span>
 
 ID_tooManyLambdaLines&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9294,7 +9386,7 @@ ID_function/maxLambdaLineCount：行数上限，超过则报出
 <br/>
 <br/>
 
-### <span id="ID_tooManyParams">▌R8.34 函数参数的数量应在规定范围之内</span>
+### <span id="ID_tooManyParams">▌R8.35 函数参数的数量应在规定范围之内</span>
 
 ID_tooManyParams&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9302,7 +9394,7 @@ ID_tooManyParams&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 函数参数过多，意味着：  
  ● 缺少合理的抽象机制：应将多而零散的参数按其内在联系封装成对象，从而方便地处理其逻辑关系，而不是简单地线性罗列  
- ● 违反“一个函数一个职责”理念：参数越多，函数处理的事务自然越多，代码的可维护性自然越差  
+ ● 违反“[单一职责原则](https://en.wikipedia.org/wiki/Single-responsibility_principle)”：参数越多，函数处理的事务自然越多，代码的可维护性自然越差  
   
 建议可供外部使用的全局函数、public或protected成员函数的参数不超过4个，内部使用的static函数、private成员函数的参数不超过8个。  
   
@@ -9340,7 +9432,7 @@ C++ Core Guidelines I.23
 <br/>
 <br/>
 
-### <span id="ID_forbidGotoBlocks">▌R8.35 禁止goto语句向平级的或更深层的其他作用域跳转</span>
+### <span id="ID_forbidGotoBlocks">▌R8.36 禁止goto语句向平级的或更深层的其他作用域跳转</span>
 
 ID_forbidGotoBlocks&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function warning
 
@@ -9382,7 +9474,7 @@ MISRA C++ 2008 6-6-1
 <br/>
 <br/>
 
-### <span id="ID_forbidGotoBack">▌R8.36 禁止goto语句向前跳转</span>
+### <span id="ID_forbidGotoBack">▌R8.37 禁止goto语句向前跳转</span>
 
 ID_forbidGotoBack&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function suggestion
 
@@ -9420,7 +9512,7 @@ MISRA C++ 2008 6-6-2
 <br/>
 <br/>
 
-### <span id="ID_forbidGoto">▌R8.37 禁用goto语句</span>
+### <span id="ID_forbidGoto">▌R8.38 禁用goto语句</span>
 
 ID_forbidGoto&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function suggestion
 
@@ -9443,7 +9535,7 @@ MISRA C 2012 15.1
 <br/>
 <br/>
 
-### <span id="ID_forbidLongjmp">▌R8.38 禁用setjmp、longjmp</span>
+### <span id="ID_forbidLongjmp">▌R8.39 禁用setjmp、longjmp</span>
 
 ID_forbidLongjmp&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function warning
 
@@ -9487,7 +9579,7 @@ C++ Core Guidelines SL.C.1
 <br/>
 <br/>
 
-### <span id="ID_recursion">▌R8.39 避免递归实现</span>
+### <span id="ID_recursion">▌R8.40 避免递归实现</span>
 
 ID_recursion&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9524,7 +9616,7 @@ MISRA C++ 2008 7-5-4
 <br/>
 <br/>
 
-### <span id="ID_functionRepetition">▌R8.40 不应存在重复的函数实现</span>
+### <span id="ID_functionRepetition">▌R8.41 不应存在重复的函数实现</span>
 
 ID_functionRepetition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
