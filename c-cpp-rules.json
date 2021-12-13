@@ -1548,12 +1548,36 @@
         "standard": "ISO/IEC 9899:1999 7.20.3,ISO/IEC 9899:2011 7.22.3",
         "reference": "MISRA C 2004 20.4,MISRA C 2012 21.3,MISRA C++ 2008 18-4-1,C++ Core Guidelines R.5"
         },
-    "ID_useAfterMove": {
-        "checkPoint": "对象被move之后不应再被使用",
+    "ID_unsuitableMove": {
+        "checkPoint": "合理使用std::move",
         "level": "warning",
-        "comment": "对象被move相当于将自己的数据转让给了别的对象，move之后对象的值在逻辑上不在有效，不应再被使用。",
+        "comment": "std::move的参数应为左值，返回值应直接作为接口的参数，除此之外的应用价值有限，且易产生错误。",
+        "tag": "expression",
+        "reference": "C++ Core Guidelines ES.56,C++ Core Guidelines F.18,C++ Core Guidelines F.48"
+        },
+    "ID_useAfterMove": {
+        "checkPoint": "对象被std::move之后不应再被使用",
+        "level": "warning",
+        "comment": "std::move宣告对象的数据即将被转移到其他对象，转移之后对象在逻辑上不再有效，不应再被使用。",
         "tag": "resource",
+        "related": "ID_unsuitableMove",
         "reference": "SEI CERT EXP63-CPP,C++ Core Guidelines ES.56"
+        },
+    "ID_unsuitableForward": {
+        "checkPoint": "合理使用std::forward",
+        "level": "warning",
+        "comment": "std::forward的参数应为“转发引用（forwarding references）”，返回值应直接作为接口的参数，除此之外的使用方式价值有限，且易产生错误。",
+        "tag": "expression",
+        "related": "ID_illForwardingReference",
+        "reference": "C++ Core Guidelines F.19"
+        },
+    "ID_illForwardingReference": {
+        "checkPoint": "“转发引用”只应作为std::forward的参数",
+        "level": "warning",
+        "comment": "“转发引用”只应作为std::forward的参数",
+        "tag": "function",
+        "related": "ID_unsuitableForward",
+        "reference": "C++ Core Guidelines F.19"
         },
     "ID_multiAllocation": {
         "checkPoint": "在一个语句中最多执行一次显式资源分配",
