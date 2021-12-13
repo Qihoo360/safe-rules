@@ -4,7 +4,7 @@
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对C、C++语言，本文收录了409种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对C、C++语言，本文收录了410种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
@@ -108,16 +108,17 @@
   - [R2.6 资源的分配与回收方法应配套使用](#ID_incompatibleDealloc)
   - [R2.7 用new分配的单个对象应该用delete释放，不应该用delete\[\]释放](#ID_excessiveDelete)
   - [R2.8 用new分配的数组应使用delete\[\]释放，不应使用delete释放](#ID_insufficientDelete)
-  - [R2.9 对象被move之后不应再被使用](#ID_useAfterMove)
-  - [R2.10 对象申请的资源须在析构函数中释放](#ID_memberDeallocation)
-  - [R2.11 如果构造函数抛出异常需确保相关资源没有泄漏](#ID_throwInConstructor)
-  - [R2.12 C\+\+代码中禁用malloc、free等内存分配与回收函数](#ID_forbidMallocAndFree)
-  - [R2.13 在一个语句中最多执行一次显式资源分配](#ID_multiAllocation)
-  - [R2.14 在栈上分配的空间以及非动态申请的资源不可被释放](#ID_illDealloc)
-  - [R2.15 避免使用在栈上分配内存的函数](#ID_stackAllocation)
-  - [R2.16 避免不必要的内存分配](#ID_unnecessaryAllocation)
-  - [R2.17 避免动态内存分配](#ID_dynamicAllocation)
-  - [R2.18 标准FILE对象不应被复制](#ID_copiedFILE)
+  - [R2.9 合理使用std::move](#ID_unsuitableMove)
+  - [R2.10 对象被move之后不应再被使用](#ID_useAfterMove)
+  - [R2.11 对象申请的资源须在析构函数中释放](#ID_memberDeallocation)
+  - [R2.12 如果构造函数抛出异常需确保相关资源没有泄漏](#ID_throwInConstructor)
+  - [R2.13 C\+\+代码中禁用malloc、free等内存分配与回收函数](#ID_forbidMallocAndFree)
+  - [R2.14 在一个语句中最多执行一次显式资源分配](#ID_multiAllocation)
+  - [R2.15 在栈上分配的空间以及非动态申请的资源不可被释放](#ID_illDealloc)
+  - [R2.16 避免使用在栈上分配内存的函数](#ID_stackAllocation)
+  - [R2.17 避免不必要的内存分配](#ID_unnecessaryAllocation)
+  - [R2.18 避免动态内存分配](#ID_dynamicAllocation)
+  - [R2.19 标准FILE对象不应被复制](#ID_copiedFILE)
 <br/>
 
 <span id="__Precompile">**[3. Precompile](#precompile)**</span>
@@ -1858,24 +1859,88 @@ C++ Core Guidelines ES.61
 <br/>
 <br/>
 
-### <span id="ID_useAfterMove">▌R2.9 对象被move之后不应再被使用</span>
+### <span id="ID_unsuitableMove">▌R2.9 合理使用std::move</span>
+
+ID_unsuitableMove&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
+
+<hr/>
+
+std::move的参数应为左值，返回值应直接作为接口的参数，除此之外的使用方式价值有限，且易产生错误。  
+  
+std::move将左值转为右值，意在宣告对象的数据将被转移到其他对象，之后应由适宜的接口接管右值的数据。  
+  
+示例：
+```
+string foo();
+string s = move(foo());  // Non-compliant
+```
+例中foo函数返回的是右值，如果再调用std::move是多余的，应将std::move去掉。  
+  
+又如：
+```
+string a("....");
+string&& b = move(a);  // Non-compliant
+string c(b);           // Not move construction
+```
+例中b是具有名称的右值引用，其实是左值，c仍是拷贝构造。  
+  
+应改为：
+```
+string a("....");
+string c(move(a));  // Compliant
+```
+这样构造c时会自动选取移动构造函数，避免了复制。  
+  
+又如：
+```
+string foo() {
+    string s("....");
+    ....
+    return move(s);  // Non-compliant
+}
+```
+例中foo函数返回对象，编译器会进行“[RVO（Return Value Optimization）](https://en.wikipedia.org/wiki/Copy_elision#Return_value_optimization)”优化，显式调用move是多余的，而且会干扰优化，不应出现return std::move(...)这种代码。  
+  
+应改为：
+```
+string foo() {
+    string s("....");
+    ....
+    return s;  // Compliant
+}
+```
+<br/>
+<br/>
+
+#### 参考
+C++ Core Guidelines ES.56  
+C++ Core Guidelines F.18  
+C++ Core Guidelines F.48  
+<br/>
+<br/>
+
+### <span id="ID_useAfterMove">▌R2.10 对象被move之后不应再被使用</span>
 
 ID_useAfterMove&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
 <hr/>
 
-对象被move相当于将自己的数据转让给了别的对象，move之后对象的值在逻辑上不在有效，不应再被使用。  
+std::move宣告对象的数据即将被转移到其他对象，转移之后对象在逻辑上不再有效，不应再被使用。  
   
 示例：
 ```
-string fun() {
-    string a = foo();
-    string b = bar();
+string fun(string a, string b) {
+    ....
     b = std::move(a);
     return a;  // Non-compliant
 }
 ```
+例中a对象的数据被转移到b对象，之后a对象不再有效，对a重新赋值之前再访问a将产生逻辑错误。
 <br/>
+<br/>
+
+#### 相关
+ID_unsuitableMove  
 <br/>
 
 #### 参考
@@ -1884,7 +1949,7 @@ C++ Core Guidelines ES.56
 <br/>
 <br/>
 
-### <span id="ID_memberDeallocation">▌R2.10 对象申请的资源须在析构函数中释放</span>
+### <span id="ID_memberDeallocation">▌R2.11 对象申请的资源须在析构函数中释放</span>
 
 ID_memberDeallocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -1922,7 +1987,7 @@ C++ Core Guidelines E.6
 <br/>
 <br/>
 
-### <span id="ID_throwInConstructor">▌R2.11 如果构造函数抛出异常需确保相关资源没有泄漏</span>
+### <span id="ID_throwInConstructor">▌R2.12 如果构造函数抛出异常需确保相关资源没有泄漏</span>
 
 ID_throwInConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -1989,7 +2054,7 @@ ID_memoryLeak
 <br/>
 <br/>
 
-### <span id="ID_forbidMallocAndFree">▌R2.12 C++代码中禁用malloc、free等内存分配与回收函数</span>
+### <span id="ID_forbidMallocAndFree">▌R2.13 C++代码中禁用malloc、free等内存分配与回收函数</span>
 
 ID_forbidMallocAndFree&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: resource warning
 
@@ -2024,7 +2089,7 @@ C++ Core Guidelines R.10
 <br/>
 <br/>
 
-### <span id="ID_multiAllocation">▌R2.13 在一个语句中最多执行一次显式资源分配</span>
+### <span id="ID_multiAllocation">▌R2.14 在一个语句中最多执行一次显式资源分配</span>
 
 ID_multiAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -2062,7 +2127,7 @@ C++ Core Guidelines R.13
 <br/>
 <br/>
 
-### <span id="ID_illDealloc">▌R2.14 在栈上分配的空间以及非动态申请的资源不可被释放</span>
+### <span id="ID_illDealloc">▌R2.15 在栈上分配的空间以及非动态申请的资源不可被释放</span>
 
 ID_illDealloc&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
 
@@ -2093,7 +2158,7 @@ ISO/IEC 14882:2011 3.7.4.2(4)-undefined
 <br/>
 <br/>
 
-### <span id="ID_stackAllocation">▌R2.15 避免使用在栈上分配内存的函数</span>
+### <span id="ID_stackAllocation">▌R2.16 避免使用在栈上分配内存的函数</span>
 
 ID_stackAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -2125,7 +2190,7 @@ SEI CERT MEM05-C
 <br/>
 <br/>
 
-### <span id="ID_unnecessaryAllocation">▌R2.16 避免不必要的内存分配</span>
+### <span id="ID_unnecessaryAllocation">▌R2.17 避免不必要的内存分配</span>
 
 ID_unnecessaryAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -2164,7 +2229,7 @@ ID_dynamicAllocation
 <br/>
 <br/>
 
-### <span id="ID_dynamicAllocation">▌R2.17 避免动态内存分配</span>
+### <span id="ID_dynamicAllocation">▌R2.18 避免动态内存分配</span>
 
 ID_dynamicAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -2204,7 +2269,7 @@ C++ Core Guidelines R.5
 <br/>
 <br/>
 
-### <span id="ID_copiedFILE">▌R2.18 标准FILE对象不应被复制</span>
+### <span id="ID_copiedFILE">▌R2.19 标准FILE对象不应被复制</span>
 
 ID_copiedFILE&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -16153,7 +16218,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这409条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在Issue区发表高见，管理员修正数据库后会在致谢列表中存档。
+&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这410条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在Issue区发表高见，管理员修正数据库后会在致谢列表中存档。
 
 &emsp;&emsp;此致
 
