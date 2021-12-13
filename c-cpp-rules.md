@@ -4,7 +4,7 @@
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对C、C++语言，本文收录了410种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对C、C++语言，本文收录了412种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
@@ -108,17 +108,16 @@
   - [R2.6 资源的分配与回收方法应配套使用](#ID_incompatibleDealloc)
   - [R2.7 用new分配的单个对象应该用delete释放，不应该用delete\[\]释放](#ID_excessiveDelete)
   - [R2.8 用new分配的数组应使用delete\[\]释放，不应使用delete释放](#ID_insufficientDelete)
-  - [R2.9 合理使用std::move](#ID_unsuitableMove)
-  - [R2.10 对象被move之后不应再被使用](#ID_useAfterMove)
-  - [R2.11 对象申请的资源须在析构函数中释放](#ID_memberDeallocation)
-  - [R2.12 如果构造函数抛出异常需确保相关资源没有泄漏](#ID_throwInConstructor)
-  - [R2.13 C\+\+代码中禁用malloc、free等内存分配与回收函数](#ID_forbidMallocAndFree)
-  - [R2.14 在一个语句中最多执行一次显式资源分配](#ID_multiAllocation)
-  - [R2.15 在栈上分配的空间以及非动态申请的资源不可被释放](#ID_illDealloc)
-  - [R2.16 避免使用在栈上分配内存的函数](#ID_stackAllocation)
-  - [R2.17 避免不必要的内存分配](#ID_unnecessaryAllocation)
-  - [R2.18 避免动态内存分配](#ID_dynamicAllocation)
-  - [R2.19 标准FILE对象不应被复制](#ID_copiedFILE)
+  - [R2.9 对象申请的资源须在析构函数中释放](#ID_memberDeallocation)
+  - [R2.10 如果构造函数抛出异常需确保相关资源没有泄漏](#ID_throwInConstructor)
+  - [R2.11 C\+\+代码中禁用malloc、free等内存分配与回收函数](#ID_forbidMallocAndFree)
+  - [R2.12 在一个语句中最多执行一次显式资源分配](#ID_multiAllocation)
+  - [R2.13 在栈上分配的空间以及非动态申请的资源不可被释放](#ID_illDealloc)
+  - [R2.14 避免使用在栈上分配内存的函数](#ID_stackAllocation)
+  - [R2.15 避免不必要的内存分配](#ID_unnecessaryAllocation)
+  - [R2.16 避免动态内存分配](#ID_dynamicAllocation)
+  - [R2.17 标准FILE对象不应被复制](#ID_copiedFILE)
+  - [R2.18 对象被std::move之后不应再被使用](#ID_useAfterMove)
 <br/>
 
 <span id="__Precompile">**[3. Precompile](#precompile)**</span>
@@ -315,36 +314,37 @@
   - [R8.9 成员须在声明处或构造时初始化](#ID_memberInitialization)
   - [R8.10 基类对象构造完毕之前不可调用成员函数](#ID_illMemberCall)
   - [R8.11 在面向构造或析构函数体的catch块中不可访问非静态成员](#ID_illMemberAccess)
-  - [R8.12 成员初始化应遵循声明的顺序](#ID_disorderedInitialization)
-  - [R8.13 在构造函数中不应调用虚函数](#ID_virtualCallInConstructor)
-  - [R8.14 在析构函数中不应调用虚函数](#ID_virtualCallInDestuctor)
-  - [R8.15 拷贝构造函数应避免实现复制之外的功能](#ID_sideEffectCopyConstructor)
-  - [R8.16 赋值运算符应妥善处理参数就是自身对象时的情况](#ID_this_selfJudgement)
-  - [R8.17 避免无效的写入](#ID_invalidWrite)
-  - [R8.18 不应存在得不到执行机会的代码](#ID_unreachableCode)
-  - [R8.19 有返回值的函数其所有分枝都应有明确的返回值](#ID_notAllBranchReturn)
-  - [R8.20 不可返回局部对象的地址或引用](#ID_localAddressFlowOut)
-  - [R8.21 函数不应返回右值引用](#ID_returnRValueReference)
-  - [R8.22 函数返回值不应为const对象](#ID_returnConstObject)
-  - [R8.23 返回值应与函数的返回类型相符](#ID_returnOdd)
-  - [R8.24 函数返回值不应为相同的常量](#ID_returnSameConst)
-  - [R8.25 基本类型的返回值不应使用const修饰](#ID_returnSuperfluousConst)
-  - [R8.26 属性为noreturn的函数中不应出现return语句](#ID_unsuitableReturn)
-  - [R8.27 属性为noreturn的函数返回类型只应为void](#ID_unsuitableReturnType)
-  - [R8.28 不应出现多余的跳转语句](#ID_redundantJump)
-  - [R8.29 va\_start或va\_copy应配合va\_end使用](#ID_incompleteVAMacros)
-  - [R8.30 函数模版不应被特化](#ID_functionSpecialization)
-  - [R8.31 函数的标签数量应在规定范围之内](#ID_tooManyLabels)
-  - [R8.32 函数的行数应在规定范围之内](#ID_tooManyLines)
-  - [R8.33 不应定义过于复杂的内联函数](#ID_complexInlineFunction)
-  - [R8.34 lambda表达式的行数应在规定范围之内](#ID_tooManyLambdaLines)
-  - [R8.35 函数参数的数量应在规定范围之内](#ID_tooManyParams)
-  - [R8.36 禁止goto语句向平级的或更深层的其他作用域跳转](#ID_forbidGotoBlocks)
-  - [R8.37 禁止goto语句向前跳转](#ID_forbidGotoBack)
-  - [R8.38 禁用goto语句](#ID_forbidGoto)
-  - [R8.39 禁用setjmp、longjmp](#ID_forbidLongjmp)
-  - [R8.40 避免递归实现](#ID_recursion)
-  - [R8.41 不应存在重复的函数实现](#ID_functionRepetition)
+  - [R8.12 “转发引用”只应作为std::forward的参数](#ID_illForwardingReference)
+  - [R8.13 成员初始化应遵循声明的顺序](#ID_disorderedInitialization)
+  - [R8.14 在构造函数中不应调用虚函数](#ID_virtualCallInConstructor)
+  - [R8.15 在析构函数中不应调用虚函数](#ID_virtualCallInDestuctor)
+  - [R8.16 拷贝构造函数应避免实现复制之外的功能](#ID_sideEffectCopyConstructor)
+  - [R8.17 赋值运算符应妥善处理参数就是自身对象时的情况](#ID_this_selfJudgement)
+  - [R8.18 避免无效的写入](#ID_invalidWrite)
+  - [R8.19 不应存在得不到执行机会的代码](#ID_unreachableCode)
+  - [R8.20 有返回值的函数其所有分枝都应有明确的返回值](#ID_notAllBranchReturn)
+  - [R8.21 不可返回局部对象的地址或引用](#ID_localAddressFlowOut)
+  - [R8.22 函数不应返回右值引用](#ID_returnRValueReference)
+  - [R8.23 函数返回值不应为const对象](#ID_returnConstObject)
+  - [R8.24 返回值应与函数的返回类型相符](#ID_returnOdd)
+  - [R8.25 函数返回值不应为相同的常量](#ID_returnSameConst)
+  - [R8.26 基本类型的返回值不应使用const修饰](#ID_returnSuperfluousConst)
+  - [R8.27 属性为noreturn的函数中不应出现return语句](#ID_unsuitableReturn)
+  - [R8.28 属性为noreturn的函数返回类型只应为void](#ID_unsuitableReturnType)
+  - [R8.29 不应出现多余的跳转语句](#ID_redundantJump)
+  - [R8.30 va\_start或va\_copy应配合va\_end使用](#ID_incompleteVAMacros)
+  - [R8.31 函数模版不应被特化](#ID_functionSpecialization)
+  - [R8.32 函数的标签数量应在规定范围之内](#ID_tooManyLabels)
+  - [R8.33 函数的行数应在规定范围之内](#ID_tooManyLines)
+  - [R8.34 不应定义过于复杂的内联函数](#ID_complexInlineFunction)
+  - [R8.35 lambda表达式的行数应在规定范围之内](#ID_tooManyLambdaLines)
+  - [R8.36 函数参数的数量应在规定范围之内](#ID_tooManyParams)
+  - [R8.37 禁止goto语句向平级的或更深层的其他作用域跳转](#ID_forbidGotoBlocks)
+  - [R8.38 禁止goto语句向前跳转](#ID_forbidGotoBack)
+  - [R8.39 禁用goto语句](#ID_forbidGoto)
+  - [R8.40 禁用setjmp、longjmp](#ID_forbidLongjmp)
+  - [R8.41 避免递归实现](#ID_recursion)
+  - [R8.42 不应存在重复的函数实现](#ID_functionRepetition)
 <br/>
 
 <span id="__Control">**[9. Control](#control)**</span>
@@ -462,8 +462,10 @@
     - [R10.4.4 非基本类型的对象不应传入可变参数列表](#ID_userObjectAsVariadicArgument)
     - [R10.4.5 C风格的格式化字符串与其参数的个数应严格一致](#ID_inconsistentFormatArgNum)
     - [R10.4.6 C风格的格式化字符串与其参数的类型应严格一致](#ID_inconsistentFormatArgType)
-    - [R10.4.7 不应显式调用析构函数](#ID_explicitDtorCall)
-    - [R10.4.8 在C\+\+代码中禁用C风格字符串格式化方法](#ID_forbidCStringFormat)
+    - [R10.4.7 合理使用std::move](#ID_unsuitableMove)
+    - [R10.4.8 合理使用std::forward](#ID_unsuitableForward)
+    - [R10.4.9 不应显式调用析构函数](#ID_explicitDtorCall)
+    - [R10.4.10 在C\+\+代码中禁用C风格字符串格式化方法](#ID_forbidCStringFormat)
   - [10.5 Sizeof](#expression.sizeof)
     - [R10.5.1 sizeof不应作用于有副作用的表达式](#ID_sizeof_sideEffect)
     - [R10.5.2 sizeof的结果不应与0以及负数比较](#ID_sizeof_zeroComparison)
@@ -1859,97 +1861,7 @@ C++ Core Guidelines ES.61
 <br/>
 <br/>
 
-### <span id="ID_unsuitableMove">▌R2.9 合理使用std::move</span>
-
-ID_unsuitableMove&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
-
-<hr/>
-
-std::move的参数应为左值，返回值应直接作为接口的参数，除此之外的使用方式价值有限，且易产生错误。  
-  
-std::move将左值转为右值，意在宣告对象的数据将被转移到其他对象，之后应由适宜的接口接管右值的数据。  
-  
-示例：
-```
-string foo();
-string s = move(foo());  // Non-compliant
-```
-例中foo函数返回的是右值，如果再调用std::move是多余的，应将std::move去掉。  
-  
-又如：
-```
-string a("....");
-string&& b = move(a);  // Non-compliant
-string c(b);           // Not move construction
-```
-例中b是具有名称的右值引用，其实是左值，c仍是拷贝构造。  
-  
-应改为：
-```
-string a("....");
-string c(move(a));  // Compliant
-```
-这样构造c时会自动选取移动构造函数，避免了复制。  
-  
-又如：
-```
-string foo() {
-    string s("....");
-    ....
-    return move(s);  // Non-compliant
-}
-```
-例中foo函数返回对象，编译器会进行“[RVO（Return Value Optimization）](https://en.wikipedia.org/wiki/Copy_elision#Return_value_optimization)”优化，显式调用move是多余的，而且会干扰优化，不应出现return std::move(...)这种代码。  
-  
-应改为：
-```
-string foo() {
-    string s("....");
-    ....
-    return s;  // Compliant
-}
-```
-<br/>
-<br/>
-
-#### 参考
-C++ Core Guidelines ES.56  
-C++ Core Guidelines F.18  
-C++ Core Guidelines F.48  
-<br/>
-<br/>
-
-### <span id="ID_useAfterMove">▌R2.10 对象被move之后不应再被使用</span>
-
-ID_useAfterMove&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
-
-<hr/>
-
-std::move宣告对象的数据即将被转移到其他对象，转移之后对象在逻辑上不再有效，不应再被使用。  
-  
-示例：
-```
-string fun(string a, string b) {
-    ....
-    b = std::move(a);
-    return a;  // Non-compliant
-}
-```
-例中a对象的数据被转移到b对象，之后a对象不再有效，对a重新赋值之前再访问a将产生逻辑错误。
-<br/>
-<br/>
-
-#### 相关
-ID_unsuitableMove  
-<br/>
-
-#### 参考
-SEI CERT EXP63-CPP  
-C++ Core Guidelines ES.56  
-<br/>
-<br/>
-
-### <span id="ID_memberDeallocation">▌R2.11 对象申请的资源须在析构函数中释放</span>
+### <span id="ID_memberDeallocation">▌R2.9 对象申请的资源须在析构函数中释放</span>
 
 ID_memberDeallocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -1987,7 +1899,7 @@ C++ Core Guidelines E.6
 <br/>
 <br/>
 
-### <span id="ID_throwInConstructor">▌R2.12 如果构造函数抛出异常需确保相关资源没有泄漏</span>
+### <span id="ID_throwInConstructor">▌R2.10 如果构造函数抛出异常需确保相关资源没有泄漏</span>
 
 ID_throwInConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -2054,7 +1966,7 @@ ID_memoryLeak
 <br/>
 <br/>
 
-### <span id="ID_forbidMallocAndFree">▌R2.13 C++代码中禁用malloc、free等内存分配与回收函数</span>
+### <span id="ID_forbidMallocAndFree">▌R2.11 C++代码中禁用malloc、free等内存分配与回收函数</span>
 
 ID_forbidMallocAndFree&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: resource warning
 
@@ -2089,7 +2001,7 @@ C++ Core Guidelines R.10
 <br/>
 <br/>
 
-### <span id="ID_multiAllocation">▌R2.14 在一个语句中最多执行一次显式资源分配</span>
+### <span id="ID_multiAllocation">▌R2.12 在一个语句中最多执行一次显式资源分配</span>
 
 ID_multiAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -2127,7 +2039,7 @@ C++ Core Guidelines R.13
 <br/>
 <br/>
 
-### <span id="ID_illDealloc">▌R2.15 在栈上分配的空间以及非动态申请的资源不可被释放</span>
+### <span id="ID_illDealloc">▌R2.13 在栈上分配的空间以及非动态申请的资源不可被释放</span>
 
 ID_illDealloc&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
 
@@ -2158,7 +2070,7 @@ ISO/IEC 14882:2011 3.7.4.2(4)-undefined
 <br/>
 <br/>
 
-### <span id="ID_stackAllocation">▌R2.16 避免使用在栈上分配内存的函数</span>
+### <span id="ID_stackAllocation">▌R2.14 避免使用在栈上分配内存的函数</span>
 
 ID_stackAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -2190,7 +2102,7 @@ SEI CERT MEM05-C
 <br/>
 <br/>
 
-### <span id="ID_unnecessaryAllocation">▌R2.17 避免不必要的内存分配</span>
+### <span id="ID_unnecessaryAllocation">▌R2.15 避免不必要的内存分配</span>
 
 ID_unnecessaryAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -2229,7 +2141,7 @@ ID_dynamicAllocation
 <br/>
 <br/>
 
-### <span id="ID_dynamicAllocation">▌R2.18 避免动态内存分配</span>
+### <span id="ID_dynamicAllocation">▌R2.16 避免动态内存分配</span>
 
 ID_dynamicAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -2269,7 +2181,7 @@ C++ Core Guidelines R.5
 <br/>
 <br/>
 
-### <span id="ID_copiedFILE">▌R2.19 标准FILE对象不应被复制</span>
+### <span id="ID_copiedFILE">▌R2.17 标准FILE对象不应被复制</span>
 
 ID_copiedFILE&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -2295,6 +2207,36 @@ ISO/IEC 9899:2011 7.21.3(6)
 
 #### 参考
 MISRA C 2012 22.5  
+<br/>
+<br/>
+
+### <span id="ID_useAfterMove">▌R2.18 对象被std::move之后不应再被使用</span>
+
+ID_useAfterMove&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
+
+<hr/>
+
+std::move宣告对象的数据即将被转移到其他对象，转移之后对象在逻辑上不再有效，不应再被使用。  
+  
+示例：
+```
+string fun(string a, string b) {
+    ....
+    b = std::move(a);
+    return a;  // Non-compliant
+}
+```
+例中a对象的数据被转移到b对象，之后a对象不再有效，对a重新赋值之前再访问a将产生逻辑错误。
+<br/>
+<br/>
+
+#### 相关
+ID_unsuitableMove  
+<br/>
+
+#### 参考
+SEI CERT EXP63-CPP  
+C++ Core Guidelines ES.56  
 <br/>
 <br/>
 
@@ -8582,7 +8524,37 @@ MISRA C++ 2008 15-3-3
 <br/>
 <br/>
 
-### <span id="ID_disorderedInitialization">▌R8.12 成员初始化应遵循声明的顺序</span>
+### <span id="ID_illForwardingReference">▌R8.12 “转发引用”只应作为std::forward的参数</span>
+
+ID_illForwardingReference&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
+
+<hr/>
+
+不应混淆“转发引用”与右值引用，除作为std::forward的参数之外，不应对“转发引用”再有任何操作。  
+  
+“转发引用”是类型为T&&的参数，T为函数模板类型，无论左值还是右值均可被这种参数接受，而且const、volatile等属性也会被忽略，由于含有不确定的状态，所以直接操作“转发引用”是不妥的，只应通过std::forward<T>交由合适的接口处理。  
+  
+示例：
+```
+template <class T>
+void bar(T&& x) {
+    x.foo();   // Non-compliant
+}
+```
+例中参数x是“转发引用”，并不是一般的右值引用，在bar函数内部并不知道x是左值还是右值，而且x对应的实际参数也可能被const或volatile修饰，所以直接调用x的foo成员会引发逻辑上的混乱。
+<br/>
+<br/>
+
+#### 相关
+ID_unsuitableForward  
+<br/>
+
+#### 参考
+C++ Core Guidelines F.19  
+<br/>
+<br/>
+
+### <span id="ID_disorderedInitialization">▌R8.13 成员初始化应遵循声明的顺序</span>
 
 ID_disorderedInitialization&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
@@ -8641,7 +8613,7 @@ C++ Core Guidelines C.47
 <br/>
 <br/>
 
-### <span id="ID_virtualCallInConstructor">▌R8.13 在构造函数中不应调用虚函数</span>
+### <span id="ID_virtualCallInConstructor">▌R8.14 在构造函数中不应调用虚函数</span>
 
 ID_virtualCallInConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -8677,7 +8649,7 @@ Effective C++ item 9
 <br/>
 <br/>
 
-### <span id="ID_virtualCallInDestuctor">▌R8.14 在析构函数中不应调用虚函数</span>
+### <span id="ID_virtualCallInDestuctor">▌R8.15 在析构函数中不应调用虚函数</span>
 
 ID_virtualCallInDestuctor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -8710,7 +8682,7 @@ Effective C++ item 9
 <br/>
 <br/>
 
-### <span id="ID_sideEffectCopyConstructor">▌R8.15 拷贝构造函数应避免实现复制之外的功能</span>
+### <span id="ID_sideEffectCopyConstructor">▌R8.16 拷贝构造函数应避免实现复制之外的功能</span>
 
 ID_sideEffectCopyConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -8760,7 +8732,7 @@ MISRA C++ 2008 12-8-1
 <br/>
 <br/>
 
-### <span id="ID_this_selfJudgement">▌R8.16 赋值运算符应妥善处理参数就是自身对象时的情况</span>
+### <span id="ID_this_selfJudgement">▌R8.17 赋值运算符应妥善处理参数就是自身对象时的情况</span>
 
 ID_this_selfJudgement&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -8799,7 +8771,7 @@ C++ Core Guidelines C.62
 <br/>
 <br/>
 
-### <span id="ID_invalidWrite">▌R8.17 避免无效的写入</span>
+### <span id="ID_invalidWrite">▌R8.18 避免无效的写入</span>
 
 ID_invalidWrite&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -8846,7 +8818,7 @@ int baz() {
 <br/>
 <br/>
 
-### <span id="ID_unreachableCode">▌R8.18 不应存在得不到执行机会的代码</span>
+### <span id="ID_unreachableCode">▌R8.19 不应存在得不到执行机会的代码</span>
 
 ID_unreachableCode&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
@@ -8899,7 +8871,7 @@ MISRA C++ 2008 0-1-1
 <br/>
 <br/>
 
-### <span id="ID_notAllBranchReturn">▌R8.19 有返回值的函数其所有分枝都应有明确的返回值</span>
+### <span id="ID_notAllBranchReturn">▌R8.20 有返回值的函数其所有分枝都应有明确的返回值</span>
 
 ID_notAllBranchReturn&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
@@ -8946,7 +8918,7 @@ MISRA C++ 2008 8-4-3
 <br/>
 <br/>
 
-### <span id="ID_localAddressFlowOut">▌R8.20 不可返回局部对象的地址或引用</span>
+### <span id="ID_localAddressFlowOut">▌R8.21 不可返回局部对象的地址或引用</span>
 
 ID_localAddressFlowOut&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
@@ -8988,7 +8960,7 @@ C++ Core Guidelines F.43
 <br/>
 <br/>
 
-### <span id="ID_returnRValueReference">▌R8.21 函数不应返回右值引用</span>
+### <span id="ID_returnRValueReference">▌R8.22 函数不应返回右值引用</span>
 
 ID_returnRValueReference&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
@@ -9055,7 +9027,7 @@ C++ Core Guidelines F.45
 <br/>
 <br/>
 
-### <span id="ID_returnConstObject">▌R8.22 函数返回值不应为const对象</span>
+### <span id="ID_returnConstObject">▌R8.23 函数返回值不应为const对象</span>
 
 ID_returnConstObject&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
@@ -9090,7 +9062,7 @@ C++ Core Guidelines F.20
 <br/>
 <br/>
 
-### <span id="ID_returnOdd">▌R8.23 返回值应与函数的返回类型相符</span>
+### <span id="ID_returnOdd">▌R8.24 返回值应与函数的返回类型相符</span>
 
 ID_returnOdd&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9117,7 +9089,7 @@ MISRA C++ 2008 4-10-1
 <br/>
 <br/>
 
-### <span id="ID_returnSameConst">▌R8.24 函数返回值不应为相同的常量</span>
+### <span id="ID_returnSameConst">▌R8.25 函数返回值不应为相同的常量</span>
 
 ID_returnSameConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9143,7 +9115,7 @@ bool foo(int a) {
 <br/>
 <br/>
 
-### <span id="ID_returnSuperfluousConst">▌R8.25 基本类型的返回值不应使用const修饰</span>
+### <span id="ID_returnSuperfluousConst">▌R8.26 基本类型的返回值不应使用const修饰</span>
 
 ID_returnSuperfluousConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9174,7 +9146,7 @@ ISO/IEC 14882:2011 3.10(1)
 <br/>
 <br/>
 
-### <span id="ID_unsuitableReturn">▌R8.26 属性为noreturn的函数中不应出现return语句</span>
+### <span id="ID_unsuitableReturn">▌R8.27 属性为noreturn的函数中不应出现return语句</span>
 
 ID_unsuitableReturn&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9199,7 +9171,7 @@ ISO/IEC 14882:2011 7.6.3(2)-undefined
 <br/>
 <br/>
 
-### <span id="ID_unsuitableReturnType">▌R8.27 属性为noreturn的函数返回类型只应为void</span>
+### <span id="ID_unsuitableReturnType">▌R8.28 属性为noreturn的函数返回类型只应为void</span>
 
 ID_unsuitableReturnType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9220,7 +9192,7 @@ ISO/IEC 14882:2011 7.6.3(2)-undefined
 <br/>
 <br/>
 
-### <span id="ID_redundantJump">▌R8.28 不应出现多余的跳转语句</span>
+### <span id="ID_redundantJump">▌R8.29 不应出现多余的跳转语句</span>
 
 ID_redundantJump&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9252,7 +9224,7 @@ L:
 <br/>
 <br/>
 
-### <span id="ID_incompleteVAMacros">▌R8.29 va_start或va_copy应配合va_end使用</span>
+### <span id="ID_incompleteVAMacros">▌R8.30 va_start或va_copy应配合va_end使用</span>
 
 ID_incompleteVAMacros&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9283,7 +9255,7 @@ ISO/IEC 9899:2011 7.16.1.3(2)-undefined
 <br/>
 <br/>
 
-### <span id="ID_functionSpecialization">▌R8.30 函数模版不应被特化</span>
+### <span id="ID_functionSpecialization">▌R8.31 函数模版不应被特化</span>
 
 ID_functionSpecialization&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9331,7 +9303,7 @@ MISRA C++ 2008 14-8-1
 <br/>
 <br/>
 
-### <span id="ID_tooManyLabels">▌R8.31 函数的标签数量应在规定范围之内</span>
+### <span id="ID_tooManyLabels">▌R8.32 函数的标签数量应在规定范围之内</span>
 
 ID_tooManyLabels&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9363,7 +9335,7 @@ ID_function/maxLabelCount：标签数量上限，超过则报出
 <br/>
 <br/>
 
-### <span id="ID_tooManyLines">▌R8.32 函数的行数应在规定范围之内</span>
+### <span id="ID_tooManyLines">▌R8.33 函数的行数应在规定范围之内</span>
 
 ID_tooManyLines&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9393,7 +9365,7 @@ C++ Core Guidelines F.3
 <br/>
 <br/>
 
-### <span id="ID_complexInlineFunction">▌R8.33 不应定义过于复杂的内联函数</span>
+### <span id="ID_complexInlineFunction">▌R8.34 不应定义过于复杂的内联函数</span>
 
 ID_complexInlineFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
@@ -9418,7 +9390,7 @@ C++ Core Guidelines F.5
 <br/>
 <br/>
 
-### <span id="ID_tooManyLambdaLines">▌R8.34 lambda表达式的行数应在规定范围之内</span>
+### <span id="ID_tooManyLambdaLines">▌R8.35 lambda表达式的行数应在规定范围之内</span>
 
 ID_tooManyLambdaLines&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9451,7 +9423,7 @@ ID_function/maxLambdaLineCount：行数上限，超过则报出
 <br/>
 <br/>
 
-### <span id="ID_tooManyParams">▌R8.35 函数参数的数量应在规定范围之内</span>
+### <span id="ID_tooManyParams">▌R8.36 函数参数的数量应在规定范围之内</span>
 
 ID_tooManyParams&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9497,7 +9469,7 @@ C++ Core Guidelines I.23
 <br/>
 <br/>
 
-### <span id="ID_forbidGotoBlocks">▌R8.36 禁止goto语句向平级的或更深层的其他作用域跳转</span>
+### <span id="ID_forbidGotoBlocks">▌R8.37 禁止goto语句向平级的或更深层的其他作用域跳转</span>
 
 ID_forbidGotoBlocks&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function warning
 
@@ -9539,7 +9511,7 @@ MISRA C++ 2008 6-6-1
 <br/>
 <br/>
 
-### <span id="ID_forbidGotoBack">▌R8.37 禁止goto语句向前跳转</span>
+### <span id="ID_forbidGotoBack">▌R8.38 禁止goto语句向前跳转</span>
 
 ID_forbidGotoBack&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function suggestion
 
@@ -9577,7 +9549,7 @@ MISRA C++ 2008 6-6-2
 <br/>
 <br/>
 
-### <span id="ID_forbidGoto">▌R8.38 禁用goto语句</span>
+### <span id="ID_forbidGoto">▌R8.39 禁用goto语句</span>
 
 ID_forbidGoto&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function suggestion
 
@@ -9600,7 +9572,7 @@ MISRA C 2012 15.1
 <br/>
 <br/>
 
-### <span id="ID_forbidLongjmp">▌R8.39 禁用setjmp、longjmp</span>
+### <span id="ID_forbidLongjmp">▌R8.40 禁用setjmp、longjmp</span>
 
 ID_forbidLongjmp&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function warning
 
@@ -9644,7 +9616,7 @@ C++ Core Guidelines SL.C.1
 <br/>
 <br/>
 
-### <span id="ID_recursion">▌R8.40 避免递归实现</span>
+### <span id="ID_recursion">▌R8.41 避免递归实现</span>
 
 ID_recursion&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9681,7 +9653,7 @@ MISRA C++ 2008 7-5-4
 <br/>
 <br/>
 
-### <span id="ID_functionRepetition">▌R8.41 不应存在重复的函数实现</span>
+### <span id="ID_functionRepetition">▌R8.42 不应存在重复的函数实现</span>
 
 ID_functionRepetition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
@@ -13306,7 +13278,143 @@ SEI CERT FIO47-C
 <br/>
 <br/>
 
-### <span id="ID_explicitDtorCall">▌R10.4.7 不应显式调用析构函数</span>
+### <span id="ID_unsuitableMove">▌R10.4.7 合理使用std::move</span>
+
+ID_unsuitableMove&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
+
+<hr/>
+
+std::move的参数应为左值，返回值应直接作为接口的参数，除此之外的使用方式价值有限，且易产生错误。  
+  
+std::move将左值转为右值，意在宣告对象的数据将被转移到其他对象，之后应由适宜的接口接管右值的数据。  
+  
+示例：
+```
+string foo();
+string s = move(foo());  // Non-compliant
+```
+例中foo函数返回的是右值，如果再调用std::move是多余的，应将std::move去掉。  
+  
+又如：
+```
+string a("....");
+string&& b = move(a);  // Non-compliant
+string c(b);           // Not move construction
+```
+例中b是具有名称的右值引用，其实是左值，c仍是拷贝构造。  
+  
+应改为：
+```
+string a("....");
+string c(move(a));  // Compliant
+```
+这样构造c时会自动选取移动构造函数，避免了复制。  
+  
+又如：
+```
+string foo() {
+    string s("....");
+    ....
+    return move(s);  // Non-compliant
+}
+```
+例中foo函数返回对象，编译器会进行“[RVO（Return Value Optimization）](https://en.wikipedia.org/wiki/Copy_elision#Return_value_optimization)”优化，显式调用move是多余的，而且会干扰优化，不应出现return std::move(...)这种代码。  
+  
+应改为：
+```
+string foo() {
+    string s("....");
+    ....
+    return s;  // Compliant
+}
+```
+<br/>
+<br/>
+
+#### 参考
+C++ Core Guidelines ES.56  
+C++ Core Guidelines F.18  
+C++ Core Guidelines F.48  
+<br/>
+<br/>
+
+### <span id="ID_unsuitableForward">▌R10.4.8 合理使用std::forward</span>
+
+ID_unsuitableForward&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
+
+<hr/>
+
+std::forward的参数应为“[转发引用（forwarding references）](https://en.cppreference.com/w/cpp/language/reference#Forwarding_references)”，返回值应直接作为接口的参数，除此之外的使用方式价值有限，且易产生错误。  
+  
+“转发引用”是类型为T&&的参数，T为函数模板类型，无论左值还是右值均可被这种参数接受，而且const、volatile等属性也会被忽略，这种参数应通过std::forward<T>交由合适的接口处理。  
+  
+关于“转发引用”，可参见ID\_illForwardingReference的进一步说明。  
+  
+示例：
+```
+struct A { .... };
+
+void foo(A&);        // #1
+void foo(const A&);  // #2
+void foo(A&&);       // #3
+
+template <class T>
+void bar(T&& x) {    // Forwarding reference
+    foo(forward<T>(x));  // Compliant
+}
+
+void baz(const A& a) {
+    A b(a);
+    bar(b);    // Calls #1
+
+    bar(a);    // Calls #2
+
+    bar(A());  // Calls #3
+}
+```
+例中bar接口的参数为转发引用，在baz函数中，bar接口将左值、常量引用和临时对象分别转发给对应的foo接口，这种模式称为“完美转发”，std::forward应在这种模式内使用。  
+  
+下面给出几种错误示例：
+```
+void bar(A&& x) {
+    foo(forward<A>(x));  // Non-compliant, ‘x’ is not a forwarding reference
+}
+
+template <class T>
+struct X {
+    void bar(T&& x) {
+        foo(forward<T>(x));  // Non-compliant, ‘x’ is not a forwarding reference
+    }
+};
+```
+注意，“转发引用”的类型只能是函数模板类型，非模版和类模板不构成“转发引用”。  
+
+```
+template <class T>
+void bar(T&& x) {
+    T y = forward<T>(x);  // Non-compliant, ‘y’ is always an lvalue
+    foo(y);
+}
+
+template <class T>
+void bar(T&& x) {
+    foo(forward<T&>(x));  // Non-compliant, use ‘forward<T>(x)’
+}
+```
+forward的返回值应直接作为接口的参数，且只应使用forward<T>进行转发。
+<br/>
+<br/>
+
+#### 相关
+ID_illForwardingReference  
+<br/>
+
+#### 参考
+C++ Core Guidelines F.19  
+<br/>
+<br/>
+
+### <span id="ID_explicitDtorCall">▌R10.4.9 不应显式调用析构函数</span>
 
 ID_explicitDtorCall&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: expression suggestion
 
@@ -13342,7 +13450,7 @@ ID_missingResetNull
 <br/>
 <br/>
 
-### <span id="ID_forbidCStringFormat">▌R10.4.8 在C++代码中禁用C风格字符串格式化方法</span>
+### <span id="ID_forbidCStringFormat">▌R10.4.10 在C++代码中禁用C风格字符串格式化方法</span>
 
 ID_forbidCStringFormat&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: expression suggestion
 
@@ -16218,7 +16326,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这410条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在Issue区发表高见，管理员修正数据库后会在致谢列表中存档。
+&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这412条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在Issue区发表高见，管理员修正数据库后会在致谢列表中存档。
 
 &emsp;&emsp;此致
 
