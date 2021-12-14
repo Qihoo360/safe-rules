@@ -210,6 +210,15 @@
         "tag": "function",
         "reference": "C++ Core Guidelines F.2,C++ Core Guidelines F.3"
         },
+    "ID_unsuitableCapture": {
+        "checkPoint": "合理设置lambda表达式对变量的捕获方式",
+        "level": "warning",
+        "comment": "如果lambda表达式只在函数内部使用，可采用捕获引用的方式；如果lambda表达式可以超出函数作用域，应采用捕获值的方式。",
+        "tag": "function",
+        "standard": "ISO/IEC 14882:2011 5.1.2(7)",
+        "related": "ID_localAddressFlowOut",
+        "reference": "C++ Core Guidelines F.52,C++ Core Guidelines F.53,C++ Core Guidelines F.54"
+        },
     "ID_tooManyLambdaLines": {
         "checkPoint": "lambda表达式的行数应在规定范围之内",
         "level": "warning",
@@ -1011,7 +1020,7 @@
         "reference": "MISRA C++ 2008 16-2-5"
         },
     "ID_forbidCHeaderInCpp": {
-        "checkPoint": "在C++代码中不应引用C头文件",
+        "checkPoint": "C++代码不应引用C头文件",
         "level": "warning",
         "comment": "在C++语言中应使用C++标准头文件，stdio.h、stdlib.h等C语言头文件不在C++标准之内，应改用cstdio、cstdlib等符合C++标准的头文件。",
         "tag": "precompile",
@@ -1984,7 +1993,7 @@
         "standard": "ISO/IEC 14882:2011 3.5(3)"
         },
     "ID_nameTooShort": {
-        "checkPoint": "全局对象、函数、类型以及命名空间名称不应太短",
+        "checkPoint": "全局名称不应太短",
         "level": "suggestion",
         "comment": "长度过短的全局名称极易造成与局部名称的混淆或冲突，建议全局名称长度不小于3个字符。",
         "config": {

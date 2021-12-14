@@ -4,7 +4,7 @@
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对C、C++语言，本文收录了412种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对C、C++语言，本文收录了413种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
@@ -126,7 +126,7 @@
     - [R3.1.2 include指令中不应使用反斜杠](#ID_forbidBackslashInHeaderName)
     - [R3.1.3 include指令中不应使用绝对路径](#ID_forbidAbsPathInHeaderName)
     - [R3.1.4 禁用不合规的头文件](#ID_forbiddenHeader)
-    - [R3.1.5 在C\+\+代码中不应引用C头文件](#ID_forbidCHeaderInCpp)
+    - [R3.1.5 C\+\+代码不应引用C头文件](#ID_forbidCHeaderInCpp)
   - [3.2 Macro](#precompile.macro)
     - [R3.2.1 宏的命名应遵循合理的方式](#ID_macro_badName)
     - [R3.2.2 不可定义具有保留意义的宏名称](#ID_macro_defineReserved)
@@ -172,7 +172,7 @@
   - [R4.11 命名空间作用域中禁用using namespace std之外的using directive](#ID_forbidUsingDirectives)
   - [R4.12 不应在命名空间中引用自身](#ID_usingSelf)
   - [R4.13 不应定义全局inline命名空间](#ID_topInlineNamespace)
-  - [R4.14 全局对象、函数、类型以及命名空间名称不应太短](#ID_nameTooShort)
+  - [R4.14 全局名称不应太短](#ID_nameTooShort)
 <br/>
 
 <span id="__Type">**[5. Type](#type)**</span>
@@ -324,27 +324,28 @@
   - [R8.19 不应存在得不到执行机会的代码](#ID_unreachableCode)
   - [R8.20 有返回值的函数其所有分枝都应有明确的返回值](#ID_notAllBranchReturn)
   - [R8.21 不可返回局部对象的地址或引用](#ID_localAddressFlowOut)
-  - [R8.22 函数不应返回右值引用](#ID_returnRValueReference)
-  - [R8.23 函数返回值不应为const对象](#ID_returnConstObject)
-  - [R8.24 返回值应与函数的返回类型相符](#ID_returnOdd)
-  - [R8.25 函数返回值不应为相同的常量](#ID_returnSameConst)
-  - [R8.26 基本类型的返回值不应使用const修饰](#ID_returnSuperfluousConst)
-  - [R8.27 属性为noreturn的函数中不应出现return语句](#ID_unsuitableReturn)
-  - [R8.28 属性为noreturn的函数返回类型只应为void](#ID_unsuitableReturnType)
-  - [R8.29 不应出现多余的跳转语句](#ID_redundantJump)
-  - [R8.30 va\_start或va\_copy应配合va\_end使用](#ID_incompleteVAMacros)
-  - [R8.31 函数模版不应被特化](#ID_functionSpecialization)
-  - [R8.32 函数的标签数量应在规定范围之内](#ID_tooManyLabels)
-  - [R8.33 函数的行数应在规定范围之内](#ID_tooManyLines)
-  - [R8.34 不应定义过于复杂的内联函数](#ID_complexInlineFunction)
+  - [R8.22 合理设置lambda表达式对变量的捕获方式](#ID_unsuitableCapture)
+  - [R8.23 函数不应返回右值引用](#ID_returnRValueReference)
+  - [R8.24 函数返回值不应为const对象](#ID_returnConstObject)
+  - [R8.25 返回值应与函数的返回类型相符](#ID_returnOdd)
+  - [R8.26 函数返回值不应为相同的常量](#ID_returnSameConst)
+  - [R8.27 基本类型的返回值不应使用const修饰](#ID_returnSuperfluousConst)
+  - [R8.28 属性为noreturn的函数中不应出现return语句](#ID_unsuitableReturn)
+  - [R8.29 属性为noreturn的函数返回类型只应为void](#ID_unsuitableReturnType)
+  - [R8.30 不应出现多余的跳转语句](#ID_redundantJump)
+  - [R8.31 va\_start或va\_copy应配合va\_end使用](#ID_incompleteVAMacros)
+  - [R8.32 函数模版不应被特化](#ID_functionSpecialization)
+  - [R8.33 函数的标签数量应在规定范围之内](#ID_tooManyLabels)
+  - [R8.34 函数的行数应在规定范围之内](#ID_tooManyLines)
   - [R8.35 lambda表达式的行数应在规定范围之内](#ID_tooManyLambdaLines)
   - [R8.36 函数参数的数量应在规定范围之内](#ID_tooManyParams)
-  - [R8.37 禁止goto语句向平级的或更深层的其他作用域跳转](#ID_forbidGotoBlocks)
-  - [R8.38 禁止goto语句向前跳转](#ID_forbidGotoBack)
-  - [R8.39 禁用goto语句](#ID_forbidGoto)
-  - [R8.40 禁用setjmp、longjmp](#ID_forbidLongjmp)
-  - [R8.41 避免递归实现](#ID_recursion)
-  - [R8.42 不应存在重复的函数实现](#ID_functionRepetition)
+  - [R8.37 不应定义过于复杂的内联函数](#ID_complexInlineFunction)
+  - [R8.38 禁止goto语句向平级的或更深层的其他作用域跳转](#ID_forbidGotoBlocks)
+  - [R8.39 禁止goto语句向前跳转](#ID_forbidGotoBack)
+  - [R8.40 禁用goto语句](#ID_forbidGoto)
+  - [R8.41 禁用setjmp、longjmp](#ID_forbidLongjmp)
+  - [R8.42 避免递归实现](#ID_recursion)
+  - [R8.43 不应存在重复的函数实现](#ID_functionRepetition)
 <br/>
 
 <span id="__Control">**[9. Control](#control)**</span>
@@ -462,10 +463,10 @@
     - [R10.4.4 非基本类型的对象不应传入可变参数列表](#ID_userObjectAsVariadicArgument)
     - [R10.4.5 C风格的格式化字符串与其参数的个数应严格一致](#ID_inconsistentFormatArgNum)
     - [R10.4.6 C风格的格式化字符串与其参数的类型应严格一致](#ID_inconsistentFormatArgType)
-    - [R10.4.7 合理使用std::move](#ID_unsuitableMove)
-    - [R10.4.8 合理使用std::forward](#ID_unsuitableForward)
-    - [R10.4.9 不应显式调用析构函数](#ID_explicitDtorCall)
-    - [R10.4.10 在C\+\+代码中禁用C风格字符串格式化方法](#ID_forbidCStringFormat)
+    - [R10.4.7 在C\+\+代码中禁用C风格字符串格式化方法](#ID_forbidCStringFormat)
+    - [R10.4.8 不应显式调用析构函数](#ID_explicitDtorCall)
+    - [R10.4.9 合理使用std::move](#ID_unsuitableMove)
+    - [R10.4.10 合理使用std::forward](#ID_unsuitableForward)
   - [10.5 Sizeof](#expression.sizeof)
     - [R10.5.1 sizeof不应作用于有副作用的表达式](#ID_sizeof_sideEffect)
     - [R10.5.2 sizeof的结果不应与0以及负数比较](#ID_sizeof_zeroComparison)
@@ -767,7 +768,7 @@ private:
     string password;      // Compliant
 };
 ```
-对敏感数据的存贮最好对引用者完全隐藏。
+对敏感数据的存储最好对引用者完全隐藏。
 <br/>
 <br/>
 
@@ -2388,7 +2389,7 @@ MISRA C++ 2008 27-0-1
 <br/>
 <br/>
 
-### <span id="ID_forbidCHeaderInCpp">▌R3.1.5 在C++代码中不应引用C头文件</span>
+### <span id="ID_forbidCHeaderInCpp">▌R3.1.5 C++代码不应引用C头文件</span>
 
 ID_forbidCHeaderInCpp&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompile warning
 
@@ -3863,7 +3864,7 @@ namespace NS {
 <br/>
 <br/>
 
-### <span id="ID_nameTooShort">▌R4.14 全局对象、函数、类型以及命名空间名称不应太短</span>
+### <span id="ID_nameTooShort">▌R4.14 全局名称不应太短</span>
 
 ID_nameTooShort&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: global suggestion
 
@@ -8960,7 +8961,63 @@ C++ Core Guidelines F.43
 <br/>
 <br/>
 
-### <span id="ID_returnRValueReference">▌R8.22 函数不应返回右值引用</span>
+### <span id="ID_unsuitableCapture">▌R8.22 合理设置lambda表达式对变量的捕获方式</span>
+
+ID_unsuitableCapture&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
+
+<hr/>
+
+如果lambda表达式只在函数内部使用，可采用捕获引用的方式；如果lambda表达式可以超出函数作用域，应采用捕获值的方式。  
+  
+示例：
+```
+auto foo() -> function<int()> {
+    int i = 0;
+    ....
+    return [&]() { return ++i; };  // Non-compliant
+}
+```
+例中的lambda表达式引用了局部变量i，但返回后i的地址不再有效，会引发标准未定义的错误。  
+  
+另外，要注意解引用指针造成的间接引用：
+```
+class A {
+    int i;
+
+public:
+    auto bar() {
+        return [=]() { return i; };  // Bad
+    }
+};
+```
+例中的lambda表达式通过值捕获变量，this指针也被捕获，成员变量i是通过this指针的隐式解引用获取到的，如果lambda表达式在this指针的生命周期之外执行，就会造成错误。  
+  
+应改为：
+```
+auto A::bar() {
+    return [*this]() { return i; };  // OK
+}
+```
+如果需要捕获this指针，则应显式捕获所有相关变量，避免使用“\[=\]”。
+<br/>
+<br/>
+
+#### 相关
+ID_localAddressFlowOut  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2011 5.1.2(7)  
+<br/>
+
+#### 参考
+C++ Core Guidelines F.52  
+C++ Core Guidelines F.53  
+C++ Core Guidelines F.54  
+<br/>
+<br/>
+
+### <span id="ID_returnRValueReference">▌R8.23 函数不应返回右值引用</span>
 
 ID_returnRValueReference&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
@@ -9027,7 +9084,7 @@ C++ Core Guidelines F.45
 <br/>
 <br/>
 
-### <span id="ID_returnConstObject">▌R8.23 函数返回值不应为const对象</span>
+### <span id="ID_returnConstObject">▌R8.24 函数返回值不应为const对象</span>
 
 ID_returnConstObject&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
@@ -9062,7 +9119,7 @@ C++ Core Guidelines F.20
 <br/>
 <br/>
 
-### <span id="ID_returnOdd">▌R8.24 返回值应与函数的返回类型相符</span>
+### <span id="ID_returnOdd">▌R8.25 返回值应与函数的返回类型相符</span>
 
 ID_returnOdd&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9089,7 +9146,7 @@ MISRA C++ 2008 4-10-1
 <br/>
 <br/>
 
-### <span id="ID_returnSameConst">▌R8.25 函数返回值不应为相同的常量</span>
+### <span id="ID_returnSameConst">▌R8.26 函数返回值不应为相同的常量</span>
 
 ID_returnSameConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9115,7 +9172,7 @@ bool foo(int a) {
 <br/>
 <br/>
 
-### <span id="ID_returnSuperfluousConst">▌R8.26 基本类型的返回值不应使用const修饰</span>
+### <span id="ID_returnSuperfluousConst">▌R8.27 基本类型的返回值不应使用const修饰</span>
 
 ID_returnSuperfluousConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9146,7 +9203,7 @@ ISO/IEC 14882:2011 3.10(1)
 <br/>
 <br/>
 
-### <span id="ID_unsuitableReturn">▌R8.27 属性为noreturn的函数中不应出现return语句</span>
+### <span id="ID_unsuitableReturn">▌R8.28 属性为noreturn的函数中不应出现return语句</span>
 
 ID_unsuitableReturn&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9171,7 +9228,7 @@ ISO/IEC 14882:2011 7.6.3(2)-undefined
 <br/>
 <br/>
 
-### <span id="ID_unsuitableReturnType">▌R8.28 属性为noreturn的函数返回类型只应为void</span>
+### <span id="ID_unsuitableReturnType">▌R8.29 属性为noreturn的函数返回类型只应为void</span>
 
 ID_unsuitableReturnType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9192,7 +9249,7 @@ ISO/IEC 14882:2011 7.6.3(2)-undefined
 <br/>
 <br/>
 
-### <span id="ID_redundantJump">▌R8.29 不应出现多余的跳转语句</span>
+### <span id="ID_redundantJump">▌R8.30 不应出现多余的跳转语句</span>
 
 ID_redundantJump&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9224,7 +9281,7 @@ L:
 <br/>
 <br/>
 
-### <span id="ID_incompleteVAMacros">▌R8.30 va_start或va_copy应配合va_end使用</span>
+### <span id="ID_incompleteVAMacros">▌R8.31 va_start或va_copy应配合va_end使用</span>
 
 ID_incompleteVAMacros&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9255,7 +9312,7 @@ ISO/IEC 9899:2011 7.16.1.3(2)-undefined
 <br/>
 <br/>
 
-### <span id="ID_functionSpecialization">▌R8.31 函数模版不应被特化</span>
+### <span id="ID_functionSpecialization">▌R8.32 函数模版不应被特化</span>
 
 ID_functionSpecialization&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9303,7 +9360,7 @@ MISRA C++ 2008 14-8-1
 <br/>
 <br/>
 
-### <span id="ID_tooManyLabels">▌R8.32 函数的标签数量应在规定范围之内</span>
+### <span id="ID_tooManyLabels">▌R8.33 函数的标签数量应在规定范围之内</span>
 
 ID_tooManyLabels&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9335,7 +9392,7 @@ ID_function/maxLabelCount：标签数量上限，超过则报出
 <br/>
 <br/>
 
-### <span id="ID_tooManyLines">▌R8.33 函数的行数应在规定范围之内</span>
+### <span id="ID_tooManyLines">▌R8.34 函数的行数应在规定范围之内</span>
 
 ID_tooManyLines&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9362,31 +9419,6 @@ ID_function/maxLineCount：行数上限，超过则报出
 #### 参考
 C++ Core Guidelines F.2  
 C++ Core Guidelines F.3  
-<br/>
-<br/>
-
-### <span id="ID_complexInlineFunction">▌R8.34 不应定义过于复杂的内联函数</span>
-
-ID_complexInlineFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
-
-<hr/>
-
-不适合将函数声明为内联的情况：  
- ● 行数超过指定限制  
- ● 存在循环或异常处理语句  
- ● 存在switch分枝语句    
- ● 函数存在递归实现  
-  
-建议内联函数的实现不要超过3个语句。
-<br/>
-<br/>
-
-#### 配置
-ID_function/maxInlineFunctionLineCount：内联函数行数上限，超过则报出  
-<br/>
-
-#### 参考
-C++ Core Guidelines F.5  
 <br/>
 <br/>
 
@@ -9469,7 +9501,32 @@ C++ Core Guidelines I.23
 <br/>
 <br/>
 
-### <span id="ID_forbidGotoBlocks">▌R8.37 禁止goto语句向平级的或更深层的其他作用域跳转</span>
+### <span id="ID_complexInlineFunction">▌R8.37 不应定义过于复杂的内联函数</span>
+
+ID_complexInlineFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
+
+<hr/>
+
+不适合将函数声明为内联的情况：  
+ ● 行数超过指定限制  
+ ● 存在循环或异常处理语句  
+ ● 存在switch分枝语句  
+ ● 函数存在递归实现  
+  
+建议内联函数的实现不要超过3个语句。
+<br/>
+<br/>
+
+#### 配置
+ID_function/maxInlineFunctionLineCount：内联函数行数上限，超过则报出  
+<br/>
+
+#### 参考
+C++ Core Guidelines F.5  
+<br/>
+<br/>
+
+### <span id="ID_forbidGotoBlocks">▌R8.38 禁止goto语句向平级的或更深层的其他作用域跳转</span>
 
 ID_forbidGotoBlocks&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function warning
 
@@ -9511,7 +9568,7 @@ MISRA C++ 2008 6-6-1
 <br/>
 <br/>
 
-### <span id="ID_forbidGotoBack">▌R8.38 禁止goto语句向前跳转</span>
+### <span id="ID_forbidGotoBack">▌R8.39 禁止goto语句向前跳转</span>
 
 ID_forbidGotoBack&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function suggestion
 
@@ -9549,7 +9606,7 @@ MISRA C++ 2008 6-6-2
 <br/>
 <br/>
 
-### <span id="ID_forbidGoto">▌R8.39 禁用goto语句</span>
+### <span id="ID_forbidGoto">▌R8.40 禁用goto语句</span>
 
 ID_forbidGoto&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function suggestion
 
@@ -9572,7 +9629,7 @@ MISRA C 2012 15.1
 <br/>
 <br/>
 
-### <span id="ID_forbidLongjmp">▌R8.40 禁用setjmp、longjmp</span>
+### <span id="ID_forbidLongjmp">▌R8.41 禁用setjmp、longjmp</span>
 
 ID_forbidLongjmp&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function warning
 
@@ -9616,7 +9673,7 @@ C++ Core Guidelines SL.C.1
 <br/>
 <br/>
 
-### <span id="ID_recursion">▌R8.41 避免递归实现</span>
+### <span id="ID_recursion">▌R8.42 避免递归实现</span>
 
 ID_recursion&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9653,7 +9710,7 @@ MISRA C++ 2008 7-5-4
 <br/>
 <br/>
 
-### <span id="ID_functionRepetition">▌R8.42 不应存在重复的函数实现</span>
+### <span id="ID_functionRepetition">▌R8.43 不应存在重复的函数实现</span>
 
 ID_functionRepetition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
@@ -13278,7 +13335,93 @@ SEI CERT FIO47-C
 <br/>
 <br/>
 
-### <span id="ID_unsuitableMove">▌R10.4.7 合理使用std::move</span>
+### <span id="ID_forbidCStringFormat">▌R10.4.7 在C++代码中禁用C风格字符串格式化方法</span>
+
+ID_forbidCStringFormat&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: expression suggestion
+
+<hr/>
+
+printf、sprintf等C风格字符串格式化方法，即由可变参数列表实现的格式化方法，主要问题有：  
+ ● 在编译期无法保证安全性，易出错或造成可移植性问题，提高了测试成本  
+ ● 与C\+\+的强类型理念不符，也不在C\+\+标准之内  
+ ● 只接受基本类型的参数，不利于数据的对象化管理  
+  
+示例：
+```
+size_t a = -1;
+ptrdiff_t b = -2;
+```
+如果要按16进制打印a，10进制打印b：
+```
+printf("%x %d", a, b);  // Non-compliant, #1
+printf("%lx %ld", a, b);  // Non-compliant, #2
+printf("%llx %lld", a, b);  // Non-compliant, #3
+```
+size\_t、ptrdiff\_t等类型是由实现定义的，标准没有规定其是否一定对应unsigned int、long或long long类型，而%d、%lx、%llx只对应int、long、long long类型，所以示例代码都是不合理的。\#1在64位环境中会丢失数据，\#3在32位环境中会造成参数栈读取错误，\#2只在某些环境下可以正常工作不具备可移值性。  
+  
+在C语言中正确的作法是a对应%zx，b对应%zd，如：
+```
+printf("%zx %zd", a, b);  // Non-compliant in C++, even if the result is correct
+```
+参数的类型与个数和占位符必须严格对应，否则就会导致标准未定义的错误，当参数较多时极易出错，利用C\+\+ iostream可有效规避这些问题：
+```
+std::cout << std::hex << a << ' ' << std::dec << b;  // Compliant
+```
+然而当参数较多时，利用iostream的方式在形态上可能较为“松散”，其可读性可能不如printf等函数，对于这个问题可参见ID\_forbidVariadicFunction中的示例，用“[模板参数包](https://en.cppreference.com/w/cpp/language/parameter_pack)”等更安全的方法实现printf函数的功能。另外，C\+\+20的“[std::format](https://en.cppreference.com/w/cpp/utility/format/format)”也提供了更多的格式化方法。
+<br/>
+<br/>
+
+#### 相关
+ID_forbidVariadicFunction  
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 7.16.1.1(2)-undefined  
+ISO/IEC 9899:2011 7.21.6.1(2)-undefined  
+<br/>
+
+#### 参考
+C++ Core Guidelines SL.io.3  
+<br/>
+<br/>
+
+### <span id="ID_explicitDtorCall">▌R10.4.8 不应显式调用析构函数</span>
+
+ID_explicitDtorCall&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: expression suggestion
+
+<hr/>
+
+显式调用析构函数使对象在生命周期未结束的时候被析构，在逻辑上使人困惑，而且在对象生命周期结束时其析构函数仍会被执行，有可能造成资源重复释放的问题。  
+  
+示例：
+```
+class A {
+    int* p = new int[123];
+public:
+   ~A() {
+        delete[] p;
+    }
+};
+
+void fun() {
+    A a;
+    a.~A();  // Explicit call of destructor
+             // ~A() twice called, crash...
+}
+```
+例中对象a的析构函数被显式调用，之后a的生命周期结束会再次调用析构函数，造成内存的重复释放。  
+  
+修正方法：  
+去掉显示调用，或保证相关资源不会被重复释放，如在delete\[\] p之后，将p设为nullptr。
+<br/>
+<br/>
+
+#### 相关
+ID_missingResetNull  
+<br/>
+<br/>
+
+### <span id="ID_unsuitableMove">▌R10.4.9 合理使用std::move</span>
 
 ID_unsuitableMove&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -13338,7 +13481,7 @@ C++ Core Guidelines F.48
 <br/>
 <br/>
 
-### <span id="ID_unsuitableForward">▌R10.4.8 合理使用std::forward</span>
+### <span id="ID_unsuitableForward">▌R10.4.10 合理使用std::forward</span>
 
 ID_unsuitableForward&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -13401,7 +13544,7 @@ void bar(T&& x) {
     foo(forward<T&>(x));  // Non-compliant, use ‘forward<T>(x)’
 }
 ```
-forward的返回值应直接作为接口的参数，且只应使用forward<T>进行转发。
+forward的返回值应直接作为接口的参数，且只应使用forward<T>。
 <br/>
 <br/>
 
@@ -13411,92 +13554,6 @@ ID_illForwardingReference
 
 #### 参考
 C++ Core Guidelines F.19  
-<br/>
-<br/>
-
-### <span id="ID_explicitDtorCall">▌R10.4.9 不应显式调用析构函数</span>
-
-ID_explicitDtorCall&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: expression suggestion
-
-<hr/>
-
-显式调用析构函数使对象在生命周期未结束的时候被析构，在逻辑上使人困惑，而且在对象生命周期结束时其析构函数仍会被执行，有可能造成资源重复释放的问题。  
-  
-示例：
-```
-class A {
-    int* p = new int[123];
-public:
-   ~A() {
-        delete[] p;
-    }
-};
-
-void fun() {
-    A a;
-    a.~A();  // Explicit call of destructor
-             // ~A() twice called, crash...
-}
-```
-例中对象a的析构函数被显式调用，之后a的生命周期结束会再次调用析构函数，造成内存的重复释放。  
-  
-修正方法：  
-去掉显示调用，或保证相关资源不会被重复释放，如在delete\[\] p之后，将p设为nullptr。
-<br/>
-<br/>
-
-#### 相关
-ID_missingResetNull  
-<br/>
-<br/>
-
-### <span id="ID_forbidCStringFormat">▌R10.4.10 在C++代码中禁用C风格字符串格式化方法</span>
-
-ID_forbidCStringFormat&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: expression suggestion
-
-<hr/>
-
-printf、sprintf等C风格字符串格式化方法，即由可变参数列表实现的格式化方法，主要问题有：  
- ● 在编译期无法保证安全性，易出错或造成可移植性问题，提高了测试成本  
- ● 与C\+\+的强类型理念不符，也不在C\+\+标准之内  
- ● 只接受基本类型的参数，不利于数据的对象化管理  
-  
-示例：
-```
-size_t a = -1;
-ptrdiff_t b = -2;
-```
-如果要按16进制打印a，10进制打印b：
-```
-printf("%x %d", a, b);  // Non-compliant, #1
-printf("%lx %ld", a, b);  // Non-compliant, #2
-printf("%llx %lld", a, b);  // Non-compliant, #3
-```
-size\_t、ptrdiff\_t等类型是由实现定义的，标准没有规定其是否一定对应unsigned int、long或long long类型，而%d、%lx、%llx只对应int、long、long long类型，所以示例代码都是不合理的。\#1在64位环境中会丢失数据，\#3在32位环境中会造成参数栈读取错误，\#2只在某些环境下可以正常工作不具备可移值性。  
-  
-在C语言中正确的作法是a对应%zx，b对应%zd，如：
-```
-printf("%zx %zd", a, b);  // Non-compliant in C++, even if the result is correct
-```
-参数的类型与个数和占位符必须严格对应，否则就会导致标准未定义的错误，当参数较多时极易出错，利用C\+\+ iostream可有效规避这些问题：
-```
-std::cout << std::hex << a << ' ' << std::dec << b;  // Compliant
-```
-然而当参数较多时，利用iostream的方式在形态上可能较为“松散”，其可读性可能不如printf等函数，对于这个问题可参见ID\_forbidVariadicFunction中的示例，用“[模板参数包](https://en.cppreference.com/w/cpp/language/parameter_pack)”等更安全的方法实现printf函数的功能。另外，C\+\+20的“[std::format](https://en.cppreference.com/w/cpp/utility/format/format)”也提供了更多的格式化方法。
-<br/>
-<br/>
-
-#### 相关
-ID_forbidVariadicFunction  
-<br/>
-
-#### 依据
-ISO/IEC 9899:2011 7.16.1.1(2)-undefined  
-ISO/IEC 9899:2011 7.21.6.1(2)-undefined  
-<br/>
-
-#### 参考
-C++ Core Guidelines SL.io.3  
 <br/>
 <br/>
 
@@ -16326,7 +16383,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这412条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在Issue区发表高见，管理员修正数据库后会在致谢列表中存档。
+&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这413条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在Issue区发表高见，管理员修正数据库后会在致谢列表中存档。
 
 &emsp;&emsp;此致
 
