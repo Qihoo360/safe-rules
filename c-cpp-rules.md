@@ -572,14 +572,14 @@ ID_plainSensitiveInfo&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-敏感数据以明文形式写入代码易造成泄露。  
+明文敏感数据极易泄露。  
   
 示例：
 ```
-string get_data() {
+void foo() {
     const char* username = "abc";
     const char* password = "123456";  // Non-compliant
-    return access_database(username, password);
+    access_database(username, password);
 }
 ```
 对具有高可靠性要求的客户端软件系统，不建议保存任何敏感数据，对于必须保存敏感数据的软件系统，需要落实安全的存储机制以及相关的评审与测试。
@@ -8201,7 +8201,7 @@ ID_definedInHeader&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 在头文件中实现的函数，如果不是内联、静态或模板函数，则可能被引入不同的编译单元（translate\-unit）造成编译冲突。  
   
-头文件也是项目文档的重要组成部分，头文件的主要内容应是类型或接口的声明，有必要保持头文件简洁清晰，便于引用者阅读。  
+头文件也是项目文档的重要组成部分，头文件的主要内容应是类型或接口的声明，有必要保持头文件简洁清晰，便于阅读。  
   
 示例：
 ```
@@ -8214,7 +8214,7 @@ inline int bar() {     // Compliant
     return 2;
 }
 ```
-除非函数很简短，否则不建议在头文件中内联实现，头文件应保证可以快速查看各种声明，而具体的函数实现应在源文件中完成。
+除非函数很简短，否则不建议在头文件中内联实现，大段的函数实现会影响头文件的可读性。
 ```
 // In a header file
 struct A {
@@ -10836,7 +10836,7 @@ int foo() {
   } while (false);
 }
 ```
-为了减少代码阅读者的误解，建议在do\-while(false)中只使用break语句，不使用continue语句。
+为了减少误解，建议在do\-while(false)中只使用break语句，不使用continue语句。
 <br/>
 <br/>
 

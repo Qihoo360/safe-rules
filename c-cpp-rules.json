@@ -344,7 +344,7 @@
     "ID_plainSensitiveInfo": {
         "checkPoint": "敏感数据不应以明文形式写入代码",
         "level": "warning",
-        "comment": "敏感数据以明文形式写入代码易造成泄露。",
+        "comment": "明文敏感数据极易泄露。",
         "tag": "security",
         "related": "ID_secretLeak",
         "reference": "CWE-798,CWE-259,SEI CERT MSC41-C"
