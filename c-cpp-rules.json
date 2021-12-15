@@ -634,7 +634,7 @@
     "ID_forbidUnnamedEnum": {
         "checkPoint": "不应使用匿名枚举声明",
         "level": "suggestion",
-        "comment": "匿名枚举声明相当于在当前作用域定义常量，然而这些常量的类型是不明确的（虽然可以转为int），而且当无法为枚举类型起一个确定的名子时，也意味着各枚举值不应聚为一类。",
+        "comment": "匿名枚举声明相当于在当前作用域定义常量，然而这些常量的类型是不明确的（虽然可以转为int），而且当无法为枚举类型起一个确定的名称时，也意味着各枚举值不应聚为一类。",
         "tag": "type",
         "reference": "C++ Core Guidelines Enum.6"
         },
@@ -904,7 +904,7 @@
         "reference": "Effective C++ item 29"
         },
     "ID_exceptionInException": {
-        "checkPoint": "异常类的构造函数或异常信息相关的函数不应抛出异常",
+        "checkPoint": "异常类的构造函数与异常信息相关的函数不应抛出异常",
         "level": "warning",
         "comment": "抛出异常时，或获取异常相关的信息时，如果再抛出异常不利于异常的处理与定位。",
         "tag": "exception",
@@ -976,7 +976,7 @@
     "ID_forbidGotoBlocks": {
         "checkPoint": "禁止goto语句向平级的或更深层的其他作用域跳转",
         "level": "warning",
-        "comment": "使用goto语句向平级的或更深层的其它作用域跳转，可读性较差，是公认的不良实现。",
+        "comment": "使用goto语句向平级的或更深层的其他作用域跳转，可读性较差，是公认的不良实现。",
         "tag": "function",
         "related": "ID_forbidGotoBack,ID_forbidGoto",
         "reference": "MISRA C 2012 15.3,MISRA C++ 2008 6-6-1"
@@ -1039,7 +1039,7 @@
     "ID_spaceStyle": {
         "checkPoint": "空格应遵循统一风格",
         "level": "suggestion",
-        "comment": "与缩进、运算符、关键字有关的空格应遵循统一风格，过于随意的空格会对代码阅读产生较大干扰，甚至形成笔误。",
+        "comment": "与缩进、运算符、关键字有关的空格应遵循统一风格，过于随意的空格会对阅读产生较大干扰，甚至形成笔误。",
         "tag": "style",
         "related": "ID_stickyAssignmentOperator"
         },
@@ -1138,7 +1138,7 @@
     "ID_illFloatComparison": {
         "checkPoint": "不应使用==或!=判断浮点数是否相等",
         "level": "warning",
-        "comment": "一般来说，除了可以计作 a * 2<sup>n</sup>（a、n为整数）的浮点数值可以被精确存储之外，其他均为近似值。用==或!=判断浮点数(float、double、long double)是否相等往往得不到预期的结果。",
+        "comment": "一般来说，除了可以记作 a * 2<sup>n</sup>（a、n为整数）的浮点数值可以被精确存储之外，其他均为近似值。用==或!=判断浮点数(float、double、long double)是否相等往往得不到预期的结果。",
         "tag": "expression",
         "reference": "CWE-1025,MISRA C 2004 13.3,MISRA C++ 2008 6-2-2"
         },
@@ -1161,7 +1161,7 @@
     "ID_unexpectedPrecedence": {
         "checkPoint": "注意运算符优先级，不可产生非预期的结果",
         "level": "warning",
-        "comment": "本规则目前主要针对三目运算符，当问号左侧为二元表达式，且与问号直接相临的子表达式为bool型时，情况较为可疑，很可能是忘了加括号。",
+        "comment": "本规则目前主要针对三目运算符，当问号左侧为二元表达式，且与问号直接相邻的子表达式为bool型时，情况较为可疑，很可能是忘了加括号。",
         "tag": "expression",
         "reference": "CWE-783"
         },
@@ -1342,7 +1342,7 @@
     "ID_oddPtrZeroComparison": {
         "checkPoint": "不应判断指针大于、大于等于、小于、小于等于0",
         "level": "warning",
-        "comment": "指针的值是地址的编号，并没有大小的语义，指针可以与指针比较从而确定某种前后关系，但指针与整数比较大小则是没有意义的，尤其是与0的比较，往往意味错误。",
+        "comment": "指针的值是地址的编号，并没有大小的语义，指针可以与指针比较从而确定某种前后关系，但指针与整数比较大小则是没有意义的，尤其是与0的比较，往往意味着错误。",
         "tag": "pointer",
         "reference": "CWE-1025"
         },
@@ -1618,7 +1618,7 @@
         "reference": "CWE-908,CWE-824,C++ Core Guidelines C.41"
         },
     "ID_invalidWrite": {
-        "checkPoint": "避免无效的写入",
+        "checkPoint": "避免无效写入",
         "level": "warning",
         "comment": "对于内存中的数据，写入之后应被读取，否则没有意义。",
         "tag": "function"
@@ -1766,9 +1766,9 @@
         "reference": "C++ Core Guidelines I.22"
         },
     "ID_abusedAuto": {
-        "checkPoint": "使用auto关键字时需注意代码的可读性",
+        "checkPoint": "使用auto关键字时需注意可读性",
         "level": "suggestion",
-        "comment": "auto关键字隐藏了类型名称，在使用时需注意不应降低代码的可读性。",
+        "comment": "auto关键字隐藏了类型名称，在使用时需注意不应降低可读性。",
         "tag": "declaration",
         "related": "ID_roughAuto",
         "reference": "C++ Core Guidelines ES.11"
@@ -1819,7 +1819,7 @@
     "ID_definedInHeader": {
         "checkPoint": "函数不应在头文件中实现",
         "level": "warning",
-        "comment": "在头文件中实现的函数，如果不是内联、静态、模板函数，则可能随着头文件被包含而被引入不同的编译单元（translate-unit）中，造成编译冲突。",
+        "comment": "在头文件中实现的函数，如果不是内联、静态或模板函数，则可能被引入不同的编译单元（translate-unit）造成编译冲突。",
         "tag": "function",
         "reference": "C++ Core Guidelines SF.2"
         },
@@ -2128,7 +2128,7 @@
     "ID_while_uncondBroken": {
         "checkPoint": "while语句中不应存在无条件的跳转语句",
         "level": "error",
-        "comment": "不受条件限制的return、throw或break语句会使循环失效，不受条件限制的continue句语会使其后面的代码失效，如果其后没有代码，该continue语句是没有意义的。",
+        "comment": "不受条件限制的return、throw或break语句会使循环失效，不受条件限制的continue语句会使其后面的代码失效，如果其后没有代码，该continue语句是没有意义的。",
         "tag": "control",
         "related": "ID_for_uncondBroken",
         "reference": "CWE-670"
@@ -2205,7 +2205,7 @@
     "ID_for_uncondBroken": {
         "checkPoint": "for循环中不应存在无条件的跳转语句",
         "level": "error",
-        "comment": "无条件的return、throw或break语句会使循环失效，无条件的continue句语会使其后面的代码失效，如果其后没有代码时，该continue语句是没有意义的。",
+        "comment": "无条件的return、throw或break语句会使循环失效，无条件的continue语句会使其后面的代码失效，如果其后没有代码时，该continue语句是没有意义的。",
         "tag": "control",
         "related": "ID_while_uncondBroken",
         "reference": "CWE-670"
@@ -2336,7 +2336,7 @@
     "ID_hardcodedIP": {
         "checkPoint": "不应硬编码IP地址",
         "level": "warning",
-        "comment": "字符串常量中不应存在硬编码的IP址地，不利于维护和移植，也容易暴露产品的网络结构，属于安全隐患。",
+        "comment": "字符串常量中不应存在硬编码的IP地址，不利于维护和移植，也容易暴露产品的网络结构，属于安全隐患。",
         "tag": "security",
         "reference": "CVE-2006-5901"
         },
@@ -2379,7 +2379,7 @@
     "ID_literal_nonStandardSuffix": {
         "checkPoint": "整数或浮点数常量应使用标准后缀",
         "level": "suggestion",
-        "comment": "整数常量后缀只应为L、LL、UL、ULL，浮点数常量的后缀只应为L、f或F，其它非标准后缀没有可移植性。",
+        "comment": "整数常量后缀只应为L、LL、UL、ULL，浮点数常量的后缀只应为L、f或F，其他非标准后缀没有可移植性。",
         "tag": "literal",
         "related": "ID_literal_confusingSuffix",
         "standard": "ISO/IEC 14882:2003 2.14.2(2) 2.14.4(1),ISO/IEC 14882:2011 2.14.2(2) 2.14.4(1),ISO/IEC 14882:2017 5.13.2(2) 5.13.4(1)"
@@ -2586,7 +2586,7 @@
     "ID_nullDerefInExp": {
         "checkPoint": "注意逻辑表达式内的空指针解引用",
         "level": "error",
-        "comment": "在逻辑表达式中，判断针指是否为空的子表达式可以作为指针解引用的条件，需注意其逻辑关系及运算符优先级，不可出现空指针解引用的问题。",
+        "comment": "在逻辑表达式中，判断指针是否为空的子表达式可以作为指针解引用的条件，需注意其逻辑关系及运算符优先级，不可出现空指针解引用的问题。",
         "tag": "pointer",
         "standard": "ISO/IEC 9899:1999 6.5.3.2(4)-undefined,ISO/IEC 9899:2011 6.5.3.2(4)-undefined",
         "reference": "CWE-476,CWE-783,C++ Core Guidelines ES.65"
@@ -2954,7 +2954,7 @@
         "reference": "CWE-14,CWE-733,SEI CERT MSC06-C"
         },
     "ID_nonConstNonStaticGlobalObject": {
-        "checkPoint": "全局或命名空间作用域中不应存在即不是const也不是static的对象",
+        "checkPoint": "全局或命名空间作用域中不应存在既不是const也不是static的对象",
         "level": "warning",
         "comment": "非const全局对象破坏了面向对象的封装理念，如果必须使用全局对象，应将其限定在文件范围之内。",
         "tag": "global",
@@ -3028,7 +3028,7 @@
     "ID_obsoleteFunction": {
         "checkPoint": "不应调用已过时的函数",
         "level": "warning",
-        "comment": "某些库函数或系统API在设计和实现上存在缺陷并已宣布过时，应使用有更完善的替代方法。",
+        "comment": "某些库函数或系统API在设计和实现上存在缺陷并已宣布过时，应使用更完善的替代方法。",
         "tag": "security",
         "config": { "//": "详见说明" },
         "reference": "CWE-477"
@@ -3093,7 +3093,7 @@
     "ID_TOCTOU": {
         "checkPoint": "避免在一个事务中通过路径多次访问同一文件",
         "level": "warning",
-        "comment": "攻击者可以在两次通过路径访问同一文件的中途对该文件作手脚，从而造成不良后果。",
+        "comment": "攻击者可以在两次通过路径访问同一文件的中途对该文件做手脚，从而造成不良后果。",
         "tag": "security",
         "standard": "ISO/IEC 9899:2011 7.21.5.3(3)",
         "reference": "CWE-367"
@@ -3122,9 +3122,9 @@
         "reference": "C++ Core Guidelines C.9,C++ Core Guidelines C.133"
         },
     "ID_mixPublicPrivateData": {
-        "checkPoint": "类不应即有public数据成员又有private数据成员",
+        "checkPoint": "类不应既有public数据成员又有private数据成员",
         "level": "suggestion",
-        "comment": "类不应即有public数据成员又有private数据成员。",
+        "comment": "类不应既有public数据成员又有private数据成员。",
         "tag": "type",
         "related": "ID_nonPrivateData,ID_protectedData",
         "reference": "C++ Core Guidelines C.9,C++ Core Guidelines C.134"
@@ -3155,14 +3155,14 @@
     "ID_unsuitableStructTag": {
         "checkPoint": "存在构造、析构或虚函数的类不应采用struct关键字",
         "level": "suggestion",
-        "comment": "为了便于区分简单结构体和具有封装或多态属性的类，建议struct关键字只用于结构体，其它情况均采用class关键字。",
+        "comment": "为了便于区分简单结构体和具有封装或多态属性的类，建议struct关键字只用于结构体，其他情况均采用class关键字。",
         "tag": "type",
         "reference": "C++ Core Guidelines C.2,C++ Core Guidelines C.8"
         },
     "ID_nullACL": {
         "checkPoint": "对用户设置合理的权限",
         "level": "warning",
-        "comment": "合理设置用户的访问权限，不可不加限定。",
+        "comment": "合理设置用户的访问权限，不可不加限制。",
         "tag": "security",
         "reference": "CWE-732"
         },

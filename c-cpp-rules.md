@@ -164,7 +164,7 @@
   - [R4.3 全局对象的初始化不可依赖尚未初始化的其他对象](#ID_relyOnExternalObject)
   - [R4.4 不应在头文件的全局作用域中使用using directive](#ID_usingNamespaceInHeader)
   - [R4.5 头文件中不应定义匿名命名空间](#ID_anonymousNamespaceInHeader)
-  - [R4.6 全局或命名空间作用域中不应存在即不是const也不是static的对象](#ID_nonConstNonStaticGlobalObject)
+  - [R4.6 全局或命名空间作用域中不应存在既不是const也不是static的对象](#ID_nonConstNonStaticGlobalObject)
   - [R4.7 全局或命名空间作用域中不应存在非const对象](#ID_nonConstGlobalObject)
   - [R4.8 全局对象不应同时被static和const关键字修饰](#ID_staticAndConst)
   - [R4.9 匿名命名空间中不应使用静态声明](#ID_staticInAnonymousNamespace)
@@ -179,7 +179,7 @@
   - [5.1 Class](#type.class)
     - [R5.1.1 类的非常量数据成员均应为private](#ID_nonPrivateData)
     - [R5.1.2 类的非常量数据成员不应定义为protected](#ID_protectedData)
-    - [R5.1.3 类不应即有public数据成员又有private数据成员](#ID_mixPublicPrivateData)
+    - [R5.1.3 类不应既有public数据成员又有private数据成员](#ID_mixPublicPrivateData)
     - [R5.1.4 有虚函数的基类应具有虚析构函数](#ID_missingVirtualDestructor)
     - [R5.1.5 对于菱形继承应将基类设为虚基类](#ID_diamondInheritance)
     - [R5.1.6 存在赋值运算符或析构函数时，不应缺少拷贝构造函数](#ID_missingCopyConstructor)
@@ -227,7 +227,7 @@
     - [R6.2.9 禁用restrict指针](#ID_forbidRestrictPtr)
     - [R6.2.10 慎用volatile关键字](#ID_forbidVolatile)
   - [6.3 Specifier](#declaration.specifier)
-    - [R6.3.1 使用auto关键字时需注意代码的可读性](#ID_abusedAuto)
+    - [R6.3.1 使用auto关键字时需注意可读性](#ID_abusedAuto)
     - [R6.3.2 不应使用已过时的关键字](#ID_deprecatedSpecifier)
     - [R6.3.3 不应使用多余的inline关键字](#ID_inlineRedundant)
     - [R6.3.4 extern关键字不应作用于类成员的声明或定义](#ID_invalidExternSpecifier)
@@ -286,7 +286,7 @@
 
 <span id="__Exception">**[7. Exception](#exception)**</span>
   - [R7.1 确保异常的安全性](#ID_exceptionUnsafe)
-  - [R7.2 异常类的构造函数或异常信息相关的函数不应抛出异常](#ID_exceptionInException)
+  - [R7.2 异常类的构造函数与异常信息相关的函数不应抛出异常](#ID_exceptionInException)
   - [R7.3 析构函数不可抛出异常](#ID_throwInDestuctor)
   - [R7.4 与STL标准库相关的hash过程不应抛出异常](#ID_throwInHash)
   - [R7.5 对象的swap过程不可抛出异常](#ID_throwInSwap)
@@ -320,7 +320,7 @@
   - [R8.15 在析构函数中不应调用虚函数](#ID_virtualCallInDestuctor)
   - [R8.16 拷贝构造函数应避免实现复制之外的功能](#ID_sideEffectCopyConstructor)
   - [R8.17 赋值运算符应妥善处理参数就是自身对象时的情况](#ID_this_selfJudgement)
-  - [R8.18 避免无效的写入](#ID_invalidWrite)
+  - [R8.18 避免无效写入](#ID_invalidWrite)
   - [R8.19 不应存在得不到执行机会的代码](#ID_unreachableCode)
   - [R8.20 有返回值的函数其所有分枝都应有明确的返回值](#ID_notAllBranchReturn)
   - [R8.21 不可返回局部对象的地址或引用](#ID_localAddressFlowOut)
@@ -822,9 +822,9 @@ ID_TOCTOU&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-攻击者可以在两次通过路径访问同一文件的中途对该文件作手脚，从而造成不良后果。  
+攻击者可以在两次通过路径访问同一文件的中途对该文件做手脚，从而造成不良后果。  
   
-这种问题称为“[TOCTOU（Time\-of\-check to time\-of\-use）](https://en.wikipedia.org/wiki/Time-of-check_to_time-of-use)”。有时需要先检查文件的某种状态，如果状态满足条件的话，再使用这文件，如果“检查”和“使用”都是通过路径完成的，攻击者可以在中途将文件替换成不满足条件的文件，如将文件替换成指向另一个文件的链接，从而对系统造成破坏。  
+这种问题称为“[TOCTOU（Time\-of\-check to time\-of\-use）](https://en.wikipedia.org/wiki/Time-of-check_to_time-of-use)”。有时需要先检查文件的某种状态，如果状态满足条件的话，再使用该文件，如果“检查”和“使用”都是通过路径完成的，攻击者可以在中途将文件替换成不满足条件的文件，如将文件替换成指向另一个文件的链接，从而对系统造成破坏。  
   
 示例：
 ```
@@ -976,7 +976,7 @@ ID_nullACL&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-合理设置用户的访问权限，不可不加限定。  
+合理设置用户的访问权限，不可不加限制。  
   
 示例：
 ```
@@ -1107,7 +1107,7 @@ ID_obsoleteFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-某些库函数或系统API在设计和实现上存在缺陷并已宣布过时，应使用有更完善的替代方法。  
+某些库函数或系统API在设计和实现上存在缺陷并已宣布过时，应使用更完善的替代方法。  
   
 示例：
 ```
@@ -1219,7 +1219,7 @@ void foo(const char* p) {
     }
 }
 ```
-将所有数组元素初始化为'\\0'，调用strncpy函数后如果数组最后一个元素是'\\0'，说明输入字符串的长度符合要求，否则可做出相应的异常处理。
+将所有数组元素初始化为'\\0'，调用strncpy函数后如果数组最后一个元素是'\\0'，说明输入字符串的长度符合要求，否则可作出相应的异常处理。
 <br/>
 <br/>
 
@@ -1387,7 +1387,7 @@ const char* fmt = foo();
 ....
 printf(fmt, a, b, c);  // Non-compliant
 ```
-例中格式化字符串fmt是变量，这种方式较为严重地降低了代码的可读性，而且要注意如果fmt可受外界影 响，则可能被攻击者利用造成不良后果。  
+例中格式化字符串fmt是变量，这种方式较为严重地降低了代码的可读性，而且要注意如果fmt可受外界影响，则可能被攻击者利用造成不良后果。  
   
 应将fmt改为常量：
 ```
@@ -1442,7 +1442,7 @@ ID_hardcodedIP&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-字符串常量中不应存在硬编码的IP址地，不利于维护和移植，也容易暴露产品的网络结构，属于安全隐患。  
+字符串常量中不应存在硬编码的IP地址，不利于维护和移植，也容易暴露产品的网络结构，属于安全隐患。  
   
 示例：
 ```
@@ -1507,7 +1507,7 @@ void baz(const char* s) {
     }
 }
 ```
-对异常情况的错误处理往往会成为务业漏洞，使攻击者轻易地实现其目的，应通过返回值或面向对象的异常机制来判断函数的执行情况。
+对异常情况的错误处理往往会成为业务漏洞，使攻击者轻易地实现其目的，应通过返回值或面向对象的异常机制来判断函数的执行情况。
 <br/>
 <br/>
 
@@ -1843,7 +1843,7 @@ void f(int n) {
     delete p;            // Non-compliant, use ‘delete[]’ instead
 }
 ```
-在某些环境中，可能只有数组第一个对象的析构函数被执行，其它对象的析构函数都没有被执行，如果对象与资源分配有关，则会导致资源泄漏。
+在某些环境中，可能只有数组第一个对象的析构函数被执行，其他对象的析构函数都没有被执行，如果对象与资源分配有关，则会导致资源泄漏。
 <br/>
 <br/>
 
@@ -2165,7 +2165,7 @@ void bar() {
 ```
 例中strdup函数和vector容器均使用了动态内存分配方法，是不符合本规则要求的。  
   
-对于要求相对宽松的的程序，也应该尽量避免使用动态内存分配，如果能在栈上定义对象，就不应采用动态内存分配的方式。
+对于要求相对宽松的程序，也应该尽量避免使用动态内存分配，如果能在栈上定义对象，就不应采用动态内存分配的方式。
 <br/>
 <br/>
 
@@ -2351,7 +2351,7 @@ ID_forbiddenHeader&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompile warning
 #include <setjmp.h>   // Non-compliant
 #include <stdbool.h>  // Non-compliant in C++
 ```
-tgmath.h和ctgmath会使用语言标准之外的技术实现某种重载效果，而且其中的部分函数名称会干扰其它标准库中的名称，setjmp和csetjmp则包含危险的过程间跳转函数。  
+tgmath.h和ctgmath会使用语言标准之外的技术实现某种重载效果，而且其中的部分函数名称会干扰其他标准库中的名称，setjmp和csetjmp则包含危险的过程间跳转函数。  
   
 iso646.h、stdalign.h以及stdbool.h对于C\+\+语言来说没有意义，在C\+\+代码中不应使用。  
 stdio.h、signal.h、time.h、fenv.h等头文件对于有高可靠性要求的软件系统也不建议使用，这些头文件含有较多标准未声明、未定义或由实现定义的内容。  
@@ -2866,7 +2866,7 @@ namespace M {
     void fun(double PI);  // Disturbed
 }
 ```
-示例代码中，宏PI干扰了其它作用域，造成代码的语法错误。
+示例代码中，宏PI干扰了其他作用域，造成代码的语法错误。
 <br/>
 <br/>
 
@@ -3311,7 +3311,7 @@ int main()
 例外：  
 当函数参数有默认值时，可以在函数实现时在参数声明的结尾用注释说明。
 ```
-void foo(int i = 0);                // Declartion
+void foo(int i = 0);                // Declaration
 
 void foo(int i /*= 0*/) {           // Let it go
 }
@@ -3332,12 +3332,12 @@ ID_badBackslash&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
   
 示例：
 ```
-#define M(x,y) if(x) {\   // Compiant
-    foo(y);\              // Compiant
+#define M(x,y) if(x) {\   // Compliant
+    foo(y);\              // Compliant
 }
 
 void foo() {
-    if (condition1 \      // Non-compiant, meaningless
+    if (condition1 \      // Non-compliant, meaningless
      || condition2) {
     }
 }
@@ -3346,11 +3346,11 @@ int a\                    // Non-compliant, odd usage
 b\
 c = 123;
 
-/\                        // Non-compiant, odd usage
+/\                        // Non-compliant, odd usage
 /\ comment
 
 void bar() {
-    // comment  \         // Non-compiant, The next line is also commented out
+    // comment  \         // Non-compliant, The next line is also commented out
     do_something();
 }
 ```
@@ -3579,7 +3579,7 @@ MISRA C++ 2008 7-3-3
 <br/>
 <br/>
 
-### <span id="ID_nonConstNonStaticGlobalObject">▌R4.6 全局或命名空间作用域中不应存在即不是const也不是static的对象</span>
+### <span id="ID_nonConstNonStaticGlobalObject">▌R4.6 全局或命名空间作用域中不应存在既不是const也不是static的对象</span>
 
 ID_nonConstNonStaticGlobalObject&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
@@ -3910,7 +3910,7 @@ ID_nonPrivateData&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestion
 
 建议将类的数据成员均设为private，对外统一由成员函数提供读写方法。  
   
-将类的所有接口都实现为成员函数，由成员函数按指定逻辑读写数据，可以保证对象的状态被有效的改变。良好的接口设计会对代码的职责进行合理的划分，显著提升可维护性。理想状态下，当有错误需要修正或有功能需要调整时，只改动相关接口的实现即可，调用接口的代码不需要改动，从而将改动降到最低，实现高度可维护的设计目的。  
+将类的所有接口都实现为成员函数，由成员函数按指定逻辑读写数据，可以保证对象的状态被有效地改变。良好的接口设计会对代码的职责进行合理的划分，显著提升可维护性。理想状态下，当有错误需要修正或有功能需要调整时，只改动相关接口的实现即可，调用接口的代码不需要改动，从而将改动降到最低，实现高度可维护的设计目的。  
 这种设计的基础便是将数据设为private，只能由本类的成员函数访问，否则对数据的读写散落在各个模块之间，当有一处需要改动时，很难控制其影响的范围。  
   
 常量数据成员不可被改变，所以可不受本规则约束。  
@@ -4000,7 +4000,7 @@ C++ Core Guidelines C.133
 <br/>
 <br/>
 
-### <span id="ID_mixPublicPrivateData">▌R5.1.3 类不应即有public数据成员又有private数据成员</span>
+### <span id="ID_mixPublicPrivateData">▌R5.1.3 类不应既有public数据成员又有private数据成员</span>
 
 ID_mixPublicPrivateData&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestion
 
@@ -4226,7 +4226,7 @@ ID_missingCopyAssignOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
  2. 析构函数  
  3. 赋值运算符  
   
-当这三个函数中的任何一个函数被定义时，其它两个函数也需要被定义，详见“[Rule of three](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming))”。  
+当这三个函数中的任何一个函数被定义时，其他两个函数也需要被定义，详见“[Rule of three](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming))”。  
   
 值得强调的是，如果确实不需要赋值运算符，需明确将其声明为“=delete”，如果确实只需要浅拷贝，需将其声明为“=default”，这样明确了复制对象时的行为，规避意料之外的错误。  
   
@@ -4274,7 +4274,7 @@ ID_missingDestructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
  2. 析构函数  
  3. 赋值运算符  
   
-当这三个函数中的任何一个函数被定义时，其它两个函数也需要被定义，详见“[Rule of three](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming))”。  
+当这三个函数中的任何一个函数被定义时，其他两个函数也需要被定义，详见“[Rule of three](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming))”。  
   
 示例：
 ```
@@ -4324,7 +4324,7 @@ ID_missingMoveAssignOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
  4. 移动拷贝构造函数  
  5. 移动赋值运算符  
   
-当这五个函数中的任何一个函数被定义时，其它四个函数也需要被定义，详见“[Rule of five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming)#Rule_of_Five)”，尤其是存在移动构造函数时，不应缺少移动赋值运算符。
+当这五个函数中的任何一个函数被定义时，其他四个函数也需要被定义，详见“[Rule of five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming)#Rule_of_Five)”，尤其是存在移动构造函数时，不应缺少移动赋值运算符。
 <br/>
 <br/>
 
@@ -4350,7 +4350,7 @@ ID_missingMoveConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
  4. 移动拷贝构造函数  
  5. 移动赋值运算符  
   
-当这五个函数中的任何一个函数被定义时，其它四个函数也需要被定义，详见“[Rule of five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming)#Rule_of_Five)”，尤其是存在移动赋值运算符时，不应缺少移动构造函数。
+当这五个函数中的任何一个函数被定义时，其他四个函数也需要被定义，详见“[Rule of five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming)#Rule_of_Five)”，尤其是存在移动赋值运算符时，不应缺少移动构造函数。
 <br/>
 <br/>
 
@@ -4709,7 +4709,7 @@ ID_unsuitableStructTag&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestion
 
 <hr/>
 
-为了便于区分简单结构体和具有封装或多态属性的类，建议struct关键字只用于结构体，其它情况均采用class关键字。  
+为了便于区分简单结构体和具有封装或多态属性的类，建议struct关键字只用于结构体，其他情况均采用class关键字。  
   
 示例：
 ```
@@ -4822,7 +4822,7 @@ ID_forbidUnnamedEnum&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: type suggestion
 
 <hr/>
 
-匿名枚举声明相当于在当前作用域定义常量，然而这些常量的类型是不明确的（虽然可以转为int），而且当无法为枚举类型起一个确定的名子时，也意味着各枚举值不应聚为一类。  
+匿名枚举声明相当于在当前作用域定义常量，然而这些常量的类型是不明确的（虽然可以转为int），而且当无法为枚举类型起一个确定的名字时，也意味着各枚举值不应聚为一类。  
   
 示例：
 ```
@@ -5388,7 +5388,7 @@ int a = 0;
 int &const i = a;     // Non-compliant
 int &volatile j = a;  // Non-compliant
 ```
-例中声明的const和volatile均无效，i可被随意修改，j也可能被优化。  
+修饰&号的const和volatile是无效的，i可被随意修改，j也可能被优化。  
   
 应去掉限定符，或使限定符修饰引用的对象：
 ```
@@ -5397,11 +5397,11 @@ volatile int& j = a;  // Compliant
 ```
 注意，如果限定符修饰引用类型的别名，会引起很大误解，如：
 ```
-typedef int& int_r;   // Alias
+typedef int& int_r;   // Reference type alias, bad
 const int_r r0 = a;   // Non-compliant, r0 is not a const-reference at all
 const int_r& r1 = a;  // Non-compliant, r1 is not a const-reference at all
 ```
-例中r0和r1很像常量对象的引用，但实际上仍然a的值仍可以通过这种引用被随意修改，所以应避免对引用类型定义别名。
+例中r0像是一个常量对象，而r1像是常量对象的引用，但const int\_r展开后相当于int & const， a的值仍然可以通过引用被修改，所以应避免对引用类型定义别名。
 <br/>
 <br/>
 
@@ -5629,7 +5629,7 @@ ID_forbidVolatile&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration suggestion
   
 volatile关键字仅保证编译器不会对其修饰的变量进行额外优化，确保其有稳定的地址以供读写，在并发编程中容易使人产生误解，其实该关键字在C/C\+\+语言中与同步机制并无关系。  
   
-当需要访问某个硬件地址，而其它进程或硬件可能会修改该地址上的数据时，应将其指针声明为volatile：
+当需要访问某个硬件地址，而其他进程或硬件可能会修改该地址上的数据时，应将其指针声明为volatile：
 ```
 volatile int* vp = get_hardware_address();
 ```
@@ -5656,15 +5656,15 @@ C++ Core Guidelines CP.200
 
 ### <span id="declaration.specifier">6.3 Specifier</span>
 
-### <span id="ID_abusedAuto">▌R6.3.1 使用auto关键字时需注意代码的可读性</span>
+### <span id="ID_abusedAuto">▌R6.3.1 使用auto关键字时需注意可读性</span>
 
 ID_abusedAuto&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-auto关键字隐藏了类型名称，在使用时需注意不应降低代码的可读性。  
+auto关键字隐藏了类型名称，在使用时需注意不应降低可读性。  
   
-非局部对象不宜用auto声明，如接口返回类型、参数、全局对象等，局部对象的类型对程序的行为有显著影响时，也不宜用auto声明，如参与重载函数的选取等。  
+非局部对象不宜用auto声明，如接口的返回类型、参数、全局对象等，如果局部对象的类型对程序的行为有显著影响，也不宜用auto声明。  
   
 示例：
 ```
@@ -5678,26 +5678,26 @@ auto bar() {
     return x;
 }
 
-auto baz = bar();  // What the hell is ‘baz’??
+auto obj = bar();  // What the hell is ‘obj’??
 ```
-如果想确定baz对象的类型，必须通读所有与之相关的代码，可读性很差。  
+如果想确定obj对象的类型，必须通读所有与之相关的代码，可读性很差。  
   
-将代码中所有可以替换成auto的标识符全部替换成auto，其结果是不可想象的，与Python等语言不同，C\+\+语言存在重载、模版等多种严格依赖于类型的特性，如果类型名称不明确，必然会造成阅读和维护等方面的障碍。  
+将代码中所有可以替换成auto的标识符全部替换成auto，其结果是不可想象的，与Python等语言不同，C\+\+语言存在重载、模板等多种严格依赖于类型的特性，如果类型名称不明确，必然会造成阅读和维护等方面的障碍。  
   
 下面给出auto关键字的合理用法：
 ```
-Type* a = static_cast<Type*>(foo());  // Repeated type name
+Type* a = static_cast<Type*>(ptr);               // Repeated type name
 unique_ptr<Type[]> b = make_unique<Type[]>(10);  // Repeated type name
 ```
 重复的类型名称使代码变得繁琐，这种情况使用auto是更好的方法：
 ```
-auto* a = static_cast<Type*>(foo());  // OK
-auto b = make_unique<Type[]>(10);  // OK
+auto* a = static_cast<Type*>(ptr);  // OK
+auto b = make_unique<Type[]>(10);   // OK
 ```
 又如：
 ```
 vector<Type> v{ .... };
-vector<Type>::iterator i = v.begin();   // Verbose
+vector<Type>::iterator i = v.begin();  // Verbose
 ```
 begin函数返回迭代器是一种常识，且迭代器类型名称往往较长，这种情况应使用auto：
 ```
@@ -5706,7 +5706,9 @@ auto i = v.begin();   // OK
 又如：
 ```
 struct SomeClass {
-    struct Sub{ .... };
+    struct Sub {
+        ....
+};
     Sub foo();
 };
 
@@ -5714,13 +5716,13 @@ SomeClass::Sub SomeClass::foo() {  // Repeated ‘SomeClass’
     ....
 }
 ```
-重复的类作用域名称十分繁琐，用auto关键字配合后置返回类型可提升可读性：
+重复的类作用域声明十分繁琐，用auto关键字配合后置返回类型可提升可读性：
 ```
 auto SomeClass::foo() -> Sub {  // OK
     ....
 }
 ```
-总之，使用auto关键字的目的应是提升可读性，不可图一时之快而滥用。
+总之，使用auto关键字的目的应是提升可读性，而不是单纯地简化代码。
 <br/>
 <br/>
 
@@ -7040,7 +7042,7 @@ ID_overloadLogicOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggest
 
 对“逻辑与”、“逻辑或”等运算符的重载会影响效率，甚至造成与预期完全不符的结果。  
   
-C/C\+\+语言明确地规定了内置的逗号、逻辑与、逻辑或等表达式的子表达式求值顺序。对于逻辑表达式，从左到右计算子表达式的值，当可以确定整个表达式的值时立即结束计算，如果还有其它子表达式未求值也不再计算了，这种规则称为“短路规则”，意在提升执行效率，然而对运算符的重载却打破了这一规则。  
+C/C\+\+语言明确地规定了内置的逗号、逻辑与、逻辑或等表达式的子表达式求值顺序。对于逻辑表达式，从左到右计算子表达式的值，当可以确定整个表达式的值时立即结束计算，如果还有其他子表达式未求值也不再计算了，这种规则称为“短路规则”，意在提升执行效率，然而对运算符的重载却打破了这一规则。  
   
 示例：
 ```
@@ -7516,7 +7518,7 @@ Effective C++ item 29
 <br/>
 <br/>
 
-### <span id="ID_exceptionInException">▌R7.2 异常类的构造函数或异常信息相关的函数不应抛出异常</span>
+### <span id="ID_exceptionInException">▌R7.2 异常类的构造函数与异常信息相关的函数不应抛出异常</span>
 
 ID_exceptionInException&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
@@ -7893,7 +7895,7 @@ void baz(int a) {
     }
 }
 ```
-foo函数的参数不符合要求时抛出std::exception类的异常，过于宽泛，如果bar函数抛出其它异常，也会被当作“参数不符合要求”处理，这显然是错误的。  
+foo函数的参数不符合要求时抛出std::exception类的异常，过于宽泛，如果bar函数抛出其他异常，也会被当作“参数不符合要求”处理，这显然是错误的。  
   
 正确的做法是为每种异常定义明确的子类：
 ```
@@ -8108,7 +8110,7 @@ ID_forbidException&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: exception warning
   
 利用返回值或错误码的错误处理方式要求检查可能产生错误的每一个步骤，有些出错情况可能被遗漏，C\+\+的异常机制可大幅简化这种繁琐的方式，使代码更专注于事务或算法的实现，而且C\+\+异常是不可被忽略的，然而C\+\+的异常机制是需要一定开销的，对代码的设计与实现也有更严格的要求。  
   
-如果异常情况频繁出现，其成本是不可被忽视的，不适于具有高性能要求的实时软件系统。如果代码所属项目没有依照面向对象的理念实施，无法保证异常安全，也是不建议使用异常机制的，可参见ID\_exceptionUnsafe的进一步讨论。
+如果异常情况频繁出现，其成本是不可被忽视的，不适用于具有高性能要求的实时软件系统。如果代码所属项目没有依照面向对象的理念实施，无法保证异常安全，也是不建议使用异常机制的，可参见ID\_exceptionUnsafe的进一步讨论。
 <br/>
 <br/>
 
@@ -8138,7 +8140,7 @@ main函数应采用标准明确支持的方式：
 int main(void) { .... }  // Compliant
 int main(int argc, char *argv[]) { .... }  // Compliant
 ```
-如果将返回值设为void或其它非int类型，均不合规。  
+如果将返回值设为void或其他非int类型，均不合规。  
 
 ```
 void main() { .... }  // Non-compliant
@@ -8197,7 +8199,9 @@ ID_definedInHeader&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-在头文件中实现的函数，如果不是内联、静态、模板函数，则可能随着头文件被包含而被引入不同的编译单元（translate\-unit）中，造成编译冲突。  
+在头文件中实现的函数，如果不是内联、静态或模板函数，则可能被引入不同的编译单元（translate\-unit）造成编译冲突。  
+  
+头文件也是项目文档的重要组成部分，头文件的主要内容应是类型或接口的声明，有必要保持头文件简洁清晰，便于引用者阅读。  
   
 示例：
 ```
@@ -8209,10 +8213,19 @@ int foo() {            // Non-compliant, add inline or move it to a cpp file
 inline int bar() {     // Compliant
     return 2;
 }
-
-constexpr int baz() {  // Compliant
-    return 3;
-}
+```
+除非函数很简短，否则不建议在头文件中内联实现，头文件应保证可以快速查看各种声明，而具体的函数实现应在源文件中完成。
+```
+// In a header file
+struct A {
+    int foo();          // OK
+    int bar() const {   // OK
+        return 0;
+    }
+    int baz() {         // Bad, move to a source file
+        // ... more than 3 lines
+    }
+};
 ```
 <br/>
 <br/>
@@ -8763,7 +8776,7 @@ A& A::operator = (const A& rhs) {
     return *this;
 }
 ```
-利用创建临时对象并与之交换的方法，也有效规避了冲突，这种方法使各函数更专注于自已的职责，不必重复编写分配或回收相关的代码，建议采用这种方法。
+利用创建临时对象并与之交换的方法，也有效规避了冲突，这种方法使各函数更专注于自己的职责，不必重复编写分配或回收相关的代码，建议采用这种方法。
 <br/>
 <br/>
 
@@ -8772,7 +8785,7 @@ C++ Core Guidelines C.62
 <br/>
 <br/>
 
-### <span id="ID_invalidWrite">▌R8.18 避免无效的写入</span>
+### <span id="ID_invalidWrite">▌R8.18 避免无效写入</span>
 
 ID_invalidWrite&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -8831,7 +8844,7 @@ ID_unreachableCode&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 1. 之前的所有分枝都提前结束了函数的执行  
 2. 之前的必经分枝中存在永远也不会结束的代码  
 3. 所在分枝的条件恒为假  
-4. 所在分枝被其它分枝遮盖  
+4. 所在分枝被其他分枝遮盖  
   
 第3点特化为：ID\_constLogicExpression、ID\_invalidCondition  
 第4点特化为：ID\_if\_identicalCondition、ID\_if\_hiddenCondition  
@@ -8860,7 +8873,7 @@ for (;false;) { .... }
 ```
 也不应该在return语句之后存在其他语句，这种代码如果不是被人恶意篡改，就是出于某种目的将本已无效的代码遗留了下来，请参见ID\_constLogicExpression、ID\_invalidCondition。  
   
-建议时刻保持代码的整洁，并将维护过程中的变动及时地保存在版本管理系统中，这样可以清晰的查看各版本之间的变动，而如果将无效代码与有效代码混在一起，势必造成维护的负担。
+建议时刻保持代码的整洁，并将维护过程中的变动及时地保存在版本管理系统中，这样可以清晰地查看各版本之间的变动，而如果将无效代码与有效代码混在一起，势必造成维护的负担。
 <br/>
 <br/>
 
@@ -9474,7 +9487,7 @@ void foo(A a, B b, C c, D d, E e) {  // Bad
 }
 ```
 当函数参数过多时，应按参数的逻辑职责进行封装。  
-假设a和b有直接逻辑关系，c、d、e有直接逻辑关系，不妨将a和b封装成一个类，c、d、e封装成一个类，在类的成员函数中实现相关功能，可更为清晰直观的保证逻辑关系的正确性。
+假设a和b有直接逻辑关系，c、d、e有直接逻辑关系，不妨将a和b封装成一个类，c、d、e封装成一个类，在类的成员函数中实现相关功能，可更为清晰直观地保证逻辑关系的正确性。
 ```
 class X {
     // ... Members and methods for ‘a’, ‘b’ ...
@@ -9532,7 +9545,7 @@ ID_forbidGotoBlocks&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function warning
 
 <hr/>
 
-使用goto语句向平级的或更深层的其它作用域跳转，可读性较差，是公认的不良实现。  
+使用goto语句向平级的或更深层的其他作用域跳转，可读性较差，是公认的不良实现。  
   
 示例：
 ```
@@ -10199,7 +10212,7 @@ if (cond1)         // Non-compliant
 else               // Non-compliant
     action2();
 ```
-本例表达的逻辑与实际执行的逻辑完全不同，这段代码表达的逻辑应是：
+这段代码想表达的逻辑应是：
 ```
 if (cond1) {
     if (cond2) {
@@ -10209,7 +10222,7 @@ if (cond1) {
     action2();
 }
 ```
-由于C/C\+\+规定else子句总与其相临的最近if子句配对，所以这段代码的实际逻辑是：
+但C/C\+\+规定else子句与最近的if子句配对，所以实际逻辑是：
 ```
 if (cond1) {
     if (cond2) {
@@ -10220,7 +10233,6 @@ if (cond1) {
 }
 ```
 这显然是与预期不符的。  
-  
   
 又如：
 ```
@@ -10336,7 +10348,7 @@ ID_for_uncondBroken&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: control error
 
 <hr/>
 
-无条件的return、throw或break语句会使循环失效，无条件的continue句语会使其后面的代码失效，如果其后没有代码时，该continue语句是没有意义的。  
+无条件的return、throw或break语句会使循环失效，无条件的continue语句会使其后面的代码失效，如果其后没有代码时，该continue语句是没有意义的。  
   
 示例：
 ```
@@ -10625,7 +10637,7 @@ ID_while_uncondBroken&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: control error
 
 <hr/>
 
-不受条件限制的return、throw或break语句会使循环失效，不受条件限制的continue句语会使其后面的代码失效，如果其后没有代码，该continue语句是没有意义的。  
+不受条件限制的return、throw或break语句会使循环失效，不受条件限制的continue语句会使其后面的代码失效，如果其后没有代码，该continue语句是没有意义的。  
   
 示例：
 ```
@@ -10806,7 +10818,7 @@ ID_do_suspiciousContinue&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
 continue语句和break语句在语义上是不同的，但在do\-while(false)中它们的功效是一样的。  
   
-在do\-while(false)的循环体中如果即有break语句又有continue语句，那么continue语句被误用的可能性较大。  
+在do\-while(false)的循环体中如果既有break语句又有continue语句，那么continue语句被误用的可能性较大。  
   
 示例：
 ```
@@ -11700,7 +11712,7 @@ void foo() {
     {}  // Non-compliant, very bad
 }
 ```
-这样做并不能真正提高程序的稳定性，相当于逃避了问题，而且掩盖没有被处理的异常也可能会影响到其它方面的正常运行。  
+这样做并不能真正提高程序的稳定性，相当于逃避了问题，而且掩盖没有被处理的异常也可能会影响到其他方面的正常运行。  
   
 对于要求不能抛出异常的接口，不妨按下例处理，记录意料之外的异常情况，以便问题的排查：
 ```
@@ -12301,7 +12313,7 @@ ID_unexpectedPrecedence&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-本规则目前主要针对三目运算符，当问号左侧为二元表达式，且与问号直接相临的子表达式为bool型时，情况较为可疑，很可能是忘了加括号。  
+本规则目前主要针对三目运算符，当问号左侧为二元表达式，且与问号直接相邻的子表达式为bool型时，情况较为可疑，很可能是忘了加括号。  
   
 示例：
 ```
@@ -12465,7 +12477,7 @@ ID_illSelfCompoundAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warn
 a &= a;  // Non-compliant, no effect
 a |= a;  // Non-compliant, no effect
 ```
-如果目的是为了清零或置1，也不建议使用下列表达式：
+如果目的是清零或置1，也不建议使用下列表达式：
 ```
 a -= a;  // Non-compliant, tedious
 a /= a;  // Non-compliant, low efficiency
@@ -12891,7 +12903,7 @@ ID_illFloatComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-一般来说，除了可以计作 a \* 2<sup>n</sup>（a、n为整数）的浮点数值可以被精确存储之外，其他均为近似值。用==或!=判断浮点数(float、double、long double)是否相等往往得不到预期的结果。  
+一般来说，除了可以记作 a \* 2<sup>n</sup>（a、n为整数）的浮点数值可以被精确存储之外，其他均为近似值。用==或!=判断浮点数(float、double、long double)是否相等往往得不到预期的结果。  
   
 如0、1、2、3、1.5、1.25…可以被精确存储，而除此之外绝大部分数值如0.1、0.2、0.3…只能存储其近似值。  
   
@@ -12899,7 +12911,7 @@ ID_illFloatComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 ```
 float f = 1;
 f /= 10;
-if (f == 0.1) {   // Non-compliant, donot use ‘==’ or ‘!=’
+if (f == 0.1) {   // Non-compliant, do not use ‘==’ or ‘!=’
     cout << "OK";
 } else {
     cout << "Oops";
@@ -13359,7 +13371,7 @@ printf("%llx %lld", a, b);  // Non-compliant, #3
 ```
 size\_t、ptrdiff\_t等类型是由实现定义的，标准没有规定其是否一定对应unsigned int、long或long long类型，而%d、%lx、%llx只对应int、long、long long类型，所以示例代码都是不合理的。\#1在64位环境中会丢失数据，\#3在32位环境中会造成参数栈读取错误，\#2只在某些环境下可以正常工作不具备可移值性。  
   
-在C语言中正确的作法是a对应%zx，b对应%zd，如：
+在C语言中正确的做法是a对应%zx，b对应%zd，如：
 ```
 printf("%zx %zd", a, b);  // Non-compliant in C++, even if the result is correct
 ```
@@ -13429,7 +13441,7 @@ ID_unsuitableMove&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 std::move的参数应为左值，返回值应直接作为接口的参数，除此之外的使用方式价值有限，且易产生错误。  
   
-std::move将左值转为右值，意在宣告对象的数据将被转移到其他对象，之后应由适宜的接口接管右值的数据。  
+std::move将左值转为右值，意在宣告对象的数据将被转移到其他对象，之后应由合适的接口接管右值的数据。  
   
 示例：
 ```
@@ -13530,7 +13542,7 @@ struct X {
     }
 };
 ```
-注意，“转发引用”的类型只能是函数模板类型，非模版和类模板不构成“转发引用”。  
+注意，“转发引用”的类型只能是函数模板类型，非模板和类模板不构成“转发引用”。  
 
 ```
 template <class T>
@@ -14279,7 +14291,7 @@ auto* a = L"123" L"456";  // Compliant
 auto* b = U"123" U"456";  // Compliant
 ```
 C\+\+03规定宽字符串与窄字符串连接是未定义的。  
-C\+\+11规定一个字符串有前缀一个没有的话，结果以有前缀的为准，其它情况由实现定义。  
+C\+\+11规定一个字符串有前缀一个没有的话，结果以有前缀的为准，其他情况由实现定义。  
   
 如：
 ```
@@ -14401,7 +14413,7 @@ ID_literal_nonStandardSuffix&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: literal suggest
 
 <hr/>
 
-整数常量后缀只应为L、LL、UL、ULL，浮点数常量的后缀只应为L、f或F，其它非标准后缀没有可移植性。  
+整数常量后缀只应为L、LL、UL、ULL，浮点数常量的后缀只应为L、f或F，其他非标准后缀没有可移植性。  
   
 示例：
 ```
@@ -14965,7 +14977,7 @@ void bar() {
     ....
 }
 ```
-例中B类型的数组arr作为foo函数的参数，被转换成了基类指针，foo函数中对基类指针的运算将是错误的，B的成员y也会被错误的赋值。  
+例中B类型的数组arr作为foo函数的参数，被转换成了基类指针，foo函数中对基类指针的运算将是错误的，B的成员y也会被错误地赋值。  
   
 这是一个较为危险的问题，本规则针对所有数组相关的指针类型转换。
 <br/>
@@ -15206,7 +15218,7 @@ void foo(const char* path) {
     ....
 }
 ```
-例中通过reinterpret\_cast将二进制数据直接转为MyData类的对象，这不是一种安全的方式，妥善的作法是根据文件数据将MyData类的成员逐一构造出来，这样也可及时发现问题并处理。  
+例中通过reinterpret\_cast将二进制数据直接转为MyData类的对象，这不是一种安全的方式，妥善的做法是根据文件数据将MyData类的成员逐一构造出来，这样也可及时发现问题并处理。  
   
 又如：
 ```
@@ -15583,7 +15595,7 @@ ID_nullDerefInExp&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: pointer error
 
 <hr/>
 
-在逻辑表达式中，判断针指是否为空的子表达式可以作为指针解引用的条件，需注意其逻辑关系及运算符优先级，不可出现空指针解引用的问题。  
+在逻辑表达式中，判断指针是否为空的子表达式可以作为指针解引用的条件，需注意其逻辑关系及运算符优先级，不可出现空指针解引用的问题。  
   
 示例：
 ```
@@ -15879,7 +15891,7 @@ ID_oddPtrBoolComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 p == false  // Non-compliant
 p != false  // Non-compliant
 ```
-如果判断指针是否为空，只应将指针与NULL或nullptr比较，其它常量均不合规。在C\+\+语言中应优先使用nullptr。
+如果判断指针是否为空，只应将指针与NULL或nullptr比较，其他常量均不合规。在C\+\+语言中应优先使用nullptr。
 <br/>
 <br/>
 
@@ -15921,7 +15933,7 @@ ID_oddPtrZeroComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 
 <hr/>
 
-指针的值是地址的编号，并没有大小的语义，指针可以与指针比较从而确定某种前后关系，但指针与整数比较大小则是没有意义的，尤其是与0的比较，往往意味错误。  
+指针的值是地址的编号，并没有大小的语义，指针可以与指针比较从而确定某种前后关系，但指针与整数比较大小则是没有意义的，尤其是与0的比较，往往意味着错误。  
   
 示例（设p为指针）：
 ```
@@ -16202,7 +16214,7 @@ ID_spaceStyle&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style suggestion
 
 <hr/>
 
-与缩进、运算符、关键字有关的空格应遵循统一风格，过于随意的空格会对代码阅读产生较大干扰，甚至形成笔误。  
+与缩进、运算符、关键字有关的空格应遵循统一风格，过于随意的空格会对阅读产生较大干扰，甚至形成笔误。  
   
 本规则暂不强调具体风格，但强调一致性，即同类运算符、关键字的空格方式应该是一致的。  
   
