@@ -106,11 +106,11 @@
   - [R2.4 不可访问未初始化或已释放的资源](#ID_illAccess)
   - [R2.5 资源不可被重复释放](#ID_doubleFree)
   - [R2.6 资源的分配与回收方法应配套使用](#ID_incompatibleDealloc)
-  - [R2.7 用new分配的单个对象应该用delete释放，不应该用delete\[\]释放](#ID_excessiveDelete)
-  - [R2.8 用new分配的数组应使用delete\[\]释放，不应使用delete释放](#ID_insufficientDelete)
+  - [R2.7 用delete释放对象不可多写中括号](#ID_excessiveDelete)
+  - [R2.8 用delete释放数组不可漏写中括号](#ID_insufficientDelete)
   - [R2.9 对象申请的资源须在析构函数中释放](#ID_memberDeallocation)
   - [R2.10 如果构造函数抛出异常需确保相关资源没有泄漏](#ID_throwInConstructor)
-  - [R2.11 C\+\+代码中禁用malloc、free等内存分配与回收函数](#ID_forbidMallocAndFree)
+  - [R2.11 C\+\+代码中禁用malloc、free等内存管理函数](#ID_forbidMallocAndFree)
   - [R2.12 在一个语句中最多执行一次显式资源分配](#ID_multiAllocation)
   - [R2.13 在栈上分配的空间以及非动态申请的资源不可被释放](#ID_illDealloc)
   - [R2.14 避免使用在栈上分配内存的函数](#ID_stackAllocation)
@@ -828,28 +828,20 @@ ID_TOCTOU&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
   
 示例：
 ```
-int exists(const char* path) {
-    int r = 0;
-    FILE* fp = fopen(path, "r");
-    if (fp) {
-        r = 1;
-        fclose(fp);
-    }
-    return r;
-}
-
 void create(const char* path) {
-    if (exists(path)) {           // #1, time-of-check
+    FILE* fp = fopen(path, "r");
+    if (fp != NULL) {              // #1, time-of-check
+        fclose(fp);
         return;
     }
-    FILE* fp = fopen(path, "w");  // #2, time-of-use, non-compliant
+    fp = fopen(path, "w");         // #2, time-of-use, non-compliant
     if (fp != NULL) {
         fwrite("abc", 1, 3, fp);
         fclose(fp);
     }
 }
 ```
-示例代码先通过路径判断文件是否存在，如果存在则不作处理，如果不存在则再次通过路径创建文件并向文件写入数据。如果在\#1和\#2之间攻击者创建了一个同名的指向其他文件的链接，那么被指向的文件会遭到破坏，尤其是当进程的权限比较高时，其破坏力是难以控制的。  
+示例代码先通过路径判断文件是否存在，如果存在则不作处理，如果不存在则再次通过路径创建文件并向文件写入数据。如果攻击者把握住时机，在程序执行到\#1和\#2之间时将path创建为指向其他文件的链接，那么被指向的文件会遭到破坏，尤其是当进程的权限比较高时，其破坏力是难以控制的。  
   
 应只通过路径打开文件对象一次，只通过文件对象操作文件：
 ```
@@ -861,9 +853,9 @@ void create(const char* path) {
     }
 }
 ```
-利用“wx”模式即可保证fopen函数在文件不存在的时候执行成功，文件存在的时候执行失败。  
+利用“wx”模式即可保证fopen在文件不存在的时候执行成功，文件存在的时候执行失败。  
   
-注意，目前C\+\+语言的fstream类尚无法完成与“wx”模式相同的功能，相同功能的代码要用fopen函数实现。
+注意，目前C\+\+的fstream尚无法完成与“wx”模式相同的功能，相同功能的代码要用fopen实现。
 <br/>
 <br/>
 
@@ -886,12 +878,12 @@ ID_dataRaces&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
   
 示例：
 ```
-int foo() {       // Call in multiple threads
+int foo() {
     static int id = 0;
-    return id++;  // Data races
+    return id++;  // Data races in multithreading
 }
 ```
-例中foo函数意在每次被调用都能返回一个不同的整数，但多个线程同时读写变量会造成混乱，对id这种函数内的静态变量处理不当是多线程相关错误的常见原因。  
+例中foo函数意在返回不同的整数，但如果id被多个线程同时读取或写入，会返回相同的结果导致逻辑错误。  
   
 应改为：
 ```
@@ -900,24 +892,26 @@ int foo() {
     return id.fetch_add(1);  // OK
 }
 ```
-其中atomic是C\+\+标准原子类，fetch\_add将对象持有的整数增1并返回之前的值，可以保证线程对整数的操作是有序进行的，不会造成混乱。  
+其中atomic是C\+\+标准原子类，fetch\_add将对象持有的整数增1并返回之前的值，这个过程不会被多个线程同时执行，只能依次执行，从而保证了返回值的唯一性。  
   
-不同的访问顺序会对结果产生影响，往往意味着错误，这种问题称为“[竞态条件（race conditon）](https://en.wikipedia.org/wiki/Race_condition)”。
+又如：
 ```
 void bar() {
-    int* p = baz();  // Points to shared data
-    if (*p == 0) {   // ‘*p’ is changing
+    int* p = baz();      // #0, ‘*p’ points to shared data
+    if (*p == 0) {       // #1, ‘*p’ is unreliable
         ....
     }
-    else if (*p == 1) {  // ‘*p’ is changing
+    else if (*p == 1) {  // #2, ‘*p’ is unreliable
         ....
     }
-    else {
+    else {               // #3
         ....
     }
 }
 ```
-如果指针p指向共享数据，那么bar函数中的条件分枝是不可靠的，攻击者可以通过控制共享数据实现对关键流程的劫持，所以应合理使用锁、信号量等同步手段保证共享数据的可靠性。
+如果p指向共享数据，那么攻击者可以通过控制共享数据实现对程序流程的劫持，比如在\#0处\*p的值本为0，攻击者在\#1之前改变\*p的值，迫使流程向\#2或\#3处跳转。  
+  
+如果不同的访问顺序会对结果产生影响，则往往意味着错误和漏洞，这种情况称为“[竞态条件（race conditon）](https://en.wikipedia.org/wiki/Race_condition)”，使攻击者可以抢在某关键过程前后通过修改共享数据达到攻击目的，所以应合理设计数据的访问方式或使用锁、信号量等同步手段保证数据的可靠性。
 <br/>
 <br/>
 
@@ -1242,12 +1236,12 @@ ID_implementationDefinedFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security 
 
 <hr/>
 
-由实现定义的(implementation\-defined)库函数存在语言标准之外的行为。  
+由实现定义的（implementation\-defined）库函数存在语言标准之外的行为。  
   
 如：  
- ● 在cstdlib或stdlib.h中声明的abort、exit、getenv或system等函数  
- ● 在ctime或time.h中声明的clock等函数  
- ● 在csignal或signal.h中声明的signal等函数  
+ ● cstdlib、stdlib.h中的abort、exit、getenv或system等函数  
+ ● ctime、time.h中的clock等函数  
+ ● csignal、signal.h中的signal等函数  
   
 这些函数的行为取决于编译器、库或环境的生产厂家，同一个函数不同的厂家会有不同的实现，故称这种函数的行为是“由实现定义”的。有高可靠性要求的软件系统应避免使用这种函数，否则需明确各种实现上的具体差异，提高了移植、发布以及兼容性等多方面的成本。  
   
@@ -1522,7 +1516,7 @@ C++ Core Guidelines E.28
 
 ### <span id="ID_ownerlessResource">▌R2.1 资源管理应遵循面向对象的方法</span>
 
-ID_ownerlessResource&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
+ID_ownerlessResource&emsp;&emsp;&emsp;&emsp;&nbsp;:droplet: resource warning
 
 <hr/>
 
@@ -1608,7 +1602,7 @@ C++ Core Guidelines R.12
 
 ### <span id="ID_resourceLeak">▌R2.2 不可失去对已分配资源的控制</span>
 
-ID_resourceLeak&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
+ID_resourceLeak&emsp;&emsp;&emsp;&emsp;&nbsp;:droplet: resource warning
 
 <hr/>
 
@@ -1645,7 +1639,7 @@ C++ Core Guidelines E.13
 
 ### <span id="ID_memoryLeak">▌R2.3 不可失去对已分配内存的控制</span>
 
-ID_memoryLeak&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
+ID_memoryLeak&emsp;&emsp;&emsp;&emsp;&nbsp;:droplet: resource warning
 
 <hr/>
 
@@ -1683,7 +1677,7 @@ C++ Core Guidelines E.13
 
 ### <span id="ID_illAccess">▌R2.4 不可访问未初始化或已释放的资源</span>
 
-ID_illAccess&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
+ID_illAccess&emsp;&emsp;&emsp;&emsp;&nbsp;:droplet: resource error
 
 <hr/>
 
@@ -1727,7 +1721,7 @@ SEI CERT FIO46-C
 
 ### <span id="ID_doubleFree">▌R2.5 资源不可被重复释放</span>
 
-ID_doubleFree&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
+ID_doubleFree&emsp;&emsp;&emsp;&emsp;&nbsp;:droplet: resource error
 
 <hr/>
 
@@ -1761,11 +1755,11 @@ CWE-415
 
 ### <span id="ID_incompatibleDealloc">▌R2.6 资源的分配与回收方法应配套使用</span>
 
-ID_incompatibleDealloc&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
+ID_incompatibleDealloc&emsp;&emsp;&emsp;&emsp;&nbsp;:droplet: resource error
 
 <hr/>
 
-不同的资源分配与回收函数采用不同的资源管理方式，如果不配套使用会引发严重错误。  
+不同的分配回收方法属于不同的资源管理体系，如果不配套使用会引发严重错误。  
   
 示例：
 ```
@@ -1795,19 +1789,19 @@ SEI CERT MEM51-CPP
 <br/>
 <br/>
 
-### <span id="ID_excessiveDelete">▌R2.7 用new分配的单个对象应该用delete释放，不应该用delete[]释放</span>
+### <span id="ID_excessiveDelete">▌R2.7 用delete释放对象不可多写中括号</span>
 
-ID_excessiveDelete&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
+ID_excessiveDelete&emsp;&emsp;&emsp;&emsp;&nbsp;:droplet: resource error
 
 <hr/>
 
-用new分配的单个对象应该用delete释放，不应该用delete\[\]释放，否则引发标准未定义的错误。  
+用new分配的对象应该用delete释放，不可用delete\[\]释放，否则引发标准未定义的错误。  
   
 示例：
 ```
 auto* p = new X;  // One object
 ....
-delete[] p;       // Non-compliant, use ‘delete’ instead
+delete[] p;       // Non-compliant, use ‘delete p;’ instead
 ```
 <br/>
 <br/>
@@ -1827,20 +1821,20 @@ C++ Core Guidelines ES.61
 <br/>
 <br/>
 
-### <span id="ID_insufficientDelete">▌R2.8 用new分配的数组应使用delete[]释放，不应使用delete释放</span>
+### <span id="ID_insufficientDelete">▌R2.8 用delete释放数组不可漏写中括号</span>
 
-ID_insufficientDelete&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
+ID_insufficientDelete&emsp;&emsp;&emsp;&emsp;&nbsp;:droplet: resource error
 
 <hr/>
 
-用new分配的数组不应该用delete释放，应该用delete\[\]释放，否则引发标准未定义的错误。  
+用new分配的数组应该用delete\[\]释放，不可漏写中括号，否则引发标准未定义的错误。  
   
 示例：
 ```
-void f(int n) {
+void foo(int n) {
     auto* p = new X[n];  // n default constructed Xs
     ....
-    delete p;            // Non-compliant, use ‘delete[]’ instead
+    delete p;            // Non-compliant, use ‘delete[] p;’ instead
 }
 ```
 在某些环境中，可能只有数组第一个对象的析构函数被执行，其他对象的析构函数都没有被执行，如果对象与资源分配有关，则会导致资源泄漏。
@@ -1864,7 +1858,7 @@ C++ Core Guidelines ES.61
 
 ### <span id="ID_memberDeallocation">▌R2.9 对象申请的资源须在析构函数中释放</span>
 
-ID_memberDeallocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
+ID_memberDeallocation&emsp;&emsp;&emsp;&emsp;&nbsp;:droplet: resource warning
 
 <hr/>
 
@@ -1902,7 +1896,7 @@ C++ Core Guidelines E.6
 
 ### <span id="ID_throwInConstructor">▌R2.10 如果构造函数抛出异常需确保相关资源没有泄漏</span>
 
-ID_throwInConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
+ID_throwInConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:droplet: resource warning
 
 <hr/>
 
@@ -1967,13 +1961,13 @@ ID_memoryLeak
 <br/>
 <br/>
 
-### <span id="ID_forbidMallocAndFree">▌R2.11 C++代码中禁用malloc、free等内存分配与回收函数</span>
+### <span id="ID_forbidMallocAndFree">▌R2.11 C++代码中禁用malloc、free等内存管理函数</span>
 
 ID_forbidMallocAndFree&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: resource warning
 
 <hr/>
 
-malloc、free等函数是C语言的内存管理函数，在C\+\+代码中应使用C\+\+面向对象的内存管理方法。  
+malloc、free是C语言的内存管理函数，在C\+\+代码中应使用C\+\+面向对象的内存管理方法。  
   
 示例：
 ```
@@ -2004,7 +1998,7 @@ C++ Core Guidelines R.10
 
 ### <span id="ID_multiAllocation">▌R2.12 在一个语句中最多执行一次显式资源分配</span>
 
-ID_multiAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
+ID_multiAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:droplet: resource warning
 
 <hr/>
 
@@ -2042,7 +2036,7 @@ C++ Core Guidelines R.13
 
 ### <span id="ID_illDealloc">▌R2.13 在栈上分配的空间以及非动态申请的资源不可被释放</span>
 
-ID_illDealloc&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
+ID_illDealloc&emsp;&emsp;&emsp;&emsp;&nbsp;:droplet: resource error
 
 <hr/>
 
@@ -2073,7 +2067,7 @@ ISO/IEC 14882:2011 3.7.4.2(4)-undefined
 
 ### <span id="ID_stackAllocation">▌R2.14 避免使用在栈上分配内存的函数</span>
 
-ID_stackAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
+ID_stackAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:droplet: resource warning
 
 <hr/>
 
@@ -2105,7 +2099,7 @@ SEI CERT MEM05-C
 
 ### <span id="ID_unnecessaryAllocation">▌R2.15 避免不必要的内存分配</span>
 
-ID_unnecessaryAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
+ID_unnecessaryAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:droplet: resource warning
 
 <hr/>
 
@@ -2144,7 +2138,7 @@ ID_dynamicAllocation
 
 ### <span id="ID_dynamicAllocation">▌R2.16 避免动态内存分配</span>
 
-ID_dynamicAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
+ID_dynamicAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:droplet: resource warning
 
 <hr/>
 
@@ -2184,7 +2178,7 @@ C++ Core Guidelines R.5
 
 ### <span id="ID_copiedFILE">▌R2.17 标准FILE对象不应被复制</span>
 
-ID_copiedFILE&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
+ID_copiedFILE&emsp;&emsp;&emsp;&emsp;&nbsp;:droplet: resource warning
 
 <hr/>
 
@@ -2213,7 +2207,7 @@ MISRA C 2012 22.5
 
 ### <span id="ID_useAfterMove">▌R2.18 对象被std::move之后不应再被使用</span>
 
-ID_useAfterMove&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
+ID_useAfterMove&emsp;&emsp;&emsp;&emsp;&nbsp;:droplet: resource warning
 
 <hr/>
 
@@ -3938,9 +3932,11 @@ public:
             throw BadFraction();
         }
     }
+
     double result() noexcept {
         return double(n) / d;
     }
+
 private:
     int n, d;  // Good
 };
@@ -7497,7 +7493,7 @@ public:
         this->swap(copy);
     }
     void swap(X& v) noexcept {
-        .....
+        ....
     }
 };
 ```
@@ -11178,7 +11174,7 @@ switch语句的条件表达式为bool型时不应采用switch语句，应采用i
 void foo(bool b) {
     switch (b) {  // Non-compliant
     case true:
-        .....
+        ....
         break;
     case false:
         ....
@@ -11816,7 +11812,7 @@ ID_catch_nonExceptionType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 try {
     ....
 } catch (int) {  // Non-compliant
-    .....
+    ....
 }
 
 try {
@@ -13091,7 +13087,7 @@ void foo(string& s) {
     s.empty();     // Non-compliant
 }
 
-void bar(unique_ptr<int>& p) {
+void bar(unique_ptr<int[]>& p) {
     p.release();   // Non-compliant
 }
 ```
@@ -15276,7 +15272,7 @@ void foo() {
     ....
 }
 ```
-fgets函数与gets不同，当输入超过缓冲区大小时会被截断，保证无效区域不会被写入。  
+fgets与gets不同，当输入超过缓冲区大小时会被截断，保证无效区域不会被写入。  
   
 当数组下标存在越界时，本规则特化为ID\_arrayIndexOverflow。
 <br/>

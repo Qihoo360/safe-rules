@@ -255,18 +255,18 @@
         "reference": "C++ Core Guidelines P.8,C++ Core Guidelines E.13"
     },
     "ID_insufficientDelete": {
-        "checkPoint": "用new分配的数组应使用delete[]释放，不应使用delete释放",
+        "checkPoint": "用delete释放数组不可漏写中括号",
         "level": "error",
-        "comment": "用new分配的数组不应该用delete释放，应该用delete[]释放，否则引发标准未定义的错误。",
+        "comment": "用new分配的数组应该用delete[]释放，不可漏写中括号，否则引发标准未定义的错误。",
         "tag": "resource",
         "related": "ID_excessiveDelete",
         "standard": "ISO/IEC 14882:2003 5.3.5(2)-undefined,ISO/IEC 14882:2011 5.3.5(2)-undefined,ISO/IEC 14882:2017 8.3.5(2)-undefined",
         "reference": "C++ Core Guidelines ES.61"
         },
     "ID_excessiveDelete": {
-        "checkPoint": "用new分配的单个对象应该用delete释放，不应该用delete[]释放",
+        "checkPoint": "用delete释放对象不可多写中括号",
         "level": "error",
-        "comment": "用new分配的单个对象应该用delete释放，不应该用delete[]释放，否则引发标准未定义的错误。",
+        "comment": "用new分配的对象应该用delete释放，不可用delete[]释放，否则引发标准未定义的错误。",
         "tag": "resource",
         "related": "ID_insufficientDelete",
         "standard": "ISO/IEC 14882:2003 5.3.5(2)-undefined,ISO/IEC 14882:2011 5.3.5(2)-undefined,ISO/IEC 14882:2017 8.3.5(2)-undefined",
@@ -275,7 +275,7 @@
     "ID_incompatibleDealloc": {
         "checkPoint": "资源的分配与回收方法应配套使用",
         "level": "error",
-        "comment": "不同的资源分配与回收函数采用不同的资源管理方式，如果不配套使用会引发严重错误。",
+        "comment": "不同的分配回收方法属于不同的资源管理体系，如果不配套使用会引发严重错误。",
         "tag": "resource",
         "standard": "ISO/IEC 9899:2011 7.22.3.3(2)-undefined,ISO/IEC 9899:2011 7.22.3.4(3)-undefined",
         "reference": "SEI CERT MEM51-CPP"
@@ -1536,9 +1536,9 @@
         "reference": "CWE-770,SEI CERT MEM05-C"
         },
     "ID_forbidMallocAndFree": {
-        "checkPoint": "C++代码中禁用malloc、free等内存分配与回收函数",
+        "checkPoint": "C++代码中禁用malloc、free等内存管理函数",
         "level": "warning",
-        "comment": "malloc、free等函数是C语言的内存管理函数，在C++代码中应使用C++面向对象的内存管理方法。",
+        "comment": "malloc、free是C语言的内存管理函数，在C++代码中应使用C++面向对象的内存管理方法。",
         "tag": "resource",
         "related": "ID_ownerlessResource",
         "reference": "C++ Core Guidelines R.10"
@@ -3045,7 +3045,7 @@
     "ID_implementationDefinedFunction": {
         "checkPoint": "避免使用由实现定义的库函数",
         "level": "warning",
-        "comment": "由实现定义的(implementation-defined)库函数存在语言标准之外的行为。",
+        "comment": "由实现定义的（implementation-defined）库函数存在语言标准之外的行为。",
         "tag": "security",
         "standard": "ISO/IEC 9899:2011 7.22.4.1(2)-implementation,ISO/IEC 9899:2011 7.22.4.4(5)-implementation,ISO/IEC 9899:2011 7.22.4.6(2)-implementation,ISO/IEC 9899:2011 7.22.4.8(3)-implementation,ISO/IEC 9899:2011 7.27.2.1(3)-implementation,ISO/IEC 9899:2011 7.14.1.1(3)-implementation",
         "reference": "MISRA C 2004 20.8,MISRA C 2004 20.11,MISRA C 2004 20.12,MISRA C 2012 21.5,MISRA C 2012 21.8,MISRA C 2012 21.10,MISRA C++ 2008 18-0-3,MISRA C++ 2008 18-0-4,MISRA C++ 2008 18-7-1"
