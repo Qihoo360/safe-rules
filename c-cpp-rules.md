@@ -976,12 +976,12 @@ ID_improperAuthorization&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 Result foo() {
     auto req = getRequest();
     auto res = sqlQuery(
-        "select * from db where key='%s'", reqkey"]
+        "select * from db where key='%s'", req["key"]
     );
     return res;
 }
 ```
-设req对应用户请求，sqlQuery将请求中的key字段替换格式化占位符后执行查询，这个模式存在多种问题，应判断用户是否具有读取数据库相关字段的权限，而且还应判断reqkey"\]的值是否安全，详见ID\_hijack。
+设req对应用户请求，sqlQuery将请求中的key字段替换格式化占位符后执行查询，这个模式存在多种问题，应判断用户是否具有读取数据库相关字段的权限，而且还应判断req\["key"\]的值是否安全，详见ID\_hijack。
 <br/>
 <br/>
 
