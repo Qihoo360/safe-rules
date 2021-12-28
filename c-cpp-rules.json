@@ -3021,9 +3021,9 @@
     "ID_forbidLongjmp": {
         "checkPoint": "禁用setjmp、longjmp",
         "level": "warning",
-        "comment": "setjmp、longjmp可以在过程间跳转，绕过常规的函数调用机制，进一步破坏了结构化编程理念，而且无法与C++语言的基本实现机制兼容，极易造成意料之外的错误。",
+        "comment": "setjmp、longjmp可以在函数间跳转，进一步破坏了结构化编程理念，非框架代码不应使用。",
         "tag": "function",
-        "standard": "ISO/IEC 14882:2003 18.7(4)-undefined,ISO/IEC 14882:2011 18.10(4)-undefined",
+        "standard": "ISO/IEC 9899:1999 7.13.2.1(2)-undefined,ISO/IEC 14882:2011 18.10(4)-undefined",
         "reference": "MISRA C 2004 20.7,MISRA C 2012 21.4,MISRA C++ 2008 17-0-5,C++ Core Guidelines SL.C.1"
         },
     "ID_obsoleteFunction": {

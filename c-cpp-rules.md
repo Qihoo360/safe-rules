@@ -9647,7 +9647,7 @@ ID_forbidLongjmp&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function warning
 
 <hr/>
 
-setjmp、longjmp可以在过程间跳转，绕过常规的函数调用机制，进一步破坏了结构化编程理念，而且无法与C\+\+语言的基本实现机制兼容，极易造成意料之外的错误。  
+setjmp、longjmp可以在函数间跳转，进一步破坏了结构化编程理念，非框架代码不应使用。  
   
 示例：
 ```
@@ -9668,12 +9668,14 @@ int main() {
     }
 }
 ```
-例中div函数的参数不符合要求时，会跳转到setjmp处，从而进行异常处理，这也是setjmp、longjmp的常用场景，但在C\+\+代码中应使用语言提供的异常处理方式，以更简练的代码实现更高的可维护性。
+setjmp返回0表示设置跳转位置成功，之后如果调用longjmp会跳回setjmp的位置，这时setjmp返回非0值，这种机制在C语言中可以用作异常处理，也可以实现“协程”等概念，但会使代码的可维护性显著降低，在普通的业务逻辑或算法实现中不应使用。  
+  
+setjmp与longjmp由jmp\_buf参数关联，应在同一线程中使用，如果调用longjmp时没有对应的setjmp，或setjmp所在函数已经结束执行，会导致标准未定义的行为，而且要注意setjmp、longjmp无法与C\+\+对象自动析构等机制兼容，极易造成意料之外的错误。
 <br/>
 <br/>
 
 #### 依据
-ISO/IEC 14882:2003 18.7(4)-undefined  
+ISO/IEC 9899:1999 7.13.2.1(2)-undefined  
 ISO/IEC 14882:2011 18.10(4)-undefined  
 <br/>
 
