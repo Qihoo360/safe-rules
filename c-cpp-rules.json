@@ -3079,7 +3079,7 @@
     "ID_unlimitedAuthority": {
         "checkPoint": "对文件设定合理的权限",
         "level": "warning",
-        "comment": "进程创建的文件不应具有被其他用户访问的权限，而且进程之间不应直接通过文件进行通信，应实现合理的接口和交互机制。",
+        "comment": "文件的访问权限不可过于宽松，否则很容易遭到窃取或篡改。",
         "tag": "security",
         "standard": "ISO/IEC 9899:2011 K.3.5.2.1(7),ISO/IEC 14882:2017 30.10.15.26",
         "reference": "CWE-266,CWE-732,SEI CERT FIO06-C"
@@ -3160,12 +3160,12 @@
         "tag": "type",
         "reference": "C++ Core Guidelines C.2,C++ Core Guidelines C.8"
         },
-    "ID_nullACL": {
-        "checkPoint": "对用户设置合理的权限",
+    "ID_improperAuthorization": {
+        "checkPoint": "落实对用户的权限管理",
         "level": "warning",
-        "comment": "合理设置用户的访问权限，不可不加限制。",
+        "comment": "需落实对用户的权限管理，对无权限的请求予以拒绝。",
         "tag": "security",
-        "reference": "CWE-732"
+        "reference": "CWE-285"
         },
     "ID_redundantSemicolon": {
         "checkPoint": "不应存在多余的分号",

@@ -4,13 +4,13 @@
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对C、C++语言，本文收录了413种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对 C、C++ 语言，本文收录了 413 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
 ## 规则说明
 
-规则按如下主题分为15个类别：
+规则按如下主题分为 15 个类别：
 
  1. [Security：](#__Security)敏感数据保护、攻击防御等问题
  2. [Resource：](#__Resource)资源分配、使用与回收
@@ -30,8 +30,8 @@
 
 每条规则包括：
 
- - 编号：规则在本文中的章节编号，以“R”开头，称为Section-ID
- - 名称：用简练的短语描述违反规则的状况，以“ID_”开头，称为Fault-ID
+ - 编号：规则在本文中的章节编号，以“R”开头，称为 Section-ID
+ - 名称：用简练的短语描述违反规则的状况，以“ID_”开头，称为 Fault-ID
  - 标题：规则的定义
  - 说明：规则设立的原因、示例、违反规则的后果、改进建议、参照依据、参考资料等内容
 
@@ -46,26 +46,26 @@
 
  - 示例：规则相关的示例代码，指明符合规则（Compliant）的和违反规则（Non-compliant）的情况
  - 相关：与当前规则有相关性的规则，可作为扩展阅读的线索
- - 依据：规则依照的ISO/IEC标准，C规则以ISO/IEC 9899:2011为主，C++规则以ISO/IEC 14882:2011为主
+ - 依据：规则依照的 ISO/IEC 标准，C 规则以 ISO/IEC 9899:2011 为主，C++ 规则以 ISO/IEC 14882:2011 为主
  - 配置：某些规则的对象可由用户指定，审计工具可以此为参照实现定制化功能
- - 参考：规则参考的其他规范条款，如C++ Core Guidelines、MISRA、CWE、SEI CERT等，也可作为扩展阅读的线索
+ - 参考：规则参考的其他规范条款，如 C++ Core Guidelines、MISRA、CWE、SEI CERT 等，也可作为扩展阅读的线索
 
 规则的相关性分为：
 
- - 特化：设规则A的特殊情况需要由规则B阐明，称规则B是规则A的特化
- - 泛化：与特化相反，称规则A是规则B的泛化
+ - 特化：设规则 A 的特殊情况需要由规则 B 阐明，称规则 B 是规则 A 的特化
+ - 泛化：与特化相反，称规则 A 是规则 B 的泛化
  - 相交：设两个规则针对不同的问题，但在内容上有一定的交集，称这两个规则相交
 
-规则以“``标准名称:版本 章节编号(段落编号)-性质``”的格式引用标准，如“``ISO/IEC 14882:2011 5.6(4)-undefined``”，表示引用C++11标准的第5章第6节第4段说明的具有undefined性质的问题。  
+规则以“``标准名称:版本 章节编号(段落编号)-性质``”的格式引用标准，如“``ISO/IEC 14882:2011 5.6(4)-undefined``”，表示引用 C++11 标准的第 5 章第 6 节第 4 段说明的具有 undefined 性质的问题。  
 
 其中“性质”分为：
 
- - undefined：一般指某种错误，使程序产生undefined behavior
+ - undefined：一般指某种错误，使程序产生 undefined behavior
  - unspecified：标准不作明确规定的情况，由编译器或环境自主定义，具有随意性
- - implementation defined：由实现定义，也是由编译器或环境自主定义，与unspecified不同，要求有明确的文档支持
+ - implementation defined：由实现定义，也是由编译器或环境自主定义，与 unspecified 不同，要求有明确的文档支持
  - deprecated：已过时或已废弃的用法
 
-本文以ISO/IEC 9899:2011以及ISO/IEC 14882:2011为主要依据，兼顾C18、C++17以及历史标准，没有特殊说明的规则同时适用于C语言和C++语言，只适用于某一种语言的规则会另有说明。
+本文以 ISO/IEC 9899:2011、ISO/IEC 14882:2011 为主要依据，兼顾 C18、C++17 以及历史标准，没有特殊说明的规则同时适用于 C 语言和 C++ 语言，只适用于某一种语言的规则会另有说明。
 
 ## 规则选取
 本文是适用于不同应用场景的规则集合，读者可选取适合自己需求的规则。
@@ -84,7 +84,7 @@
   - [R1.6 避免在一个事务中通过路径多次访问同一文件](#ID_TOCTOU)
   - [R1.7 访问共享数据应遵循合理的同步机制](#ID_dataRaces)
   - [R1.8 对文件设定合理的权限](#ID_unlimitedAuthority)
-  - [R1.9 对用户设置合理的权限](#ID_nullACL)
+  - [R1.9 落实对用户的权限管理](#ID_improperAuthorization)
   - [R1.10 不应引用危险符号名称](#ID_dangerousName)
   - [R1.11 避免调用具有危险性的函数](#ID_dangerousFunction)
   - [R1.12 不应调用已过时的函数](#ID_obsoleteFunction)
@@ -651,7 +651,7 @@ public:
     const unsigned char* ptr() const { return buf; }
 };
 ```
-SecretBuf在构造函数中通过VirtualLock将内存页面锁定在物理内存中，阻止了与外存的交换，可在一定程度上阻止恶意嗅探工具的运行，在析构函数中解除锁定并归还相关内存，解除锁定之前清除敏感数据是有必要的，否则其残留数据在解除锁定之后仍可能被交换到外存，可进一步参见ID\_unsafeCleanup。  
+SecretBuf在构造函数中通过VirtualLock将内存页面锁定在物理内存中，阻止了与外存的交换，可在一定程度上阻止其他进程的恶意嗅探，在析构函数中解除锁定，解锁之前有必要清除敏感数据，否则解锁之后敏感数据仍有可能被交换到外存，进一步可参见ID\_unsafeCleanup。  
   
 SecretBuf的使用方法如下：
 ```
@@ -788,22 +788,22 @@ ID_hijack&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 示例：
 ```
 Result foo() {
-    Result res = sqlQuery(
-        "select * from users where user='%s'", userInput()  // Non-compliant
+    return sqlQuery(
+        "select * from db where key='%s'", userInput()  // Non-compliant
     );
-    return res;
 }
 ```
-将用户的输入直接拼入SQL脚本是不安全的，如果用户输入“xxx' or 'x'='x”一类的字符串则相当于执行的是“select \* from users where user='xxx' or 'x'='x'”，一个恒为真的条件使where限制失效，造成所有数据被返回。  
+设userInput返回用户输入的字符串，sqlQuery将用户输入替换格式化占位符后执行SQL语句，如果用户输入“xxx' or 'x'='x”一类的字符串则相当于执行的是“select \* from db where key='xxx' or 'x'='x'”，一个恒为真的条件使where限制失效，造成所有数据被返回，所以在执行SQL语句之前应判断用户输入的安全性。  
   
 又如：
 ```
 string bar() {
-    string path = "/myhome/mydata/" + userInput();  // Non-compliant
-    return read_file(path);
+    return readFile(
+        "/myhome/mydata/" + userInput()  // Non-compliant
+    );
 }
 ```
-这段代码意在将用户输入限制在/myhome/mydata目录下，然而这么做是不安全的，如果用户的输入是带有“../”这种相对路径的形式，则仍可绕过限制，所以在read\_file之前应判断路径的可靠性。  
+这段代码意在将用户输入的路径限制在/myhome/mydata目录下，然而这么做是不安全的，如果用户输入带有“../”这种相对路径，则仍可绕过限制，所以在读取文件之前应判断路径的可靠性。  
   
 注意，“用户输入”不单指人的输入，不受程序直接控制的数据，如源自外存、硬件或其他进程的输入均在此范围内。
 <br/>
@@ -841,7 +841,7 @@ void create(const char* path) {
     }
 }
 ```
-示例代码先通过路径判断文件是否存在，如果存在则不作处理，如果不存在则再次通过路径创建文件并向文件写入数据。如果攻击者把握住时机，在程序执行到\#1和\#2之间时将path创建为指向其他文件的链接，那么被指向的文件会遭到破坏，尤其是当进程的权限比较高时，其破坏力是难以控制的。  
+示例代码先通过路径判断文件是否存在，如果存在则不作处理，如果不存在则再次通过路径创建文件并写入数据。如果攻击者把握住时机，在程序执行到\#1和\#2之间时将path创建为指向其他文件的链接，那么被指向的文件会遭到破坏，尤其是当进程的权限比较高时，其破坏力是难以控制的。  
   
 应只通过路径打开文件对象一次，只通过文件对象操作文件：
 ```
@@ -927,28 +927,27 @@ ID_unlimitedAuthority&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-进程创建的文件不应具有被其他用户访问的权限，而且进程之间不应直接通过文件进行通信，应实现合理的接口和交互机制。  
+文件的访问权限不可过于宽松，否则很容易遭到窃取或篡改。  
   
 示例：
 ```
-FILE* fp;
 umask(000);  // Non-compliant
-fp = fopen("bar.txt", "w");  // Old method
+FILE* fp = fopen("bar", "w");  // Old method
 ....
 fclose(fp);
 ```
-例中umask函数开放了所有用户对bar.txt文件的读写权限，这是不安全的，很可能遭到攻击者的窃取或篡改。  
+例中umask函数开放了所有用户对文件的读写权限，这是很不安全的，进程之间不应直接通过文件通信，应实现安全的接口和交互机制。  
   
 由于历史原因，C语言的fopen和C\+\+语言的fstream都不能确保创建的文件只能被当前用户访问，C11提供了fopen\_s函数，C\+\+17提供了std::filesystem::permissions等方法填补了这方面的需求。  
   
-fopen\_s函数简例：
+fopen\_s简例：
 ```
-FILE* fp;
-errno_t e = fopen_s(&fp, "bar.txt", "w");  // Good
+FILE* fp = NULL;
+errno_t e = fopen_s(&fp, "bar", "w");  // Good
 ....
 fclose(fp);
 ```
-fopen\_s函数与fopen函数不同，fopen\_s函数不受umask等函数的影响，直接将文件的权限设为当前用户私有，是一种更安全的方法，建议用fopen\_s函数替代fopen函数。
+fopen\_s与fopen不同，fopen\_s可以不受umask等函数的影响，直接将文件的权限设为当前用户私有，是一种更安全的方法。
 <br/>
 <br/>
 
@@ -964,26 +963,30 @@ SEI CERT FIO06-C
 <br/>
 <br/>
 
-### <span id="ID_nullACL">▌R1.9 对用户设置合理的权限</span>
+### <span id="ID_improperAuthorization">▌R1.9 落实对用户的权限管理</span>
 
-ID_nullACL&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
+ID_improperAuthorization&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-合理设置用户的访问权限，不可不加限制。  
+需落实对用户的权限管理，对无权限的请求予以拒绝。  
   
 示例：
 ```
-SECURITY_DESCRIPTOR sd;
-InitializeSecurityDescriptor(&sd, SECURITY_DESCRIPTOR_REVISION);
-SetSecurityDescriptorDacl(&sd, TRUE, NULL, FALSE);  // Non-compliant
+Result foo() {
+    auto req = getRequest();
+    auto res = sqlQuery(
+        "select * from db where key='%s'", reqkey"]
+    );
+    return res;
+}
 ```
-本例使用Windows API SetSecurityDescriptorDac创建了NULL ACL，与之相关的资源可被任意用户访问，这是不安全的。
+设req对应用户请求，sqlQuery将请求中的key字段替换格式化占位符后执行查询，这个模式存在多种问题，应判断用户是否具有读取数据库相关字段的权限，而且还应判断reqkey"\]的值是否安全，详见ID\_hijack。
 <br/>
 <br/>
 
 #### 参考
-CWE-732  
+CWE-285  
 <br/>
 <br/>
 
@@ -1516,7 +1519,7 @@ C++ Core Guidelines E.28
 
 ### <span id="ID_ownerlessResource">▌R2.1 资源管理应遵循面向对象的方法</span>
 
-ID_ownerlessResource&emsp;&emsp;&emsp;&emsp;&nbsp;:droplet: resource warning
+ID_ownerlessResource&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
 <hr/>
 
@@ -1602,7 +1605,7 @@ C++ Core Guidelines R.12
 
 ### <span id="ID_resourceLeak">▌R2.2 不可失去对已分配资源的控制</span>
 
-ID_resourceLeak&emsp;&emsp;&emsp;&emsp;&nbsp;:droplet: resource warning
+ID_resourceLeak&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
 <hr/>
 
@@ -1639,7 +1642,7 @@ C++ Core Guidelines E.13
 
 ### <span id="ID_memoryLeak">▌R2.3 不可失去对已分配内存的控制</span>
 
-ID_memoryLeak&emsp;&emsp;&emsp;&emsp;&nbsp;:droplet: resource warning
+ID_memoryLeak&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
 <hr/>
 
@@ -1677,7 +1680,7 @@ C++ Core Guidelines E.13
 
 ### <span id="ID_illAccess">▌R2.4 不可访问未初始化或已释放的资源</span>
 
-ID_illAccess&emsp;&emsp;&emsp;&emsp;&nbsp;:droplet: resource error
+ID_illAccess&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
 
 <hr/>
 
@@ -1721,7 +1724,7 @@ SEI CERT FIO46-C
 
 ### <span id="ID_doubleFree">▌R2.5 资源不可被重复释放</span>
 
-ID_doubleFree&emsp;&emsp;&emsp;&emsp;&nbsp;:droplet: resource error
+ID_doubleFree&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
 
 <hr/>
 
@@ -1755,7 +1758,7 @@ CWE-415
 
 ### <span id="ID_incompatibleDealloc">▌R2.6 资源的分配与回收方法应配套使用</span>
 
-ID_incompatibleDealloc&emsp;&emsp;&emsp;&emsp;&nbsp;:droplet: resource error
+ID_incompatibleDealloc&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
 
 <hr/>
 
@@ -1791,7 +1794,7 @@ SEI CERT MEM51-CPP
 
 ### <span id="ID_excessiveDelete">▌R2.7 用delete释放对象不可多写中括号</span>
 
-ID_excessiveDelete&emsp;&emsp;&emsp;&emsp;&nbsp;:droplet: resource error
+ID_excessiveDelete&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
 
 <hr/>
 
@@ -1823,7 +1826,7 @@ C++ Core Guidelines ES.61
 
 ### <span id="ID_insufficientDelete">▌R2.8 用delete释放数组不可漏写中括号</span>
 
-ID_insufficientDelete&emsp;&emsp;&emsp;&emsp;&nbsp;:droplet: resource error
+ID_insufficientDelete&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
 
 <hr/>
 
@@ -1858,7 +1861,7 @@ C++ Core Guidelines ES.61
 
 ### <span id="ID_memberDeallocation">▌R2.9 对象申请的资源须在析构函数中释放</span>
 
-ID_memberDeallocation&emsp;&emsp;&emsp;&emsp;&nbsp;:droplet: resource warning
+ID_memberDeallocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
 <hr/>
 
@@ -1896,7 +1899,7 @@ C++ Core Guidelines E.6
 
 ### <span id="ID_throwInConstructor">▌R2.10 如果构造函数抛出异常需确保相关资源没有泄漏</span>
 
-ID_throwInConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:droplet: resource warning
+ID_throwInConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
 <hr/>
 
@@ -1998,7 +2001,7 @@ C++ Core Guidelines R.10
 
 ### <span id="ID_multiAllocation">▌R2.12 在一个语句中最多执行一次显式资源分配</span>
 
-ID_multiAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:droplet: resource warning
+ID_multiAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
 <hr/>
 
@@ -2036,7 +2039,7 @@ C++ Core Guidelines R.13
 
 ### <span id="ID_illDealloc">▌R2.13 在栈上分配的空间以及非动态申请的资源不可被释放</span>
 
-ID_illDealloc&emsp;&emsp;&emsp;&emsp;&nbsp;:droplet: resource error
+ID_illDealloc&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
 
 <hr/>
 
@@ -2067,7 +2070,7 @@ ISO/IEC 14882:2011 3.7.4.2(4)-undefined
 
 ### <span id="ID_stackAllocation">▌R2.14 避免使用在栈上分配内存的函数</span>
 
-ID_stackAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:droplet: resource warning
+ID_stackAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
 <hr/>
 
@@ -2099,7 +2102,7 @@ SEI CERT MEM05-C
 
 ### <span id="ID_unnecessaryAllocation">▌R2.15 避免不必要的内存分配</span>
 
-ID_unnecessaryAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:droplet: resource warning
+ID_unnecessaryAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
 <hr/>
 
@@ -2138,7 +2141,7 @@ ID_dynamicAllocation
 
 ### <span id="ID_dynamicAllocation">▌R2.16 避免动态内存分配</span>
 
-ID_dynamicAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:droplet: resource warning
+ID_dynamicAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
 <hr/>
 
@@ -2178,7 +2181,7 @@ C++ Core Guidelines R.5
 
 ### <span id="ID_copiedFILE">▌R2.17 标准FILE对象不应被复制</span>
 
-ID_copiedFILE&emsp;&emsp;&emsp;&emsp;&nbsp;:droplet: resource warning
+ID_copiedFILE&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
 <hr/>
 
@@ -2207,7 +2210,7 @@ MISRA C 2012 22.5
 
 ### <span id="ID_useAfterMove">▌R2.18 对象被std::move之后不应再被使用</span>
 
-ID_useAfterMove&emsp;&emsp;&emsp;&emsp;&nbsp;:droplet: resource warning
+ID_useAfterMove&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
 <hr/>
 
@@ -16220,8 +16223,8 @@ ID_spaceStyle&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style suggestion
 ```
 a= 0;                   // Bad
 b = a +1;               // Bad
-c = ~ a;                // Bad
-d = b ++;               // Bad
+c =~ a;                 // Bad
+while (d --> 0)         // Bad
 
 a == 0 ? foo() :bar();  // Bad
 baz (1 , 2 ,3);         // Bad
@@ -16245,7 +16248,7 @@ ID_braceStyle&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style suggestion
 
 大括号应遵循统一风格。  
   
-对于命名空间、类、函数体、复合语句等不同属的大括号，其换行方式可以不同，但同属大括号的换行方式应该是一致的。  
+对于命名空间、类、函数体、复合语句等不同类别的大括号，其换行方式可以不同，但同类大括号的换行方式应该是一致的。  
   
 示例：
 ```
@@ -16391,7 +16394,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这413条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在Issue区发表高见，管理员修正数据库后会在致谢列表中存档。
+&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 413 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
 
 &emsp;&emsp;此致
 
