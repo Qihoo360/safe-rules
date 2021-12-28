@@ -91,12 +91,12 @@
   - [R1.13 禁用不安全的字符串函数](#ID_unsafeStringFunction)
   - [R1.14 确保字符串以空字符结尾](#ID_improperNullTermination)
   - [R1.15 避免使用由实现定义的库函数](#ID_implementationDefinedFunction)
-  - [R1.16 除数不可存在值为0的可能性](#ID_divideByZero)
-  - [R1.17 禁用atof、atoi、atol以及atoll等函数](#ID_forbidAtox)
+  - [R1.16 除数不可存在值为 0 的可能性](#ID_divideByZero)
+  - [R1.17 禁用 atof、atoi、atol 以及 atoll 等函数](#ID_forbidAtox)
   - [R1.18 格式化字符串应为常量](#ID_variableFormatString)
   - [R1.19 与程序实现相关的信息不可被外界感知](#ID_addressExposure)
-  - [R1.20 不应硬编码IP地址](#ID_hardcodedIP)
-  - [R1.21 避免使用errno](#ID_deprecatedErrno)
+  - [R1.20 不应硬编码 IP 地址](#ID_hardcodedIP)
+  - [R1.21 避免使用 errno](#ID_deprecatedErrno)
 <br/>
 
 <span id="__Resource">**[2. Resource](#resource)**</span>
@@ -619,7 +619,7 @@ void foo(User* u) {
  ● 应具备反调试机制，使外界无法获得进程的内部数据  
  ● 应具备反注入机制，使外界无法篡改程序的行为  
   
-下面以Windows平台为例，给出屏蔽内存交换的简单示例：
+下面以 Windows 平台为例，给出防止内存交换到外存的示例：
 ```
 class SecretBuf {
     size_t len = 0;
@@ -651,9 +651,9 @@ public:
     const unsigned char* ptr() const { return buf; }
 };
 ```
-SecretBuf在构造函数中通过VirtualLock将内存页面锁定在物理内存中，阻止了与外存的交换，可在一定程度上阻止其他进程的恶意嗅探，在析构函数中解除锁定，解锁之前有必要清除敏感数据，否则解锁之后敏感数据仍有可能被交换到外存，进一步可参见ID\_unsafeCleanup。  
+SecretBuf 在构造函数中通过 VirtualLock 将内存页面锁定在物理内存中，阻止了与外存的交换，可在一定程度上阻止其他进程的恶意嗅探，在析构函数中解除锁定，解锁之前有必要清除敏感数据，否则解锁之后敏感数据仍有可能被交换到外存，进一步可参见 ID\_unsafeCleanup。  
   
-SecretBuf的使用方法如下：
+SecretBuf 的使用方法如下：
 ```
 void foo() {
     SecretBuf buf(256);
@@ -664,7 +664,7 @@ void foo() {
     }
 }
 ```
-对于Linux等系统可参见如下有相似功能的系统API：
+对于 Linux 等系统可参见如下有相似功能的系统 API：
 ```
 int mlock(const void* addr, size_t len);     // In <sys/mman.h>
 int munlock(const void* addr, size_t len);
@@ -705,11 +705,11 @@ void foo() {
     memset(password, 0, sizeof(password));  // Non-compliant
 }
 ```
-本例调用memset覆盖敏感数据以达到清理的目的，然而敏感信息password为局部数组且memset之后没有再被引用，根据相关标准，编译器可将memset过程去掉，结果是没有得到有效清理。  
+本例调用 memset 覆盖敏感数据以达到清理的目的，然而敏感信息 password 为局部数组且 memset 之后没有再被引用，根据相关标准，编译器可将 memset 过程去掉，结果是没有得到有效清理。  
   
-C11提供了memset\_s函数以避免这种问题，某些平台和库也提供了相关支持，如SecureZeroMemory、explicit\_bzero、OPENSSL\_cleanse等不会被优化掉的函数。  
+C11 提供了 memset\_s 函数以避免这种问题，某些平台和库也提供了相关支持，如 SecureZeroMemory、explicit\_bzero、OPENSSL\_cleanse 等不会被优化掉的函数。  
   
-对于C\+\+语言，可将敏感数据地址设为volatile以避免编译器的优化，再用std::fill等方法清理，如：
+对于 C\+\+ 语言，可将敏感数据地址设为 volatile 以避免编译器的优化，再用 std::fill 等方法清理，如：
 ```
 void foo() {
     ....
@@ -718,9 +718,9 @@ void foo() {
     std::fill_n(v_address, sizeof(password), v_padding);   // Compliant
 }
 ```
-也可以仿照std::fill\_n利用volatile关键字的特性自行实现相关功能，关于volatile关键字的特性可参见ID\_forbidVolatile。  
+也可以仿照 std::fill\_n 利用 volatile 关键字的特性自行实现相关功能，可参见ID\_forbidVolatile。  
   
-关于本规则的实际应用可参见ID\_secretLeak的相关示例。
+关于本规则的实际应用可参见 ID\_secretLeak 的相关示例。
 <br/>
 <br/>
 
@@ -793,7 +793,7 @@ Result foo() {
     );
 }
 ```
-设userInput返回用户输入的字符串，sqlQuery将用户输入替换格式化占位符后执行SQL语句，如果用户输入“xxx' or 'x'='x”一类的字符串则相当于执行的是“select \* from db where key='xxx' or 'x'='x'”，一个恒为真的条件使where限制失效，造成所有数据被返回，所以在执行SQL语句之前应判断用户输入的安全性。  
+设 userInput 返回用户输入的字符串，sqlQuery 将用户输入替换格式化占位符后执行 SQL 语句，如果用户输入“xxx' or 'x'='x”一类的字符串则相当于执行的是“select \* from db where key='xxx' or 'x'='x'”，一个恒为真的条件使 where 限制失效，造成所有数据被返回，所以在执行 SQL 语句之前应判断用户输入的安全性。  
   
 又如：
 ```
@@ -803,7 +803,7 @@ string bar() {
     );
 }
 ```
-这段代码意在将用户输入的路径限制在/myhome/mydata目录下，然而这么做是不安全的，如果用户输入带有“../”这种相对路径，则仍可绕过限制，所以在读取文件之前应判断路径的可靠性。  
+这段代码意在将用户输入的路径限制在 /myhome/mydata 目录下，然而这么做是不安全的，如果用户输入带有“../”这种相对路径，则仍可绕过限制，所以在读取文件之前应判断路径的可靠性。  
   
 注意，“用户输入”不单指人的输入，不受程序直接控制的数据，如源自外存、硬件或其他进程的输入均在此范围内。
 <br/>
@@ -841,7 +841,7 @@ void create(const char* path) {
     }
 }
 ```
-示例代码先通过路径判断文件是否存在，如果存在则不作处理，如果不存在则再次通过路径创建文件并写入数据。如果攻击者把握住时机，在程序执行到\#1和\#2之间时将path创建为指向其他文件的链接，那么被指向的文件会遭到破坏，尤其是当进程的权限比较高时，其破坏力是难以控制的。  
+示例代码先通过路径判断文件是否存在，如果存在则不作处理，如果不存在则再次通过路径创建文件并写入数据。如果攻击者把握住时机，在程序执行到 \#1 和 \#2 之间时将 path 创建为指向其他文件的链接，那么被指向的文件会遭到破坏，尤其是当进程的权限比较高时，其破坏力是难以控制的。  
   
 应只通过路径打开文件对象一次，只通过文件对象操作文件：
 ```
@@ -853,9 +853,9 @@ void create(const char* path) {
     }
 }
 ```
-利用“wx”模式即可保证fopen在文件不存在的时候执行成功，文件存在的时候执行失败。  
+利用“wx”模式即可保证 fopen 在文件不存在的时候执行成功，文件存在的时候执行失败。  
   
-注意，目前C\+\+的fstream尚无法完成与“wx”模式相同的功能，相同功能的代码要用fopen实现。
+注意，目前 C\+\+ 的 fstream 尚无法完成与“wx”模式相同的功能，相同功能的代码要用 fopen 实现。
 <br/>
 <br/>
 
@@ -883,7 +883,7 @@ int foo() {
     return id++;  // Data races in multithreading
 }
 ```
-例中foo函数意在返回不同的整数，但如果id被多个线程同时读取或写入，会返回相同的结果导致逻辑错误。  
+例中 foo 函数意在返回不同的整数，但如果 id 被多个线程同时读取或写入，会返回相同的结果导致逻辑错误。  
   
 应改为：
 ```
@@ -892,7 +892,7 @@ int foo() {
     return id.fetch_add(1);  // OK
 }
 ```
-其中atomic是C\+\+标准原子类，fetch\_add将对象持有的整数增1并返回之前的值，这个过程不会被多个线程同时执行，只能依次执行，从而保证了返回值的唯一性。  
+其中 atomic 是 C\+\+ 标准原子类，fetch\_add 将对象持有的整数增 1 并返回之前的值，这个过程不会被多个线程同时执行，只能依次执行，从而保证了返回值的唯一性。  
   
 又如：
 ```
@@ -909,7 +909,7 @@ void bar() {
     }
 }
 ```
-如果p指向共享数据，那么攻击者可以通过控制共享数据实现对程序流程的劫持，比如在\#0处\*p的值本为0，攻击者在\#1之前改变\*p的值，迫使流程向\#2或\#3处跳转。  
+如果 p 指向共享数据，那么攻击者可以通过控制共享数据实现对程序流程的劫持，比如在 \#0 处 \*p 的值本为 0，攻击者在 \#1 之前改变 \*p 的值，迫使流程向 \#2 或 \#3 处跳转。  
   
 如果不同的访问顺序会对结果产生影响，则往往意味着错误和漏洞，这种情况称为“[竞态条件（race conditon）](https://en.wikipedia.org/wiki/Race_condition)”，使攻击者可以抢在某关键过程前后通过修改共享数据达到攻击目的，所以应合理设计数据的访问方式或使用锁、信号量等同步手段保证数据的可靠性。
 <br/>
@@ -936,18 +936,18 @@ FILE* fp = fopen("bar", "w");  // Old method
 ....
 fclose(fp);
 ```
-例中umask函数开放了所有用户对文件的读写权限，这是很不安全的，进程之间不应直接通过文件通信，应实现安全的接口和交互机制。  
+例中 umask 函数开放了所有用户对文件的读写权限，这是很不安全的，进程之间不应直接通过文件通信，应实现安全的接口和交互机制。  
   
-由于历史原因，C语言的fopen和C\+\+语言的fstream都不能确保创建的文件只能被当前用户访问，C11提供了fopen\_s函数，C\+\+17提供了std::filesystem::permissions等方法填补了这方面的需求。  
+由于历史原因，C 语言的 fopen 和 C\+\+ 语言的 fstream 都不能确保文件只能被当前用户访问，C11 提供了 fopen\_s，C\+\+17 提供了 std::filesystem::permissions 以填补这方面的需求。  
   
-fopen\_s简例：
+fopen\_s 简例：
 ```
 FILE* fp = NULL;
 errno_t e = fopen_s(&fp, "bar", "w");  // Good
 ....
 fclose(fp);
 ```
-fopen\_s与fopen不同，fopen\_s可以不受umask等函数的影响，直接将文件的权限设为当前用户私有，是一种更安全的方法。
+fopen\_s 与 fopen 不同，fopen\_s 可以不受 umask 等函数的影响，直接将文件的权限设为当前用户私有，是一种更安全的方法。
 <br/>
 <br/>
 
@@ -981,7 +981,7 @@ Result foo() {
     return res;
 }
 ```
-设req对应用户请求，sqlQuery将请求中的key字段替换格式化占位符后执行查询，这个模式存在多种问题，应判断用户是否具有读取数据库相关字段的权限，而且还应判断req\["key"\]的值是否安全，详见ID\_hijack。
+设 req 对应用户请求，sqlQuery 将请求中的 key 字段替换格式化占位符后执行查询，这个模式存在多种问题，应判断用户是否具有读取数据库相关字段的权限，而且还应判断 req\["key"\] 的值是否安全，详见 ID\_hijack。
 <br/>
 <br/>
 
@@ -999,11 +999,11 @@ ID_dangerousName&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 弱加密、弱哈希、弱随机、不安全的协议等相关库、函数、类、宏、常量等名称不应出现在代码中。  
   
 这种危险符号名称主要来自：  
- ● 低质量随机数生成算法，如srand、rand等  
- ● 不再适用的哈希算法，如MD2、MD4、MD5、MD6、RIPEMD以及SHA\-1等  
- ● 非加密协议，如HTTP、FTP等  
- ● 低版本的传输层安全协议，如TLSv1.2之前的版本  
- ● 弱加密算法，如DES、3DES等  
+ ● 低质量随机数生成算法，如 srand、rand 等  
+ ● 不再适用的哈希算法，如 MD2、MD4、MD5、MD6、RIPEMD 以及 SHA\-1 等  
+ ● 非加密协议，如 HTTP、FTP 等  
+ ● 低版本的传输层安全协议，如 TLSv1.2 之前的版本  
+ ● 弱加密算法，如 DES、3DES 等  
   
 示例：
 ```
@@ -1023,7 +1023,7 @@ void bar() {
     ....
 }
 ```
-可以在ID\_dangerousName一节的末尾配置关注的危险符号名称，当代码中出现了这些名称时就给出警告。  
+可以在 ID\_dangerousName 一节的末尾配置关注的危险符号名称，当代码中出现了这些名称时就给出警告。  
   
 配置示例：
 ```
@@ -1036,7 +1036,7 @@ CURL_SSLVERSION_TLSv1|TLS1_1_VERSION=Old TLS version
 ```
 配置项等号左侧为危险符号名称，右侧为相关说明，可以指定多个名称对应一个说明，用“|”分隔。  
   
-例中srand以及弱加密算法EVP\_des\_ecb、EVP\_des\_cbc等名称被设为危险名称，当代码中出现同名符号时就按相关说明给出警告。
+例中 srand 以及弱加密算法 EVP\_des\_ecb、EVP\_des\_cbc 等名称被设为危险名称，当代码中出现同名符号时就按相关说明给出警告。
 <br/>
 <br/>
 
@@ -1056,7 +1056,7 @@ ID_dangerousFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-某些库函数或系统API在设计和实现上本身就具有危险性，使用这种函数相当于直接将风险引入了系统。  
+某些库函数或系统 API 在设计和实现上本身就具有危险性，使用这种函数相当于直接将风险引入了系统。  
   
 示例：
 ```
@@ -1072,9 +1072,9 @@ chmod      // Prone to TOCTOU race conditions, use ‘fchmod’ instead
 TerminateThread    // Forced termination of a thread can cause many problems
 SuspendThread      // Forced suspension of a thread can cause many problems
 ```
-gets等函数无法检查缓冲区大小，是公认的不安全函数，TerminateThread等Windows API会强制结束线程的执行，线程持有的资源无法正确释放导致泄漏或死锁，这类函数应避免使用。  
+gets等函数无法检查缓冲区大小，是公认的不安全函数，TerminateThread 等 Windows API 会强制结束线程的执行，线程持有的资源无法正确释放导致泄漏或死锁，这类函数应避免使用。  
   
-可以在ID\_dangerousFunction一节的末尾配置关注的危险函数名称，当代码中出现了这些名称时就给出警告。  
+可以在 ID\_dangerousFunction 一节的末尾配置关注的危险函数名称，当代码中出现了这些名称时就给出警告。  
   
 配置示例：
 ```
@@ -1104,7 +1104,7 @@ ID_obsoleteFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-某些库函数或系统API在设计和实现上存在缺陷并已宣布过时，应使用更完善的替代方法。  
+某些库函数或系统 API 在设计和实现上存在缺陷并已宣布过时，应使用更完善的替代方法。  
   
 示例：
 ```
@@ -1115,7 +1115,7 @@ bsd_signal      // use ‘sigaction’ instead
 gethostbyaddr   // use ‘getnameinfo’ instead
 gethostbyname   // use ‘getaddrinfo’ instead
 ```
-可以在ID\_obsoleteFunction一节的末尾配置关注的危险函数名称，当代码中出现了这些名称时就给出警告。  
+可以在 ID\_obsoleteFunction 一节的末尾配置关注的危险函数名称，当代码中出现了这些名称时就给出警告。  
   
 配置示例：
 ```
@@ -1153,10 +1153,10 @@ strcpy、strcat、wcscpy、wcscat、
 StrCpy、StrCpyA、StrCpyW、StrCat、StrCatA、StrCatW、
 lstrcat、lstrcatA、lstrcatW、lstrcpy、lstrcpyA、lstrcpyW
 ```
-由于历史原因，传统C语言字符串函数在设计上过于简单，要想安全地使用这些函数必须谨慎地检查缓冲区大小，否则对缓冲区合法边界之外的读写会造成运行时错误或安全漏洞。  
+由于历史原因，传统 C 语言字符串函数在设计上过于简单，要想安全地使用这些函数必须谨慎地检查缓冲区大小，否则对缓冲区合法边界之外的读写会造成运行时错误或安全漏洞。  
   
-对于C代码，应改用较为安全的库函数，如用gets\_s替换gets，sprintf\_s替换sprintf。  
-对于C\+\+代码，应改用STL标准库提供的相关功能。  
+对于 C 代码，应改用较为安全的库函数，如用 gets\_s 替换 gets，sprintf\_s 替换 sprintf。  
+对于 C\+\+ 代码，应改用 STL 标准库提供的相关功能。  
   
 示例：
 ```
@@ -1168,7 +1168,7 @@ void foo(const char* s) {
     ....
 }
 ```
-要想正确使用strcpy等函数完全依赖于代码编写者的小心谨慎，这种对人为因素的依赖是不可靠的，禁用不安全的库函数才是明智的选择。
+要想正确使用 strcpy 等函数完全依赖于代码编写者的小心谨慎，这种对人为因素的依赖是不可靠的，禁用不安全的库函数才是明智的选择。
 <br/>
 <br/>
 
@@ -1192,7 +1192,7 @@ ID_improperNullTermination&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warnin
 
 语言要求字符串以空字符结尾，程序应保证有足够的内存空间安置空字符，否则会破坏程序基本的执行机制，造成严重问题。  
   
-空字符指'\\0'、L'\\0'、u'\\0'、U'\\0'，分别对应char\*、wchar\_t\*、char16\_t\*、char32\_t\*等字符串类型。  
+空字符指 '\\0'、L'\\0'、u'\\0'、U'\\0'，分别对应 char\*、wchar\_t\*、char16\_t\*、char32\_t\* 等字符串类型。  
   
 示例：
 ```
@@ -1202,7 +1202,7 @@ void foo(const char* p) {
     printf("%s\n", strupr(a));  // To upper case and print, dangerous
 }
 ```
-例示代码将字符串复制到数组中，然后转为大写并打印，strncpy函数不会在数组的结尾安置空字符'\\0'，一旦p所指字符串的长度超过3，就会导致内存访问错误。  
+例示代码将字符串复制到数组中，然后转为大写并打印，strncpy 不会在数组的结尾安置空字符 '\\0'，一旦 p 所指字符串的长度超过 3，就会导致内存访问错误。  
   
 应改为：
 ```
@@ -1216,7 +1216,7 @@ void foo(const char* p) {
     }
 }
 ```
-将所有数组元素初始化为'\\0'，调用strncpy函数后如果数组最后一个元素是'\\0'，说明输入字符串的长度符合要求，否则可作出相应的异常处理。
+将所有数组元素初始化为 '\\0'，调用 strncpy 后如果数组最后一个元素是 '\\0'，说明输入字符串的长度符合要求，否则可作出相应的异常处理。
 <br/>
 <br/>
 
@@ -1242,9 +1242,9 @@ ID_implementationDefinedFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security 
 由实现定义的（implementation\-defined）库函数存在语言标准之外的行为。  
   
 如：  
- ● cstdlib、stdlib.h中的abort、exit、getenv或system等函数  
- ● ctime、time.h中的clock等函数  
- ● csignal、signal.h中的signal等函数  
+ ● cstdlib、stdlib.h 中的 abort、exit、getenv 或 system 等函数  
+ ● ctime、time.h 中的 clock 等函数  
+ ● csignal、signal.h 中的 signal 等函数  
   
 这些函数的行为取决于编译器、库或环境的生产厂家，同一个函数不同的厂家会有不同的实现，故称这种函数的行为是“由实现定义”的。有高可靠性要求的软件系统应避免使用这种函数，否则需明确各种实现上的具体差异，提高了移植、发布以及兼容性等多方面的成本。  
   
@@ -1256,7 +1256,7 @@ void foo() {
     abort();  // Non-compliant
 }
 ```
-标准规定调用abort后进程应被终止，但进程打开的流是否会被关闭，创建的临时文件是否会被清理等问题是没被明确定义的，由库函数的具体实现定义。
+标准规定调用 abort 后进程应被终止，但进程打开的流是否会被关闭，创建的临时文件是否会被清理等问题是没被明确定义的，由库函数的具体实现定义。
 <br/>
 <br/>
 
@@ -1282,13 +1282,13 @@ MISRA C++ 2008 18-7-1
 <br/>
 <br/>
 
-### <span id="ID_divideByZero">▌R1.16 除数不可存在值为0的可能性</span>
+### <span id="ID_divideByZero">▌R1.16 除数不可存在值为 0 的可能性</span>
 
 ID_divideByZero&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security error
 
 <hr/>
 
-除数为0会导致标准未定义的错误。  
+除数为 0 会导致标准未定义的错误。  
   
 示例：
 ```
@@ -1300,7 +1300,7 @@ void foo() {
     return 100 / n;  // Non-compliant, must determine whether ‘n’ is 0
 }
 ```
-当除数为0时，对于整形数据的除法，进程往往会崩溃，对于浮点型数据的除法，一般会产生“[NaN](https://en.wikipedia.org/wiki/NaN)”这种无效的结果。  
+当除数为 0 时，对于整形数据的除法，进程往往会崩溃，对于浮点型数据的除法，一般会产生“[NaN](https://en.wikipedia.org/wiki/NaN)”这种无效的结果。  
   
 崩溃会给用户不好的体验，而且要注意如果崩溃可由外部输入引起，会被攻击者利用从而迫使程序无法正常工作，具有高可靠性要求的服务类程序更应该注意这一点，可参见“[拒绝服务攻击](https://en.wikipedia.org/wiki/Denial-of-service_attack)”的进一步说明。对于客户端程序，也要防止攻击者对崩溃产生的“[core dump](https://en.wikipedia.org/wiki/Core_dump)”进行恶意调试，避免泄露敏感数据，总之程序的健壮性与安全性是紧密相关的。
 <br/>
@@ -1319,26 +1319,26 @@ C++ Core Guidelines ES.105
 <br/>
 <br/>
 
-### <span id="ID_forbidAtox">▌R1.17 禁用atof、atoi、atol以及atoll等函数</span>
+### <span id="ID_forbidAtox">▌R1.17 禁用 atof、atoi、atol 以及 atoll 等函数</span>
 
 ID_forbidAtox&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: security warning
 
 <hr/>
 
-当字符串无法被正确转为数值时，stdlib.h或cstdlib中声明的atof、atoi、atol以及atoll等函数存在标准未定义的行为。  
+当字符串无法被正确转为数值时，stdlib.h 或 cstdlib 中声明的 atof、atoi、atol 以及 atoll 等函数存在标准未定义的行为。  
   
-对于C语言应改用strtof、strtol等函数，对于C\+\+语言应改用标准流转换的方式。  
+对于 C 语言应改用 strtof、strtol 等函数，对于 C\+\+ 语言应改用标准流转换的方式。  
   
 示例：
 ```
 cout << atoi("abcdefg") << '\n';  // Non-compliant
 cout << atoi("100000000000") << '\n';  // Non-compliant
 ```
-例中字符串“abcdefg”不表示数字，字符串“100000000000”超出了正常int型变量的范围，这些情况会导致标准未定义的问题。  
+例中字符串“abcdefg”不表示数字，字符串“100000000000”超出了正常 int 型变量的范围，这些情况会导致标准未定义的问题。  
   
 更严重的问题是无法通过这种函数判断转换是否成功，这种不确定性也意味着代码在实现上存在缺陷。  
   
-C\+\+标准流转换示例：
+C\+\+ 标准流转换示例：
 ```
 int foo(const char* s) {
     int v = 0;
@@ -1350,7 +1350,7 @@ int foo(const char* s) {
     return v;
 }
 ```
-本例通过ss.fail()判断字符串前面的字符是否可以转为int型变量，也可以通过!ss.eof()||ss.fail()判断字符串整体是否可以转为int型变量。
+本例通过 ss.fail() 判断字符串前面的字符是否可以转为 int 型变量，也可以通过 !ss.eof()||ss.fail() 判断字符串整体是否可以转为 int 型变量。
 <br/>
 <br/>
 
@@ -1375,7 +1375,7 @@ ID_variableFormatString&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 出于可读性和安全性的考量，格式化字符串最好直接写成常量字符串的形式。  
   
-本规则是ID\_hijack的特化。  
+本规则是 ID\_hijack 的特化。  
   
 示例：
 ```
@@ -1384,7 +1384,7 @@ const char* fmt = foo();
 ....
 printf(fmt, a, b, c);  // Non-compliant
 ```
-例中格式化字符串fmt是变量，这种方式较为严重地降低了代码的可读性，而且要注意如果fmt可受外界影响，则可能被攻击者利用造成不良后果。  
+例中格式化字符串 fmt 是变量，这种方式较为严重地降低了代码的可读性，而且要注意如果 fmt 可受外界影响，则可能被攻击者利用造成不良后果。  
   
 应将fmt改为常量：
 ```
@@ -1433,13 +1433,13 @@ CWE-200
 <br/>
 <br/>
 
-### <span id="ID_hardcodedIP">▌R1.20 不应硬编码IP地址</span>
+### <span id="ID_hardcodedIP">▌R1.20 不应硬编码 IP 地址</span>
 
 ID_hardcodedIP&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-字符串常量中不应存在硬编码的IP地址，不利于维护和移植，也容易暴露产品的网络结构，属于安全隐患。  
+字符串常量中不应存在硬编码的 IP 地址，不利于维护和移植，也容易暴露产品的网络结构，属于安全隐患。  
   
 示例：
 ```
@@ -1447,14 +1447,14 @@ string host = "10.16.25.93";  // Non-compliant
 foo("172.16.10.36:8080");     // Non-compliant
 bar("https://192.168.73.90/index.html");  // Non-compliant
 ```
-应从配置文件中获取IP地址，并配以加密措施：
+应从配置文件中获取 IP 地址，并配以加密措施：
 ```
 MyConf cfg;
 string host = cfg.host();     // Compliant
 foo(cfg.port());              // Compliant
 bar(cfg.url());               // Compliant
 ```
-某些特殊的IP地址可以被排除：
+某些特殊的 IP 地址可以被排除：
 ```
 0.0.0.0
 255.255.255.255
@@ -1468,13 +1468,13 @@ CVE-2006-5901
 <br/>
 <br/>
 
-### <span id="ID_deprecatedErrno">▌R1.21 避免使用errno</span>
+### <span id="ID_deprecatedErrno">▌R1.21 避免使用 errno</span>
 
 ID_deprecatedErrno&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-正确使用errno需要注意很多繁琐的细节，极易误用。  
+正确使用 errno 需要注意很多繁琐的细节，极易误用。  
   
 示例：
 ```

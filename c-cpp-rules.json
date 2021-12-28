@@ -2335,9 +2335,9 @@
         "related": "ID_literal_hardCodeChar"
         },
     "ID_hardcodedIP": {
-        "checkPoint": "不应硬编码IP地址",
+        "checkPoint": "不应硬编码 IP 地址",
         "level": "warning",
-        "comment": "字符串常量中不应存在硬编码的IP地址，不利于维护和移植，也容易暴露产品的网络结构，属于安全隐患。",
+        "comment": "字符串常量中不应存在硬编码的 IP 地址，不利于维护和移植，也容易暴露产品的网络结构，属于安全隐患。",
         "tag": "security",
         "reference": "CVE-2006-5901"
         },
@@ -2601,9 +2601,9 @@
         "reference": "CWE-476,C++ Core Guidelines ES.65"
         },
     "ID_divideByZero": {
-        "checkPoint": "除数不可存在值为0的可能性",
+        "checkPoint": "除数不可存在值为 0 的可能性",
         "level": "error",
-        "comment": "除数为0会导致标准未定义的错误。",
+        "comment": "除数为 0 会导致标准未定义的错误。",
         "tag": "security",
         "standard": "ISO/IEC 9899:1999 6.5.5(5)-undefined,ISO/IEC 9899:2011 6.5.5(5)-undefined,ISO/IEC 14882:2011 5.6(4)-undefined,ISO/IEC 14882:2017 8.6(4)-undefined",
         "reference": "CWE-369,C++ Core Guidelines ES.105"
@@ -2996,9 +2996,9 @@
         "reference": "CWE-170"
         },
     "ID_deprecatedErrno":  {
-        "checkPoint": "避免使用errno",
+        "checkPoint": "避免使用 errno",
         "level": "warning",
-        "comment": "正确使用errno需要注意很多繁琐的细节，极易误用。",
+        "comment": "正确使用 errno 需要注意很多繁琐的细节，极易误用。",
         "tag": "security",
         "reference": "MISRA C 2004 20.5,MISRA C++ 2008 19-3-1,C++ Core Guidelines E.28"
     },
@@ -3011,9 +3011,9 @@
         "reference": "CWE-119,CWE-120,CWE-676,MISRA C++ 2008 18–0–5"
         },
     "ID_forbidAtox": {
-        "checkPoint": "禁用atof、atoi、atol以及atoll等函数",
+        "checkPoint": "禁用 atof、atoi、atol 以及 atoll 等函数",
         "level": "warning",
-        "comment": "当字符串无法被正确转为数值时，stdlib.h或cstdlib中声明的atof、atoi、atol以及atoll等函数存在标准未定义的行为。",
+        "comment": "当字符串无法被正确转为数值时，stdlib.h 或 cstdlib 中声明的 atof、atoi、atol 以及 atoll 等函数存在标准未定义的行为。",
         "tag": "security",
         "standard": "ISO/IEC 9899:1999 7.20.1(1)-undefined,ISO/IEC 9899:2011 7.22.1(1)-undefined",
         "reference": "CWE-190,MISRA C 2004 20.10,MISRA C 2012 21.7,MISRA C++ 2008 18-0-2"
@@ -3037,7 +3037,7 @@
     "ID_dangerousFunction": {
         "checkPoint": "避免调用具有危险性的函数",
         "level": "warning",
-        "comment": "某些库函数或系统API在设计和实现上本身就具有危险性，使用这种函数相当于直接将风险引入了系统。",
+        "comment": "某些库函数或系统 API 在设计和实现上本身就具有危险性，使用这种函数相当于直接将风险引入了系统。",
         "tag": "security",
         "config": { "//": "详见说明" },
         "reference": "CWE-242,CWE-474,CWE-676"
