@@ -12,21 +12,21 @@
 
 规则按如下主题分为 15 个类别：
 
- 1. [Security]：(#__Security)敏感数据保护、攻击防御等问题
- 2. [Resource]：(#__Resource)资源分配、使用与回收
- 3. [Precompile]：(#__Precompile)预处理指令、宏、注释等问题
- 4. [Global]：(#__Global)全局及命名空间作用域相关问题
- 5. [Type]：(#__Type)类型相关的设计与实现
- 6. [Declaration]：(#__Declaration)声明
- 7. [Exception]：(#__Exception)异常
- 8. [Function]：(#__Function)函数实现
- 9. [Control]：(#__Control)流程控制
- 10. [Expression]：(#__Expression)表达式
- 11. [Literal]：(#__Literal)常量
- 12. [Cast]：(#__Cast)类型转换
- 13. [Buffer]：(#__Buffer)缓冲区
- 14. [Pointer]：(#__Pointer)指针
- 15. [Style]：(#__Style)样式、风格等问题
+ 1. [Security](#__Security)：敏感数据保护、攻击防御等问题
+ 2. [Resource](#__Resource)：资源分配、使用与回收
+ 3. [Precompile](#__Precompile)：预处理指令、宏、注释等问题
+ 4. [Global](#__Global)：全局及命名空间作用域相关问题
+ 5. [Type](#__Type)：类型相关的设计与实现
+ 6. [Declaration](#__Declaration)：声明
+ 7. [Exception](#__Exception)：异常
+ 8. [Function](#__Function)：函数实现
+ 9. [Control](#__Control)：流程控制
+ 10. [Expression](#__Expression)：表达式
+ 11. [Literal](#__Literal)：常量
+ 12. [Cast](#__Cast)：类型转换
+ 13. [Buffer](#__Buffer)：缓冲区
+ 14. [Pointer](#__Pointer)：指针
+ 15. [Style](#__Style)：样式、风格等问题
 
 每条规则包括：
 
