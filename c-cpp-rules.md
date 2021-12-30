@@ -5167,7 +5167,7 @@ ID_hideLocal&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-如果下层作用域中的名称与上层作用域中的名称相同，会对可读性造成较大干扰，极易产生误解。  
+嵌套的作用域中不应出现相同的名称，否则干扰阅读，极易产生误解。  
   
 示例：
 ```
@@ -5175,11 +5175,12 @@ int foo() {
     int i = 0;  // Declares an object ‘i’
     if (cond) {
         int i = 1;  // Non-compliant, hides previous ‘i’
-        return bar(i);
+        ....
     }
     return i;
 }
 ```
+在一个函数中出现了多个名为 i 的变量，当实际代码较为复杂时，很容易出现意图与实现不符的问题。
 <br/>
 <br/>
 
@@ -5198,7 +5199,7 @@ ID_hideMember&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-如果成员函数内的局部名称与成员名称相同，会对可读性造成较大干扰，极易产生误解。  
+如果成员函数内的局部名称与成员名称相同，会干扰阅读，易产生误解。  
   
 示例：
 ```
@@ -5216,7 +5217,7 @@ public:
     }
 };
 ```
-建议成员变量都遵循统一的命名约定，如以“\_”或“m\_”开头，可有效规避这类问题：
+建议成员变量遵循统一的命名约定，如以“\_”或“m\_”开头，可有效规避这类问题：
 ```
 class A {
     int _i = 0;         // Member object ‘_i’
@@ -6489,7 +6490,7 @@ if (buf[1] << 1) {     // May cause undefined behavior
     ....
 }
 ```
-char 类型的符号由实现定义，有符号的 char 变量在数值计算、位运算等方面很容易产生意料之外的结果，可参见  ID\_plainNumericChar、ID\_bitwiseOperOnSigned 的进一步说明。  
+char 类型的符号由实现定义，有符号的 char 变量在数值计算、位运算等方面很容易产生意料之外的结果。  
   
 应改为：
 ```
@@ -6518,15 +6519,15 @@ ID_missingParamName&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-参数名称可以对参数的用途起到最直接的说明作用，建议对外公开的接口参数都要有合理的名称。  
+参数的名称是其用途的直接说明，合理的名称可显著提高可读性。  
   
 示例：
 ```
 char* strstr(const char* haystack, const char* needle);  // Good
 ```
-这是标准库函数 strstr 的原型声明，利用形象的比喻，表示要在 haystack 中查找 needle。  
+这是标准库函数 strstr 的原型声明，利用形象的比喻，表示在 haystack 中查找 needle。  
   
-如果将声明改为如下形式，是令人费解的：
+如果将声明改为如下形式，就令人费解了：
 ```
 char* strstr(const char*, const char*);  // Bad
 char* strstr(const char* a, const char* b);  // Bad
@@ -6846,7 +6847,7 @@ ID_nonStdAssignmentRetType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warni
 
 按赋值表达式的标准语法要求，以及 C\+\+ 语言的惯例，拷贝赋值、移动赋值应返回所属类的非 const 引用，便于调用者使用并满足泛型编程的要求。  
   
-对“=”的合理重载，可以使对象的赋值表达式作为子表达式灵活地出现在各种语句中，这也是“泛型程序设计”的必要条件，使算法的代码实现即可以适应普通变量，也可以适应自定义对象。如果类的对象与标准模板库相关，则其赋值运算符应满足本规则的要求。  
+对“=”的合理重载，可以使对象的赋值表达式作为子表达式灵活地出现在各种语句中，这也是“泛型程序设计”的必要条件，使算法的代码实现既可以适应普通变量，也可以适应自定义对象。如果类的对象与标准模板库相关，则其赋值运算符应满足本规则的要求。  
 如果“=”运算符没有返回所属类的非 const 引用，便无法满足连续赋值等表达式的语法要求，对标准模板类的使用上会受到限制。  
   
 对于“\+=”、“\-=”等复合赋值运算符也有相同的要求。  
@@ -6902,7 +6903,7 @@ ID_nonStdCopyAssignmentParam&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration war
 
 <hr/>
 
-拷贝赋值运算符的参数不应为值传递，否则会造成不必要的复制，以及“[对象切片](https://en.wikipedia.org/wiki/Object_slicing)”等问题。  
+拷贝赋值运算符的参数不应按值传递，否则会造成不必要的复制，以及“[对象切片](https://en.wikipedia.org/wiki/Object_slicing)”等问题。  
   
 示例：
 ```
@@ -6942,7 +6943,6 @@ struct A {
         free(p);
         p = copy(a.p);             // Not necessary
     }
-    ....
 };
 ```
 例中赋值运算符不是真正的移动赋值运算符，仍是一种低效实现。  
@@ -6957,7 +6957,6 @@ struct A {
         p = a.p;
         a.p = tmp;
     }
-    ....
 };
 ```
 <br/>
@@ -7094,16 +7093,16 @@ ID_virtualAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-由于拷贝赋值、移动赋值运算符的返回值应为所属类的非 const 引用，这与虚函数的机制是相矛盾的，将赋值运算符设为虚函数很可能是没有作用的。  
+拷贝或移动赋值运算符的返回类型应为所属类的非 const 引用，这类运算符即使是虚函数也不便于被重写。  
   
 示例：
 ```
 class A {
 public:
-    virtual A& operator = (const A&);
+    virtual A& operator = (const A&);  // Non-compliant
 };
 
-class B {
+class B: public A {
 public:
     virtual B& operator = (const B&);  // Not override
     virtual A& operator = (const A&);  // Override, but too complex
@@ -7128,7 +7127,7 @@ ID_virtualComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-对于重载的比较运算符，很难正确触发 C\+\+ 的多态机制，将其设为虚函数很可能引发意料之外的错误。  
+重载的比较运算符很难正确触发 C\+\+ 的多态机制，将其设为虚函数很可能引发意料之外的错误。  
   
 运算符 ==、!=、<、>、 <=、>= 均受本规则限制。  
   
@@ -7299,7 +7298,7 @@ int main() {
     }
 }
 ```
-输出为 Oops  
+输出  Oops  
 例中 E 各枚举值的范围是 \[0,3\]，按常规思维，位域长度为 2 即可满足所有枚举值的范围，然而由于符号位的存在否定了这一点，导致 x.e 用 D 赋值后再与 D 比较竟然得到不相等的结果（因为 D 的值为 3 而 x.e 的值为 \-1）。
 <br/>
 <br/>

@@ -697,7 +697,7 @@
     "ID_missingParamName": {
         "checkPoint": "函数原型声明中的参数应具有合理的名称",
         "level": "suggestion",
-        "comment": "参数名称可以对参数的用途起到最直接的说明作用，建议对外公开的接口参数都要有合理的名称。",
+        "comment": "参数的名称是其用途的直接说明，合理的名称可显著提高可读性。",
         "tag": "declaration",
         "reference": "MISRA C 2004 16.3,MISRA C 2012 8.2"
         },
@@ -760,14 +760,14 @@
     "ID_hideLocal": {
         "checkPoint": "局部名称不应被覆盖",
         "level": "warning",
-        "comment": "如果下层作用域中的名称与上层作用域中的名称相同，会对可读性造成较大干扰，极易产生误解。",
+        "comment": "嵌套的作用域中不应出现相同的名称，否则干扰阅读，极易产生误解。",
         "tag": "declaration",
         "reference": "CWE-1109,C++ Core Guidelines ES.12,MISRA C 2004 5.2,MISRA C 2012 5.3,MISRA C++ 2008 2-10-2"
         },
     "ID_hideMember": {
         "checkPoint": "成员名称不应被覆盖",
         "level": "warning",
-        "comment": "如果成员函数内的局部名称与成员名称相同，会对可读性造成较大干扰，极易产生误解。",
+        "comment": "如果成员函数内的局部名称与成员名称相同，会干扰阅读，易产生误解。",
         "tag": "declaration",
         "reference": "CWE-1109,MISRA C 2004 5.2,MISRA C 2012 5.3,MISRA C++ 2008 2-10-2"
         },
@@ -782,14 +782,14 @@
     "ID_virtualComparison": {
         "checkPoint": "比较运算符不应为虚函数",
         "level": "warning",
-        "comment": "对于重载的比较运算符，很难正确触发 C++ 的多态机制，将其设为虚函数很可能引发意料之外的错误。",
+        "comment": "重载的比较运算符很难正确触发 C++ 的多态机制，将其设为虚函数很可能引发意料之外的错误。",
         "tag": "declaration",
         "reference": "C++ Core Guidelines C.87"
         },
     "ID_virtualAssignment": {
         "checkPoint": "拷贝赋值、移动赋值运算符不应为虚函数",
         "level": "warning",
-        "comment": "由于拷贝赋值、移动赋值运算符的返回值应为所属类的非 const 引用，这与虚函数的机制是相矛盾的，将赋值运算符设为虚函数很可能是没有作用的。",
+        "comment": "拷贝或移动赋值运算符的返回类型应为所属类的非 const 引用，这类运算符即使是虚函数也不便于被重写。",
         "tag": "declaration",
         "related": "ID_nonStdAssignmentRetType",
         "reference": "C++ Core Guidelines C.60,C++ Core Guidelines C.63"
@@ -797,7 +797,7 @@
     "ID_nonStdCopyAssignmentParam": {
         "checkPoint": "拷贝赋值运算符的参数应为同类对象的 const 左值引用",
         "level": "warning",
-        "comment": "拷贝赋值运算符的参数不应为值传递，否则会造成不必要的复制，以及“对象切片”等问题。",
+        "comment": "拷贝赋值运算符的参数不应按值传递，否则会造成不必要的复制，以及“对象切片”等问题。",
         "tag": "declaration",
         "reference": "C++ Core Guidelines C.60"
     },
