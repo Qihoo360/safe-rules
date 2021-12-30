@@ -247,11 +247,11 @@
     - [R6.4.8 不应将函数或函数指针和其他声明写在同一个语句中](#ID_mixedDeclarations)
     - [R6.4.9 在一个语句中不应声明过多对象或函数](#ID_tooManyDeclarators)
   - [6.5 Object](#declaration.object)
-    - [R6.5.1 不应产生不受控制的无效临时对象](#ID_inaccessibleTmpObject)
+    - [R6.5.1 不应产生无效的临时对象](#ID_inaccessibleTmpObject)
     - [R6.5.2 不应出现不会被用到的局部声明](#ID_invalidLocalDeclaration)
     - [R6.5.3 对象初始化不可依赖自身的值](#ID_selfDependentInitialization)
     - [R6.5.4 参与数值运算的 char 变量需显式声明 signed 或 unsigned](#ID_plainNumericChar)
-    - [R6.5.5 表示二进制数据的 char 指针或数组应显式声明 unsigned](#ID_plainBinaryChar)
+    - [R6.5.5 字节的类型应为 unsigned char](#ID_plainBinaryChar)
   - [6.6 Parameter](#declaration.parameter)
     - [R6.6.1 函数原型声明中的参数应具有合理的名称](#ID_missingParamName)
     - [R6.6.2 不建议虚函数的参数有默认值](#ID_deprecatedDefaultArgument)
@@ -841,7 +841,7 @@ void create(const char* path) {
     }
 }
 ```
-示例代码先通过路径判断文件是否存在，如果存在则不作处理，如果不存在则再次通过路径创建文件并写入数据。如果攻击者把握住时机，在程序执行到 \#1 和 \#2 之间时将 path 创建为指向其他文件的链接，那么被指向的文件会遭到破坏，尤其是当进程的权限比较高时，其破坏力是难以控制的。  
+示例代码先通过路径判断文件是否存在，如果存在则不作处理，如果不存在则再次通过路径创建文件并写入数据。如果攻击者把握住时机，在程序执行到 \#1 和 \#2 之间时按 path 创建指向其他文件的链接，那么被指向的文件会遭到破坏，尤其是当被攻击的进程权限比较高时，破坏力是难以控制的。  
   
 应只通过路径打开文件对象一次，只通过文件对象操作文件：
 ```
@@ -853,7 +853,7 @@ void create(const char* path) {
     }
 }
 ```
-利用“wx”模式即可保证 fopen 在文件不存在的时候执行成功，文件存在的时候执行失败。  
+利用“wx”模式即可保证 fopen 在文件不存在时创建文件，文件存在时返回空。  
   
 注意，目前 C\+\+ 的 fstream 尚无法完成与“wx”模式相同的功能，相同功能的代码要用 fopen 实现。
 <br/>
@@ -947,7 +947,7 @@ errno_t e = fopen_s(&fp, "bar", "w");  // Good
 ....
 fclose(fp);
 ```
-fopen\_s 与 fopen 不同，fopen\_s 可以不受 umask 等函数的影响，直接将文件的权限设为当前用户私有，是一种更安全的方法。
+与 fopen 不同，fopen\_s 可以不受 umask 等函数的影响，直接将文件的权限设为当前用户私有，是一种更安全的方法。
 <br/>
 <br/>
 
@@ -1619,14 +1619,14 @@ ID_resourceLeak&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 ```
 void foo(const char* path) {
     FILE* p = fopen(path, "w");
-    if (condition) {
+    if (cond) {
         return;  // Non-compliant, ‘p’ is lost
     }
-    do_something(p);
+    ....
     fclose(p);
 }
 ```
-本例由局部变量 p 与文件对象关联，关闭文件对象之前在某种情况下函数返回，便造成了文件资源的遗失。
+例中 p 指向文件对象，关闭文件对象之前在某种情况下返回，造成了文件资源的遗失。
 <br/>
 <br/>
 
@@ -1656,10 +1656,10 @@ ID_memoryLeak&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 ```
 void foo(size_t size) {
     int* p = (int*)malloc(size * sizeof(*p));
-    if (condition) {
+    if (cond) {
         return;  // Non-compliant, ‘p’ is lost
     }
-    do_something(p);
+    ....
     free(p);
 }
 ```
@@ -1733,11 +1733,9 @@ ID_doubleFree&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
 示例：
 ```
 void foo(const char* path) {
-    char buf[100] = {};
     FILE* p = fopen(path, "r");
-    if (condition) {
-        fread(buf, 1, 100, p);
-        do_something(buf);
+    if (p) {
+        ....
         fclose(p);
     }
     fclose(p);  // Non-compliant
@@ -5499,7 +5497,7 @@ ID_missingConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 ```
 char* p = "a const string";  // Non-compliant
 ....
-p[x] = '\0';   // Undefined
+p[x] = '\0';   // Undefined behaivor
 ```
 应改为：
 ```
@@ -5739,16 +5737,13 @@ ID_deprecatedSpecifier&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-根据 C\+\+11 标准，register 等关键字已过时，不应再使用。另外，auto 关键字也不应再作为存储类说明符（storage class specifier）继续使用。  
+根据 C\+\+11 标准，register 等关键字已过时，不应再使用，auto 关键字也不可再作为存储类说明符（storage class specifier）继续使用。  
   
 示例：
 ```
-class A {
-public:
-    register int a;  // Non-compliant
-    auto int b;      // Non-compliant
-    int foo(register int x);  // Non-compliant
-};
+register int a;  // Non-compliant
+auto int b;      // Non-compliant
+int foo(register int x);  // Non-compliant
 ```
 本规则对于 C\+\+ 适用，对于 C 可适当放宽要求。
 <br/>
@@ -6233,17 +6228,15 @@ ID_mixedTypeObjDefinition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration sugges
 
 <hr/>
 
-不建议将类型定义和对象声明写在一个语句中，否则可读性较差。  
+将类型定义和对象声明写在一个语句中可读性较差。  
   
 示例：
 ```
-struct _A
-{
+struct _A {
     int a, b, c;
 } A;  // Bad
 
-typedef struct _B
-{
+typedef struct _B {
     int x, y, z;
 } B;  // Bad
 ```
@@ -6315,13 +6308,13 @@ MISRA C++ 2008 8-0-1
 
 ### <span id="declaration.object">6.5 Object</span>
 
-### <span id="ID_inaccessibleTmpObject">▌R6.5.1 不应产生不受控制的无效临时对象</span>
+### <span id="ID_inaccessibleTmpObject">▌R6.5.1 不应产生无效的临时对象</span>
 
 ID_inaccessibleTmpObject&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: declaration error
 
 <hr/>
 
-无名不受控制的临时对象在构造之后会立即析构，在逻辑上没有意义，往往意味着错误。  
+无名且不受控制的临时对象在构造之后会立即析构，在逻辑上没有意义，往往意味着错误。  
   
 示例：
 ```
@@ -6338,12 +6331,14 @@ private:
     int a;
 };
 ```
-例中 A(0); 只是生成了一个无用的临时对象，各成员并没有被正确初始化。如果要调用 A::A(int) 来完成初始化，应改为 this\->A::A(0); 的形式。  
+例中 A(0); 只是生成了一个无效的临时对象，各成员并没有被正确初始化。如果要调用 A::A(int) 来完成初始化，应改为 this\->A::A(0); 等形式。  
   
 又如：
 ```
+class LockGuard { .... };
+
 void fun() {
-    LockGuard();   // Meaningless
+    LockGuard();   // Non-compliant, meaningless
     do_something_critical();
 } 
 ```
@@ -6402,14 +6397,14 @@ ID_selfDependentInitialization&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: declaration e
 
 <hr/>
 
-对象初始化依赖自身的值属于逻辑错误。  
+对象初始化依赖自身的值属于逻辑错误，也是常见的笔误。  
   
 示例：
 ```
 void foo(int i) {
     if (i > 0) {
         int i = i + 1;  // Non-compliant
-        bar(i);
+        ....
     }
 }
 ```
@@ -6420,7 +6415,7 @@ void foo(int i) {
 void foo(int i) {
     if (i > 0) {
         int j = i + 1;  // OK
-        bar(j);
+        ....
     }
 }
 ```
@@ -6434,7 +6429,7 @@ ID_plainNumericChar&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-没有 signed 或 unsigned 限制的 char 变量，其符号是由实现定义的，具有可移植性要求的代码需明确其符号。  
+没有 signed 或 unsigned 限制的 char 类型，是否有符号由具体的编译器决定。  
   
 示例：
 ```
@@ -6443,22 +6438,20 @@ bool foo(char c) {          // Non-compliant
 }
 
 void bar() {
-    int i = 2;
     char c = 180;           // Non-compliant
-    printf("%d", i * c);    // What is output?
+    printf("%d", 2 * c);    // What is output?
 }
 ```
-foo 函数可能只会返回 true，而 bar 函数可能输出 \-152 也可能输出 360。  
-char 型变量在 PC 桌面、服务端等环境中一般是有符号的，在移动端或嵌入式系统中往往是无符号的，需明确其具体实现。
+foo 可能只会返回 true，而 bar 可能输出 \-152 也可能输出 360。  
+char类型在 PC 桌面、服务端等环境中一般是有符号的，在移动端或嵌入式系统中往往是无符号的，需明确其具体实现。
 ```
 bool foo(unsigned char c) { // Compliant
     return c < 180;
 }
 
 void bar() {
-    int i = 2;
     unsigned char c = 180;  // Compliant
-    printf("%d", i * c);    // 360
+    printf("%d", 2 * c);    // 360
 }
 ```
 <br/>
@@ -6475,33 +6468,45 @@ SEI CERT INT07-C
 <br/>
 <br/>
 
-### <span id="ID_plainBinaryChar">▌R6.5.5 表示二进制数据的 char 指针或数组应显式声明 unsigned</span>
+### <span id="ID_plainBinaryChar">▌R6.5.5 字节的类型应为 unsigned char</span>
 
 ID_plainBinaryChar&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-char 类型的符号由实现定义，二进制数据不应受符号位干扰，应显式声明 unsigned。  
+字节等二进制概念不应受符号位干扰，应声明为 unsigned char。  
   
 示例：
 ```
-char buf[100];  // Non-compliant
-FILE* fp = fopen("foo.bin", "wb");
-if (fp) {
-    fread(buf, 1, 100, fp);
+typedef char byte;  // Non-compliant
+byte buf[100];
+FILE* fp = fopen("foo", "rb");
+fread(buf, 1, 100, fp);
+if (buf[0] == 0xff) {  // May be always false
+    ....
+}
+if (buf[1] << 1) {     // May cause undefined behavior
     ....
 }
 ```
+char 类型的符号由实现定义，有符号的 char 变量在数值计算、位运算等方面很容易产生意料之外的结果，可参见  ID\_plainNumericChar、ID\_bitwiseOperOnSigned 的进一步说明。  
+  
 应改为：
 ```
-unsigned char buf[100];  // Compliant
+typedef unsigned char byte;  // Compliant
 ```
-这样做也可有效区分二进制数据与字符串，提高可维护性。
+这样做也可有效区分二进制数据与字符串，提高可读性。
 <br/>
 <br/>
 
 #### 相关
 ID_plainNumericChar  
+ID_bitwiseOperOnSigned  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 3.9.1(1)-implementation  
+ISO/IEC 14882:2011 3.9.1(1)-implementation  
 <br/>
 <br/>
 
@@ -7467,7 +7472,7 @@ void foo() {
     unlock();
 }
 ```
-如果例中 lock 是某种加锁操作，unlock 是解锁操作，process 是某个可能抛出异常的过程，那么 foo 函数就不是异常安全的，当异常抛出后解锁操作无法执行从而造成死锁等严重后果。  
+设 lock 是某种加锁操作，unlock 是解锁操作，process 是某个可能抛出异常的过程，那么 foo 函数就不是异常安全的，当异常抛出后解锁操作无法执行从而造成死锁等严重后果。  
   
 需要保证资源从申请到回收的过程不被异常中断，应对资源采用面向对象的管理方法，使资源的申请和回收得以自动完成，可参见 ID\_ownerlessResource 的进一步讨论。  
   
@@ -12777,14 +12782,14 @@ int foo(signed s, unsigned u) {
 
 int bar(signed s, unsigned u) {
     if (s < 0) {
-        auto a = s << u;  // Non-compliant, undefined
-        auto b = s >> u;  // Non-compliant, implementation-defined
+        int a = s << u;  // Non-compliant, undefined
+        int b = s >> u;  // Non-compliant, implementation-defined
         return a + b;
     }
     return 0;
 }
 ```
-注意，对负数进行移位运算会导致标准之外的问题。
+例中变量 s 为有符号类型，对其符号位的位运算是没有意义的，而且要注意对负数左移会导致未定义的行为，对负数右移则由实现定义。
 <br/>
 <br/>
 
@@ -13734,7 +13739,7 @@ int foo(int* p, int i) {
     return *(p + i * sizeof(*p));  // Rather suspicious
 }
 ```
-如果 foo 函数是为了获取指针 p 之后的第 I 个整数的值，那么这种实现是错误的，应改为：
+如果 foo 函数是为了获取指针 p 之后的第 i 个整数的值，那么这种实现是错误的，应改为：
 ```
 int foo(int* p, int i) {
     return *(p + i);  // Right
@@ -14925,19 +14930,19 @@ ID_charWCharCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
 <hr/>
 
-char\* 和 wchar\_t\* 直接转换并不进行字符集编码转换，往往意味着语言运用错误，对于 C\+\+ 语言，要求 char\*、wchar\_t\*、char16\_t\* 和 char32\_t\* 之间均不可直接转换。  
+char\* 和 wchar\_t\* 直接转换并不进行字符集编码转换，往往意味着语言运用错误，char\*、wchar\_t\*、char16\_t\* 和 char32\_t\* 之间均不可直接转换。  
   
 本规则是 ID\_castNoInheritance 的特化。  
   
 示例：
 ```
-wchar_t* to_unicode(const char* str) {
+wchar_t* to_unicode(char* str) {
     return (wchar_t*)str;  // Remarkably brave, but totally wrong
 }
 ```
-本规则限制相关的 C 风格转换以及 reinterpret\_cast 转换，由于 unsigned char\* 一般针对二进制数据，可被放过。  
+示例代码显然是错误的，应改用 iconv、MultiByteToWideChar 等字符集编码转换函数。  
   
-注意，不应使用 char\* 作为二进制数据的类型，可参见 ID\_plainBinaryChar。
+由于 unsigned char\* 一般针对二进制数据，unsigned char\* 与其他字符串类型之间的转换可被放过。注意，不应使用 char\* 作为二进制数据的类型，可参见 ID\_plainBinaryChar。
 <br/>
 <br/>
 
@@ -14979,7 +14984,7 @@ void bar() {
 ```
 例中 B 类型的数组 arr 作为 foo 函数的参数，被转换成了基类指针，foo 函数中对基类指针的运算将是错误的，B 的成员 y 也会被错误地赋值。  
   
-这是一个较为危险的问题，本规则针对所有数组相关的指针类型转换。
+这是一个很危险的问题，本规则针对所有数组相关的隐式和显式类型转换。
 <br/>
 <br/>
 
@@ -15087,6 +15092,8 @@ new 表达式本身是类型明确的，转换 new 表达式的类型不符合 C
 示例：
 ```
 int* p = (int*)new char[123];  // Non-compliant
+....
+delete[] p;  // What will happen?
 ```
 例中 char 数组转为 int 数组，由于元素个数不兼容也会导致内存访问与回收的错误。
 <br/>
@@ -15173,7 +15180,7 @@ ID_forbidCStyleCast&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: cast suggestion
 
 <hr/>
 
-C 语言的类型观念没有 C\+\+ 语言强，使用 C 风格类型转换易造成逻辑错误或数据丢失，应尽量避免类型转换，如果必须进行类型转换，应使用 static\_cast、dynamic\_cast 等方法。  
+C 语言的类型观念弱于 C\+\+，易造成逻辑错误或数据丢失，应尽量避免类型转换，或使用 static\_cast、dynamic\_cast 等方法。  
   
 示例：
 ```
@@ -15218,7 +15225,7 @@ void foo(const char* path) {
     ....
 }
 ```
-例中通过 reinterpret\_cast 将二进制数据直接转为 MyData 类的对象，这不是一种安全的方式，妥善的做法是根据文件数据将 MyData 类的成员逐一构造出来，这样也可及时发现问题并处理。  
+例中通过 reinterpret\_cast 将二进制数据直接转为 MyData 类的对象，这不是一种安全的方式，妥善的做法是根据文件数据将 MyData 类的成员逐一构造出来，这样也可及时发现并处理问题。  
   
 又如：
 ```

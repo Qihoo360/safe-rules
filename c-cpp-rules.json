@@ -62,7 +62,7 @@
     "ID_charWCharCast": {
         "checkPoint": "不可直接转换不同的字符串类型",
         "level": "warning",
-        "comment": "char* 和 wchar_t* 直接转换并不进行字符集编码转换，往往意味着语言运用错误，对于 C++ 语言，要求 char*、wchar_t*、char16_t* 和 char32_t* 之间均不可直接转换。",
+        "comment": "char* 和 wchar_t* 直接转换并不进行字符集编码转换，往往意味着语言运用错误，char*、wchar_t*、char16_t* 和 char32_t* 之间均不可直接转换。",
         "tag": "cast",
         "related": "ID_castNoInheritance,ID_plainBinaryChar",
         "reference": "CWE-704,SEI CERT STR38-C"
@@ -590,17 +590,18 @@
     "ID_plainNumericChar": {
         "checkPoint": "参与数值运算的 char 变量需显式声明 signed 或 unsigned",
         "level": "warning",
-        "comment": "没有 signed 或 unsigned 限制的 char 变量，其符号是由实现定义的，具有可移植性要求的代码需明确其符号。",
+        "comment": "没有 signed 或 unsigned 限制的 char 类型，是否有符号由具体的编译器决定。",
         "tag": "declaration",
         "standard": "ISO/IEC 14882:2003 3.9.1(1)-implementation,ISO/IEC 14882:2011 3.9.1(1)-implementation",
         "reference": "MISRA C++ 2008 5-0-11,SEI CERT INT07-C"
         },
     "ID_plainBinaryChar": {
-        "checkPoint": "表示二进制数据的 char 指针或数组应显式声明 unsigned",
+        "checkPoint": "字节的类型应为 unsigned char",
         "level": "warning",
-        "comment": "char 类型的符号由实现定义，二进制数据不应受符号位干扰，应显式声明 unsigned。",
+        "comment": "字节等二进制概念不应受符号位干扰，应声明为unsigned char。",
         "tag": "declaration",
-        "related": "ID_plainNumericChar"
+        "related": "ID_plainNumericChar,ID_bitwiseOperOnSigned",
+        "standard": "ISO/IEC 14882:2003 3.9.1(1)-implementation,ISO/IEC 14882:2011 3.9.1(1)-implementation"
         },
     "ID_uselessQualifier": {
         "checkPoint": "enum 的底层类型（underlying type）中不应出现 const 或 volatile",
@@ -719,7 +720,7 @@
     "ID_mixedTypeObjDefinition": {
         "checkPoint": "不建议将类型定义和对象声明写在一个语句中",
         "level": "suggestion",
-        "comment": "不建议将类型定义和对象声明写在一个语句中，否则可读性较差。",
+        "comment": "将类型定义和对象声明写在一个语句中可读性较差。",
         "tag": "declaration",
         "reference": "C++ Core Guidelines C.7"
         },
@@ -1183,9 +1184,9 @@
         "reference": "CWE-1024,CWE-1025,CWE-682,CWE-783,MISRA C 2004 12.7,MISRA C 2012 10.1,MISRA C++ 2008 5-0-21"
         },
     "ID_inaccessibleTmpObject": {
-        "checkPoint": "不应产生不受控制的无效临时对象",
+        "checkPoint": "不应产生无效的临时对象",
         "level": "error",
-        "comment": "无名不受控制的临时对象在构造之后会立即析构，在逻辑上没有意义，往往意味着错误。",
+        "comment": "无名且不受控制的临时对象在构造之后会立即析构，在逻辑上没有意义，往往意味着错误。",
         "tag": "declaration",
         "reference": "CWE-665,C++ Core Guidelines ES.84"
         },
@@ -1308,7 +1309,7 @@
     "ID_forbidCStyleCast": {
         "checkPoint": "在 C++ 代码中禁用 C 风格类型转换",
         "level": "suggestion",
-        "comment": "C 语言的类型观念没有 C++ 语言强，使用 C 风格类型转换易造成逻辑错误或数据丢失，应尽量避免类型转换，如果必须进行类型转换，应使用 static_cast、dynamic_cast 等方法。",
+        "comment": "C 语言的类型观念弱于 C++，易造成逻辑错误或数据丢失，应尽量避免类型转换，或使用 static_cast、dynamic_cast 等方法。",
         "tag": "cast",
         "reference": "MISRA C++ 2008 5-2-4,C++ Core Guidelines ES.49"
         },
@@ -1783,7 +1784,7 @@
     "ID_selfDependentInitialization": {
         "checkPoint": "对象初始化不可依赖自身的值",
         "level": "error",
-        "comment": "对象初始化依赖自身的值属于逻辑错误。",
+        "comment": "对象初始化依赖自身的值属于逻辑错误，也是常见的笔误。",
         "tag": "declaration"
         },
     "ID_invalidLocalDeclaration": {
@@ -2840,7 +2841,7 @@
     "ID_deprecatedSpecifier": {
         "checkPoint": "不应使用已过时的关键字",
         "level": "warning",
-        "comment": "根据 C++11 标准，register 等关键字已过时，不应再使用。另外，auto 关键字也不应再作为存储类说明符（storage class specifier）继续使用。",
+        "comment": "根据 C++11 标准，register 等关键字已过时，不应再使用，auto 关键字也不可再作为存储类说明符（storage class specifier）继续使用。",
         "tag": "declaration",
         "standard": "ISO/IEC 14882:2011 D.2(1)-deprecated,ISO/IEC 14882:2011 7.1.6.4"
         },
