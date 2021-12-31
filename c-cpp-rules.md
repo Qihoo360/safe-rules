@@ -585,7 +585,7 @@ ID_plainSensitiveInfo&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 const char* passcode = "Y2Fycm90";   // Non-compliant
 ```
-将密码等敏感数据写入代码是非常不安全的，即使 Y2Fycm90 是实际密码的某种变换也是不妥的，相信聪明的读者会很快将其破解。  
+将密码等敏感数据写入代码是非常不安全的，即使 Y2Fycm90 是实际密码的某种变换也是不妥的，相信聪明的读者很快就会将其破解。  
   
 对具有高可靠性要求的客户端软件，不建议保存任何敏感数据，对于必须保存敏感数据的软件系统，需要落实安全的存储机制以及相关的评审与测试。
 <br/>
@@ -5347,13 +5347,14 @@ struct Type {
     void foo();
     void foo() const;
 };
+
 typedef Type* Alias;
 
 void bar(const Alias a) {  // Rather suspicious
-    a->foo();  // Calls ‘void Type::foo();’
+    a->foo();              // Calls ‘void Type::foo();’
 }
 ```
-例中“const Alias a”很容易引起误解，好像对象是不可被改变的，但实际上 a 的类型是 Type \*const，const 限定的是指针，而不是指针指向的对象，这种情况下，对象仍可以被修改，其调用的函数也可能与预期不符。  
+例中 Alias 是 Type\* 的别名，“const Alias a”很容易引起误解，好像对象是不可被改变的，但实际上 a 的类型是 Type \*const，const 限定的是指针，而不是指针指向的对象，这种情况下，对象仍可以被修改，其调用的函数也可能与预期不符。  
   
 应避免为对象的指针类型定义别名，如果必须定义应提供常量和非常量两种别名，如：
 ```
@@ -5361,7 +5362,7 @@ typedef Type* Alias;
 typedef const Type* ConstAlias;
 
 void bar(ConstAlias a) {
-    a->foo();  // Calls ‘void Type::foo() const;’
+    a->foo();              // Calls ‘void Type::foo() const;’
 }
 ```
 注意，如果 const、volatile 修饰引用的别名则是错误的，详见 ID\_qualifierInvalid。
@@ -14933,7 +14934,7 @@ ID_charWCharCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
 <hr/>
 
-char\* 和 wchar\_t\* 直接转换并不进行字符集编码转换，往往意味着语言运用错误，char\*、wchar\_t\*、char16\_t\* 和 char32\_t\* 之间均不可直接转换。  
+char\* 和 wchar\_t\* 直接转换并不进行字符集转换，属于语言运用错误，char\*、wchar\_t\*、char16\_t\* 以及 char32\_t\* 之间均不可直接转换。  
   
 本规则是 ID\_castNoInheritance 的特化。  
   
