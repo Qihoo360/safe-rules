@@ -294,7 +294,8 @@
         "level": "error",
         "comment": "释放在栈上分配的空间以及非动态申请的资源会导致标准未定义的错误。",
         "standard": "ISO/IEC 9899:2011 7.22.3.3(2)-undefined,ISO/IEC 9899:2011 7.22.3.4(3)-undefined,ISO/IEC 14882:2011 3.7.4.2(4)-undefined",
-        "tag": "resource"
+        "tag": "resource",
+        "reference": "MISRA C 2012 22.2"
         },
     "ID_doubleFree": {
         "checkPoint": "资源不可被重复释放",
@@ -343,9 +344,9 @@
         "standard": "ISO/IEC 14882:2003 8.3.4(6),ISO/IEC 14882:2011 8.3.4(6)"
         },        
     "ID_plainSensitiveInfo": {
-        "checkPoint": "敏感数据不应以明文形式写入代码",
+        "checkPoint": "敏感数据不可写入代码",
         "level": "warning",
-        "comment": "明文敏感数据极易泄露。",
+        "comment": "写在代码中的敏感数据极易泄露，产品以及相关运维、测试等工具的代码均不可记录任何敏感数据。",
         "tag": "security",
         "related": "ID_secretLeak",
         "reference": "CWE-798,CWE-259,SEI CERT MSC41-C"
@@ -598,7 +599,7 @@
     "ID_plainBinaryChar": {
         "checkPoint": "字节的类型应为 unsigned char",
         "level": "warning",
-        "comment": "字节等二进制概念不应受符号位干扰，应声明为unsigned char。",
+        "comment": "字节等二进制概念不应受符号位干扰，应声明为 unsigned char。",
         "tag": "declaration",
         "related": "ID_plainNumericChar,ID_bitwiseOperOnSigned",
         "standard": "ISO/IEC 14882:2003 3.9.1(1)-implementation,ISO/IEC 14882:2011 3.9.1(1)-implementation"
@@ -816,9 +817,9 @@
         "reference": "C++ Core Guidelines F.47,C++ Core Guidelines C.60,C++ Core Guidelines C.63"
     },
     "ID_mainReturnsNonInt": {
-        "checkPoint": "main 函数返回值的类型只应为 int",
+        "checkPoint": "main 函数的返回类型只应为 int",
         "level": "warning",
-        "comment": "main 函数的返回值可作为整个进程执行情况的总结，按惯例返回 0 或 EXIT_SUCCESS 表示执行成功，非 0 或 XIT_FAILURE 表示执行失败，main 函数的返回值会作为标准 exit 函数的参数。",
+        "comment": "main 函数的返回值可作为整个进程执行情况的总结，按惯例返回 0 或 EXIT_SUCCESS 表示执行成功，非 0 或 EXIT_FAILURE 表示执行失败，main 函数的返回值会作为标准 exit 函数的参数。",
         "tag": "function",
         "standard": "ISO/IEC 9899:1999 5.1.2.2.1(1) 5.1.2.2.3(1),ISO/IEC 9899:2011 5.1.2.2.1(1) 5.1.2.2.3(1)",
         "reference": "C++ Core Guidelines F.46"
@@ -2090,7 +2091,7 @@
     "ID_if_assignment": {
         "checkPoint": "if 语句的条件不应为赋值表达式",
         "level": "warning",
-        "comment": "虽然语言允许在 if 语句的条件中赋值，但 = 和 == 极易混淆，本规则不建议在条件中使用赋值表达式，建议所有产生 bool 型结果的表达式，都不要包含赋值运算符。",
+        "comment": "虽然语言允许在 if 语句的条件中赋值，但 = 和 == 极易混淆，建议所有产生 bool 型结果的表达式，都不要包含赋值运算符。",
         "tag": "control",
         "config": {
             "ID_if_assignment/allowEnclosedAssignment": "为 true 可以放过括号括起来的赋值表达式"
@@ -2138,7 +2139,7 @@
     "ID_while_assignment": {
         "checkPoint": "while 语句的条件不应为赋值表达式",
         "level": "warning",
-        "comment": "虽然语言允许在 while 语句的条件中赋值，但 = 和 == 极易混淆，本规则不建议在条件中使用赋值表达式，建议所有产生 bool 型结果的表达式，都不要包含赋值运算符。",
+        "comment": "虽然语言允许在 while 语句的条件中赋值，但 = 和 == 极易混淆，建议所有产生 bool 型结果的表达式，都不要包含赋值运算符。",
         "tag": "control",
         "related": "ID_if_assignment",
         "reference": "CWE-480,CWE-783"
@@ -2367,7 +2368,7 @@
     "ID_literal_forbidOct": {
         "checkPoint": "禁用 8 进制常量",
         "level": "suggestion",
-        "comment": "8 进制不像 10 进制那样符合人们的常规思维，也不像 2 进制或 16 进制那样便于展示数据的存储格式。",
+        "comment": "8 进制不像 10 进制那样符合人们的常规思维，也不像 2 进制或 16 进制那样便于展示数据的存储格式，而且 C/C++ 中 8 进制表示法只是在数字前置 0，与十进制过于相似，易被误用。",
         "tag": "literal",
         "reference": "MISRA C 2004 7.1,MISRA C 2012 7.1,MISRA C++ 2008 2-13-2"
         },
@@ -2408,7 +2409,7 @@
     "ID_literal_multicharacter": {
         "checkPoint": "不应使用多字符常量",
         "level": "suggestion",
-        "comment": "多字符常量形式上与字符串常量相似，但类型为整型，易造成误用，而且不同编译器对这种常量的处理方式也有所不同，故建议禁用。",
+        "comment": "多字符常量形式上与字符串常量相似，但类型为整型，易被误用，而且不同编译器对这种常量的处理方式也有所不同，故建议禁用。",
         "tag": "literal",
         "standard": "ISO/IEC 14882:2011 2.13.2(1)-implementation,ISO/IEC 14882:2011 2.14.3(1)-implementation,ISO/IEC 14882:2017 5.13.3(2)-implementation",
         "related": "ID_literal_suspiciousChar"
@@ -3009,6 +3010,7 @@
         "comment": "不检查缓冲区长度的字符串函数易造成运行时错误或安全漏洞。",
         "tag": "security",
         "standard": "ISO/IEC 9899:2011 K.3.7",
+        "related": "ID_bufferOverflow",
         "reference": "CWE-119,CWE-120,CWE-676,MISRA C++ 2008 18-0-5"
         },
     "ID_forbidAtox": {
@@ -3108,7 +3110,7 @@
         "reference": "CWE-89,CWE-23,CWE-73"
         },
     "ID_bufferOverflow": {
-        "checkPoint": "对内存的读写应在有效的边界内进行",
+        "checkPoint": "对内存的读写应在有效边界内进行",
         "level": "warning",
         "comment": "程序读写内存之前应保证内存区域的有效性，任何在有效边界之外的读写都会导致严重后果。",
         "tag": "buffer",

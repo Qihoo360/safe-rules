@@ -76,7 +76,7 @@
 
 ## 规则列表
 <span id="__Security">**[1. Security](#security)**</span>
-  - [R1.1 敏感数据不应以明文形式写入代码](#ID_plainSensitiveInfo)
+  - [R1.1 敏感数据不可写入代码](#ID_plainSensitiveInfo)
   - [R1.2 敏感数据不可被系统外界感知](#ID_secretLeak)
   - [R1.3 敏感数据在使用后应被有效清理](#ID_unsafeCleanup)
   - [R1.4 公共成员或全局对象不应记录敏感数据](#ID_sensitiveName)
@@ -303,7 +303,7 @@
 <br/>
 
 <span id="__Function">**[8. Function](#function)**</span>
-  - [R8.1 main 函数返回值的类型只应为 int](#ID_mainReturnsNonInt)
+  - [R8.1 main 函数的返回类型只应为 int](#ID_mainReturnsNonInt)
   - [R8.2 main 函数不应被重载，也不应声明为 inline、static 或 constexpr](#ID_illFormedMain)
   - [R8.3 函数不应在头文件中实现](#ID_definedInHeader)
   - [R8.4 函数的参数名称在声明和实现处应保持一致](#ID_inconsistentParamName)
@@ -527,7 +527,7 @@
 <br/>
 
 <span id="__Buffer">**[13. Buffer](#buffer)**</span>
-  - [R13.1 对内存的读写应在有效的边界内进行](#ID_bufferOverflow)
+  - [R13.1 对内存的读写应在有效边界内进行](#ID_bufferOverflow)
   - [R13.2 数组下标不可越界](#ID_arrayIndexOverflow)
   - [R13.3 为缓冲区分配足够的空间](#ID_insufficientBuffer)
   - [R13.4 memset 等函数不应作用于带有虚函数的对象](#ID_nonPODFilling)
@@ -566,23 +566,28 @@
   - [R15.6 不应存在多余的分号](#ID_redundantSemicolon)<br/><br/>
 ## <span id="security">1. Security</span>
 
-### <span id="ID_plainSensitiveInfo">▌R1.1 敏感数据不应以明文形式写入代码</span>
+### <span id="ID_plainSensitiveInfo">▌R1.1 敏感数据不可写入代码</span>
 
 ID_plainSensitiveInfo&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-明文敏感数据极易泄露。  
+写在代码中的敏感数据极易泄露，产品及相关运维、测试等工具的代码均不可记录任何敏感数据。  
   
 示例：
 ```
-void foo() {
-    const char* username = "abc";
-    const char* password = "123456";  // Non-compliant
-    access_database(username, password);
-}
+/**
+ * My name is Rabbit
+ * My passphrase is Y2Fycm90         // Non-compliant
+ */
+
+#define PASSWORD "Y2Fycm90"          // Non-compliant
+
+const char* passcode = "Y2Fycm90";   // Non-compliant
 ```
-对具有高可靠性要求的客户端软件系统，不建议保存任何敏感数据，对于必须保存敏感数据的软件系统，需要落实安全的存储机制以及相关的评审与测试。
+将密码等敏感数据写入代码是非常不安全的，即使 Y2Fycm90 是实际密码的某种变换也是不妥的，相信聪明的读者会很快将其破解。  
+  
+对具有高可靠性要求的客户端软件，不建议保存任何敏感数据，对于必须保存敏感数据的软件系统，需要落实安全的存储机制以及相关的评审与测试。
 <br/>
 <br/>
 
@@ -614,12 +619,13 @@ void foo(User* u) {
 显然，将敏感数据直接输出到界面、日志或其他外界可感知的介质中是不安全的，需避免敏感数据的有意外传，除此之外，还需要落实具体的保护措施。  
   
 保护措施包括但不限于：  
- ● 避免敏感数据由内存交换到外存  
+ ● 避免用明文或弱加密方式传输敏感数据  
+ ● 避免敏感数据从内存交换到外存  
  ● 避免如除零、无效指针解引用等问题造成“[core dump](https://en.wikipedia.org/wiki/Core_dump)”  
  ● 应具备反调试机制，使外界无法获得进程的内部数据  
  ● 应具备反注入机制，使外界无法篡改程序的行为  
   
-下面以 Windows 平台为例，给出防止内存交换到外存的示例：
+下面以 Windows 平台为例，给出阻止敏感数据从内存交换到外存的示例：
 ```
 class SecretBuf {
     size_t len = 0;
@@ -651,7 +657,7 @@ public:
     const unsigned char* ptr() const { return buf; }
 };
 ```
-SecretBuf 在构造函数中通过 VirtualLock 将内存页面锁定在物理内存中，阻止了与外存的交换，可在一定程度上阻止其他进程的恶意嗅探，在析构函数中解除锁定，解锁之前有必要清除敏感数据，否则解锁之后敏感数据仍有可能被交换到外存，进一步可参见 ID\_unsafeCleanup。  
+例中 SecretBuf 是一个缓冲区类，其申请的内存会被锁定在物理内存中，不会与外存交换，可在一定程度上防止其他进程的恶意嗅探，保障缓冲区内数据的安全。SecretBuf 在构造函数中通过 VirtualLock 锁定物理内存，在析构函数中通过 VirtualUnlock 解除锁定，解锁之前有必要清除数据，否则解锁之后残留数据仍有可能被交换到外存，进一步可参见 ID\_unsafeCleanup。  
   
 SecretBuf 的使用方法如下：
 ```
@@ -1164,12 +1170,16 @@ lstrcat、lstrcatA、lstrcatW、lstrcpy、lstrcpyA、lstrcpyW
 
 void foo(const char* s) {
     char arr[10];
-    strcpy(arr, s);  // Non-compliant, note the length of s
+    strcpy(arr, s);  // Non-compliant, note the length of ‘s’
     ....
 }
 ```
 要想正确使用 strcpy 等函数完全依赖于代码编写者的小心谨慎，这种对人为因素的依赖是不可靠的，禁用不安全的库函数才是明智的选择。
 <br/>
+<br/>
+
+#### 相关
+ID_bufferOverflow  
 <br/>
 
 #### 依据
@@ -2063,6 +2073,10 @@ void bar() {
 ISO/IEC 9899:2011 7.22.3.3(2)-undefined  
 ISO/IEC 9899:2011 7.22.3.4(3)-undefined  
 ISO/IEC 14882:2011 3.7.4.2(4)-undefined  
+<br/>
+
+#### 参考
+MISRA C 2012 22.2  
 <br/>
 <br/>
 
@@ -3724,7 +3738,7 @@ ID_staticInHeader&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
 <hr/>
 
-头文件中由 static 关键字修饰的非成员对象、数组或函数，即静态数据，会在每个包含该头文件的编译单元（translate\-unit）中生成副本而造成数据冗余，如果将静态数据误用作全局数据也会造成逻辑错误。  
+头文件中由 static 关键字修饰的非成员对象、数组或函数，即静态数据，会在每个包含该头文件的翻译单元（translate\-unit）中生成副本而造成数据冗余，如果将静态数据误用作全局数据也会造成逻辑错误。  
   
 示例：
 ```
@@ -4854,15 +4868,7 @@ enum E {     // Non-compliant
     e2 = -1
 };
 
-E foo() {
-    if (cond1) {
-        return e0;
-    } else if (cond2) {
-        return e1;
-    } else {
-        return e2;
-    }
-}
+E foo();
 
 void bar() {
     if (foo()) {  // ‘e1’ or ‘e2’??
@@ -4870,7 +4876,7 @@ void bar() {
     }
 }
 ```
-传统 C 枚举值与 int 等类型可以随意转换，造成了太多的不确定因素，例中如果 e0 和 e2 表示某种错误情况，e1 表示正确情况，那么 bar 函数中对 foo 返回值的判断就是错误的，这是实际代码编写中非常常见的问题，C\+\+11 提出了 enum class 的概念加强了类型检查，提倡在新项目中应尽量使用 enum class。  
+传统 C 枚举值与 int 等类型可以随意转换，如果 e0 和 e2 表示某种错误情况，e1 表示正确情况，那么 bar 函数中对 foo 返回值的判断就是错误的，这也是一种常见问题，C\+\+11 提出了 enum class 的概念加强了类型检查，提倡在新项目中尽量使用 enum class。  
   
 应改为：
 ```
@@ -6444,7 +6450,7 @@ void bar() {
 }
 ```
 foo 可能只会返回 true，而 bar 可能输出 \-152 也可能输出 360。  
-char类型在 PC 桌面、服务端等环境中一般是有符号的，在移动端或嵌入式系统中往往是无符号的，需明确其具体实现。
+char 类型在 PC 桌面、服务端等环境中一般是有符号的，在移动端或嵌入式系统中往往是无符号的，需明确其具体实现。
 ```
 bool foo(unsigned char c) { // Compliant
     return c < 180;
@@ -7471,9 +7477,9 @@ void foo() {
     unlock();
 }
 ```
-设 lock 是某种加锁操作，unlock 是解锁操作，process 是某个可能抛出异常的过程，那么 foo 函数就不是异常安全的，当异常抛出后解锁操作无法执行从而造成死锁等严重后果。  
+设 lock 是某种加锁操作，unlock 是解锁操作，process 是某个可能抛出异常的过程，那么 foo 函数就不是异常安全的，一旦有异常抛出会导致无法解锁。  
   
-需要保证资源从申请到回收的过程不被异常中断，应对资源采用面向对象的管理方法，使资源的申请和回收得以自动完成，可参见 ID\_ownerlessResource 的进一步讨论。  
+需要保证资源从申请到回收的过程不被异常中断，应采用面向对象的资源管理方法，使资源的申请和回收得以自动完成，可参见 ID\_ownerlessResource 的进一步讨论。  
   
 异常安全的另一个重要方面是抛出异常时应保证相关对象的状态是正确的，事务或算法在处理对象时可能要分多个步骤处理对象的多个成员，要注意中途抛出异常会造成数据不一致等问题。
 ```
@@ -7487,7 +7493,7 @@ public:
     }
 };
 ```
-设 a 和 b 是两个密切相关的成员，如账户和金额等，foo 是一个处理事务的函数，如果在中途抛出异常就会使对象处于一种错误的状态，解决方法可以考虑“复制 \- 交换”模式，如：
+设 a 和 b 是两个密切相关的成员，如账号和金额等，foo 是一个处理事务的函数，如果在中途抛出异常就会使对象处于一种错误的状态，解决方法可以考虑“复制 \- 交换”模式，如：
 ```
 class X {
     T a, b;
@@ -8128,7 +8134,7 @@ Google C++ Style Guide.Other C++ Features.Exceptions
 
 ## <span id="function">8. Function</span>
 
-### <span id="ID_mainReturnsNonInt">▌R8.1 main 函数返回值的类型只应为 int</span>
+### <span id="ID_mainReturnsNonInt">▌R8.1 main 函数的返回类型只应为 int</span>
 
 ID_mainReturnsNonInt&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -8201,7 +8207,7 @@ ID_definedInHeader&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-在头文件中实现的函数，如果不是内联、静态或模板函数，则可能被引入不同的编译单元（translate\-unit）造成编译冲突。  
+在头文件中实现的函数，如果不是内联、静态或模板函数，则可能被引入不同的翻译单元（translate\-unit）造成编译冲突。  
   
 头文件也是项目文档的重要组成部分，头文件的主要内容应是类型或接口的声明，有必要保持头文件简洁清晰，便于阅读。  
   
@@ -10099,7 +10105,7 @@ ID_if_assignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
 <hr/>
 
-虽然语言允许在 if 语句的条件中赋值，但 = 和 == 极易混淆，本规则不建议在条件中使用赋值表达式，建议所有产生 bool 型结果的表达式，都不要包含赋值运算符。  
+虽然语言允许在 if 语句的条件中赋值，但 = 和 == 极易混淆，建议所有产生 bool 型结果的表达式，都不要包含赋值运算符。  
   
 示例：
 ```
@@ -10108,25 +10114,23 @@ if (r = S_OK) {  // Non-compliant
     ....
 }
 ```
-其中 if 语句的条件将 r 的值设成了 S\_OK，而 S\_OK 的值为零，造成了逻辑错误。  
-  
-注意，当条件中的赋值运算符右侧为常量的时候，基本可以判定是 == 被误写成了 =。  
+设 S\_OK 为常量，在条件中用常量对变量赋值是没有逻辑意义的，如果条件中等号右侧为常量，基本可以判定是 == 被误写成了 =。  
   
 又如：
 ```
-if (n = strlen(s)) {  // Non-compliant
+if (r = fun()) {  // Non-compliant
     ....
 }
 ```
 这也是一种公认的不良风格，应将赋值表达式拆分出来，或者在 C\+\+ 代码中改为：
 ```
-if (auto n = strlen(s)) {  // Compliant
+if (auto r = fun()) {  // Compliant
     ....
 }
 ```
 将赋值表达式加上括号，表示有意为之，是一种惯用写法：
 ```
-if ((n = strlen(s))) {  // Let it go?
+if ((r = fun())) {  // Let it go?
     ....
 }
 ```
@@ -10679,7 +10683,7 @@ ID_while_assignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
 <hr/>
 
-虽然语言允许在 while 语句的条件中赋值，但 = 和 == 极易混淆，本规则不建议在条件中使用赋值表达式，建议所有产生 bool 型结果的表达式，都不要包含赋值运算符。  
+虽然语言允许在 while 语句的条件中赋值，但 = 和 == 极易混淆，建议所有产生 bool 型结果的表达式，都不要包含赋值运算符。  
   
 示例：
 ```
@@ -11255,6 +11259,7 @@ ID_switch_onlyOneCase&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 switch (i) {
 case 123:  // Non-compliant
     ....
+    break;
 }
 ```
 应改为：
@@ -13797,13 +13802,14 @@ ID_sizeof_NULL&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
   
 示例：
 ```
-auto a = sizeof(NULL);     // Non-compliant
+size_t n = sizeof(NULL);     // Non-compliant
 ```
+不同的编译器对示例代码有不同的处理，有些会把 NULL 当作指针，有些会当作常量 0。  
+  
 应改为：
 ```
-auto a = sizeof(nullptr);  // Compliant
+size_t n = sizeof(nullptr);  // Compliant
 ```
-不同的编译器编译后 a 的值是不同的，有些编译器把 NULL 当作指针，而有些会当作常量 0，故应明确地使用 nullptr。
 <br/>
 <br/>
 
@@ -14390,8 +14396,7 @@ ID_literal_forbidOct&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: literal suggestion
 
 <hr/>
 
-8 进制不像 10 进制那样符合人们的常规思维，也不像 2 进制或 16 进制那样便于展示数据的存储格式。  
-而且在 C/C\+\+ 语言中，8 进制表示法只是在数值前置 0，但这种写法用十进制也可以解释的通，被误用的可能性较大。  
+8 进制不像 10 进制那样符合人们的常规思维，也不像 2 进制或 16 进制那样便于展示数据的存储格式，而且 C/C\+\+ 中 8 进制表示法只是在数字前置 0，与十进制过于相似，易被误用。  
   
 示例：
 ```
@@ -14400,7 +14405,7 @@ const int K_1 = 0631;  // Non-compliant
 const int K_2 = 3817;
 const int K_3 = 4257;
 ```
-为了格式上的对齐，错误的在 10 进制数前写 0 是常见笔误，例中 K\_1 的实际值为 409。
+为了格式上的对齐，错误地在 10 进制数前写 0 是常见笔误，例中 k\_1 的实际值为 409。
 <br/>
 <br/>
 
@@ -14491,16 +14496,16 @@ ID_literal_magicNumber&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: literal suggestion
 ```
 void fun() {
     for (int i = 0; i < 12345; i++) {  // Non-compliant, 12345 is magic
-        bar(i);
+        ....
     }
 }
 ```
 “12345”应改为具有名称的常量：
 ```
-constexpr int maxId = 12345;
+const int maxId = 12345;
 void fun() {
     for (int i = 0; i < maxId; i++) {  // Compliant
-        bar(i);
+        ....
     }
 }
 ```
@@ -14531,19 +14536,19 @@ ID_literal_magicString&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: literal suggestion
   
 示例：
 ```
-void fun(const string& s) {
+void foo(const string& s) {
     if (s == "https://foo.net/bar") {  // Non-compliant
-        foo("https://foo.net/bar");    // Non-compliant
+        bar("https://foo.net/bar");    // Non-compliant
     }
 }
 ```
 应改为：
 ```
-const char fooUrl[] = "https://foo.net/bar";
+const char url[] = "https://foo.net/bar";  // Compliant
 
-void fun(const string& s) {
-    if (s == fooUrl) {  // Compliant
-        foo(fooUrl);    // Compliant
+void foo(const string& s) {
+    if (s == url) {
+        bar(url);
     }
 }
 ```
@@ -14566,7 +14571,7 @@ ID_literal_multicharacter&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: literal suggestion
 
 <hr/>
 
-多字符常量形式上与字符串常量相似，但类型为整型，易造成误用，而且不同编译器对这种常量的处理方式也有所不同，故建议禁用。  
+多字符常量形式上与字符串常量相似，但类型为整型，易被误用，而且不同编译器对这种常量的处理方式也有所不同，故建议禁用。  
   
 示例：
 ```
@@ -14579,18 +14584,17 @@ void foo(int x) {
     }
 }
 ```
-这种常量在早期的程序实现中往往被当作一种枚举值来使用，现在应改用类型更加明确的 enum class 来实现。  
+例中 'tcp'、'udp' 为多字符常量，应改用普通常量。  
   
-应改为：
+本例在 C\+\+ 中也可使用 enum class 实现：
 ```
-enum class protocol {
-    tcp, udp
-};
-void foo(protocol x) {
-    if (x == protocol::tcp) {  // Compliant
+enum class PROT { tcp, udp };
+
+void foo(PROT x) {
+    if (x == PROT::tcp) {  // Compliant
         ....
     }
-    else if (x == protocol::udp) {  // Compliant
+    else if (x == PROT::udp) {  // Compliant
         ....
     }
 }
@@ -14941,7 +14945,7 @@ wchar_t* to_unicode(char* str) {
 ```
 示例代码显然是错误的，应改用 iconv、MultiByteToWideChar 等字符集编码转换函数。  
   
-由于 unsigned char\* 一般针对二进制数据，unsigned char\* 与其他字符串类型之间的转换可被放过。注意，不应使用 char\* 作为二进制数据的类型，可参见 ID\_plainBinaryChar。
+由于 unsigned char\* 一般针对二进制数据，unsigned char\* 与其他字符串类型之间的转换可被放过，但 char\* 不应作为二进制数据的类型，可参见 ID\_plainBinaryChar。
 <br/>
 <br/>
 
@@ -15256,7 +15260,7 @@ C++ Core Guidelines Pro.safety
 
 ## <span id="buffer">13. Buffer</span>
 
-### <span id="ID_bufferOverflow">▌R13.1 对内存的读写应在有效的边界内进行</span>
+### <span id="ID_bufferOverflow">▌R13.1 对内存的读写应在有效边界内进行</span>
 
 ID_bufferOverflow&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: buffer warning
 
@@ -16163,7 +16167,7 @@ void foo(int* p, int n) {
     memset(p, 0, n * sizeof(*p));  // OK
 }
 ```
-其中参数 n 可以是数组元素的个数。
+其中参数 n 是数组元素的个数。
 <br/>
 <br/>
 
