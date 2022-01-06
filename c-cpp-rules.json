@@ -2873,7 +2873,7 @@
         "reference": "SEI CERT DCL37-C,SEI CERT DCL51-CPP,MISRA C 2012 21.2,MISRA C++ 2008 17-0-1,MISRA C++ 2008 17-0-2,MISRA C++ 2008 17-0-3"
         },
     "ID_duplicatedName": {
-        "checkPoint": "同一命名空间内的类型名称不应与对象或函数名称相同",
+        "checkPoint": "类型名称不应与对象或函数名称相同",
         "level": "suggestion",
         "comment": "如果不同的代码元素使用相同的名称，极易造成困扰。",
         "tag": "declaration",
