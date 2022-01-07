@@ -346,7 +346,7 @@
     "ID_plainSensitiveInfo": {
         "checkPoint": "敏感数据不可写入代码",
         "level": "warning",
-        "comment": "写在代码中的敏感数据极易泄露，产品以及相关运维、测试等工具的代码均不可记录任何敏感数据。",
+        "comment": "代码中的敏感数据极易泄露，产品以及相关运维、测试工具的代码均不可记录任何敏感数据。",
         "tag": "security",
         "related": "ID_secretLeak",
         "reference": "CWE-798,CWE-259,SEI CERT MSC41-C"
@@ -2337,11 +2337,11 @@
         "related": "ID_literal_hardCodeChar"
         },
     "ID_hardcodedIP": {
-        "checkPoint": "不应硬编码 IP 地址",
+        "checkPoint": "IP 地址不应写入代码",
         "level": "warning",
-        "comment": "字符串常量中不应存在硬编码的 IP 地址，不利于维护和移植，也容易暴露产品的网络结构，属于安全隐患。",
+        "comment": "在代码中记录 IP 地址不利于维护和移植，也容易暴露产品的网络结构，属于安全隐患。",
         "tag": "security",
-        "reference": "CVE-2006-5901"
+        "related": "ID_addressExposure"
         },
     "ID_literal_nonStandardEsc": {
         "checkPoint": "不应使用非标准转义字符",
@@ -2417,7 +2417,7 @@
     "ID_nonStdDirective": {
         "checkPoint": "不应使用非标准预编译指令",
         "level": "warning",
-        "comment": "使用非标准预编译指令并非是问题的正规解决方法，且易造成代码扩展或移植的隐患。",
+        "comment": "使用非标准预编译指令并非是问题的正规解决方法，且易造成代码移植方面的隐患。",
         "tag": "precompile",
         "standard": "ISO/IEC 9899:1999 6.10(1),ISO/IEC 9899:2011 6.10(1)",
         "reference": "MISRA C 2004 19.16,MISRA C 2012 20.13"
@@ -2425,9 +2425,9 @@
     "ID_illFormedDirective": {
         "checkPoint": "不应出现非标准格式的预编译指令",
         "level": "warning",
-        "comment": "非标准格式的预编译指令会导致标准未定义的问题。",
+        "comment": "非标准格式的预编译指令往往意味着错误，也会导致标准未定义的问题。",
         "tag": "precompile",
-        "standard": "ISO/IEC 9899:1999 6.10(1),ISO/IEC 9899:2011 6.10(1)",
+        "standard": "ISO/IEC 9899:2011 6.10(1),ISO/IEC 9899:2011 6.10.1(4)-undefined,ISO/IEC 14882:2011 16.1(4)-undefined",
         "reference": "MISRA C++ 2008 16-0-7,MISRA C++ 2008 16-0-8,MISRA C++ 2008 16-1-1"
         },
     "ID_warningDisabled": {
@@ -2477,7 +2477,7 @@
     "ID_macro_insufficientArgs": {
         "checkPoint": "宏的实参个数不可小于形参个数",
         "level": "warning",
-        "comment": "宏的实参个数小于形参个数是不符合 C/C++ 标准的，参数个数不一致必然意味着某种错误，然而在某些编译环境下却可以通过编译（如 MSVC 等）。",
+        "comment": "宏的实参个数小于形参个数是不符合 C/C++ 标准的，参数个数不一致必然意味着某种错误，然而在某些编译环境下却可以通过编译。",
         "tag": "precompile",
         "related": "ID_macro_redundantArgs",
         "reference": "CWE-628,MISRA C 2004 19.8"
@@ -2485,7 +2485,7 @@
     "ID_macro_redundantArgs": {
         "checkPoint": "宏的实参个数不可大于形参个数",
         "level": "warning",
-        "comment": "宏的实参个数大于形参个数是不符合 C/C++ 标准的，参数个数不一致必然意味着某种错误，然而在某些编译环境下却可以通过编译（如 MSVC 等）。",
+        "comment": "宏的实参个数大于形参个数是不符合 C/C++ 标准的，参数个数不一致必然意味着某种错误，然而在某些编译环境下却可以通过编译。",
         "tag": "precompile",
         "related": "ID_macro_insufficientArgs",
         "reference": "CWE-628"
@@ -2493,7 +2493,7 @@
     "ID_macro_sideEffectArgs": {
         "checkPoint": "宏参数不应有副作用",
         "level": "warning",
-        "comment": "如果宏的参数有副作用，如果在宏定义中没有或多次引用到该参数，会引发非预期的错误。",
+        "comment": "当宏参数有“副作用（side effect）”时，如果宏定义中没有或多次引用到该参数，会导致意料之外的错误。",
         "tag": "precompile",
         "related": "ID_sideEffectAssertion,ID_macro_function",
         "reference": "SEI CERT PRE31-C"

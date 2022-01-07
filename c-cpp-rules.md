@@ -95,7 +95,7 @@
   - [R1.17 禁用 atof、atoi、atol 以及 atoll 等函数](#ID_forbidAtox)
   - [R1.18 格式化字符串应为常量](#ID_variableFormatString)
   - [R1.19 与程序实现相关的信息不可被外界感知](#ID_addressExposure)
-  - [R1.20 不应硬编码 IP 地址](#ID_hardcodedIP)
+  - [R1.20 IP 地址不应写入代码](#ID_hardcodedIP)
   - [R1.21 避免使用 errno](#ID_deprecatedErrno)
 <br/>
 
@@ -572,7 +572,7 @@ ID_plainSensitiveInfo&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-写在代码中的敏感数据极易泄露，产品及相关运维、测试等工具的代码均不可记录任何敏感数据。  
+代码中的敏感数据极易泄露，产品及相关运维、测试工具的代码均不可记录任何敏感数据。  
   
 示例：
 ```
@@ -587,7 +587,7 @@ const char* passcode = "Y2Fycm90";   // Non-compliant
 ```
 将密码等敏感数据写入代码是非常不安全的，即使例中 Y2Fycm90 是实际密码的某种变换，聪明的读者也会很快将其破解。  
   
-对具有高可靠性要求的客户端软件，不建议保存任何敏感数据，否则需要落实安全的存储机制以及相关评审与测试。
+敏感数据的界定是产品设计的重要环节。对具有高可靠性要求的客户端软件，不建议保存任何敏感数据，对于必须保存敏感数据的软件系统，则需要落实安全的存储机制以及相关的评审与测试。
 <br/>
 <br/>
 
@@ -1443,13 +1443,13 @@ CWE-200
 <br/>
 <br/>
 
-### <span id="ID_hardcodedIP">▌R1.20 不应硬编码 IP 地址</span>
+### <span id="ID_hardcodedIP">▌R1.20 IP 地址不应写入代码</span>
 
 ID_hardcodedIP&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-字符串常量中不应存在硬编码的 IP 地址，不利于维护和移植，也容易暴露产品的网络结构，属于安全隐患。  
+在代码中记录 IP 地址不利于维护和移植，也容易暴露产品的网络结构，属于安全隐患。  
   
 示例：
 ```
@@ -1473,8 +1473,8 @@ bar(cfg.url());               // Compliant
 <br/>
 <br/>
 
-#### 参考
-CVE-2006-5901  
+#### 相关
+ID_addressExposure  
 <br/>
 <br/>
 
@@ -2357,14 +2357,12 @@ ID_forbiddenHeader&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompile warning
 #include <setjmp.h>   // Non-compliant
 #include <stdbool.h>  // Non-compliant in C++
 ```
-tgmath.h 和 ctgmath 会使用语言标准之外的技术实现某种重载效果，而且其中的部分函数名称会干扰其他标准库中的名称，setjmp 和 csetjmp 则包含危险的过程间跳转函数。  
+tgmath.h 和 ctgmath 会使用语言标准之外的技术实现某种重载效果，而且其中的部分函数名称会干扰其他标准库中的名称，setjmp.h 和 csetjmp 则包含危险的过程间跳转函数。  
   
 iso646.h、stdalign.h 以及 stdbool.h 对于 C\+\+ 语言来说没有意义，在 C\+\+ 代码中不应使用。  
 stdio.h、signal.h、time.h、fenv.h 等头文件对于有高可靠性要求的软件系统也不建议使用，这些头文件含有较多标准未声明、未定义或由实现定义的内容。  
   
-审计工具不妨通过配置设定不合规头文件的名称。  
-  
-配置示例：
+审计工具不妨通过配置设定不合规头文件的名称：
 ```
 [ID_include]
 $open=true
@@ -2521,9 +2519,7 @@ __STDCPP_THREADS__
 ```
 应实现为调用 new(std::nothrow) 的函数  
   
-审计工具不妨通过配置设定保留名称。  
-  
-配置示例：
+审计工具不妨通过配置设定保留名称：
 ```
 [ID_macro]
 $open=true
@@ -2584,9 +2580,7 @@ __STDCPP_THREADS__
 #undef _WIN64       // Non-compliant
 #undef __unix__     // Non-compliant
 ```
-审计工具不妨通过配置设定保留名称。  
-  
-配置示例：
+审计工具不妨通过配置设定保留名称：
 ```
 [ID_macro]
 $open=true
@@ -2707,7 +2701,7 @@ if (x > y)
   a ^= b; b ^= a; a ^= b;\
 } while(0)
 ```
-这样在使用宏时必须以分号结尾（否则无法通过编译），使宏在使用风格上与函数相同，易于阅读。
+这样在使用宏时必须以分号结尾，否则无法通过编译，使宏在使用风格上与函数相同，易于阅读。
 <br/>
 <br/>
 
@@ -2728,7 +2722,7 @@ ID_macro_insufficientArgs&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 <hr/>
 
-宏的实参个数小于形参个数是不符合 C/C\+\+ 标准的，参数个数不一致必然意味着某种错误，然而在某些编译环境下却可以通过编译（如 MSVC 等）。  
+宏的实参个数小于形参个数是不符合 C/C\+\+ 标准的，参数个数不一致必然意味着某种错误，然而在某些编译环境下却可以通过编译。  
   
 示例：
 ```
@@ -2758,7 +2752,7 @@ ID_macro_redundantArgs&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 <hr/>
 
-宏的实参个数大于形参个数是不符合 C/C\+\+ 标准的，参数个数不一致必然意味着某种错误，然而在某些编译环境下却可以通过编译（如 MSVC 等）。  
+宏的实参个数大于形参个数是不符合 C/C\+\+ 标准的，参数个数不一致必然意味着某种错误，然而在某些编译环境下却可以通过编译。  
   
 示例：
 ```
@@ -2786,7 +2780,7 @@ ID_macro_sideEffectArgs&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 <hr/>
 
-如果宏的参数有副作用，如果在宏定义中没有或多次引用到该参数，会引发非预期的错误。  
+当宏参数有“[副作用（side effect）](https://en.wikipedia.org/wiki/Side_effect_(computer_science))”时，如果宏定义中没有或多次引用到该参数，会导致意料之外的错误。  
   
 示例：
 ```
@@ -2794,11 +2788,11 @@ ID_macro_sideEffectArgs&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 #define M(a) ((a) + (a))
 
 int foo(int& a) {
-    return M(++a);  // Non-compliant
+    return M(++a);  // Non-compliant, returns ‘((++a) + (++a))’
 }
 
 void bar(int& a) {
-    I(a--);  // Non-compliant
+    I(a--);  // Non-compliant, does nothing
 }
 ```
 例中 M 和 I 看起来像是函数调用，而展开后的结果却在意料之外。
@@ -2872,7 +2866,7 @@ namespace M {
     void fun(double PI);  // Disturbed
 }
 ```
-示例代码中，宏 PI 干扰了其他作用域，造成代码的语法错误。
+例中宏 PI 干扰了其他作用域，造成代码的语法错误。
 <br/>
 <br/>
 
@@ -3013,10 +3007,10 @@ ID_macro_complexConcat&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
   
 示例：
 ```
-#define M0(a,b) # a ## b  // Non-compliant
+#define M0(a,b) # a ## b        // Non-compliant
 #define M1(a,b,c) a ## #b ## c  // Non-compliant
 
-#define M2(a) #a  // Compliant
+#define M2(a) #a          // Compliant
 #define M3(a,b) M1(a##b)  // Compliant
 ```
 <br/>
@@ -3090,29 +3084,48 @@ ID_illFormedDirective&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 <hr/>
 
-非标准格式的预编译指令会导致标准未定义的问题。  
+非标准格式的预编译指令往往意味着错误，也会导致标准未定义的问题。  
+  
+需注意：  
+ ● defined 只应作用于宏名称或括号括起来的宏名称  
+ ● defined 不应出现在宏定义中  
+ ● \#if、\#elif 后应为正确的常量表达式  
+ ● \#ifdef、\#ifndef 后只应为宏名称  
+ ● \#else、\#endif 后应直接换行  
   
 示例：
+```
+#if defined M            // Compliant
+#if defined(M)           // Compliant
+#if defined(M == 0)      // Non-compliant, undefined behaviour
+
+#define DEFINED defined 
+#if DEFINED M            // Non-compliant, undefined behaviour
+```
+例中作用于比较表达式的 defined 会导致标准未定义的行为，在 \#if 条件表达式中由宏展开产生的 defined 也会导致标准未定义的行为。  
+  
+又如：
 ```
 #define M 2
 
 int foo() {
     int x = 0;
 #ifdef M
-        x = 1;
-#elif            // Non-compliant
         x = M;
-#endif M         // Non-compliant
+#elif            // Non-compliant, use ‘#else’ instead
+        x = 1;
+#endif M         // Non-compliant, remove ‘M’
     return x;
 }
 ```
-例中 elif 和 endif 指令的格式是不对的。
+这种代码是不符合标准的，但可被某些编译器接受，应避免。
 <br/>
 <br/>
 
 #### 依据
-ISO/IEC 9899:1999 6.10(1)  
 ISO/IEC 9899:2011 6.10(1)  
+ISO/IEC 9899:2011 6.10.1(4)-undefined  
+ISO/IEC 14882:2011 16.1(4)-undefined  
 <br/>
 
 #### 参考
@@ -3128,7 +3141,7 @@ ID_nonStdDirective&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 <hr/>
 
-使用非标准预编译指令并非是问题的正规解决方法，且易造成代码扩展或移植的隐患。  
+使用非标准预编译指令并非是问题的正规解决方法，且易造成代码移植方面的隐患。  
   
 示例：
 ```
@@ -3677,7 +3690,7 @@ ID_staticAndConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
   
 示例：
 ```
-static const int i = 123;  // Non-compliant, drop ‘static’
+static const int i = 123;  // Non-compliant, redundant ‘static’
 ```
 应改为：
 ```
@@ -5803,7 +5816,7 @@ class A {
     void foo();
 };
 
-extern void A::foo() {  // Non-compliant, drop ‘extern’
+extern void A::foo() {  // Non-compliant, invalid ‘extern’
     ....
 }
 ```
