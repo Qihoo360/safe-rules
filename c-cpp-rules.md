@@ -1161,8 +1161,8 @@ lstrcat、lstrcatA、lstrcatW、lstrcpy、lstrcpyA、lstrcpyW
 ```
 由于历史原因，传统 C 语言字符串函数在设计上过于简单，要想安全地使用这些函数必须谨慎地检查缓冲区大小，否则对缓冲区合法边界之外的读写会造成运行时错误或安全漏洞。  
   
-对于 C 代码，应改用较为安全的库函数，如用 gets\_s 替换 gets，sprintf\_s 替换 sprintf。  
 对于 C\+\+ 代码，应改用 STL 标准库提供的相关功能。  
+对于 C 代码，应改用更安全的库函数，如用 fgets 代替 gets，snprintf 代替 sprintf。  
   
 示例：
 ```
@@ -1174,6 +1174,8 @@ void foo(const char* s) {
     ....
 }
 ```
+例中 strcpy 函数不考虑缓冲区大小，一旦 s 的长度大于 9 个字符，程序的数据或流程就会遭到破坏，这也是攻击者的常用手段，可参见 ID\_bufferOverflow 的进一步说明。  
+  
 要想正确使用 strcpy 等函数完全依赖于代码编写者的小心谨慎，这种对人为因素的依赖是不可靠的，禁用不安全的库函数才是明智的选择。
 <br/>
 <br/>
@@ -3089,9 +3091,9 @@ ID_illFormedDirective&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 需注意：  
  ● defined 只应作用于宏名称或括号括起来的宏名称  
  ● defined 不应出现在宏定义中  
- ● \#if、\#elif 后应为正确的常量表达式  
- ● \#ifdef、\#ifndef 后只应为宏名称  
- ● \#else、\#endif 后应直接换行  
+ ● \#if、\#elif 之后应为正确的常量表达式  
+ ● \#ifdef、\#ifndef 之后只应为宏名称  
+ ● \#else、\#endif 之后应直接换行  
   
 示例：
 ```
@@ -3099,8 +3101,8 @@ ID_illFormedDirective&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 #if defined(M)           // Compliant
 #if defined(M == 0)      // Non-compliant, undefined behaviour
 
-#define DEFINED defined 
-#if DEFINED M            // Non-compliant, undefined behaviour
+#define DEFINED defined  // Non-compliant
+#if DEFINED M            // Undefined behaviour
 ```
 例中作用于比较表达式的 defined 会导致标准未定义的行为，在 \#if 条件表达式中由宏展开产生的 defined 也会导致标准未定义的行为。  
   
@@ -4735,9 +4737,10 @@ ID_unsuitableStructTag&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestion
 示例：
 ```
 struct A {     // Non-compliant
+    int x, y;
+
     A();
    ~A();
-    int x, y;
 };
 
 struct B {     // Compliant
@@ -4745,11 +4748,11 @@ struct B {     // Compliant
 };
 
 class C {      // Compliant
+    int x, y;
+
 public:
     C();
    ~C();
-private:
-    int x, y;
 };
 ```
 <br/>
@@ -4938,9 +4941,11 @@ union U {
 
     U(int x): i(x) {
     }
+
     U(const char* x) {
         new(&s) std::string(x);
     }
+
    ~U() {
         s.~string();
     }
@@ -5328,11 +5333,12 @@ const const char* p0 = "....";   // Non-compliant
 const char const* p1 = "....";   // Non-compliant
 char* const const p2 = "....";   // Non-compliant
 ```
-第一和第二种情况，const 重复修饰 char，很可能应该修饰 \* 号，属于常见笔误，应改为：
+对于 p0 和 p1，const 重复修饰 char，很可能应该修饰 \* 号，属于常见笔误，应改为：
 ```
+const char * const p0 = "....";  // Compliant
 const char * const p1 = "....";  // Compliant
 ```
-第三种情况，const 重复修饰 \* 号，符合语言文法，但没有实际意义，很可能应该修饰 char，应改为：
+对于 p2，const 重复修饰 \* 号，符合语言文法，但没有实际意义，很可能应该修饰 char，应改为：
 ```
 const char * const p2 = "....";  // Compliant
 ```
