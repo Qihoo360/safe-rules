@@ -1184,7 +1184,7 @@ scanf("%s", buf);  // Non-compliant
 例中 scanf 函数与 gets 函数有相同的问题，可改为：
 ```
 char buf[100];
-scanf("%99s", buf);  // Let it go, ‘fgets’ is better
+scanf("%99s", buf);  // Let it go, but ‘fgets’ is better
 ```
 scanf、sprintf、strcpy 等函数无视缓冲区大小，需要在外部另行实现防止缓冲区溢出的代码，完全依赖于编写者的小心谨慎。历史表明，对人的单方面依赖是不可靠的，改用更安全的方法才是明智的选择。
 <br/>
@@ -1366,7 +1366,7 @@ int foo(const char* s) {
     int v = 0;
     std::stringstream ss(s);
     ss >> v;
-    if (ss.fail()) {  // Or ‘!ss.eof() || ss.fail()’
+    if (ss.fail()) {  // Or use ‘!ss.eof() || ss.fail()’
         throw some_exception();
     }
     return v;
@@ -15305,7 +15305,7 @@ ID_bufferOverflow&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: buffer warning
 
 <hr/>
 
-“缓冲区（buffer）”的本意是指内存等高速设备上的某个区域，程序在这种区域内接收或处理数据，之后再一并输出到网络或外存等低速环境，起到提高效率的作用，故称缓冲区。对连续的内存区域均可称为缓冲区，在 C/C\+\+ 语言中对应数组等结构。  
+“缓冲区（buffer）”的本意是指内存等高速设备上的某个区域，程序在这种区域内接收或处理数据，之后再一并输出到网络或磁盘等低速环境，起到提高效率的作用，故称缓冲区。对连续的内存区域均可称为缓冲区，在 C/C\+\+ 语言中对应数组等结构。  
   
 缓冲区之外可能是程序的其他数据，也可能是函数返回地址、资源分配信息等重要数据，缓冲区外的读取往往意味着逻辑错误，而缓冲区外的写入则意味着程序遭到破坏。  
   
@@ -15321,12 +15321,13 @@ int main() {
     foo(userInput());
 }
 ```
-例中 userInput 函数返回用户输入的字符串，其长度不确定，而缓冲区 buf 的长度为 100 字节，如果用户输入超过这个长度就会使程序遭到破坏，这种问题称为“[缓冲区溢出（buffer overflow）](https://en.wikipedia.org/wiki/Buffer_overflow)”，也是程序遭遇攻击的常见原因。  
+例中 userInput 函数返回用户输入的字符串，其长度不确定，而缓冲区 buf 的长度为 100 字节，如果用户输入超过这个长度就会使程序遭到破坏，这种问题称为“[缓冲区溢出（buffer overflow）](https://en.wikipedia.org/wiki/Buffer_overflow)”，也是程序遭受攻击的常见原因。  
   
-缓冲区溢出的危害主要有：  
- ● 破坏堆栈或段结构，使程序无法正常执行  
- ● 改写关键信息，使程序的行为被篡改，乃至恶意代码被执行  
- ● 如果被攻击的进程权限较高，造成的后果也更为严重  
+利用缓冲区溢出可造成严重危害，如：  
+ ● 破坏堆栈或段结构，扰乱程序执行  
+ ● 改写关键信息，篡改程序行为  
+ ● 注入并运行恶意代码  
+ ● 攻击高权限进程获取非法权限  
   
 所以将读写限定在缓冲区边界之内是十分重要的，示例代码应改为：
 ```
@@ -15338,12 +15339,13 @@ void foo(const char* s) {
 ```
 strncpy 与 strcpy 不同，当源字符串长度超过指定限制时会结束复制，但要注意 strncpy 对空字符的处理。  
   
-当数组下标存在越界时，本规则特化为 ID\_arrayIndexOverflow。
+对数组下标越界的问题，本规则特化为 ID\_arrayIndexOverflow。
 <br/>
 <br/>
 
 #### 相关
 ID_arrayIndexOverflow  
+ID_unsafeStringFunction  
 <br/>
 
 #### 参考
@@ -15435,7 +15437,7 @@ void foo() {
   ....
 }
 ```
-需要注意数组的逻辑大小和字节大小的区别，不应漏掉 sizeof 因子。  
+需要注意数组的逻辑大小和字节大小的区别，不可漏掉 sizeof 因子。  
   
 又如：
 ```
@@ -15449,7 +15451,7 @@ void baz(const wchar_t* s) {
   ....
 }
 ```
-字符串以空字符结尾，在分配字符串空间时不应漏掉空字符的空间。
+字符串以空字符结尾，在分配字符串空间时不可漏掉空字符的空间。
 <br/>
 <br/>
 
