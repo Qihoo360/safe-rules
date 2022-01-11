@@ -186,7 +186,7 @@
     - [R5.1.7 存在拷贝构造函数或析构函数时，不应缺少拷贝赋值运算符](#ID_missingCopyAssignOperator)
     - [R5.1.8 存在拷贝构造函数或赋值运算符时，不应缺少析构函数](#ID_missingDestructor)
     - [R5.1.9 存在移动构造函数时，不应缺少移动赋值运算符](#ID_missingMoveAssignOperator)
-    - [R5.1.10 存在移动赋值运算符，不应缺少移动构造函数](#ID_missingMoveConstructor)
+    - [R5.1.10 存在移动赋值运算符时，不应缺少移动构造函数](#ID_missingMoveConstructor)
     - [R5.1.11 可接受一个参数的构造函数需用 explicit 关键字限定](#ID_missingExplicitConstructor)
     - [R5.1.12 重载的类型转换运算符需用 explicit 关键字限定](#ID_missingExplicitConvertor)
     - [R5.1.13 不应过度使用 explicit 关键字](#ID_excessiveExplicit)
@@ -227,7 +227,7 @@
     - [R6.2.9 禁用 restrict 指针](#ID_forbidRestrictPtr)
     - [R6.2.10 慎用 volatile 关键字](#ID_forbidVolatile)
   - [6.3 Specifier](#declaration.specifier)
-    - [R6.3.1 使用 auto 关键字时需注意可读性](#ID_abusedAuto)
+    - [R6.3.1 使用 auto 关键字需注意可读性](#ID_abusedAuto)
     - [R6.3.2 不应使用已过时的关键字](#ID_deprecatedSpecifier)
     - [R6.3.3 不应使用多余的 inline 关键字](#ID_inlineRedundant)
     - [R6.3.4 extern 关键字不应作用于类成员的声明或定义](#ID_invalidExternSpecifier)
@@ -1062,7 +1062,7 @@ ID_dangerousFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-某些库函数或系统 API 在设计和实现上本身就具有危险性，使用这种函数相当于直接将风险引入了系统。  
+某些库函数或系统 API 本身就具有危险性，使用这种函数相当于直接引入了风险。  
   
 示例：
 ```
@@ -1072,13 +1072,16 @@ getpass    // Unsafe and not portable
 crypt      // Unsafe, exhaustive searches of the key space are possible
 getpw      // It may overflow the provided buffer, use ‘getpwuid’ instead
 cuserid    // Not portable and unreliable, use ‘getpwuid(geteuid())’ instead
+chgrp      // Prone to TOCTOU race conditions, use ‘fchgrp’ instead
 chown      // Prone to TOCTOU race conditions, use ‘fchown’ instead
 chmod      // Prone to TOCTOU race conditions, use ‘fchmod’ instead
 
-TerminateThread    // Forced termination of a thread can cause many problems
-SuspendThread      // Forced suspension of a thread can cause many problems
+SuspendThread       // Forced suspension of a thread can cause many problems
+TerminateThread     // Forced termination of a thread can cause many problems
+GlobalMemoryStatus        // Return incorrect information, use ‘GlobalMemoryStatusEx’ instead
+SetProcessWorkingSetSize  // Cause adverse effects on other processes and the entire system
 ```
-gets 等函数无法检查缓冲区大小，是公认的不安全函数，TerminateThread 等 Windows API 会强制结束线程的执行，线程持有的资源无法正确释放导致泄漏或死锁，这类函数应避免使用。  
+gets 等函数无法检查缓冲区大小，是公认的危险函数，TerminateThread 等 Windows API 会强制结束线程的执行，线程持有的资源无法正确释放会导致泄漏或死锁，这类函数应避免使用。  
   
 审计工具不妨通过配置设定关注的危险函数名称，当代码中出现了这些名称时就给出警告。  
   
@@ -1110,18 +1113,27 @@ ID_obsoleteFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-某些库函数或系统 API 在设计和实现上存在缺陷并已宣布过时，应使用更完善的替代方法。  
+某些库函数或系统 API 存在缺陷并已宣布过时，应使用更完善的替代方法。  
   
 示例：
 ```
-asctime         // use ‘strftime’ instead
-bcmp            // use ‘memcmp’ instead
-bcopy           // use ‘memmove’ or ‘memcpy’ instead
-bsd_signal      // use ‘sigaction’ instead
-gethostbyaddr   // use ‘getnameinfo’ instead
-gethostbyname   // use ‘getaddrinfo’ instead
+ctime           // Use ‘strftime’ instead
+asctime         // Use ‘strftime’ instead
+bcmp            // Use ‘memcmp’ instead
+bcopy           // Use ‘memmove’ or ‘memcpy’ instead
+bsd_signal      // Use ‘sigaction’ instead
+gethostbyaddr   // Use ‘getnameinfo’ instead
+gethostbyname   // Use ‘getaddrinfo’ instead
+
+RegCreateKey    // Use ‘RegCreateKeyEx’ instead
+RegEnumKey      // Use ‘RegEnumKeyEx’ instead
+RegOpenKey      // Use ‘RegOpenKeyEx’ instead
+RegQueryValue   // Use ‘RegQueryValueEx’ instead
+RegSetValue     // Use ‘RegSetValueEx’ instead
 ```
-审计工具不妨通过配置设定关注的危险函数名称，当代码中出现了这些名称时就给出警告。  
+例中 C89 声明的 ctime、asctime 等函数在 POSIX.1\-2008 中已宣告过时，应改用 strftime，RegCreateKey 等 16 位 Windows API 在 32 和 64 位平台中不应再使用。  
+  
+审计工具不妨通过配置设定关注的过时函数名称，当代码中出现了这些名称时就给出警告。  
   
 配置示例：
 ```
@@ -1167,7 +1179,7 @@ lstrcat、lstrcatA、lstrcatW、lstrcpy、lstrcpyA、lstrcpyW
 char buf[100];
 gets(buf);    // Non-compliant
 ```
-例中 gets 函数无法检查缓冲区的大小，一旦输入超过了 buf 数组的边界，程序的数据或流程就会遭到破坏，这种情况也会成攻击者的常用手段，可参见 ID\_bufferOverflow 的进一步说明。如果代码中存在 gets 等函数，往往可以直接判定程序是有漏洞的。  
+例中 gets 函数无法检查缓冲区的大小，一旦输入超过了 buf 数组的边界，程序的数据或流程就会遭到破坏，这种情况也会成攻击者的常用手段，可参见 ID\_bufferOverflow 的进一步说明。如果代码中存在 gets 等函数，可以直接判定程序是有漏洞的。  
   
 应改为：
 ```
@@ -4373,7 +4385,7 @@ C++ Core Guidelines C.21
 <br/>
 <br/>
 
-### <span id="ID_missingMoveConstructor">▌R5.1.10 存在移动赋值运算符，不应缺少移动构造函数</span>
+### <span id="ID_missingMoveConstructor">▌R5.1.10 存在移动赋值运算符时，不应缺少移动构造函数</span>
 
 ID_missingMoveConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
 
@@ -5690,7 +5702,7 @@ C++ Core Guidelines CP.200
 
 ### <span id="declaration.specifier">6.3 Specifier</span>
 
-### <span id="ID_abusedAuto">▌R6.3.1 使用 auto 关键字时需注意可读性</span>
+### <span id="ID_abusedAuto">▌R6.3.1 使用 auto 关键字需注意可读性</span>
 
 ID_abusedAuto&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -11520,7 +11532,8 @@ ID_try_emptyBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 ```
 try {
     // Empty block or some code commented out
-} catch (Exception& e) {
+}
+catch (Exception& e) {
     // The whole statement is meaningless
 }
 ```
@@ -11594,7 +11607,7 @@ try {
     foo();
 } catch (const B&) {
     ....
-} catch (const D&) {  // Non-compliant, dead code
+} catch (const D&) {  // Non-compliant, unreachable
     ....
 }
 ```
@@ -15789,7 +15802,7 @@ void foo() {
     if (cond) {
         delete[] p;
     }
-    do_somthing(p[0]);  // Non-compliant, ‘p’ is deallocated
+    do_somthing(p[0]);  // Non-compliant, ‘p’ may be deallocated
 }
 ```
 本来指针 p 指向有效的内存空间，但由于某种原因相关内存被释放，p 的值不变但已无效，这种情况被形象地称为“指针悬挂”， 未经初始化的指针和这种“被悬挂”的指针统称“野指针”，均指向无效地址不可被解引用。  
@@ -15845,7 +15858,7 @@ ID_fixedAddrToPointer&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 ```
 const void* invalidPtrVal = (void*)0xffffffff;  // Non-compliant
 ```
-示例代码的本意是声明一个表示无效地址的值，而在 64 位系统中这个地址可能是有效的。  
+示例代码的本意是声明一个表示无效地址的值，但在 64 位系统中这个地址可能是有效的。  
   
 又如：
 ```
@@ -15853,7 +15866,7 @@ typedef int (*fp_t)(int);
 fp_t fp = (fp_t)0x1234abcd;  // Non-compliant
 int res = (*fp)(123);
 ```
-这段代码假设在特定地址始终可以找到特定的函数，将该地址赋给一个指针并调用，这种假设可能本身就是错误的，导致了崩溃，或者攻击者可以更改预期地址上的内存，从而导致任意代码的执行。
+示例代码假设在特定地址可以找到特定的函数，将该地址赋给一个指针并调用，这种假设本身可能就是错误的，会导致崩溃，或者攻击者可以更改预期地址上的内存，从而导致任意代码的执行。
 <br/>
 <br/>
 
@@ -15926,10 +15939,15 @@ ID_zeroAsPtrValue&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: pointer suggestion
   
 示例：
 ```
-int* p = 0;  // Non-compliant
 int foo(int* p);
+
+int* p = 0;      // Non-compliant
 int i = foo(0);  // Non-compliant
-int j = foo(nullptr);  // Compliant
+```
+应改为：
+```
+int* p = nullptr;      // Compliant
+int i = foo(nullptr);  // Compliant
 ```
 <br/>
 <br/>
@@ -16060,7 +16078,7 @@ void foo(T* p) {
     }
 }
 ```
-对于可接受空指针的接口，不必总在调用前判断指针是否为空，否则会使代码变得繁琐。delete 关键字或 free 函数可以作用于空指针，不会产生不良后果，所以调用之前的检查是没有意义的。
+对于可接受空指针的接口，不必总在调用前判断指针是否为空，否则会使代码变得繁琐。delete 关键字或 free 函数可以作用于空指针，调用之前的检查是没有意义的。
 <br/>
 <br/>
 
@@ -16090,7 +16108,7 @@ void foo(int* p) {
     if (p) {      // Non-compliant, p is not nullptr
         ....
     } else {
-        ....      // Dead code
+        ....      // Unreachable
     }
 }
 ```

@@ -525,7 +525,7 @@
         "reference": "C++ Core Guidelines C.21"
         },
     "ID_missingMoveConstructor": {
-        "checkPoint": "存在移动赋值运算符，不应缺少移动构造函数",
+        "checkPoint": "存在移动赋值运算符时，不应缺少移动构造函数",
         "level": "warning",
         "comment": "存在移动赋值运算符，不应缺少移动构造函数，详见“Rule of five”。",
         "tag": "type",
@@ -1769,7 +1769,7 @@
         "reference": "C++ Core Guidelines I.22"
         },
     "ID_abusedAuto": {
-        "checkPoint": "使用 auto 关键字时需注意可读性",
+        "checkPoint": "使用 auto 关键字需注意可读性",
         "level": "suggestion",
         "comment": "auto 关键字隐藏了类型名称，在使用时需注意不应降低可读性。",
         "tag": "declaration",
@@ -3032,7 +3032,7 @@
     "ID_obsoleteFunction": {
         "checkPoint": "不应调用已过时的函数",
         "level": "warning",
-        "comment": "某些库函数或系统API在设计和实现上存在缺陷并已宣布过时，应使用更完善的替代方法。",
+        "comment": "某些库函数或系统 API 存在缺陷并已宣布过时，应使用更完善的替代方法。",
         "tag": "security",
         "config": { "//": "详见说明" },
         "reference": "CWE-477"
@@ -3040,7 +3040,7 @@
     "ID_dangerousFunction": {
         "checkPoint": "避免调用具有危险性的函数",
         "level": "warning",
-        "comment": "某些库函数或系统 API 在设计和实现上本身就具有危险性，使用这种函数相当于直接将风险引入了系统。",
+        "comment": "某些库函数或系统 API 本身就具有危险性，使用这种函数相当于直接引入了风险。",
         "tag": "security",
         "config": { "//": "详见说明" },
         "reference": "CWE-242,CWE-474,CWE-676"
