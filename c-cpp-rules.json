@@ -3007,7 +3007,7 @@
     "ID_unsafeStringFunction": {
         "checkPoint": "禁用不安全的字符串函数",
         "level": "warning",
-        "comment": "不检查缓冲区长度的字符串函数易造成运行时错误或安全漏洞。",
+        "comment": "由于历史原因，C 语言某些字符串函数不检查缓冲区长度，易造成运行时错误或安全漏洞。",
         "tag": "security",
         "standard": "ISO/IEC 9899:2011 K.3.7",
         "related": "ID_bufferOverflow",
@@ -3016,7 +3016,7 @@
     "ID_forbidAtox": {
         "checkPoint": "禁用 atof、atoi、atol 以及 atoll 等函数",
         "level": "warning",
-        "comment": "当字符串无法被正确转为数值时，stdlib.h 或 cstdlib 中声明的 atof、atoi、atol 以及 atoll 等函数存在标准未定义的行为。",
+        "comment": "当字符串无法被正确转为数值时，stdlib.h 或 cstdlib 中的 atof、atoi、atol 以及 atoll 等函数存在标准未定义的行为。",
         "tag": "security",
         "standard": "ISO/IEC 9899:1999 7.20.1(1)-undefined,ISO/IEC 9899:2011 7.22.1(1)-undefined",
         "reference": "CWE-190,MISRA C 2004 20.10,MISRA C 2012 21.7,MISRA C++ 2008 18-0-2"
@@ -3110,9 +3110,9 @@
         "reference": "CWE-89,CWE-23,CWE-73"
         },
     "ID_bufferOverflow": {
-        "checkPoint": "对内存的读写应在有效边界内进行",
+        "checkPoint": "对缓冲区的读写应在有效边界内进行",
         "level": "warning",
-        "comment": "程序读写内存之前应保证内存区域的有效性，任何在有效边界之外的读写都会导致严重后果。",
+        "comment": "对缓冲区的读写应在有效边界内进行。",
         "tag": "buffer",
         "related": "ID_arrayIndexOverflow",
         "reference": "CWE-119,CWE-131,CWE-788"

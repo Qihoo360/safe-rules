@@ -527,7 +527,7 @@
 <br/>
 
 <span id="__Buffer">**[13. Buffer](#buffer)**</span>
-  - [R13.1 对内存的读写应在有效边界内进行](#ID_bufferOverflow)
+  - [R13.1 对缓冲区的读写应在有效边界内进行](#ID_bufferOverflow)
   - [R13.2 数组下标不可越界](#ID_arrayIndexOverflow)
   - [R13.3 为缓冲区分配足够的空间](#ID_insufficientBuffer)
   - [R13.4 memset 等函数不应作用于带有虚函数的对象](#ID_nonPODFilling)
@@ -1149,7 +1149,7 @@ ID_unsafeStringFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: security warning
 
 <hr/>
 
-不检查缓冲区长度的字符串函数易造成运行时错误或安全漏洞。  
+由于历史原因，C 语言某些字符串函数不检查缓冲区长度，易造成运行时错误或安全漏洞。  
   
 这类函数包括：
 ```
@@ -1159,24 +1159,34 @@ strcpy、strcat、wcscpy、wcscat、
 StrCpy、StrCpyA、StrCpyW、StrCat、StrCatA、StrCatW、
 lstrcat、lstrcatA、lstrcatW、lstrcpy、lstrcpyA、lstrcpyW
 ```
-由于历史原因，传统 C 语言字符串函数在设计上过于简单，要想安全地使用这些函数必须谨慎地检查缓冲区大小，否则对缓冲区合法边界之外的读写会造成运行时错误或安全漏洞。  
-  
-对于 C\+\+ 代码，应改用 STL 标准库提供的相关功能。  
-对于 C 代码，应改用更安全的库函数，如用 fgets 代替 gets，snprintf 代替 sprintf。  
+对于 C\+\+ 代码，应采用 STL 标准库提供的相关功能。  
+对于 C 代码，应采用更安全的库函数，如用 fgets 代替 gets，snprintf 代替 sprintf。  
   
 示例：
 ```
-#include <cstring>
-
-void foo(const char* s) {
-    char arr[10];
-    strcpy(arr, s);  // Non-compliant, note the length of ‘s’
-    ....
-}
+char buf[100];
+gets(buf);    // Non-compliant
 ```
-例中 strcpy 函数不考虑缓冲区大小，一旦 s 的长度大于 9 个字符，程序的数据或流程就会遭到破坏，这也是攻击者的常用手段，可参见 ID\_bufferOverflow 的进一步说明。  
+例中 gets 函数无法检查缓冲区的大小，一旦输入超过了 buf 数组的边界，程序的数据或流程就会遭到破坏，这种情况也会成攻击者的常用手段，可参见 ID\_bufferOverflow 的进一步说明。如果代码中存在 gets 等函数，往往可以直接判定程序是有漏洞的。  
   
-要想正确使用 strcpy 等函数完全依赖于代码编写者的小心谨慎，这种对人为因素的依赖是不可靠的，禁用不安全的库函数才是明智的选择。
+应改为：
+```
+char buf[100];
+fgets(buf, sizeof(buf), stdin);  // Compliant
+```
+fgets 与 gets 不同，当输入超过缓冲区大小时会被截断，保证缓冲区之外的数据不会被破坏。  
+  
+又如：
+```
+char buf[100];
+scanf("%s", buf);  // Non-compliant
+```
+例中 scanf 函数与 gets 函数有相同的问题，可改为：
+```
+char buf[100];
+scanf("%99s", buf);  // Let it go, ‘fgets’ is better
+```
+scanf、sprintf、strcpy 等函数无视缓冲区大小，需要在外部另行实现防止缓冲区溢出的代码，完全依赖于编写者的小心谨慎。历史表明，对人的单方面依赖是不可靠的，改用更安全的方法才是明智的选择。
 <br/>
 <br/>
 
@@ -1214,17 +1224,17 @@ void foo(const char* p) {
     printf("%s\n", strupr(a));  // To upper case and print, dangerous
 }
 ```
-例示代码将字符串复制到数组中，然后转为大写并打印，strncpy 不会在数组的结尾安置空字符 '\\0'，一旦 p 所指字符串的长度超过 3，就会导致内存访问错误。  
+例示代码将字符串复制到数组中，转为大写并打印，然而如果 p 所指字符串的长度超过 3，strncpy 不会在数组的结尾安置空字符 '\\0'，会导致内存访问错误。  
   
 应改为：
 ```
 void foo(const char* p) {
     char a[4] = "";                 // Initialize all to '\0'
     strncpy(a, p, sizeof(a));
-    if (a[3] == '\0') {             // Right
+    if (a[3] == '\0') {
         printf("%s\n", strupr(a));  // OK
     } else {
-        ....                        // String length exceptions
+        ....                        // Handle string length exceptions
     }
 }
 ```
@@ -1337,7 +1347,7 @@ ID_forbidAtox&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: security warning
 
 <hr/>
 
-当字符串无法被正确转为数值时，stdlib.h 或 cstdlib 中声明的 atof、atoi、atol 以及 atoll 等函数存在标准未定义的行为。  
+当字符串无法被正确转为数值时，stdlib.h 或 cstdlib 中的 atof、atoi、atol 以及 atoll 等函数存在标准未定义的行为。  
   
 对于 C 语言应改用 strtof、strtol 等函数，对于 C\+\+ 语言应改用标准流转换的方式。  
   
@@ -3175,10 +3185,13 @@ ID_warningDisabled&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
   
 示例：
 ```
+#ifdef _MSC_VER
 #pragma warning(disable: 4172)  // Non-compliant
-#pragma warning(disable: 4996)  // Non-compliant
+#elif defined __GNUC__
+#pragma GCC diagnostic ignored "-Wreturn-local-addr"  // Non-compliant
+#endif
 ```
-示例代码屏蔽了 Visual Studio C4172 和 C4996 对应的警告，当局部变量的地址被返回或调用了 scanf 等危险函数时编译器不会给出警告，但这种警告是不应该被屏蔽的。  
+示例代码屏蔽了 Visual Studio C4172 和 GCC \-Wreturn\-local\-addr 对应的警告，当局部变量的地址被返回时编译器不会给出警告，但这种警告是不应该被屏蔽的，详见 ID\_localAddressFlowOut。  
   
 本规则集合提到的部分问题编译器也可以给出警告，这种警告均不应被屏蔽。
 <br/>
@@ -11971,7 +11984,6 @@ ID_invalidCondition&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 ```
 void foo() {
     int i = 0;
-    ....          // ‘i’ is not changed
     if (i > 0) {  // Non-compliant
         ....
     }
@@ -15287,33 +15299,44 @@ C++ Core Guidelines Pro.safety
 
 ## <span id="buffer">13. Buffer</span>
 
-### <span id="ID_bufferOverflow">▌R13.1 对内存的读写应在有效边界内进行</span>
+### <span id="ID_bufferOverflow">▌R13.1 对缓冲区的读写应在有效边界内进行</span>
 
 ID_bufferOverflow&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: buffer warning
 
 <hr/>
 
-程序读写内存之前应保证内存区域的有效性，任何在有效边界之外的读写都会导致严重后果。  
+“缓冲区（buffer）”的本意是指内存等高速设备上的某个区域，程序在这种区域内接收或处理数据，之后再一并输出到网络或外存等低速环境，起到提高效率的作用，故称缓冲区。对连续的内存区域均可称为缓冲区，在 C/C\+\+ 语言中对应数组等结构。  
+  
+缓冲区之外可能是程序的其他数据，也可能是函数返回地址、资源分配信息等重要数据，缓冲区外的读取往往意味着逻辑错误，而缓冲区外的写入则意味着程序遭到破坏。  
   
 示例：
 ```
-char buf[256];
+void foo(const char* s) {
+    char buf[100];
+    strcpy(buf, s);   // Non-compliant
+    ....
+}
 
-void foo() {
-    gets(buf);  // Non-compliant
-    ....
+int main() {
+    foo(userInput());
 }
 ```
-例中 gets 函数无法检查输入缓冲区的大小，是公认的危险函数，如果用户输入超过了 buf 数组的边界，输入数据就会覆盖程序数据。  
+例中 userInput 函数返回用户输入的字符串，其长度不确定，而缓冲区 buf 的长度为 100 字节，如果用户输入超过这个长度就会使程序遭到破坏，这种问题称为“[缓冲区溢出（buffer overflow）](https://en.wikipedia.org/wiki/Buffer_overflow)”，也是程序遭遇攻击的常见原因。  
   
-应改为：
+缓冲区溢出的危害主要有：  
+ ● 破坏堆栈或段结构，使程序无法正常执行  
+ ● 改写关键信息，使程序的行为被篡改，乃至恶意代码被执行  
+ ● 如果被攻击的进程权限较高，造成的后果也更为严重  
+  
+所以将读写限定在缓冲区边界之内是十分重要的，示例代码应改为：
 ```
-void foo() {
-    fgets(buf, sizeof(buf), stdin);  // Compliant
+void foo(const char* s) {
+    char buf[100] = "";
+    strncpy(buf, s, sizeof(buf) - 1);   // Compliant
     ....
 }
 ```
-fgets 与 gets 不同，当输入超过缓冲区大小时会被截断，保证无效区域不会被写入。  
+strncpy 与 strcpy 不同，当源字符串长度超过指定限制时会结束复制，但要注意 strncpy 对空字符的处理。  
   
 当数组下标存在越界时，本规则特化为 ID\_arrayIndexOverflow。
 <br/>
@@ -15348,21 +15371,21 @@ int foo() {
 ```
 例中数组声明的大小是 10，其下标有效范围是 0 至 9，10 不能再作为下标，这也是常见笔误。  
   
-如果数组下标可受用户控制，更应该判断是否在有效范围内：
+如果数组下标可受用户控制，更应该判断是否在有效范围内，如：
 ```
+const char* fruits[] = {
+    "apple", "banana", "grape"
+};
+
 const char* bar() {
-    static const char* fruits[] = {
-        "apple", "banana", "grape"
-    };
     return fruits[userInput()];  // Non-compliant
 }
 ```
+设 userInput 返回用户输入的整数，将其直接作为数组下标是不安全的。  
+  
 应改为：
 ```
 const char* bar() {
-    static const char* fruits[] = {
-        "apple", "banana", "grape"
-    };
     int i = userInput();
     if (i >= 0 && i < 3) {
         return fruits[i];    // Compliant
