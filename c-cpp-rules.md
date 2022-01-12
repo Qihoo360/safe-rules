@@ -340,7 +340,7 @@
   - [R8.35 lambda 表达式的行数应在规定范围之内](#ID_tooManyLambdaLines)
   - [R8.36 函数参数的数量应在规定范围之内](#ID_tooManyParams)
   - [R8.37 不应定义过于复杂的内联函数](#ID_complexInlineFunction)
-  - [R8.38 禁止 goto 语句向平级的或更深层的其他作用域跳转](#ID_forbidGotoBlocks)
+  - [R8.38 禁止 goto 语句向嵌套的或无包含关系的作用域跳转](#ID_forbidGotoBlocks)
   - [R8.39 禁止 goto 语句向前跳转](#ID_forbidGotoBack)
   - [R8.40 禁用 goto 语句](#ID_forbidGoto)
   - [R8.41 禁用 setjmp、longjmp](#ID_forbidLongjmp)
@@ -392,7 +392,7 @@
     - [R9.5.2 switch 语句不应为空](#ID_switch_emptyBlock)
     - [R9.5.3 case 常量的范围不可超出 switch 变量的范围](#ID_switch_caseOutOfRange)
     - [R9.5.4 switch 语句中任何子句都应从属于某个 case 或 default 分枝](#ID_switch_invalidStatement)
-    - [R9.5.5 每个 case 分枝应直接从属于 switch 结构](#ID_switch_badFormedCase)
+    - [R9.5.5 case 和 default 标签应直接从属于 switch 语句](#ID_switch_badFormedCase)
     - [R9.5.6 不应存在紧邻 default 标签的空 case 标签](#ID_switch_uselessFallThrough)
     - [R9.5.7 不应存在内容完全相同的 case 分枝](#ID_switch_identicalBranch)
     - [R9.5.8 switch 语句的条件变量或表达式不应为 bool 型](#ID_switch_bool)
@@ -9199,7 +9199,7 @@ vector<int> foo() {        // Compliant
     return { 1, 2, 3 };
 }
 
-vector<int> bar(foo());   // Call ‘vector(vector&&)’, more efficient
+vector<int> bar(foo());    // Call ‘vector(vector&&)’, more efficient
 ```
 这样可利用 vector 的移动构造，效率更高。  
   
@@ -9622,13 +9622,15 @@ C++ Core Guidelines F.5
 <br/>
 <br/>
 
-### <span id="ID_forbidGotoBlocks">▌R8.38 禁止 goto 语句向平级的或更深层的其他作用域跳转</span>
+### <span id="ID_forbidGotoBlocks">▌R8.38 禁止 goto 语句向嵌套的或无包含关系的作用域跳转</span>
 
 ID_forbidGotoBlocks&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function warning
 
 <hr/>
 
-使用 goto 语句向平级的或更深层的其他作用域跳转，可读性较差，是公认的不良实现。  
+不同的作用域往往对应不同的条件约束，在不同的作用域间跳转是对约束的破坏，很容易导致逻辑混乱。  
+  
+向嵌套的或无包含关系的作用域跳转是不应被允许的，如果是为了结束当前流程而在同层或向外层作用域跳转，则可被本规则允许。  
   
 示例：
 ```
@@ -9649,7 +9651,7 @@ LAB2:
   return a;
 }
 ```
-例中 goto LAB1 从分枝跳入循环是应当被禁止的，goto LAB2 只是跳出了嵌套的循环，可以保留。
+例中 goto LAB1 从 if 语句跳入循环语句是应当被禁止的，而 goto LAB2 用于结束循环流程，可以保留。
 <br/>
 <br/>
 
@@ -9687,7 +9689,7 @@ M:
     return i;
 }
 ```
-应使用循环语句完成相同的功能。
+例中 goto M 向后跳转符合本规则要求，而 goto L 向前跳转不符合要求，应使用循环语句完成相同的功能。
 <br/>
 <br/>
 
@@ -9708,9 +9710,11 @@ ID_forbidGoto&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function suggestion
 
 <hr/>
 
-在非自动生成的、对可读性有要求的代码中，禁用 goto 语句。  
+历史表明，goto 语句会破坏程序的结构性，很容易导致逻辑混乱且不利于维护，在非自动生成的、对可读性有要求的代码中，不建议使用 goto 语句。  
   
-对于 C 语言建议选取 ID\_forbidGotoBlocks 和 ID\_forbidGotoBack，对于 C\+\+ 语言建议选取本规则。
+由于 C 语言的流程管理功能较为简单，goto 语句可提供一定的灵活性，但应受一定的限制，在 C 代码中使用 goto 语句应遵循 ID\_forbidGotoBlocks 和 ID\_forbidGotoBack 等规则。  
+  
+C\+\+ 语言提供了更丰富的结构化和面向对象的流程管理功能，在 C\+\+ 代码中不应再使用 goto 语句。
 <br/>
 <br/>
 
@@ -9868,7 +9872,7 @@ if (condition1) {
 else if (condition2) {
     branch2
 }
-else if (condition1) {  // Non-compliant, see previous ‘condition1’
+else if (condition1) {  // Non-compliant, see the previous ‘condition1’
     branch3
 }
 else {
@@ -9903,11 +9907,14 @@ if...else\-if 分枝中，如果前面的条件被满足，后面的分枝就不
 ```
 if (condition1) {
     branch1
-} else if (condition2) {
+}
+else if (condition2) {
     branch2
-} else if (condition1 && condition3) {  // Non-compliant, see previous ‘condition1’
+}
+else if (condition1 && condition3) {  // Non-compliant, see the previous ‘condition1’
     branch3
-} else {
+}
+else {
     branch4
 }
 ```
@@ -9917,9 +9924,11 @@ if (condition1) {
 ```
 if (condition1 || condition2) {
     branch1
-} else if (condition2) {  // Non-compliant, see previous ‘condition2’
+}
+else if (condition2) {  // Non-compliant, see the previous ‘condition2’
     branch2
-} else {
+}
+else {
     branch3
 }
 ```
@@ -9949,7 +9958,8 @@ if 分枝和 else 分枝完全相同会使条件判断失去意义，往往是�
 ```
 if (condition) {
     branch
-} else {
+}
+else {
     branch  // Non-compliant
 }
 ```
@@ -10087,7 +10097,8 @@ if (condition) {
     foo();
     ....
     bar();
-} else {
+}
+else {
     foo();
     ....
     bar();
@@ -10098,7 +10109,8 @@ if 与 else 分枝的开头和结尾相同，应提取出来：
 foo();
 if (condition) {
     ....
-} else {
+}
+else {
     ....
 }
 bar();
@@ -10135,6 +10147,7 @@ if (condition)
     statement2;  // Non-compliant
 ```
 例中 statement2 不在 if 语句的作用域中，但看起来又和 if 语句相关，这种问题多数是由错误的宏展开或无效的缩进造成的。  
+  
 为了避免这种问题，if 语句应使用大括号括起来：
 ```
 if (condition) {
@@ -10726,17 +10739,17 @@ ID_while_uncondBroken&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: control error
 ```
 while (condition) {
     ....
-    return;  // Non-compliant
+    return;     // Non-compliant
 }
 
 while (condition) {
     ....
-    break;  // Non-compliant, becomes an if-statement
+    break;      // Non-compliant, becomes an if-statement
 }
 
 while (condition) {
     ....
-    continue;  // Non-compliant, meaningless continue
+    continue;   // Non-compliant, meaningless continue
 }
 ```
 这种问题多数由错误的缩进或混乱的逻辑造成。
@@ -10856,18 +10869,18 @@ while 循环体应为复合语句，即使只包含一条语句。
   
 示例：
 ```
-while (condition)  // Non-compliant
+while (condition)     // Non-compliant
     statement;
 
-while (condition)  // Non-compliant
+while (condition)     // Non-compliant
     statement1;
     statement2;
 
-while (condition) {  // Compliant
+while (condition) {   // Compliant
     statement;
 }
 
-while (condition) {  // Compliant
+while (condition) {   // Compliant
     statement1;
     statement2;
 }
@@ -10965,7 +10978,7 @@ do\-while 循环体应为复合语句，即使只包含一条语句。如果没�
   
 示例：
 ```
-do  // Non-compliant
+do    // Non-compliant
     foo();
     while (cond1);
 while (cond2);
@@ -11064,8 +11077,8 @@ ID_switch_emptyBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
   
 示例：
 ```
-switch (foo);  // Non-compliant
-switch (bar) {}  // Non-compliant
+switch (v);  // Non-compliant
+switch (v) {}  // Non-compliant
 ```
 这是毫无意义的 switch 分枝结构，有可能是残留代码，也可能是功能未实现。
 <br/>
@@ -11086,12 +11099,14 @@ ID_switch_caseOutOfRange&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
   
 示例：
 ```
-void foo(char c) {
-    switch (c) {
+void foo(char c)
+{
+    switch (c)
+    {
     case 100:  // Compliant
         ....
         break;
-    case 256:  // Non-compliant, dead branch
+    case 256:  // Non-compliant, unreachable branch
         ....
         break;
     }
@@ -11120,49 +11135,60 @@ switch 语句中任何子句都应从属于某个 case 或 default 分枝，否�
   
 示例：
 ```
-void foo(int a) {
-    switch (a) {
-        int i;    // Non-compliant
-        i = 0;    // Non-compliant
-    case 1:
-        ....
-        break;
-    default:
-        bar(i);   // Error, ‘i’ is not initialized
-        break;
+switch (v)
+{
+    int i;    // Non-compliant
+    i = 0;    // Non-compliant
+case 1:
+    ....
+    break;
+default:
+    bar(i);   // Logic error, ‘i’ is not initialized
+    break;
 }
 ```
-<br/>
+例中对变量 i 的声明和赋值不从属于任何 case 或 default 分枝，是无效语句。
 <br/>
 <br/>
 
-### <span id="ID_switch_badFormedCase">▌R9.5.5 每个 case 分枝应直接从属于 switch 结构</span>
+#### 参考
+CWE-561  
+<br/>
+<br/>
+
+### <span id="ID_switch_badFormedCase">▌R9.5.5 case 和 default 标签应直接从属于 switch 语句</span>
 
 ID_switch_badFormedCase&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
 
 <hr/>
 
-case 分枝如果不直接从属于 switch 结构，那么 case 所直接从属的结构往往是没有意义的。  
+不直接从属于 switch 语句的 case 标签用于非结构性跳转，是公认的不良实现。  
   
 示例：
 ```
-switch (v) {
-    if (v > 0) {  // Non-compliant
-case 1:
-    ....
-case 2:
-    ....
-    } else {      // Non-compliant
-case -1:
-    ....
+switch (v)
+{
+case 1:         // Compliant 
+    if (cond)
+    {
+case 2:         // Non-compliant 
+        ....
+    }
+    else
+    {
+default:        // Non-compliant 
+        ....
     }
 }
 ```
-例中 if 语句不会被执行，其分枝结构也毫无意义。  
+例中 case 1 直接从属于 switch 语句，而 case 2 和 default 直接从属于 if 语句，当 v 的值不是 1 时，会绕过 if 语句的条件判断，产生非结构性跳转，与 goto 语句的问题一样，很容易导致逻辑混乱且不利于维护。  
   
-例外：  
-如果 case 从属于 do\-while 循环，那么这个循环还是有意义的，但这并不是一种好的实现。
+虽然有些编程技巧可以利用循环内的 case 标签实现特定的效果，如“[Duff’s device](https://en.wikipedia.org/wiki/Duff's_device)”等，但当今面向对象的主流编程语言均已不再提倡非结构性跳转。
 <br/>
+<br/>
+
+#### 相关
+ID_forbidGotoBlocks  
 <br/>
 
 #### 参考
@@ -11181,7 +11207,8 @@ ID_switch_uselessFallThrough&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
   
 示例：
 ```
-switch (i) {
+switch (v)
+{
 case 0:
     ....
     break;
@@ -11195,7 +11222,8 @@ case 2:   // Non-compliant
 ```
 应改为：
 ```
-switch (i) {
+switch (v)
+{
 case 0:
     ....
     break;
@@ -11219,7 +11247,8 @@ ID_switch_identicalBranch&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
   
 示例：
 ```
-switch (v) {
+switch (v)
+{
 case 1:
     branch1
     break;
@@ -11299,14 +11328,16 @@ ID_switch_onlyDefault&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
   
 示例： 
 ```
-switch (i) {
+switch (v)
+{
 default:  // Meaningless
     ....
 }
 ```
 这种空的可以 fallthrough 到 default 标签的空 case 标签也是没有意义的：
 ```
-switch (i) {
+switch (v)
+{
 case 1:  // Meaningless
 case 2:
 default:
@@ -11331,7 +11362,8 @@ ID_switch_onlyOneCase&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
   
 示例：
 ```
-switch (i) {
+switch (v)
+{
 case 123:  // Non-compliant
     ....
     break;
@@ -11339,7 +11371,8 @@ case 123:  // Non-compliant
 ```
 应改为：
 ```
-if (i == 123) {
+if (v == 123)
+{
     ....
 }
 ```
@@ -11361,11 +11394,12 @@ switch 语句分枝过多会使代码过于庞大不利于维护，分支很多�
   
 示例：
 ```
-switch (x) {
-case 1: foo(x); break;
-case 2: bar(x); break;
+switch (v)
+{
+case 1: .... break;
+case 2: .... break;
     // ... Lots of cases ...
-case 1000: baz(x); break;  // Non-compliant
+case 1000: .... break;  // Non-compliant
 }
 ```
 建议 case 数量不超过 10 个。
@@ -11387,13 +11421,13 @@ ID_switch_missingDefault&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
   
 示例：
 ```
-switch (x)
+switch (v)
 {
 case 0:
-    do_something0();
+    ....
     break;
 case 1:
-    do_something1();
+    ....
     break;
 default:
     // Comment is the minimum requirement,
@@ -11427,7 +11461,8 @@ ID_switch_breakOmitted&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
   
 示例：
 ```
-switch (a) {
+switch (a)
+{
 case 0:
     b = 1;
     break;
@@ -11440,7 +11475,8 @@ default:
 ```
 例外，相连的 case 标签不受本规则约束：
 ```
-switch (c) {
+switch (c)
+{
 case 'a':   // OK
 case 'b':
     do_something(c);
@@ -11449,7 +11485,8 @@ case 'b':
 ```
 在少数情况下，如果确实不能有 break 语句，在 C\+\+ 语言中可使用 \[\[fallthrough\]\] 注明，或用明确的注释说明情况：
 ```
-switch (a) {
+switch (a)
+{
 case 1:
     do_something_special();
     [[fallthrough]];  // OK, since C++17
@@ -11484,14 +11521,14 @@ switch 语句应为包含多条语句的复合语句，且用大括号括起来�
   
 示例：
 ```
-switch (x)  // Non-compliant
+switch (v)  // Non-compliant
     case 0:
-        foo(x);
+        foo(v);
 ```
 应改为 if 语句：
 ```
-if (x == 0) {  // Compliant
-    foo(x);
+if (v == 0) {  // Compliant
+    foo(v);
 }
 ```
 <br/>

@@ -977,9 +977,9 @@
         "reference": "MISRA C 2012 17.6"
         },
     "ID_forbidGotoBlocks": {
-        "checkPoint": "禁止 goto 语句向平级的或更深层的其他作用域跳转",
+        "checkPoint": "禁止 goto 语句向嵌套的或无包含关系的作用域跳转",
         "level": "warning",
-        "comment": "使用 goto 语句向平级的或更深层的其他作用域跳转，可读性较差，是公认的不良实现。",
+        "comment": "不同的作用域往往对应不同的条件约束，在不同的作用域间跳转是对约束的破坏，很容易导致逻辑混乱。",
         "tag": "function",
         "related": "ID_forbidGotoBack,ID_forbidGoto",
         "reference": "MISRA C 2012 15.3,MISRA C++ 2008 6-6-1"
@@ -2239,7 +2239,8 @@
         "checkPoint": "switch 语句中任何子句都应从属于某个 case 或 default 分枝",
         "level": "error",
         "comment": "switch 语句中任何子句都应从属于某个 case 或 default 分枝，否则不会被执行。",
-        "tag": "control"
+        "tag": "control",
+        "reference": "CWE-561"
     },
     "ID_switch_identicalBranch": {
         "checkPoint": "不应存在内容完全相同的 case 分枝",
@@ -2279,10 +2280,11 @@
         "reference": "MISRA C 2004 15.4,MISRA C 2012 16.7,MISRA C++ 2008 6-4-7"
         },
     "ID_switch_badFormedCase": {
-        "checkPoint": "每个 case 分枝应直接从属于 switch 结构",
+        "checkPoint": "case 和 default 标签应直接从属于 switch 语句",
         "level": "suggestion",
-        "comment": "case 分枝如果不直接从属于 switch 结构，那么 case 所直接从属的结构往往是没有意义的。",
+        "comment": "不直接从属于 switch 语句的 case 标签用于非结构性跳转，是公认的不良实现。",
         "tag": "control",
+        "related": "ID_forbidGotoBlocks",
         "reference": "MISRA C 2004 15.1,MISRA C++ 2008 6-4-4"
         },
     "ID_switch_missingDefault": {
