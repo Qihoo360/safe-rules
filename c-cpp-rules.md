@@ -4877,7 +4877,7 @@ ID_forbidUnnamedEnum&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: type suggestion
 示例：
 ```
 enum {
-    blue = 0xff,  = 5, swim = 100  // Non-compliant
+    blue = 0xff, carrot = 5, swim = 100  // Non-compliant
 };
 ```
 应改为：
@@ -7962,7 +7962,7 @@ void baz(int a) {
     }
 }
 ```
-foo 函数的参数不符合要求时抛出 std::exception 类的异常，过于宽泛，如果 bar 函数抛出其他异常，也会被当作“参数不符合要求”处理，这显然是错误的。  
+foo 函数在参数不符合要求时抛出 std::exception 类的异常，过于宽泛，如果 bar 函数抛出其他异常，也会被当作“参数不符合要求”处理，这显然是错误的。  
   
 正确的做法是为每种异常定义明确的子类：
 ```
@@ -8273,7 +8273,7 @@ ID_definedInHeader&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 示例：
 ```
 // In a header file
-int foo() {            // Non-compliant, add inline or move it to a cpp file
+int foo() {            // Non-compliant, add ‘inline’ or move it to a cpp file
     return 1;
 }
 
@@ -9188,16 +9188,18 @@ ID_returnConstObject&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 const vector<int> foo() {  // Non-compliant
     return { 1, 2, 3 };
 }
-vector<int> bar(foo());    // vector(const vector&) called
+
+vector<int> bar(foo());    // Call ‘vector(const vector&)’
 ```
 foo 函数返回 const vector 对象，构造 bar 对象时只能进行深拷贝，无法利用移动构造等特性。  
   
 应改为：
 ```
-vector<int> foo() {      // Compliant
+vector<int> foo() {        // Compliant
     return { 1, 2, 3 };
 }
-vector<int> bar(foo());  // vector(vector&&) called, more efficient
+
+vector<int> bar(foo());   // Call ‘vector(vector&&)’, more efficient
 ```
 这样可利用 vector 的移动构造，效率更高。  
   
@@ -15236,7 +15238,7 @@ struct C: A, B {
 int main() {
     C c;
     cout << static_cast<B*>(&c)->b << ' ';
-    cout << reinterpret_cast<B*>(&c)->b << '\n'; // Non-compliant, what is output?
+    cout << reinterpret_cast<B*>(&c)->b << '\n';  // Non-compliant, what is output?
 }
 ```
 输出 2 1  
