@@ -2285,7 +2285,7 @@
     "ID_switch_badFormedCase": {
         "checkPoint": "case 和 default 标签应直接从属于 switch 语句",
         "level": "suggestion",
-        "comment": "不直接从属于 switch 语句的 case 标签用于非结构性跳转，是公认的不良实现。",
+        "comment": "不直接从属于 switch 语句的 case 或 default 标签用于非结构性跳转，是公认的不良实现。",
         "tag": "control",
         "related": "ID_forbidGotoBlocks",
         "reference": "MISRA C 2004 15.1,MISRA C++ 2008 6-4-4"
