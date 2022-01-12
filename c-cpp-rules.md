@@ -4540,6 +4540,7 @@ public:
     explicit A(int, int);  // Ditto
     ....
 };
+
 void foo(A);
 void bar(const A&);
 ```
@@ -4875,13 +4876,15 @@ ID_forbidUnnamedEnum&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: type suggestion
   
 示例：
 ```
-enum { red = 0xFF0000, scale = 4, is_signed = 1 };  // Non-compliant
+enum {
+    blue = 0xff,  = 5, swim = 100  // Non-compliant
+};
 ```
 应改为：
 ```
-const int red = 0xFF0000;
-const short scale = 4;
-const bool is_signed = true;
+const int blue = 0xff;
+const int carrot = 5;
+const int swim = 100;
 ```
 <br/>
 <br/>
@@ -5754,7 +5757,7 @@ auto i = v.begin();   // OK
 struct SomeClass {
     struct Sub {
         ....
-};
+    };
     Sub foo();
 };
 
@@ -6342,7 +6345,7 @@ ID_tooManyDeclarators&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 ```
 int* a, b[10], c, d(int), e = 0;  // Bad
 ```
-例中只有 a 是指针，也只有 e 被初始化，d 为函数，将它们分开声明是更好的选择。
+例中只有 a 是指针，也只有 e 被初始化，d 为函数，应分开声明。
 <br/>
 <br/>
 
@@ -6991,6 +6994,7 @@ struct A {
     A& operator = (const A&& a) {  // Non-compliant
         free(p);
         p = copy(a.p);             // Not necessary
+        return *this;
     }
 };
 ```
@@ -7005,6 +7009,7 @@ struct A {
         char* tmp = p;
         p = a.p;
         a.p = tmp;
+        return *this;
     }
 };
 ```
@@ -7029,6 +7034,7 @@ ID_overloadAddressOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration sugge
 示例：
 ```
 class X;
+
 X* foo(X& x) {
     return &x;  // Undefined behaviour
 }
@@ -7066,6 +7072,7 @@ ID_overloadComma&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 <hr/>
 
 对于内置逗号表达式，C\+\+ 明确规定要从左到右计算子表达式的值，而对逗号运算符的重载打破了这一规则，往往会造成不符合预期的计算结果。  
+  
 可参见 ID\_overloadLogicOperator 对这种问题的详细说明。  
   
 示例：
@@ -7099,12 +7106,15 @@ C/C\+\+ 语言明确地规定了内置的逗号、逻辑与、逻辑或等表达
 ```
 class A {
     int i;
+
 public:
     A(int x = 0): i(x) {
     }
+
     bool valid() const {
         return i != 0;
     }
+
     A& assign(const A& a) {
         i = a.i;
         return *this;
@@ -7119,8 +7129,7 @@ bool operator && (const A& a, const A& b) {  // Non-compliant
 ```
 b && a.assign(b)
 ```
-按常理，此表达式的意思应该是如果 b 在某种意义上“有效”，那么就将 b 赋给 a，所以 b 的值应该先被求出，如果满足条件，再执行后边的动作。  
-但由于 && 被重载，变成了一个函数调用，其左子表达式和右子表达式成了函数的参数，C\+\+ 标准对函数参数的求值顺序并无明确规定，所以常规逻辑表达式的计算顺序无法得到保证。目前 MSVC、g\+\+ 等主流编译器默认情况下都是从右到左计算参数的值，这个例子中 a.assign(b) 将会先被执行，这与预期完全不符。  
+按常理，此表达式的意思应该是如果 b 在某种意义上“有效”，那么就将 b 赋给 a，所以 b 的值应该先被求出，如果满足条件，再执行后边的动作。但由于 && 被重载，变成了一个函数调用，其左子表达式和右子表达式成了函数的参数，C\+\+ 标准对函数参数的求值顺序并无明确规定，所以常规逻辑表达式的计算顺序无法得到保证。目前 MSVC、g\+\+ 等主流编译器默认情况下都是从右到左计算参数的值，这个例子中 a.assign(b) 将会先被执行，这与预期完全不符。  
   
 解决方法：  
 去掉对 && 的重载，对类 A 引入与 bool 类型的转换。
@@ -7528,6 +7537,7 @@ void foo() {
 ```
 class X {
     T a, b;
+
 public:
     void foo() {
         proc(a);
@@ -7540,6 +7550,7 @@ public:
 ```
 class X {
     T a, b;
+
 public:
     void foo() {
         X copy(*this);
@@ -7547,6 +7558,7 @@ public:
         proc(copy.b);
         this->swap(copy);
     }
+
     void swap(X& v) noexcept {
         ....
     }
@@ -7581,6 +7593,7 @@ ID_exceptionInException&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 ```
 class MyException {
     std::string msg;
+
 public:
     MyException(const char* s) {
         if (!s) {
@@ -7588,6 +7601,7 @@ public:
         }
         msg.assign(s);
     }
+
     const char* what() const {
         if (msg.empty()) {
             throw AnotherException();  // Non-compliant
@@ -7634,10 +7648,10 @@ class A {
 public:
    ~A() try {
         if (cond0) {
-            throw E0();  // Non-compliant, propagate out
+            throw E0();    // Non-compliant, propagate out
         }
         else if (cond1) {
-            throw E1();  // OK, digested by itself
+            throw E1();    // OK, digested by itself
         }
     }
     catch (const E1&) {
@@ -7773,10 +7787,12 @@ public:
     T(T&& a) noexcept {
         this->swap(a);
     }
+
     T& operator = (T&& a) noexcept {
         this->swap(a);
         return *this;
     }
+
     void swap(T& a) noexcept {
         // Use your intelligence,
         // be careful not to throw exceptions
@@ -7950,14 +7966,14 @@ foo 函数的参数不符合要求时抛出 std::exception 类的异常，过于
   
 正确的做法是为每种异常定义明确的子类：
 ```
-class FooWrongArg: public std::exception {
+class WrongArg: public std::exception {
 public:
-    FooWrongArg() {}
+    WrongArg() {}
 };
 
 int foo(int a) {
     if (a < 0) {
-        throw FooWrongArg();  // Compliant
+        throw WrongArg();  // Compliant
     }
     return bar(a);  // Other exceptions may be thrown
 }
@@ -7965,7 +7981,7 @@ int foo(int a) {
 void baz(int a) {
     try {
         foo(a);
-    } catch (FooWrongArg& e) {  // Right
+    } catch (WrongArg& e) {  // Right
         ....
     }
 }
@@ -8270,9 +8286,11 @@ inline int bar() {     // Compliant
 // In a header file
 struct A {
     int foo();          // OK
+
     int bar() const {   // OK
         return 0;
     }
+
     int baz() {         // Bad, move to a source file
         // ... more than 3 lines
     }
@@ -8354,14 +8372,14 @@ ID_paramNotUsed&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 有时编译器会对没有用到的参数给出警告，为了消除警告有人会采用“参数 = 参数”或“(void) 参数”的方式来消除警告，这是不可取的，如：
 ```
 void fun(int a) {
-  a = a;  // Or ‘(void)a’, not recommended
-  ....
+    a = a;  // Or ‘(void)a’, not recommended
+    ....
 }
 ```
 应改为：
 ```
 void fun(int) {
-  ....
+    ....
 }
 ```
 这样编译器不会给出警告，而且也不会有多余的代码。
@@ -9172,7 +9190,7 @@ const vector<int> foo() {  // Non-compliant
 }
 vector<int> bar(foo());    // vector(const vector&) called
 ```
-foo() 函数返回 const vector 对象，构造 bar 对象时只能进行深拷贝，无法利用移动构造等特性。  
+foo 函数返回 const vector 对象，构造 bar 对象时只能进行深拷贝，无法利用移动构造等特性。  
   
 应改为：
 ```
@@ -9261,6 +9279,7 @@ const int foo() {  // Non-compliant, ‘const’ is superfluous
 
 class A {
     int a = 123;
+
 public:
     int& foo() { return a;}
     const int foo() const { return a; }  // Non-compliant, missing ‘&’
@@ -9552,9 +9571,11 @@ void foo(A a, B b, C c, D d, E e) {  // Bad
 class X {
     // ... Members and methods for ‘a’, ‘b’ ...
 };
+
 class Y {
     // ... Members and methods for ‘c’, ‘d’, ‘e’ ... 
 };
+
 void foo(X x, Y y) {  // Good
     x.methods();
     y.methods();
@@ -10237,7 +10258,7 @@ if (rabbit) {
 }
 else if (hamster) {
 }
-// 3000 branches...
+// ... 3000 branches...
 // Computers have the courage to execute,
 // but do you have the courage to read?
 else if (puppie) {
@@ -12626,6 +12647,7 @@ a = .... = b = a = ....  // Non-compliant
 ```
 class A {
     int a;
+
 public:
     A(int a) {
         a = a;   // Non-compliant, ‘a’ is not the member
@@ -13470,6 +13492,7 @@ ID_explicitDtorCall&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: expression suggestion
 ```
 class A {
     int* p = new int[123];
+
 public:
    ~A() {
         delete[] p;
@@ -14097,8 +14120,9 @@ new 表达式只应作为“=”的直接右子表达式，或直接作为参数
 int& i = *new int(123);        // Non-compliant
 
 if (new int[123]) {            // Non-compliant
-  ....
+    ....
 }
+
 char* p = new char[123] + n;   // Non-compliant
 ```
 这些问题多数是笔误或错误的宏展开造成的。
@@ -14555,6 +14579,7 @@ void fun() {
 “12345”应改为具有名称的常量：
 ```
 const int maxId = 12345;
+
 void fun() {
     for (int i = 0; i < maxId; i++) {  // Compliant
         ....
@@ -15198,20 +15223,20 @@ reinterpret\_cast 将某地址强行按另一种类型解释，不考虑类型�
 示例：
 ```
 struct A {
-  int a = 1;
+    int a = 1;
 };
 
 struct B {
-  int b = 2;
+    int b = 2;
 };
 
 struct C: A, B {
 };
 
 int main() {
-  C c;
-  cout << static_cast<B*>(&c)->b << ' ';
-  cout << reinterpret_cast<B*>(&c)->b << '\n'; // Non-compliant, what is output?
+    C c;
+    cout << static_cast<B*>(&c)->b << ' ';
+    cout << reinterpret_cast<B*>(&c)->b << '\n'; // Non-compliant, what is output?
 }
 ```
 输出 2 1  
@@ -15490,6 +15515,7 @@ memset、memcpy、memmove 等具有填充功能的函数不应作用于带有虚
 ```
 class A {
     int i;
+
 public:
     virtual ~A();
 };
