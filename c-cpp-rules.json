@@ -2247,6 +2247,9 @@
         "level": "warning",
         "comment": "内容完全相同的分枝应合并为一个分枝，也可能是由复制粘贴造成的错误。",
         "tag": "control",
+        "config": {
+            "ID_switch/identicalBranchThreshold": "重复分枝符号数量限制，不检查符号数量小于该值的分枝"
+            },
         "related": "ID_if_identicalBlock,ID_if_identicalElseIfBlock",
         "reference": "C++ Core Guidelines ES.3"
     },

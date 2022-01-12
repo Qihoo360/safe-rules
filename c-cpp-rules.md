@@ -9710,9 +9710,9 @@ ID_forbidGoto&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function suggestion
 
 <hr/>
 
-历史表明，goto 语句会破坏程序的结构性，很容易导致逻辑混乱且不利于维护，在非自动生成的、对可读性有要求的代码中，不建议使用 goto 语句。  
+历史表明，goto 语句会破坏程序的结构性规划，很容易导致逻辑混乱且不利于维护，在非自动生成的、对可读性有要求的代码中，不建议使用 goto 语句。  
   
-由于 C 语言的流程管理功能较为简单，goto 语句可提供一定的灵活性，但应受一定的限制，在 C 代码中使用 goto 语句应遵循 ID\_forbidGotoBlocks 和 ID\_forbidGotoBack 等规则。  
+由于 C 语言的流程管理功能较为简单，goto 语句可提供一定的灵活性，但不应作为常规实现手段，也应受一定的限制，在 C 代码中使用 goto 语句应遵循 ID\_forbidGotoBlocks 和 ID\_forbidGotoBack 等规则。  
   
 C\+\+ 语言提供了更丰富的结构化和面向对象的流程管理功能，在 C\+\+ 代码中不应再使用 goto 语句。
 <br/>
@@ -10007,7 +10007,7 @@ else {
 }
 ```
 例外：  
-如果分枝内容较少，为了使代码更清晰可以接受适当的重复，但如果分枝内容很多，就不应重复了，不妨指定一个数量限制，当重复分枝的符号数量超过这个限制时算作违规，否则放过。
+如果分枝内容较少，为了使代码更清晰可以接受适当的重复，但如果分枝内容很多就不应重复了，不妨指定一个数量限制，当重复分枝的符号数量超过这个限制时算作违规，否则放过。
 <br/>
 <br/>
 
@@ -11056,9 +11056,9 @@ switch 语句不应被分号隔断。
   
 示例：
 ```
-switch (var);  // Non-compliant
+switch (v);  // Non-compliant
 ```
-这是毫无意义的 switch 语句，可能是遗迹代码，应及时去除。
+这是毫无意义的 switch 语句，可能是残留代码，应及时去除。
 <br/>
 <br/>
 
@@ -11077,10 +11077,9 @@ ID_switch_emptyBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
   
 示例：
 ```
-switch (v);  // Non-compliant
 switch (v) {}  // Non-compliant
 ```
-这是毫无意义的 switch 分枝结构，有可能是残留代码，也可能是功能未实现。
+这是毫无意义的 switch 语句，可能是残留代码，也可能是功能未实现。
 <br/>
 <br/>
 
@@ -11183,7 +11182,7 @@ default:        // Non-compliant
 ```
 例中 case 1 直接从属于 switch 语句，而 case 2 和 default 直接从属于 if 语句，当 v 的值不是 1 时，会绕过 if 语句的条件判断，产生非结构性跳转，与 goto 语句的问题一样，很容易导致逻辑混乱且不利于维护。  
   
-虽然有些编程技巧可以利用循环内的 case 标签实现特定的效果，如“[Duff’s device](https://en.wikipedia.org/wiki/Duff's_device)”等，但当今面向对象的主流编程语言均已不再提倡非结构性跳转。
+虽然有些编程技巧会将 case 置于循环中，如“[Duff’s device](https://en.wikipedia.org/wiki/Duff's_device)”等，但当今面向对象的主流编程语言均不提倡非结构性跳转。
 <br/>
 <br/>
 
@@ -11263,8 +11262,12 @@ case 3:
 例中 case 3 对应的分枝和 case 1 对应的分枝内容完全相同，应将其合并为一个分枝，或修正本应存在的差异。  
   
 例外：  
-如果分枝内容较少，为了使代码更清晰可以接受适当的重复，但如果分枝内容很多，就不应重复了，不妨指定一个数量限制，当重复分枝的符号数量超过这个限制时算作违规，否则放过。
+如果分枝内容较少，为了使代码更清晰可以接受适当的重复，但如果分枝内容很多就不应重复了，不妨指定一个数量限制，当重复分枝的符号数量超过这个限制时算作违规，否则放过。
 <br/>
+<br/>
+
+#### 配置
+ID_switch/identicalBranchThreshold：重复分枝符号数量限制，不检查符号数量小于该值的分枝  
 <br/>
 
 #### 相关
@@ -11477,15 +11480,15 @@ default:
 ```
 switch (c)
 {
-case 'a':   // OK
-case 'b':
+case 0:   // OK
+case 1:
     do_something(c);
     break;
 }
 ```
 在少数情况下，如果确实不能有 break 语句，在 C\+\+ 语言中可使用 \[\[fallthrough\]\] 注明，或用明确的注释说明情况：
 ```
-switch (a)
+switch (v)
 {
 case 1:
     do_something_special();
@@ -11557,23 +11560,23 @@ ID_switch_forbidNest&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: control suggestion
   
 示例：
 ```
-void foo(int n, int m) {
-  switch (n) {
-  case 1:
+switch (u)
+{
+case 1:
     ....
-  case 2:
-    switch (m) {  // Non-compliant
-    case 3:       // Confusing
-      ....
+case 2:
+    switch (v)  // Non-compliant
+    {
+    case 3:     // Confusing
+        ....
     case 4:
-      ....
+        ....
     }
-  default:
+default:
     ....
-  }
 }
 ```
-不同 switch 的 case 交织在了一起，较难看出哪个 case 对应哪个变量，应尽量不使用嵌套，或将内嵌的 switch 语句抽取成一个函数，使代码更清晰。
+不同 switch 的 case 交织在了一起，较难看出哪个 case 对应哪个变量，尤其是代码行数较多时这种问题会更为明显，应尽量不使用嵌套，或将内嵌的 switch 语句抽取成一个函数，使代码更清晰。
 <br/>
 <br/>
 <br/>
@@ -11706,19 +11709,14 @@ ID_try_forbidNest&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: control suggestion
   
 示例：
 ```
-void foo()
-{
-    try {
-        try {       // Non-compliant
-            bar();
-        }
-        catch (const E0&) {
-            ....
-        }
-    }
-    catch (const E1&) {
+try {
+    try {       // Non-compliant
+        ....
+    } catch (const A&) {
         ....
     }
+} catch (const B&) {
+    ....
 }
 ```
 <br/>
@@ -11842,7 +11840,7 @@ void foo() noexcept {
     try {
         __foo();
     }
-    catch (...) {  // For all unexpected exceptions
+    catch (...) {  // Compliant
         log_unexpected_and_exit(__FILE__, __LINE__, "some messages");
     }
 }
@@ -16117,9 +16115,9 @@ ID_invalidNullCheck&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 ```
 void bar() {
     if (int* p = new int[100]) {  // Non-compliant
-        // ... 
-    } else {
-        // ... Handle errors, but it’s in vain ...
+        ....
+    } else {  // Invalid
+        ....
     }
 }
 ```
@@ -16129,9 +16127,9 @@ void bar() {
 ```
 void bar() {
     if (int* p = new(std::nothrow) int[100]) {  // Compliant
-        // ...
-    } else {
-        // ... Handle errors, OK ...
+        ....
+    } else {  // OK
+        ....
     }
 }
 ```
