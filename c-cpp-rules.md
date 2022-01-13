@@ -4,7 +4,7 @@
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对 C、C++ 语言，本文收录了 413 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对 C、C++ 语言，本文收录了 414 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
@@ -181,7 +181,7 @@
     - [R5.1.2 类的非常量数据成员不应定义为 protected](#ID_protectedData)
     - [R5.1.3 类不应既有 public 数据成员又有 private 数据成员](#ID_mixPublicPrivateData)
     - [R5.1.4 有虚函数的基类应具有虚析构函数](#ID_missingVirtualDestructor)
-    - [R5.1.5 对于菱形继承应将基类设为虚基类](#ID_diamondInheritance)
+    - [R5.1.5 用虚基类避免冗余的基类实例](#ID_diamondInheritance)
     - [R5.1.6 存在赋值运算符或析构函数时，不应缺少拷贝构造函数](#ID_missingCopyConstructor)
     - [R5.1.7 存在拷贝构造函数或析构函数时，不应缺少拷贝赋值运算符](#ID_missingCopyAssignOperator)
     - [R5.1.8 存在拷贝构造函数或赋值运算符时，不应缺少析构函数](#ID_missingDestructor)
@@ -281,7 +281,8 @@
   - [6.10 Other](#declaration.other)
     - [R6.10.1 不应存在没有用到的标签](#ID_labelNotUsed)
     - [R6.10.2 不应存在未被使用的本地 static 函数](#ID_staticNotUsed)
-    - [R6.10.3 避免使用 std::auto\_ptr](#ID_deprecatedAutoPtr)
+    - [R6.10.3 不应存在未被使用的 private 成员](#ID_privateNotUsed)
+    - [R6.10.4 避免使用 std::auto\_ptr](#ID_deprecatedAutoPtr)
 <br/>
 
 <span id="__Exception">**[7. Exception](#exception)**</span>
@@ -2879,18 +2880,35 @@ ID_macro_const&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
 <hr/>
 
-宏只关注文本层面，不考虑作用域、类型、参数传递等具体语言层面的机制，极易造成意料之外的问题，建议除了作为预编译的条件，禁止宏参与程序具体的功能实现。  
+宏处于文本层面，不受作用域等语言规则限制，不应使用宏实现常量等语言层面的概念。  
   
 示例：
 ```
-namespace N {
-    #define PI 3.1415
+namespace U {
+    #define PI 3.14F  // Non-compliant
 }
-namespace M {
+
+namespace V {
+    #define PI 3.14159L  // Non-compliant
+}
+
+namespace W {
     void fun(double PI);  // Disturbed
 }
 ```
-例中宏 PI 干扰了其他作用域，造成代码的语法错误。
+例中宏 PI 不受命名空间的限制，第二个宏定义会覆盖第一个宏定义，而且会干扰其他作用域中相同的名称。  
+  
+应改为：
+```
+namespace U {
+    const float PI = 3.14F;  // Compliant
+}
+
+namespace V {
+    const long double PI = 3.14159L;  // Compliant
+}
+```
+为了避免混乱，建议宏只作为 \#if、\#elif 等指令的条件，不参与具体的功能实现。
 <br/>
 <br/>
 
@@ -2911,21 +2929,21 @@ ID_macro_typeid&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
 <hr/>
 
-宏只关注文本层面，不考虑作用域、类型、参数传递等具体语言层面的机制，极易造成意料之外的问题，建议除了作为预编译的条件，禁止宏参与程序具体的功能实现。  
+宏处于文本层面，不受作用域等语言规则限制，不应使用宏实现类型等语言层面的概念。  
   
 示例：
 ```
-namespace N {
-    #define MyType int
+namespace U {
+    #define MyType int  // Non-compliant
 }
 
-namespace M {
-    #define MyType long
+namespace V {
+    #define MyType long  // Non-compliant
 }
 
 void foo(MyType);  // Unreliable
 ```
-例中 MyType 的最终定义是 long，命名空间 N 中的宏被 M 中的宏覆盖，这显然是不可靠的。 
+例中 MyType 的最终定义是 long，第二个宏定义会覆盖第一个宏定义，这显然是不可靠的。 
 <br/>
 <br/>
 
@@ -2946,17 +2964,18 @@ ID_macro_function&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
 <hr/>
 
-宏只关注文本层面，不考虑作用域、类型、参数传递等具体语言层面的机制，极易造成意料之外的问题，建议除了作为预编译的条件，禁止宏参与程序具体的功能实现。  
+宏处于文本层面，不受作用域、参数传递、重载等语言规则限制，可由函数实现的功能不应使用宏实现。  
   
 示例：
 ```
-#define MAX(a, b) ((a) > (b)? (a): (b))
+#define SUM(a, b) ((a) + (b))  // Non-compliant
+#define SUM(a, b, c) ((a) + (b) + (c))  // Non-compliant
 
-int foo(int& a, int& b) {
-    return MAX(++a, ++b);  // Oops...
+int foo(int a, int b) {
+    return SUM(a, b);  // Error
 }
 ```
-例中 \+\+a 和 \+\+b 随着宏的展开将被执行多次，造成意料之外的错误。
+例中宏 SUM 意在获取参数的和，但宏无法被重载，最终只有一个宏被定义， foo 函数中的宏展开会造成错误。
 <br/>
 <br/>
 
@@ -3031,11 +3050,11 @@ ID_macro_complexConcat&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
   
 示例：
 ```
-#define M0(a,b) # a ## b        // Non-compliant
-#define M1(a,b,c) a ## #b ## c  // Non-compliant
+#define M0(a, b) # a ## b         // Non-compliant
+#define M1(a, b, c) a ## #b ## c  // Non-compliant
 
-#define M2(a) #a          // Compliant
-#define M3(a,b) M1(a##b)  // Compliant
+#define M2(a) #a             // Compliant
+#define M3(a, b) M1(a ## b)  // Compliant
 ```
 <br/>
 <br/>
@@ -3954,10 +3973,9 @@ ID_nonPrivateData&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestion
 
 <hr/>
 
-建议将类的数据成员均设为 private，对外统一由成员函数提供读写方法。  
+类的数据成员均应设为私有，对外统一由成员函数提供访问方法。  
   
-将类的所有接口都实现为成员函数，由成员函数按指定逻辑读写数据，可以保证对象的状态被有效地改变。良好的接口设计会对代码的职责进行合理的划分，显著提升可维护性。理想状态下，当有错误需要修正或有功能需要调整时，只改动相关接口的实现即可，调用接口的代码不需要改动，从而将改动降到最低，实现高度可维护的设计目的。  
-这种设计的基础便是将数据设为 private，只能由本类的成员函数访问，否则对数据的读写散落在各个模块之间，当有一处需要改动时，很难控制其影响的范围。  
+将类的所有接口都实现为成员函数，由成员函数按指定逻辑读写数据，可以保证对象的状态被有效地改变。良好的接口设计会对代码的职责进行合理的划分，显著提升可维护性。理想状态下，当有错误需要修正或有功能需要调整时，只改动相关接口的实现即可，调用接口的代码不需要改动，从而将改动降到最低。这种设计的基础便是将数据设为私有，只能由本类的成员函数访问，否则数据可被各个模块随意读写，当有一处需要改动时，很难控制其影响范围。  
   
 常量数据成员不可被改变，所以可不受本规则约束。  
   
@@ -3971,7 +3989,7 @@ struct Fraction {
     }
 };
 ```
-例中成员 n 和 d 可由外部随意访问，如果 d 被设为 0 则无法进行除法运算，破坏了对象的有效性。  
+例中成员 n 和 d 可被外部随意访问，如果 d 被设为 0 则无法进行除法运算，破坏了对象的有效性。  
   
 对数据的限定以及数据之间的内在关系应由成员函数统一维护，不暴露给类的使用者，这便是面向对象的封装理念，也是 C\+\+ 语言的核心理念之一。  
   
@@ -4105,7 +4123,9 @@ ID_missingVirtualDestructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
 
 为了避免意料之外的资源泄漏，有虚函数的基类，都应该具有虚析构函数。  
   
-当通过基类指针析构派生类对象时，如果基类没有虚析构函数，那么派生类对象的析构函数是无法被执行的，造成不易排查的资源泄漏，如：
+当通过基类指针析构派生类对象时，如果基类没有虚析构函数，那么派生类对象的析构函数是无法被执行的，造成不易排查的资源泄漏。  
+  
+示例：
 ```
 class A {
 public:
@@ -4117,12 +4137,15 @@ public:
 class B: public A {
     int* x;
     size_t n;
+
 public:
     B(size_t s): n(s), x(new int[s]) {
     }
+
    ~B() {
        delete[] x;
     }
+
     size_t size() override {
         return n;
     }
@@ -4153,40 +4176,55 @@ C++ Core Guidelines C.127
 <br/>
 <br/>
 
-### <span id="ID_diamondInheritance">▌R5.1.5 对于菱形继承应将基类设为虚基类</span>
+### <span id="ID_diamondInheritance">▌R5.1.5 用虚基类避免冗余的基类实例</span>
 
 ID_diamondInheritance&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestion
 
 <hr/>
 
-当一个类有多个基类，而这些基类又同时继承于某个类时，就出现了“菱形继承”问题。在派生类的实例中，基类的成员将有多个不同的实例，这造成了逻辑上的重复与存储上的负担。如果一定需要“菱形继承”，建议将基类设为虚基类。  
+当一个类有多个基类，这些基类又继承自同一个类时，会产生多个不同的基类实例，造成逻辑上的冗余和不必要的存储开销。  
   
 示例：
 ```
-class A {
-public:
+struct A {
     int i = 0;
 };
 
 class B: public A {};
 class C: public A {};
 class D: public B, public C {};
+
+void foo(D& d) {
+    d.i = 1;     // Error
+    d.B::i = 1;  // Odd
+    d.C::i = 1;  // Odd
+}
 ```
-在 D 的实例中，基类 A 的成员 i 将有两个不同的实例，故可改为：
+在 D 类对象中，基类 A 的成员 i 有两个不同的实例，对象 d 直接访问 i 是错误的。  
+  
+将共同的基类设为虚基类可以解决这种问题： 
 ```
 class B: virtual public A {};
 class C: virtual public A {};
+class D: public B, public C {};
+
+void foo(D& d) {
+    d.i = 1;     // OK
+}
 ```
-需要特别注意的是，在这种继承关系下，将基类对象的地址转为子类指针会导致标准未定义的错误。
+注意，直接将虚基类指针转为派生类指针是标准未定义的行为，如：
 ```
-A a;
-B* p = (B*)&a;  // Undefined behavior
+void bar(A* a) {
+    B* p = (B*)a;  // Undefined behavior
+    ....
+}
 ```
-如果一定要这么做可改用 dynamic\_cast ：
+编译器一般会将这种情况算作编译错误，但在较低版本的编译器中也有例外。  
+  
+应改用 dynamic\_cast：
 ```
-B* p = dynamic_cast<B*>(&a);  // OK
+B* p = dynamic_cast<B*>(a);  // OK
 ```
-编译器一般会将这种情况算作编译错误，但也有例外（较低版本的编译器），在设计类的关系时还是应该尽量避免菱形继承。
 <br/>
 <br/>
 
@@ -4423,14 +4461,14 @@ ID_missingExplicitConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestio
 ```
 class String {
 public:
-  String(int capacity);   // Missing ‘explicit’
-  ....
+    String(int capacity);   // Missing ‘explicit’
+    ....
 };
 
 void foo(const String&);
 
 int bar() {
-  foo(100);  // Can be compiled, but very odd
+    foo(100);  // Can be compiled, but very odd
 }
 ```
 由于 String 类的构造函数接受一个 int 型参数，foo(100) 相当于将 100 隐式转为 String 类的对象，这种隐式转换是怪异的，也往往意味着意料之外的错误。  
@@ -4439,8 +4477,8 @@ int bar() {
 ```
 class String {
 public:
-  explicit String(int capacity);  // OK
-  ....
+    explicit String(int capacity);  // OK
+    ....
 };
 ```
 这样 foo(100) 这种写法便不会通过编译。  
@@ -4451,9 +4489,9 @@ public:
 ```
 class String {
 public:
-  String(const String&);  // Explicit or not depends on your design intent
-  String(String&&);       // ditto
-  ....
+    String(const String&);  // Explicit or not depends on your design intent
+    String(String&&);       // ditto
+    ....
 };
 ```
 在类的接口设计中，应尽量减少隐式转换以避免不易察觉的问题。
@@ -5765,7 +5803,7 @@ SomeClass::Sub SomeClass::foo() {  // Repeated ‘SomeClass’
     ....
 }
 ```
-重复的类作用域声明十分繁琐，用 auto 关键字配合后置返回类型可提升可读性：
+重复的类作用域声明十分繁琐，可用 auto 关键字配合后置返回类型改善：
 ```
 auto SomeClass::foo() -> Sub {  // OK
     ....
@@ -7027,20 +7065,19 @@ ID_overloadAddressOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration sugge
 
 <hr/>
 
-取地址运算符（一元 & 运算符），重载之后可以返回任意地址，极易误用，建议禁止重载该运算符。  
+取地址运算符（一元 & 运算符），重载之后可以返回任意地址，极易误用。  
   
-请注意，语言标准规定可以获取不完整类型的对象地址，但如果该对象的完整类型重载了取地址运算符，则该行为是未定义的。  
+获取不完整类型的对象地址时，如果其完整类型重载了取地址运算符，会导致标准未定义的行为。  
   
 示例：
 ```
-class X;
+struct X;  // Incomplete type
 
 X* foo(X& x) {
     return &x;  // Undefined behaviour
 }
 
-class X {
-public:
+struct X {
     X* operator &() {  // Non-compliant
         return nullptr;
     }
@@ -7050,7 +7087,7 @@ X* bar(X& x) {
     return &x;  // Call ‘X::operator&’
 }
 ```
-例中 foo 函数会引发标准未定义的问题，可能会返回 x 对象的实际地址，而 bar 函数会调用重载了的取地址运算符，这种问题会造成混乱。
+例中 foo 函数存在标准未定义的问题，可能会返回 x 对象的实际地址，而 bar 函数会调用重载了的取地址运算符，这是一种混乱的局面。
 <br/>
 <br/>
 
@@ -7071,7 +7108,7 @@ ID_overloadComma&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-对于内置逗号表达式，C\+\+ 明确规定要从左到右计算子表达式的值，而对逗号运算符的重载打破了这一规则，往往会造成不符合预期的计算结果。  
+对于内置逗号表达式，标准规定从左到右计算子表达式的值，但对逗号运算符的重载会打破这一规则，造成不符合预期的结果。  
   
 可参见 ID\_overloadLogicOperator 对这种问题的详细说明。  
   
@@ -7129,7 +7166,7 @@ bool operator && (const A& a, const A& b) {  // Non-compliant
 ```
 b && a.assign(b)
 ```
-按常理，此表达式的意思应该是如果 b 在某种意义上“有效”，那么就将 b 赋给 a，所以 b 的值应该先被求出，如果满足条件，再执行后边的动作。但由于 && 被重载，变成了一个函数调用，其左子表达式和右子表达式成了函数的参数，C\+\+ 标准对函数参数的求值顺序并无明确规定，所以常规逻辑表达式的计算顺序无法得到保证。目前 MSVC、g\+\+ 等主流编译器默认情况下都是从右到左计算参数的值，这个例子中 a.assign(b) 将会先被执行，这与预期完全不符。  
+按常理，此表达式的意思应该是如果 b 在某种意义上“有效”，就将 b 赋给 a，所以 b 的值应该先被求出，但由于 && 被重载成了一个函数，其左右子表达式成了函数的参数，C\+\+ 标准对函数参数的求值顺序并无明确规定，所以常规逻辑子表达式的计算顺序无法得到保证。目前 MSVC、g\+\+ 等主流编译器默认都是从右到左计算参数的值，例中 a.assign(b) 往往会先被执行，造成完全不符合预期的后果。  
   
 解决方法：  
 去掉对 && 的重载，对类 A 引入与 bool 类型的转换。
@@ -7476,12 +7513,26 @@ MISRA C 2012 2.6
 
 ### <span id="ID_staticNotUsed">▌R6.10.2 不应存在未被使用的本地 static 函数</span>
 
-ID_staticNotUsed&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
+ID_staticNotUsed&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-未被使用的本地 static 函数得不到任何执行机会，应删除或修正调用关系。
+未被使用的本地 static 函数得不到任何执行机会，应删除或修正调用关系。  
+  
+示例：
+```
+static int foo();   // Compliant
+static int bar();   // Non-compliant, unused
+
+int main() {
+    return foo();
+}
+```
 <br/>
+<br/>
+
+#### 相关
+ID_unreachableCode  
 <br/>
 
 #### 参考
@@ -7489,7 +7540,37 @@ MISRA C++ 2008 0-1-10
 <br/>
 <br/>
 
-### <span id="ID_deprecatedAutoPtr">▌R6.10.3 避免使用 std::auto_ptr</span>
+### <span id="ID_privateNotUsed">▌R6.10.3 不应存在未被使用的 private 成员</span>
+
+ID_privateNotUsed&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
+
+<hr/>
+
+未被使用的 private 成员没有意义，应删除或修正引用关系。  
+  
+示例：
+```
+struct A {
+    int foo() { return 1; }     // Compliant, public or protected
+
+private:
+    int bar;                    // Non-compliant, unused
+    int foo(int) { return 0; }  // Non-compliant, unused
+};
+```
+<br/>
+<br/>
+
+#### 相关
+ID_unreachableCode  
+<br/>
+
+#### 参考
+MISRA C++ 2008 0-1-10  
+<br/>
+<br/>
+
+### <span id="ID_deprecatedAutoPtr">▌R6.10.4 避免使用 std::auto_ptr</span>
 
 ID_deprecatedAutoPtr&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
@@ -8916,21 +8997,23 @@ ID_unreachableCode&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
 <hr/>
 
-得不到执行机会的代码往往意味着逻辑错误，或者是遗迹代码。  
+得不到执行机会的代码是没有意义的，往往意味着逻辑错误。  
   
-其成因主要有：  
-1. 之前的所有分枝都提前结束了函数的执行  
-2. 之前的必经分枝中存在永远也不会结束的代码  
-3. 所在分枝的条件恒为假  
-4. 所在分枝被其他分枝遮盖  
+这种代码的成因主要有：  
+1. 所在函数无法被调用  
+2. 之前的所有分枝都提前结束了函数的执行  
+3. 之前的必经分枝中存在不会结束执行的代码  
+4. 所在分枝的条件恒为假  
+5. 所在分枝被其他分枝遮盖  
   
-第 3 点特化为：ID\_constLogicExpression、ID\_invalidCondition  
-第 4 点特化为：ID\_if\_identicalCondition、ID\_if\_hiddenCondition  
+第 1 点特化为：ID\_staticNotUsed、ID\_privateNotUsed  
+第 4 点特化为：ID\_constLogicExpression、ID\_invalidCondition、ID\_switch\_caseOutOfRange  
+第 5 点特化为：ID\_if\_identicalCondition、ID\_if\_hiddenCondition  
   
 示例：
 ```
 int fun() {
-  if (condition) {
+  if (cond) {
       return 0;
   } else {
       return 1;
@@ -8953,6 +9036,16 @@ for (;false;) { .... }
   
 建议时刻保持代码的整洁，并将维护过程中的变动及时地保存在版本管理系统中，这样可以清晰地查看各版本之间的变动，而如果将无效代码与有效代码混在一起，势必造成维护的负担。
 <br/>
+<br/>
+
+#### 相关
+ID_staticNotUsed  
+ID_privateNotUsed  
+ID_constLogicExpression  
+ID_invalidCondition  
+ID_switch_caseOutOfRange  
+ID_if_identicalCondition  
+ID_if_hiddenCondition  
 <br/>
 
 #### 参考
@@ -9201,7 +9294,7 @@ vector<int> foo() {        // Compliant
 
 vector<int> bar(foo());    // Call ‘vector(vector&&)’, more efficient
 ```
-这样可利用 vector 的移动构造，效率更高。  
+这样可以利用移动构造函数提高效率。  
   
 对于遵循 C\+\+11 之前标准的代码，也不应返回 const 对象，函数返回的对象本来就需要通过 const 引用或传值的方式被后续代码使用，所以将返回值设为 const 的意义不大。
 <br/>
@@ -9963,7 +10056,7 @@ else {
     branch  // Non-compliant
 }
 ```
-例中 branch 表示内容完全相同的代码，其条件判断是没有意义的，需修正本应存在的差异，或去掉 if\-else 结构。
+例中 branch 表示完全相同的代码，需修正本应存在的差异，或去掉 if\-else 结构。
 <br/>
 <br/>
 
@@ -10247,10 +10340,9 @@ ID_if_emptyBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
   
 示例：
 ```
-if (a = foo());  // Non-compliant
-if (a == bar()) {}  // Non-compliant
+if (a = foo());   // Non-compliant
+if (a == bar()) {}   // Non-compliant
 ```
-这种情况多为维护或调试产生的残留代码，在正式代码中应当去除。
 <br/>
 <br/>
 
@@ -11016,26 +11108,26 @@ ID_do_deprecated&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
 
 <hr/>
 
-do 语句的终止条件在末尾，且第一次执行的时候不会检查终止条件，使 do 语句的可读性较低，易引发错误。  
-  
-do 语句的本意是循环，而在实际代码中往往被用来进行流程控制，增加了不必要的复杂性，不妨将 do 语句抽取成一个函数，使代码有更好的结构。  
+do 语句的终止条件在末尾，且第一次执行时不检查终止条件，可读性较低，不利于维护。  
   
 示例：
 ```
-void foo(int cond) {
-  do {
-    if (cond < 0) {
-      break;
-    }
+int foo(int n) {
+    do {
+        if (n < 0) {
+            break;
+        }
+        ....
+        if (n > 0) {
+            continue;
+        }
+        ....
+    } while (cond);  // Too complex
     ....
-    if (cond > 0) {
-      break;
-    }
-    ....
-  } while (false);  // Too complex
-  ....
+    return n;
 }
 ```
+do 语句糅合循环和流程跳转，使代码过于复杂，建议将复杂的 do 语句抽取成函数，使代码的结构更明确。
 <br/>
 <br/>
 
@@ -11446,7 +11538,7 @@ default:
 }
 ```
 例外：  
-当 switch 的条件变量为枚举类型，而分枝已经覆盖所有枚举值时，不必再要求有 default 分枝。
+当 switch 变量为枚举类型，且 case 标签已对应所有枚举值时，不再要求有 default 分枝。
 <br/>
 <br/>
 
@@ -11562,7 +11654,7 @@ ID_switch_forbidNest&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: control suggestion
 
 <hr/>
 
-嵌套的 switch 语句会使程序变得复杂，较难看出哪个 case 针对哪个变量，不利于维护。  
+嵌套的 switch 语句使代码显得复杂，不利于维护。  
   
 示例：
 ```
@@ -11711,20 +11803,22 @@ ID_try_forbidNest&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: control suggestion
 
 <hr/>
 
-嵌套的 try\-catch 结构会使程序的控制流变得复杂，较难看出异常究竟是从哪个 try 块抛出在哪个 catch 块被处理，不利于维护。  
+嵌套的 try\-catch 结构使代码显得复杂，不利于维护。  
   
 示例：
 ```
 try {
+    ....
     try {       // Non-compliant
         ....
-    } catch (const A&) {
+    } catch (A&) {
         ....
     }
-} catch (const B&) {
+} catch (B&) {
     ....
 }
 ```
+嵌套的 try\-catch 结构较难看出哪个 try 块对应哪个 catch 块，当代码行数较多时这种问题会更为明显。
 <br/>
 <br/>
 
@@ -12438,12 +12532,20 @@ ID_unexpectedPrecedence&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-本规则目前主要针对三目运算符，当问号左侧为二元表达式，且与问号直接相邻的子表达式为 bool 型时，情况较为可疑，很可能是忘了加括号。  
+对运算符优先级的错误理解是产生逻辑错误的主要原因之一。  
   
 示例：
 ```
-int fun(bool b) {
-    return 1 + b? 2: 3;  // Rather suspicious, may be ‘(1 + b)? 2: 3’
+int foo(bool cond) {
+    return 1 + cond? 2: 3;  // Rather suspicious, may be ‘1 + (b? 2: 3)’
+}
+```
+加号的优先级大于三目运算符，但 cond 是 bool 型变量，所以这种情况十分可疑。  
+  
+很可能应改为：
+```
+int foo(bool cond) {
+    return 1 + (cond? 2: 3);
 }
 ```
 <br/>
@@ -15165,13 +15267,13 @@ class A { .... };
 class B: public A { .... };
 
 void foo(A* a) {
-  bar((B*)a);  // Non-compliant
-  baz(dynamic_cast<B*>(a));  // Compliant
+    bar((B*)a);  // Non-compliant
+    baz(dynamic_cast<B*>(a));  // Compliant
 }
 ```
 如果参数 a 实际指向的不是 B 类的对象，(B\*)a 将得到一个无法判断对错的值，而 dynamic\_cast<B\*>(a) 会得到一个空值，便于进一步处理。  
   
-需要注意的是，指向虚基类的指针只能通过 dynamic\_cast 转换为指向派生类的指针，否则导致标准未定义的错误：
+注意，虚基类指针只能通过 dynamic\_cast 转换为派生类指针，否则导致标准未定义的错误：
 ```
 struct A { .... };
 struct B: virtual A { .... };
@@ -15179,9 +15281,9 @@ struct C: virtual A { .... };
 struct D: B, C { .... };
 
 void foo(A* a) {
-  D* d0 = (D*)a;  // Undefined behavior
-  D* d1 = dynamic_cast<D*>(a);  // Right
-  ....
+    D* d0 = (D*)a;  // Undefined behavior
+    D* d1 = dynamic_cast<D*>(a);  // Right
+    ....
 }
 ```
 应尽量减少向下类型转换，可参见 ID\_downCast 的进一步讨论。
@@ -16544,7 +16646,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 413 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
+&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 414 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
 
 &emsp;&emsp;此致
 

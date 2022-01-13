@@ -444,7 +444,7 @@
     "ID_switch_forbidNest": {
         "checkPoint": "switch 语句不应嵌套",
         "level": "suggestion",
-        "comment": "嵌套的 switch 语句会使程序变得复杂，较难看出哪个 case 针对哪个变量，不利于维护。",
+        "comment": "嵌套的 switch 语句使代码显得复杂，不利于维护。",
         "tag": "control"
         },
     "ID_try_disorderedHandlers": {
@@ -466,7 +466,7 @@
     "ID_try_forbidNest": {
         "checkPoint": "try 块不应嵌套",
         "level": "suggestion",
-        "comment": "嵌套的 try-catch 结构会使程序的控制流变得复杂，较难看出异常究竟是从哪个 try 块抛出在哪个 catch 块被处理，不利于维护。",
+        "comment": "嵌套的 try-catch 结构使代码显得复杂，不利于维护。",
         "tag": "control",
         "reference": "C++ Core Guidelines E.17"
         },
@@ -690,9 +690,18 @@
         },
     "ID_staticNotUsed": {
         "checkPoint": "不应存在未被使用的本地 static 函数",
-        "level": "suggestion",
+        "level": "warning",
         "comment": "未被使用的本地 static 函数得不到任何执行机会，应删除或修正调用关系。",
         "tag": "declaration",
+        "related": "ID_unreachableCode",
+        "reference": "MISRA C++ 2008 0-1-10"
+        },
+    "ID_privateNotUsed": {
+        "checkPoint": "不应存在未被使用的 private 成员",
+        "level": "warning",
+        "comment": "未被使用的 private 成员没有意义，应删除或修正引用关系。",
+        "tag": "declaration",
+        "related": "ID_unreachableCode",
         "reference": "MISRA C++ 2008 0-1-10"
         },
     "ID_missingParamName": {
@@ -1164,7 +1173,7 @@
     "ID_unexpectedPrecedence": {
         "checkPoint": "注意运算符优先级，不可产生非预期的结果",
         "level": "warning",
-        "comment": "本规则目前主要针对三目运算符，当问号左侧为二元表达式，且与问号直接相邻的子表达式为 bool 型时，情况较为可疑，很可能是忘了加括号。",
+        "comment": "对运算符优先级的错误理解是产生逻辑错误的主要原因之一。",
         "tag": "expression",
         "reference": "CWE-783"
         },
@@ -1706,8 +1715,9 @@
     "ID_unreachableCode": {
         "checkPoint": "不应存在得不到执行机会的代码",
         "level": "error",
-        "comment": "得不到执行机会的代码往往意味着逻辑错误，或者是遗迹代码。",
+        "comment": "得不到执行机会的代码是没有意义的，往往意味着逻辑错误。",
         "tag": "function",
+        "related": "ID_staticNotUsed,ID_privateNotUsed,ID_constLogicExpression,ID_invalidCondition,ID_switch_caseOutOfRange,ID_if_identicalCondition,ID_if_hiddenCondition",
         "reference": "CWE-561,MISRA C 2004 14.1,MISRA C 2012 2.1,MISRA C++ 2008 0-1-1"
         },
     "ID_localInitialization": {
@@ -1868,7 +1878,7 @@
     "ID_overloadComma": {
         "checkPoint": "不应重载逗号运算符",
         "level": "suggestion",
-        "comment": "对于内置逗号表达式，C++ 明确规定要从左到右计算子表达式的值，而对逗号运算符的重载打破了这一规则，往往会造成不符合预期的计算结果。",
+        "comment": "对于内置逗号表达式，标准规定从左到右计算子表达式的值，但对逗号运算符的重载会打破这一规则，造成不符合预期的结果。",
         "tag": "declaration",
         "related": "ID_overloadLogicOperator",
         "reference": "MISRA C++ 2008 5-2-11"
@@ -1876,7 +1886,7 @@
     "ID_overloadAddressOperator": {
         "checkPoint": "不应重载取地址运算符",
         "level": "suggestion",
-        "comment": "取地址运算符（一元 & 运算符），重载之后可以返回任意地址，极易误用，建议禁止重载该运算符。",
+        "comment": "取地址运算符（一元 & 运算符），重载之后可以返回任意地址，极易误用。",
         "tag": "declaration",
         "standard": "ISO/IEC 14882:2003 5.3.1(4)-undefined,ISO/IEC 14882:2011 5.3.1(5)-undefined",
         "reference": "C++ Core Guidelines C.166,MISRA C++ 2008 5-3-3"
@@ -1890,9 +1900,9 @@
         "reference": "CWE-1079,CWE-1087,CWE-1045,C++ Core Guidelines C.35,C++ Core Guidelines C.127"
         },
     "ID_diamondInheritance": {
-        "checkPoint": "对于菱形继承应将基类设为虚基类",
+        "checkPoint": "用虚基类避免冗余的基类实例",
         "level": "suggestion",
-        "comment": "当一个类有多个基类，而这些基类又同时继承于某个类时，就出现了“菱形继承”问题。在派生类的实例中，基类的成员将有多个不同的实例，这造成了逻辑上的重复与存储上的负担。如果一定需要“菱形继承”，建议将基类设为虚基类。",
+        "comment": "当一个类有多个基类，这些基类又继承自同一个类时，会产生多个不同的基类实例，造成逻辑上的冗余和不必要的存储开销。",
         "tag": "type",
         "standard": "ISO/IEC 14882:2011 10.1(4 5 6 7),ISO/IEC 14882:2003 5.2.9(5 8)-undefined,ISO/IEC 14882:2011 5.2.9(11 12)-undefined",
         "reference": "C++ Core Guidelines C.137"
@@ -2193,7 +2203,7 @@
     "ID_do_deprecated": {
         "checkPoint": "不建议使用 do 语句",
         "level": "suggestion",
-        "comment": "do 语句的终止条件在末尾，且第一次执行的时候不会检查终止条件，使 do 语句的可读性较低，易引发错误。",
+        "comment": "do 语句的终止条件在末尾，且第一次执行时不检查终止条件，可读性较低，不利于维护。",
         "tag": "control",
         "reference": "C++ Core Guidelines ES.75"
         },
@@ -2555,7 +2565,7 @@
     "ID_macro_const": {
         "checkPoint": "不应使用宏定义常量",
         "level": "suggestion",
-        "comment": "宏只关注文本层面，不考虑作用域、类型、参数传递等具体语言层面的机制，极易造成意料之外的问题，建议除了作为预编译的条件，禁止宏参与程序具体的功能实现。",
+        "comment": "宏处于文本层面，不受作用域等语言规则限制，不应使用宏实现常量等语言层面的概念。",
         "tag": "precompile",
         "related": "ID_macro_typeid,ID_macro_function",
         "reference": "C++ Core Guidelines ES.31,C++ Core Guidelines Enum.1"
@@ -2563,7 +2573,7 @@
     "ID_macro_typeid": {
         "checkPoint": "不应使用宏定义类型",
         "level": "suggestion",
-        "comment": "宏只关注文本层面，不考虑作用域、类型、参数传递等具体语言层面的机制，极易造成意料之外的问题，建议除了作为预编译的条件，禁止宏参与程序具体的功能实现。",
+        "comment": "宏处于文本层面，不受作用域等语言规则限制，不应使用宏实现类型等语言层面的概念。",
         "tag": "precompile",
         "related": "ID_macro_sideEffectArgs,ID_macro_const,ID_macro_function",
         "reference": "C++ Core Guidelines ES.30"
@@ -2571,7 +2581,7 @@
     "ID_macro_function": {
         "checkPoint": "可由函数实现的功能不应使用宏实现",
         "level": "suggestion",
-        "comment": "宏只关注文本层面，不考虑作用域、类型、参数传递等具体语言层面的机制，极易造成意料之外的问题，建议除了作为预编译的条件，禁止宏参与程序具体的功能实现。",
+        "comment": "宏处于文本层面，不受作用域、参数传递、重载等语言规则限制，可由函数实现的功能不应使用宏实现。",
         "tag": "precompile",
         "related": "ID_macro_sideEffectArgs,ID_macro_const,ID_macro_typeid",
         "reference": "C++ Core Guidelines ES.31,MISRA C 2004 19.7,MISRA C 2012 Dir 4.9,MISRA C++ 2008 16-0-4"
@@ -3156,7 +3166,7 @@
     "ID_nonPrivateData": {
         "checkPoint": "类的非常量数据成员均应为 private",
         "level": "suggestion",
-        "comment": "建议将类的数据成员均设为 private，对外统一由成员函数提供读写方法。",
+        "comment": "类的数据成员均应设为私有，对外统一由成员函数提供访问方法。",
         "tag": "type",
         "related": "ID_protectedData,ID_mixPublicPrivateData",
         "reference": "MISRA C++ 2008 11-0-1"
