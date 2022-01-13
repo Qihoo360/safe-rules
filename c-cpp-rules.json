@@ -466,7 +466,7 @@
     "ID_try_forbidNest": {
         "checkPoint": "try 块不应嵌套",
         "level": "suggestion",
-        "comment": "嵌套的 try-catch 结构使代码显得复杂，不利于维护。",
+        "comment": "嵌套的 try-catch 使代码显得复杂，不利于维护。",
         "tag": "control",
         "reference": "C++ Core Guidelines E.17"
         },
@@ -3159,7 +3159,7 @@
     "ID_returnConstObject": {
         "checkPoint": "函数返回值不应为 const 对象",
         "level": "suggestion",
-        "comment": "函数返回 const 对象不利于移动构造或移动赋值等优化机制，也可能本意是返回引用，但遗漏了引用符号。",
+        "comment": "函数返回 const 对象不利于移动构造或移动赋值等机制，也可能本意是返回引用，但遗漏了引用符号。",
         "tag": "function",
         "reference": "C++ Core Guidelines F.20"
         },
