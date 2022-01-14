@@ -546,7 +546,7 @@
   - [R14.7 不应使用 bool 常量对指针赋值或初始化](#ID_oddPtrBoolAssignment)
   - [R14.8 不应使用字符常量对指针赋值或初始化](#ID_oddPtrCharAssignment)
   - [R14.9 不应使用常数 0 对指针赋值](#ID_zeroAsPtrValue)
-  - [R14.10 指针不应与 bool 型常量比较大小](#ID_oddPtrBoolComparison)
+  - [R14.10 指针不应与 bool 常量比较大小](#ID_oddPtrBoolComparison)
   - [R14.11 指针不应与字符常量比较大小](#ID_oddPtrCharComparison)
   - [R14.12 不应判断指针大于、大于等于、小于、小于等于 0](#ID_oddPtrZeroComparison)
   - [R14.13 避免无效的空指针检查](#ID_invalidNullCheck)
@@ -16124,13 +16124,13 @@ C++ Core Guidelines ES.47
 <br/>
 <br/>
 
-### <span id="ID_oddPtrBoolComparison">▌R14.10 指针不应与 bool 型常量比较大小</span>
+### <span id="ID_oddPtrBoolComparison">▌R14.10 指针不应与 bool 常量比较大小</span>
 
 ID_oddPtrBoolComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 
 <hr/>
 
-指针与 bool 型常量比较大小是非常怪异的，往往是某种笔误。  
+指针与 bool 常量比较大小是非常怪异的，往往是某种笔误。  
   
 示例（设 p 为指针）：
 ```
@@ -16159,7 +16159,7 @@ ID_oddPtrCharComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 p == '\0'    // Non-compliant
 p == L'\0'   // Non-compliant
 ```
-这种情况很有可能是某种笔误：
+这种情况很有可能是漏写了 \* 号：
 ```
 *p == '\0'   // Compliant
 *p == L'\0'  // Compliant

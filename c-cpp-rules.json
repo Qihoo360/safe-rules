@@ -1345,9 +1345,9 @@
         "reference": "CWE-1025"
         },
     "ID_oddPtrBoolComparison": {
-        "checkPoint": "指针不应与 bool 型常量比较大小",
+        "checkPoint": "指针不应与 bool 常量比较大小",
         "level": "warning",
-        "comment": "指针与 bool 型常量比较大小是非常怪异的，往往是某种笔误。",
+        "comment": "指针与 bool 常量比较大小是非常怪异的，往往是某种笔误。",
         "tag": "pointer",
         "reference": "CWE-1025"
         },
