@@ -1338,9 +1338,9 @@
         "reference": "MISRA C 2012 17.7,MISRA C++ 2008 0-1-7"
         },
     "ID_oddPtrCharComparison": {
-        "checkPoint": "指针不应与 char 型常量比较大小",
+        "checkPoint": "指针不应与字符常量比较大小",
         "level": "warning",
-        "comment": "指针与 char 型常量比较大小是非常怪异的，往往是某种笔误。",
+        "comment": "指针与字符常量比较大小是非常怪异的，往往是某种笔误。",
         "tag": "pointer",
         "reference": "CWE-1025"
         },
@@ -1409,16 +1409,16 @@
         "reference": "C++ Core Guidelines ES.43,SEI CERT EXP50-CPP"
         },
     "ID_oddPtrCharAssignment": {
-        "checkPoint": "不应使用 '\\0'、L'\\0' 等字符常量对指针赋值或初始化",
+        "checkPoint": "不应使用字符常量对指针赋值或初始化",
         "level": "warning",
         "comment": "用 '\\0'、L'\\0' 等字符常量对指针赋值或初始化是非常怪异的，往往意味错误。",
         "tag": "pointer",
         "reference": "CWE-351"
         },
     "ID_oddPtrBoolAssignment": {
-        "checkPoint": "不应使用 false 等布尔常量对指针赋值或初始化",
+        "checkPoint": "不应使用 bool 常量对指针赋值或初始化",
         "level": "warning",
-        "comment": "用 false 等布尔常量对指针赋值或初始化是非常怪异的，会对代码阅读造成误导，而且也可能是书写错误。",
+        "comment": "用 false 等 bool 常量对指针赋值或初始化是非常怪异的，会对代码阅读造成误导，而且也可能是书写错误。",
         "tag": "pointer",
         "reference": "CWE-351"
         },
@@ -3118,7 +3118,7 @@
         "reference": "CWE-367"
         },
     "ID_hijack": {
-        "checkPoint": "预判由用户输入造成的不良后果",
+        "checkPoint": "预判用户输入造成的不良后果",
         "level": "warning",
         "comment": "须对用户输入的脚本、路径、资源数量等信息进行预判，对产生不良后果的输入予以拒绝。",
         "tag": "security",

@@ -80,7 +80,7 @@
   - [R1.2 敏感数据不可被系统外界感知](#ID_secretLeak)
   - [R1.3 敏感数据在使用后应被有效清理](#ID_unsafeCleanup)
   - [R1.4 公共成员或全局对象不应记录敏感数据](#ID_sensitiveName)
-  - [R1.5 预判由用户输入造成的不良后果](#ID_hijack)
+  - [R1.5 预判用户输入造成的不良后果](#ID_hijack)
   - [R1.6 避免在一个事务中通过路径多次访问同一文件](#ID_TOCTOU)
   - [R1.7 访问共享数据应遵循合理的同步机制](#ID_dataRaces)
   - [R1.8 对文件设定合理的权限](#ID_unlimitedAuthority)
@@ -543,11 +543,11 @@
   - [R14.4 用 dynamic\_cast 转换指针时应判断结果是否为空](#ID_nullDerefDynamicCast)
   - [R14.5 不可解引用已被释放的指针](#ID_danglingDeref)
   - [R14.6 不应将非零常量值赋值给指针](#ID_fixedAddrToPointer)
-  - [R14.7 不应使用 false 等布尔常量对指针赋值或初始化](#ID_oddPtrBoolAssignment)
-  - [R14.8 不应使用 '\\0'、L'\\0' 等字符常量对指针赋值或初始化](#ID_oddPtrCharAssignment)
+  - [R14.7 不应使用 bool 常量对指针赋值或初始化](#ID_oddPtrBoolAssignment)
+  - [R14.8 不应使用字符常量对指针赋值或初始化](#ID_oddPtrCharAssignment)
   - [R14.9 不应使用常数 0 对指针赋值](#ID_zeroAsPtrValue)
   - [R14.10 指针不应与 bool 型常量比较大小](#ID_oddPtrBoolComparison)
-  - [R14.11 指针不应与 char 型常量比较大小](#ID_oddPtrCharComparison)
+  - [R14.11 指针不应与字符常量比较大小](#ID_oddPtrCharComparison)
   - [R14.12 不应判断指针大于、大于等于、小于、小于等于 0](#ID_oddPtrZeroComparison)
   - [R14.13 避免无效的空指针检查](#ID_invalidNullCheck)
   - [R14.14 不应重复检查指针是否为空](#ID_repeatedNullCheck)
@@ -784,7 +784,7 @@ CWE-766
 <br/>
 <br/>
 
-### <span id="ID_hijack">▌R1.5 预判由用户输入造成的不良后果</span>
+### <span id="ID_hijack">▌R1.5 预判用户输入造成的不良后果</span>
 
 ID_hijack&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
@@ -2707,23 +2707,23 @@ ID_macro_stmtNotEnclosed&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 示例：
 ```
 #define SWAP(a, b)\
-  a ^= b; b ^= a; a ^= b    // Non-compliant
+    a ^= b; b ^= a; a ^= b    // Non-compliant
 ```
 如果按如下使用方式：
 ```
 if (x > y)
-  SWAP(x, y);
+    SWAP(x, y);
 ```
 展开后 b ^= a; a ^= b; 不在 if 的控制范围内，故应改为：
 ```
 #define SWAP(a, b) {\       // Compliant
-  a ^= b; b ^= a; a ^= b;\
+    a ^= b; b ^= a; a ^= b;\
 }
 ```
 更进一步地，建议使用 do\-while(0) 结构：
 ```
 #define SWAP(a, b) do {\    // Good
-  a ^= b; b ^= a; a ^= b;\
+    a ^= b; b ^= a; a ^= b;\
 } while(0)
 ```
 这样在使用宏时必须以分号结尾，否则无法通过编译，使宏在使用风格上与函数相同，易于阅读。
@@ -9013,12 +9013,12 @@ ID_unreachableCode&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 示例：
 ```
 int fun() {
-  if (cond) {
-      return 0;
-  } else {
-      return 1;
-  }
-  statements    // Non-compliant, unreachable
+    if (cond) {
+        return 0;
+    } else {
+        return 1;
+    }
+    statements    // Non-compliant, unreachable
 }
 ```
 例中 statements 之前的所有分枝都会结束函数的执行，所以 statements 不会被执行。  
@@ -9067,15 +9067,15 @@ ID_notAllBranchReturn&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 示例：
 ```
 int fun() {
-  if (condition1) {
-      return 1;
-  } else if (condition2) {
-      return 2;
-  } else if (condition3) {
-      // Non-compliant if no return value
-  } else {
-      return 4;
-  }
+    if (condition1) {
+        return 1;
+    } else if (condition2) {
+        return 2;
+    } else if (condition3) {
+        // Non-compliant if no return value
+    } else {
+        return 4;
+    }
 }
 ```
 当符合 condition3 的条件时，fun 函数的调用者将得到一个错误的返回值。  
@@ -9728,23 +9728,23 @@ ID_forbidGotoBlocks&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function warning
 示例：
 ```
 int foo(int a) {
-  if (a == 0) {
-      goto LAB1;  // Non-compliant, jumps into a block
-  }
-  for (int i = 0; i < a; i++) {
-      for (int j = 0; j < a; j++) {
-      LAB1:
-          if (cond) {
-              goto LAB2;  // Compliant, jumps out of nested loop
-          }
-      }
-      ....
-  }
-LAB2:
-  return a;
+    if (a == 0) {
+        goto L;    // Non-compliant, jumps into a block
+    }
+    for (int i = 0; i < a; i++) {
+        for (int j = 0; j < a; j++) {
+L:
+            if (cond) {
+                goto M;   // Compliant, jumps out of nested loop
+            }
+        }
+        ....
+    }
+M:
+    return a;
 }
 ```
-例中 goto LAB1 从 if 语句跳入循环语句是应当被禁止的，而 goto LAB2 用于结束循环流程，可以保留。
+例中 goto L 从 if 语句跳入循环语句是应当被禁止的，而 goto M 用于结束循环流程，可以保留。
 <br/>
 <br/>
 
@@ -11011,17 +11011,17 @@ continue 语句和 break 语句在语义上是不同的，但在 do\-while(false
 示例：
 ```
 int foo() {
-  do {
-    ....
-    if (cond1) {
-      break;
-    }
-    ....
-    if (cond2) {
-      continue;  // Rather suspicious
-    }
-    ....
-  } while (false);
+    do {
+        ....
+        if (cond1) {
+            break;
+        }
+        ....
+        if (cond2) {
+            continue;  // Rather suspicious
+        }
+        ....
+    } while (false);
 }
 ```
 为了减少误解，建议在 do\-while(false) 中只使用 break 语句，不使用 continue 语句。
@@ -15413,13 +15413,13 @@ class A { .... };
 class B { .... };
 
 void foo(A* a) {
-  B* b = (B*)a;  // Non-compliant, an error value with no logical meaning
-  ....
+    B* b = (B*)a;  // Non-compliant, an error value with no logical meaning
+    ....
 }
 
 void bar(A* a) {
-  B* b = dynamic_cast<B*>(a);  // Compliant, prevent errors at compile time
-  ....
+    B* b = dynamic_cast<B*>(a);  // Compliant, prevent errors at compile time
+    ....
 }
 ```
 例中 A 和 B 是两种不相关的类型，用 C 语言的转换方式是可以转换成功的，但并没有逻辑意义，在 C\+\+ 语言中应使用 static\_cast 或 dynamic\_cast 等方法在编译时或运行时保障转换的有效性。
@@ -15607,8 +15607,8 @@ ID_insufficientBuffer&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: buffer warning
 示例：
 ```
 void foo() {
-  int* p = (int*)malloc(123);  // Non-compliant
-  ....
+    int* p = (int*)malloc(123);  // Non-compliant
+    ....
 }
 ```
 例中 foo 函数为 int 型数组分配了 123 个字节的空间，而 123 不能被 sizeof(int) 整除，最后一个元素会越界。  
@@ -15616,8 +15616,8 @@ void foo() {
 应改为：
 ```
 void foo() {
-  int* p = (int*)malloc(123 * sizeof(int));  // Compliant
-  ....
+    int* p = (int*)malloc(123 * sizeof(int));  // Compliant
+    ....
 }
 ```
 需要注意数组的逻辑大小和字节大小的区别，不可漏掉 sizeof 因子。  
@@ -15625,13 +15625,8 @@ void foo() {
 又如：
 ```
 void bar(const char* s) {
-  char* p = (char*)malloc(strlen(s));  // May be ‘strlen(s) + 1’?
-  ....
-}
-
-void baz(const wchar_t* s) {
-  wchar_t* p = (wchar_t*)malloc(wcslen(s));  // May be ‘(wcslen(s) + 1) * sizeof(*s)’?
-  ....
+    char* p = (char*)malloc(strlen(s));  // May be ‘strlen(s) + 1’?
+    ....
 }
 ```
 字符串以空字符结尾，在分配字符串空间时不可漏掉空字符的空间。
@@ -15901,7 +15896,7 @@ T* foo(size_t size) {
     return p;
 }
 ```
-在有虚拟内存支持的平台中，正常的内存分配一般不会失败，但申请内存过多或有误时（如参数为负数）也会导致分配失败，而对于没有虚拟内存支持的或可用内存有限的嵌入式以及单片机系统，对申请资源是否成功的检查是十分重要的，所以本规则应该作为代码编写的一般性要求。  
+在有虚拟内存支持的平台中，正常的内存分配一般不会失败，但申请内存过多或有误时（如参数为负数）也会导致分配失败，而对于没有虚拟内存支持的或可用内存有限的嵌入式系统，对申请资源是否成功的检查是十分重要的，所以本规则应该作为代码编写的一般性要求。  
   
 对内存等资源分配失败的处理应作为软件设计的必要部分，应有明确的文档支持。
 <br/>
@@ -16050,18 +16045,18 @@ CWE-587
 <br/>
 <br/>
 
-### <span id="ID_oddPtrBoolAssignment">▌R14.7 不应使用 false 等布尔常量对指针赋值或初始化</span>
+### <span id="ID_oddPtrBoolAssignment">▌R14.7 不应使用 bool 常量对指针赋值或初始化</span>
 
 ID_oddPtrBoolAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 
 <hr/>
 
-用 false 等布尔常量对指针赋值或初始化是非常怪异的，会对代码阅读造成误导，而且也可能是书写错误。  
+用 false 等 bool 常量对指针赋值或初始化是非常怪异的，会对代码阅读造成误导，而且也可能是书写错误。  
   
 示例：
 ```
 void set_false(bool* p) {
-    p = false;  // Non-compliant, should be *p = false
+    p = false;  // Non-compliant, should be ‘*p = false’
 }
 ```
 <br/>
@@ -16072,7 +16067,7 @@ CWE-351
 <br/>
 <br/>
 
-### <span id="ID_oddPtrCharAssignment">▌R14.8 不应使用 '\0'、L'\0' 等字符常量对指针赋值或初始化</span>
+### <span id="ID_oddPtrCharAssignment">▌R14.8 不应使用字符常量对指针赋值或初始化</span>
 
 ID_oddPtrCharAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 
@@ -16151,20 +16146,20 @@ CWE-1025
 <br/>
 <br/>
 
-### <span id="ID_oddPtrCharComparison">▌R14.11 指针不应与 char 型常量比较大小</span>
+### <span id="ID_oddPtrCharComparison">▌R14.11 指针不应与字符常量比较大小</span>
 
 ID_oddPtrCharComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 
 <hr/>
 
-指针与 char 型常量比较大小是非常怪异的，往往是某种笔误。  
+指针与字符常量比较大小是非常怪异的，往往是某种笔误。  
   
 示例（设 p 为指针）：
 ```
 p == '\0'    // Non-compliant
 p == L'\0'   // Non-compliant
 ```
-这种情况很有可能是解引用时的笔误：
+这种情况很有可能是某种笔误：
 ```
 *p == '\0'   // Compliant
 *p == L'\0'  // Compliant
