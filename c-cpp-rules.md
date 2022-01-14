@@ -646,11 +646,11 @@ public:
     }
 
    ~SecretBuf() {
-       SecureZeroMemory(buf, len);     // Clear the secret content
-       VirtualUnlock(buf, len);
-       VirtualFree(buf, 0, MEM_RELEASE);
-       len = 0;
-       buf = nullptr;
+        SecureZeroMemory(buf, len);     // Clear the secret content
+        VirtualUnlock(buf, len);
+        VirtualFree(buf, 0, MEM_RELEASE);
+        len = 0;
+        buf = nullptr;
     }
 
     size_t size() const { return len; }
@@ -4143,7 +4143,7 @@ public:
     }
 
    ~B() {
-       delete[] x;
+        delete[] x;
     }
 
     size_t size() override {
