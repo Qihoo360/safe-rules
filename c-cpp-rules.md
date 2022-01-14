@@ -620,11 +620,11 @@ void foo(User* u) {
 显然，将敏感数据直接输出到界面、日志或其他外界可感知的介质中是不安全的，需避免敏感数据的有意外传，除此之外，还需要落实具体的保护措施。  
   
 保护措施包括但不限于：  
- ● 避免用明文或弱加密方式传输敏感数据  
- ● 避免敏感数据从内存交换到外存  
- ● 避免如除零、无效指针解引用等问题造成“[core dump](https://en.wikipedia.org/wiki/Core_dump)”  
- ● 应具备反调试机制，使外界无法获得进程的内部数据  
- ● 应具备反注入机制，使外界无法篡改程序的行为  
+ - 避免用明文或弱加密方式传输敏感数据  
+ - 避免敏感数据从内存交换到外存  
+ - 避免如除零、无效指针解引用等问题造成“[core dump](https://en.wikipedia.org/wiki/Core_dump)”  
+ - 应具备反调试机制，使外界无法获得进程的内部数据  
+ - 应具备反注入机制，使外界无法篡改程序的行为  
   
 下面以 Windows 平台为例，给出阻止敏感数据从内存交换到外存的示例：
 ```
@@ -1006,11 +1006,11 @@ ID_dangerousName&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 弱加密、弱哈希、弱随机、不安全的协议等相关库、函数、类、宏、常量等名称不应出现在代码中。  
   
 这种危险符号名称主要来自：  
- ● 低质量随机数生成算法，如 srand、rand 等  
- ● 不再适用的哈希算法，如 MD2、MD4、MD5、MD6、RIPEMD 以及 SHA\-1 等  
- ● 非加密协议，如 HTTP、FTP 等  
- ● 低版本的传输层安全协议，如 TLSv1.2 之前的版本  
- ● 弱加密算法，如 DES、3DES 等  
+ - 低质量随机数生成算法，如 srand、rand 等  
+ - 不再适用的哈希算法，如 MD2、MD4、MD5、MD6、RIPEMD 以及 SHA\-1 等  
+ - 非加密协议，如 HTTP、FTP 等  
+ - 低版本的传输层安全协议，如 TLSv1.2 之前的版本  
+ - 弱加密算法，如 DES、3DES 等  
   
 示例：
 ```
@@ -1277,9 +1277,9 @@ ID_implementationDefinedFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security 
 由实现定义的（implementation\-defined）库函数存在语言标准之外的行为。  
   
 如：  
- ● cstdlib、stdlib.h 中的 abort、exit、getenv 或 system 等函数  
- ● ctime、time.h 中的 clock 等函数  
- ● csignal、signal.h 中的 signal 等函数  
+ - cstdlib、stdlib.h 中的 abort、exit、getenv 或 system 等函数  
+ - ctime、time.h 中的 clock 等函数  
+ - csignal、signal.h 中的 signal 等函数  
   
 这些函数的行为取决于编译器、库或环境的生产厂家，同一个函数不同的厂家会有不同的实现，故称这种函数的行为是“由实现定义”的。有高可靠性要求的软件系统应避免使用这种函数，否则需明确各种实现上的具体差异，提高了移植、发布以及兼容性等多方面的成本。  
   
@@ -1595,7 +1595,7 @@ void baz() {
   
 资源的所有权可以发生转移，但应保证转移前后均有对象负责管理相关资源，以及在转移过程中不会产生异常。  
   
-在 C\+\+ 程序设计中应尽量使用标准库提供的容器或 unique\_ptr、shared\_ptr 等资源管理手段，避免 new 和 delete 等方法的显式调用。对于遵循 C\+\+11 之后标准的代码，建议用 make\_unique 函数代替 new 运算符。  
+在 C\+\+ 程序设计中应尽量使用标准库提供的容器或 unique\_ptr、shared\_ptr 等资源管理手段，避免显式调用 new 和 delete。对于遵循 C\+\+11 之后标准的代码，建议用 make\_unique 函数代替 new 运算符。  
   
 如需进一步理解资源的对象化管理方法，可参见“[RAII（Resource Acquisition Is Initialization）](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization)”等机制。  
   
@@ -2473,10 +2473,10 @@ ID_macro_badName&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 宏的命名应遵循合理的方式，建议用大写字母表示宏的名称。  
   
 不应出现下列情况：  
- ● 超长的名称  
- ● 单词间无大小写变化也无下划线的名称  
- ● 无意义或意义太过宽泛的名称  
- ● 有违公序良俗的名称  
+ - 超长的名称  
+ - 单词间无大小写变化也无下划线的名称  
+ - 无意义或意义太过宽泛的名称  
+ - 有违公序良俗的名称  
   
 示例：
 ```
@@ -3130,11 +3130,11 @@ ID_illFormedDirective&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 非标准格式的预编译指令往往意味着错误，也会导致标准未定义的问题。  
   
 需注意：  
- ● defined 只应作用于宏名称或括号括起来的宏名称  
- ● defined 不应出现在宏定义中  
- ● \#if、\#elif 之后应为正确的常量表达式  
- ● \#ifdef、\#ifndef 之后只应为宏名称  
- ● \#else、\#endif 之后应直接换行  
+ - defined 只应作用于宏名称或括号括起来的宏名称  
+ - defined 不应出现在宏定义中  
+ - \#if、\#elif 之后应为正确的常量表达式  
+ - \#ifdef、\#ifndef 之后只应为宏名称  
+ - \#else、\#endif 之后应直接换行  
   
 示例：
 ```
@@ -4073,8 +4073,9 @@ ID_mixPublicPrivateData&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestion
 <hr/>
 
 类的设计应遵循：  
- ● 成员之间没有依赖关系，且都可以随意被读写时，则都应声明为 public  
- ● 成员之间有依赖关系，或成员的状态会影响到整个对象的状态时，则都应声明为 private  
+ - 成员之间没有依赖关系，且都可以随意被读写时，则都应声明为 public  
+ - 成员之间有依赖关系，或成员的状态会影响到整个对象的状态时，则都应声明为 private  
+  
 否则应对类进行改造或拆分。  
   
 面向对象的封装理念更倾向于将所有数据成员都设为 private，由成员函数按指定逻辑控制每个成员的读写方法，以供外部访问，对代码的职责进行有效的划分，从而提高可维护性并降低风险，关于封装的进一步讨论可参见 ID\_nonPrivateData。  
@@ -4869,9 +4870,9 @@ ID_casualInitialization&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestion
 <hr/>
 
 声明枚举类型时，只应从下列方式中选择一种：   
- ● 全不初始化  
- ● 只初始化第一个  
- ● 全部初始化  
+ - 全不初始化  
+ - 只初始化第一个  
+ - 全部初始化  
   
 示例：
 ```
@@ -5041,8 +5042,8 @@ ID_forbidNakedUnion&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: type suggestion
 联合体各成员共享存储地址，易引发意料之外的错误。如果一定要使用联合体，需对其进行一定的封装，避免对成员的错误访问。  
   
 代码中不应出现：  
- ● 在命名空间作用域内定义的联合体  
- ● 在类中定义的具有 public 访问权限的联合体  
+ - 在命名空间作用域内定义的联合体  
+ - 在类中定义的具有 public 访问权限的联合体  
   
 示例：
 ```
@@ -5089,10 +5090,10 @@ ID_forbidUnion&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: type suggestion
 <hr/>
 
 联合体的问题主要有：  
- ● 无法只通过对象获取当前有效的成员  
- ● 访问不同的成员相当于不安全的类型转换  
- ● 对非基本类型的成员造成构造和析构的混乱  
- ● 不能作为基类  
+ - 无法只通过对象获取当前有效的成员  
+ - 访问不同的成员相当于不安全的类型转换  
+ - 对非基本类型的成员造成构造和析构的混乱  
+ - 不能作为基类  
   
 这些问题在本质上是对类型理念的破坏，面向对象的程序设计应避免使用联合体。  
   
@@ -5144,10 +5145,10 @@ ID_badName&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 应遵循易于读写，并可准确表达代码意图的命名方式。  
   
 不应出现：  
- ● 超长的名称  
- ● 单词间无大小写变化也无下划线的名称  
- ● 无意义或意义太过宽泛的名称  
- ● 有违公序良俗的名称  
+ - 超长的名称  
+ - 单词间无大小写变化也无下划线的名称  
+ - 无意义或意义太过宽泛的名称  
+ - 有违公序良俗的名称  
   
 示例：
 ```
@@ -5155,8 +5156,8 @@ namespace xxxxx  // Bad, no meaning
 {
     void fun(int);  // Bad, vague
 
-    class CFriend {
-    public:
+    struct Friend    // OK
+    {
         bool m_bVarietyisthespiceoflife = true;  // Bad, hard to read
     };
 }
@@ -5166,8 +5167,7 @@ namespace xxxxx  // Bad, no meaning
 extern int identifier_of_a_very_very_long_name_1;
 extern int identifier_of_a_very_very_long_name_2;   // Dangerous
 ```
-需要注意的是，如果两个名称有相同的前缀，而且相同前缀超过一定长度时是危险的，很可能导致编译器无法有效区分相关名称，造成标准未定义的问题。  
-C 语言标准指明，保证名称前 31 位不同即可避免这种问题，可参见 ISO/IEC 9899:2011 5.2.4.1 的相关规定。  
+注意，如果两个名称有相同的前缀，而且相同前缀超过一定长度时是危险的，有可能导致编译器无法有效区分相关名称，造成标准未定义的问题。C 语言标准指明，保证名称前 31 位不同即可避免这种问题，可参见 ISO/IEC 9899:2011 5.2.4.1 的相关规定。  
   
 不建议采用相同“长前缀”\+ 不同“短后缀”的命名方式，这种名称非常容易形成笔误或由复制粘贴造成错误，如：
 ```
@@ -7446,10 +7446,11 @@ ID_complexDeclaration&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 复杂的声明可读性较差，容易造成理解上的偏差。  
   
 对于：  
- ● 函数指针的数组  
- ● 返回函数指针、数组指针的函数  
- ● 以函数指针、数组指针为参数的函数  
-等复合型声明，应先将各子类型取别名，再用简单声明的方式书写。  
+ - 函数指针的数组  
+ - 返回函数指针、数组指针的函数  
+ - 以函数指针、数组指针为参数的函数  
+  
+应先将各子类型取别名，再用简单声明的方式书写。  
   
 示例：
 ```
@@ -7598,8 +7599,9 @@ ID_exceptionUnsafe&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 <hr/>
 
 当产生异常时，保证：  
- ● 相关资源不会泄漏  
- ● 相关对象处于正确状态  
+ - 相关资源不会泄漏  
+ - 相关对象处于正确状态  
+  
 是 C\+\+ 异常机制可以正确工作的重要基础。  
   
 示例：
@@ -7743,9 +7745,9 @@ public:
 建议将析构函数声明为 noexcept。  
   
 与析构相关的过程也不应抛出异常：  
- ● 资源回收  
- ● delete、delete\[\] 运算符  
- ● 具有 free、clear、release 等语义的函数  
+ - 资源回收  
+ - delete、delete\[\] 运算符  
+ - 具有 free、clear、release 等语义的函数  
   
 另外，具有 swap、hash 等语义以及移动构造或赋值相关的过程也不应抛出异常，详见相关规则。
 <br/>
@@ -8088,9 +8090,9 @@ ID_throwNonExceptionType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 字符串或普通变量以及非异常相关的对象不应被当作异常抛出，否则意味着异常相关的设计是不健全的。  
   
 完善的异常处理机制应包含如下几点：  
- ● 可提供对异常情况的准确描述  
- ● 可将异常情况有效分类  
- ● 可方便地处理异常并进行调试  
+ - 可提供对异常情况的准确描述  
+ - 可将异常情况有效分类  
+ - 可方便地处理异常并进行调试  
   
 值得强调的是 throw、try、catch 等关键字应专注于异常处理，不应使用这些关键字控制程序的业务流程，业务代码与异常处理代码应有明显区别，否则会使代码含混不明，效率也会降低。  
   
@@ -9312,9 +9314,9 @@ ID_returnOdd&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 <hr/>
 
 返回值与返回类型不符的情况：  
- ● 返回类型为 bool 型，却返回了非 true 非 false、非 0 非 1 的常量  
- ● 返回类型为指针，却返回了非 0、非 NULL、非 nullptr 等常量  
- ● 返回类型为整数，却返回了 NULL、true、false 等常量  
+ - 返回类型为 bool 型，却返回了非 true 非 false、非 0 非 1 的常量  
+ - 返回类型为指针，却返回了非 0、非 NULL、非 nullptr 等常量  
+ - 返回类型为整数，却返回了 NULL、true、false 等常量  
   
 这些问题可能是在维护过程中产生的，也可能意味着逻辑错误，而且很容易造成误导，需谨慎对待。  
   
@@ -9649,8 +9651,8 @@ ID_tooManyParams&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 <hr/>
 
 函数参数过多，意味着：  
- ● 缺少合理的抽象机制：应将多而零散的参数按其内在联系封装成对象，从而方便地处理其逻辑关系，而不是简单地线性罗列  
- ● 违反“[单一职责原则](https://en.wikipedia.org/wiki/Single-responsibility_principle)”：参数越多，函数处理的事务自然越多，代码的可维护性自然越差  
+ - 缺少合理的抽象机制：应将多而零散的参数按其内在联系封装成对象，从而方便地处理其逻辑关系，而不是简单地线性罗列  
+ - 违反“[单一职责原则](https://en.wikipedia.org/wiki/Single-responsibility_principle)”：参数越多，函数处理的事务自然越多，代码的可维护性自然越差  
   
 建议可供外部使用的全局函数、public 或 protected 成员函数的参数不超过 4 个，内部使用的 static 函数、private 成员函数的参数不超过 8 个。  
   
@@ -9697,10 +9699,10 @@ ID_complexInlineFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 <hr/>
 
 不适合将函数声明为内联的情况：  
- ● 行数超过指定限制  
- ● 存在循环或异常处理语句  
- ● 存在 switch 分枝语句  
- ● 函数存在递归实现  
+ - 行数超过指定限制  
+ - 存在循环或异常处理语句  
+ - 存在 switch 分枝语句  
+ - 函数存在递归实现  
   
 建议内联函数的实现不要超过 3 个语句。
 <br/>
@@ -13386,9 +13388,9 @@ bool gt(const char* a, const char* b) {
 strcmp、wcscmp 以及 memcmp 等函数不应与 0 之外的任何值比较。  
   
 下列函数的返回值不应与 0 比较，也不应转为 bool 型：  
- ● open、create 等 Linux 系统调用，失败时返回负数，成功时返回非负数  
- ● CreateFile、CreateNamedPipe 等 Windows API，失败时返回 INVALID\_HANDLE\_VALUE，而不是 0  
- ● HRESULT 型 Windows API 返回值，负数表示失败、非负数表示成功  
+ - open、create 等 Linux 系统调用，失败时返回负数，成功时返回非负数  
+ - CreateFile、CreateNamedPipe 等 Windows API，失败时返回 INVALID\_HANDLE\_VALUE，而不是 0  
+ - HRESULT 型 Windows API 返回值，负数表示失败、非负数表示成功  
   
 另外，有相当一部分函数成功时返回 0，失败时返回非 0，如 access、chmod、rename 等 Linux 系统调用，成功时返回 0，失败时返回 \-1，故不可将其返回值误当作 bool 型使用。
 <br/>
@@ -13582,9 +13584,9 @@ ID_forbidCStringFormat&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: expression sugges
 <hr/>
 
 printf、sprintf 等 C 风格字符串格式化方法，即由可变参数列表实现的格式化方法，主要问题有：  
- ● 在编译期无法保证安全性，易出错或造成可移植性问题，提高了测试成本  
- ● 与 C\+\+ 的强类型理念不符，也不在 C\+\+ 标准之内  
- ● 只接受基本类型的参数，不利于数据的对象化管理  
+ - 在编译期无法保证安全性，易出错或造成可移植性问题，提高了测试成本  
+ - 与 C\+\+ 的强类型理念不符，也不在 C\+\+ 标准之内  
+ - 只接受基本类型的参数，不利于数据的对象化管理  
   
 示例：
 ```
@@ -14697,8 +14699,8 @@ void bar() {
 }
 ```
 常量字符串连接的用途：  
- ● 字符串过长不便于显示时可将字符串拆成多个子串分行书写  
- ● 宏和字符串连接在一起完成一些更灵活的操作  
+ - 字符串过长不便于显示时可将字符串拆成多个子串分行书写  
+ - 宏和字符串连接在一起完成一些更灵活的操作  
   
 除此之外不应再将一个字符串拆成多个常量。
 <br/>
@@ -15507,10 +15509,10 @@ int main() {
 例中 userInput 函数返回用户输入的字符串，其长度不确定，而缓冲区 buf 的长度为 100 字节，如果用户输入超过这个长度就会使程序遭到破坏，这种问题称为“[缓冲区溢出（buffer overflow）](https://en.wikipedia.org/wiki/Buffer_overflow)”，也是程序遭受攻击的常见原因。  
   
 利用缓冲区溢出可造成严重危害，如：  
- ● 破坏堆栈或段结构，扰乱程序执行  
- ● 改写关键信息，篡改程序行为  
- ● 注入并运行恶意代码  
- ● 攻击高权限进程获取非法权限  
+ - 破坏堆栈或段结构，扰乱程序执行  
+ - 改写关键信息，篡改程序行为  
+ - 注入并运行恶意代码  
+ - 攻击高权限进程获取非法权限  
   
 所以将读写限定在缓冲区边界之内是十分重要的，示例代码应改为：
 ```
@@ -16356,9 +16358,9 @@ ID_this_forbidDeleteThis&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: pointer suggest
 因为正确使用 delete this 限制条件太多，稍不留意就会为 bug 埋下伏笔，所以禁用这种方式是明智的选择。  
   
 要想正确使用 delete this，必须保证：  
- ● 对象是用 new 创建的，但不能是 new\[\] 或 replacement new  
- ● 使用 delete this 之后不能再访问相关非静态成员及成员函数  
- ● 不能在析构函数中使用 delete this  
+ - 对象是用 new 创建的，但不能是 new\[\] 或 replacement new  
+ - 使用 delete this 之后不能再访问相关非静态成员及成员函数  
+ - 不能在析构函数中使用 delete this  
   
 示例：
 ```
