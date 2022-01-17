@@ -2016,6 +2016,7 @@
             "ID_global/minTypeNameLength": "全局类型名称长度下限，小于则报出"
             },
         "tag": "global",
+        "related": "ID_badName",
         "reference": "C++ Core Guidelines NL.7"
         },
     "ID_if_semicolon": {
@@ -2538,19 +2539,19 @@
     "ID_macro_defineReserved": {
         "checkPoint": "不可定义具有保留意义的宏名称",
         "level": "warning",
-        "comment": "定义与关键字或其他保留名称相同的宏，会使代码陷入难以维护的境地，也会导致标准未定义的问题。",
+        "comment": "重新定义已有特殊用途的名称，会使代码陷入难以维护的境地，也会导致标准未定义的问题。",
         "config": { "//": "详见说明" },
         "tag": "precompile",
-        "standard": "ISO/IEC 14882:2003 16.8(3)-undefined,ISO/IEC 14882:2011 16.8(4)-undefined,ISO/IEC 14882:2017 19.8(4)-undefined",
+        "standard": "ISO/IEC 9899:2011 7.1.3(2)-undefined,ISO/IEC 14882:2011 16.8(4)-undefined",
         "related": "ID_macro_undefReserved,ID_reservedName",
         "reference": "MISRA C 2012 21.1,MISRA C 2012 20.4,MISRA C++ 2008 17-0-1"
         },
     "ID_macro_undefReserved": {
         "checkPoint": "不可取消定义具有保留意义的宏名称",
         "level": "warning",
-        "comment": "取消定义（undef）具有保留意义的宏名称，会使代码陷入难以维护的境地，也会导致标准未定义的问题。",
+        "comment": "取消定义已有特殊用途的宏名称，会使代码陷入难以维护的境地，也会导致标准未定义的问题。",
         "tag": "precompile",
-        "standard": "ISO/IEC 14882:2003 16.8(3)-undefined,ISO/IEC 14882:2011 16.8(4)-undefined,ISO/IEC 14882:2017 19.8(4)-undefined",
+        "standard": "ISO/IEC 9899:2011 7.1.3(3)-undefined,ISO/IEC 14882:2011 16.8(4)-undefined",
         "related": "ID_macro_defineReserved,ID_reservedName",
         "reference": "MISRA C 2012 21.1,MISRA C 2012 20.5,MISRA C++ 2008 17-0-1,MISRA C++ 2008 16-0-3"
         },
@@ -2885,6 +2886,7 @@
         "comment": "自定义的名称不应与关键字、标准库或系统中的名称重复，否则极易造成阅读和维护上的困扰。",
         "tag": "declaration",
         "related": "ID_macro_defineReserved,ID_macro_undefReserved",
+        "standard": "ISO/IEC 9899:2011 7.1.3(1)",
         "reference": "SEI CERT DCL37-C,SEI CERT DCL51-CPP,MISRA C 2012 21.2,MISRA C++ 2008 17-0-1,MISRA C++ 2008 17-0-2,MISRA C++ 2008 17-0-3"
         },
     "ID_duplicatedName": {

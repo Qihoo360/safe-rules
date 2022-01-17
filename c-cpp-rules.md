@@ -2472,20 +2472,23 @@ ID_macro_badName&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
 宏的命名应遵循合理的方式，建议用大写字母表示宏的名称。  
   
-不应出现下列情况：  
+不应出现：  
  - 超长的名称  
- - 单词间无大小写变化也无下划线的名称  
- - 无意义或意义太过宽泛的名称  
+ - 易造成混淆或冲突的名称  
+ - 无意义或意义过于空泛的名称  
+ - 不易于读写的名称  
  - 有违公序良俗的名称  
+  
+本规则是 ID\_badName 的特化。  
   
 示例：
 ```
-#define xxxxx 8         // Bad
-#define abcabcabcabc 8  // Bad
+#define xxx 8    // Bad, meaningless name
+#define foo 8    // Bad, vague name
 ```
-而且，宏的名称应采用全大写字母的形式，宏之外的名称不应采用全大写字母的形式，这样有利于区分宏与非宏名称，便于阅读和维护。
+宏是处于文本层面的概念，有必要在命名方式上将其与普通代码分开，宏的名称应采用全大写字母的形式，非宏名称不应采用全大写字母的形式，便于阅读和维护。
 ```
-#define word_size 8     // Bad
+#define word_size 8     // Bad, like a normal variable
 #define WORD_SIZE 8     // OK
 ```
 <br/>
@@ -2511,33 +2514,39 @@ ID_macro_defineReserved&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 <hr/>
 
-定义与关键字或其他保留名称相同的宏，会使代码陷入难以维护的境地，也会导致标准未定义的问题。  
+重新定义已有特殊用途的名称，会使代码陷入难以维护的境地，也会导致标准未定义的问题。  
   
 C\+\+ 标准指明不可重新定义的宏有：
 ```
-__cplusplus、__DATE__、__FILE__、__ LINE__
-__STDC_HOSTED__、__TIME__、
-__STDC__、__STDC_MB_MIGHT_NEQ_WC__、__STDC_VERSION__
-__STDC_ISO_10646__、__STDCPP_STRICT_POINTER_SAFETY__、
-__STDCPP_THREADS__
+__cplusplus、__TIME__、__DATE__、__FILE__、__ LINE__、
+__STDC__、__STDC_HOSTED__、__STDCPP_THREADS__、
+__STDC_MB_MIGHT_NEQ_WC__、__STDC_VERSION__、
+__STDC_ISO_10646__、__STDCPP_STRICT_POINTER_SAFETY__
 ```
 除此之外，平台、环境、框架相关的宏也不应在代码中重新定义。  
   
+以下划线开头的名称用于表示标准库或系统的内部名称，故自定义名称不应以下划线开头。  
+  
 示例：
+```
+#define defined  // Non-compliant
+```
+不可重定义关键字  
+
 ```
 #define __GNUC__ 1  // Non-compliant
 ```
-只应由编译器决定  
+标识编译器或平台的宏不可在代码中写死  
 
 ```
 #define NDEBUG 0  // Non-compliant
 ```
-只应由项目的编译设置决定，不可在代码中写死  
+编译优化相关的宏不可在代码中写死  
 
 ```
 #define assert(x) ((void)x)  // Non-compliant
 ```
-只应由标准库实现  
+标准库中的宏不应重新实现  
 
 ```
 #define new new(std::nothrow)  // Non-compliant
@@ -2567,9 +2576,8 @@ ID_reservedName
 <br/>
 
 #### 依据
-ISO/IEC 14882:2003 16.8(3)-undefined  
+ISO/IEC 9899:2011 7.1.3(2)-undefined  
 ISO/IEC 14882:2011 16.8(4)-undefined  
-ISO/IEC 14882:2017 19.8(4)-undefined  
 <br/>
 
 #### 参考
@@ -2585,15 +2593,14 @@ ID_macro_undefReserved&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 <hr/>
 
-取消定义（undef）具有保留意义的宏名称，会使代码陷入难以维护的境地，也会导致标准未定义的问题。  
+取消定义已有特殊用途的宏名称，会使代码陷入难以维护的境地，也会导致标准未定义的问题。  
   
 C\+\+ 标准指明不可取消定义的宏有：
 ```
-__cplusplus、__DATE__、__FILE__、__ LINE__
-__STDC_HOSTED__、__TIME__、
-__STDC__、__STDC_MB_MIGHT_NEQ_WC__、__STDC_VERSION__
-__STDC_ISO_10646__、__STDCPP_STRICT_POINTER_SAFETY__、
-__STDCPP_THREADS__
+__cplusplus、__TIME__、__DATE__、__FILE__、__ LINE__、
+__STDC__、__STDC_HOSTED__、__STDCPP_THREADS__、
+__STDC_MB_MIGHT_NEQ_WC__、__STDC_VERSION__、
+__STDC_ISO_10646__、__STDCPP_STRICT_POINTER_SAFETY__
 ```
 除此之外，平台、环境、框架相关的宏也不可被取消定义。  
   
@@ -2624,9 +2631,8 @@ ID_reservedName
 <br/>
 
 #### 依据
-ISO/IEC 14882:2003 16.8(3)-undefined  
+ISO/IEC 9899:2011 7.1.3(3)-undefined  
 ISO/IEC 14882:2011 16.8(4)-undefined  
-ISO/IEC 14882:2017 19.8(4)-undefined  
 <br/>
 
 #### 参考
@@ -3937,6 +3943,8 @@ ID_nameTooShort&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: global suggestion
 
 长度过短的全局名称极易造成与局部名称的混淆或冲突，建议全局名称长度不小于 3 个字符。  
   
+本规则是 ID\_badName 的特化。  
+  
 示例：
 ```
 const int i = 0;   // Non-compliant, name too short
@@ -3947,7 +3955,7 @@ int foo(int i) {
     return i + i;  // Confusing
 }
 ```
-为了避免混淆或冲突，名称适用的作用域范围越广，名称的长度也应该越长。可通过配置项指定最小名称长度，为 0 时表示忽略，详见“配置”一栏。
+为了避免混淆或冲突，名称适用的作用域范围越广，名称的长度也应该越长。
 <br/>
 <br/>
 
@@ -3956,6 +3964,10 @@ ID_global/ minVariableNameLength：全局对象名称长度下限，小于则报
 ID_global/minFunctionNameLength：全局函数名称长度下限，小于则报出  
 ID_global/minNameSpaceNameLength：全局命名空间名称长度下限，小于则报出  
 ID_global/minTypeNameLength：全局类型名称长度下限，小于则报出  
+<br/>
+
+#### 相关
+ID_badName  
 <br/>
 
 #### 参考
@@ -5041,7 +5053,7 @@ ID_forbidNakedUnion&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: type suggestion
 
 联合体各成员共享存储地址，易引发意料之外的错误。如果一定要使用联合体，需对其进行一定的封装，避免对成员的错误访问。  
   
-代码中不应出现：  
+不应出现：  
  - 在命名空间作用域内定义的联合体  
  - 在类中定义的具有 public 访问权限的联合体  
   
@@ -5144,25 +5156,25 @@ ID_badName&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 应遵循易于读写，并可准确表达代码意图的命名方式。  
   
-不应出现：  
+不应出现下列情况：  
  - 超长的名称  
- - 单词间无大小写变化也无下划线的名称  
- - 无意义或意义太过宽泛的名称  
+ - 易造成混淆或冲突的名称  
+ - 无意义或意义过于空泛的名称  
+ - 不易于读写的名称  
  - 有违公序良俗的名称  
   
 示例：
 ```
-namespace xxxxx  // Bad, no meaning
+namespace xxx  // Bad, meaningless name
 {
     void fun(int);  // Bad, vague
 
-    struct Friend    // OK
-    {
-        bool m_bVarietyisthespiceoflife = true;  // Bad, hard to read
-    };
+    const int nVarietyisthespiceoflife = 123;  // Bad, hard to read
 }
 ```
-建议名称的字符数量不要超过 31 位。
+例中 xxx、fun 这种无意义或过于空泛的名称是不符合要求的，名称中各单词间应有下划线或大小写变化，否则是不便于读写的，本规则集合中出现的 foo、bar 等名称，意在泛指一般的代码元素，仅作示例，实际代码中不应出现。  
+  
+不良命名方式甚至会导致标准未定义的行为，如：
 ```
 extern int identifier_of_a_very_very_long_name_1;
 extern int identifier_of_a_very_very_long_name_2;   // Dangerous
@@ -5183,7 +5195,6 @@ struct BinExpr {
     BinExpr* right;  // Better
 };
 ```
-不同实体或概念的名称不应过于相似。
 <br/>
 <br/>
 
@@ -5223,20 +5234,34 @@ ID_reservedName&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 struct A {
     void foo() {
         if (errno != 0) {  // Which errno?
-            bar();
+            ....
         }
     }
 private:
     int errno;  // Non-compliant
 };
 ```
-例中成员变量 errno 与标准库中的 errno 名称重复，导致在阅读成员函数代码时无法区分该变量到底是自定义的还是系统定义的，造成不必要的困扰。
+例中成员变量 errno 与标准库中的 errno 名称相同，不便于区分是自定义的还是系统定义的，造成不必要的困扰。  
+  
+为避免冲突和误解，以下命名或引用方式可供参考：  
+ - 避免名称以下划线开头  
+ - 宏名称用全大写字母表示，非宏名称应包含小写字母  
+ - 无命名空间限制的全局名称以模块名称开头  
+ - 从名称上体现作用域，如全局对象名以 g\_ 开头，成员对象名以 m\_ 开头  
+ - 区分不同概念的名称，如类型名以大写字母开头，函数或对象名以小写字母开头  
+ - 以“类名 :: 函数名”的方式引用静态成员函数，避免通过对象引用  
+  
+本规则集合对具体的命名方式暂不作量化要求，但代码编写者应具备相关意识。
 <br/>
 <br/>
 
 #### 相关
 ID_macro_defineReserved  
 ID_macro_undefReserved  
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 7.1.3(1)  
 <br/>
 
 #### 参考
@@ -5305,10 +5330,10 @@ public:
     }
 };
 ```
-建议成员变量遵循统一的命名约定，如以“\_”或“m\_”开头，可有效规避这类问题：
+建议成员变量遵循统一的命名约定，如以“\_”结尾或以“m\_”开头，可有效规避这类问题：
 ```
 class A {
-    int _i = 0;         // Member object ‘_i’
+    int i_ = 0;         // Member object ‘i_’
 
 public:
     int foo() {
@@ -5317,7 +5342,7 @@ public:
     }
 
     int bar(int i) {    // OK
-        return _i + i;
+        return i_ + i;
     }
 };
 ```
@@ -13359,7 +13384,7 @@ void foo(const std::string& s) {
     }
 }
 ```
-例中 find 函数返回 "bar" 在 s 中的位置，当 s 中不存在 "bar" 时将返回 std::string::npos，将 find 函数的返回值转为 bool 型是没有逻辑意义的。  
+例中 find 函数返回 "bar" 在 s 中的位置，当 s 中不存在 "bar" 时返回 std::string::npos，将 find 函数的返回值转为 bool 型是没有逻辑意义的。  
   
 应改为：
 ```
@@ -13392,7 +13417,7 @@ strcmp、wcscmp 以及 memcmp 等函数不应与 0 之外的任何值比较。
  - CreateFile、CreateNamedPipe 等 Windows API，失败时返回 INVALID\_HANDLE\_VALUE，而不是 0  
  - HRESULT 型 Windows API 返回值，负数表示失败、非负数表示成功  
   
-另外，有相当一部分函数成功时返回 0，失败时返回非 0，如 access、chmod、rename 等 Linux 系统调用，成功时返回 0，失败时返回 \-1，故不可将其返回值误当作 bool 型使用。
+另外，有相当一部分函数成功时返回 0，失败时返回非 0，如 access、chmod、rename 等 Linux 系统调用，不可将其返回值当作 bool 型使用。
 <br/>
 <br/>
 
