@@ -1539,7 +1539,7 @@ void baz(const char* s) {
     }
 }
 ```
-对异常情况的错误处理往往会成为业务漏洞，使攻击者轻易地实现其目的，应通过返回值或面向对象的异常机制来判断函数的执行情况。
+对异常情况的错误处理往往会成为业务漏洞，使攻击者轻易地实现其目的，不应使用 errno 和与其相同的模式，应通过返回值或面向对象的异常机制来处理异常情况。
 <br/>
 <br/>
 
@@ -2486,7 +2486,7 @@ ID_macro_badName&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 #define xxx 8    // Bad, meaningless name
 #define foo 8    // Bad, vague name
 ```
-宏是处于文本层面的概念，有必要在命名方式上将其与普通代码分开，宏的名称应采用全大写字母的形式，非宏名称不应采用全大写字母的形式，便于阅读和维护。
+宏是处于文本层面的概念，有必要在命名方式上将其与普通代码分开，宏的名称应采用全大写字母的形式，非宏名称则应包含小写字母。
 ```
 #define word_size 8     // Bad, like a normal variable
 #define WORD_SIZE 8     // OK
@@ -2525,7 +2525,7 @@ __STDC_ISO_10646__、__STDCPP_STRICT_POINTER_SAFETY__
 ```
 除此之外，平台、环境、框架相关的宏也不应在代码中重新定义。  
   
-以下划线开头的名称用于表示标准库或系统的内部名称，故自定义名称不应以下划线开头。  
+以下划线开头的名称用于表示标准库或系统的内部名称，自定义名称不应以下划线开头。  
   
 示例：
 ```
@@ -4277,7 +4277,7 @@ struct A {    // Non-compliant
 ```
 例中 A 存在析构函数，但没有拷贝构造函数和赋值运算符，一旦发生对象的复制，由于是“浅拷贝”，所以在析构时会导致 p 被重复释放。  
   
-请注意，当类只负责成员的组合而没有特殊的复制行为时，这三个函数就都不要定义，这种规则称为“[Rule of zero](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-zero)”，在类的设计上应尽量遵循“[Rule of zero](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-zero)”，从而达到简化代码的目的。  
+注意，当类只负责成员的组合而没有特殊的复制行为时，这三个函数就都不要定义，这种规则称为“[Rule of zero](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-zero)”，在类的设计上应尽量遵循“[Rule of zero](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-zero)”，从而达到简化代码的目的。  
   
 示例：
 ```
@@ -5243,13 +5243,11 @@ private:
 ```
 例中成员变量 errno 与标准库中的 errno 名称相同，不便于区分是自定义的还是系统定义的，造成不必要的困扰。  
   
-为避免冲突和误解，以下命名或引用方式可供参考：  
+为避免冲突和误解，以下命名方式可供参考：  
  - 避免名称以下划线开头  
- - 宏名称用全大写字母表示，非宏名称应包含小写字母  
  - 无命名空间限制的全局名称以模块名称开头  
- - 从名称上体现作用域，如全局对象名以 g\_ 开头，成员对象名以 m\_ 开头  
- - 区分不同概念的名称，如类型名以大写字母开头，函数或对象名以小写字母开头  
- - 以“类名 :: 函数名”的方式引用静态成员函数，避免通过对象引用  
+ - 从名称上体现作用域，如全局对象名以 g\_ 开头，成员对象名以 m\_ 开头或以 \_ 结尾  
+ - 从名称上体现类别，如宏名采用全大写字母，类型名以大写字母开头，函数或对象名以小写字母开头  
   
 本规则集合对具体的命名方式暂不作量化要求，但代码编写者应具备相关意识。
 <br/>
@@ -9059,7 +9057,7 @@ if (false) { .... }
 while (false) { .... }
 for (;false;) { .... }
 ```
-也不应该在 return 语句之后存在其他语句，这种代码如果不是被人恶意篡改，就是出于某种目的将本已无效的代码遗留了下来，请参见 ID\_constLogicExpression、ID\_invalidCondition。  
+也不应该在 return 语句之后存在其他语句，这种代码如果不是被人恶意篡改，就是出于某种目的将本已无效的代码遗留了下来，可参见 ID\_constLogicExpression、ID\_invalidCondition的进一步讨论。  
   
 建议时刻保持代码的整洁，并将维护过程中的变动及时地保存在版本管理系统中，这样可以清晰地查看各版本之间的变动，而如果将无效代码与有效代码混在一起，势必造成维护的负担。
 <br/>
@@ -10689,7 +10687,7 @@ ID_for_floatCounter&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
 用于控制循环次数的变量称为循环变量，这种变量不应采用浮点类型，否则循环的次数难以控制。  
   
-由于浮点型变量的不精确性使浮点型变量不适用于控制循环次数，相关讨论请参见 ID\_illFloatComparison。  
+由于浮点型变量的不精确性使浮点型变量不适用于控制循环次数，相关讨论可参见 ID\_illFloatComparison。  
   
 示例：
 ```
