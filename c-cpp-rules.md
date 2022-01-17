@@ -9057,7 +9057,7 @@ if (false) { .... }
 while (false) { .... }
 for (;false;) { .... }
 ```
-也不应该在 return 语句之后存在其他语句，这种代码如果不是被人恶意篡改，就是出于某种目的将本已无效的代码遗留了下来，可参见 ID\_constLogicExpression、ID\_invalidCondition的进一步讨论。  
+也不应该在 return 语句之后存在其他语句，这种代码如果不是被人恶意篡改，就是出于某种目的将本已无效的代码遗留了下来，可参见 ID\_constLogicExpression、ID\_invalidCondition 的进一步讨论。  
   
 建议时刻保持代码的整洁，并将维护过程中的变动及时地保存在版本管理系统中，这样可以清晰地查看各版本之间的变动，而如果将无效代码与有效代码混在一起，势必造成维护的负担。
 <br/>
@@ -9832,7 +9832,41 @@ ID_forbidGoto&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function suggestion
   
 由于 C 语言的流程管理功能较为简单，goto 语句可提供一定的灵活性，但不应作为常规实现手段，也应受一定的限制，在 C 代码中使用 goto 语句应遵循 ID\_forbidGotoBlocks 和 ID\_forbidGotoBack 等规则。  
   
-C\+\+ 语言提供了更丰富的结构化和面向对象的流程管理功能，在 C\+\+ 代码中不应再使用 goto 语句。
+C\+\+ 语言提供了更丰富的结构化和面向对象的流程管理功能，在 C\+\+ 代码中不应再使用 goto 语句。  
+  
+示例：
+```
+void foo(size_t n)
+{
+    int *a = NULL, *b = NULL, *c = NULL;
+    a = (int*)malloc(n);
+    if (!a) {
+        goto E;
+    }
+    b = (int*)malloc(n);
+    if (!b) {
+        goto E;
+    }
+    c = (int*)malloc(n);
+    if (!c) {
+        goto E;
+    }
+    ....
+E:
+    free(a);
+    free(b);
+    free(c);
+}
+```
+示例代码展示了一种 goto 语句的常用模式。在多次资源分配过程中，如果某次分配失败则需要释放已分配的资源，利用 goto 语句可实现资源的统一释放，在 C 代码中如果不用 goto 语句反而会很繁琐，所以这种模式在 C 代码中可以复用。  
+  
+由于 C\+\+ 提供容器、智能指针等更丰富的资源管理手段，所以不建议在 C\+\+ 代码中使用这种模式，即使标准库没有和相关资源对应的功能，也应该利用“[RAII](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization)”等机制对其先封装再使用。
+```
+void foo(size_t n) {
+    std::vector<int> a, b, c;   // Safe and brief
+    ....
+}
+```
 <br/>
 <br/>
 
