@@ -887,16 +887,16 @@ ID_dataRaces&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 ```
 int foo() {
     static int id = 0;
-    return id++;  // Data races in multithreading
+    return id++;        // Data races in multithreading
 }
 ```
-例中 foo 函数意在返回不同的整数，但如果 id 被多个线程同时读取或写入，是标准未定义的行为，会得到错误的结果。  
+例中 foo 函数意在返回不同的整数，但如果 id 被多个线程同时读写会导致标准未定义的行为，得到错误的结果。  
   
 应改为：
 ```
 int foo() {
     static atomic<int> id(0);
-    return id.fetch_add(1);  // OK
+    return id.fetch_add(1);    // OK
 }
 ```
 其中 atomic 是 C\+\+ 标准原子类，fetch\_add 将对象持有的整数增 1 并返回之前的值，这个过程不会被多个线程同时执行，只能依次执行，从而保证了返回值的唯一性。  
@@ -6328,7 +6328,7 @@ void foo() {
     ....
 }
 ```
-局部数组在栈上分配空间，无法控制失败情况，应改在堆上分配，或优化算法降低空间成本：
+局部数组在栈上分配空间，无法控制失败情况，大型数组应在堆上分配，或优化算法降低空间成本：
 ```
 void foo() {
     int* arr = (int*)malloc(1024 * 1024 * 1024 * sizeof(int));  // Compliant
@@ -7619,7 +7619,7 @@ ID_deprecatedAutoPtr&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 std::auto\_ptr 在 C\+\+11 标准中已被废弃，应使用 std::unique\_ptr。  
   
-std::auto\_ptr 在转移资源所有权等方面存在易被误用的问题，std::unique\_ptr 在相关方面有更严格的限制。  
+std::auto\_ptr 在转移资源所有权等方面易被误用，std::unique\_ptr 在相关方面有更严格的限制。  
   
 示例：
 ```
@@ -7635,7 +7635,7 @@ bar(b);     // ‘b’ is invalid after this call
 ```
 auto\_ptr 对象的赋值或按值传参都会引起资源所有权的转移，如 b = a 表示 a 的资源被 b 占有，foo(b) 表示 b 的资源被参数占有，之后再对 a 或 b 解引用就会造成错误，这种方式很容易被人误解，C\+\+11 标准已弃用。  
   
-unique\_ptr 禁止所有权的隐式转移：
+unique\_ptr 禁止资源所有权的隐式转移，语义更为明确：
 ```
 unique_ptr<T> a = make_unique<T>();
 unique_ptr<T> b;
@@ -7643,7 +7643,7 @@ unique_ptr<T> b;
 b = move(a);   // OK, explicit moving
 foo(b);        // Complie error
 ```
-unique\_ptr 对象必须通过 move 转移资源所有权，否则无法通过编译，语义更为明确。
+unique\_ptr 对象必须通过 move 显式转移资源所有权，否则无法通过编译。
 <br/>
 <br/>
 
@@ -9916,7 +9916,7 @@ E:                          // Single exit point
 ```
 在多次资源分配过程中，如果某次分配失败则需要释放已分配的资源，利用 goto 语句可实现资源的统一释放，在 C 代码中如果不用 goto 语句反而会很繁琐，所以这种模式在 C 代码中可以复用。  
   
-由于 C\+\+ 提供容器、智能指针等更丰富的资源管理手段，所以不建议在 C\+\+ 代码中使用这种模式，即使标准库没有和相关资源对应的功能，也应该利用“[RAII](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization)”等机制对其先封装再使用。
+由于 C\+\+ 提供容器、智能指针等更丰富的资源管理手段，所以不建议在 C\+\+ 代码中再使用这种模式，即使标准库没有和相关资源对应的功能，也应该利用“[RAII](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization)”等机制对其先封装再使用。
 ```
 void foo(size_t n) {
     std::vector<int> a, b, c;   // Safe and brief
