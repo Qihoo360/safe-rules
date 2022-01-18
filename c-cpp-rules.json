@@ -1004,7 +1004,7 @@
     "ID_forbidGoto": {
         "checkPoint": "禁用 goto 语句",
         "level": "suggestion",
-        "comment": "在非自动生成的、对可读性有要求的代码中，禁用 goto 语句。",
+        "comment": "历史表明，goto 语句会破坏程序的结构性规划，很容易导致逻辑混乱且不利于维护，在非自动生成的、对可读性有要求的代码中，建议禁用 goto 语句。",
         "tag": "function",
         "related": "ID_forbidGotoBlocks,ID_forbidGotoBack",
         "reference": "C++ Core Guidelines ES.76,MISRA C 2012 15.1"
@@ -3109,12 +3109,13 @@
         "level": "warning",
         "comment": "共享数据可被多个执行单位或硬件读写，需要合理控制访问的先后顺序。",
         "tag": "security",
+        "standard": "ISO/IEC 9899:2011 5.1.2.4(3)-undefined,ISO/IEC 9899:2011 5.1.2.4(20)-undefined,ISO/IEC 9899:2011 5.1.2.4(25)-undefined",
         "reference": "CWE-362,C++ Core Guidelines CP.2"
         },
     "ID_TOCTOU": {
         "checkPoint": "避免在一个事务中通过路径多次访问同一文件",
         "level": "warning",
-        "comment": "攻击者可以在两次通过路径访问同一文件的中途对该文件做手脚，从而造成不良后果。",
+        "comment": "攻击者可以在两次通过路径访问文件的中途对文件做手脚，从而造成不良后果。",
         "tag": "security",
         "standard": "ISO/IEC 9899:2011 7.21.5.3(3)",
         "reference": "CWE-367"
@@ -3122,7 +3123,7 @@
     "ID_hijack": {
         "checkPoint": "预判用户输入造成的不良后果",
         "level": "warning",
-        "comment": "须对用户输入的脚本、路径、资源数量等信息进行预判，对产生不良后果的输入予以拒绝。",
+        "comment": "须对用户输入的脚本、路径、资源请求等信息进行预判，对产生不良后果的输入予以拒绝。",
         "tag": "security",
         "reference": "CWE-89,CWE-23,CWE-73"
         },

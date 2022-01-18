@@ -829,7 +829,7 @@ ID_TOCTOU&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-攻击者可以在两次通过路径访问同一文件的中途对该文件做手脚，从而造成不良后果。  
+攻击者可以在两次通过路径访问文件的中途对文件做手脚，从而造成不良后果。  
   
 这种问题称为“[TOCTOU（Time\-of\-check to time\-of\-use）](https://en.wikipedia.org/wiki/Time-of-check_to_time-of-use)”。有时需要先检查文件的某种状态，如果状态满足条件的话，再使用该文件，如果“检查”和“使用”都是通过路径完成的，攻击者可以在中途将文件替换成不满足条件的文件，如将文件替换成指向另一个文件的链接，从而对系统造成破坏。  
   
@@ -890,7 +890,7 @@ int foo() {
     return id++;  // Data races in multithreading
 }
 ```
-例中 foo 函数意在返回不同的整数，但如果 id 被多个线程同时读取或写入，会返回相同的结果导致逻辑错误。  
+例中 foo 函数意在返回不同的整数，但如果 id 被多个线程同时读取或写入，是标准未定义的行为，会得到错误的结果。  
   
 应改为：
 ```
@@ -904,7 +904,7 @@ int foo() {
 又如：
 ```
 void bar() {
-    int* p = baz();      // #0, ‘*p’ points to shared data
+    int* p = baz();      // #0, ‘p’ points to shared data
     if (*p == 0) {       // #1, ‘*p’ is unreliable
         ....
     }
@@ -918,8 +918,14 @@ void bar() {
 ```
 如果 p 指向共享数据，那么攻击者可以通过控制共享数据实现对程序流程的劫持，比如在 \#0 处 \*p 的值本为 0，攻击者在 \#1 之前改变 \*p 的值，迫使流程向 \#2 或 \#3 处跳转。  
   
-如果不同的访问顺序会对结果产生影响，则往往意味着错误和漏洞，这种情况称为“[竞态条件（race conditon）](https://en.wikipedia.org/wiki/Race_condition)”，使攻击者可以抢在某关键过程前后通过修改共享数据达到攻击目的，所以应合理设计数据的访问方式或使用锁、信号量等同步手段保证数据的可靠性。
+如果程序的正确性依赖进线程处理数据的特定时序，一旦这种特定时序被打破，便会产生错误和漏洞，这种情况称为“[竞态条件（race conditon）](https://en.wikipedia.org/wiki/Race_condition)”，攻击者可以抢在某关键过程前后通过修改共享数据达到攻击目的，所以应合理设计数据的访问方式或使用锁、信号量等同步手段保证数据的可靠性。
 <br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 5.1.2.4(3)-undefined  
+ISO/IEC 9899:2011 5.1.2.4(20)-undefined  
+ISO/IEC 9899:2011 5.1.2.4(25)-undefined  
 <br/>
 
 #### 参考
@@ -6322,7 +6328,18 @@ void foo() {
     ....
 }
 ```
-局部数组在栈上分配空间，是无法控制失败情况的，应改在堆上分配，或优化算法减小空间成本。
+局部数组在栈上分配空间，无法控制失败情况，应改在堆上分配，或优化算法降低空间成本：
+```
+void foo() {
+    int* arr = (int*)malloc(1024 * 1024 * 1024 * sizeof(int));  // Compliant
+    if (arr) {
+        ....     // Your business
+    } else {
+        ....     // Handle allocation failures
+    }
+}
+```
+量化评估程序需要的堆栈空间是产品设计的重要环节，相关的评审与测试也需要落实。
 <br/>
 <br/>
 
@@ -7600,7 +7617,33 @@ ID_deprecatedAutoPtr&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-std::auto\_ptr 在 C\+\+11 标准中已被废弃，应使用 std::unique\_ptr。
+std::auto\_ptr 在 C\+\+11 标准中已被废弃，应使用 std::unique\_ptr。  
+  
+std::auto\_ptr 在转移资源所有权等方面存在易被误用的问题，std::unique\_ptr 在相关方面有更严格的限制。  
+  
+示例：
+```
+class T { .... };
+void bar(auto_ptr<T> p);
+
+auto_ptr<T> a(new T);
+auto_ptr<T> b;
+....
+b = a;      // ‘a’ is invalid after the assignment
+bar(b);     // ‘b’ is invalid after this call
+....        // Undefined behavior if dereference ‘a’ or ‘b’
+```
+auto\_ptr 对象的赋值或按值传参都会引起资源所有权的转移，如 b = a 表示 a 的资源被 b 占有，foo(b) 表示 b 的资源被参数占有，之后再对 a 或 b 解引用就会造成错误，这种方式很容易被人误解，C\+\+11 标准已弃用。  
+  
+unique\_ptr 禁止所有权的隐式转移：
+```
+unique_ptr<T> a = make_unique<T>();
+unique_ptr<T> b;
+....
+b = move(a);   // OK, explicit moving
+foo(b);        // Complie error
+```
+unique\_ptr 对象必须通过 move 转移资源所有权，否则无法通过编译，语义更为明确。
 <br/>
 <br/>
 
@@ -9760,7 +9803,7 @@ int foo(int a) {
         for (int j = 0; j < a; j++) {
 L:
             if (cond) {
-                goto M;   // Compliant, jumps out of nested loop
+                goto M;   // Compliant, jumps out of loops
             }
         }
         ....
@@ -9807,7 +9850,7 @@ M:
     return i;
 }
 ```
-例中 goto M 向后跳转符合本规则要求，而 goto L 向前跳转不符合要求，应使用循环语句完成相同的功能。
+例中 goto M 向后跳转符合本规则要求，而 goto L 向前跳转不符合要求，应改用循环等结构性语句。
 <br/>
 <br/>
 
@@ -9828,13 +9871,26 @@ ID_forbidGoto&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function suggestion
 
 <hr/>
 
-历史表明，goto 语句会破坏程序的结构性规划，很容易导致逻辑混乱且不利于维护，在非自动生成的、对可读性有要求的代码中，不建议使用 goto 语句。  
-  
-由于 C 语言的流程管理功能较为简单，goto 语句可提供一定的灵活性，但不应作为常规实现手段，也应受一定的限制，在 C 代码中使用 goto 语句应遵循 ID\_forbidGotoBlocks 和 ID\_forbidGotoBack 等规则。  
-  
-C\+\+ 语言提供了更丰富的结构化和面向对象的流程管理功能，在 C\+\+ 代码中不应再使用 goto 语句。  
+历史表明，goto 语句会破坏程序的结构性规划，很容易导致逻辑混乱且不利于维护，在非自动生成的、对可读性有要求的代码中，建议禁用 goto 语句。  
   
 示例：
+```
+if (cond0) {
+    goto L;   // Non-compliant
+}
+....
+if (cond1) {
+L:
+    ....
+}
+```
+语句和作用域的嵌套关系可以描述程序的静态结构，而 goto 语句会打破这种结构，例中 goto L 会绕过第二个 if 语句的条件约束，可读性较差，应被禁止。  
+  
+C 语言的流程管理较为简单，goto 语句可提供一定的灵活性，但不应作为常规实现手段，也应受一定的限制，在 C 代码中使用 goto 语句应遵循 ID\_forbidGotoBlocks 和 ID\_forbidGotoBack 等规则。  
+  
+C\+\+ 语言提供了更丰富的流程管理功能，在 C\+\+ 代码中不应再使用 goto 语句。  
+  
+下面给出 goto 语句的一种常用模式：
 ```
 void foo(size_t n)
 {
@@ -9847,18 +9903,18 @@ void foo(size_t n)
     if (!b) {
         goto E;
     }
-    c = (int*)malloc(n);
+    c = (int*)malloc(n);    // Multiple resource allocation
     if (!c) {
         goto E;
     }
     ....
-E:
+E:                          // Single exit point
     free(a);
     free(b);
     free(c);
 }
 ```
-示例代码展示了一种 goto 语句的常用模式。在多次资源分配过程中，如果某次分配失败则需要释放已分配的资源，利用 goto 语句可实现资源的统一释放，在 C 代码中如果不用 goto 语句反而会很繁琐，所以这种模式在 C 代码中可以复用。  
+在多次资源分配过程中，如果某次分配失败则需要释放已分配的资源，利用 goto 语句可实现资源的统一释放，在 C 代码中如果不用 goto 语句反而会很繁琐，所以这种模式在 C 代码中可以复用。  
   
 由于 C\+\+ 提供容器、智能指针等更丰富的资源管理手段，所以不建议在 C\+\+ 代码中使用这种模式，即使标准库没有和相关资源对应的功能，也应该利用“[RAII](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization)”等机制对其先封装再使用。
 ```
