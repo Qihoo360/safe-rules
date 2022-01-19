@@ -132,7 +132,7 @@
     - [R3.2.2 不可定义具有保留意义的宏名称](#ID_macro_defineReserved)
     - [R3.2.3 不可取消定义具有保留意义的宏名称](#ID_macro_undefReserved)
     - [R3.2.4 可作为子表达式的宏定义应该用括号括起来](#ID_macro_expNotEnclosed)
-    - [R3.2.5 宏参数在宏定义的表达式中应该用括号括起来](#ID_macro_paramNotEnclosed)
+    - [R3.2.5 运算符相关的宏参数应该用括号括起来](#ID_macro_paramNotEnclosed)
     - [R3.2.6 由多个语句组成的宏定义应该用 do\-while(0) 括起来](#ID_macro_stmtNotEnclosed)
     - [R3.2.7 宏的实参个数不可小于形参个数](#ID_macro_insufficientArgs)
     - [R3.2.8 宏的实参个数不可大于形参个数](#ID_macro_redundantArgs)
@@ -160,16 +160,16 @@
 
 <span id="__Global">**[4. Global](#global)**</span>
   - [R4.1 不可修改 std 命名空间](#ID_stdNamespaceModified)
-  - [R4.2 非全局命名空间中不应存在以 main 命名的函数](#ID_nonGlobalMain)
-  - [R4.3 全局对象的初始化不可依赖尚未初始化的其他对象](#ID_relyOnExternalObject)
-  - [R4.4 不应在头文件的全局作用域中使用 using directive](#ID_usingNamespaceInHeader)
+  - [R4.2 main 函数只应在全局作用域中](#ID_nonGlobalMain)
+  - [R4.3 全局对象的初始化不可依赖未初始化的对象](#ID_relyOnExternalObject)
+  - [R4.4 头文件中不应使用 using directive](#ID_usingNamespaceInHeader)
   - [R4.5 头文件中不应定义匿名命名空间](#ID_anonymousNamespaceInHeader)
-  - [R4.6 全局或命名空间作用域中不应存在既不是 const 也不是 static 的对象](#ID_nonConstNonStaticGlobalObject)
-  - [R4.7 全局或命名空间作用域中不应存在非 const 对象](#ID_nonConstGlobalObject)
+  - [R4.6 全局对象只应为常量或静态对象](#ID_nonConstNonStaticGlobalObject)
+  - [R4.7 全局对象只应为常量](#ID_nonConstGlobalObject)
   - [R4.8 全局对象不应同时被 static 和 const 关键字修饰](#ID_staticAndConst)
   - [R4.9 匿名命名空间中不应使用静态声明](#ID_staticInAnonymousNamespace)
-  - [R4.10 头文件中不应存在由 static 关键字修饰的非成员对象、数组或函数](#ID_staticInHeader)
-  - [R4.11 命名空间作用域中禁用 using namespace std 之外的 using directive](#ID_forbidUsingDirectives)
+  - [R4.10 头文件的全局或命名空间作用域中不应使用静态声明](#ID_staticInHeader)
+  - [R4.11 全局或命名空间作用域中禁用 using directive](#ID_forbidUsingDirectives)
   - [R4.12 不应在命名空间中引用自身](#ID_usingSelf)
   - [R4.13 不应定义全局 inline 命名空间](#ID_topInlineNamespace)
   - [R4.14 全局名称不应太短](#ID_nameTooShort)
@@ -233,7 +233,7 @@
     - [R6.3.4 extern 关键字不应作用于类成员的声明或定义](#ID_invalidExternSpecifier)
     - [R6.3.5 所有重写的虚函数都应声明为 override 或 final](#ID_missingExplicitOverride)
     - [R6.3.6 override 和 final 关键字不应同时出现](#ID_redundantOverride)
-    - [R6.3.7 当有 override 或 final 关键字时，不应再出现 virtual 关键字](#ID_redundantVirtual)
+    - [R6.3.7 有 override 或 final 关键字时，不应再出现 virtual 关键字](#ID_redundantVirtual)
     - [R6.3.8 不应将 union 设为 final](#ID_invalidFinal)
     - [R6.3.9 inline、virtual、static、typedef 等关键字应出现在类型名的左侧](#ID_badSpecifierPosition)
   - [6.4 Declarator](#declaration.declarator)
@@ -410,7 +410,7 @@
     - [R9.6.3 catch 块序列中针对派生类的应排在前面，针对基类的应排在后面](#ID_try_disorderedHandlers)
     - [R9.6.4 try 块不应嵌套](#ID_try_forbidNest)
   - [9.7 Catch](#control.catch)
-    - [R9.7.1 应通过引用捕获异常](#ID_catch_value)
+    - [R9.7.1 通过引用捕获异常](#ID_catch_value)
     - [R9.7.2 捕获异常时不应产生对象切片问题](#ID_catch_slicing)
     - [R9.7.3 不应存在空的 catch 块](#ID_catch_emptyBlock)
     - [R9.7.4 捕获异常后不应直接重新抛出异常，需对异常进行有效处理](#ID_catch_justRethrow)
@@ -539,8 +539,8 @@
 <span id="__Pointer">**[14. Pointer](#pointer)**</span>
   - [R14.1 避免空指针解引用](#ID_nullDerefInScp)
   - [R14.2 注意逻辑表达式内的空指针解引用](#ID_nullDerefInExp)
-  - [R14.3 应判断 malloc 等内存分配函数的返回值是否为空](#ID_nullDerefAllocRet)
-  - [R14.4 用 dynamic\_cast 转换指针时应判断结果是否为空](#ID_nullDerefDynamicCast)
+  - [R14.3 判断 malloc 等函数的返回值是否为空](#ID_nullDerefAllocRet)
+  - [R14.4 判断 dynamic\_cast 转换是否成功](#ID_nullDerefDynamicCast)
   - [R14.5 不可解引用已被释放的指针](#ID_danglingDeref)
   - [R14.6 不应将非零常量值赋值给指针](#ID_fixedAddrToPointer)
   - [R14.7 不应使用 bool 常量对指针赋值或初始化](#ID_oddPtrBoolAssignment)
@@ -2683,7 +2683,7 @@ MISRA C 2012 20.7
 <br/>
 <br/>
 
-### <span id="ID_macro_paramNotEnclosed">▌R3.2.5 宏参数在宏定义的表达式中应该用括号括起来</span>
+### <span id="ID_macro_paramNotEnclosed">▌R3.2.5 运算符相关的宏参数应该用括号括起来</span>
 
 ID_macro_paramNotEnclosed&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
@@ -2726,7 +2726,7 @@ ID_macro_stmtNotEnclosed&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 if (x > y)
     SWAP(x, y);
 ```
-展开后 b ^= a; a ^= b; 不在 if 的控制范围内，故应改为：
+展开后 b ^= a; a ^= b; 不在 if 语句的范围内，应改为：
 ```
 #define SWAP(a, b) {\       // Compliant
     a ^= b; b ^= a; a ^= b;\
@@ -3487,13 +3487,13 @@ SEI CERT DCL58-CPP
 <br/>
 <br/>
 
-### <span id="ID_nonGlobalMain">▌R4.2 非全局命名空间中不应存在以 main 命名的函数</span>
+### <span id="ID_nonGlobalMain">▌R4.2 main 函数只应在全局作用域中</span>
 
 ID_nonGlobalMain&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
 <hr/>
 
-main 函数作为程序的入口是一个特殊的函数，链接器需要对其特殊处理，不应被重载也应不受 C\+\+ 语言命名空间的限制。  
+main 函数作为程序的入口是一个特殊的函数，链接器需要对其特殊处理，不应受命名空间等作用域的限制。  
   
 示例：
 ```
@@ -3521,7 +3521,7 @@ MISRA C++ 2008 7-3-2
 <br/>
 <br/>
 
-### <span id="ID_relyOnExternalObject">▌R4.3 全局对象的初始化不可依赖尚未初始化的其他对象</span>
+### <span id="ID_relyOnExternalObject">▌R4.3 全局对象的初始化不可依赖未初始化的对象</span>
 
 ID_relyOnExternalObject&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
@@ -3557,23 +3557,23 @@ C++ Core Guidelines I.22
 <br/>
 <br/>
 
-### <span id="ID_usingNamespaceInHeader">▌R4.4 不应在头文件的全局作用域中使用 using directive</span>
+### <span id="ID_usingNamespaceInHeader">▌R4.4 头文件中不应使用 using directive</span>
 
 ID_usingNamespaceInHeader&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
 <hr/>
 
-在头文件全局作用域中使用 using directive，极易造成命名冲突，且影响范围难以控制。  
+在头文件的全局作用域中使用 using directive，极易造成命名冲突，且影响范围难以控制。  
   
 如果代码涉及多个命名空间，而这些命名空间中又有名称相同且功能相似的代码元素时，将造成难以排查的混乱。对于库的头文件，更应该严禁使用全局的 using directive，否则造成对用户命名空间的干扰。  
   
 示例：
 ```
 // In a header file
-namespace NS
-{
+namespace NS {
     void foo(short);
 }
+
 using namespace NS;   // Non-compliant
 using namespace std;  // Non-compliant
 ```
@@ -3581,9 +3581,11 @@ using namespace std;  // Non-compliant
 ```
 // a.h
 void foo(char);
+
 namespace ns {
     void foo(int);
 }
+
 inline void bar() {
     foo(0);
 }
@@ -3656,20 +3658,21 @@ MISRA C++ 2008 7-3-3
 <br/>
 <br/>
 
-### <span id="ID_nonConstNonStaticGlobalObject">▌R4.6 全局或命名空间作用域中不应存在既不是 const 也不是 static 的对象</span>
+### <span id="ID_nonConstNonStaticGlobalObject">▌R4.6 全局对象只应为常量或静态对象</span>
 
 ID_nonConstNonStaticGlobalObject&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
 <hr/>
 
-非 const 全局对象破坏了面向对象的封装理念，如果必须使用全局对象，应将其限定在文件范围之内。  
+非常量全局对象破坏了面向对象的封装理念，如果必须使用全局对象，应将其限定在文件范围之内。  
   
-本规则放宽了 ID\_nonConstGlobalObj 的要求，可酌情选取。  
+本规则放宽了 ID\_nonConstGlobalObj 的要求，对于 C\+\+ 代码不建议选取本规则，对于 C 代码可酌情选取。  
   
 示例：
 ```
 int i = 0;  // Non-compliant
 static int j = 0;  //  Let it go
+const int k = 0;  // Compliant
 ```
 <br/>
 <br/>
@@ -3685,13 +3688,13 @@ C++ Core Guidelines R.6
 <br/>
 <br/>
 
-### <span id="ID_nonConstGlobalObject">▌R4.7 全局或命名空间作用域中不应存在非 const 对象</span>
+### <span id="ID_nonConstGlobalObject">▌R4.7 全局对象只应为常量</span>
 
 ID_nonConstGlobalObject&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
 <hr/>
 
-非 const 全局对象与类的公有数据成员一样对外部的读写没有限制，破坏了面向对象的封装理念。  
+非常量全局对象与类的公有数据成员一样对外部的读写没有限制，破坏了面向对象的封装理念。  
   
 关于封装的讨论可参见 ID\_nonPrivateData。  
   
@@ -3801,13 +3804,13 @@ ISO/IEC 14882:2011 3.5(4)
 <br/>
 <br/>
 
-### <span id="ID_staticInHeader">▌R4.10 头文件中不应存在由 static 关键字修饰的非成员对象、数组或函数</span>
+### <span id="ID_staticInHeader">▌R4.10 头文件的全局或命名空间作用域中不应使用静态声明</span>
 
 ID_staticInHeader&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
 <hr/>
 
-头文件中由 static 关键字修饰的非成员对象、数组或函数，即静态数据，会在每个包含该头文件的翻译单元（translate\-unit）中生成副本而造成数据冗余，如果将静态数据误用作全局数据也会造成逻辑错误。  
+头文件中由 static 关键字声明的对象、数组或函数，会在每个包含该头文件的翻译单元（translate\-unit）中生成副本而造成数据冗余，如果将静态数据误用作全局数据也会造成逻辑错误。  
   
 示例：
 ```
@@ -3847,18 +3850,19 @@ ISO/IEC 14882:2011 3.5(3)
 <br/>
 <br/>
 
-### <span id="ID_forbidUsingDirectives">▌R4.11 命名空间作用域中禁用 using namespace std 之外的 using directive</span>
+### <span id="ID_forbidUsingDirectives">▌R4.11 全局或命名空间作用域中禁用 using directive</span>
 
 ID_forbidUsingDirectives&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: global suggestion
 
 <hr/>
 
-命名空间内的 using directive 相当于是对命名空间机制的破坏，易造成名称冲突。  
+将其他命名空间中的名称一并引入当前命名空间，是对命名空间机制的破坏。  
   
-尤其是命名空间和版本控制有关时，全局的 using directive 很可能造成难以排查的混乱。  
+标准库命名空间作为基础设施可被放过。  
   
 示例：
 ```
+// In global namespace
 using namespace std;          // Let it go
 using namespace myspace0;     // Non-compliant
 using namespace myspace1;     // Non-compliant
@@ -5996,7 +6000,7 @@ C++ Core Guidelines C.128
 <br/>
 <br/>
 
-### <span id="ID_redundantVirtual">▌R6.3.7 当有 override 或 final 关键字时，不应再出现 virtual 关键字</span>
+### <span id="ID_redundantVirtual">▌R6.3.7 有 override 或 final 关键字时，不应再出现 virtual 关键字</span>
 
 ID_redundantVirtual&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -9884,7 +9888,7 @@ L:
     ....
 }
 ```
-语句和作用域的嵌套关系可以描述程序的静态结构，而 goto 语句会打破这种结构，例中 goto L 会绕过第二个 if 语句的条件约束，可读性较差，应被禁止。  
+语句的排列和作用域的嵌套描述了程序的静态结构，清晰的静态结构使人易于理解程序的行为，而 goto 语句会打破这种结构，无规律的跳转会显著降低代码的可读性，例中 goto L 会绕过第二个 if 语句的条件约束，可读性很差，应被禁止。  
   
 C 语言的流程管理较为简单，goto 语句可提供一定的灵活性，但不应作为常规实现手段，也应受一定的限制，在 C 代码中使用 goto 语句应遵循 ID\_forbidGotoBlocks 和 ID\_forbidGotoBack 等规则。  
   
@@ -11944,7 +11948,7 @@ C++ Core Guidelines E.17
 
 ### <span id="control.catch">9.7 Catch</span>
 
-### <span id="ID_catch_value">▌R9.7.1 应通过引用捕获异常</span>
+### <span id="ID_catch_value">▌R9.7.1 通过引用捕获异常</span>
 
 ID_catch_value&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
@@ -15991,7 +15995,7 @@ C++ Core Guidelines ES.65
 <br/>
 <br/>
 
-### <span id="ID_nullDerefAllocRet">▌R14.3 应判断 malloc 等内存分配函数的返回值是否为空</span>
+### <span id="ID_nullDerefAllocRet">▌R14.3 判断 malloc 等函数的返回值是否为空</span>
 
 ID_nullDerefAllocRet&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 
@@ -16028,13 +16032,13 @@ CWE-252
 <br/>
 <br/>
 
-### <span id="ID_nullDerefDynamicCast">▌R14.4 用 dynamic_cast 转换指针时应判断结果是否为空</span>
+### <span id="ID_nullDerefDynamicCast">▌R14.4 判断 dynamic_cast 转换是否成功</span>
 
 ID_nullDerefDynamicCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 
 <hr/>
 
-dynamic\_cast 转换指针失败时结果为空指针，如果不作判断则失去了使用 dynamic\_cast 的意义。  
+dynamic\_cast 转换指针失败会返回空指针，转换引用失败会抛出异常，如果不作判断则失去了使用 dynamic\_cast 的意义。  
   
 示例：
 ```

@@ -471,7 +471,7 @@
         "reference": "C++ Core Guidelines E.17"
         },
     "ID_catch_value": {
-        "checkPoint": "应通过引用捕获异常",
+        "checkPoint": "通过引用捕获异常",
         "level": "warning",
         "comment": "如果按传值的方式捕获异常会造成不必要的复制开销，也可能产生对象切片问题；如果通过指针捕获异常，会增加不必要的内存管理开销，通过引用捕获异常才是合理的方式。",
         "tag": "control",
@@ -834,9 +834,9 @@
         "reference": "C++ Core Guidelines F.46"
         },
     "ID_nonGlobalMain": {
-        "checkPoint": "非全局命名空间中不应存在以 main 命名的函数",
+        "checkPoint": "main 函数只应在全局作用域中",
         "level": "warning",
-        "comment": "main 函数作为程序的入口是一个特殊的函数，链接器需要对其特殊处理，不应被重载也应不受 C++ 语言命名空间的限制。",
+        "comment": "main 函数作为程序的入口是一个特殊的函数，链接器需要对其特殊处理，不应受命名空间等作用域的限制。",
         "tag": "global",
         "reference": "MISRA C++ 2008 7-3-2"
         },
@@ -941,7 +941,7 @@
         "reference": "C++ Core Guidelines ES.34,C++ Core Guidelines F.55,MISRA C 2004 16.1,MISRA C++ 2008 8-4-1"
         },
     "ID_redundantVirtual": {
-        "checkPoint": "当有 override 或 final 关键字时，不应再出现 virtual 关键字",
+        "checkPoint": "有 override 或 final 关键字时，不应再出现 virtual 关键字",
         "level": "suggestion",
         "comment": "只应在定义新的虚函数时使用 virtual 关键字，当重写虚函数时，应使用 override 或 final 关键字，不应再出现 virtual 关键字，使代码更清晰简洁。",
         "tag": "declaration",
@@ -1771,7 +1771,7 @@
         "reference": "C++ Core Guidelines C.145,C++ Core Guidelines ES.63"
         },
     "ID_relyOnExternalObject": {
-        "checkPoint": "全局对象的初始化不可依赖尚未初始化的其他对象",
+        "checkPoint": "全局对象的初始化不可依赖未初始化的对象",
         "level": "warning",
         "comment": "全局对象的初始化不可依赖其他源文件中定义的对象，也不可依赖在其后面定义的对象。",
         "tag": "global",
@@ -1832,7 +1832,7 @@
     "ID_definedInHeader": {
         "checkPoint": "函数不应在头文件中实现",
         "level": "warning",
-        "comment": "在头文件中实现的函数，如果不是内联、静态或模板函数，则可能被引入不同的编译单元（translate-unit）造成编译冲突。",
+        "comment": "在头文件中实现的函数，如果不是内联、静态或模板函数，则可能被引入不同的翻译单元（translate-unit）造成编译冲突。",
         "tag": "function",
         "reference": "C++ Core Guidelines SF.2"
         },
@@ -1968,17 +1968,17 @@
         "tag": "global"
         },
     "ID_usingNamespaceInHeader": {
-        "checkPoint": "不应在头文件的全局作用域中使用 using directive",
+        "checkPoint": "头文件中不应使用 using directive",
         "level": "warning",
-        "comment": "在头文件全局作用域中使用 using directive，极易造成命名冲突，且影响范围难以控制。",
+        "comment": "在头文件的全局作用域中使用 using directive，极易造成命名冲突，且影响范围难以控制。",
         "tag": "global",
         "related": "ID_forbidUsingDirectives",
         "reference": "C++ Core Guidelines SF.7,MISRA C++ 2008 7-3-6"
         },
     "ID_forbidUsingDirectives": {
-        "checkPoint": "命名空间作用域中禁用 using namespace std 之外的 using directive",
+        "checkPoint": "全局或命名空间作用域中禁用 using directive",
         "level": "suggestion",
-        "comment": "命名空间内的 using directive 相当于是对命名空间机制的破坏，易造成名称冲突。",
+        "comment": "将其他命名空间中的名称一并引入当前命名空间，是对命名空间机制的破坏。",
         "tag": "global",
         "related": "ID_usingNamespaceInHeader",
         "reference": "C++ Core Guidelines SF.6,MISRA C++ 2008 7-3-4"
@@ -1999,9 +1999,9 @@
         "standard": "ISO/IEC 14882:2003 7.1.1(6),ISO/IEC 14882:2011 7.1.1(7)"
         },
     "ID_staticInHeader": {
-        "checkPoint": "头文件中不应存在由 static 关键字修饰的非成员对象、数组或函数",
+        "checkPoint": "头文件的全局或命名空间作用域中不应使用静态声明",
         "level": "warning",
-        "comment": "头文件中由 static 关键字修饰的非成员对象、数组或函数，即静态数据，会在每个包含该头文件的编译单元（translate-unit）中生成副本而造成数据冗余，如果将静态数据误用作全局数据也会造成逻辑错误。",
+        "comment": "头文件中由 static 关键字声明的对象、数组或函数，会在每个包含该头文件的翻译单元（translate-unit）中生成副本而造成数据冗余，如果将静态数据误用作全局数据也会造成逻辑错误。",
         "tag": "global",
         "standard": "ISO/IEC 14882:2011 3.5(3)"
         },
@@ -2515,7 +2515,7 @@
         "reference": "SEI CERT PRE31-C"
         },
     "ID_macro_paramNotEnclosed": {
-        "checkPoint": "宏参数在宏定义的表达式中应该用括号括起来",
+        "checkPoint": "运算符相关的宏参数应该用括号括起来",
         "level": "warning",
         "comment": "由于宏的展开只做文本上的处理，不考虑运算符优先级等问题，故应将宏的参数在宏定义中用括号括起来，否则很可容易产生意料之外的错误。",
         "tag": "precompile",
@@ -2627,7 +2627,7 @@
         "reference": "CWE-369,C++ Core Guidelines ES.105"
         },
     "ID_nullDerefAllocRet": {
-        "checkPoint": "应判断 malloc 等内存分配函数的返回值是否为空",
+        "checkPoint": "判断 malloc 等函数的返回值是否为空",
         "level": "warning",
         "comment": "malloc 等函数在分配失败时返回空指针，如果不加判断直接解引用会造成标准未定义的错误。",
         "tag": "pointer",
@@ -2635,9 +2635,9 @@
         "reference": "CWE-476,CWE-252"
         },
     "ID_nullDerefDynamicCast": {
-        "checkPoint": "用 dynamic_cast 转换指针时应判断结果是否为空",
+        "checkPoint": "判断 dynamic_cast 转换是否成功",
         "level": "warning",
-        "comment": "dynamic_cast 转换指针失败时结果为空指针，如果不作判断则失去了使用 dynamic_cast 的意义。",
+        "comment": "dynamic_cast 转换指针失败会返回空指针，转换引用失败会抛出异常，如果不作判断则失去了使用 dynamic_cast 的意义。",
         "tag": "pointer",
         "standard": "ISO/IEC 14882:2011 5.2.7(9)",
         "related": "ID_nonDynamicDownCast",
@@ -2974,17 +2974,17 @@
         "reference": "CWE-14,CWE-733,SEI CERT MSC06-C"
         },
     "ID_nonConstNonStaticGlobalObject": {
-        "checkPoint": "全局或命名空间作用域中不应存在既不是 const 也不是 static 的对象",
+        "checkPoint": "全局对象只应为常量或静态对象",
         "level": "warning",
-        "comment": "非 const 全局对象破坏了面向对象的封装理念，如果必须使用全局对象，应将其限定在文件范围之内。",
+        "comment": "非常量全局对象破坏了面向对象的封装理念，如果必须使用全局对象，应将其限定在文件范围之内。",
         "tag": "global",
         "related": "ID_nonConstGlobalObject",
         "reference": "C++ Core Guidelines I.2,C++ Core Guidelines CP.3,C++ Core Guidelines R.6"
         },
     "ID_nonConstGlobalObject": {
-        "checkPoint": "全局或命名空间作用域中不应存在非 const 对象",
+        "checkPoint": "全局对象只应为常量",
         "level": "warning",
-        "comment": "非 const 全局对象与类的公有数据成员一样对外部的读写没有限制，破坏了面向对象的封装理念。",
+        "comment": "非常量全局对象与类的公有数据成员一样对外部的读写没有限制，破坏了面向对象的封装理念。",
         "tag": "global",
         "related": "ID_nonPrivateData",
         "reference": "C++ Core Guidelines I.2,C++ Core Guidelines CP.3,C++ Core Guidelines R.6"
