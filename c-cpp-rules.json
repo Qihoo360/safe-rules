@@ -834,7 +834,7 @@
         "reference": "C++ Core Guidelines F.46"
         },
     "ID_missingNamespace": {
-        "checkPoint": "C++ 代码应在命名空间之内",
+        "checkPoint": "为 C++ 代码设置合理的命名空间",
         "level": "warning",
         "comment": "命名空间是 C++ 项目的必要组成结构，可有效规避名称冲突等问题。",
         "tag": "global",
@@ -842,7 +842,7 @@
         "reference": "MISRA C++ 2008 7-3-1"
         },
     "ID_nonGlobalMain": {
-        "checkPoint": "main 函数只应在全局作用域中",
+        "checkPoint": "main 函数只应处于全局作用域中",
         "level": "warning",
         "comment": "main 函数作为程序的入口是一个特殊的函数，链接器需要对其特殊处理，不应受命名空间等作用域的限制。",
         "tag": "global",
@@ -1955,9 +1955,9 @@
         "reference": "SEI CERT DCL58-CPP"
         },
     "ID_usingSelf": {
-        "checkPoint": "不应在命名空间中引用自身",
+        "checkPoint": "避免无效的 using directive",
         "level": "warning",
-        "comment": "在命名空间中引用自身属于无效代码，也可能是某种错误。",
+        "comment": "用 using directive 引用当前命名空间属于无效代码，可能意味着某种错误。",
         "tag": "global"
         },
     "ID_anonymousNamespaceInHeader": {
@@ -1994,7 +1994,7 @@
     "ID_staticInAnonymousNamespace": {
         "checkPoint": "匿名命名空间中不应使用静态声明",
         "level": "warning",
-        "comment": "匿名命名空间中的元素相当于已具有静态属性（internal linkage），不应再用 static 关键字修饰。",
+        "comment": "匿名命名空间中的元素已具有静态属性（internal linkage），不应再用 static 关键字修饰。",
         "tag": "global",
         "standard": "ISO/IEC 14882:2011 3.5(4)"
         },

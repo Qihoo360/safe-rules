@@ -160,20 +160,20 @@
 
 <span id="__Global">**[4. Global](#global)**</span>
   - [R4.1 全局名称应遵循合理的命名方式](#ID_nameTooShort)
-  - [R4.2 C\+\+ 代码应在命名空间之内](#ID_missingNamespace)
-  - [R4.3 main 函数只应在全局作用域中](#ID_nonGlobalMain)
-  - [R4.4 全局对象的初始化不可依赖未初始化的对象](#ID_relyOnExternalObject)
-  - [R4.5 不可修改 std 命名空间](#ID_stdNamespaceModified)
-  - [R4.6 头文件中不应使用 using directive](#ID_usingNamespaceInHeader)
-  - [R4.7 头文件中不应定义匿名命名空间](#ID_anonymousNamespaceInHeader)
-  - [R4.8 头文件的全局或命名空间作用域中不应使用静态声明](#ID_staticInHeader)
+  - [R4.2 为 C\+\+ 代码设置合理的命名空间](#ID_missingNamespace)
+  - [R4.3 main 函数只应处于全局作用域中](#ID_nonGlobalMain)
+  - [R4.4 头文件中不应使用 using directive](#ID_usingNamespaceInHeader)
+  - [R4.5 头文件中不应定义匿名命名空间](#ID_anonymousNamespaceInHeader)
+  - [R4.6 头文件的全局或命名空间作用域中不应使用静态声明](#ID_staticInHeader)
+  - [R4.7 匿名命名空间中不应使用静态声明](#ID_staticInAnonymousNamespace)
+  - [R4.8 全局对象的初始化不可依赖未初始化的对象](#ID_relyOnExternalObject)
   - [R4.9 全局对象只应为常量或静态对象](#ID_nonConstNonStaticGlobalObject)
   - [R4.10 全局对象只应为常量](#ID_nonConstGlobalObject)
   - [R4.11 全局对象不应同时被 static 和 const 关键字修饰](#ID_staticAndConst)
-  - [R4.12 匿名命名空间中不应使用静态声明](#ID_staticInAnonymousNamespace)
-  - [R4.13 全局或命名空间作用域中禁用 using directive](#ID_forbidUsingDirectives)
-  - [R4.14 不应在命名空间中引用自身](#ID_usingSelf)
-  - [R4.15 不应定义全局 inline 命名空间](#ID_topInlineNamespace)
+  - [R4.12 全局或命名空间作用域中禁用 using directive](#ID_forbidUsingDirectives)
+  - [R4.13 避免无效的 using directive](#ID_usingSelf)
+  - [R4.14 不应定义全局 inline 命名空间](#ID_topInlineNamespace)
+  - [R4.15 不可修改 std 命名空间](#ID_stdNamespaceModified)
 <br/>
 
 <span id="__Type">**[5. Type](#type)**</span>
@@ -3469,7 +3469,7 @@ C++ Core Guidelines NL.7
 <br/>
 <br/>
 
-### <span id="ID_missingNamespace">▌R4.2 C++ 代码应在命名空间之内</span>
+### <span id="ID_missingNamespace">▌R4.2 为 C++ 代码设置合理的命名空间</span>
 
 ID_missingNamespace&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
@@ -3522,7 +3522,7 @@ MISRA C++ 2008 7-3-1
 <br/>
 <br/>
 
-### <span id="ID_nonGlobalMain">▌R4.3 main 函数只应在全局作用域中</span>
+### <span id="ID_nonGlobalMain">▌R4.3 main 函数只应处于全局作用域中</span>
 
 ID_nonGlobalMain&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
@@ -3556,93 +3556,7 @@ MISRA C++ 2008 7-3-2
 <br/>
 <br/>
 
-### <span id="ID_relyOnExternalObject">▌R4.4 全局对象的初始化不可依赖未初始化的对象</span>
-
-ID_relyOnExternalObject&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
-
-<hr/>
-
-全局对象的初始化不可依赖其他源文件中定义的对象，也不可依赖在其后面定义的对象。  
-  
-示例：
-```
-extern int i;  // Defined in other translate unit
-int j = i;     // Non-compliant
-```
-例中 i 是其他源文件中定义的对象，j 初始化时无法保证 i 已被正确初始化。不同源文件全局对象初始化的顺序在标准中是不确定的（indeterminately）。  
-  
-又如：
-```
-extern int x;  // Defined after y
-int y = x;     // Non-compliant
-int x = 0;
-```
-在同一源文件中，x 在 y 的后面定义，语言标准规定了 x 的初始化也将在 y 后执行，而 y 依赖 x，所以 y 的初始化是无效的。
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 14882:2011 3.6.2(2 3)  
-ISO/IEC 14882:2017 6.6.2(3)  
-ISO/IEC 14882:2017 6.6.3(2)  
-<br/>
-
-#### 参考
-C++ Core Guidelines I.22  
-<br/>
-<br/>
-
-### <span id="ID_stdNamespaceModified">▌R4.5 不可修改 std 命名空间</span>
-
-ID_stdNamespaceModified&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
-
-<hr/>
-
-可以为用户定义的类型特化某些标准模板类，除此之外对 std 命名空间添加、修改甚至删除任何代码所导致的后果都是标准未定义的。  
-  
-示例：
-```
-class MyType { .... };
-
-namespace std
-{
-    size_t foo(const MyType& x);   // Non-compliant
-
-    template <>
-    struct hash<MyType> {
-        size_t operator()(const MyType& x) const {
-            return foo(x);
-        }
-    };
-}
-```
-例中对 hash 标准模板类的特化是可被允许的，但在 std 命名空间中添加的 foo 函数是不被允许的。  
-  
-应去掉 std 命名空间作用域声明，改为：
-```
-size_t foo(const MyType& x);   // OK
-
-template <>
-struct std::hash<MyType> {
-    size_t operator()(const MyType& x) const {
-        return foo(x);
-    }
-};
-```
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 14882:2011 17.6.4.2.1(1 2)  
-ISO/IEC 14882:2017 20.5.4.2.1(1 2)  
-<br/>
-
-#### 参考
-SEI CERT DCL58-CPP  
-<br/>
-<br/>
-
-### <span id="ID_usingNamespaceInHeader">▌R4.6 头文件中不应使用 using directive</span>
+### <span id="ID_usingNamespaceInHeader">▌R4.4 头文件中不应使用 using directive</span>
 
 ID_usingNamespaceInHeader&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
@@ -3709,7 +3623,7 @@ MISRA C++ 2008 7-3-6
 <br/>
 <br/>
 
-### <span id="ID_anonymousNamespaceInHeader">▌R4.7 头文件中不应定义匿名命名空间</span>
+### <span id="ID_anonymousNamespaceInHeader">▌R4.5 头文件中不应定义匿名命名空间</span>
 
 ID_anonymousNamespaceInHeader&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
@@ -3743,7 +3657,7 @@ MISRA C++ 2008 7-3-3
 <br/>
 <br/>
 
-### <span id="ID_staticInHeader">▌R4.8 头文件的全局或命名空间作用域中不应使用静态声明</span>
+### <span id="ID_staticInHeader">▌R4.6 头文件的全局或命名空间作用域中不应使用静态声明</span>
 
 ID_staticInHeader&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
@@ -3789,6 +3703,78 @@ ISO/IEC 14882:2011 3.5(3)
 <br/>
 <br/>
 
+### <span id="ID_staticInAnonymousNamespace">▌R4.7 匿名命名空间中不应使用静态声明</span>
+
+ID_staticInAnonymousNamespace&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
+
+<hr/>
+
+匿名命名空间中的元素已具有静态属性（internal linkage），不应再用 static 关键字修饰。  
+  
+示例：
+```
+namespace {
+    static int i = 0;   // Non-compliant
+    static int foo() {  // Non-compliant
+        return i++;
+    }
+}
+```
+例中 static 关键字是多余的。  
+  
+应改为：
+```
+namespace {
+    int i = 0;   // Compliant
+    int foo() {  // Compliant
+        return i++;
+    }
+}
+```
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2011 3.5(4)  
+<br/>
+<br/>
+
+### <span id="ID_relyOnExternalObject">▌R4.8 全局对象的初始化不可依赖未初始化的对象</span>
+
+ID_relyOnExternalObject&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
+
+<hr/>
+
+全局对象的初始化不可依赖其他源文件中定义的对象，也不可依赖在其后面定义的对象。  
+  
+示例：
+```
+extern int i;  // Defined in other translate unit
+int j = i;     // Non-compliant
+```
+例中 i 是其他源文件中定义的对象，j 初始化时无法保证 i 已被正确初始化。不同源文件全局对象初始化的顺序在标准中是不确定的（indeterminately）。  
+  
+又如：
+```
+extern int x;  // Defined after y
+int y = x;     // Non-compliant
+int x = 0;
+```
+在同一源文件中，x 在 y 的后面定义，语言标准规定了 x 的初始化也将在 y 后执行，而 y 依赖 x，所以 y 的初始化是无效的。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2011 3.6.2(2 3)  
+ISO/IEC 14882:2017 6.6.2(3)  
+ISO/IEC 14882:2017 6.6.3(2)  
+<br/>
+
+#### 参考
+C++ Core Guidelines I.22  
+<br/>
+<br/>
+
 ### <span id="ID_nonConstNonStaticGlobalObject">▌R4.9 全局对象只应为常量或静态对象</span>
 
 ID_nonConstNonStaticGlobalObject&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
@@ -3801,9 +3787,10 @@ ID_nonConstNonStaticGlobalObject&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warn
   
 示例：
 ```
-int i = 0;  // Non-compliant
-static int j = 0;  //  Let it go
-const int k = 0;  // Compliant
+// In global scope
+int i = 0;         // Non-compliant
+static int j = 0;  // Let it go
+const int k = 0;   // Compliant
 ```
 <br/>
 <br/>
@@ -3901,41 +3888,7 @@ ISO/IEC 14882:2011 7.1.1(7)
 <br/>
 <br/>
 
-### <span id="ID_staticInAnonymousNamespace">▌R4.12 匿名命名空间中不应使用静态声明</span>
-
-ID_staticInAnonymousNamespace&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
-
-<hr/>
-
-匿名命名空间中的元素相当于已具有静态属性（internal linkage），不应再用 static 关键字修饰。  
-  
-示例：
-```
-namespace {
-    static int i = 0;   // Non-compliant
-    static int foo() {  // Non-compliant
-        return i++;
-    }
-}
-```
-应改为：
-```
-namespace {
-    int i = 0;   // Compliant
-    int foo() {  // Compliant
-        return i++;
-    }
-}
-```
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 14882:2011 3.5(4)  
-<br/>
-<br/>
-
-### <span id="ID_forbidUsingDirectives">▌R4.13 全局或命名空间作用域中禁用 using directive</span>
+### <span id="ID_forbidUsingDirectives">▌R4.12 全局或命名空间作用域中禁用 using directive</span>
 
 ID_forbidUsingDirectives&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: global suggestion
 
@@ -3979,13 +3932,13 @@ MISRA C++ 2008 7-3-4
 <br/>
 <br/>
 
-### <span id="ID_usingSelf">▌R4.14 不应在命名空间中引用自身</span>
+### <span id="ID_usingSelf">▌R4.13 避免无效的 using directive</span>
 
 ID_usingSelf&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
 <hr/>
 
-在命名空间中引用自身属于无效代码，也可能是某种错误。  
+用 using directive 引用当前命名空间属于无效代码，可能意味着某种错误。  
   
 示例：
 ```
@@ -3998,7 +3951,7 @@ namespace NS
 <br/>
 <br/>
 
-### <span id="ID_topInlineNamespace">▌R4.15 不应定义全局 inline 命名空间</span>
+### <span id="ID_topInlineNamespace">▌R4.14 不应定义全局 inline 命名空间</span>
 
 ID_topInlineNamespace&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: global suggestion
 
@@ -4011,22 +3964,75 @@ ID_topInlineNamespace&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: global suggestion
 namespace V0 {
     int foo();
 }
+
 inline namespace V1 {  // Non-compliant
     int foo();
 }
 ```
 应该用普通命名空间加以限定：
 ```
-namespace NS {
+namespace NS
+{
     namespace V0 {
         int foo();
     }
+
     inline namespace V1 {  // Compliant
         int foo();
     }
 }
 ```
 <br/>
+<br/>
+<br/>
+
+### <span id="ID_stdNamespaceModified">▌R4.15 不可修改 std 命名空间</span>
+
+ID_stdNamespaceModified&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
+
+<hr/>
+
+可以为用户定义的类型特化某些标准模板类，除此之外对 std 命名空间添加、修改甚至删除任何代码所导致的后果都是标准未定义的。  
+  
+示例：
+```
+class MyType { .... };
+
+namespace std
+{
+    size_t foo(const MyType& x);   // Non-compliant
+
+    template <>
+    struct hash<MyType> {
+        size_t operator()(const MyType& x) const {
+            return foo(x);
+        }
+    };
+}
+```
+例中对 hash 标准模板类的特化是可被允许的，但在 std 命名空间中添加的 foo 函数是不被允许的。  
+  
+应去掉 std 命名空间作用域声明，改为：
+```
+size_t foo(const MyType& x);   // OK
+
+template <>
+struct std::hash<MyType> {
+    size_t operator()(const MyType& x) const {
+        return foo(x);
+    }
+};
+```
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2011 17.6.4.2.1(1 2)  
+ISO/IEC 14882:2017 20.5.4.2.1(1 2)  
+<br/>
+
+#### 参考
+SEI CERT DCL58-CPP  
 <br/>
 <br/>
 
@@ -4268,7 +4274,7 @@ void foo(D& d) {
     d.C::i = 1;  // Odd
 }
 ```
-在 D 类对象中，基类 A 的成员 i 有两个不同的实例，对象 d 直接访问 i 是错误的。  
+在 D 类对象中，基类 A 的成员 i 有两个不同的实例，对象 d 直接访问 i 是无法通过编译的。  
   
 将共同的基类设为虚基类可以解决这种问题： 
 ```
@@ -4287,7 +4293,7 @@ void bar(A* a) {
     ....
 }
 ```
-编译器一般会将这种情况算作编译错误，但在较低版本的编译器中也有例外。  
+这种情况一般不会通过编译，但在较低版本的编译器中也有例外。  
   
 应改用 dynamic\_cast：
 ```
@@ -4318,8 +4324,7 @@ ID_missingCopyConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
  2. 析构函数  
  3. 赋值运算符  
   
-当这三个函数中的任何一个函数被定义时，说明对象在复制以及资源的分配与回收方面存在某种特定的行为，所以其他两个函数也需要被定义，否则容易造成冲突或泄漏，这种规则称为“[Rule of three](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming))”。  
-如果不显式定义，编译器虽然也会自动生成相关函数，但可能难以满足实际需求。  
+当这三个函数中的任何一个函数被定义时，说明对象在复制以及资源的分配与回收方面存在某种特定的行为，所以其他两个函数也需要被定义，否则容易造成冲突或泄漏，这种规则称为“[Rule of three](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming))”。如果不显式定义，编译器虽然也会生成相关函数，但很可能难以满足实际需求。  
   
 示例：
 ```
@@ -4330,9 +4335,9 @@ struct A {    // Non-compliant
    ~A() { delete[] p; }
 };
 ```
-例中 A 存在析构函数，但没有拷贝构造函数和赋值运算符，一旦发生对象的复制，由于是“浅拷贝”，所以在析构时会导致 p 被重复释放。  
+例中 A 有析构函数，但没有拷贝构造函数和赋值运算符，对象将按“浅拷贝”方式复制，在析构时会导致 p 被重复释放。  
   
-注意，当类只负责成员的组合而没有特殊的复制行为时，这三个函数就都不要定义，这种规则称为“[Rule of zero](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-zero)”，在类的设计上应尽量遵循“[Rule of zero](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-zero)”，从而达到简化代码的目的。  
+注意，当类只负责成员的组合而没有特殊的复制行为时，这三个函数就都不要定义，这种规则称为“[Rule of zero](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-zero)”，应尽量遵循“[Rule of zero](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-zero)”，简化代码。  
   
 示例：
 ```
@@ -4346,7 +4351,7 @@ struct B {
 ```
 例中 B 只涉及字符串对象的组合，所以其拷贝构造、赋值运算符及析构函数是不必要的，应该去掉，编译器会进行更好的处理。  
   
-同理，在遵循 C\+\+11 以之后标准的代码中，对于：  
+同理，在遵循 C\+\+11 及之后标准的代码中，对于：  
  1. 拷贝构造函数  
  2. 析构函数  
  3. 赋值运算符  
