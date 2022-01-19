@@ -4,7 +4,7 @@
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对 C、C++ 语言，本文收录了 414 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对 C、C++ 语言，本文收录了 415 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
@@ -128,7 +128,7 @@
     - [R3.1.4 禁用不合规的头文件](#ID_forbiddenHeader)
     - [R3.1.5 C\+\+ 代码不应引用 C 头文件](#ID_forbidCHeaderInCpp)
   - [3.2 Macro](#precompile.macro)
-    - [R3.2.1 宏的命名应遵循合理的方式](#ID_macro_badName)
+    - [R3.2.1 宏应遵循合理的命名方式](#ID_macro_badName)
     - [R3.2.2 不可定义具有保留意义的宏名称](#ID_macro_defineReserved)
     - [R3.2.3 不可取消定义具有保留意义的宏名称](#ID_macro_undefReserved)
     - [R3.2.4 可作为子表达式的宏定义应该用括号括起来](#ID_macro_expNotEnclosed)
@@ -149,7 +149,7 @@
     - [R3.3.2 不应出现非标准格式的预编译指令](#ID_illFormedDirective)
     - [R3.3.3 不应使用非标准预编译指令](#ID_nonStdDirective)
     - [R3.3.4 对编译警告的屏蔽应慎重](#ID_warningDisabled)
-    - [R3.3.5 代码在高级别的警告设置下编译](#ID_warningDefault)
+    - [R3.3.5 在高级别的警告设置下编译](#ID_warningDefault)
   - [3.4 Comment](#precompile.comment)
     - [R3.4.1 关注 TODO、FIXME、XXX、BUG 等特殊注释](#ID_specialComment)
     - [R3.4.2 注释不可嵌套](#ID_nestedComment)
@@ -159,20 +159,21 @@
 <br/>
 
 <span id="__Global">**[4. Global](#global)**</span>
-  - [R4.1 不可修改 std 命名空间](#ID_stdNamespaceModified)
-  - [R4.2 main 函数只应在全局作用域中](#ID_nonGlobalMain)
-  - [R4.3 全局对象的初始化不可依赖未初始化的对象](#ID_relyOnExternalObject)
-  - [R4.4 头文件中不应使用 using directive](#ID_usingNamespaceInHeader)
-  - [R4.5 头文件中不应定义匿名命名空间](#ID_anonymousNamespaceInHeader)
-  - [R4.6 全局对象只应为常量或静态对象](#ID_nonConstNonStaticGlobalObject)
-  - [R4.7 全局对象只应为常量](#ID_nonConstGlobalObject)
-  - [R4.8 全局对象不应同时被 static 和 const 关键字修饰](#ID_staticAndConst)
-  - [R4.9 匿名命名空间中不应使用静态声明](#ID_staticInAnonymousNamespace)
-  - [R4.10 头文件的全局或命名空间作用域中不应使用静态声明](#ID_staticInHeader)
-  - [R4.11 全局或命名空间作用域中禁用 using directive](#ID_forbidUsingDirectives)
-  - [R4.12 不应在命名空间中引用自身](#ID_usingSelf)
-  - [R4.13 不应定义全局 inline 命名空间](#ID_topInlineNamespace)
-  - [R4.14 全局名称不应太短](#ID_nameTooShort)
+  - [R4.1 全局名称应遵循合理的命名方式](#ID_nameTooShort)
+  - [R4.2 C\+\+ 代码应在命名空间之内](#ID_missingNamespace)
+  - [R4.3 main 函数只应在全局作用域中](#ID_nonGlobalMain)
+  - [R4.4 全局对象的初始化不可依赖未初始化的对象](#ID_relyOnExternalObject)
+  - [R4.5 不可修改 std 命名空间](#ID_stdNamespaceModified)
+  - [R4.6 头文件中不应使用 using directive](#ID_usingNamespaceInHeader)
+  - [R4.7 头文件中不应定义匿名命名空间](#ID_anonymousNamespaceInHeader)
+  - [R4.8 头文件的全局或命名空间作用域中不应使用静态声明](#ID_staticInHeader)
+  - [R4.9 全局对象只应为常量或静态对象](#ID_nonConstNonStaticGlobalObject)
+  - [R4.10 全局对象只应为常量](#ID_nonConstGlobalObject)
+  - [R4.11 全局对象不应同时被 static 和 const 关键字修饰](#ID_staticAndConst)
+  - [R4.12 匿名命名空间中不应使用静态声明](#ID_staticInAnonymousNamespace)
+  - [R4.13 全局或命名空间作用域中禁用 using directive](#ID_forbidUsingDirectives)
+  - [R4.14 不应在命名空间中引用自身](#ID_usingSelf)
+  - [R4.15 不应定义全局 inline 命名空间](#ID_topInlineNamespace)
 <br/>
 
 <span id="__Type">**[5. Type](#type)**</span>
@@ -222,7 +223,7 @@
     - [R6.2.4 const、volatile 限定类型时应出现在左侧](#ID_badQualifierPosition)
     - [R6.2.5 const、volatile 等关键字不应出现在基本类型名称的中间](#ID_sandwichedModifier)
     - [R6.2.6 指向常量字符串的指针应有 const 关键字修饰](#ID_missingConst)
-    - [R6.2.7 enum 的底层类型（underlying type）中不应出现 const 或 volatile](#ID_uselessQualifier)
+    - [R6.2.7 枚举类型的底层类型不应为 const 或 volatile](#ID_uselessQualifier)
     - [R6.2.8 对常量的定义不应为引用](#ID_constLiteralReference)
     - [R6.2.9 禁用 restrict 指针](#ID_forbidRestrictPtr)
     - [R6.2.10 慎用 volatile 关键字](#ID_forbidVolatile)
@@ -412,8 +413,8 @@
   - [9.7 Catch](#control.catch)
     - [R9.7.1 通过引用捕获异常](#ID_catch_value)
     - [R9.7.2 捕获异常时不应产生对象切片问题](#ID_catch_slicing)
-    - [R9.7.3 不应存在空的 catch 块](#ID_catch_emptyBlock)
-    - [R9.7.4 捕获异常后不应直接重新抛出异常，需对异常进行有效处理](#ID_catch_justRethrow)
+    - [R9.7.3 捕获异常后不应直接重新抛出异常，需对异常进行有效处理](#ID_catch_justRethrow)
+    - [R9.7.4 不应存在空的 catch 块](#ID_catch_emptyBlock)
     - [R9.7.5 不应捕获过于宽泛的异常](#ID_catch_generic)
     - [R9.7.6 不应捕获非异常类型](#ID_catch_nonExceptionType)
 <br/>
@@ -2470,32 +2471,22 @@ MISRA C++ 2008 18-0-1
 
 ### <span id="precompile.macro">3.2 Macro</span>
 
-### <span id="ID_macro_badName">▌R3.2.1 宏的命名应遵循合理的方式</span>
+### <span id="ID_macro_badName">▌R3.2.1 宏应遵循合理的命名方式</span>
 
 ID_macro_badName&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
 <hr/>
 
-宏的命名应遵循合理的方式，建议用大写字母表示宏的名称。  
+宏的名称应采用全大写字母的形式，非宏名称则应包含小写字母。  
   
-不应出现：  
- - 超长的名称  
- - 易造成混淆或冲突的名称  
- - 无意义或意义过于空泛的名称  
- - 不易于读写的名称  
- - 有违公序良俗的名称  
+宏用文本处理，不受语言规则限制，易被误用，在命名方式上将其与普通代码分开可引起使用者或维护者的注意，从而有助于规避错误。  
   
 本规则是 ID\_badName 的特化。  
   
 示例：
 ```
-#define xxx 8    // Bad, meaningless name
-#define foo 8    // Bad, vague name
-```
-宏是处于文本层面的概念，有必要在命名方式上将其与普通代码分开，宏的名称应采用全大写字母的形式，非宏名称则应包含小写字母。
-```
-#define word_size 8     // Bad, like a normal variable
-#define WORD_SIZE 8     // OK
+#define word_size 8   // Non-compliant, like a normal variable
+#define WORD_SIZE 8   // Compliant
 ```
 <br/>
 <br/>
@@ -2829,7 +2820,7 @@ int foo(int& a) {
 }
 
 void bar(int& a) {
-    I(a--);  // Non-compliant, does nothing
+    I(a--);         // Non-compliant, does nothing
 }
 ```
 例中 M 和 I 看起来像是函数调用，而展开后的结果却在意料之外。
@@ -2892,7 +2883,7 @@ ID_macro_const&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
 <hr/>
 
-宏处于文本层面，不受作用域等语言规则限制，不应使用宏实现常量等语言层面的概念。  
+宏用于文本处理，不受作用域等语言规则限制，不应使用宏实现常量等语言层面的概念。  
   
 示例：
 ```
@@ -2941,7 +2932,7 @@ ID_macro_typeid&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
 <hr/>
 
-宏处于文本层面，不受作用域等语言规则限制，不应使用宏实现类型等语言层面的概念。  
+宏用于文本处理，不受作用域等语言规则限制，不应使用宏实现类型等语言层面的概念。  
   
 示例：
 ```
@@ -2976,7 +2967,7 @@ ID_macro_function&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
 <hr/>
 
-宏处于文本层面，不受作用域、参数传递、重载等语言规则限制，可由函数实现的功能不应使用宏实现。  
+宏用于文本处理，不受作用域、参数传递、重载等语言规则限制，可由函数实现的功能不应使用宏实现。  
   
 示例：
 ```
@@ -3249,13 +3240,13 @@ SEI CERT MSC00-C
 <br/>
 <br/>
 
-### <span id="ID_warningDefault">▌R3.3.5 代码在高级别的警告设置下编译</span>
+### <span id="ID_warningDefault">▌R3.3.5 在高级别的警告设置下编译</span>
 
 ID_warningDefault&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
 <hr/>
 
-编译器一般允许设定编译警告的级别，级别越高报出的问题越多，也可以将警告设为错误，当有警告产生时停止编译，建议代码在高级别的警告设置下编译。  
+编译器一般允许设定编译警告的级别，级别越高关注的问题就越多，也可以将警告设为错误，当有警告产生时停止编译，建议代码在高级别的警告设置下编译。  
   
 应避免代码中出现 \#pragma warning(default:...) 等指令，这种指令将警告级别设为默认，可能与整个项目的设置不一致，如果一定要使用，应改用 \#pragma warning(pop) 方式。  
   
@@ -3437,7 +3428,171 @@ void bar() {
 
 ## <span id="global">4. Global</span>
 
-### <span id="ID_stdNamespaceModified">▌R4.1 不可修改 std 命名空间</span>
+### <span id="ID_nameTooShort">▌R4.1 全局名称应遵循合理的命名方式</span>
+
+ID_nameTooShort&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: global suggestion
+
+<hr/>
+
+全局名称应具有标识性，长度不应过短，否则易与局部名称产生冲突。  
+  
+本规则是 ID\_badName 的特化。  
+  
+示例：
+```
+// In global scope
+const int i = 0;   // Non-compliant, name too short
+typedef int t;     // Non-compliant, name too short
+class A { .... };  // Non-compliant, name too short
+
+int foo(int i) {
+    return i + i;  // Confusing
+}
+```
+名称适用的作用域范围越广，其长度也应该越长，建议全局名称长度不小于 3 个字符。
+<br/>
+<br/>
+
+#### 配置
+ID_global/ minVariableNameLength：全局对象名称长度下限，小于则报出  
+ID_global/minFunctionNameLength：全局函数名称长度下限，小于则报出  
+ID_global/minNameSpaceNameLength：全局命名空间名称长度下限，小于则报出  
+ID_global/minTypeNameLength：全局类型名称长度下限，小于则报出  
+<br/>
+
+#### 相关
+ID_badName  
+<br/>
+
+#### 参考
+C++ Core Guidelines NL.7  
+<br/>
+<br/>
+
+### <span id="ID_missingNamespace">▌R4.2 C++ 代码应在命名空间之内</span>
+
+ID_missingNamespace&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
+
+<hr/>
+
+命名空间是 C\+\+ 项目的必要组成结构，可有效规避名称冲突等问题。  
+  
+C\+\+ 代码的顶层作用域应为具名非内联命名空间，命名空间名称应与项目名称相符，且具有标识性。  
+  
+示例：
+```
+namespace NS {
+    int foo();           // Compliant
+    int foo(char*);      // Compliant
+    int foo(wchar_t*);   // Compliant
+}
+
+int foo() {              // Non-compliant, it is not ‘int NS::foo()’
+    ....
+}
+
+int NS::foo(char*) {     // Compliant
+    ....
+}
+
+namespace NS {
+    int foo(wchar_t*) {  // Compliant
+        ....
+    }
+}
+```
+对于 main 函数和 extern "C" 声明的代码可不受本规则限制，如：
+```
+extern "C" int bar();  // Compliant
+
+int main () {          // Compliant
+    ....
+}
+```
+<br/>
+<br/>
+
+#### 相关
+ID_usingNamespaceInHeader  
+ID_forbidUsingDirectives  
+<br/>
+
+#### 参考
+MISRA C++ 2008 7-3-1  
+<br/>
+<br/>
+
+### <span id="ID_nonGlobalMain">▌R4.3 main 函数只应在全局作用域中</span>
+
+ID_nonGlobalMain&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
+
+<hr/>
+
+main 函数作为程序的入口是一个特殊的函数，链接器需要对其特殊处理，不应受命名空间等作用域的限制。  
+  
+示例：
+```
+int main() {       // Compliant
+    ....
+}
+
+namespace {
+    int main() {   // Non-compliant
+        ....
+    }
+}
+
+namespace NS {
+    int main() {   // Non-compliant
+        ....
+    }
+}
+```
+<br/>
+<br/>
+
+#### 参考
+MISRA C++ 2008 7-3-2  
+<br/>
+<br/>
+
+### <span id="ID_relyOnExternalObject">▌R4.4 全局对象的初始化不可依赖未初始化的对象</span>
+
+ID_relyOnExternalObject&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
+
+<hr/>
+
+全局对象的初始化不可依赖其他源文件中定义的对象，也不可依赖在其后面定义的对象。  
+  
+示例：
+```
+extern int i;  // Defined in other translate unit
+int j = i;     // Non-compliant
+```
+例中 i 是其他源文件中定义的对象，j 初始化时无法保证 i 已被正确初始化。不同源文件全局对象初始化的顺序在标准中是不确定的（indeterminately）。  
+  
+又如：
+```
+extern int x;  // Defined after y
+int y = x;     // Non-compliant
+int x = 0;
+```
+在同一源文件中，x 在 y 的后面定义，语言标准规定了 x 的初始化也将在 y 后执行，而 y 依赖 x，所以 y 的初始化是无效的。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2011 3.6.2(2 3)  
+ISO/IEC 14882:2017 6.6.2(3)  
+ISO/IEC 14882:2017 6.6.3(2)  
+<br/>
+
+#### 参考
+C++ Core Guidelines I.22  
+<br/>
+<br/>
+
+### <span id="ID_stdNamespaceModified">▌R4.5 不可修改 std 命名空间</span>
 
 ID_stdNamespaceModified&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
@@ -3487,77 +3642,7 @@ SEI CERT DCL58-CPP
 <br/>
 <br/>
 
-### <span id="ID_nonGlobalMain">▌R4.2 main 函数只应在全局作用域中</span>
-
-ID_nonGlobalMain&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
-
-<hr/>
-
-main 函数作为程序的入口是一个特殊的函数，链接器需要对其特殊处理，不应受命名空间等作用域的限制。  
-  
-示例：
-```
-int main() {       // Compliant
-    ....
-}
-
-namespace {
-    int main() {   // Non-compliant
-        ....
-    }
-}
-
-namespace NS {
-    int main() {   // Non-compliant
-        ....
-    }
-}
-```
-<br/>
-<br/>
-
-#### 参考
-MISRA C++ 2008 7-3-2  
-<br/>
-<br/>
-
-### <span id="ID_relyOnExternalObject">▌R4.3 全局对象的初始化不可依赖未初始化的对象</span>
-
-ID_relyOnExternalObject&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
-
-<hr/>
-
-全局对象的初始化不可依赖其他源文件中定义的对象，也不可依赖在其后面定义的对象。  
-  
-示例：
-```
-extern int i;  // Defined in other translate unit
-int j = i;     // Non-compliant
-```
-例中 i 是其他源文件中定义的对象，j 初始化时无法保证 i 已被正确初始化。不同源文件全局对象初始化的顺序在标准中是不确定的（indeterminately）。  
-  
-又如：
-```
-extern int x;  // Defined after y
-int y = x;     // Non-compliant
-int x = 0;
-```
-在同一源文件中，x 在 y 的后面定义，语言标准规定了 x 的初始化也将在 y 后执行，而 y 依赖 x，所以 y 的初始化是无效的。
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 14882:2011 3.6.2(2 3)  
-ISO/IEC 14882:2017 6.6.2(3)  
-ISO/IEC 14882:2017 6.6.3(2)  
-<br/>
-
-#### 参考
-C++ Core Guidelines I.22  
-<br/>
-<br/>
-
-### <span id="ID_usingNamespaceInHeader">▌R4.4 头文件中不应使用 using directive</span>
+### <span id="ID_usingNamespaceInHeader">▌R4.6 头文件中不应使用 using directive</span>
 
 ID_usingNamespaceInHeader&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
@@ -3624,7 +3709,7 @@ MISRA C++ 2008 7-3-6
 <br/>
 <br/>
 
-### <span id="ID_anonymousNamespaceInHeader">▌R4.5 头文件中不应定义匿名命名空间</span>
+### <span id="ID_anonymousNamespaceInHeader">▌R4.7 头文件中不应定义匿名命名空间</span>
 
 ID_anonymousNamespaceInHeader&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
@@ -3658,7 +3743,53 @@ MISRA C++ 2008 7-3-3
 <br/>
 <br/>
 
-### <span id="ID_nonConstNonStaticGlobalObject">▌R4.6 全局对象只应为常量或静态对象</span>
+### <span id="ID_staticInHeader">▌R4.8 头文件的全局或命名空间作用域中不应使用静态声明</span>
+
+ID_staticInHeader&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
+
+<hr/>
+
+头文件中由 static 关键字声明的对象、数组或函数，会在每个包含该头文件的翻译单元（translate\-unit）中生成副本而造成数据冗余，如果将静态数据误用作全局数据也会造成逻辑错误。  
+  
+示例：
+```
+// In a header file
+static int i = 0;   // Non-compliant
+
+static int foo() {  // Non-compliant
+    return i;
+}
+```
+在编译每个包含例中头文件的源文件时，变量 i 和函数 foo 都会生成副本。  
+  
+由 const 或 constexpr 关键字修饰的常量也具有静态数据的特性，在头文件中定义常量也面对这种问题，基本类型的常量经过编译优化可以不占用存储空间（有取地址操作的除外），而对于非基本类型的常量对象或数组也不应在头文件中定义，建议采用单件模式，将其数据定义在 cpp 等源文件中，在头文件中定义访问这些数据的接口。  
+  
+如：
+```
+// myarr.h
+using MyArr = int[256];
+const MyArr& getMyArr();
+
+// myarr.cpp
+#include "myarr.h"
+
+const MyArr& getMyArr() {
+    static MyArr arr = {
+        1, 2, 3, ....
+    };
+    return arr;
+}
+```
+在需要用到 arr 的地方，调用 getMyArr 函数，即可获取对该数组的引用，没有任何多余的数据产生，而且可保证在使用之前被有效初始化。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2011 3.5(3)  
+<br/>
+<br/>
+
+### <span id="ID_nonConstNonStaticGlobalObject">▌R4.9 全局对象只应为常量或静态对象</span>
 
 ID_nonConstNonStaticGlobalObject&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
@@ -3688,7 +3819,7 @@ C++ Core Guidelines R.6
 <br/>
 <br/>
 
-### <span id="ID_nonConstGlobalObject">▌R4.7 全局对象只应为常量</span>
+### <span id="ID_nonConstGlobalObject">▌R4.10 全局对象只应为常量</span>
 
 ID_nonConstGlobalObject&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
@@ -3741,7 +3872,7 @@ C++ Core Guidelines R.6
 <br/>
 <br/>
 
-### <span id="ID_staticAndConst">▌R4.8 全局对象不应同时被 static 和 const 关键字修饰</span>
+### <span id="ID_staticAndConst">▌R4.11 全局对象不应同时被 static 和 const 关键字修饰</span>
 
 ID_staticAndConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
@@ -3770,7 +3901,7 @@ ISO/IEC 14882:2011 7.1.1(7)
 <br/>
 <br/>
 
-### <span id="ID_staticInAnonymousNamespace">▌R4.9 匿名命名空间中不应使用静态声明</span>
+### <span id="ID_staticInAnonymousNamespace">▌R4.12 匿名命名空间中不应使用静态声明</span>
 
 ID_staticInAnonymousNamespace&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
@@ -3804,53 +3935,7 @@ ISO/IEC 14882:2011 3.5(4)
 <br/>
 <br/>
 
-### <span id="ID_staticInHeader">▌R4.10 头文件的全局或命名空间作用域中不应使用静态声明</span>
-
-ID_staticInHeader&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
-
-<hr/>
-
-头文件中由 static 关键字声明的对象、数组或函数，会在每个包含该头文件的翻译单元（translate\-unit）中生成副本而造成数据冗余，如果将静态数据误用作全局数据也会造成逻辑错误。  
-  
-示例：
-```
-// In a header file
-static int i = 0;   // Non-compliant
-
-static int foo() {  // Non-compliant
-    return i;
-}
-```
-在编译每个包含例中头文件的源文件时，变量 i 和函数 foo 都会生成副本。  
-  
-由 const 或 constexpr 关键字修饰的常量也具有静态数据的特性，在头文件中定义常量也面对这种问题，基本类型的常量经过编译优化可以不占用存储空间（有取地址操作的除外），而对于非基本类型的常量对象或数组也不应在头文件中定义，建议采用单件模式，将其数据定义在 cpp 等源文件中，在头文件中定义访问这些数据的接口。  
-  
-如：
-```
-// myarr.h
-using MyArr = int[256];
-const MyArr& getMyArr();
-
-// myarr.cpp
-#include "myarr.h"
-
-const MyArr& getMyArr() {
-    static MyArr arr = {
-        1, 2, 3, ....
-    };
-    return arr;
-}
-```
-在需要用到 arr 的地方，调用 getMyArr 函数，即可获取对该数组的引用，没有任何多余的数据产生，而且可保证在使用之前被有效初始化。
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 14882:2011 3.5(3)  
-<br/>
-<br/>
-
-### <span id="ID_forbidUsingDirectives">▌R4.11 全局或命名空间作用域中禁用 using directive</span>
+### <span id="ID_forbidUsingDirectives">▌R4.13 全局或命名空间作用域中禁用 using directive</span>
 
 ID_forbidUsingDirectives&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: global suggestion
 
@@ -3894,7 +3979,7 @@ MISRA C++ 2008 7-3-4
 <br/>
 <br/>
 
-### <span id="ID_usingSelf">▌R4.12 不应在命名空间中引用自身</span>
+### <span id="ID_usingSelf">▌R4.14 不应在命名空间中引用自身</span>
 
 ID_usingSelf&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
@@ -3913,7 +3998,7 @@ namespace NS
 <br/>
 <br/>
 
-### <span id="ID_topInlineNamespace">▌R4.13 不应定义全局 inline 命名空间</span>
+### <span id="ID_topInlineNamespace">▌R4.15 不应定义全局 inline 命名空间</span>
 
 ID_topInlineNamespace&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: global suggestion
 
@@ -3942,46 +4027,6 @@ namespace NS {
 }
 ```
 <br/>
-<br/>
-<br/>
-
-### <span id="ID_nameTooShort">▌R4.14 全局名称不应太短</span>
-
-ID_nameTooShort&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: global suggestion
-
-<hr/>
-
-长度过短的全局名称极易造成与局部名称的混淆或冲突，建议全局名称长度不小于 3 个字符。  
-  
-本规则是 ID\_badName 的特化。  
-  
-示例：
-```
-const int i = 0;   // Non-compliant, name too short
-typedef int t;     // Non-compliant, name too short
-class A { .... };  // Non-compliant, name too short
-
-int foo(int i) {
-    return i + i;  // Confusing
-}
-```
-为了避免混淆或冲突，名称适用的作用域范围越广，名称的长度也应该越长。
-<br/>
-<br/>
-
-#### 配置
-ID_global/ minVariableNameLength：全局对象名称长度下限，小于则报出  
-ID_global/minFunctionNameLength：全局函数名称长度下限，小于则报出  
-ID_global/minNameSpaceNameLength：全局命名空间名称长度下限，小于则报出  
-ID_global/minTypeNameLength：全局类型名称长度下限，小于则报出  
-<br/>
-
-#### 相关
-ID_badName  
-<br/>
-
-#### 参考
-C++ Core Guidelines NL.7  
 <br/>
 <br/>
 
@@ -5643,21 +5688,21 @@ MISRA C 2012 7.4
 <br/>
 <br/>
 
-### <span id="ID_uselessQualifier">▌R6.2.7 enum 的底层类型（underlying type）中不应出现 const 或 volatile</span>
+### <span id="ID_uselessQualifier">▌R6.2.7 枚举类型的底层类型不应为 const 或 volatile</span>
 
 ID_uselessQualifier&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-enum 或 enum class 的底层类型（underlying type）中出现 const 或 volatile 是没有意义的，会被编译器忽略，为语言用法错误。  
+将 enum 或 enum class 的底层类型（underlying type）设为 const 或 volatile 是没有意义的，会被编译器忽略，为语言用法错误。  
   
 示例：
 ```
-enum E: volatile unsigned int  // Non-compliant, ‘volatile’ is invalid
+enum E: const unsigned int  // Non-compliant, ‘const’ is invalid
 {
     e0, e1, e2
 };
-E e = e0;  // ‘e’ is not volatile
+E e = e0;  // ‘e’ is not const
 ```
 应改为：
 ```
@@ -5665,7 +5710,7 @@ enum E: unsigned int  // Compliant
 {
     e0, e1, e2
 };
-volatile E e = e0;  // OK, ‘e’ is volatile
+const E e = e0;  // OK, ‘e’ is const
 ```
 <br/>
 <br/>
@@ -12033,7 +12078,31 @@ C++ Core Guidelines ES.63
 <br/>
 <br/>
 
-### <span id="ID_catch_emptyBlock">▌R9.7.3 不应存在空的 catch 块</span>
+### <span id="ID_catch_justRethrow">▌R9.7.3 捕获异常后不应直接重新抛出异常，需对异常进行有效处理</span>
+
+ID_catch_justRethrow&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
+
+<hr/>
+
+捕获异常后将其直接重新抛出是没有意义的，还会造成不必要的开销。  
+  
+示例：
+```
+void foo() {
+    try {
+        bar();
+    }
+    catch (...) {  // Non-compliant
+        throw;
+    }
+}
+```
+例中的 catch 块是没有意义的，应将其去掉。
+<br/>
+<br/>
+<br/>
+
+### <span id="ID_catch_emptyBlock">▌R9.7.4 不应存在空的 catch 块</span>
 
 ID_catch_emptyBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
 
@@ -12071,30 +12140,6 @@ void foo() noexcept {
 CWE-1069  
 CWE-1071  
 CWE-391  
-<br/>
-<br/>
-
-### <span id="ID_catch_justRethrow">▌R9.7.4 捕获异常后不应直接重新抛出异常，需对异常进行有效处理</span>
-
-ID_catch_justRethrow&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
-
-<hr/>
-
-捕获异常后将其直接重新抛出是没有意义的，还会造成不必要的开销。  
-  
-示例：
-```
-void foo() {
-    try {
-        bar();
-    }
-    catch (...) {  // Non-compliant
-        throw;
-    }
-}
-```
-例中的 catch 块是没有意义的，应将其去掉。
-<br/>
 <br/>
 <br/>
 
@@ -16760,7 +16805,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 414 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
+&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 415 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
 
 &emsp;&emsp;此致
 

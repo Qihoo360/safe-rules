@@ -605,9 +605,9 @@
         "standard": "ISO/IEC 14882:2003 3.9.1(1)-implementation,ISO/IEC 14882:2011 3.9.1(1)-implementation"
         },
     "ID_uselessQualifier": {
-        "checkPoint": "enum 的底层类型（underlying type）中不应出现 const 或 volatile",
+        "checkPoint": "枚举类型的底层类型不应为 const 或 volatile",
         "level": "warning",
-        "comment": "enum 或 enum class 的底层类型（underlying type）中出现 const 或 volatile 是没有意义的，会被编译器忽略，为语言用法错误。",
+        "comment": "将 enum 或 enum class 的底层类型（underlying type）设为 const 或 volatile 是没有意义的，会被编译器忽略，为语言用法错误。",
         "tag": "declaration",
         "standard": "ISO/IEC 14882:2011 7.2(2),ISO/IEC 14882:2011 10.2(2)"
         },
@@ -832,6 +832,14 @@
         "tag": "function",
         "standard": "ISO/IEC 9899:1999 5.1.2.2.1(1) 5.1.2.2.3(1),ISO/IEC 9899:2011 5.1.2.2.1(1) 5.1.2.2.3(1)",
         "reference": "C++ Core Guidelines F.46"
+        },
+    "ID_missingNamespace": {
+        "checkPoint": "C++ 代码应在命名空间之内",
+        "level": "warning",
+        "comment": "命名空间是 C++ 项目的必要组成结构，可有效规避名称冲突等问题。",
+        "tag": "global",
+        "related": "ID_usingNamespaceInHeader,ID_forbidUsingDirectives",
+        "reference": "MISRA C++ 2008 7-3-1"
         },
     "ID_nonGlobalMain": {
         "checkPoint": "main 函数只应在全局作用域中",
@@ -2006,9 +2014,9 @@
         "standard": "ISO/IEC 14882:2011 3.5(3)"
         },
     "ID_nameTooShort": {
-        "checkPoint": "全局名称不应太短",
+        "checkPoint": "全局名称应遵循合理的命名方式",
         "level": "suggestion",
-        "comment": "长度过短的全局名称极易造成与局部名称的混淆或冲突，建议全局名称长度不小于 3 个字符。",
+        "comment": "全局名称应具有标识性，长度不应过短，否则易与局部名称产生冲突。",
         "config": {
             "ID_global/ minVariableNameLength": "全局对象名称长度下限，小于则报出",
             "ID_global/minFunctionNameLength": "全局函数名称长度下限，小于则报出",
@@ -2455,17 +2463,17 @@
         "reference": "SEI CERT MSC00-C"
         },
     "ID_warningDefault": {
-        "checkPoint": "代码在高级别的警告设置下编译",
+        "checkPoint": "在高级别的警告设置下编译",
         "level": "suggestion",
-        "comment": "编译器一般允许设定编译警告的级别，级别越高报出的问题越多，也可以将警告设为错误，当有警告产生时停止编译，建议代码在高级别的警告设置下编译。",
+        "comment": "编译器一般允许设定编译警告的级别，级别越高关注的问题就越多，也可以将警告设为错误，当有警告产生时停止编译，建议代码在高级别的警告设置下编译。",
         "tag": "precompile",
         "related": "ID_warningDisabled",
         "reference": "SEI CERT MSC00-C"
         },
     "ID_macro_badName": {
-        "checkPoint": "宏的命名应遵循合理的方式",
+        "checkPoint": "宏应遵循合理的命名方式",
         "level": "suggestion",
-        "comment": "宏的命名应遵循合理的方式，建议用大写字母表示宏的名称。",
+        "comment": "宏的名称应采用全大写字母的形式，非宏名称则应包含小写字母。",
         "config": {
             "ID_macro/maxWordLength": "连续无大小写变化的字符个数上限，超过则报出"
             },
@@ -2566,7 +2574,7 @@
     "ID_macro_const": {
         "checkPoint": "不应使用宏定义常量",
         "level": "suggestion",
-        "comment": "宏处于文本层面，不受作用域等语言规则限制，不应使用宏实现常量等语言层面的概念。",
+        "comment": "宏用于文本处理，不受作用域等语言规则限制，不应使用宏实现常量等语言层面的概念。",
         "tag": "precompile",
         "related": "ID_macro_typeid,ID_macro_function",
         "reference": "C++ Core Guidelines ES.31,C++ Core Guidelines Enum.1"
@@ -2574,7 +2582,7 @@
     "ID_macro_typeid": {
         "checkPoint": "不应使用宏定义类型",
         "level": "suggestion",
-        "comment": "宏处于文本层面，不受作用域等语言规则限制，不应使用宏实现类型等语言层面的概念。",
+        "comment": "宏用于文本处理，不受作用域等语言规则限制，不应使用宏实现类型等语言层面的概念。",
         "tag": "precompile",
         "related": "ID_macro_sideEffectArgs,ID_macro_const,ID_macro_function",
         "reference": "C++ Core Guidelines ES.30"
@@ -2582,7 +2590,7 @@
     "ID_macro_function": {
         "checkPoint": "可由函数实现的功能不应使用宏实现",
         "level": "suggestion",
-        "comment": "宏处于文本层面，不受作用域、参数传递、重载等语言规则限制，可由函数实现的功能不应使用宏实现。",
+        "comment": "宏用于文本处理，不受作用域、参数传递、重载等语言规则限制，可由函数实现的功能不应使用宏实现。",
         "tag": "precompile",
         "related": "ID_macro_sideEffectArgs,ID_macro_const,ID_macro_typeid",
         "reference": "C++ Core Guidelines ES.31,MISRA C 2004 19.7,MISRA C 2012 Dir 4.9,MISRA C++ 2008 16-0-4"
