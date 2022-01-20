@@ -132,7 +132,7 @@
     - [R3.2.2 不可定义具有保留意义的宏名称](#ID_macro_defineReserved)
     - [R3.2.3 不可取消定义具有保留意义的宏名称](#ID_macro_undefReserved)
     - [R3.2.4 可作为子表达式的宏定义应该用括号括起来](#ID_macro_expNotEnclosed)
-    - [R3.2.5 运算符相关的宏参数应该用括号括起来](#ID_macro_paramNotEnclosed)
+    - [R3.2.5 与运算符相关的宏参数应该用括号括起来](#ID_macro_paramNotEnclosed)
     - [R3.2.6 由多个语句组成的宏定义应该用 do\-while(0) 括起来](#ID_macro_stmtNotEnclosed)
     - [R3.2.7 宏的实参个数不可小于形参个数](#ID_macro_insufficientArgs)
     - [R3.2.8 宏的实参个数不可大于形参个数](#ID_macro_redundantArgs)
@@ -198,8 +198,8 @@
     - [R5.1.18 数据成员的数量应在规定范围之内](#ID_tooManyFields)
     - [R5.1.19 存在构造、析构或虚函数的类不应采用 struct 关键字](#ID_unsuitableStructTag)
   - [5.2 Enum](#type.enum)
-    - [R5.2.1 同类枚举值不应有重复](#ID_duplicateEnumerator)
-    - [R5.2.2 各枚举值全不初始化，或者只初始化第一个，或者全部初始化，不应存在其他情况](#ID_casualInitialization)
+    - [R5.2.1 同类枚举项的值不应相同](#ID_duplicateEnumerator)
+    - [R5.2.2 合理初始化各枚举项](#ID_casualInitialization)
     - [R5.2.3 不应使用匿名枚举声明](#ID_forbidUnnamedEnum)
     - [R5.2.4 用 enum class 取代 enum](#ID_forbidUnscopedEnum)
   - [5.3 Union](#type.union)
@@ -222,7 +222,7 @@
     - [R6.2.3 const、volatile 不可修饰引用](#ID_qualifierInvalid)
     - [R6.2.4 const、volatile 限定类型时应出现在左侧](#ID_badQualifierPosition)
     - [R6.2.5 const、volatile 等关键字不应出现在基本类型名称的中间](#ID_sandwichedModifier)
-    - [R6.2.6 指向常量字符串的指针应有 const 关键字修饰](#ID_missingConst)
+    - [R6.2.6 避免用常量字符串对非常量字符串指针赋值](#ID_missingConst)
     - [R6.2.7 枚举类型的底层类型不应为 const 或 volatile](#ID_uselessQualifier)
     - [R6.2.8 对常量的定义不应为引用](#ID_constLiteralReference)
     - [R6.2.9 禁用 restrict 指针](#ID_forbidRestrictPtr)
@@ -455,7 +455,7 @@
     - [R10.3.1 比较运算应在正确的范围内进行](#ID_illComparison)
     - [R10.3.2 不应使用 == 或 != 判断浮点数是否相等](#ID_illFloatComparison)
     - [R10.3.3 指针不应与字符串常量直接比较](#ID_illPtrStrComparison)
-    - [R10.3.4 不同类型的枚举值不应进行比较](#ID_differentEnumComparison)
+    - [R10.3.4 不应比较不同类型的枚举值](#ID_differentEnumComparison)
     - [R10.3.5 比较运算符左右子表达式不应重复](#ID_selfComparison)
     - [R10.3.6 比较运算不应作为另一个比较运算的直接子表达式](#ID_successiveComparison)
   - [10.4 Call](#expression.call)
@@ -2646,13 +2646,13 @@ ID_macro_expNotEnclosed&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 <hr/>
 
-由于宏的展开只做文本上的处理，不考虑运算符优先级等问题，所以可作为子表达式的宏定义应该用括号括起来，否则很可容易产生意料之外的错误。  
+由于宏只做文本处理，不考虑运算符优先级等问题，可作为子表达式的宏定义应该用括号括起来，否则很可容易产生意料之外的错误。  
   
 示例：
 ```
 #define ABS(x) (x) < 0? -(x): (x)  // Non-compliant
 ```
-如果按如下使用方式：
+设 a 为变量，如果按如下使用方式：
 ```
 a = ABS(a) + 1;
 ```
@@ -2674,17 +2674,17 @@ MISRA C 2012 20.7
 <br/>
 <br/>
 
-### <span id="ID_macro_paramNotEnclosed">▌R3.2.5 运算符相关的宏参数应该用括号括起来</span>
+### <span id="ID_macro_paramNotEnclosed">▌R3.2.5 与运算符相关的宏参数应该用括号括起来</span>
 
 ID_macro_paramNotEnclosed&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 <hr/>
 
-由于宏的展开只做文本上的处理，不考虑运算符优先级等问题，故应将宏的参数在宏定义中用括号括起来，否则很可容易产生意料之外的错误。  
+由于宏只做文本处理，不考虑运算符优先级等问题，故应将宏参数用括号括起来，否则很可容易产生意料之外的错误。  
   
 示例：
 ```
-#define SUM(a, b) a + b  // Non-compliant
+#define SUM(a, b) (a + b)  // Non-compliant
 ```
 应改为：
 ```
@@ -3396,7 +3396,7 @@ ID_badBackslash&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 <hr/>
 
-反斜杠可以用于标识转义字符，也可以用来形成“伪换行”效果，即代码换行显示但在语法意义上并没有换行，一般用于宏定义中，除此之外不应再使用反斜杠，否则没有实际意义，也可能造成某种混乱。  
+反斜杠可以用于标识转义字符，也可以用于实现“伪换行”，即代码换行显示但在语法上并没有换行，一般用于宏定义，除此之外不应再使用反斜杠，否则没有实际意义，也会造成混乱。  
   
 示例：
 ```
@@ -3725,8 +3725,8 @@ namespace {
 应改为：
 ```
 namespace {
-    int i = 0;   // Compliant
-    int foo() {  // Compliant
+    int i = 0;          // Compliant
+    int foo() {         // Compliant
         return i++;
     }
 }
@@ -3957,7 +3957,7 @@ ID_topInlineNamespace&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: global suggestion
 
 <hr/>
 
-定义全局 inline 命名空间相当于没有命名空间，应当在普通命名空间之内使用 inline 命令空间。  
+定义全局 inline 命名空间相当于没有命名空间，应在普通命名空间之内使用 inline 命令空间。  
   
 示例：
 ```
@@ -4324,7 +4324,7 @@ ID_missingCopyConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
  2. 析构函数  
  3. 赋值运算符  
   
-当这三个函数中的任何一个函数被定义时，说明对象在复制以及资源的分配与回收方面存在某种特定的行为，所以其他两个函数也需要被定义，否则容易造成冲突或泄漏，这种规则称为“[Rule of three](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming))”。如果不显式定义，编译器虽然也会生成相关函数，但很可能难以满足实际需求。  
+当这三个函数中的任何一个函数被定义时，说明对象在复制和资源管理方面有特定的行为，所以其他两个函数也需要被定义，这种规则称为“[Rule of three](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming))”。如果缺少某个函数，编译器会生成相关函数，但其特定需求不会被实现。  
   
 示例：
 ```
@@ -4335,9 +4335,9 @@ struct A {    // Non-compliant
    ~A() { delete[] p; }
 };
 ```
-例中 A 有析构函数，但没有拷贝构造函数和赋值运算符，对象将按“浅拷贝”方式复制，在析构时会导致 p 被重复释放。  
+例中 A 有析构函数，但没有拷贝构造函数和赋值运算符，编译器会生成相关默认函数，但只进行变量值的复制，使多个对象的成员 p 指向同一块内存区域，导致析构时内存被重复释放，所以应定义拷贝构造函数和赋值运算符重新分配内存并复制数据。  
   
-注意，当类只负责成员的组合而没有特殊的复制行为时，这三个函数就都不要定义，这种规则称为“[Rule of zero](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-zero)”，应尽量遵循“[Rule of zero](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-zero)”，简化代码。  
+注意，当类只负责成员的组合而没有特殊的复制或析构需求时，这三个函数就都不要定义，这种规则称为“[Rule of zero](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-zero)”。  
   
 示例：
 ```
@@ -4349,7 +4349,7 @@ struct B {
    ~B() {}   // Verbose
 };
 ```
-例中 B 只涉及字符串对象的组合，所以其拷贝构造、赋值运算符及析构函数是不必要的，应该去掉，编译器会进行更好的处理。  
+例中 B 只涉及字符串对象的组合，复制和析构可交由成员对象完成，其拷贝构造、赋值运算符及析构函数是不必要的，应该去掉，编译器会进行更好的处理。  
   
 同理，在遵循 C\+\+11 及之后标准的代码中，对于：  
  1. 拷贝构造函数  
@@ -4358,7 +4358,7 @@ struct B {
  4. 移动拷贝构造函数  
  5. 移动赋值运算符  
   
-当这五个函数中的任何一个函数被定义时，其他四个函数也需要显示定义，这种规则称为“[Rule of five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming)#Rule_of_Five)”。  
+当定义了这五个函数中的任何一个函数时，其他四个函数也需要定义，这种规则称为“[Rule of five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming)#Rule_of_Five)”。  
   
 如果确实不需要某个函数，也需要用“=delete”指明，以明确约束对象的行为。
 <br/>
@@ -4640,7 +4640,7 @@ ID_excessiveExplicit&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
 
 <hr/>
 
-对于类的拷贝构造函数、移动构造函数以及不接受 1 个参数的构造函数一般不用 explicit 关键字限定，否则有损代码的易用性和扩展性。  
+对类的拷贝、移动以及不接受 1 个参数的构造函数一般不用 explicit 限定，否则有损代码的易用性和可扩展性。  
   
 示例：
 ```
@@ -4651,18 +4651,18 @@ public:
     explicit A(int, int);  // Ditto
     ....
 };
-
+```
+当类的拷贝、移动构造函数被 explicit 限定时，无法再按值传递参数或按值返回对象；当不接受 1 个参数的构造函数被 explicit 限定时，无法再用初始化列表定义临时对象。  
+  
+如下代码将无法通过编译：
+```
 void foo(A);
 void bar(const A&);
-```
-当类的拷贝、移动构造函数被 explicit 限定时，无法再按值传递参数或按值返回对象。  
-当不接受一个参数的构造函数被 explicit 限定时，无法再用初始化列表定义临时对象。  
-  
-如下调用将无法通过编译：
-```
+
 A a(1, 2);
+
 foo(a);       // Compile error
-bar({1, 2});  // Compile error
+bar({3, 4});  // Compile error
 ```
 <br/>
 <br/>
@@ -4903,13 +4903,13 @@ C++ Core Guidelines C.8
 
 ### <span id="type.enum">5.2 Enum</span>
 
-### <span id="ID_duplicateEnumerator">▌R5.2.1 同类枚举值不应有重复</span>
+### <span id="ID_duplicateEnumerator">▌R5.2.1 同类枚举项的值不应相同</span>
 
 ID_duplicateEnumerator&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
 
 <hr/>
 
-枚举值应被用作不同事物的标记，重复的枚举值往往意味着错误。  
+枚举项用于标记不同的事物，名称不同但值相同的枚举项往往意味着错误。  
   
 示例：
 ```
@@ -4918,14 +4918,25 @@ enum Color {
     yellow = 2,
     blue = 2,    // Non-compliant, see ‘yellow’
 };
-
+```
+例中三个枚举项应分别表示三种颜色，但 blue 与 yellow 的值相同会造成逻辑错误。  
+  
+又如：
+```
 enum Fruit {
-    apple = 1,
+    apple,
     pear,
-    peach = 2,   // Non-compliant, see ‘pear’
     grape,
-    favourite_fruit = grape,  // Non-compliant, change it to a function
+    favourite = grape,  // Non-compliant, change it to a function
 };
+```
+例中 favourite 与其他枚举项不是同一层面的概念，不应聚为一类。  
+  
+应采用结构更清晰的方式：
+```
+Fruit favourite() {
+    return grape;
+}
 ```
 <br/>
 <br/>
@@ -4935,16 +4946,16 @@ C++ Core Guidelines Enum.8
 <br/>
 <br/>
 
-### <span id="ID_casualInitialization">▌R5.2.2 各枚举值全不初始化，或者只初始化第一个，或者全部初始化，不应存在其他情况</span>
+### <span id="ID_casualInitialization">▌R5.2.2 合理初始化各枚举项</span>
 
 ID_casualInitialization&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestion
 
 <hr/>
 
-声明枚举类型时，只应从下列方式中选择一种：   
+合理初始化各枚举项，只应从下列方式中选择一种：   
  - 全不初始化  
  - 只初始化第一个  
- - 全部初始化  
+ - 全部初始化为不同的值  
   
 示例：
 ```
@@ -4958,7 +4969,7 @@ enum Colour {
 应改为：
 ```
 enum Colour {
-    red = 1,     // Compliant
+    red,         // Compliant
     blue,
     green,
     yellow
@@ -4983,19 +4994,16 @@ ID_forbidUnnamedEnum&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: type suggestion
 
 <hr/>
 
-匿名枚举声明相当于在当前作用域定义常量，然而这些常量的类型是不明确的（虽然可以转为 int），而且当无法为枚举类型起一个确定的名字时，也意味着各枚举值不应聚为一类。  
+匿名枚举声明相当于在当前作用域定义常量，类型不够明确，而且如果无法确定枚举类型的名称，也意味着各枚举项不应聚为一类。  
   
 示例：
 ```
-enum {
-    blue = 0xff, carrot = 5, swim = 100  // Non-compliant
-};
+enum { rabbit = 0xAA, carrot = 1234 };  // Non-compliant
 ```
 应改为：
 ```
-const int blue = 0xff;
-const int carrot = 5;
-const int swim = 100;
+const int rabbit = 0xAA;  // Compliant
+const int carrot = 1234;  // Compliant
 ```
 <br/>
 <br/>
@@ -5395,11 +5403,11 @@ class A {
 
 public:
     int foo() {
-        int i = 0;      // OK
+        int i = 0;      // Compliant
         return bar(i);
     }
 
-    int bar(int i) {    // OK
+    int bar(int i) {    // Compliant
         return i_ + i;
     }
 };
@@ -5435,7 +5443,7 @@ enum {
 
 size_t x = sizeof(A);  // What is ‘A’?
 ```
-例中类名 A 与枚举值 A 重名，sizeof(A) 的意义是非常令人困惑的。
+例中类名 A 与枚举项 A 重名，sizeof(A) 的意义是非常令人困惑的。
 <br/>
 <br/>
 
@@ -5571,7 +5579,7 @@ typedef int& int_r;   // Reference type alias, bad
 const int_r r0 = a;   // Non-compliant, r0 is not a const-reference at all
 const int_r& r1 = a;  // Non-compliant, r1 is not a const-reference at all
 ```
-例中 r0 像是一个常量对象，而 r1 像是常量对象的引用，但 const int\_r 展开后相当于 int & const， a 的值仍然可以通过引用被修改，所以应避免对引用类型定义别名。
+例中 r0 像是一个常量对象，而 r1 像是常量对象的引用，但 const int\_r 展开后相当于 int & const，r0 不是常量，r1 也不是常量的引用。
 <br/>
 <br/>
 
@@ -5659,26 +5667,29 @@ C++ Core Guidelines NL.26
 <br/>
 <br/>
 
-### <span id="ID_missingConst">▌R6.2.6 指向常量字符串的指针应有 const 关键字修饰</span>
+### <span id="ID_missingConst">▌R6.2.6 避免用常量字符串对非常量字符串指针赋值</span>
 
 ID_missingConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-定义指向常量字符串的指针时应有 const 关键字修饰，否则常量字符串被修改会导致标准未定义的问题。  
+用常量字符串对非常量字符串指针赋值，相关内存被修改会导致标准未定义的问题。  
   
 示例：
 ```
-char* p = "a const string";  // Non-compliant
+char* p = "a string literal";  // Non-compliant
 ....
 p[x] = '\0';   // Undefined behaivor
 ```
+例中 p 指向常量字符串，通过 p 修改相关内存区域会种程序产生未定义的行为。  
+  
 应改为：
 ```
-const char* p = "a const string";  // Compliant
+const char* p = "a string literal";  // Compliant
 ....
 p[x] = '\0';   // Compile-time protected
 ```
+改为常量字符串指针后，错误的操作无法通过编译。
 <br/>
 <br/>
 
@@ -7465,7 +7476,7 @@ ID_forbidEnumBitfield&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration warnin
 
 <hr/>
 
-枚举变量的值可以是有符号整数，由于符号位的存在极易导致意料之外的结果，且不利于枚举类型的扩展，故不应对枚举变量声明位域。  
+枚举变量的类型可以是有符号整数，符号位与位域结合易导致意料之外的错误，且不利于枚举类型的扩展。  
   
 示例：
 ```
@@ -7480,15 +7491,14 @@ struct X {
 int main() {
     X x;
     x.e = D;
-    if (x.e == D) {  // What is output?
-        std::cout << "OK";
+    if (x.e == D) {   // What is output?
+        cout << "OK";
     } else {
-        std::cout << "Oops";
+        cout << "Oops";
     }
 }
 ```
-输出  Oops  
-例中 E 各枚举值的范围是 \[0,3\]，按常规思维，位域长度为 2 即可满足所有枚举值的范围，然而由于符号位的存在否定了这一点，导致 x.e 用 D 赋值后再与 D 比较竟然得到不相等的结果（因为 D 的值为 3 而 x.e 的值为 \-1）。
+输出 Oops，例中 E 各枚举项的范围是 \[0,3\]，按常规思维，位域长度为 2 即可满足这个范围，然而符号位的存在否定了这一点，导致 x.e 用 D 赋值后再与 D 比较竟然得到不相等的结果（因为 D 的值为 3 而 x.e 的值为 \-1）。
 <br/>
 <br/>
 
@@ -11469,13 +11479,13 @@ ID_switch_uselessFallThrough&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 ```
 switch (v)
 {
-case 0:
+case 0:     // Compliant
     ....
     break;
 
-case 1:   // Non-compliant
+case 1:     // Non-compliant
 default:
-case 2:   // Non-compliant
+case 2:     // Non-compliant
     ....
     break;
 }
@@ -11484,11 +11494,11 @@ case 2:   // Non-compliant
 ```
 switch (v)
 {
-case 0:
+case 0:     // Compliant
     ....
     break;
 
-default:  // Compliant
+default:    // Compliant
     ....
     break;
 }
@@ -11600,7 +11610,7 @@ ID_switch_onlyDefault&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 ```
 switch (v)
 {
-default:  // Meaningless
+default:    // Meaningless
     ....
 }
 ```
@@ -11608,7 +11618,7 @@ default:  // Meaningless
 ```
 switch (v)
 {
-case 1:  // Meaningless
+case 1:    // Meaningless
 case 2:
 default:
     ....
@@ -11634,7 +11644,7 @@ ID_switch_onlyOneCase&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 ```
 switch (v)
 {
-case 123:  // Non-compliant
+case 123:    // Non-compliant
     ....
     break;
 }
@@ -11707,7 +11717,7 @@ default:
 }
 ```
 例外：  
-当 switch 变量为枚举类型，且 case 标签已对应所有枚举值时，不再要求有 default 分枝。
+当 switch 变量为枚举类型，且 case 标签已对应所有枚举项时，不再要求有 default 分枝。
 <br/>
 <br/>
 
@@ -11747,7 +11757,7 @@ default:
 ```
 switch (c)
 {
-case 0:   // OK
+case 0:     // Compliant
 case 1:
     do_something(c);
     break;
@@ -13387,7 +13397,7 @@ CWE-1025
 <br/>
 <br/>
 
-### <span id="ID_differentEnumComparison">▌R10.3.4 不同类型的枚举值不应进行比较</span>
+### <span id="ID_differentEnumComparison">▌R10.3.4 不应比较不同类型的枚举值</span>
 
 ID_differentEnumComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -13629,6 +13639,8 @@ ID_userObjectAsVariadicArgument&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression e
 
 非基本类型的对象与可变参数列表的机制很难相容，如果这种对象被传入可变参数列表，往往意味着错误。  
   
+传入可变参数列表的只应是基本类型的常量、变量、枚举值或指针，否则如果传入的对象存在自定义拷贝构造函数、移动构造函数或析构函数时，相关标准的定义较为粗略，往往是“conditionally\-supported”或者“implementation\-defined”。  
+  
 示例：
 ```
 struct A {
@@ -13642,7 +13654,7 @@ void foo(const A& a) {
     printf("%s\n", a);  // Non-compliant
 }
 ```
-例中即使对象 a 有转为 const char\* 的相关方法，在可变参数列表中也是无效的。  
+即使对象有转为 const char\* 的方法，在可变参数列表中也是无效的，printf 无法正确获取字符串地址，造成内存访问错误。  
   
 应改为：
 ```
@@ -13650,9 +13662,6 @@ void foo(const A& a) {
     printf("%s\n", static_cast<const char*>(a));  // Compliant
 }
 ```
-传入可变参数列表的只应是基本类型的变量、枚举值或指针。标准相关的定义较为粗略，如果传入的对象存在自定义的拷贝、移动构造或析构等函数时，这种情况是“conditionally\-supported”也是“implementation\-defined”。   
-  
-由于可变参数列表不满足 C\+\+ 严谨的类型理念，本规则禁止所有非基本类型的对象传入可变参数列表。
 <br/>
 <br/>
 
@@ -13800,7 +13809,7 @@ ID_explicitDtorCall&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: expression suggestion
 
 <hr/>
 
-显式调用析构函数使对象在生命周期未结束的时候被析构，在逻辑上使人困惑，而且在对象生命周期结束时其析构函数仍会被执行，有可能造成资源重复释放的问题。  
+显式调用析构函数使对象在生命周期未结束的时候被析构，在逻辑上使人困惑，而且在对象生命周期结束时其析构函数仍会被调用，有可能造成资源重复释放的问题。  
   
 示例：
 ```
@@ -13815,14 +13824,10 @@ public:
 
 void fun() {
     A a;
-    a.~A();  // Explicit call of destructor
-             // ~A() twice called, crash...
-}
+    a.~A();  // Non-compliant, explicitly call the destructor
+}            // ~A() twice called, crash...
 ```
-例中对象 a 的析构函数被显式调用，之后 a 的生命周期结束会再次调用析构函数，造成内存的重复释放。  
-  
-修正方法：  
-去掉显示调用，或保证相关资源不会被重复释放，如在 delete\[\] p 之后，将 p 设为 nullptr。
+例中对象 a 的析构函数被显式调用，之后 a 的生命周期结束会再次调用析构函数，造成内存的重复释放。应去掉显式调用，由类提供提前释放资源的方法，并保证资源不会被重复释放。
 <br/>
 <br/>
 
@@ -14880,27 +14885,24 @@ ID_literal_magicNumber&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: literal suggestion
 
 <hr/>
 
-对于直接出现在代码中的字面数值（magic number），建议改用具有适当名称的常量表示，提高代码可读性，且便于维护。  
+对于直接出现在代码中的字面数值（magic number），建议改用具有适当名称的常量或枚举项表示。  
   
 示例：
 ```
-void fun() {
-    for (int i = 0; i < 12345; i++) {  // Non-compliant, 12345 is magic
-        ....
-    }
+for (int i = 0; i < 12345; i++) {  // Non-compliant, 12345 is a magic number
+    ....
 }
 ```
-“12345”应改为具有名称的常量：
+例中 12345 不能表示其具体的含义，而且当这种 magic number 散落在代码的各个角落时，不便于统一管理，造成维护上的困难。  
+  
+应改为具有名称的常量：
 ```
 const int maxId = 12345;
 
-void fun() {
-    for (int i = 0; i < maxId; i++) {  // Compliant
-        ....
-    }
+for (int i = 0; i < maxId; i++) {  // Compliant
+    ....
 }
 ```
-“12345”并不能明确表示其具体的含义，改为 maxId 后会好很多，而且当这种常量散落在代码的各个角落时，不便于统一修改，造成维护上的困难。
 <br/>
 <br/>
 
@@ -14923,7 +14925,7 @@ ID_literal_magicString&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: literal suggestion
 
 <hr/>
 
-对于直接出现在代码中的字符串常量（magic string），建议改用具有适当名称的常量表示，提高代码可读性，且便于维护。  
+对于直接出现在代码中的字符串常量（magic string），建议改用具有适当名称的常量表示。  
   
 示例：
 ```
@@ -14933,6 +14935,8 @@ void foo(const string& s) {
     }
 }
 ```
+当这种常量字符串散落在代码的各个角落时，不便于统一管理，造成维护上的困难。  
+  
 应改为：
 ```
 const char url[] = "https://foo.net/bar";  // Compliant
@@ -14943,7 +14947,6 @@ void foo(const string& s) {
     }
 }
 ```
-当这种常量字符串散落在代码的各个角落时，不便于统一修改，造成维护上的困难。
 <br/>
 <br/>
 
