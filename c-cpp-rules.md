@@ -160,11 +160,11 @@
 
 <span id="__Global">**[4. Global](#global)**</span>
   - [R4.1 全局名称应遵循合理的命名方式](#ID_nameTooShort)
-  - [R4.2 为 C\+\+ 代码设置合理的命名空间](#ID_missingNamespace)
+  - [R4.2 为代码设定合理的命名空间](#ID_missingNamespace)
   - [R4.3 main 函数只应处于全局作用域中](#ID_nonGlobalMain)
   - [R4.4 头文件中不应使用 using directive](#ID_usingNamespaceInHeader)
-  - [R4.5 头文件中不应定义匿名命名空间](#ID_anonymousNamespaceInHeader)
-  - [R4.6 头文件的全局或命名空间作用域中不应使用静态声明](#ID_staticInHeader)
+  - [R4.5 头文件中不应使用静态声明](#ID_staticInHeader)
+  - [R4.6 头文件中不应定义匿名命名空间](#ID_anonymousNamespaceInHeader)
   - [R4.7 匿名命名空间中不应使用静态声明](#ID_staticInAnonymousNamespace)
   - [R4.8 全局对象的初始化不可依赖未初始化的对象](#ID_relyOnExternalObject)
   - [R4.9 全局对象只应为常量或静态对象](#ID_nonConstNonStaticGlobalObject)
@@ -312,11 +312,11 @@
   - [R8.5 多态类的对象作为参数时不应采用值传递的方式](#ID_paramMayBeSlicing)
   - [R8.6 不应存在未被使用的具名形式参数](#ID_paramNotUsed)
   - [R8.7 由 const 修饰的参数应为引用或指针](#ID_paramPassedByValue)
-  - [R8.8 局部变量在使用前必须初始化](#ID_localInitialization)
-  - [R8.9 成员须在声明处或构造时初始化](#ID_memberInitialization)
-  - [R8.10 基类对象构造完毕之前不可调用成员函数](#ID_illMemberCall)
-  - [R8.11 在面向构造或析构函数体的 catch 块中不可访问非静态成员](#ID_illMemberAccess)
-  - [R8.12 “转发引用”只应作为 std::forward 的参数](#ID_illForwardingReference)
+  - [R8.8 转发引用只应作为 std::forward 的参数](#ID_illForwardingReference)
+  - [R8.9 局部变量在使用前必须初始化](#ID_localInitialization)
+  - [R8.10 成员须在声明处或构造时初始化](#ID_memberInitialization)
+  - [R8.11 基类对象构造完毕之前不可调用成员函数](#ID_illMemberCall)
+  - [R8.12 在面向构造或析构函数体的 catch 块中不可访问非静态成员](#ID_illMemberAccess)
   - [R8.13 成员初始化应遵循声明的顺序](#ID_disorderedInitialization)
   - [R8.14 在构造函数中不应调用虚函数](#ID_virtualCallInConstructor)
   - [R8.15 在析构函数中不应调用虚函数](#ID_virtualCallInDestuctor)
@@ -324,30 +324,31 @@
   - [R8.17 赋值运算符应妥善处理参数就是自身对象时的情况](#ID_this_selfJudgement)
   - [R8.18 避免无效写入](#ID_invalidWrite)
   - [R8.19 不应存在得不到执行机会的代码](#ID_unreachableCode)
-  - [R8.20 有返回值的函数其所有分枝都应有明确的返回值](#ID_notAllBranchReturn)
-  - [R8.21 不可返回局部对象的地址或引用](#ID_localAddressFlowOut)
-  - [R8.22 合理设置 lambda 表达式对变量的捕获方式](#ID_unsuitableCapture)
-  - [R8.23 函数不应返回右值引用](#ID_returnRValueReference)
-  - [R8.24 函数返回值不应为 const 对象](#ID_returnConstObject)
-  - [R8.25 返回值应与函数的返回类型相符](#ID_returnOdd)
-  - [R8.26 函数返回值不应为相同的常量](#ID_returnSameConst)
-  - [R8.27 基本类型的返回值不应使用 const 修饰](#ID_returnSuperfluousConst)
-  - [R8.28 属性为 noreturn 的函数中不应出现 return 语句](#ID_unsuitableReturn)
-  - [R8.29 属性为 noreturn 的函数返回类型只应为 void](#ID_unsuitableReturnType)
-  - [R8.30 不应出现多余的跳转语句](#ID_redundantJump)
-  - [R8.31 va\_start 或 va\_copy 应配合 va\_end 使用](#ID_incompleteVAMacros)
-  - [R8.32 函数模版不应被特化](#ID_functionSpecialization)
-  - [R8.33 函数的标签数量应在规定范围之内](#ID_tooManyLabels)
-  - [R8.34 函数的行数应在规定范围之内](#ID_tooManyLines)
-  - [R8.35 lambda 表达式的行数应在规定范围之内](#ID_tooManyLambdaLines)
-  - [R8.36 函数参数的数量应在规定范围之内](#ID_tooManyParams)
-  - [R8.37 不应定义过于复杂的内联函数](#ID_complexInlineFunction)
-  - [R8.38 禁止 goto 语句向嵌套的或无包含关系的作用域跳转](#ID_forbidGotoBlocks)
-  - [R8.39 禁止 goto 语句向前跳转](#ID_forbidGotoBack)
-  - [R8.40 禁用 goto 语句](#ID_forbidGoto)
-  - [R8.41 禁用 setjmp、longjmp](#ID_forbidLongjmp)
-  - [R8.42 避免递归实现](#ID_recursion)
-  - [R8.43 不应存在重复的函数实现](#ID_functionRepetition)
+  - [R8.20 不应存在没有副作用的语句](#ID_missingSideEffect)
+  - [R8.21 有返回值的函数其所有分枝都应有明确的返回值](#ID_notAllBranchReturn)
+  - [R8.22 不可返回局部对象的地址或引用](#ID_localAddressFlowOut)
+  - [R8.23 合理设置 lambda 表达式对变量的捕获方式](#ID_unsuitableCapture)
+  - [R8.24 函数不应返回右值引用](#ID_returnRValueReference)
+  - [R8.25 函数返回值不应为 const 对象](#ID_returnConstObject)
+  - [R8.26 返回值应与函数的返回类型相符](#ID_returnOdd)
+  - [R8.27 函数返回值不应为相同的常量](#ID_returnSameConst)
+  - [R8.28 基本类型的返回值不应使用 const 修饰](#ID_returnSuperfluousConst)
+  - [R8.29 属性为 noreturn 的函数中不应出现 return 语句](#ID_unsuitableReturn)
+  - [R8.30 属性为 noreturn 的函数返回类型只应为 void](#ID_unsuitableReturnType)
+  - [R8.31 不应出现多余的跳转语句](#ID_redundantJump)
+  - [R8.32 va\_start 或 va\_copy 应配合 va\_end 使用](#ID_incompleteVAMacros)
+  - [R8.33 函数模版不应被特化](#ID_functionSpecialization)
+  - [R8.34 函数的标签数量应在规定范围之内](#ID_tooManyLabels)
+  - [R8.35 函数的行数应在规定范围之内](#ID_tooManyLines)
+  - [R8.36 lambda 表达式的行数应在规定范围之内](#ID_tooManyLambdaLines)
+  - [R8.37 函数参数的数量应在规定范围之内](#ID_tooManyParams)
+  - [R8.38 不应定义过于复杂的内联函数](#ID_complexInlineFunction)
+  - [R8.39 禁止 goto 语句向嵌套的或无包含关系的作用域跳转](#ID_forbidGotoBlocks)
+  - [R8.40 禁止 goto 语句向前跳转](#ID_forbidGotoBack)
+  - [R8.41 禁用 goto 语句](#ID_forbidGoto)
+  - [R8.42 禁用 setjmp、longjmp](#ID_forbidLongjmp)
+  - [R8.43 避免递归实现](#ID_recursion)
+  - [R8.44 不应存在重复的函数实现](#ID_functionRepetition)
 <br/>
 
 <span id="__Control">**[9. Control](#control)**</span>
@@ -398,8 +399,8 @@
     - [R9.5.6 不应存在紧邻 default 标签的空 case 标签](#ID_switch_uselessFallThrough)
     - [R9.5.7 不应存在内容完全相同的 case 分枝](#ID_switch_identicalBranch)
     - [R9.5.8 switch 语句的条件变量或表达式不应为 bool 型](#ID_switch_bool)
-    - [R9.5.9 不应使用只有 default 标签的 switch 语句](#ID_switch_onlyDefault)
-    - [R9.5.10 不应使用只有一个 case 标签的 switch 语句](#ID_switch_onlyOneCase)
+    - [R9.5.9 switch 语句不应只包含 default 标签](#ID_switch_onlyDefault)
+    - [R9.5.10 switch 语句不应只包含一个 case 标签](#ID_switch_onlyOneCase)
     - [R9.5.11 switch 语句分枝数量应在规定范围之内](#ID_switch_tooManyCases)
     - [R9.5.12 switch 语句应配有 default 分枝](#ID_switch_missingDefault)
     - [R9.5.13 switch 语句的每个非空分枝都应该用无条件的 break 语句终止](#ID_switch_breakOmitted)
@@ -429,35 +430,34 @@
     - [R10.1.6 逻辑表达式的右子表达不应有副作用](#ID_shortCircuitSideEffect)
     - [R10.1.7 逻辑表达式应尽量保持简洁明了](#ID_simplifiableCondition)
     - [R10.1.8 可化简为逻辑表达式的三元表达式应尽量化简](#ID_simplifiableTernary)
-  - [10.2 Arithmetic](#expression.arithmetic)
-    - [R10.2.1 不应存在没有效果的表达式](#ID_missingSideEffect)
-    - [R10.2.2 逗号表达式的子表达式应具有必要的副作用](#ID_invalidCommaSubExpression)
-    - [R10.2.3 赋值表达式中不应存在被赋值变量的自增或自减运算](#ID_confusingAssignment)
-    - [R10.2.4 子表达式的求值不应依赖特定的顺序](#ID_evaluationOrderReliance)
-    - [R10.2.5 注意运算符优先级，不可产生非预期的结果](#ID_unexpectedPrecedence)
-    - [R10.2.6 不在同一数组中的指针不可比较或相减](#ID_illPtrDiff)
-    - [R10.2.7 bool 型变量或表达式不应参与大小比较、位运算、自增自减等运算](#ID_illBoolOperation)
-    - [R10.2.8 不应出现复合赋值的错误形式](#ID_illFormedCompoundAssignment)
-    - [R10.2.9 避免出现复合赋值的可疑形式](#ID_suspiciousCompoundAssignment)
-    - [R10.2.10 &=、|=、\-=、/=、%= 左右子表达式不应相同](#ID_illSelfCompoundAssignment)
-    - [R10.2.11 不应使用 NULL 对非指针变量赋值或初始化](#ID_oddNullAssignment)
-    - [R10.2.12 赋值运算符与单目运算符之间应有空格，单目运算符与变量或表达式之间不应有空格](#ID_stickyAssignmentOperator)
-    - [R10.2.13 赋值运算符左右子表达式不应重复](#ID_selfAssignment)
-    - [R10.2.14 除法运算符、求余运算符左右子表达不应重复](#ID_selfDivision)
-    - [R10.2.15 减法运算符左右子表达式不应重复](#ID_selfSubtraction)
-    - [R10.2.16 异或运算符左右子表达式不应重复](#ID_selfExclusiveOr)
-    - [R10.2.17 负号不应作用于无符号整数](#ID_minusOnUnsigned)
-    - [R10.2.18 不应重复使用一元运算符](#ID_repeatedUnaryOperators)
-    - [R10.2.19 运算结果不应溢出](#ID_evalOverflow)
-    - [R10.2.20 位运算符不应作用于有符号整数](#ID_bitwiseOperOnSigned)
-    - [R10.2.21 移位数量不可超过相关类型比特位的数量](#ID_illShiftCount)
+  - [10.2 Evaluation](#expression.evaluation)
+    - [R10.2.1 子表达式的求值不应依赖特定的顺序](#ID_evaluationOrderReliance)
+    - [R10.2.2 赋值表达式中不应存在被赋值变量的自增或自减运算](#ID_confusingAssignment)
+    - [R10.2.3 注意运算符优先级，不可产生非预期的结果](#ID_unexpectedPrecedence)
+    - [R10.2.4 不在同一数组中的指针不可比较或相减](#ID_illPtrDiff)
+    - [R10.2.5 bool 型变量或表达式不应参与大小比较、位运算、自增自减等运算](#ID_illBoolOperation)
+    - [R10.2.6 不应出现复合赋值的错误形式](#ID_illFormedCompoundAssignment)
+    - [R10.2.7 避免出现复合赋值的可疑形式](#ID_suspiciousCompoundAssignment)
+    - [R10.2.8 &=、|=、\-=、/=、%= 左右子表达式不应相同](#ID_illSelfCompoundAssignment)
+    - [R10.2.9 不应使用 NULL 对非指针变量赋值或初始化](#ID_oddNullAssignment)
+    - [R10.2.10 赋值运算符与单目运算符之间应有空格，单目运算符与变量或表达式之间不应有空格](#ID_stickyAssignmentOperator)
+    - [R10.2.11 赋值运算符左右子表达式不应重复](#ID_selfAssignment)
+    - [R10.2.12 除法运算符、求余运算符左右子表达不应重复](#ID_selfDivision)
+    - [R10.2.13 减法运算符左右子表达式不应重复](#ID_selfSubtraction)
+    - [R10.2.14 异或运算符左右子表达式不应重复](#ID_selfExclusiveOr)
+    - [R10.2.15 负号不应作用于无符号整数](#ID_minusOnUnsigned)
+    - [R10.2.16 不应重复使用一元运算符](#ID_repeatedUnaryOperators)
+    - [R10.2.17 运算结果不应溢出](#ID_evalOverflow)
+    - [R10.2.18 位运算符不应作用于有符号整数](#ID_bitwiseOperOnSigned)
+    - [R10.2.19 移位数量不可超过相关类型比特位的数量](#ID_illShiftCount)
+    - [R10.2.20 逗号表达式的子表达式应具有必要的副作用](#ID_invalidCommaSubExpression)
   - [10.3 Comparison](#expression.comparison)
     - [R10.3.1 比较运算应在正确的范围内进行](#ID_illComparison)
     - [R10.3.2 不应使用 == 或 != 判断浮点数是否相等](#ID_illFloatComparison)
     - [R10.3.3 指针不应与字符串常量直接比较](#ID_illPtrStrComparison)
     - [R10.3.4 不应比较非同类枚举值](#ID_differentEnumComparison)
     - [R10.3.5 比较运算符左右子表达式不应重复](#ID_selfComparison)
-    - [R10.3.6 比较运算不应作为另一个比较运算的直接子表达式](#ID_successiveComparison)
+    - [R10.3.6 比较运算不可作为另一个比较运算的直接子表达式](#ID_successiveComparison)
   - [10.4 Call](#expression.call)
     - [R10.4.1 返回值不应被忽略](#ID_returnValueIgnored)
     - [R10.4.2 不可臆断返回值的意义](#ID_wrongUseOfReturnValue)
@@ -3469,7 +3469,7 @@ C++ Core Guidelines NL.7
 <br/>
 <br/>
 
-### <span id="ID_missingNamespace">▌R4.2 为 C++ 代码设置合理的命名空间</span>
+### <span id="ID_missingNamespace">▌R4.2 为代码设定合理的命名空间</span>
 
 ID_missingNamespace&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
@@ -3623,47 +3623,13 @@ MISRA C++ 2008 7-3-6
 <br/>
 <br/>
 
-### <span id="ID_anonymousNamespaceInHeader">▌R4.5 头文件中不应定义匿名命名空间</span>
-
-ID_anonymousNamespaceInHeader&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
-
-<hr/>
-
-头文件中定义了匿名命名空间，即相当于在头文件中定义了静态数据，头文件被多个源文件包含时便会造成数据冗余。  
-  
-可参见 ID\_staticInHeader 的进一步讨论。  
-  
-示例：
-```
-// In a header file
-namespace {  // Non-compliant
-    void foo();
-}
-```
-<br/>
-<br/>
-
-#### 相关
-ID_staticInHeader  
-<br/>
-
-#### 依据
-ISO/IEC 14882:2011 7.3.1.1  
-<br/>
-
-#### 参考
-C++ Core Guidelines SF.21  
-MISRA C++ 2008 7-3-3  
-<br/>
-<br/>
-
-### <span id="ID_staticInHeader">▌R4.6 头文件的全局或命名空间作用域中不应使用静态声明</span>
+### <span id="ID_staticInHeader">▌R4.5 头文件中不应使用静态声明</span>
 
 ID_staticInHeader&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
 <hr/>
 
-头文件中由 static 关键字声明的对象、数组或函数，会在每个包含该头文件的翻译单元（translate\-unit）中生成副本而造成数据冗余，如果将静态数据误用作全局数据也会造成逻辑错误。  
+头文件中由 static 关键字声明的对象、数组或函数，会在每个包含该头文件的翻译单元（translate\-unit）中生成副本造成数据冗余，如果将静态数据误用作全局数据也会造成逻辑错误。  
   
 示例：
 ```
@@ -3700,6 +3666,40 @@ const MyArr& getMyArr() {
 
 #### 依据
 ISO/IEC 14882:2011 3.5(3)  
+<br/>
+<br/>
+
+### <span id="ID_anonymousNamespaceInHeader">▌R4.6 头文件中不应定义匿名命名空间</span>
+
+ID_anonymousNamespaceInHeader&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
+
+<hr/>
+
+头文件中定义了匿名命名空间，即相当于在头文件中定义了静态数据，头文件被多个源文件包含时便会造成数据冗余。  
+  
+可参见 ID\_staticInHeader 的进一步讨论。  
+  
+示例：
+```
+// In a header file
+namespace {  // Non-compliant
+    void foo();
+}
+```
+<br/>
+<br/>
+
+#### 相关
+ID_staticInHeader  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2011 7.3.1.1  
+<br/>
+
+#### 参考
+C++ Core Guidelines SF.21  
+MISRA C++ 2008 7-3-3  
 <br/>
 <br/>
 
@@ -3844,7 +3844,7 @@ A& getObject() {
     return a;
 }
 ```
-在其他文件中用 getObject 函数获取对象，再由其成员函数对 foo、bar 进行读写，有效实现封装理念，而且可以保证对象在使用之前被有效初始化。
+用 getObject 函数获取对象，再由其成员函数对 foo、bar 进行读写，有效实现封装理念，而且可以保证对象在使用之前被有效初始化。
 <br/>
 <br/>
 
@@ -6643,7 +6643,10 @@ void bar() {
 }
 ```
 foo 可能只会返回 true，而 bar 可能输出 \-152，也可能输出 360。  
-char 类型在 PC 桌面、服务端等环境中一般是有符号的，在移动端或嵌入式系统中往往是无符号的，需明确其具体实现。
+  
+char 类型在 PC 桌面、服务端等环境中一般是有符号的，在移动端或嵌入式系统中往往是无符号的，需明确其具体实现。  
+  
+应改为：
 ```
 bool foo(unsigned char c) { // Compliant
     return c < 180;
@@ -8638,7 +8641,37 @@ C++ Core Guidelines F.16
 <br/>
 <br/>
 
-### <span id="ID_localInitialization">▌R8.8 局部变量在使用前必须初始化</span>
+### <span id="ID_illForwardingReference">▌R8.8 转发引用只应作为 std::forward 的参数</span>
+
+ID_illForwardingReference&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
+
+<hr/>
+
+不应混淆转发引用与右值引用，除作为 std::forward 的参数之外，不应对转发引用再有任何操作。  
+  
+转发引用是类型为 T&& 的参数，T 为函数模板类型，无论左值还是右值均可被这种参数接受，而且 const、volatile 等属性也会被忽略，由于含有不确定的状态，所以直接操作转发引用是不妥的，只应通过 std::forward<T> 交由合适的接口处理。  
+  
+示例：
+```
+template <class T>
+void bar(T&& x) {
+    x.foo();   // Non-compliant
+}
+```
+例中参数 x 是转发引用，并不是一般的右值引用，在 bar 函数内部并不知道 x 是左值还是右值，而且 x 对应的实际参数也可能被 const 或 volatile 修饰，所以直接调用 x 的 foo 成员会引发逻辑上的混乱。
+<br/>
+<br/>
+
+#### 相关
+ID_unsuitableForward  
+<br/>
+
+#### 参考
+C++ Core Guidelines F.19  
+<br/>
+<br/>
+
+### <span id="ID_localInitialization">▌R8.9 局部变量在使用前必须初始化</span>
 
 ID_localInitialization&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
@@ -8699,7 +8732,7 @@ MISRA C++ 2008 8-5-1
 <br/>
 <br/>
 
-### <span id="ID_memberInitialization">▌R8.9 成员须在声明处或构造时初始化</span>
+### <span id="ID_memberInitialization">▌R8.10 成员须在声明处或构造时初始化</span>
 
 ID_memberInitialization&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -8741,7 +8774,7 @@ C++ Core Guidelines C.41
 <br/>
 <br/>
 
-### <span id="ID_illMemberCall">▌R8.10 基类对象构造完毕之前不可调用成员函数</span>
+### <span id="ID_illMemberCall">▌R8.11 基类对象构造完毕之前不可调用成员函数</span>
 
 ID_illMemberCall&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -8770,7 +8803,7 @@ ISO/IEC 14882:2011 12.6.2(13)-undefined
 <br/>
 <br/>
 
-### <span id="ID_illMemberAccess">▌R8.11 在面向构造或析构函数体的 catch 块中不可访问非静态成员</span>
+### <span id="ID_illMemberAccess">▌R8.12 在面向构造或析构函数体的 catch 块中不可访问非静态成员</span>
 
 ID_illMemberAccess&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
@@ -8820,36 +8853,6 @@ ISO/IEC 14882:2011 15.3(10)-undefined
 
 #### 参考
 MISRA C++ 2008 15-3-3  
-<br/>
-<br/>
-
-### <span id="ID_illForwardingReference">▌R8.12 “转发引用”只应作为 std::forward 的参数</span>
-
-ID_illForwardingReference&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
-
-<hr/>
-
-不应混淆“转发引用”与右值引用，除作为 std::forward 的参数之外，不应对“转发引用”再有任何操作。  
-  
-“转发引用”是类型为 T&& 的参数，T 为函数模板类型，无论左值还是右值均可被这种参数接受，而且 const、volatile 等属性也会被忽略，由于含有不确定的状态，所以直接操作“转发引用”是不妥的，只应通过 std::forward<T> 交由合适的接口处理。  
-  
-示例：
-```
-template <class T>
-void bar(T&& x) {
-    x.foo();   // Non-compliant
-}
-```
-例中参数 x 是“转发引用”，并不是一般的右值引用，在 bar 函数内部并不知道 x 是左值还是右值，而且 x 对应的实际参数也可能被 const 或 volatile 修饰，所以直接调用 x 的 foo 成员会引发逻辑上的混乱。
-<br/>
-<br/>
-
-#### 相关
-ID_unsuitableForward  
-<br/>
-
-#### 参考
-C++ Core Guidelines F.19  
 <br/>
 <br/>
 
@@ -9191,7 +9194,60 @@ MISRA C++ 2008 0-1-1
 <br/>
 <br/>
 
-### <span id="ID_notAllBranchReturn">▌R8.20 有返回值的函数其所有分枝都应有明确的返回值</span>
+### <span id="ID_missingSideEffect">▌R8.20 不应存在没有副作用的语句</span>
+
+ID_missingSideEffect&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
+
+<hr/>
+
+不能对程序状态产生影响的语句称为无“[副作用（side effect）](https://en.wikipedia.org/wiki/Side_effect_(computer_science))”的语句，往往属于笔误或调试痕迹，应当修正或去除。  
+  
+示例（设 a、b、p 为变量或指针）：
+```
+a == b;  // Non-compliant
+```
+单纯的判等是没有副作用的，很可能是赋值语句的笔误。  
+
+```
+*p++;    // Non-compliant
+```
+单纯从某个地址进行读取是没有副作用的，这是一种对运算符优先级理解不当造成的常见错误，应改为 (\*p)\+\+;  
+
+```
+p->fun;  // Non-compliant
+```
+由变量名或无实参列表的函数名作为一个语句是没有副作用的，此语句应改为正确的函数调用。  
+
+```
++a;      // Non-compliant
+```
+正号是没有副作用的，此句很可能应为 \+\+a;  
+  
+如果语句为逻辑与表达式，左子表达式可以作为右子表达式的条件，故左子表达式可以无副作用，而右子表达式一定要有副作用，如：
+```
+p && p->fun();  // OK
+p && p->fun;    // Non-compliant
+p->fun() && p;  // Non-compliant
+```
+如果语句为逻辑或表达式，则要求其左右子表达式均有副作用，如：
+```
+p || p->fun();  // Non-compliant
+p || p->fun;    // Non-compliant
+p->fun() || p;  // Non-compliant
+```
+<br/>
+<br/>
+
+#### 参考
+CWE-1164  
+CWE-482  
+MISRA C 2004 14.2  
+MISRA C 2012 2.2  
+MISRA C++ 2008 0-1-9  
+<br/>
+<br/>
+
+### <span id="ID_notAllBranchReturn">▌R8.21 有返回值的函数其所有分枝都应有明确的返回值</span>
 
 ID_notAllBranchReturn&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
@@ -9238,7 +9294,7 @@ MISRA C++ 2008 8-4-3
 <br/>
 <br/>
 
-### <span id="ID_localAddressFlowOut">▌R8.21 不可返回局部对象的地址或引用</span>
+### <span id="ID_localAddressFlowOut">▌R8.22 不可返回局部对象的地址或引用</span>
 
 ID_localAddressFlowOut&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
@@ -9280,7 +9336,7 @@ C++ Core Guidelines F.43
 <br/>
 <br/>
 
-### <span id="ID_unsuitableCapture">▌R8.22 合理设置 lambda 表达式对变量的捕获方式</span>
+### <span id="ID_unsuitableCapture">▌R8.23 合理设置 lambda 表达式对变量的捕获方式</span>
 
 ID_unsuitableCapture&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9336,7 +9392,7 @@ C++ Core Guidelines F.54
 <br/>
 <br/>
 
-### <span id="ID_returnRValueReference">▌R8.23 函数不应返回右值引用</span>
+### <span id="ID_returnRValueReference">▌R8.24 函数不应返回右值引用</span>
 
 ID_returnRValueReference&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
@@ -9403,7 +9459,7 @@ C++ Core Guidelines F.45
 <br/>
 <br/>
 
-### <span id="ID_returnConstObject">▌R8.24 函数返回值不应为 const 对象</span>
+### <span id="ID_returnConstObject">▌R8.25 函数返回值不应为 const 对象</span>
 
 ID_returnConstObject&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
@@ -9440,7 +9496,7 @@ C++ Core Guidelines F.20
 <br/>
 <br/>
 
-### <span id="ID_returnOdd">▌R8.25 返回值应与函数的返回类型相符</span>
+### <span id="ID_returnOdd">▌R8.26 返回值应与函数的返回类型相符</span>
 
 ID_returnOdd&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9467,7 +9523,7 @@ MISRA C++ 2008 4-10-1
 <br/>
 <br/>
 
-### <span id="ID_returnSameConst">▌R8.26 函数返回值不应为相同的常量</span>
+### <span id="ID_returnSameConst">▌R8.27 函数返回值不应为相同的常量</span>
 
 ID_returnSameConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9493,7 +9549,7 @@ bool foo(int a) {
 <br/>
 <br/>
 
-### <span id="ID_returnSuperfluousConst">▌R8.27 基本类型的返回值不应使用 const 修饰</span>
+### <span id="ID_returnSuperfluousConst">▌R8.28 基本类型的返回值不应使用 const 修饰</span>
 
 ID_returnSuperfluousConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9525,7 +9581,7 @@ ISO/IEC 14882:2011 3.10(1)
 <br/>
 <br/>
 
-### <span id="ID_unsuitableReturn">▌R8.28 属性为 noreturn 的函数中不应出现 return 语句</span>
+### <span id="ID_unsuitableReturn">▌R8.29 属性为 noreturn 的函数中不应出现 return 语句</span>
 
 ID_unsuitableReturn&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9550,7 +9606,7 @@ ISO/IEC 14882:2011 7.6.3(2)-undefined
 <br/>
 <br/>
 
-### <span id="ID_unsuitableReturnType">▌R8.29 属性为 noreturn 的函数返回类型只应为 void</span>
+### <span id="ID_unsuitableReturnType">▌R8.30 属性为 noreturn 的函数返回类型只应为 void</span>
 
 ID_unsuitableReturnType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9571,7 +9627,7 @@ ISO/IEC 14882:2011 7.6.3(2)-undefined
 <br/>
 <br/>
 
-### <span id="ID_redundantJump">▌R8.30 不应出现多余的跳转语句</span>
+### <span id="ID_redundantJump">▌R8.31 不应出现多余的跳转语句</span>
 
 ID_redundantJump&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9603,7 +9659,7 @@ L:
 <br/>
 <br/>
 
-### <span id="ID_incompleteVAMacros">▌R8.31 va_start 或 va_copy 应配合 va_end 使用</span>
+### <span id="ID_incompleteVAMacros">▌R8.32 va_start 或 va_copy 应配合 va_end 使用</span>
 
 ID_incompleteVAMacros&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9634,7 +9690,7 @@ ISO/IEC 9899:2011 7.16.1.3(2)-undefined
 <br/>
 <br/>
 
-### <span id="ID_functionSpecialization">▌R8.32 函数模版不应被特化</span>
+### <span id="ID_functionSpecialization">▌R8.33 函数模版不应被特化</span>
 
 ID_functionSpecialization&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9682,7 +9738,7 @@ MISRA C++ 2008 14-8-1
 <br/>
 <br/>
 
-### <span id="ID_tooManyLabels">▌R8.33 函数的标签数量应在规定范围之内</span>
+### <span id="ID_tooManyLabels">▌R8.34 函数的标签数量应在规定范围之内</span>
 
 ID_tooManyLabels&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9714,7 +9770,7 @@ ID_function/maxLabelCount：标签数量上限，超过则报出
 <br/>
 <br/>
 
-### <span id="ID_tooManyLines">▌R8.34 函数的行数应在规定范围之内</span>
+### <span id="ID_tooManyLines">▌R8.35 函数的行数应在规定范围之内</span>
 
 ID_tooManyLines&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9744,7 +9800,7 @@ C++ Core Guidelines F.3
 <br/>
 <br/>
 
-### <span id="ID_tooManyLambdaLines">▌R8.35 lambda 表达式的行数应在规定范围之内</span>
+### <span id="ID_tooManyLambdaLines">▌R8.36 lambda 表达式的行数应在规定范围之内</span>
 
 ID_tooManyLambdaLines&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9777,7 +9833,7 @@ ID_function/maxLambdaLineCount：行数上限，超过则报出
 <br/>
 <br/>
 
-### <span id="ID_tooManyParams">▌R8.36 函数参数的数量应在规定范围之内</span>
+### <span id="ID_tooManyParams">▌R8.37 函数参数的数量应在规定范围之内</span>
 
 ID_tooManyParams&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9825,7 +9881,7 @@ C++ Core Guidelines I.23
 <br/>
 <br/>
 
-### <span id="ID_complexInlineFunction">▌R8.37 不应定义过于复杂的内联函数</span>
+### <span id="ID_complexInlineFunction">▌R8.38 不应定义过于复杂的内联函数</span>
 
 ID_complexInlineFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
@@ -9850,7 +9906,7 @@ C++ Core Guidelines F.5
 <br/>
 <br/>
 
-### <span id="ID_forbidGotoBlocks">▌R8.38 禁止 goto 语句向嵌套的或无包含关系的作用域跳转</span>
+### <span id="ID_forbidGotoBlocks">▌R8.39 禁止 goto 语句向嵌套的或无包含关系的作用域跳转</span>
 
 ID_forbidGotoBlocks&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function warning
 
@@ -9894,7 +9950,7 @@ MISRA C++ 2008 6-6-1
 <br/>
 <br/>
 
-### <span id="ID_forbidGotoBack">▌R8.39 禁止 goto 语句向前跳转</span>
+### <span id="ID_forbidGotoBack">▌R8.40 禁止 goto 语句向前跳转</span>
 
 ID_forbidGotoBack&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function suggestion
 
@@ -9932,7 +9988,7 @@ MISRA C++ 2008 6-6-2
 <br/>
 <br/>
 
-### <span id="ID_forbidGoto">▌R8.40 禁用 goto 语句</span>
+### <span id="ID_forbidGoto">▌R8.41 禁用 goto 语句</span>
 
 ID_forbidGoto&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function suggestion
 
@@ -10004,7 +10060,7 @@ MISRA C 2012 15.1
 <br/>
 <br/>
 
-### <span id="ID_forbidLongjmp">▌R8.41 禁用 setjmp、longjmp</span>
+### <span id="ID_forbidLongjmp">▌R8.42 禁用 setjmp、longjmp</span>
 
 ID_forbidLongjmp&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function warning
 
@@ -10050,7 +10106,7 @@ C++ Core Guidelines SL.C.1
 <br/>
 <br/>
 
-### <span id="ID_recursion">▌R8.42 避免递归实现</span>
+### <span id="ID_recursion">▌R8.43 避免递归实现</span>
 
 ID_recursion&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10087,7 +10143,7 @@ MISRA C++ 2008 7-5-4
 <br/>
 <br/>
 
-### <span id="ID_functionRepetition">▌R8.43 不应存在重复的函数实现</span>
+### <span id="ID_functionRepetition">▌R8.44 不应存在重复的函数实现</span>
 
 ID_functionRepetition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
@@ -11603,7 +11659,7 @@ MISRA C++ 2008 6-4-7
 <br/>
 <br/>
 
-### <span id="ID_switch_onlyDefault">▌R9.5.9 不应使用只有 default 标签的 switch 语句</span>
+### <span id="ID_switch_onlyDefault">▌R9.5.9 switch 语句不应只包含 default 标签</span>
 
 ID_switch_onlyDefault&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
@@ -11637,7 +11693,7 @@ MISRA C 2012 16.6
 <br/>
 <br/>
 
-### <span id="ID_switch_onlyOneCase">▌R9.5.10 不应使用只有一个 case 标签的 switch 语句</span>
+### <span id="ID_switch_onlyOneCase">▌R9.5.10 switch 语句不应只包含一个 case 标签</span>
 
 ID_switch_onlyOneCase&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
@@ -12266,11 +12322,11 @@ bool foo(int* p, char* s) {
 }
 
 long bar() {
-    return FLAG0 | FLAG1 | FLAG0;  // Non-compliant
+    return FLAG0 | FLAG1 | FLAG0;   // Non-compliant
 }
 
-void baz(bool cond) {
-    cond? foo(): foo();  // Non-compliant
+char baz(bool cond) {
+    return cond? 'a': 'a';          // Non-compliant
 }
 ```
 例中重复的子表达式都是有问题的，这是一种很常见的错误。  
@@ -12547,135 +12603,9 @@ bool bar(int a) {
 <br/>
 <br/>
 
-### <span id="expression.arithmetic">10.2 Arithmetic</span>
+### <span id="expression.evaluation">10.2 Evaluation</span>
 
-### <span id="ID_missingSideEffect">▌R10.2.1 不应存在没有效果的表达式</span>
-
-ID_missingSideEffect&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
-
-<hr/>
-
-不能对程序状态产生影响的语句称为无“[副作用（side effect）](https://en.wikipedia.org/wiki/Side_effect_(computer_science))”的语句，也可以说是没有效果的语句，往往属于笔误或调试痕迹，应当修正或去除。  
-  
-示例（设 a、b、p 为变量或指针）：
-```
-a == b;  // Non-compliant
-```
-单纯的判等是没有副作用的，很可能是赋值语句的笔误。  
-
-```
-*p++;    // Non-compliant
-```
-单纯从某个地址进行读取是没有副作用的，这是一种对运算符优先级理解不当造成的常见错误，应改为 (\*p)\+\+;  
-
-```
-p->fun;  // Non-compliant
-```
-由变量名或无实参列表的函数名作为一个语句是没有副作用的，此语句应改为正确的函数调用。  
-
-```
-+a;      // Non-compliant
-```
-正号是没有副作用的，此句很可能应为 \+\+a;  
-  
-如果语句为逻辑与表达式，左子表达式可以作为右子表达式的条件，故左子表达式可以无副作用，而右子表达式一定要有副作用，如：
-```
-p && p->fun();  // OK
-p && p->fun;    // Non-compliant
-p->fun() && p;  // Non-compliant
-```
-如果语句为逻辑或表达式，则要求其左右子表达式均有副作用，如：
-```
-p || p->fun();  // Non-compliant
-p || p->fun;    // Non-compliant
-p->fun() || p;  // Non-compliant
-```
-<br/>
-<br/>
-
-#### 参考
-CWE-1164  
-CWE-482  
-MISRA C 2004 14.2  
-MISRA C 2012 2.2  
-MISRA C++ 2008 0-1-9  
-<br/>
-<br/>
-
-### <span id="ID_invalidCommaSubExpression">▌R10.2.2 逗号表达式的子表达式应具有必要的副作用</span>
-
-ID_invalidCommaSubExpression&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
-
-<hr/>
-
-逗号表达式的子表达式应具有必要的副作用，否则没有意义。  
-  
-示例：
-```
-void foo(int& a, int& b) {
-    a, b = 0, 1;   // Non-compliant
-}
-```
-例中逗号表达式有 3 个子表达式，只有第 2 个子表达式有效，第 1 和第 3 个没有意义。  
-  
-应改为：
-```
-void foo(int& a, int& b) {
-    a = 0, b = 1;  // Compliant, but bad
-}
-```
-本规则不建议使用逗号表达式，将逗号表达式拆分成合理的语句是更好的选择。  
-
-```
-void foo(int& a, int& b) {
-    a = 0;
-    b = 1;         // Compliant, good
-}
-```
-<br/>
-<br/>
-
-#### 相关
-ID_forbidCommaExpression  
-<br/>
-<br/>
-
-### <span id="ID_confusingAssignment">▌R10.2.3 赋值表达式中不应存在被赋值变量的自增或自减运算</span>
-
-ID_confusingAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
-
-<hr/>
-
-设 a 为变量，不应出现下列形式的赋值表达式：
-```
-a = a++;       // Non-compliant
-a = ++a;       // Non-compliant
-++a = a;       // Non-compliant
-++a = ++a;     // Non-compliant
-++a = a++;     // Non-compliant
-```
-这种形式的赋值非但令人费解，而且不同的编译器会给出不同的解释从而得到不同的执行结果。  
-
-```
-++a;           // Compliant
-a += 1;        // Compliant
-a = a + 1;     // Compliant
-```
-本规则是 ID\_evaluationOrderReliance 的特化。
-<br/>
-<br/>
-
-#### 相关
-ID_evaluationOrderReliance  
-<br/>
-
-#### 参考
-C++ Core Guidelines ES.43  
-SEI CERT EXP50-CPP  
-<br/>
-<br/>
-
-### <span id="ID_evaluationOrderReliance">▌R10.2.4 子表达式的求值不应依赖特定的顺序</span>
+### <span id="ID_evaluationOrderReliance">▌R10.2.1 子表达式的求值不应依赖特定的顺序</span>
 
 ID_evaluationOrderReliance&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -12712,7 +12642,42 @@ C++ Core Guidelines ES.44
 <br/>
 <br/>
 
-### <span id="ID_unexpectedPrecedence">▌R10.2.5 注意运算符优先级，不可产生非预期的结果</span>
+### <span id="ID_confusingAssignment">▌R10.2.2 赋值表达式中不应存在被赋值变量的自增或自减运算</span>
+
+ID_confusingAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
+
+<hr/>
+
+设 a 为变量，不应出现下列形式的赋值表达式：
+```
+a = a++;       // Non-compliant
+a = ++a;       // Non-compliant
+++a = a;       // Non-compliant
+++a = ++a;     // Non-compliant
+++a = a++;     // Non-compliant
+```
+这种形式的赋值非但令人费解，而且不同的编译器会给出不同的解释从而得到不同的执行结果。  
+
+```
+++a;           // Compliant
+a += 1;        // Compliant
+a = a + 1;     // Compliant
+```
+本规则是 ID\_evaluationOrderReliance 的特化。
+<br/>
+<br/>
+
+#### 相关
+ID_evaluationOrderReliance  
+<br/>
+
+#### 参考
+C++ Core Guidelines ES.43  
+SEI CERT EXP50-CPP  
+<br/>
+<br/>
+
+### <span id="ID_unexpectedPrecedence">▌R10.2.3 注意运算符优先级，不可产生非预期的结果</span>
 
 ID_unexpectedPrecedence&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -12742,7 +12707,7 @@ CWE-783
 <br/>
 <br/>
 
-### <span id="ID_illPtrDiff">▌R10.2.6 不在同一数组中的指针不可比较或相减</span>
+### <span id="ID_illPtrDiff">▌R10.2.4 不在同一数组中的指针不可比较或相减</span>
 
 ID_illPtrDiff&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -12780,7 +12745,7 @@ C++ Core Guidelines ES.62
 <br/>
 <br/>
 
-### <span id="ID_illBoolOperation">▌R10.2.7 bool 型变量或表达式不应参与大小比较、位运算、自增自减等运算</span>
+### <span id="ID_illBoolOperation">▌R10.2.5 bool 型变量或表达式不应参与大小比较、位运算、自增自减等运算</span>
 
 ID_illBoolOperation&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -12820,7 +12785,7 @@ MISRA C++ 2008 5-0-21
 <br/>
 <br/>
 
-### <span id="ID_illFormedCompoundAssignment">▌R10.2.8 不应出现复合赋值的错误形式</span>
+### <span id="ID_illFormedCompoundAssignment">▌R10.2.6 不应出现复合赋值的错误形式</span>
 
 ID_illFormedCompoundAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -12843,7 +12808,7 @@ CWE-682
 <br/>
 <br/>
 
-### <span id="ID_suspiciousCompoundAssignment">▌R10.2.9 避免出现复合赋值的可疑形式</span>
+### <span id="ID_suspiciousCompoundAssignment">▌R10.2.7 避免出现复合赋值的可疑形式</span>
 
 ID_suspiciousCompoundAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:question: expression suspicious
 
@@ -12877,7 +12842,7 @@ CWE-682
 <br/>
 <br/>
 
-### <span id="ID_illSelfCompoundAssignment">▌R10.2.10 &=、|=、-=、/=、%= 左右子表达式不应相同</span>
+### <span id="ID_illSelfCompoundAssignment">▌R10.2.8 &=、|=、-=、/=、%= 左右子表达式不应相同</span>
 
 ID_illSelfCompoundAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -12905,7 +12870,7 @@ CWE-682
 <br/>
 <br/>
 
-### <span id="ID_oddNullAssignment">▌R10.2.11 不应使用 NULL 对非指针变量赋值或初始化</span>
+### <span id="ID_oddNullAssignment">▌R10.2.9 不应使用 NULL 对非指针变量赋值或初始化</span>
 
 ID_oddNullAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -12933,7 +12898,7 @@ MISRA C++ 2008 4-10-1
 <br/>
 <br/>
 
-### <span id="ID_stickyAssignmentOperator">▌R10.2.12 赋值运算符与单目运算符之间应有空格，单目运算符与变量或表达式之间不应有空格</span>
+### <span id="ID_stickyAssignmentOperator">▌R10.2.10 赋值运算符与单目运算符之间应有空格，单目运算符与变量或表达式之间不应有空格</span>
 
 ID_stickyAssignmentOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -12962,7 +12927,7 @@ CWE-480
 <br/>
 <br/>
 
-### <span id="ID_selfAssignment">▌R10.2.13 赋值运算符左右子表达式不应重复</span>
+### <span id="ID_selfAssignment">▌R10.2.11 赋值运算符左右子表达式不应重复</span>
 
 ID_selfAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -12998,7 +12963,7 @@ CWE-682
 <br/>
 <br/>
 
-### <span id="ID_selfDivision">▌R10.2.14 除法运算符、求余运算符左右子表达不应重复</span>
+### <span id="ID_selfDivision">▌R10.2.12 除法运算符、求余运算符左右子表达不应重复</span>
 
 ID_selfDivision&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -13020,7 +12985,7 @@ CWE-682
 <br/>
 <br/>
 
-### <span id="ID_selfSubtraction">▌R10.2.15 减法运算符左右子表达式不应重复</span>
+### <span id="ID_selfSubtraction">▌R10.2.13 减法运算符左右子表达式不应重复</span>
 
 ID_selfSubtraction&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -13048,7 +13013,7 @@ CWE-682
 <br/>
 <br/>
 
-### <span id="ID_selfExclusiveOr">▌R10.2.16 异或运算符左右子表达式不应重复</span>
+### <span id="ID_selfExclusiveOr">▌R10.2.14 异或运算符左右子表达式不应重复</span>
 
 ID_selfExclusiveOr&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -13069,7 +13034,7 @@ CWE-682
 <br/>
 <br/>
 
-### <span id="ID_minusOnUnsigned">▌R10.2.17 负号不应作用于无符号整数</span>
+### <span id="ID_minusOnUnsigned">▌R10.2.15 负号不应作用于无符号整数</span>
 
 ID_minusOnUnsigned&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -13100,7 +13065,7 @@ MISRA C++ 2008 5-3-2
 <br/>
 <br/>
 
-### <span id="ID_repeatedUnaryOperators">▌R10.2.18 不应重复使用一元运算符</span>
+### <span id="ID_repeatedUnaryOperators">▌R10.2.16 不应重复使用一元运算符</span>
 
 ID_repeatedUnaryOperators&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -13128,7 +13093,7 @@ bool f = !!!a;  // Non-compliant
 <br/>
 <br/>
 
-### <span id="ID_evalOverflow">▌R10.2.19 运算结果不应溢出</span>
+### <span id="ID_evalOverflow">▌R10.2.17 运算结果不应溢出</span>
 
 ID_evalOverflow&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -13175,7 +13140,7 @@ C++ Core Guidelines ES.104
 <br/>
 <br/>
 
-### <span id="ID_bitwiseOperOnSigned">▌R10.2.20 位运算符不应作用于有符号整数</span>
+### <span id="ID_bitwiseOperOnSigned">▌R10.2.18 位运算符不应作用于有符号整数</span>
 
 ID_bitwiseOperOnSigned&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -13216,7 +13181,7 @@ C++ Core Guidelines ES.101
 <br/>
 <br/>
 
-### <span id="ID_illShiftCount">▌R10.2.21 移位数量不可超过相关类型比特位的数量</span>
+### <span id="ID_illShiftCount">▌R10.2.19 移位数量不可超过相关类型比特位的数量</span>
 
 ID_illShiftCount&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
@@ -13249,6 +13214,44 @@ ISO/IEC 14882:2017 8.8(1)-undefined
 
 #### 参考
 MISRA C++ 2008 5-8-1  
+<br/>
+<br/>
+
+### <span id="ID_invalidCommaSubExpression">▌R10.2.20 逗号表达式的子表达式应具有必要的副作用</span>
+
+ID_invalidCommaSubExpression&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
+
+<hr/>
+
+逗号表达式的子表达式应具有必要的副作用，否则没有意义。  
+  
+示例：
+```
+void foo(int& a, int& b) {
+    a, b = 0, 1;   // Non-compliant
+}
+```
+例中逗号表达式有 3 个子表达式，只有第 2 个子表达式有效，第 1 和第 3 个没有意义。  
+  
+应改为：
+```
+void foo(int& a, int& b) {
+    a = 0, b = 1;  // Compliant, but bad
+}
+```
+本规则不建议使用逗号表达式，将逗号表达式拆分成合理的语句是更好的选择。  
+
+```
+void foo(int& a, int& b) {
+    a = 0;
+    b = 1;         // Compliant, good
+}
+```
+<br/>
+<br/>
+
+#### 相关
+ID_forbidCommaExpression  
 <br/>
 <br/>
 
@@ -13452,13 +13455,13 @@ CWE-1025
 <br/>
 <br/>
 
-### <span id="ID_successiveComparison">▌R10.3.6 比较运算不应作为另一个比较运算的直接子表达式</span>
+### <span id="ID_successiveComparison">▌R10.3.6 比较运算不可作为另一个比较运算的直接子表达式</span>
 
 ID_successiveComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
 <hr/>
 
-在 C/C\+\+ 语言中，连续的比较运算是没有意义的，本规则是 ID\_illBoolOperation 的一种特化。  
+在 C/C\+\+ 语言中，连续的比较运算是没有意义的，本规则是 ID\_illBoolOperation 的特化。  
   
 示例：
 ```
@@ -13911,9 +13914,9 @@ ID_unsuitableForward&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 std::forward 的参数应为“[转发引用（forwarding references）](https://en.cppreference.com/w/cpp/language/reference#Forwarding_references)”，返回值应直接作为接口的参数，除此之外的使用方式价值有限，且易产生错误。  
   
-“转发引用”是类型为 T&& 的参数，T 为函数模板类型，无论左值还是右值均可被这种参数接受，而且 const、volatile 等属性也会被忽略，这种参数应通过 std::forward<T> 交由合适的接口处理。  
+转发引用是类型为 T&& 的参数，T 为函数模板类型，无论左值还是右值均可被这种参数接受，而且 const、volatile 等属性也会被忽略，这种参数应通过 std::forward<T> 交由合适的接口处理。  
   
-关于“转发引用”，可参见 ID\_illForwardingReference 的进一步说明。  
+关于转发引用，可参见 ID\_illForwardingReference 的进一步说明。  
   
 示例：
 ```
@@ -13952,7 +13955,7 @@ struct X {
     }
 };
 ```
-注意，“转发引用”的类型只能是函数模板类型，非模板和类模板不构成“转发引用”。  
+注意，转发引用的类型只能是函数模板类型，非模板和类模板不构成转发引用。  
 
 ```
 template <class T>

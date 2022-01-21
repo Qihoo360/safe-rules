@@ -411,14 +411,14 @@
         "tag": "control"
         },
     "ID_switch_onlyDefault": {
-        "checkPoint": "不应使用只有 default 标签的 switch 语句",
+        "checkPoint": "switch 语句不应只包含 default 标签",
         "level": "warning",
         "comment": "只有 default 标签的 switch 语句是没有意义的，起不到分枝选择的作用，往往是残留代码或功能未实现。",
         "tag": "control",
         "reference": "MISRA C 2012 16.6"
         },
     "ID_switch_onlyOneCase": {
-        "checkPoint": "不应使用只有一个 case 标签的 switch 语句",
+        "checkPoint": "switch 语句不应只包含一个 case 标签",
         "level": "warning",
         "comment": "只有一个 case 标签的 switch 语句与 if 语句语义相同，但形式上更为复杂，应改为 if 语句。",
         "tag": "control",
@@ -834,7 +834,7 @@
         "reference": "C++ Core Guidelines F.46"
         },
     "ID_missingNamespace": {
-        "checkPoint": "为 C++ 代码设置合理的命名空间",
+        "checkPoint": "为代码设定合理的命名空间",
         "level": "warning",
         "comment": "命名空间是 C++ 项目的必要组成结构，可有效规避名称冲突等问题。",
         "tag": "global",
@@ -1163,9 +1163,9 @@
         "reference": "CWE-1025,MISRA C 2004 13.3,MISRA C++ 2008 6-2-2"
         },
     "ID_successiveComparison": {
-        "checkPoint": "比较运算不应作为另一个比较运算的直接子表达式",
+        "checkPoint": "比较运算不可作为另一个比较运算的直接子表达式",
         "level": "error",
-        "comment": "在 C/C++ 语言中，连续的比较运算是没有意义的，本规则是 ID_illBoolOperation 的一种特化。",
+        "comment": "在 C/C++ 语言中，连续的比较运算是没有意义的，本规则是 ID_illBoolOperation 的特化。",
         "tag": "expression",
         "related": "ID_illBoolOperation",
         "reference": "CWE-697,CWE-1024,CWE-1025"
@@ -1332,10 +1332,10 @@
         "reference": "MISRA C++ 2008 5-2-4,C++ Core Guidelines ES.49"
         },
     "ID_missingSideEffect": {
-        "checkPoint": "不应存在没有效果的表达式",
+        "checkPoint": "不应存在没有副作用的语句",
         "level": "error",
         "comment": "不能对程序状态产生影响的语句称为无“副作用（side effect）”的语句，也可以说是没有效果的语句，往往属于笔误或调试痕迹，应当修正或去除。",
-        "tag": "expression",
+        "tag": "function",
         "reference": "CWE-1164,CWE-482,MISRA C 2004 14.2,MISRA C 2012 2.2,MISRA C++ 2008 0-1-9"
         },
     "ID_returnValueIgnored": {
@@ -1601,9 +1601,9 @@
         "reference": "C++ Core Guidelines F.19"
         },
     "ID_illForwardingReference": {
-        "checkPoint": "“转发引用”只应作为 std::forward 的参数",
+        "checkPoint": "转发引用只应作为 std::forward 的参数",
         "level": "warning",
-        "comment": "不应混淆“转发引用”与右值引用，除作为 std::forward 的参数之外，不应对“转发引用”再有任何操作。",
+        "comment": "不应混淆转发引用与右值引用，除作为 std::forward 的参数之外，不应对转发引用再有任何操作。",
         "tag": "function",
         "related": "ID_unsuitableForward",
         "reference": "C++ Core Guidelines F.19"
@@ -2007,9 +2007,9 @@
         "standard": "ISO/IEC 14882:2003 7.1.1(6),ISO/IEC 14882:2011 7.1.1(7)"
         },
     "ID_staticInHeader": {
-        "checkPoint": "头文件的全局或命名空间作用域中不应使用静态声明",
+        "checkPoint": "头文件中不应使用静态声明",
         "level": "warning",
-        "comment": "头文件中由 static 关键字声明的对象、数组或函数，会在每个包含该头文件的翻译单元（translate-unit）中生成副本而造成数据冗余，如果将静态数据误用作全局数据也会造成逻辑错误。",
+        "comment": "头文件中由 static 关键字声明的对象、数组或函数，会在每个包含该头文件的翻译单元（translate-unit）中生成副本造成数据冗余，如果将静态数据误用作全局数据也会造成逻辑错误。",
         "tag": "global",
         "standard": "ISO/IEC 14882:2011 3.5(3)"
         },
