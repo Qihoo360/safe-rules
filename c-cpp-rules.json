@@ -890,7 +890,7 @@
     "ID_exceededBitfield": {
         "checkPoint": "位域长度不应超过类型约定的大小",
         "level": "warning",
-        "comment": "位域长度不应超过类型约定的大小，否则没有意义且会造成不必要的空间浪费，出现这种问题往往意味着设计上的错误。",
+        "comment": "位域长度不应超过类型约定的大小，否则没有意义且会造成不必要的空间浪费。",
         "tag": "declaration",
         "standard": "ISO/IEC 9899:2011 6.7.2.1(4),ISO/IEC 14882:2011 9.6(1)"
         },
