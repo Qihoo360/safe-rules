@@ -402,7 +402,7 @@
     - [R9.5.10 不应使用只有一个 case 标签的 switch 语句](#ID_switch_onlyOneCase)
     - [R9.5.11 switch 语句分枝数量应在规定范围之内](#ID_switch_tooManyCases)
     - [R9.5.12 switch 语句应配有 default 分枝](#ID_switch_missingDefault)
-    - [R9.5.13 每个非空的 switch 分枝都应该用无条件的 break 语句终止](#ID_switch_breakOmitted)
+    - [R9.5.13 switch 语句的每个非空分枝都应该用无条件的 break 语句终止](#ID_switch_breakOmitted)
     - [R9.5.14 switch 语句应该用大括号括起来](#ID_switch_brace)
     - [R9.5.15 switch 语句不应嵌套](#ID_switch_forbidNest)
   - [9.6 Try](#control.try)
@@ -426,7 +426,7 @@
     - [R10.1.3 条件表达式不应恒为真或恒为假](#ID_invalidCondition)
     - [R10.1.4 不应使用多余的逻辑子表达式](#ID_redundantCondition)
     - [R10.1.5 逻辑表达式及其子表达式的结果不应为常量](#ID_constLogicExpression)
-    - [R10.1.6 短路规则下不应存在有副作用的子表达式](#ID_shortCircuitSideEffect)
+    - [R10.1.6 逻辑表达式的右子表达不应有副作用](#ID_shortCircuitSideEffect)
     - [R10.1.7 逻辑表达式应尽量保持简洁明了](#ID_simplifiableCondition)
     - [R10.1.8 可化简为逻辑表达式的三元表达式应尽量化简](#ID_simplifiableTernary)
   - [10.2 Arithmetic](#expression.arithmetic)
@@ -455,7 +455,7 @@
     - [R10.3.1 比较运算应在正确的范围内进行](#ID_illComparison)
     - [R10.3.2 不应使用 == 或 != 判断浮点数是否相等](#ID_illFloatComparison)
     - [R10.3.3 指针不应与字符串常量直接比较](#ID_illPtrStrComparison)
-    - [R10.3.4 不应比较不同类型的枚举值](#ID_differentEnumComparison)
+    - [R10.3.4 不应比较非同类枚举值](#ID_differentEnumComparison)
     - [R10.3.5 比较运算符左右子表达式不应重复](#ID_selfComparison)
     - [R10.3.6 比较运算不应作为另一个比较运算的直接子表达式](#ID_successiveComparison)
   - [10.4 Call](#expression.call)
@@ -3396,7 +3396,7 @@ ID_badBackslash&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 <hr/>
 
-反斜杠可以用于标识转义字符，也可以用于实现“伪换行”，即代码换行显示但在语法上并没有换行，一般用于宏定义，除此之外不应再使用反斜杠，否则没有实际意义，也会造成混乱。  
+反斜杠可用于标识转义字符，也可用于实现“伪换行”，即代码换行显示但在语法上并没有换行，一般用于宏定义，除此之外不应再使用反斜杠，否则没有实际意义，也会造成混乱。  
   
 示例：
 ```
@@ -4652,9 +4652,7 @@ public:
     ....
 };
 ```
-当类的拷贝、移动构造函数被 explicit 限定时，无法再按值传递参数或按值返回对象；当不接受 1 个参数的构造函数被 explicit 限定时，无法再用初始化列表定义临时对象。  
-  
-如下代码将无法通过编译：
+当类的拷贝、移动构造函数被 explicit 限定时，无法再按值传递参数或按值返回对象，当不接受 1 个参数的构造函数被 explicit 限定时，无法再用初始化列表定义临时对象，如下代码将无法通过编译：
 ```
 void foo(A);
 void bar(const A&);
@@ -4927,13 +4925,17 @@ enum Fruit {
     apple,
     pear,
     grape,
-    favourite = grape,  // Non-compliant, change it to a function
+    favourite = grape,  // Non-compliant
 };
 ```
-例中 favourite 与其他枚举项不是同一层面的概念，不应聚为一类。  
+例中 Fruit 定义了三种水果，而 favourite 表示最喜欢的水果，与其他枚举项不是同一层面的概念，不应聚为一类。  
   
-应采用结构更清晰的方式：
+应采用更结构化的方式：
 ```
+enum Fruit {
+    apple, pear, grape
+};
+
 Fruit favourite() {
     return grape;
 }
@@ -4994,12 +4996,14 @@ ID_forbidUnnamedEnum&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: type suggestion
 
 <hr/>
 
-匿名枚举声明相当于在当前作用域定义常量，类型不够明确，而且如果无法确定枚举类型的名称，也意味着各枚举项不应聚为一类。  
+匿名枚举声明相当于在当前作用域定义常量，但类型不够明确。  
   
 示例：
 ```
 enum { rabbit = 0xAA, carrot = 1234 };  // Non-compliant
 ```
+如果无法确定枚举类型的名称，也意味着各枚举项不应聚为一类。  
+  
 应改为：
 ```
 const int rabbit = 0xAA;  // Compliant
@@ -6638,7 +6642,7 @@ void bar() {
     printf("%d", 2 * c);    // What is output?
 }
 ```
-foo 可能只会返回 true，而 bar 可能输出 \-152 也可能输出 360。  
+foo 可能只会返回 true，而 bar 可能输出 \-152，也可能输出 360。  
 char 类型在 PC 桌面、服务端等环境中一般是有符号的，在移动端或嵌入式系统中往往是无符号的，需明确其具体实现。
 ```
 bool foo(unsigned char c) { // Compliant
@@ -7425,8 +7429,7 @@ int main() {
     std::cout << sizeof(a) << '\n';  // What is output?
 }
 ```
-输出 8  
-例中成员 x 自身的位域长度仍为 32，而多出来的大小会形成一个不可访问的填充值。
+输出 8，例中成员 x 自身的位域长度仍为 32，而多出来的大小会形成一个不可访问的填充值。
 <br/>
 <br/>
 
@@ -7498,7 +7501,7 @@ int main() {
     }
 }
 ```
-输出 Oops，例中 E 各枚举项的范围是 \[0,3\]，按常规思维，位域长度为 2 即可满足这个范围，然而符号位的存在否定了这一点，导致 x.e 用 D 赋值后再与 D 比较竟然得到不相等的结果（因为 D 的值为 3 而 x.e 的值为 \-1）。
+输出 Oops，例中 E 各枚举项的取值范围是 \[0,3\]，按常规思维，位域长度为 2 即可满足这个范围，然而符号位的存在否定了这一点，导致 x.e 用 D 赋值后再与 D 比较竟然得到不相等的结果（因为 D 的值为 3 而 x.e 的值为 \-1）。
 <br/>
 <br/>
 
@@ -9106,7 +9109,7 @@ int bar() {
 ```
 例中 bar 函数返回变量 i 自增前的值，自增运算是没有意义的。  
   
-例外，变量的初始化可不受本规则限制，如：
+变量的初始化可不受本规则限制，如：
 ```
 int baz() {
     int n = 0;  // OK
@@ -11434,6 +11437,8 @@ ID_switch_badFormedCase&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
 
 不直接从属于 switch 语句的 case 或 default 标签用于非结构性跳转，是公认的不良实现。  
   
+关于非结构性跳转的进一步讨论可参见 ID\_forbidGoto。  
+  
 示例：
 ```
 switch (v)
@@ -11453,7 +11458,7 @@ default:        // Non-compliant
 ```
 例中 case 1 直接从属于 switch 语句，而 case 2 和 default 直接从属于 if 语句，当 v 的值不是 1 时，会绕过 if 语句的条件判断，产生非结构性跳转，与 goto 语句的问题一样，很容易导致逻辑混乱且不利于维护。  
   
-虽然有些编程技巧会将 case 置于循环中，如“[Duff’s device](https://en.wikipedia.org/wiki/Duff's_device)”等，但当今面向对象的主流编程语言均不提倡非结构性跳转。
+虽然有些编程技巧会将 case 置于循环中，如“[Duff’s device](https://en.wikipedia.org/wiki/Duff's_device)”等，但当今主流的编程语言均已不再提倡非结构性跳转。
 <br/>
 <br/>
 
@@ -11610,7 +11615,7 @@ ID_switch_onlyDefault&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 ```
 switch (v)
 {
-default:    // Meaningless
+default:    // Non-compliant
     ....
 }
 ```
@@ -11618,7 +11623,7 @@ default:    // Meaningless
 ```
 switch (v)
 {
-case 1:    // Meaningless
+case 1:     // Non-compliant
 case 2:
 default:
     ....
@@ -11670,7 +11675,7 @@ ID_switch_tooManyCases&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
 <hr/>
 
-switch 语句分枝过多会使代码过于庞大不利于维护，分支很多时建议将每个 case 的执行逻辑抽取成函数，再按遵循某种算法的索引结构组织在一起。  
+switch 语句分枝过多会使代码过于庞大不利于维护，分枝很多时建议将每个 case 的执行逻辑抽取成函数，再按遵循某种算法的索引结构组织在一起。  
   
 示例：
 ```
@@ -11731,13 +11736,13 @@ MISRA C++ 2008 6-4-6
 <br/>
 <br/>
 
-### <span id="ID_switch_breakOmitted">▌R9.5.13 每个非空的 switch 分枝都应该用无条件的 break 语句终止</span>
+### <span id="ID_switch_breakOmitted">▌R9.5.13 switch 语句的每个非空分枝都应该用无条件的 break 语句终止</span>
 
 ID_switch_breakOmitted&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
 <hr/>
 
-每个非空的 switch 分枝都应该用无条件的 break 语句终止，break 语句的缺失或误用是导致错误的常见原因。  
+每个非空分枝都应该用无条件的 break 语句终止，break 语句的缺失或误用是导致错误的常见原因。  
   
 示例：
 ```
@@ -11753,23 +11758,23 @@ default:
     break;  // Compliant
 }
 ```
-例外，相连的 case 标签不受本规则约束：
+相连的 case 标签不受本规则约束：
 ```
 switch (c)
 {
 case 0:     // Compliant
 case 1:
-    do_something(c);
+    ....
     break;
 }
 ```
-在少数情况下，如果确实不能有 break 语句，在 C\+\+ 语言中可使用 \[\[fallthrough\]\] 注明，或用明确的注释说明情况：
+少数情况下，如果确实不能有 break 语句，应添加注释说明情况，或在 C\+\+ 语言中用 \[\[fallthrough\]\] 注明：
 ```
 switch (v)
 {
 case 1:
-    do_something_special();
-    [[fallthrough]];  // OK, since C++17
+    do_something();
+    [[fallthrough]];  // Compliant, since C++17
 default:
     do_something_default();
     break;
@@ -12252,32 +12257,34 @@ ID_illIdentical&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
 <hr/>
 
-逻辑与、逻辑或、按位与、按位或的子表达式，三目表达式的两个分支子表达式不应重复，否则失去逻辑意义，这是一种很常见的错误，往往由复制粘贴造成。  
+逻辑与、逻辑或、按位与、按位或的子表达式以及三元表达式的两个分枝不应重复，否则失去逻辑意义。  
   
 示例：
 ```
-bool isValid(int* pDat, char* pStr) {
-    return pDat != NULL && pDat != NULL;  // Non-compliant
+bool foo(int* p, char* s) {
+    return p != NULL && p != NULL;  // Non-compliant
 }
 
-unsigned getFlags() {
+long bar() {
     return FLAG0 | FLAG1 | FLAG0;  // Non-compliant
 }
 
-void onShow(CSettings& setting) {
-    setting.valid()? setting.onShow(): setting.onShow();  // Non-compliant
+void baz(bool cond) {
+    cond? foo(): foo();  // Non-compliant
 }
 ```
-例中重复的子表达式都是有问题的。  
-因为这种问题往往由复制粘贴引起，所以对于这类问题的修正，不要只是删去重复的子表达式，要考虑是否有某些项被漏掉。  
+例中重复的子表达式都是有问题的，这是一种很常见的错误。  
   
-例外，当重复的子表达式有一定副作用时，如：
+这种错误往往由复制粘贴引起，所以修正时不要只是删去重复的子表达式，要考虑是否有某些项被漏掉。  
+  
+例外：  
+重复的子表达式有一定副作用时可不受本规则限。
 ```
-if (charRead() == 'a' && charRead() == 'a') {
+if (fin.get() == 'a' && fin.get() == 'a') {  // Let it go
     ....
 }
 ```
-如果这段代码的目的是从文件中判断并读取相邻的两个字符，就不能算是逻辑错误，但这并不是好的编程风格，具体讨论可参见 ID\_shortCircuitSideEffect。
+例中逻辑表达式从文件流中读取相邻的字符，但第二个子表达式可能不会被执行，这种代码即使没有逻辑错误也是不利于维护的，进一步讨论可参见 ID\_shortCircuitSideEffect。
 <br/>
 <br/>
 
@@ -12448,25 +12455,25 @@ MISRA C 2012 14.3
 <br/>
 <br/>
 
-### <span id="ID_shortCircuitSideEffect">▌R10.1.6 短路规则下不应存在有副作用的子表达式</span>
+### <span id="ID_shortCircuitSideEffect">▌R10.1.6 逻辑表达式的右子表达不应有副作用</span>
 
 ID_shortCircuitSideEffect&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: expression suggestion
 
 <hr/>
 
-对于逻辑表达式，求值时从左至右计算子表达式的值，当可以确定整个表达式的值时，即使还有未计算的子表达式，也会立即结束计算，这称为“短路规则”。  
+逻辑表达式的右子表达有副作用会使代码复杂度显著增加，易产生错误，且不利于维护。  
   
-&&、|| 的右子表达式会受到左子表达式的影响，可能不会被执行，即如果右子表达式有副作用，其副作用可能不会生效，这使表达式的复杂度显著增加，极易引入难以察觉的错误。  
+对于逻辑表达式的求值，标准规定从左至右计算各子表达式的值，当可以确定整个表达式的值时，即使还有未计算的子表达式，也会立即结束求值，这种方法可提高效率，称为“短路规则（short\-circuit evaluation）”。  
+  
+逻辑表达式的右子表达式受左子表达式影响，可能不会被执行，如果有副作用也可能不会生效。  
   
 示例：
 ```
 if (a == foo || b == bar++) {  // Non-compliant
-    ....
+    do_something(bar);         // Consider that ‘bar++’ may not be evaluated
 }
 ```
-如果 a == foo 为真，不论 b 是否等于 bar\+\+，整个条件表达式的值一定为真，所以 b == bar\+\+ 不一定会被执行，bar 的自增也不会被执行。  
-  
-可参见 ID\_missingSideEffect 中对“副作用”的介绍。
+如果 a == foo 为真，不论 b 是否等于 bar\+\+，整个条件表达式的值一定为真，所以 b == bar\+\+ 不一定会被执行，if 语句要同时考虑 bar\+\+ 执行与未执行的两种状态，复杂度较高。
 <br/>
 <br/>
 
@@ -12719,7 +12726,7 @@ int foo(bool cond) {
     return 1 + cond? 2: 3;  // Rather suspicious
 }
 ```
-加号的优先级大于三目运算符，但 cond 是 bool 型变量，所以这种情况十分可疑。  
+加号的优先级大于三元运算符，但 cond 是 bool 型变量，所以这种情况十分可疑。  
   
 很可能应改为：
 ```
@@ -13397,13 +13404,13 @@ CWE-1025
 <br/>
 <br/>
 
-### <span id="ID_differentEnumComparison">▌R10.3.4 不应比较不同类型的枚举值</span>
+### <span id="ID_differentEnumComparison">▌R10.3.4 不应比较非同类枚举值</span>
 
 ID_differentEnumComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-比较不同类型的枚举值相当于比较不同类别的事物，没有逻辑意义，往往是设计缺陷或逻辑错误。  
+比较非同类枚举值相当于比较不同类别的事物，没有逻辑意义，往往是设计缺陷或逻辑错误。  
   
 示例：
 ```
@@ -15556,8 +15563,7 @@ int main() {
     cout << reinterpret_cast<B*>(&c)->b << '\n';  // Non-compliant, what is output?
 }
 ```
-输出 2 1  
-如果想将派生类的地址 &c 转为基类指针，应使用 static\_cast 进行正确的偏移转换，而如果使用 reinterpret\_cast，不会进行偏移转换，这种情况下得到的成员 b 是错误的。
+输出 2 1，如果想将派生类的地址 &c 转为基类指针，应使用 static\_cast 进行正确的偏移转换，而如果使用 reinterpret\_cast，不会进行偏移转换，这种情况下得到的成员 b 是错误的。
 <br/>
 <br/>
 

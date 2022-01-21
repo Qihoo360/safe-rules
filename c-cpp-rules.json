@@ -39,9 +39,9 @@
         "standard": "ISO/IEC 9899:1999 6.3.2.2(1),ISO/IEC 9899:1999 6.2.5(19)"
         },
     "ID_differentEnumComparison": {
-        "checkPoint": "不应比较不同类型的枚举值",
+        "checkPoint": "不应比较非同类枚举值",
         "level": "warning",
-        "comment": "比较不同类型的枚举值相当于比较不同类别的事物，没有逻辑意义，往往是设计缺陷或逻辑错误。",
+        "comment": "比较非同类枚举值相当于比较不同类别的事物，没有逻辑意义，往往是设计缺陷或逻辑错误。",
         "tag": "expression"
         },
     "ID_ptrIntCast": {
@@ -427,7 +427,7 @@
     "ID_switch_tooManyCases": {
         "checkPoint": "switch 语句分枝数量应在规定范围之内",
         "level": "warning",
-        "comment": "switch 语句分枝过多会使代码过于庞大不利于维护，分支很多时建议将每个 case 的执行逻辑抽取成函数，再按遵循某种算法的索引结构组织在一起。",
+        "comment": "switch 语句分枝过多会使代码过于庞大不利于维护，分枝很多时建议将每个 case 的执行逻辑抽取成函数，再按遵循某种算法的索引结构组织在一起。",
         "config": {
             "ID_switch/maxCasesCount": "分枝数量上限，超过则报出"
             },
@@ -1135,7 +1135,7 @@
     "ID_illIdentical": {
         "checkPoint": "不应出现不合逻辑的重复子表达式",
         "level": "error",
-        "comment": "逻辑与、逻辑或、按位与、按位或的子表达式，三目表达式的两个分支子表达式不应重复，否则失去逻辑意义，这是一种很常见的错误，往往由复制粘贴造成。",
+        "comment": "逻辑与、逻辑或、按位与、按位或的子表达式以及三元表达式的两个分枝不应重复，否则失去逻辑意义。",
         "tag": "expression",
         "reference": "CWE-682"
         },
@@ -1464,9 +1464,9 @@
         "tag": "expression"
         },
     "ID_shortCircuitSideEffect": {
-        "checkPoint": "短路规则下不应存在有副作用的子表达式",
+        "checkPoint": "逻辑表达式的右子表达不应有副作用",
         "level": "suggestion",
-        "comment": "对于逻辑表达式，求值时从左至右计算子表达式的值，当可以确定整个表达式的值时，即使还有未计算的子表达式，也会立即结束计算，这称为“短路规则”。",
+        "comment": "逻辑表达式的右子表达有副作用会使代码复杂度显著增加，易产生错误，且不利于维护。",
         "tag": "expression",
         "standard": "ISO/IEC 9899:1999 6.5.13(4) 6.5.14(4),ISO/IEC 9899:2011 6.5.13(4) 6.5.14(4)",
         "reference": "MISRA C 2004 12.4,MISRA C 2012 13.5,MISRA C++ 2008 5-14-1"
@@ -2273,9 +2273,9 @@
         "reference": "C++ Core Guidelines ES.3"
     },
     "ID_switch_breakOmitted": {
-        "checkPoint": "每个非空的 switch 分枝都应该用无条件的 break 语句终止",
+        "checkPoint": "switch 语句的每个非空分枝都应该用无条件的 break 语句终止",
         "level": "warning",
-        "comment": "每个非空的 switch 分枝都应该用无条件的 break 语句终止，break 语句的缺失或误用是导致错误的常见原因。",
+        "comment": "每个非空分枝都应该用无条件的 break 语句终止，break 语句的缺失或误用是导致错误的常见原因。",
         "tag": "control",
         "standard": "ISO/IEC 14882:2017 10.6.5",
         "reference": "CWE-484,C++ Core Guidelines ES.78,MISRA C 2004 15.2,MISRA C 2012 16.3,MISRA C++ 2008 6-4-5"
@@ -3226,7 +3226,7 @@
     "ID_badBackslash": {
         "checkPoint": "除转义字符、宏定义之外不应使用反斜杠",
         "level": "warning",
-        "comment": "反斜杠可以用于标识转义字符，也可以用于实现“伪换行”，即代码换行显示但在语法上并没有换行，一般用于宏定义，除此之外不应再使用反斜杠，否则没有实际意义，也会造成混乱。",
+        "comment": "反斜杠可用于标识转义字符，也可用于实现“伪换行”，即代码换行显示但在语法上并没有换行，一般用于宏定义，除此之外不应再使用反斜杠，否则没有实际意义，也会造成混乱。",
         "tag": "precompile"
         }
 }
