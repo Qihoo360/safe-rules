@@ -3081,7 +3081,7 @@
     "ID_missingVoid": {
         "checkPoint": "C 代码中参数列表如果为空应声明为“(void)”",
         "level": "warning",
-        "comment": "在 C 语言中，如果函数的参数列表声明为空括号，表示函数的参数还没有声明，而不是表示没有参数，这很容易使人误解，所以没有参数的参数列表应声明为“(void)”。",
+        "comment": "在 C 语言中，如果函数的参数列表声明为空括号，表示函数的参数还没有声明，而不是表示没有参数，这很容易使人误解，所以在 C 代码中没有参数的参数列表应声明为“(void)”。",
         "tag": "declaration",
         "related": "ID_superfluousVoid",
         "standard": "ISO/IEC 9899:2011 6.7.6.3(14),ISO/IEC 9899:2011 6.11.6(1)",
