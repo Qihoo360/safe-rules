@@ -1024,7 +1024,7 @@
         "tag": "precompile"
         },
     "ID_nonStandardCharInHeaderName": {
-        "checkPoint": "字母、数字、下划线以及点号之外的字符不应出现在头文件名称中",
+        "checkPoint": "include 指令中禁用不合规的字符",
         "level": "warning",
         "comment": "字母、数字、下划线以及点号之外的字符可能与文件系统造成冲突，也可能导致标准之外的问题，所以不应出现在头文件名称中。",
         "tag": "precompile",
@@ -1042,7 +1042,7 @@
     "ID_forbidCHeaderInCpp": {
         "checkPoint": "C++ 代码不应引用 C 头文件",
         "level": "warning",
-        "comment": "在 C++ 语言中应使用 C++ 标准头文件，stdio.h、stdlib.h 等 C 语言头文件不在 C++ 标准之内，应改用 cstdio、cstdlib 等符合 C++ 标准的头文件。",
+        "comment": "在 C++ 代码中应使用 C++ 标准头文件，stdio.h、stdlib.h 等 C 语言头文件不在 C++ 标准之内，应改用 cstdio、cstdlib 等 C++ 标准头文件。",
         "tag": "precompile",
         "standard": "ISO/IEC 14882:2003 D.5,ISO/IEC 14882:2011 D.5,ISO/IEC 14882:2017 D.5",
         "reference": "MISRA C++ 2008 18-0-1"
@@ -1409,7 +1409,7 @@
         "reference": "CWE-682"
         },
     "ID_confusingAssignment": {
-        "checkPoint": "赋值表达式中不应存在被赋值变量的自增或自减运算",
+        "checkPoint": "被赋值的变量不应在同一个表达式中自增或自减",
         "level": "warning",
         "comment": "设 a 为变量，对于下列形式的赋值给出警告：\na = a++;\na = ++a;\n++a = a;\n++a = ++a;\n++a = a++;\n这种形式的赋值非但令人费解，而且不同的编译器会给出不同的解释从而得到不同的执行结果。",
         "tag": "expression",
@@ -1458,7 +1458,7 @@
         "tag": "expression"
         },
     "ID_simplifiableCondition": {
-        "checkPoint": "逻辑表达式应尽量保持简洁明了",
+        "checkPoint": "逻辑表达式应保持简洁明了",
         "level": "warning",
         "comment": "逻辑或、逻辑与的子表达式可以合并成一个表达式时应尽量合并。",
         "tag": "expression"
@@ -1472,7 +1472,7 @@
         "reference": "MISRA C 2004 12.4,MISRA C 2012 13.5,MISRA C++ 2008 5-14-1"
         },
     "ID_evaluationOrderReliance": {
-        "checkPoint": "子表达式的求值不应依赖特定的顺序",
+        "checkPoint": "不应依赖特定的子表达式求值顺序",
         "level": "warning",
         "comment": "注意子表达式的求值顺序，不同的求值顺序不应导致主表达式有不同的结果。",
         "tag": "expression",

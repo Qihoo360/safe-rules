@@ -122,7 +122,7 @@
 
 <span id="__Precompile">**[3. Precompile](#precompile)**</span>
   - [3.1 Include](#precompile.include)
-    - [R3.1.1 字母、数字、下划线以及点号之外的字符不应出现在头文件名称中](#ID_nonStandardCharInHeaderName)
+    - [R3.1.1 include 指令中禁用不合规的字符](#ID_nonStandardCharInHeaderName)
     - [R3.1.2 include 指令中不应使用反斜杠](#ID_forbidBackslashInHeaderName)
     - [R3.1.3 include 指令中不应使用绝对路径](#ID_forbidAbsPathInHeaderName)
     - [R3.1.4 禁用不合规的头文件](#ID_forbiddenHeader)
@@ -428,11 +428,11 @@
     - [R10.1.4 不应使用多余的逻辑子表达式](#ID_redundantCondition)
     - [R10.1.5 逻辑表达式及其子表达式的结果不应为常量](#ID_constLogicExpression)
     - [R10.1.6 逻辑表达式的右子表达不应有副作用](#ID_shortCircuitSideEffect)
-    - [R10.1.7 逻辑表达式应尽量保持简洁明了](#ID_simplifiableCondition)
+    - [R10.1.7 逻辑表达式应保持简洁明了](#ID_simplifiableCondition)
     - [R10.1.8 可化简为逻辑表达式的三元表达式应尽量化简](#ID_simplifiableTernary)
   - [10.2 Evaluation](#expression.evaluation)
-    - [R10.2.1 子表达式的求值不应依赖特定的顺序](#ID_evaluationOrderReliance)
-    - [R10.2.2 赋值表达式中不应存在被赋值变量的自增或自减运算](#ID_confusingAssignment)
+    - [R10.2.1 不应依赖特定的子表达式求值顺序](#ID_evaluationOrderReliance)
+    - [R10.2.2 被赋值的变量不应在同一个表达式中自增或自减](#ID_confusingAssignment)
     - [R10.2.3 注意运算符优先级，不可产生非预期的结果](#ID_unexpectedPrecedence)
     - [R10.2.4 不在同一数组中的指针不可比较或相减](#ID_illPtrDiff)
     - [R10.2.5 bool 型变量或表达式不应参与大小比较、位运算、自增自减等运算](#ID_illBoolOperation)
@@ -2283,13 +2283,13 @@ C++ Core Guidelines ES.56
 
 ### <span id="precompile.include">3.1 Include</span>
 
-### <span id="ID_nonStandardCharInHeaderName">▌R3.1.1 字母、数字、下划线以及点号之外的字符不应出现在头文件名称中</span>
+### <span id="ID_nonStandardCharInHeaderName">▌R3.1.1 include 指令中禁用不合规的字符</span>
 
-ID_nonStandardCharInHeaderName&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
+ID_nonStandardCharInHeaderName&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompile warning
 
 <hr/>
 
-字母、数字、下划线以及点号之外的字符可能与文件系统造成冲突，也可能导致标准之外的问题，所以不应出现在头文件名称中。  
+字母、数字、下划线、点号之外的字符可能与文件系统存在冲突，也可能导致标准未定义的问题，不应出现在头文件和相关目录名称中。  
   
 示例：
 ```
@@ -2303,10 +2303,10 @@ ID_nonStandardCharInHeaderName&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile wa
 #include <foo.h>       // Compliant
 #include <foo_bar.h>   // Compliant
 ```
-可以用 / 作为路径分隔符，但不应出现  // 或 \*/，  如：
+可以用 / 作为路径分隔符，但不应出现  // 或 /\*，  如：
 ```
-#include <foo//bar.h>  // Non-Compliant
-#include <foo/*bar.h>  // Non-Compliant
+#include <foo//bar.h>  // Non-Compliant, undefined behavior
+#include <foo/*bar.h>  // Non-Compliant, undefined behavior
 ```
 另外，由于某些平台的文件系统不区分路径大小写，建议头文件名称只使用小写字母以减少移植类问题。
 <br/>
@@ -2431,7 +2431,7 @@ ID_forbidCHeaderInCpp&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompile warning
 
 <hr/>
 
-在 C\+\+ 语言中应使用 C\+\+ 标准头文件，stdio.h、stdlib.h 等 C 语言头文件不在 C\+\+ 标准之内，应改用 cstdio、cstdlib 等符合 C\+\+ 标准的头文件。  
+在 C\+\+ 代码中应使用 C\+\+ 标准头文件，stdio.h、stdlib.h 等 C 语言头文件不在 C\+\+ 标准之内，应改用 cstdio、cstdlib 等 C\+\+ 标准头文件。  
   
 C 标准头文件均有对应的 C\+\+ 版本，C\+\+ 版本提供了更适合 C\+\+ 语言的命名空间、模板以及函数重载等功能。另外，按 C\+\+ 惯例，语言相关的标准头文件无扩展名，自定义及平台相关的以 .h 为扩展名，遵循统一的命名规范也有必要的。  
   
@@ -12545,7 +12545,7 @@ MISRA C++ 2008 5-14-1
 <br/>
 <br/>
 
-### <span id="ID_simplifiableCondition">▌R10.1.7 逻辑表达式应尽量保持简洁明了</span>
+### <span id="ID_simplifiableCondition">▌R10.1.7 逻辑表达式应保持简洁明了</span>
 
 ID_simplifiableCondition&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -12605,13 +12605,14 @@ bool bar(int a) {
 
 ### <span id="expression.evaluation">10.2 Evaluation</span>
 
-### <span id="ID_evaluationOrderReliance">▌R10.2.1 子表达式的求值不应依赖特定的顺序</span>
+### <span id="ID_evaluationOrderReliance">▌R10.2.1 不应依赖特定的子表达式求值顺序</span>
 
 ID_evaluationOrderReliance&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
 注意子表达式的求值顺序，不同的求值顺序不应导致主表达式有不同的结果。  
+  
 C 语言和 C\+\+ 语言（C\+\+17 之前）对子表达式的求值顺序并没有明确的规定，由各编译器厂商自行决定。  
   
 示例：
@@ -12625,7 +12626,7 @@ foo(++i, ++i);      // Non-compliant
 foo(i + 1, i + 2);  // Compliant
 i += 2;             // Compliant
 ```
-注意，参数的求值顺序和进栈顺序是不同的概念，进栈顺序可以通过 stdcall、cdecl 等调用约定指明，而求值顺序在 C\+\+17 之前是没有明确标准的。  
+注意，参数的求值顺序和进栈顺序不同，进栈顺序可通过 stdcall、cdecl 等调用约定指明，而求值顺序在 C\+\+17 之前是没有规定的。  
   
 即使遵循 C\+\+17 标准，也不应出现这种代码，不同的人对这种代码往往会有不同的理解，对维护工作产生较大困扰。
 <br/>
@@ -12642,7 +12643,7 @@ C++ Core Guidelines ES.44
 <br/>
 <br/>
 
-### <span id="ID_confusingAssignment">▌R10.2.2 赋值表达式中不应存在被赋值变量的自增或自减运算</span>
+### <span id="ID_confusingAssignment">▌R10.2.2 被赋值的变量不应在同一个表达式中自增或自减</span>
 
 ID_confusingAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -13025,7 +13026,7 @@ ID_selfExclusiveOr&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 ```
 a = a ^ a;
 ```
-但这种复杂的写法在 C/C\+\+ 等高级语言中已不再提倡，a ^= a 也不再提倡。应将变量直接赋值为 0，编译器会作更好的优化。
+这种复杂的写法在 C/C\+\+ 等高级语言中已不再提倡，a ^= a 也不再提倡，应将变量直接赋值为 0，编译器会作更好的优化。
 <br/>
 <br/>
 
