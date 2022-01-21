@@ -1281,7 +1281,7 @@ ID_implementationDefinedFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security 
 
 <hr/>
 
-由实现定义的（implementation\-defined）库函数存在语言标准之外的行为。  
+由实现定义的（implementation\-defined）库函数行为不一致，增加移植或兼容等方面的成本。  
   
 如：  
  - cstdlib、stdlib.h 中的 abort、exit、getenv 或 system 等函数  
@@ -2332,7 +2332,7 @@ ID_forbidBackslashInHeaderName&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompil
 
 <hr/>
 
-在 include 指令的尖括号或引号之间使用反斜杠不利于代码移植，而且可能会导致标准之外的问题。  
+在 include 指令中使用反斜杠不利于代码移植，而且可能会导致标准未定义的问题。  
   
 示例：
 ```
@@ -2392,6 +2392,7 @@ ID_forbiddenHeader&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompile warning
 tgmath.h 和 ctgmath 会使用语言标准之外的技术实现某种重载效果，而且其中的部分函数名称会干扰其他标准库中的名称，setjmp.h 和 csetjmp 则包含危险的过程间跳转函数。  
   
 iso646.h、stdalign.h 以及 stdbool.h 对于 C\+\+ 语言来说没有意义，在 C\+\+ 代码中不应使用。  
+  
 stdio.h、signal.h、time.h、fenv.h 等头文件对于有高可靠性要求的软件系统也不建议使用，这些头文件含有较多标准未声明、未定义或由实现定义的内容。  
   
 审计工具不妨通过配置设定不合规头文件的名称：
@@ -14648,7 +14649,7 @@ ID_literal_nonStandardEsc&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: literal warning
 
 <hr/>
 
-使用非标准转义字符会导致标准之外的问题，也很有可能是反斜杠忘了转义。  
+使用非标准转义字符会导致标准未定义的问题，也可能是忘了将反斜杠转义。  
   
 示例：
 ```
@@ -14694,7 +14695,7 @@ ID_literal_hybridConcat&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: literal warning
 
 <hr/>
 
-L、U、u、u8 等字符串前缀表示不同的类型，连接在一起会导致标准之外的问题。  
+L、U、u、u8 等字符串前缀表示不同的类型，不可连接在一起。  
   
 示例：
 ```

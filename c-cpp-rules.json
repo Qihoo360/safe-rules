@@ -1034,7 +1034,7 @@
     "ID_forbidBackslashInHeaderName": {
         "checkPoint": "include 指令中不应使用反斜杠",
         "level": "warning",
-        "comment": "在 include 指令的尖括号或引号之间使用反斜杠不利于代码移植，而且可能会导致标准之外的问题。",
+        "comment": "在 include 指令中使用反斜杠不利于代码移植，而且可能会导致标准未定义的问题。",
         "tag": "precompile",
         "standard": "ISO/IEC 9899:1999 6.4.7(3)-undefined,ISO/IEC 9899:2011 6.4.7(3)-undefined,ISO/IEC 14882:2003 2.8(2)-undefined,ISO/IEC 14882:2011 2.9(2)-implementation",
         "reference": "MISRA C++ 2008 16-2-5"
@@ -2370,7 +2370,7 @@
     "ID_literal_nonStandardEsc": {
         "checkPoint": "不应使用非标准转义字符",
         "level": "warning",
-        "comment": "使用非标准转义字符会导致标准之外的问题，也很有可能是反斜杠忘了转义。",
+        "comment": "使用非标准转义字符会导致标准未定义的问题，也可能是忘了将反斜杠转义。",
         "tag": "literal",
         "standard": "ISO/IEC 14882:2003 2.13.2(3)-undefined,ISO/IEC 14882:2011 2.14.3(3)-implementation,ISO/IEC 14882:2017 5.13.3(7)-implementation",
         "reference": "MISRA C 2004 4.1,MISRA C++ 2008 2-13-1"
@@ -2378,7 +2378,7 @@
     "ID_literal_hybridConcat": {
         "checkPoint": "不同前缀的字符串常量不可连接在一起",
         "level": "warning",
-        "comment": "L、U、u、u8 等字符串前缀表示不同的类型，连接在一起会导致标准之外的问题。",
+        "comment": "L、U、u、u8 等字符串前缀表示不同的类型，不可连接在一起。",
         "tag": "literal",
         "standard": "ISO/IEC 14882:2003 2.13.4(3)-undefined,ISO/IEC 14882:2011 2.14.5(13)-implementation",
         "reference": "MISRA C++ 2008 2-13-5"
@@ -3073,7 +3073,7 @@
     "ID_implementationDefinedFunction": {
         "checkPoint": "避免使用由实现定义的库函数",
         "level": "warning",
-        "comment": "由实现定义的（implementation-defined）库函数存在语言标准之外的行为。",
+        "comment": "由实现定义的（implementation-defined）库函数行为不一致，增加移植或兼容等方面的成本。",
         "tag": "security",
         "standard": "ISO/IEC 9899:2011 7.22.4.1(2)-implementation,ISO/IEC 9899:2011 7.22.4.4(5)-implementation,ISO/IEC 9899:2011 7.22.4.6(2)-implementation,ISO/IEC 9899:2011 7.22.4.8(3)-implementation,ISO/IEC 9899:2011 7.27.2.1(3)-implementation,ISO/IEC 9899:2011 7.14.1.1(3)-implementation",
         "reference": "MISRA C 2004 20.8,MISRA C 2004 20.11,MISRA C 2004 20.12,MISRA C 2012 21.5,MISRA C 2012 21.8,MISRA C 2012 21.10,MISRA C++ 2008 18-0-3,MISRA C++ 2008 18-0-4,MISRA C++ 2008 18-7-1"
