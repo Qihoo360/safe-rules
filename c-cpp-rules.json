@@ -821,7 +821,7 @@
     "ID_nonStdAssignmentRetType": {
         "checkPoint": "拷贝赋值、移动赋值运算符应返回所属类的非 const 引用",
         "level": "warning",
-        "comment": "按赋值表达式的标准语法要求，以及 C++ 语言的惯例，拷贝赋值、移动赋值应返回所属类的非 const 引用，便于调用者使用并满足泛型编程的要求。",
+        "comment": "拷贝赋值、移动赋值运算符应返回所属类的非 const 引用，便于调用者使用并满足泛型编程的要求。",
         "tag": "declaration",
         "reference": "C++ Core Guidelines F.47,C++ Core Guidelines C.60,C++ Core Guidelines C.63"
     },
@@ -988,7 +988,7 @@
     "ID_forbidStaticArrSize": {
         "checkPoint": "声明数组参数的大小时禁用 static 关键字",
         "level": "warning",
-        "comment": "C 语言规定数组作为形式参数时，可用 static 关键字修饰大小，要求传入数组的大小不能小于由 static 关键字修饰的值，这种机制有助于编译器优化，但不符合这种限制时会导致标准未定义错误，相当于增加了误用的风险，也提高了测试成本。",
+        "comment": "C 语言规定数组作为形式参数时，可用 static 关键字修饰大小，要求传入数组的大小不能小于由 static  关键字修饰的值，有助于编译器优化，但不符合这种限制时会导致标准未定义错误，相当于增加了误用的风险，也提高了测试成本。",
         "tag": "declaration",
         "standard": "ISO/IEC 9899:1999 6.7.6.3(7),ISO/IEC 9899:2011 6.7.6.3(7)",
         "reference": "MISRA C 2012 17.6"
@@ -3073,24 +3073,24 @@
     "ID_implementationDefinedFunction": {
         "checkPoint": "避免使用由实现定义的库函数",
         "level": "warning",
-        "comment": "由实现定义的（implementation-defined）库函数行为不一致，增加移植或兼容等方面的成本。",
+        "comment": "由实现定义的（implementation-defined）库函数会增加移植或兼容等方面的成本。",
         "tag": "security",
         "standard": "ISO/IEC 9899:2011 7.22.4.1(2)-implementation,ISO/IEC 9899:2011 7.22.4.4(5)-implementation,ISO/IEC 9899:2011 7.22.4.6(2)-implementation,ISO/IEC 9899:2011 7.22.4.8(3)-implementation,ISO/IEC 9899:2011 7.27.2.1(3)-implementation,ISO/IEC 9899:2011 7.14.1.1(3)-implementation",
         "reference": "MISRA C 2004 20.8,MISRA C 2004 20.11,MISRA C 2004 20.12,MISRA C 2012 21.5,MISRA C 2012 21.8,MISRA C 2012 21.10,MISRA C++ 2008 18-0-3,MISRA C++ 2008 18-0-4,MISRA C++ 2008 18-7-1"
         },
     "ID_missingVoid": {
-        "checkPoint": "C 代码中函数参数列表如果为空须声明为“(void)”",
+        "checkPoint": "C 代码中参数列表如果为空应声明为“(void)”",
         "level": "warning",
-        "comment": "在 C 语言中，如果函数的参数列表声明为空的括号，表示函数的参数还没有声明，而不是表示没有参数。这便引入了相当大的不确定性，为了减少混乱，没有参数的参数列表应声明为“(void)”。",
+        "comment": "在 C 语言中，如果函数的参数列表声明为空括号，表示函数的参数还没有声明，而不是表示没有参数，这很容易使人误解，所以没有参数的参数列表应声明为“(void)”。",
         "tag": "declaration",
         "related": "ID_superfluousVoid",
         "standard": "ISO/IEC 9899:2011 6.7.6.3(14),ISO/IEC 9899:2011 6.11.6(1)",
         "reference": "MISRA C 2004 16.5"
         },
     "ID_superfluousVoid": {
-        "checkPoint": "C++ 代码中函数参数列表如果为空不应声明为“(void)”",
+        "checkPoint": "C++ 代码中参数列表如果为空不应声明为“(void)”",
         "level": "suggestion",
-        "comment": "与 C 语言不同，在 C++ 中如果函数的参数列表声明为空的括号，与声明为“(void)”的方式完全相同，均表示没有参数，所以如果在 C++ 仍采用 C 的声明方式就显得很啰嗦。",
+        "comment": "与 C 语言不同，在 C++ 中空括号和“(void)”均表示没有参数，所以应采用更简洁的方式。",
         "tag": "declaration",
         "related": "ID_missingVoid",
         "standard": "ISO/IEC 14882:2003 C.1.6 Clause 8,ISO/IEC 14882:2011 C.1.7 Clause 8,ISO/IEC 14882:2017 C.1.7 Clause 11",

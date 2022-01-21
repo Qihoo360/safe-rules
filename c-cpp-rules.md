@@ -258,8 +258,8 @@
     - [R6.6.2 不建议虚函数的参数有默认值](#ID_deprecatedDefaultArgument)
     - [R6.6.3 虚函数参数的默认值应与基类中声明的一致](#ID_inconsistentDefaultArgument)
     - [R6.6.4 不应将数组作为函数的形式参数](#ID_invalidParamArraySize)
-    - [R6.6.5 C 代码中函数参数列表如果为空须声明为“(void)”](#ID_missingVoid)
-    - [R6.6.6 C\+\+ 代码中函数参数列表如果为空不应声明为“(void)”](#ID_superfluousVoid)
+    - [R6.6.5 C 代码中参数列表如果为空应声明为“(void)”](#ID_missingVoid)
+    - [R6.6.6 C\+\+ 代码中参数列表如果为空不应声明为“(void)”](#ID_superfluousVoid)
     - [R6.6.7 声明数组参数的大小时禁用 static 关键字](#ID_forbidStaticArrSize)
   - [6.7 Function](#declaration.function)
     - [R6.7.1 派生类不应重新定义与基类相同的非虚函数](#ID_nonVirtualOverride)
@@ -1281,7 +1281,7 @@ ID_implementationDefinedFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security 
 
 <hr/>
 
-由实现定义的（implementation\-defined）库函数行为不一致，增加移植或兼容等方面的成本。  
+由实现定义的（implementation\-defined）库函数会增加移植或兼容等方面的成本。  
   
 如：  
  - cstdlib、stdlib.h 中的 abort、exit、getenv 或 system 等函数  
@@ -1298,7 +1298,7 @@ void foo() {
     abort();  // Non-compliant
 }
 ```
-标准规定调用 abort 后进程应被终止，但进程打开的流是否会被关闭，创建的临时文件是否会被清理等问题是没被明确定义的，由库函数的具体实现定义。
+标准规定调用 abort 后进程应被终止，但进程打开的流是否会被关闭，创建的临时文件是否会被清理等问题没明确定义。
 <br/>
 <br/>
 
@@ -6072,14 +6072,28 @@ ID_redundantVirtual&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-只应在定义新的虚函数时使用 virtual 关键字，当重写虚函数时，应使用 override 或 final 关键字，不应再出现 virtual 关键字，使代码更清晰简洁。  
+只应在定义新的虚函数时使用 virtual 关键字，重写虚函数应使用 override 或 final 关键字，不应再出现 virtual 关键字。  
   
 示例：
 ```
-class D: public B {
+class A {
+public:
+    virtual int foo();   // Compliant, a new virtual function
+    virtual int bar();   // Compliant, a new virtual function
+};
+
+class B: public A {
 public:
     virtual int foo() final;     // Non-compliant, ‘virtual’ is redundant
     virtual int bar() override;  // Non-compliant, ‘virtual’ is redundant
+};
+```
+去掉多余的 virtual 关键字使代码更简洁：
+```
+class B: public A {
+public:
+    int foo() final;     // Compliant
+    int bar() override;  // Compliant
 };
 ```
 <br/>
@@ -6130,7 +6144,7 @@ struct A {
     unsigned inline int baz();  // Non-compliant
 };
 ```
-应统一规定其出现在类型名的左侧：
+应统一规定出现在类型名的左侧：
 ```
 struct A {
     typedef long long ll_t;     // Compliant
@@ -6876,13 +6890,13 @@ MISRA C++ 2008 5-2-12
 <br/>
 <br/>
 
-### <span id="ID_missingVoid">▌R6.6.5 C 代码中函数参数列表如果为空须声明为“(void)”</span>
+### <span id="ID_missingVoid">▌R6.6.5 C 代码中参数列表如果为空应声明为“(void)”</span>
 
 ID_missingVoid&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-在 C 语言中，如果函数的参数列表声明为空的括号，表示函数的参数还没有声明，而不是表示没有参数。这便引入了相当大的不确定性，为了减少混乱，没有参数的参数列表应声明为“(void)”。  
+在 C 语言中，如果函数的参数列表声明为空括号，表示函数的参数还没有声明，而不是表示没有参数，这很容易使人误解，所以没有参数的参数列表应声明为“(void)”。  
   
 示例：
 ```
@@ -6932,21 +6946,17 @@ MISRA C 2004 16.5
 <br/>
 <br/>
 
-### <span id="ID_superfluousVoid">▌R6.6.6 C++ 代码中函数参数列表如果为空不应声明为“(void)”</span>
+### <span id="ID_superfluousVoid">▌R6.6.6 C++ 代码中参数列表如果为空不应声明为“(void)”</span>
 
 ID_superfluousVoid&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-与 C 语言不同，在 C\+\+ 中如果函数的参数列表声明为空的括号，与声明为“(void)”的方式完全相同，均表示没有参数，所以如果在 C\+\+ 仍采用 C 的声明方式就显得很啰嗦。  
+与 C 语言不同，在 C\+\+ 中空括号和“(void)”均表示没有参数，所以应采用更简洁的方式。  
   
 示例：
 ```
-class A {
-public:
-    A(void);  // Verbose
-   ~A(void);  // Verbose
-
+struct A {
     int foo(void);  // Verbose
     int bar();      // OK
 };
@@ -6975,7 +6985,7 @@ ID_forbidStaticArrSize&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration warni
 
 <hr/>
 
-C 语言规定数组作为形式参数时，可用 static 关键字修饰大小，要求传入数组的大小不能小于由 static  关键字修饰的值，这种机制有助于编译器优化，但不符合这种限制时会导致标准未定义错误，相当于增加了误用的风险，也提高了测试成本。  
+C 语言规定数组作为形式参数时，可用 static 关键字修饰大小，要求传入数组的大小不能小于由 static  关键字修饰的值，有助于编译器优化，但不符合这种限制时会导致标准未定义错误，相当于增加了误用的风险，也提高了测试成本。  
   
 示例：
 ```
@@ -7048,47 +7058,23 @@ ID_nonStdAssignmentRetType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warni
 
 <hr/>
 
-按赋值表达式的标准语法要求，以及 C\+\+ 语言的惯例，拷贝赋值、移动赋值应返回所属类的非 const 引用，便于调用者使用并满足泛型编程的要求。  
+拷贝赋值、移动赋值运算符应返回所属类的非 const 引用，便于调用者使用并满足泛型编程的要求。  
   
-对“=”的合理重载，可以使对象的赋值表达式作为子表达式灵活地出现在各种语句中，这也是“泛型程序设计”的必要条件，使算法的代码实现既可以适应普通变量，也可以适应自定义对象。如果类的对象与标准模板库相关，则其赋值运算符应满足本规则的要求。  
-如果“=”运算符没有返回所属类的非 const 引用，便无法满足连续赋值等表达式的语法要求，对标准模板类的使用上会受到限制。  
+对“=”的合理重载，可以使对象的赋值表达式作为子表达式灵活地出现在各种语句中，这也是“泛型程序设计”的必要条件，使算法的代码实现既可以适应普通变量，也可以适应自定义对象。如果类的对象与标准模板库相关，其赋值运算符应满足本规则的要求，否则无法满足连续赋值等语法要求，在标准模板库的使用上会受到限制。  
   
-对于“\+=”、“\-=”等复合赋值运算符也有相同的要求。  
+本规则对 \+=、\-= 等复合赋值运算符也有相同的要求。  
   
 示例：
 ```
-class A {
-    int i = 0;
-
-public:
-    A& operator = (int x) {  // Compliant
-        i = x;
-        return *this;
-    }
-
-    A& operator = (const A& rhs) {  // Compliant
-        i = rhs.i;
-        return *this;
-    }
+struct A {
+    A& operator = (const A&);    // Compliant
+    A& operator = (A&&);         // Compliant
 };
 
-class B {
-    int i = 0;
-
-public:
-    void operator = (int x) { i = x; }  // Non-compliant, should return B&
-    void operator = (const B& rhs) { i = rhs.i; }  // Non-compliant
+struct B {
+    void operator = (const B&);  // Non-compliant, should return B&
+    void operator = (B&&);       // Non-compliant, should return B&
 };
-
-template <class T>
-void foo(T& x, T& y) {
-    x = y = 1;
-}
-
-A u, v;
-B w, x;
-foo(u, v);  // OK
-foo(w, x);  // Compile error
 ```
 <br/>
 <br/>
