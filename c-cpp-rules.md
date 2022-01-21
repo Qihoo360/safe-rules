@@ -7072,8 +7072,8 @@ struct A {
 };
 
 struct B {
-    void operator = (const B&);  // Non-compliant, should return B&
-    void operator = (B&&);       // Non-compliant, should return B&
+    void operator = (const B&);  // Non-compliant, should return ‘B&’
+    void operator = (B&&);       // Non-compliant, should return ‘B&’
 };
 ```
 <br/>
@@ -7135,10 +7135,7 @@ struct A {
     }
 };
 ```
-例中赋值运算符不是真正的移动赋值运算符，仍是一种低效实现。  
-应将 a.p 与 this\->p 交换，利用 a 的析构函数完成资源的释放，这才是真正意义上的移动赋值。  
-  
-应改为：
+例中赋值运算符不是真正的移动赋值运算符，仍是一种低效实现。应将 a.p 与 this\->p 交换，利用 a 的析构函数完成资源的释放，才是真正意义上的移动赋值：
 ```
 struct A {
     char* p;
@@ -7416,7 +7413,7 @@ struct A {
 
 int main() {
     A a;
-    std::cout << sizeof(a) << '\n';  // What is output?
+    cout << sizeof(a) << '\n';  // What is output?
 }
 ```
 输出 8，例中成员 x 自身的位域长度仍为 32，而多出来的大小会形成一个不可访问的填充值。
