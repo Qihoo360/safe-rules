@@ -116,7 +116,7 @@
   - [R2.14 避免使用在栈上分配内存的函数](#ID_stackAllocation)
   - [R2.15 避免不必要的内存分配](#ID_unnecessaryAllocation)
   - [R2.16 避免动态内存分配](#ID_dynamicAllocation)
-  - [R2.17 标准 FILE 对象不应被复制](#ID_copiedFILE)
+  - [R2.17 流式资源对象不应被复制](#ID_copiedFILE)
   - [R2.18 对象被 std::move 之后不应再被使用](#ID_useAfterMove)
 <br/>
 
@@ -490,7 +490,7 @@
     - [R10.8.2 new 表达式只可用于赋值或当作参数](#ID_oddNew)
     - [R10.8.3 数组下标应为整形表达式](#ID_oddSubscripting)
     - [R10.8.4 禁用逗号表达式](#ID_forbidCommaExpression)
-    - [R10.8.5 不应使用多余的括号](#ID_redundantParentheses)
+    - [R10.8.5 合理使用括号](#ID_redundantParentheses)
 <br/>
 
 <span id="__Literal">**[11. Literal](#literal)**</span>
@@ -563,7 +563,7 @@
   - [R15.1 空格应遵循统一风格](#ID_spaceStyle)
   - [R15.2 大括号应遵循统一风格](#ID_braceStyle)
   - [R15.3 NULL 和 nullptr 不应混用](#ID_mixNullptrAndNULL)
-  - [R15.4 在 C\+\+ 代码中不应使用 NULL，应使用 nullptr](#ID_deprecatedNULL)
+  - [R15.4 在 C\+\+ 代码中用 nullptr 代替 NULL](#ID_deprecatedNULL)
   - [R15.5 赋值表达式不应作为子表达式](#ID_assignmentAsSubExpression)
   - [R15.6 不应存在多余的分号](#ID_redundantSemicolon)<br/><br/>
 ## <span id="security">1. Security</span>
@@ -2221,13 +2221,13 @@ C++ Core Guidelines R.5
 <br/>
 <br/>
 
-### <span id="ID_copiedFILE">▌R2.17 标准 FILE 对象不应被复制</span>
+### <span id="ID_copiedFILE">▌R2.17 流式资源对象不应被复制</span>
 
 ID_copiedFILE&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
 <hr/>
 
-每个文件流只应对应一个 FILE 对象，如果存在多个副本会造成数据不一致的问题。  
+FILE 等流式对象不应被复制，如果存在多个副本会造成数据不一致的问题。  
   
 示例：
 ```
@@ -3529,7 +3529,7 @@ ID_nonGlobalMain&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
 <hr/>
 
-main 函数作为程序的入口是一个特殊的函数，链接器需要对其特殊处理，不应受命名空间等作用域的限制。  
+main 函数作为程序的入口，链接器需对其特殊处理，不应受命名空间等作用域的限制。  
   
 示例：
 ```
@@ -3630,7 +3630,9 @@ ID_staticInHeader&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
 <hr/>
 
-头文件中由 static 关键字声明的对象、数组或函数，会在每个包含该头文件的翻译单元（translate\-unit）中生成副本造成数据冗余，如果将静态数据误用作全局数据也会造成逻辑错误。  
+头文件中由 static 关键字声明的对象、数组或函数，会在每个包含该头文件的翻译单元或模块中生成副本造成数据冗余，如果将静态数据误用作全局数据也会造成逻辑错误。  
+  
+类的静态成员不受本规则限制。  
   
 示例：
 ```
@@ -3641,9 +3643,19 @@ static int foo() {  // Non-compliant
     return i;
 }
 ```
-在编译每个包含例中头文件的源文件时，变量 i 和函数 foo 都会生成副本。  
+在编译每个包含该头文件的源文件时，变量 i 和函数 foo 都会生成不必要的副本。  
   
-由 const 或 constexpr 关键字修饰的常量也具有静态数据的特性，在头文件中定义常量也面对这种问题，基本类型的常量经过编译优化可以不占用存储空间（有取地址操作的除外），而对于非基本类型的常量对象或数组也不应在头文件中定义，建议采用单件模式，将其数据定义在 cpp 等源文件中，在头文件中定义访问这些数据的接口。  
+在头文件中实现的内联或模版函数中，也不应使用静态声明，如：
+```
+// In a header file
+inline void bar() {
+    static MyType obj;  // Non-compliant
+    ....
+}
+```
+如果该头文件被不同的模块（so、dll、exe）包含，obj 对象会在不同的模块中生成副本，很可能造成逻辑错误。  
+  
+另外， 由 const 或 constexpr 关键字修饰的常量也具有静态数据的特性，在头文件中定义常量也面对这种问题，基本类型的常量经过编译优化可以不占用存储空间（有取地址操作的除外），而对于非基本类型的常量对象或数组也不应在头文件中定义，建议采用单件模式，将其数据定义在 cpp 等源文件中，在头文件中定义访问这些数据的接口。  
   
 如：
 ```
@@ -5965,6 +5977,21 @@ constexpr int foo(int n) {  // Compliant
     return n + 1;
 }
 ```
+另外，在类的声明中实现的函数也相当于被声明为 inline，不应再重复声明：
+```
+class A {
+    ....
+
+public:
+    inline int foo() {  // Non-compliant, ‘inline’ is redundant
+        return 123;
+    }
+
+    int bar() {         // Compliant
+        return 456;
+    }
+};
+```
 <br/>
 <br/>
 
@@ -6657,7 +6684,7 @@ void bar() {
     printf("%d", 2 * c);    // What is output?
 }
 ```
-foo 可能只会返回 true，而 bar 可能输出 \-152，也可能输出 360。  
+这段代码可移植性较差，foo 在某些环境中可能只会返回 true，而 bar 可能输出 \-152，也可能输出 360。  
   
 char 类型在 PC 桌面、服务端等环境中一般是有符号的，在移动端或嵌入式系统中往往是无符号的，需明确其具体实现。  
   
@@ -8088,8 +8115,7 @@ void bar() {
     }
 }
 ```
-注意，例中 foo 函数虽然捕获的是 EDerive 对象，但 throw e; 抛出的是 EBase 对象，这也是一种“[对象切片](https://en.wikipedia.org/wiki/Object_slicing)”问题，造成了对象类型的“精度损失”。  
-将 throw e; 改为 throw; 可解决这种问题。
+注意，例中 foo 函数虽然捕获的是 EDerive 对象，但 throw e; 抛出的是 EBase 对象，这也是一种“[对象切片](https://en.wikipedia.org/wiki/Object_slicing)”问题，造成了对象类型的“精度损失”。将 throw e; 改为 throw; 可解决这种问题。
 <br/>
 <br/>
 
@@ -8403,7 +8429,7 @@ ID_mainReturnsNonInt&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 main 函数的返回值可作为整个进程执行情况的总结，按惯例返回 0 或 EXIT\_SUCCESS 表示执行成功，非 0 或 EXIT\_FAILURE 表示执行失败，main 函数的返回值会作为标准 exit 函数的参数。  
   
-main 函数应采用标准明确支持的方式：  
+应采用标准明确支持的方式：  
 
 ```
 int main(void) { .... }  // Compliant
@@ -8434,7 +8460,7 @@ ID_illFormedMain&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-main 函数作为程序的入口是一个特殊的函数，链接器需要对其特殊处理，标准规定 main 函数不应被重载，也不应声明为 inline、static 或 constexpr。  
+main 函数作为程序的入口，链接器需对其特殊处理，标准规定 main 函数不应被重载，也不应声明为 inline、static 或 constexpr。  
   
 示例：
 ```
@@ -13404,8 +13430,21 @@ ID_differentEnumComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warnin
 enum Fruit { apple, orange, banana };
 enum Pet { hamster, chipmunk, chinchilla };
 
-int foo(Fruit f, Pet p) {
-    return p > f;  // Non-compliant
+void foo(Fruit f) {
+    if (f == hamster) {  // Non-compliant
+        ....
+    }
+}
+
+void bar(Pet p) {
+    switch (p) {
+    case apple:     // Non-compliant
+        ....
+        break;
+    case chipmunk:  // Compliant
+        ....
+        break;
+    }
 }
 ```
 <br/>
@@ -14511,24 +14550,40 @@ MISRA C++ 2008 5-18-1
 <br/>
 <br/>
 
-### <span id="ID_redundantParentheses">▌R10.8.5 不应使用多余的括号</span>
+### <span id="ID_redundantParentheses">▌R10.8.5 合理使用括号</span>
 
 ID_redundantParentheses&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: expression suggestion
 
 <hr/>
 
-多余的括号使代码显得繁琐，应当去掉。  
+重复的或作用于单个对象的括号使代码显得繁琐，应去掉。  
   
 示例：
 ```
-int foo(int x, int y, int z) {
-    int a = ((x + y));  // Non-compliant
-    a = ((a + z)) + 1;  // Non-compliant
-    return ((a));       // Non-compliant
+a = 1 + (p[0]);      // Non-compliant
+a = 2 + (p->n);      // Non-compliant
+a = ((a + b)) * b;   // Non-compliant
+```
+应去掉多余的括号：
+```
+a = 1 + p[0];        // Compliant
+a = 2 + p->n;        // Compliant
+a = (a + b) * b;     // Compliant
+```
+但如果可以更好的表达逻辑意义，或不确定运算符优先级时，应及时使用括号，如：
+```
+if (a == b && b == c || x == y && y == z) {  // Bad
+    ....
+}
+```
+设例中两个 && 表达式对应两个逻辑步骤，虽然有无括号不影响计算结果，但建议加入括号提高可读性：
+```
+if ((a == b && b == c) || (x == y && y == z)) {  // Good
+    ....
 }
 ```
 例外：  
-由宏展开造成的多余括号不受本规则限制。
+由宏展开造成的括号不受本规则限制。
 <br/>
 <br/>
 <br/>
@@ -14579,7 +14634,7 @@ ID_literal_hardCodeChar&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: literal warning
 
 <hr/>
 
-在字符常量中，如果存在制表符（tab）或回车、换行、控制等特殊字符，应使用转义字符。  
+在字符常量中，如果存在制表符或回车、换行等控制字符，应使用转义字符。  
   
 示例：
 ```
@@ -14605,7 +14660,7 @@ ID_literal_hardCodeString&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: literal warning
 
 <hr/>
 
-在字符串常量中，如果存在制表符（tab）或回车、换行、控制等特殊字符，应使用转义字符。  
+在字符串常量中，如果存在制表符或回车、换行等控制字符，应使用转义字符。  
   
 示例：
 ```
@@ -16714,7 +16769,7 @@ C++ Core Guidelines ES.47
 <br/>
 <br/>
 
-### <span id="ID_deprecatedNULL">▌R15.4 在 C++ 代码中不应使用 NULL，应使用 nullptr</span>
+### <span id="ID_deprecatedNULL">▌R15.4 在 C++ 代码中用 nullptr 代替 NULL</span>
 
 ID_deprecatedNULL&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style suggestion
 

@@ -103,9 +103,9 @@
         "reference": "CWE-480"
         },
     "ID_redundantParentheses": {
-        "checkPoint": "不应使用多余的括号",
+        "checkPoint": "合理使用括号",
         "level": "suggestion",
-        "comment": "多余的括号使代码显得繁琐，应当去掉。",
+        "comment": "重复的或作用于单个对象的括号使代码显得繁琐，应去掉，但如果可以更好的表达逻辑意义，或不确定运算符优先级时，应使用括号。",
         "tag": "expression"
         },
     "ID_throwNULL": {
@@ -321,9 +321,9 @@
         "related": "ID_invalidNullCheck"
         },
     "ID_copiedFILE": {
-        "checkPoint": "标准 FILE 对象不应被复制",
+        "checkPoint": "流式资源对象不应被复制",
         "level": "warning",
-        "comment": "每个文件流只应对应一个 FILE 对象，如果存在多个副本会造成数据不一致的问题。",
+        "comment": "FILE 等流式对象不应被复制，如果存在多个副本会造成数据不一致的问题。",
         "tag": "resource",
         "standard": "ISO/IEC 9899:1999 7.19.3(6),ISO/IEC 9899:2011 7.21.3(6)",
         "reference": "MISRA C 2012 22.5"
@@ -844,14 +844,14 @@
     "ID_nonGlobalMain": {
         "checkPoint": "main 函数只应处于全局作用域中",
         "level": "warning",
-        "comment": "main 函数作为程序的入口是一个特殊的函数，链接器需要对其特殊处理，不应受命名空间等作用域的限制。",
+        "comment": "main 函数作为程序的入口，链接器需对其特殊处理，不应受命名空间等作用域的限制。",
         "tag": "global",
         "reference": "MISRA C++ 2008 7-3-2"
         },
     "ID_illFormedMain": {
         "checkPoint": "main 函数不应被重载，也不应声明为 inline、static 或 constexpr",
         "level": "warning",
-        "comment": "main 函数作为程序的入口是一个特殊的函数，链接器需要对其特殊处理，标准规定 main 函数不应被重载，也不应声明为 inline、static 或 constexpr。",
+        "comment": "main 函数作为程序的入口，链接器需对其特殊处理，标准规定 main 函数不应被重载，也不应声明为 inline、static 或 constexpr。",
         "tag": "function",
         "standard": "ISO/IEC 14882:2003 3.6.1(2 3),ISO/IEC 14882:2011 3.6.1(2 3),ISO/IEC 14882:2017 6.6.1(2 3)"
         },
@@ -2009,7 +2009,7 @@
     "ID_staticInHeader": {
         "checkPoint": "头文件中不应使用静态声明",
         "level": "warning",
-        "comment": "头文件中由 static 关键字声明的对象、数组或函数，会在每个包含该头文件的翻译单元（translate-unit）中生成副本造成数据冗余，如果将静态数据误用作全局数据也会造成逻辑错误。",
+        "comment": "头文件中由 static 关键字声明的对象、数组或函数，会在每个包含该头文件的翻译单元或模块中生成副本造成数据冗余，如果将静态数据误用作全局数据也会造成逻辑错误。",
         "tag": "global",
         "standard": "ISO/IEC 14882:2011 3.5(3)"
         },
@@ -2349,14 +2349,14 @@
     "ID_literal_hardCodeChar": {
         "checkPoint": "字符常量中不可存在应转义而未转义的字符",
         "level": "warning",
-        "comment": "在字符常量中，如果存在制表符（tab）或回车、换行、控制等特殊字符，应使用转义字符。",
+        "comment": "在字符常量中，如果存在制表符或回车、换行等控制字符，应使用转义字符。",
         "tag": "literal",
         "related": "ID_literal_hardCodeString"
         },
     "ID_literal_hardCodeString": {
         "checkPoint": "字符串常量中不可存在应转义而未转义的字符",
         "level": "warning",
-        "comment": "在字符串常量中，如果存在制表符（tab）或回车、换行、控制等特殊字符，应使用转义字符。",
+        "comment": "在字符串常量中，如果存在制表符或回车、换行等控制字符，应使用转义字符。",
         "tag": "literal",
         "related": "ID_literal_hardCodeChar"
         },
@@ -2919,7 +2919,7 @@
         "reference": "C++ Core Guidelines ES.47"
         },
     "ID_deprecatedNULL": {
-        "checkPoint": "在 C++ 代码中不应使用 NULL，应使用 nullptr",
+        "checkPoint": "在 C++ 代码中用 nullptr 代替 NULL",
         "level": "suggestion",
         "comment": "在 C++ 语言中，标识符 NULL 虽然可以用来表示空指针，但该标识符是由实现定义的，而且往往不能有效区分整型常量 0 和空指针，根据 C++11 标准，应使用 nullptr 表示空指针。",
         "tag": "style",
