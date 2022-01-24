@@ -1023,6 +1023,15 @@
         "comment": "绝对路径使代码过分依赖编译环境，意味着项目的编译设置不完善，应使用相对路径。",
         "tag": "precompile"
         },
+    "ID_illFormedInclude": {
+        "checkPoint": "include 指令应符合标准格式",
+        "level": "error",
+        "comment": "#include 后只应为 < 头文件路径 > 或 \" 头文件路径 \"，否则会导致标准未定义的行为。",
+        "tag": "precompile",
+        "standard": "ISO/IEC 14882:2011 2.9,ISO/IEC 14882:2011 16.2(4)-undefined,ISO/IEC 14882:2011 16.2(4)-implementation",
+        "related": "ID_nonStandardCharInHeaderName",
+        "reference": "MISRA C 2004 19.3,MISRA C 2012 20.3,MISRA C++ 2008 16-2-6"
+        },
     "ID_nonStandardCharInHeaderName": {
         "checkPoint": "include 指令中禁用不合规的字符",
         "level": "warning",

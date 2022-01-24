@@ -4,7 +4,7 @@
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对 C、C++ 语言，本文收录了 415 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对 C、C++ 语言，本文收录了 416 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
@@ -122,11 +122,12 @@
 
 <span id="__Precompile">**[3. Precompile](#precompile)**</span>
   - [3.1 Include](#precompile.include)
-    - [R3.1.1 include 指令中禁用不合规的字符](#ID_nonStandardCharInHeaderName)
-    - [R3.1.2 include 指令中不应使用反斜杠](#ID_forbidBackslashInHeaderName)
-    - [R3.1.3 include 指令中不应使用绝对路径](#ID_forbidAbsPathInHeaderName)
-    - [R3.1.4 禁用不合规的头文件](#ID_forbiddenHeader)
-    - [R3.1.5 C\+\+ 代码不应引用 C 头文件](#ID_forbidCHeaderInCpp)
+    - [R3.1.1 include 指令应符合标准格式](#ID_illFormedInclude)
+    - [R3.1.2 include 指令中禁用不合规的字符](#ID_nonStandardCharInHeaderName)
+    - [R3.1.3 include 指令中不应使用反斜杠](#ID_forbidBackslashInHeaderName)
+    - [R3.1.4 include 指令中不应使用绝对路径](#ID_forbidAbsPathInHeaderName)
+    - [R3.1.5 禁用不合规的头文件](#ID_forbiddenHeader)
+    - [R3.1.6 C\+\+ 代码不应引用 C 头文件](#ID_forbidCHeaderInCpp)
   - [3.2 Macro](#precompile.macro)
     - [R3.2.1 宏应遵循合理的命名方式](#ID_macro_badName)
     - [R3.2.2 不可定义具有保留意义的宏名称](#ID_macro_defineReserved)
@@ -2283,7 +2284,60 @@ C++ Core Guidelines ES.56
 
 ### <span id="precompile.include">3.1 Include</span>
 
-### <span id="ID_nonStandardCharInHeaderName">▌R3.1.1 include 指令中禁用不合规的字符</span>
+### <span id="ID_illFormedInclude">▌R3.1.1 include 指令应符合标准格式</span>
+
+ID_illFormedInclude&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: precompile error
+
+<hr/>
+
+\#include 后只应为 < 头文件路径 > 或 " 头文件路径 "，否则会导致标准未定义的行为。  
+  
+示例：
+```
+#include <string.h>         // Compliant
+#include "string.h"         // Compliant 
+
+#define HEADER "string.h"
+#include HEADER             // Compliant
+
+#include stdlib.h           // Non-compliant, undefined behavior
+```
+例中对 string.h 的引用符合标准，而对 stdlib.h 的引用会导致标准未定义的行为。  
+  
+注意，由引号标识的头文件路径并非字符串常量，不应对其使用字符串常量的特性，如：
+```
+#include "stdlib" ".h"      // Non-compliant, implementation defined
+```
+是否会将引号中的内容连接成一个路径是由实现定义的，这种代码是不可移植的。  
+  
+另外，如下形式的代码也是不符合标准的：
+```
+#include L"foo"             // Non-compliant
+#include u"bar"             // Non-compliant
+#include U"baz"             // Non-compliant
+#include R"(..\foo\bar)"    // Non-compliant
+```
+<br/>
+<br/>
+
+#### 相关
+ID_nonStandardCharInHeaderName  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2011 2.9  
+ISO/IEC 14882:2011 16.2(4)-undefined  
+ISO/IEC 14882:2011 16.2(4)-implementation  
+<br/>
+
+#### 参考
+MISRA C 2004 19.3  
+MISRA C 2012 20.3  
+MISRA C++ 2008 16-2-6  
+<br/>
+<br/>
+
+### <span id="ID_nonStandardCharInHeaderName">▌R3.1.2 include 指令中禁用不合规的字符</span>
 
 ID_nonStandardCharInHeaderName&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompile warning
 
@@ -2295,7 +2349,6 @@ ID_nonStandardCharInHeaderName&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompil
 ```
 #include < >           // Non-compliant
 #include <"foo">       // Non-compliant
-#include <foo,bar>     // Non-compliant
 #include <foo*>        // Non-compliant
 #include <?bar?>       // Non-compliant
 
@@ -2305,8 +2358,13 @@ ID_nonStandardCharInHeaderName&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompil
 ```
 可以用 / 作为路径分隔符，但不应出现  // 或 /\*，  如：
 ```
-#include <foo//bar.h>  // Non-Compliant, undefined behavior
-#include <foo/*bar.h>  // Non-Compliant, undefined behavior
+#include <foo//bar.h>   // Non-Compliant, undefined behavior
+#include <foo/*bar.h>   // Non-Compliant, undefined behavior
+```
+名称中的单引号、反斜杠在 C 及 C\+\+03 标准中是未定义的，在 C\+\+11 标准中是由实现定义的。
+```
+#include <foo'bar>     // Non-compliant
+#include <foo\bar>     // Non-compliant
 ```
 另外，由于某些平台的文件系统不区分路径大小写，建议头文件名称只使用小写字母以减少移植类问题。
 <br/>
@@ -2326,7 +2384,7 @@ MISRA C++ 2008 16-2-4
 <br/>
 <br/>
 
-### <span id="ID_forbidBackslashInHeaderName">▌R3.1.2 include 指令中不应使用反斜杠</span>
+### <span id="ID_forbidBackslashInHeaderName">▌R3.1.3 include 指令中不应使用反斜杠</span>
 
 ID_forbidBackslashInHeaderName&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompile warning
 
@@ -2358,7 +2416,7 @@ MISRA C++ 2008 16-2-5
 <br/>
 <br/>
 
-### <span id="ID_forbidAbsPathInHeaderName">▌R3.1.3 include 指令中不应使用绝对路径</span>
+### <span id="ID_forbidAbsPathInHeaderName">▌R3.1.4 include 指令中不应使用绝对路径</span>
 
 ID_forbidAbsPathInHeaderName&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompile warning
 
@@ -2375,7 +2433,7 @@ ID_forbidAbsPathInHeaderName&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompile 
 <br/>
 <br/>
 
-### <span id="ID_forbiddenHeader">▌R3.1.4 禁用不合规的头文件</span>
+### <span id="ID_forbiddenHeader">▌R3.1.5 禁用不合规的头文件</span>
 
 ID_forbiddenHeader&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompile warning
 
@@ -2426,7 +2484,7 @@ MISRA C++ 2008 27-0-1
 <br/>
 <br/>
 
-### <span id="ID_forbidCHeaderInCpp">▌R3.1.5 C++ 代码不应引用 C 头文件</span>
+### <span id="ID_forbidCHeaderInCpp">▌R3.1.6 C++ 代码不应引用 C 头文件</span>
 
 ID_forbidCHeaderInCpp&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompile warning
 
@@ -3653,7 +3711,7 @@ inline void bar() {
     ....
 }
 ```
-如果该头文件被不同的模块（so、dll、exe）包含，obj 对象会在不同的模块中生成副本，很可能造成逻辑错误。  
+如果该头文件被不同的模块（so、dll、exe）包含，obj 对象会生成不同的副本，很可能造成逻辑错误。  
   
 另外， 由 const 或 constexpr 关键字修饰的常量也具有静态数据的特性，在头文件中定义常量也面对这种问题，基本类型的常量经过编译优化可以不占用存储空间（有取地址操作的除外），而对于非基本类型的常量对象或数组也不应在头文件中定义，建议采用单件模式，将其数据定义在 cpp 等源文件中，在头文件中定义访问这些数据的接口。  
   
@@ -14558,6 +14616,8 @@ ID_redundantParentheses&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: expression suggestio
 
 重复的或作用于单个对象的括号使代码显得繁琐，应去掉。  
   
+宏定义中的括号不受本规则限制。  
+  
 示例：
 ```
 a = 1 + (p[0]);      // Non-compliant
@@ -14582,8 +14642,6 @@ if ((a == b && b == c) || (x == y && y == z)) {  // Good
     ....
 }
 ```
-例外：  
-由宏展开造成的括号不受本规则限制。
 <br/>
 <br/>
 <br/>
@@ -16861,7 +16919,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 415 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
+&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 416 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
 
 &emsp;&emsp;此致
 
