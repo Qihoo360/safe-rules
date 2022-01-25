@@ -1336,10 +1336,9 @@ ID_divideByZero&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security error
   
 示例：
 ```
-void foo() {
-    size_t n = 0;
-    if (condition) {
-        n = bar();
+int foo(int n) {
+    if (n) {
+        ....
     }
     return 100 / n;  // Non-compliant, must determine whether ‘n’ is 0
 }
