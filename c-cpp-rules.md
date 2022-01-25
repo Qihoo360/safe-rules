@@ -1923,8 +1923,10 @@ class A {
 public:
     A(size_t n): p(new int[n]) {
     }
+
    ~A() {  // Non-compliant, must delete[] p
     }
+
     ....
 };
 ```
@@ -16183,30 +16185,29 @@ ID_nullDerefInScp&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: pointer error
 
 <hr/>
 
-解引用空指针会导致程序崩溃等标准未定义的错误。  
+解引用空指针会使程序产生崩溃等标准未定义的行为。  
   
 示例：
 ```
-int foo() {
-    int i = 123;
-    int* p = nullptr;
-    if (condition) {
+int foo(int i) {
+    int* p = NULL;
+    if (cond) {
         p = &i;
     }
-    return *p;   // Non-compliant
+    return *p;     // Non-compliant
 }
 ```
-例中指针 p 为空的状态可以到达解引用处，应避免这种情况。  
+例中指针 p 为空的状态可以到达解引用处，应避免这种问题。  
 
 ```
 void bar(T* p) {
     if (p) {
-        p->baz();
+        p->baz();  // Compliant
     }
-    p->qux();  // Non-compliant
+    p->qux();      // Non-compliant
 }
 ```
-例中对 p\->bar 的调用超出了 p 的检查范围，这也属于常见指针错误。  
+例中对 qux 的调用超出了 p 的检查范围，这也是一种常见错误，应避免。  
   
 解引用空指针一般会使进程崩溃，给用户不好的体验，而且要注意如果崩溃可由外部输入引起，会被攻击者利用从而迫使程序无法正常工作，具有高可靠性要求的服务类程序更应该注意这一点，可参见“[拒绝服务攻击](https://en.wikipedia.org/wiki/Denial-of-service_attack)”的进一步说明。对于客户端程序，也要防止攻击者对崩溃产生的“[core dump](https://en.wikipedia.org/wiki/Core_dump)”进行恶意调试，避免泄露敏感数据，总之程序的健壮性与安全性是紧密相关的。
 <br/>
@@ -16229,7 +16230,7 @@ ID_nullDerefInExp&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: pointer error
 
 <hr/>
 
-在逻辑表达式中，判断指针是否为空的子表达式可以作为指针解引用的条件，需注意其逻辑关系及运算符优先级，不可出现空指针解引用的问题。  
+在逻辑表达式中，需注意逻辑关系及运算符优先级，不可出现空指针解引用的问题。  
   
 示例：
 ```
@@ -16237,14 +16238,14 @@ bool fun0(T* p) {
     return p || p->foo();  // Non-compliant
 }
 ```
-当 p 为空时执行右子表达式，恰好发生空指针解引用问题。  
+当 p 为空时执行右子表达式，恰好产生空指针解引用问题。  
 
 ```
 bool fun1(T* p) {
     return p && p->foo() || p->bar();  // Non-compliant
 }
 ```
-由左子表达式可知 p 可能为空，而右子表达式却没有限制，有可能发生空指针解引用问题。  
+由左子表达式可知 p 可能为空，而右子表达式却没有限制，有可能产生空指针解引用问题。  
 
 ```
 bool fun2(T* p) {
@@ -16275,13 +16276,14 @@ ID_danglingDeref&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: pointer error
 
 <hr/>
 
-已经被释放的指针指向无效的内存空间，如果再次对其解引用会造成标准未定义的错误。  
+已被释放的指针指向无效的内存空间，再次对其解引用会造成标准未定义的错误。  
   
 示例：
 ```
 void foo() {
     int* p = new int[100];
     if (cond) {
+        ....
         delete[] p;
     }
     do_somthing(p[0]);  // Non-compliant, ‘p’ may be deallocated
@@ -16338,32 +16340,26 @@ ID_invalidNullCheck&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
   
 示例：
 ```
-void bar() {
-    if (int* p = new int[100]) {  // Non-compliant
-        ....
-    } else {  // Invalid
-        ....
-    }
+if (int* p = new int[100]) {  // Non-compliant
+    ....
+} else {  // Invalid
+    ....
 }
 ```
 标准规定默认 new 运算符的返回值不会为空，如果分配失败则抛出异常，所以这种检查和相关错误处理是无效的。  
   
 应改为：
 ```
-void bar() {
-    if (int* p = new(std::nothrow) int[100]) {  // Compliant
-        ....
-    } else {  // OK
-        ....
-    }
+if (int* p = new(std::nothrow) int[100]) {  // Compliant
+    ....
+} else {  // OK
+    ....
 }
 ```
 又如：
 ```
-void foo(T* p) {
-    if (p) {  // Meaningless
-        delete p;
-    }
+if (p) {  // Meaningless
+    delete p;
 }
 ```
 对于可接受空指针的接口，不必总在调用前判断指针是否为空，否则会使代码变得繁琐。delete 关键字或 free 函数可以作用于空指针，调用之前的检查是没有意义的。
@@ -16679,12 +16675,11 @@ ID_this_forbidDeleteThis&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: pointer suggest
 示例：
 ```
 class A {
+    ....
 public:
     void foo() {
         delete this;  // Non-compliant
     }
-private:
-    int data;
 };
 
 auto* p = new A;

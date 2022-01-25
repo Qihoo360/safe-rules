@@ -2632,7 +2632,7 @@
     "ID_nullDerefInExp": {
         "checkPoint": "注意逻辑表达式内的空指针解引用",
         "level": "error",
-        "comment": "在逻辑表达式中，判断指针是否为空的子表达式可以作为指针解引用的条件，需注意其逻辑关系及运算符优先级，不可出现空指针解引用的问题。",
+        "comment": "在逻辑表达式中，需注意逻辑关系及运算符优先级，不可出现空指针解引用的问题。",
         "tag": "pointer",
         "standard": "ISO/IEC 9899:1999 6.5.3.2(4)-undefined,ISO/IEC 9899:2011 6.5.3.2(4)-undefined",
         "reference": "CWE-476,CWE-783,C++ Core Guidelines ES.65"
@@ -2640,7 +2640,7 @@
     "ID_nullDerefInScp": {
         "checkPoint": "避免空指针解引用",
         "level": "error",
-        "comment": "解引用空指针会导致程序崩溃等标准未定义的错误。",
+        "comment": "解引用空指针会使程序产生崩溃等标准未定义的行为。",
         "tag": "pointer",
         "standard": "ISO/IEC 9899:1999 6.5.3.2(4)-undefined,ISO/IEC 9899:2011 6.5.3.2(4)-undefined",
         "reference": "CWE-476,C++ Core Guidelines ES.65"
@@ -2673,7 +2673,7 @@
     "ID_danglingDeref": {
         "checkPoint": "不可解引用已被释放的指针",
         "level": "error",
-        "comment": "已经被释放的指针指向无效的内存空间，如果再次对其解引用会造成标准未定义的错误。",
+        "comment": "已被释放的指针指向无效的内存空间，再次对其解引用会造成标准未定义的错误。",
         "tag": "pointer",
         "related": "ID_illAccess",
         "standard": "ISO/IEC 9899:1999 6.5.3.2(4)-undefined,ISO/IEC 9899:2011 6.5.3.2(4)-undefined",
