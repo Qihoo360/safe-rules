@@ -320,7 +320,7 @@
         "tag": "pointer",
         "related": "ID_invalidNullCheck"
         },
-    "ID_copiedFILE": {
+    "ID_copiedStream": {
         "checkPoint": "流式资源对象不应被复制",
         "level": "warning",
         "comment": "FILE 等流式对象不应被复制，如果存在多个副本会造成数据不一致的问题。",
@@ -1566,9 +1566,9 @@
         "reference": "CWE-770,SEI CERT MEM05-C"
         },
     "ID_forbidMallocAndFree": {
-        "checkPoint": "C++ 代码中禁用 malloc、free 等内存管理函数",
+        "checkPoint": "C++ 代码中禁用 C 内存管理函数",
         "level": "warning",
-        "comment": "malloc、free 是 C 语言的内存管理函数，在 C++ 代码中应使用面向对象的内存管理方法。",
+        "comment": "在 C++ 代码中不应使用malloc、free 等 C 内存管理函数，应使用面向对象的内存管理方法。",
         "tag": "resource",
         "related": "ID_ownerlessResource",
         "reference": "C++ Core Guidelines R.10"
@@ -1596,7 +1596,7 @@
         "reference": "C++ Core Guidelines ES.56,C++ Core Guidelines F.18,C++ Core Guidelines F.48"
         },
     "ID_useAfterMove": {
-        "checkPoint": "对象被 std::move 之后不应再被使用",
+        "checkPoint": "对象被移动后不应再被使用",
         "level": "warning",
         "comment": "std::move 宣告对象的数据即将被转移到其他对象，转移之后对象在逻辑上不再有效，不应再被使用。",
         "tag": "resource",
@@ -1655,7 +1655,7 @@
         "tag": "function"
         },
     "ID_memberDeallocation": {
-        "checkPoint": "对象申请的资源须在析构函数中释放",
+        "checkPoint": "对象申请的资源应在析构函数中释放",
         "level": "warning",
         "comment": "对象在析构函数中释放自己申请的资源是 C++ 程序设计的重要原则，不可被遗忘，也不应要求用户释放。",
         "tag": "resource",
@@ -1685,7 +1685,7 @@
         "reference": "MISRA C++ 2008 12-8-1"
         },
     "ID_throwInConstructor":{
-        "checkPoint": "如果构造函数抛出异常需确保相关资源没有泄漏",
+        "checkPoint": "构造函数抛出异常需避免相关资源泄漏",
         "level": "warning",
         "comment": "构造函数抛出异常表示对象构造失败，不会再执行相关析构函数，需要保证已分配的资源被有效回收。",
         "tag": "resource",
@@ -1951,11 +1951,19 @@
         "reference": "C++ Core Guidelines C.128"
         },
     "ID_incompleteNewDeletePair": {
-        "checkPoint": "资源分配与回收方法应成对提供",
+        "checkPoint": "资源的分配与回收方法应成对提供",
         "level": "suggestion",
-        "comment": "资源分配方法和相应的回收方法应在同一模块中提供。",
-        "tag": "type",
+        "comment": "资源的分配方法和相应的回收方法应在同一模块中提供。",
+        "tag": "resource",
+        "related": "ID_memberDeallocation,ID_crossModuleTransfer",
         "reference": "C++ Core Guidelines R.15"
+        },
+    "ID_crossModuleTransfer": {
+        "checkPoint": "模块之间不应传递容器等对象",
+        "level": "warning",
+        "comment": "容器等相关资源可以动态变化的对象不应在模块之间传递，否则易造成分配回收方面的冲突。",
+        "tag": "resource",
+        "related": "ID_incompleteNewDeletePair"
         },
     "ID_stdNamespaceModified": {
         "checkPoint": "不可修改 std 命名空间",
@@ -2638,18 +2646,18 @@
         "reference": "CWE-476,C++ Core Guidelines ES.65"
         },
     "ID_divideByZero": {
-        "checkPoint": "除数不可存在值为 0 的可能性",
+        "checkPoint": "除数不可为 0",
         "level": "error",
-        "comment": "除数为 0 会导致标准未定义的错误。",
+        "comment": "除数为 0 会使程序产生标准未定义的行为。",
         "tag": "security",
         "standard": "ISO/IEC 9899:1999 6.5.5(5)-undefined,ISO/IEC 9899:2011 6.5.5(5)-undefined,ISO/IEC 14882:2011 5.6(4)-undefined,ISO/IEC 14882:2017 8.6(4)-undefined",
         "reference": "CWE-369,C++ Core Guidelines ES.105"
         },
     "ID_nullDerefAllocRet": {
-        "checkPoint": "判断 malloc 等函数的返回值是否为空",
+        "checkPoint": "判断资源分配函数的返回值是否有效",
         "level": "warning",
         "comment": "malloc 等函数在分配失败时返回空指针，如果不加判断直接解引用会造成标准未定义的错误。",
-        "tag": "pointer",
+        "tag": "resource",
         "standard": "ISO/IEC 9899:1999 7.20.3(1),ISO/IEC 9899:2011 7.22.3(1)",
         "reference": "CWE-476,CWE-252"
         },

@@ -4,7 +4,7 @@
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对 C、C++ 语言，本文收录了 416 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对 C、C++ 语言，本文收录了 417 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
@@ -91,7 +91,7 @@
   - [R1.13 禁用不安全的字符串函数](#ID_unsafeStringFunction)
   - [R1.14 确保字符串以空字符结尾](#ID_improperNullTermination)
   - [R1.15 避免使用由实现定义的库函数](#ID_implementationDefinedFunction)
-  - [R1.16 除数不可存在值为 0 的可能性](#ID_divideByZero)
+  - [R1.16 除数不可为 0](#ID_divideByZero)
   - [R1.17 禁用 atof、atoi、atol 以及 atoll 等函数](#ID_forbidAtox)
   - [R1.18 格式化字符串应为常量](#ID_variableFormatString)
   - [R1.19 与程序实现相关的信息不可被外界感知](#ID_addressExposure)
@@ -100,24 +100,27 @@
 <br/>
 
 <span id="__Resource">**[2. Resource](#resource)**</span>
-  - [R2.1 资源管理应遵循面向对象的方法](#ID_ownerlessResource)
-  - [R2.2 不可失去对已分配资源的控制](#ID_resourceLeak)
-  - [R2.3 不可失去对已分配内存的控制](#ID_memoryLeak)
-  - [R2.4 不可访问未初始化或已释放的资源](#ID_illAccess)
-  - [R2.5 资源不可被重复释放](#ID_doubleFree)
+  - [R2.1 不可失去对已分配资源的控制](#ID_resourceLeak)
+  - [R2.2 不可失去对已分配内存的控制](#ID_memoryLeak)
+  - [R2.3 不可访问未初始化或已释放的资源](#ID_illAccess)
+  - [R2.4 资源管理应遵循面向对象的方法](#ID_ownerlessResource)
+  - [R2.5 资源的分配与回收方法应成对提供](#ID_incompleteNewDeletePair)
   - [R2.6 资源的分配与回收方法应配套使用](#ID_incompatibleDealloc)
-  - [R2.7 用 delete 释放对象不可多写中括号](#ID_excessiveDelete)
-  - [R2.8 用 delete 释放数组不可漏写中括号](#ID_insufficientDelete)
-  - [R2.9 对象申请的资源须在析构函数中释放](#ID_memberDeallocation)
-  - [R2.10 如果构造函数抛出异常需确保相关资源没有泄漏](#ID_throwInConstructor)
-  - [R2.11 C\+\+ 代码中禁用 malloc、free 等内存管理函数](#ID_forbidMallocAndFree)
-  - [R2.12 在一个语句中最多执行一次显式资源分配](#ID_multiAllocation)
-  - [R2.13 在栈上分配的空间以及非动态申请的资源不可被释放](#ID_illDealloc)
-  - [R2.14 避免使用在栈上分配内存的函数](#ID_stackAllocation)
-  - [R2.15 避免不必要的内存分配](#ID_unnecessaryAllocation)
-  - [R2.16 避免动态内存分配](#ID_dynamicAllocation)
-  - [R2.17 流式资源对象不应被复制](#ID_copiedFILE)
-  - [R2.18 对象被 std::move 之后不应再被使用](#ID_useAfterMove)
+  - [R2.7 模块之间不应传递容器等对象](#ID_crossModuleTransfer)
+  - [R2.8 对象申请的资源应在析构函数中释放](#ID_memberDeallocation)
+  - [R2.9 对象被移动后不应再被使用](#ID_useAfterMove)
+  - [R2.10 构造函数抛出异常需避免相关资源泄漏](#ID_throwInConstructor)
+  - [R2.11 资源不可被重复释放](#ID_doubleFree)
+  - [R2.12 用 delete 释放对象不可多写中括号](#ID_excessiveDelete)
+  - [R2.13 用 delete 释放数组不可漏写中括号](#ID_insufficientDelete)
+  - [R2.14 在栈上分配的空间以及非动态申请的资源不可被释放](#ID_illDealloc)
+  - [R2.15 在一个语句中最多执行一次显式资源分配](#ID_multiAllocation)
+  - [R2.16 流式资源对象不应被复制](#ID_copiedStream)
+  - [R2.17 避免使用在栈上分配内存的函数](#ID_stackAllocation)
+  - [R2.18 避免不必要的内存分配](#ID_unnecessaryAllocation)
+  - [R2.19 避免动态内存分配](#ID_dynamicAllocation)
+  - [R2.20 判断资源分配函数的返回值是否有效](#ID_nullDerefAllocRet)
+  - [R2.21 C\+\+ 代码中禁用 C 内存管理函数](#ID_forbidMallocAndFree)
 <br/>
 
 <span id="__Precompile">**[3. Precompile](#precompile)**</span>
@@ -194,10 +197,9 @@
     - [R5.1.13 不应过度使用 explicit 关键字](#ID_excessiveExplicit)
     - [R5.1.14 带模板的赋值运算符不应覆盖拷贝或移动赋值运算符](#ID_roughTemplateAssignOperator)
     - [R5.1.15 带模板的构造函数不应覆盖拷贝或移动构造函数](#ID_roughTemplateConstructor)
-    - [R5.1.16 资源分配与回收方法应成对提供](#ID_incompleteNewDeletePair)
-    - [R5.1.17 抽象类禁用拷贝赋值运算符](#ID_unsuitableCopyAssignOperator)
-    - [R5.1.18 数据成员的数量应在规定范围之内](#ID_tooManyFields)
-    - [R5.1.19 存在构造、析构或虚函数的类不应采用 struct 关键字](#ID_unsuitableStructTag)
+    - [R5.1.16 抽象类禁用拷贝赋值运算符](#ID_unsuitableCopyAssignOperator)
+    - [R5.1.17 数据成员的数量应在规定范围之内](#ID_tooManyFields)
+    - [R5.1.18 存在构造、析构或虚函数的类不应采用 struct 关键字](#ID_unsuitableStructTag)
   - [5.2 Enum](#type.enum)
     - [R5.2.1 同类枚举项的值不应相同](#ID_duplicateEnumerator)
     - [R5.2.2 合理初始化各枚举项](#ID_casualInitialization)
@@ -541,9 +543,9 @@
 <span id="__Pointer">**[14. Pointer](#pointer)**</span>
   - [R14.1 避免空指针解引用](#ID_nullDerefInScp)
   - [R14.2 注意逻辑表达式内的空指针解引用](#ID_nullDerefInExp)
-  - [R14.3 判断 malloc 等函数的返回值是否为空](#ID_nullDerefAllocRet)
-  - [R14.4 判断 dynamic\_cast 转换是否成功](#ID_nullDerefDynamicCast)
-  - [R14.5 不可解引用已被释放的指针](#ID_danglingDeref)
+  - [R14.3 不可解引用已被释放的指针](#ID_danglingDeref)
+  - [R14.4 避免无效的空指针检查](#ID_invalidNullCheck)
+  - [R14.5 不应重复检查指针是否为空](#ID_repeatedNullCheck)
   - [R14.6 不应将非零常量值赋值给指针](#ID_fixedAddrToPointer)
   - [R14.7 不应使用 bool 常量对指针赋值或初始化](#ID_oddPtrBoolAssignment)
   - [R14.8 不应使用字符常量对指针赋值或初始化](#ID_oddPtrCharAssignment)
@@ -551,13 +553,12 @@
   - [R14.10 指针不应与 bool 常量比较大小](#ID_oddPtrBoolComparison)
   - [R14.11 指针不应与字符常量比较大小](#ID_oddPtrCharComparison)
   - [R14.12 不应判断指针大于、大于等于、小于、小于等于 0](#ID_oddPtrZeroComparison)
-  - [R14.13 避免无效的空指针检查](#ID_invalidNullCheck)
-  - [R14.14 不应重复检查指针是否为空](#ID_repeatedNullCheck)
-  - [R14.15 不应判断 this 指针是否为空](#ID_this_zeroComparison)
-  - [R14.16 析构函数中不可使用 delete this](#ID_this_deleteInDestructor)
-  - [R14.17 禁用 delete this](#ID_this_forbidDeleteThis)
-  - [R14.18 sizeof 作用于指针是可疑的](#ID_sizeof_pointer)
-  - [R14.19 指针在释放后应置空](#ID_missingResetNull)
+  - [R14.13 不应判断 this 指针是否为空](#ID_this_zeroComparison)
+  - [R14.14 析构函数中不可使用 delete this](#ID_this_deleteInDestructor)
+  - [R14.15 禁用 delete this](#ID_this_forbidDeleteThis)
+  - [R14.16 sizeof 作用于指针是可疑的](#ID_sizeof_pointer)
+  - [R14.17 判断 dynamic\_cast 转换是否成功](#ID_nullDerefDynamicCast)
+  - [R14.18 指针在释放后应置空](#ID_missingResetNull)
 <br/>
 
 <span id="__Style">**[15. Style](#style)**</span>
@@ -1325,13 +1326,13 @@ MISRA C++ 2008 18-7-1
 <br/>
 <br/>
 
-### <span id="ID_divideByZero">▌R1.16 除数不可存在值为 0 的可能性</span>
+### <span id="ID_divideByZero">▌R1.16 除数不可为 0</span>
 
 ID_divideByZero&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security error
 
 <hr/>
 
-除数为 0 会导致标准未定义的错误。  
+除数为 0 会使程序产生标准未定义的行为。  
   
 示例：
 ```
@@ -1560,7 +1561,126 @@ C++ Core Guidelines E.28
 
 ## <span id="resource">2. Resource</span>
 
-### <span id="ID_ownerlessResource">▌R2.1 资源管理应遵循面向对象的方法</span>
+### <span id="ID_resourceLeak">▌R2.1 不可失去对已分配资源的控制</span>
+
+ID_resourceLeak&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
+
+<hr/>
+
+已分配资源的指针、句柄或描述符等信息不可被遗失，否则相关资源无法被访问也无法被回收，会导致资源耗尽以及死锁等问题，使程序无法正确运行。  
+  
+程序需要保证资源分配与回收之间的流程可达，且不可被异常中断，所在线程也不可在中途停止。  
+  
+关于内存资源，本规则特化为 ID\_memoryLeak。  
+  
+示例：
+```
+void foo(const char* path) {
+    FILE* p = fopen(path, "w");
+    if (cond) {
+        return;  // Non-compliant, ‘p’ is lost
+    }
+    ....
+    fclose(p);
+}
+```
+例中 p 指向文件对象，关闭文件对象之前在某种情况下返回，造成了文件资源的遗失。
+<br/>
+<br/>
+
+#### 相关
+ID_memoryLeak  
+<br/>
+
+#### 参考
+C++ Core Guidelines P.8  
+C++ Core Guidelines E.13  
+<br/>
+<br/>
+
+### <span id="ID_memoryLeak">▌R2.2 不可失去对已分配内存的控制</span>
+
+ID_memoryLeak&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
+
+<hr/>
+
+已分配内存的地址不可被遗失，否则相关内存无法被访问也无法被回收，这种问题称为“[内存泄漏（memory leak）](https://en.wikipedia.org/wiki/Memory_leak)”，会导致可用内存被耗尽，使程序无法正确运行。  
+  
+程序需要保证内存分配与回收之间的流程可达，且不可被异常中断，所在线程也不可在中途停止。  
+  
+本规则是 ID\_resourceLeak 的特化。  
+  
+示例：
+```
+void foo(size_t size) {
+    int* p = (int*)malloc(size * sizeof(*p));
+    if (cond) {
+        return;  // Non-compliant, ‘p’ is lost
+    }
+    ....
+    free(p);
+}
+```
+本例由局部变量 p 记录申请的内存空间，释放之前在某种情况下函数返回，之后便再也无法访问到这块内存空间了，造成了内存空间的遗失。
+<br/>
+<br/>
+
+#### 相关
+ID_resourceLeak  
+ID_ownerlessResource  
+<br/>
+
+#### 参考
+C++ Core Guidelines P.8  
+C++ Core Guidelines E.13  
+<br/>
+<br/>
+
+### <span id="ID_illAccess">▌R2.3 不可访问未初始化或已释放的资源</span>
+
+ID_illAccess&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
+
+<hr/>
+
+访问未初始化或已释放的资源属于逻辑错误，也会导致标准未定义的行为。  
+  
+示例：
+```
+void foo(const char* path) {
+    FILE* p = NULL;
+    char buf[100] = {};
+    if (path != NULL) {
+        p = fopen(path, "rb");
+    }
+    fread(buf, 1, 100, p);       // Non-compliant, ‘p’ may be invalid
+    ....
+    fclose(p);
+    ....
+    fread(buf, 1, 100, p);       // Non-compliant, ‘p’ is closed
+    ....
+}
+```
+关于解引用已经释放的指针，特化为 ID\_danglingDeref。  
+关于访问未初始化的局部对象，特化为 ID\_localInitialization。
+<br/>
+<br/>
+
+#### 相关
+ID_danglingDeref  
+ID_localInitialization  
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 7.22.3.3(2)-undefined  
+ISO/IEC 14882:2011 3.7.4.2(4)-undefined  
+<br/>
+
+#### 参考
+SEI CERT FIO46-C  
+<br/>
+<br/>
+
+### <span id="ID_ownerlessResource">▌R2.4 资源管理应遵循面向对象的方法</span>
 
 ID_ownerlessResource&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -1646,154 +1766,72 @@ C++ Core Guidelines R.12
 <br/>
 <br/>
 
-### <span id="ID_resourceLeak">▌R2.2 不可失去对已分配资源的控制</span>
+### <span id="ID_incompleteNewDeletePair">▌R2.5 资源的分配与回收方法应成对提供</span>
 
-ID_resourceLeak&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
+ID_incompleteNewDeletePair&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource suggestion
 
 <hr/>
 
-已分配资源的指针、句柄或描述符等信息不可被遗失，否则相关资源无法被访问也无法被回收，会导致资源耗尽以及死锁等问题，使程序无法正确运行。  
+资源的分配方法和相应的回收方法应在同一模块中提供。  
   
-程序需要保证资源分配与回收之间的流程可达，且不可被异常中断，所在线程也不可在中途停止。  
-  
-关于内存资源，本规则特化为 ID\_memoryLeak。  
+如果一个模块分配的资源需要另一个模块回收，会打破模块之间的独立性，使维护成本显著增加，而且 so、dll、exe 等模块一般都有独立的堆栈，跨模块的分配与回收往往会造成严重错误。  
   
 示例：
 ```
-void foo(const char* path) {
-    FILE* p = fopen(path, "w");
-    if (cond) {
-        return;  // Non-compliant, ‘p’ is lost
-    }
-    ....
-    fclose(p);
+// In a.dll
+int* foo() {
+    return (int*)malloc(1024);
 }
-```
-例中 p 指向文件对象，关闭文件对象之前在某种情况下返回，造成了文件资源的遗失。
-<br/>
-<br/>
 
-#### 相关
-ID_memoryLeak  
-<br/>
-
-#### 参考
-C++ Core Guidelines P.8  
-C++ Core Guidelines E.13  
-<br/>
-<br/>
-
-### <span id="ID_memoryLeak">▌R2.3 不可失去对已分配内存的控制</span>
-
-ID_memoryLeak&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
-
-<hr/>
-
-已分配内存的地址不可被遗失，否则相关内存无法被访问也无法被回收，这种问题称为“[内存泄漏（memory leak）](https://en.wikipedia.org/wiki/Memory_leak)”，会导致可用内存被耗尽，使程序无法正确运行。  
-  
-程序需要保证内存分配与回收之间的流程可达，且不可被异常中断，所在线程也不可在中途停止。  
-  
-本规则是 ID\_resourceLeak 的特化。  
-  
-示例：
-```
-void foo(size_t size) {
-    int* p = (int*)malloc(size * sizeof(*p));
-    if (cond) {
-        return;  // Non-compliant, ‘p’ is lost
-    }
-    ....
+// In b.dll
+void bar(int* p) {
     free(p);
 }
+
+// a.dll and b.dll imported
+int main() {
+    int* p = foo();
+    ....
+    bar(p);  // Crash
+}
 ```
-本例由局部变量 p 记录申请的内存空间，释放之前在某种情况下函数返回，之后便再也无法访问到这块内存空间了，造成了内存空间的遗失。
+例中 a.dll 分配的内存由 b.dll 释放，相当于在一个堆中处理另一个堆中的数据，程序一般会崩溃。  
+  
+对类等逻辑模块也有相同要求，在构造函数中分配了资源，应提供相应的析构函数，重载了 new 运算符，也应重载相应的 delete 运算符。  
+
+```
+class A {
+    void* operator new(size_t);   // Non-compliant, missing ‘operator delete’
+};
+
+class B {
+    void operator delete(void*);  // Non-compliant, missing ‘operator new’
+};
+
+class C {
+    void* operator new(size_t);   // Compliant
+    void operator delete(void*);  // Compliant
+};
+```
+placement\-new 与 placement\-delete 也应成对提供：
+```
+class D {
+    void* operator new(size_t, bool);       // Non-compliant
+
+    void* operator new(size_t, int, int);   // Compliant
+    void operator delete(void*, int, int);  // Compliant
+};
+```
 <br/>
 <br/>
 
 #### 相关
-ID_resourceLeak  
-ID_ownerlessResource  
+ID_memberDeallocation  
+ID_crossModuleTransfer  
 <br/>
 
 #### 参考
-C++ Core Guidelines P.8  
-C++ Core Guidelines E.13  
-<br/>
-<br/>
-
-### <span id="ID_illAccess">▌R2.4 不可访问未初始化或已释放的资源</span>
-
-ID_illAccess&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
-
-<hr/>
-
-访问未初始化或已释放的资源属于逻辑错误，也会导致标准未定义的行为。  
-  
-示例：
-```
-void foo(const char* path) {
-    FILE* p = NULL;
-    char buf[100] = {};
-    if (path != NULL) {
-        p = fopen(path, "rb");
-    }
-    fread(buf, 1, 100, p);       // Non-compliant, ‘p’ may be invalid
-    ....
-    fclose(p);
-    ....
-    fread(buf, 1, 100, p);       // Non-compliant, ‘p’ is closed
-    ....
-}
-```
-关于解引用已经释放的指针，特化为 ID\_danglingDeref。  
-关于访问未初始化的局部对象，特化为 ID\_localInitialization。
-<br/>
-<br/>
-
-#### 相关
-ID_danglingDeref  
-ID_localInitialization  
-<br/>
-
-#### 依据
-ISO/IEC 9899:2011 7.22.3.3(2)-undefined  
-ISO/IEC 14882:2011 3.7.4.2(4)-undefined  
-<br/>
-
-#### 参考
-SEI CERT FIO46-C  
-<br/>
-<br/>
-
-### <span id="ID_doubleFree">▌R2.5 资源不可被重复释放</span>
-
-ID_doubleFree&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
-
-<hr/>
-
-重复释放资源属于逻辑错误，也会导致标准未定义的问题。  
-  
-示例：
-```
-void foo(const char* path) {
-    FILE* p = fopen(path, "r");
-    if (p) {
-        ....
-        fclose(p);
-    }
-    fclose(p);  // Non-compliant
-}
-```
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 9899:2011 7.22.3.3(2)-undefined  
-ISO/IEC 14882:2011 3.7.4.2(4)-undefined  
-<br/>
-
-#### 参考
-CWE-415  
+C++ Core Guidelines R.15  
 <br/>
 <br/>
 
@@ -1833,74 +1871,43 @@ SEI CERT MEM51-CPP
 <br/>
 <br/>
 
-### <span id="ID_excessiveDelete">▌R2.7 用 delete 释放对象不可多写中括号</span>
+### <span id="ID_crossModuleTransfer">▌R2.7 模块之间不应传递容器等对象</span>
 
-ID_excessiveDelete&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
-
-<hr/>
-
-用 new 分配的对象应该用 delete 释放，不可用 delete\[\] 释放，否则引发标准未定义的错误。  
-  
-示例：
-```
-auto* p = new X;  // One object
-....
-delete[] p;       // Non-compliant, use ‘delete p;’ instead
-```
-<br/>
-<br/>
-
-#### 相关
-ID_insufficientDelete  
-<br/>
-
-#### 依据
-ISO/IEC 14882:2003 5.3.5(2)-undefined  
-ISO/IEC 14882:2011 5.3.5(2)-undefined  
-ISO/IEC 14882:2017 8.3.5(2)-undefined  
-<br/>
-
-#### 参考
-C++ Core Guidelines ES.61  
-<br/>
-<br/>
-
-### <span id="ID_insufficientDelete">▌R2.8 用 delete 释放数组不可漏写中括号</span>
-
-ID_insufficientDelete&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
+ID_crossModuleTransfer&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
 <hr/>
 
-用 new 分配的数组应该用 delete\[\] 释放，不可漏写中括号，否则引发标准未定义的错误。  
+容器等相关资源可以动态变化的对象不应在模块之间传递，否则易造成分配回收方面的冲突。  
+  
+在模块间传递复杂的对象也意味着模块耦合过于紧密，不是良好的设计。如果必须在模块间传递对象，需将所有相关资源的分配与回收过程限定在同一模块内，是繁琐且不利于维护的。  
   
 示例：
 ```
-void foo(int n) {
-    auto* p = new X[n];  // n default constructed Xs
-    ....
-    delete p;            // Non-compliant, use ‘delete[] p;’ instead
+// In a.dll
+void foo(vector<int>& v) {
+    v.reserve(100);
+}
+
+// In b.exe
+int main() {
+    vector<int> v {  // Allocation in b.exe
+        1, 2, 3
+    };
+    foo(v);          // Non-compliant, reallocation in a.dll, crash
 }
 ```
-在某些环境中，可能只有数组第一个对象的析构函数被执行，其他对象的析构函数都没有被执行，如果对象与资源分配有关，则会导致资源泄漏。
+例中容器 v 的初始内存由 b.exe 分配，b.exe 与 a.dll 有各自独立的堆栈，由于模版库的内联实现，reserve 函数会调用 a.dll 的内存管理函数重新分配 b.exe 中的内存，造成严重冲突。  
+  
+另外，不同的模块可能由不同的编译器生成，声明与实现的差异也会导致冲突，参见“[Dll hell](https://en.wikipedia.org/wiki/DLL_Hell)”。
 <br/>
 <br/>
 
 #### 相关
-ID_excessiveDelete  
-<br/>
-
-#### 依据
-ISO/IEC 14882:2003 5.3.5(2)-undefined  
-ISO/IEC 14882:2011 5.3.5(2)-undefined  
-ISO/IEC 14882:2017 8.3.5(2)-undefined  
-<br/>
-
-#### 参考
-C++ Core Guidelines ES.61  
+ID_incompleteNewDeletePair  
 <br/>
 <br/>
 
-### <span id="ID_memberDeallocation">▌R2.9 对象申请的资源须在析构函数中释放</span>
+### <span id="ID_memberDeallocation">▌R2.8 对象申请的资源应在析构函数中释放</span>
 
 ID_memberDeallocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -1936,7 +1943,36 @@ C++ Core Guidelines E.6
 <br/>
 <br/>
 
-### <span id="ID_throwInConstructor">▌R2.10 如果构造函数抛出异常需确保相关资源没有泄漏</span>
+### <span id="ID_useAfterMove">▌R2.9 对象被移动后不应再被使用</span>
+
+ID_useAfterMove&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
+
+<hr/>
+
+std::move 宣告对象的数据即将被转移到其他对象，转移之后对象在逻辑上不再有效，不应再被使用。  
+  
+示例：
+```
+string foo(string a) {
+    string b = std::move(a);
+    return a;  // Non-compliant
+}
+```
+例中 a 对象的数据被转移到 b 对象，之后 a 对象不再有效，对 a 重新赋值之前再访问 a 将产生逻辑错误。
+<br/>
+<br/>
+
+#### 相关
+ID_unsuitableMove  
+<br/>
+
+#### 参考
+SEI CERT EXP63-CPP  
+C++ Core Guidelines ES.56  
+<br/>
+<br/>
+
+### <span id="ID_throwInConstructor">▌R2.10 构造函数抛出异常需避免相关资源泄漏</span>
 
 ID_throwInConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -2003,42 +2039,141 @@ ID_memoryLeak
 <br/>
 <br/>
 
-### <span id="ID_forbidMallocAndFree">▌R2.11 C++ 代码中禁用 malloc、free 等内存管理函数</span>
+### <span id="ID_doubleFree">▌R2.11 资源不可被重复释放</span>
 
-ID_forbidMallocAndFree&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: resource warning
+ID_doubleFree&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
 
 <hr/>
 
-malloc、free 是 C 语言的内存管理函数，在 C\+\+ 代码中应使用面向对象的内存管理方法。  
+重复释放资源属于逻辑错误，也会导致标准未定义的问题。  
   
 示例：
 ```
-void foo(size_t size) {
-    int* p = (int*)malloc(size * sizeof(int));  // Unsafe and verbose
-    ....
-    free(p);
+void foo(const char* path) {
+    FILE* p = fopen(path, "r");
+    if (p) {
+        ....
+        fclose(p);
+    }
+    fclose(p);  // Non-compliant
 }
 ```
-应改为：
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 7.22.3.3(2)-undefined  
+ISO/IEC 14882:2011 3.7.4.2(4)-undefined  
+<br/>
+
+#### 参考
+CWE-415  
+<br/>
+<br/>
+
+### <span id="ID_excessiveDelete">▌R2.12 用 delete 释放对象不可多写中括号</span>
+
+ID_excessiveDelete&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
+
+<hr/>
+
+用 new 分配的对象应该用 delete 释放，不可用 delete\[\] 释放，否则引发标准未定义的错误。  
+  
+示例：
 ```
-void foo(size_t size) {
-    auto p = make_unique<int[]>(size);  // Safe and brief
-    ....
-}
+auto* p = new X;  // One object
+....
+delete[] p;       // Non-compliant, use ‘delete p;’ instead
 ```
 <br/>
 <br/>
 
 #### 相关
-ID_ownerlessResource  
+ID_insufficientDelete  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 5.3.5(2)-undefined  
+ISO/IEC 14882:2011 5.3.5(2)-undefined  
+ISO/IEC 14882:2017 8.3.5(2)-undefined  
 <br/>
 
 #### 参考
-C++ Core Guidelines R.10  
+C++ Core Guidelines ES.61  
 <br/>
 <br/>
 
-### <span id="ID_multiAllocation">▌R2.12 在一个语句中最多执行一次显式资源分配</span>
+### <span id="ID_insufficientDelete">▌R2.13 用 delete 释放数组不可漏写中括号</span>
+
+ID_insufficientDelete&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
+
+<hr/>
+
+用 new 分配的数组应该用 delete\[\] 释放，不可漏写中括号，否则引发标准未定义的错误。  
+  
+示例：
+```
+void foo(int n) {
+    auto* p = new X[n];  // n default constructed Xs
+    ....
+    delete p;            // Non-compliant, use ‘delete[] p;’ instead
+}
+```
+在某些环境中，可能只有数组第一个对象的析构函数被执行，其他对象的析构函数都没有被执行，如果对象与资源分配有关，则会导致资源泄漏。
+<br/>
+<br/>
+
+#### 相关
+ID_excessiveDelete  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 5.3.5(2)-undefined  
+ISO/IEC 14882:2011 5.3.5(2)-undefined  
+ISO/IEC 14882:2017 8.3.5(2)-undefined  
+<br/>
+
+#### 参考
+C++ Core Guidelines ES.61  
+<br/>
+<br/>
+
+### <span id="ID_illDealloc">▌R2.14 在栈上分配的空间以及非动态申请的资源不可被释放</span>
+
+ID_illDealloc&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
+
+<hr/>
+
+释放在栈上分配的空间以及非动态申请的资源会导致标准未定义的错误。  
+  
+示例：
+```
+void foo(size_t size) {
+    int* p = (int*)alloca(size);
+    ....
+    free(p);  // Non-compliant, ‘p’ should not be freed
+}
+
+void bar() {
+    int i;
+    free(&i);  // Non-compliant, naughty behaviour
+}
+```
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 7.22.3.3(2)-undefined  
+ISO/IEC 9899:2011 7.22.3.4(3)-undefined  
+ISO/IEC 14882:2011 3.7.4.2(4)-undefined  
+<br/>
+
+#### 参考
+MISRA C 2012 22.2  
+<br/>
+<br/>
+
+### <span id="ID_multiAllocation">▌R2.15 在一个语句中最多执行一次显式资源分配</span>
 
 ID_multiAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -2076,42 +2211,36 @@ C++ Core Guidelines R.13
 <br/>
 <br/>
 
-### <span id="ID_illDealloc">▌R2.13 在栈上分配的空间以及非动态申请的资源不可被释放</span>
+### <span id="ID_copiedStream">▌R2.16 流式资源对象不应被复制</span>
 
-ID_illDealloc&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
+ID_copiedStream&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
 <hr/>
 
-释放在栈上分配的空间以及非动态申请的资源会导致标准未定义的错误。  
+FILE 等流式对象不应被复制，如果存在多个副本会造成数据不一致的问题。  
   
 示例：
 ```
-void foo(size_t size) {
-    int* p = (int*)alloca(size);
-    ....
-    free(p);  // Non-compliant, ‘p’ should not be freed
-}
+FILE f;
+FILE* fp = fopen(path, "r");
 
-void bar() {
-    int i;
-    free(&i);  // Non-compliant, naughty behaviour
-}
+f = *fp;                      // Non-compliant
+memcpy(fp, &f, sizeof(*fp));  // Non-compliant
 ```
 <br/>
 <br/>
 
 #### 依据
-ISO/IEC 9899:2011 7.22.3.3(2)-undefined  
-ISO/IEC 9899:2011 7.22.3.4(3)-undefined  
-ISO/IEC 14882:2011 3.7.4.2(4)-undefined  
+ISO/IEC 9899:1999 7.19.3(6)  
+ISO/IEC 9899:2011 7.21.3(6)  
 <br/>
 
 #### 参考
-MISRA C 2012 22.2  
+MISRA C 2012 22.5  
 <br/>
 <br/>
 
-### <span id="ID_stackAllocation">▌R2.14 避免使用在栈上分配内存的函数</span>
+### <span id="ID_stackAllocation">▌R2.17 避免使用在栈上分配内存的函数</span>
 
 ID_stackAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -2143,7 +2272,7 @@ SEI CERT MEM05-C
 <br/>
 <br/>
 
-### <span id="ID_unnecessaryAllocation">▌R2.15 避免不必要的内存分配</span>
+### <span id="ID_unnecessaryAllocation">▌R2.18 避免不必要的内存分配</span>
 
 ID_unnecessaryAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -2182,7 +2311,7 @@ ID_dynamicAllocation
 <br/>
 <br/>
 
-### <span id="ID_dynamicAllocation">▌R2.16 避免动态内存分配</span>
+### <span id="ID_dynamicAllocation">▌R2.19 避免动态内存分配</span>
 
 ID_dynamicAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -2222,61 +2351,75 @@ C++ Core Guidelines R.5
 <br/>
 <br/>
 
-### <span id="ID_copiedFILE">▌R2.17 流式资源对象不应被复制</span>
+### <span id="ID_nullDerefAllocRet">▌R2.20 判断资源分配函数的返回值是否有效</span>
 
-ID_copiedFILE&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
+ID_nullDerefAllocRet&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
 <hr/>
 
-FILE 等流式对象不应被复制，如果存在多个副本会造成数据不一致的问题。  
+malloc 等函数在分配失败时返回空指针，如果不加判断直接解引用会造成标准未定义的错误。  
+  
+这类函数还包括 aligned\_alloc、calloc、realloc 等。  
   
 示例：
 ```
-FILE f;
-FILE* fp = fopen(path, "r");
-
-f = *fp;                      // Non-compliant
-memcpy(fp, &f, sizeof(*fp));  // Non-compliant
+T* foo(size_t size) {
+    T* p = (T*)malloc(size * sizeof(T));
+    for (int i = 0; i < size; i++) {
+        bar(p[i]);  // Non-compliant, check ‘p’ first
+    }
+    return p;
+}
 ```
+在有虚拟内存支持的平台中，正常的内存分配一般不会失败，但申请内存过多或有误时（如参数为负数）也会导致分配失败，而对于没有虚拟内存支持的或可用内存有限的嵌入式系统，对申请资源是否成功的检查是十分重要的，所以本规则应该作为代码编写的一般性要求。  
+  
+对内存等资源分配失败的处理应作为软件设计的必要部分，应有明确的文档支持。
 <br/>
 <br/>
 
 #### 依据
-ISO/IEC 9899:1999 7.19.3(6)  
-ISO/IEC 9899:2011 7.21.3(6)  
+ISO/IEC 9899:1999 7.20.3(1)  
+ISO/IEC 9899:2011 7.22.3(1)  
 <br/>
 
 #### 参考
-MISRA C 2012 22.5  
+CWE-476  
+CWE-252  
 <br/>
 <br/>
 
-### <span id="ID_useAfterMove">▌R2.18 对象被 std::move 之后不应再被使用</span>
+### <span id="ID_forbidMallocAndFree">▌R2.21 C++ 代码中禁用 C 内存管理函数</span>
 
-ID_useAfterMove&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
+ID_forbidMallocAndFree&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: resource warning
 
 <hr/>
 
-std::move 宣告对象的数据即将被转移到其他对象，转移之后对象在逻辑上不再有效，不应再被使用。  
+在 C\+\+ 代码中不应使用 malloc、free 等 C 内存管理函数，应使用面向对象的内存管理方法。  
   
 示例：
 ```
-string fun(string a, string b) {
-    b = std::move(a);
-    return a;  // Non-compliant
+void foo(size_t size) {
+    int* p = (int*)malloc(size * sizeof(int));  // Unsafe and verbose
+    ....
+    free(p);
 }
 ```
-例中 a 对象的数据被转移到 b 对象，之后 a 对象不再有效，对 a 重新赋值之前再访问 a 将产生逻辑错误。
+应改为：
+```
+void foo(size_t size) {
+    auto p = make_unique<int[]>(size);  // Safe and brief
+    ....
+}
+```
 <br/>
 <br/>
 
 #### 相关
-ID_unsuitableMove  
+ID_ownerlessResource  
 <br/>
 
 #### 参考
-SEI CERT EXP63-CPP  
-C++ Core Guidelines ES.56  
+C++ Core Guidelines R.10  
 <br/>
 <br/>
 
@@ -4821,71 +4964,7 @@ MISRA C++ 2008 14-5-2
 <br/>
 <br/>
 
-### <span id="ID_incompleteNewDeletePair">▌R5.1.16 资源分配与回收方法应成对提供</span>
-
-ID_incompleteNewDeletePair&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestion
-
-<hr/>
-
-资源分配方法和相应的回收方法应在同一模块中提供。  
-  
-如果一个模块分配的资源需要另一个模块回收，会打破模块之间的独立性，使维护成本显著增加，而且 so、dll、exe 等模块一般都有独立的堆栈，跨模块的分配与回收往往会造成严重错误。  
-  
-示例：
-```
-// In a.dll
-int* foo() {
-    return (int*)malloc(1024);
-}
-
-// In b.dll
-void bar(int* p) {
-    free(p);
-}
-
-// a.dll and b.dll imported
-int main() {
-    int* p = foo();
-    ....
-    bar(p);  // Crash
-}
-```
-例中 a.dll 分配的内存由 b.dll 释放，相当于在一个堆中处理另一个堆中的数据，程序一般会崩溃。  
-  
-对类等逻辑模块也有相同的要求，如在构造函数中分配了资源，应提供相应的析构函数，重载了 new 运算符，也应重载相应的 delete 运算符等。  
-
-```
-class A {
-    void* operator new(size_t);   // Non-compliant, missing ‘operator delete’
-};
-
-class B {
-    void operator delete(void*);  // Non-compliant, missing ‘operator new’
-};
-
-class C {
-    void* operator new(size_t);   // Compliant
-    void operator delete(void*);  // Compliant
-};
-```
-placement\-new 与 placement\-delete 也应成对提供：
-```
-class E {
-    void* operator new(size_t, bool);       // Non-compliant
-
-    void* operator new(size_t, int, int);   // Compliant
-    void operator delete(void*, int, int);  // Compliant
-};
-```
-<br/>
-<br/>
-
-#### 参考
-C++ Core Guidelines R.15  
-<br/>
-<br/>
-
-### <span id="ID_unsuitableCopyAssignOperator">▌R5.1.17 抽象类禁用拷贝赋值运算符</span>
+### <span id="ID_unsuitableCopyAssignOperator">▌R5.1.16 抽象类禁用拷贝赋值运算符</span>
 
 ID_unsuitableCopyAssignOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: type warning
 
@@ -4925,7 +5004,7 @@ C++ Core Guidelines C.67
 <br/>
 <br/>
 
-### <span id="ID_tooManyFields">▌R5.1.18 数据成员的数量应在规定范围之内</span>
+### <span id="ID_tooManyFields">▌R5.1.17 数据成员的数量应在规定范围之内</span>
 
 ID_tooManyFields&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
 
@@ -4956,7 +5035,7 @@ ID_union/maxFieldsCount：联合体数据成员的数量上限，超过则报出
 <br/>
 <br/>
 
-### <span id="ID_unsuitableStructTag">▌R5.1.19 存在构造、析构或虚函数的类不应采用 struct 关键字</span>
+### <span id="ID_unsuitableStructTag">▌R5.1.18 存在构造、析构或虚函数的类不应采用 struct 关键字</span>
 
 ID_unsuitableStructTag&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestion
 
@@ -16190,84 +16269,7 @@ C++ Core Guidelines ES.65
 <br/>
 <br/>
 
-### <span id="ID_nullDerefAllocRet">▌R14.3 判断 malloc 等函数的返回值是否为空</span>
-
-ID_nullDerefAllocRet&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
-
-<hr/>
-
-malloc 等函数在分配失败时返回空指针，如果不加判断直接解引用会造成标准未定义的错误。  
-  
-这类函数还包括 aligned\_alloc、calloc、realloc 等。  
-  
-示例：
-```
-T* foo(size_t size) {
-    T* p = (T*)malloc(size * sizeof(T));
-    for (int i = 0; i < size; i++) {
-        bar(p[i]);  // Non-compliant, check ‘p’ first
-    }
-    return p;
-}
-```
-在有虚拟内存支持的平台中，正常的内存分配一般不会失败，但申请内存过多或有误时（如参数为负数）也会导致分配失败，而对于没有虚拟内存支持的或可用内存有限的嵌入式系统，对申请资源是否成功的检查是十分重要的，所以本规则应该作为代码编写的一般性要求。  
-  
-对内存等资源分配失败的处理应作为软件设计的必要部分，应有明确的文档支持。
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 9899:1999 7.20.3(1)  
-ISO/IEC 9899:2011 7.22.3(1)  
-<br/>
-
-#### 参考
-CWE-476  
-CWE-252  
-<br/>
-<br/>
-
-### <span id="ID_nullDerefDynamicCast">▌R14.4 判断 dynamic_cast 转换是否成功</span>
-
-ID_nullDerefDynamicCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
-
-<hr/>
-
-dynamic\_cast 转换指针失败会返回空指针，转换引用失败会抛出异常，如果不作判断则失去了使用 dynamic\_cast 的意义。  
-  
-示例：
-```
-void foo(A* a) {
-    dynamic_cast<B*>(a)->foo();  // Non-compliant
-}
-```
-应改为：
-```
-void foo(A* a) {
-    if (auto* b = dynamic_cast<B*>(a)) {  // Compliant
-        b->foo();
-    }
-}
-```
-使用 dynamic\_cast 需要一定开销，如果不对其结果作判断，还不如使用 static\_cast 等转换，但本规则集合不建议采用非 dynamic\_cast 之外的向下类型转换，可参见 ID\_nonDynamicDownCast 的相关讨论。
-<br/>
-<br/>
-
-#### 相关
-ID_nonDynamicDownCast  
-<br/>
-
-#### 依据
-ISO/IEC 14882:2011 5.2.7(9)  
-<br/>
-
-#### 参考
-CWE-476  
-C++ Core Guidelines C.148  
-<br/>
-<br/>
-
-### <span id="ID_danglingDeref">▌R14.5 不可解引用已被释放的指针</span>
+### <span id="ID_danglingDeref">▌R14.3 不可解引用已被释放的指针</span>
 
 ID_danglingDeref&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: pointer error
 
@@ -16323,6 +16325,86 @@ ISO/IEC 9899:2011 6.5.3.2(4)-undefined
 CWE-822  
 CWE-825  
 C++ Core Guidelines ES.65  
+<br/>
+<br/>
+
+### <span id="ID_invalidNullCheck">▌R14.4 避免无效的空指针检查</span>
+
+ID_invalidNullCheck&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
+
+<hr/>
+
+当指针的值一定不为空时，再对其进行检查是没有意义的，往往意味着逻辑错误。  
+  
+示例：
+```
+void bar() {
+    if (int* p = new int[100]) {  // Non-compliant
+        ....
+    } else {  // Invalid
+        ....
+    }
+}
+```
+标准规定默认 new 运算符的返回值不会为空，如果分配失败则抛出异常，所以这种检查和相关错误处理是无效的。  
+  
+应改为：
+```
+void bar() {
+    if (int* p = new(std::nothrow) int[100]) {  // Compliant
+        ....
+    } else {  // OK
+        ....
+    }
+}
+```
+又如：
+```
+void foo(T* p) {
+    if (p) {  // Meaningless
+        delete p;
+    }
+}
+```
+对于可接受空指针的接口，不必总在调用前判断指针是否为空，否则会使代码变得繁琐。delete 关键字或 free 函数可以作用于空指针，调用之前的检查是没有意义的。
+<br/>
+<br/>
+
+#### 相关
+ID_repeatedNullCheck  
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 18.6  
+<br/>
+<br/>
+
+### <span id="ID_repeatedNullCheck">▌R14.5 不应重复检查指针是否为空</span>
+
+ID_repeatedNullCheck&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
+
+<hr/>
+
+重复的空指针检查是不必要的，使代码显得繁琐，且干扰编译器优化。  
+  
+示例：
+```
+void foo(int* p) {
+    if (!p) {
+        return;
+    }
+    if (p) {      // Non-compliant, p is not nullptr
+        ....
+    } else {
+        ....      // Unreachable
+    }
+}
+```
+<br/>
+<br/>
+
+#### 相关
+ID_invalidNullCheck  
 <br/>
 <br/>
 
@@ -16520,87 +16602,7 @@ CWE-1025
 <br/>
 <br/>
 
-### <span id="ID_invalidNullCheck">▌R14.13 避免无效的空指针检查</span>
-
-ID_invalidNullCheck&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
-
-<hr/>
-
-当指针的值一定不为空时，再对其进行检查是没有意义的，往往意味着逻辑错误。  
-  
-示例：
-```
-void bar() {
-    if (int* p = new int[100]) {  // Non-compliant
-        ....
-    } else {  // Invalid
-        ....
-    }
-}
-```
-标准规定默认 new 运算符的返回值不会为空，如果分配失败则抛出异常，所以这种检查和相关错误处理是无效的。  
-  
-应改为：
-```
-void bar() {
-    if (int* p = new(std::nothrow) int[100]) {  // Compliant
-        ....
-    } else {  // OK
-        ....
-    }
-}
-```
-又如：
-```
-void foo(T* p) {
-    if (p) {  // Meaningless
-        delete p;
-    }
-}
-```
-对于可接受空指针的接口，不必总在调用前判断指针是否为空，否则会使代码变得繁琐。delete 关键字或 free 函数可以作用于空指针，调用之前的检查是没有意义的。
-<br/>
-<br/>
-
-#### 相关
-ID_repeatedNullCheck  
-<br/>
-
-#### 依据
-ISO/IEC 9899:2011 18.6  
-<br/>
-<br/>
-
-### <span id="ID_repeatedNullCheck">▌R14.14 不应重复检查指针是否为空</span>
-
-ID_repeatedNullCheck&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
-
-<hr/>
-
-重复的空指针检查是不必要的，使代码显得繁琐，且干扰编译器优化。  
-  
-示例：
-```
-void foo(int* p) {
-    if (!p) {
-        return;
-    }
-    if (p) {      // Non-compliant, p is not nullptr
-        ....
-    } else {
-        ....      // Unreachable
-    }
-}
-```
-<br/>
-<br/>
-
-#### 相关
-ID_invalidNullCheck  
-<br/>
-<br/>
-
-### <span id="ID_this_zeroComparison">▌R14.15 不应判断 this 指针是否为空</span>
+### <span id="ID_this_zeroComparison">▌R14.13 不应判断 this 指针是否为空</span>
 
 ID_this_zeroComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 
@@ -16637,7 +16639,7 @@ CWE-1025
 <br/>
 <br/>
 
-### <span id="ID_this_deleteInDestructor">▌R14.16 析构函数中不可使用 delete this</span>
+### <span id="ID_this_deleteInDestructor">▌R14.14 析构函数中不可使用 delete this</span>
 
 ID_this_deleteInDestructor&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: pointer error
 
@@ -16661,7 +16663,7 @@ CWE-674
 <br/>
 <br/>
 
-### <span id="ID_this_forbidDeleteThis">▌R14.17 禁用 delete this</span>
+### <span id="ID_this_forbidDeleteThis">▌R14.15 禁用 delete this</span>
 
 ID_this_forbidDeleteThis&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: pointer suggestion
 
@@ -16697,7 +16699,7 @@ p->foo();         // Memory is still leaking
 <br/>
 <br/>
 
-### <span id="ID_sizeof_pointer">▌R14.18 sizeof 作用于指针是可疑的</span>
+### <span id="ID_sizeof_pointer">▌R14.16 sizeof 作用于指针是可疑的</span>
 
 ID_sizeof_pointer&emsp;&emsp;&emsp;&emsp;&nbsp;:question: pointer suspicious
 
@@ -16730,7 +16732,47 @@ CWE-467
 <br/>
 <br/>
 
-### <span id="ID_missingResetNull">▌R14.19 指针在释放后应置空</span>
+### <span id="ID_nullDerefDynamicCast">▌R14.17 判断 dynamic_cast 转换是否成功</span>
+
+ID_nullDerefDynamicCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
+
+<hr/>
+
+dynamic\_cast 转换指针失败会返回空指针，转换引用失败会抛出异常，如果不作判断则失去了使用 dynamic\_cast 的意义。  
+  
+示例：
+```
+void foo(A* a) {
+    dynamic_cast<B*>(a)->foo();  // Non-compliant
+}
+```
+应改为：
+```
+void foo(A* a) {
+    if (auto* b = dynamic_cast<B*>(a)) {  // Compliant
+        b->foo();
+    }
+}
+```
+使用 dynamic\_cast 需要一定开销，如果不对其结果作判断，还不如使用 static\_cast 等转换，但本规则集合不建议采用非 dynamic\_cast 之外的向下类型转换，可参见 ID\_nonDynamicDownCast 的相关讨论。
+<br/>
+<br/>
+
+#### 相关
+ID_nonDynamicDownCast  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2011 5.2.7(9)  
+<br/>
+
+#### 参考
+CWE-476  
+C++ Core Guidelines C.148  
+<br/>
+<br/>
+
+### <span id="ID_missingResetNull">▌R14.18 指针在释放后应置空</span>
 
 ID_missingResetNull&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: pointer suggestion
 
@@ -16955,7 +16997,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 416 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
+&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 417 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
 
 &emsp;&emsp;此致
 
