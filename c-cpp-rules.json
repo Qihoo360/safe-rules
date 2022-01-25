@@ -339,10 +339,10 @@
     "ID_oddSubscripting": {
         "checkPoint": "数组下标应为整形表达式",
         "level": "warning",
-        "comment": "C/C++ 语法规定，在数组取值时，数组下标可以在中括号的右侧也可以在左侧，然而这只是一种理论上的设计，在实际编码中，应采用约定俗成的方式，即数组的名称在中括号的左侧，下标在中括号的右侧。",
+        "comment": "C/C++ 语言规定，数组下标可以在中括号的右侧也可以在左侧，然而这只是一种理论上的设计，在实际代码中，应采用约定俗成的方式，即数组的名称在中括号的左侧，下标在中括号的右侧。",
         "tag": "expression",
         "standard": "ISO/IEC 14882:2003 8.3.4(6),ISO/IEC 14882:2011 8.3.4(6)"
-        },        
+        },
     "ID_plainSensitiveInfo": {
         "checkPoint": "敏感数据不可写入代码",
         "level": "warning",
@@ -2368,14 +2368,14 @@
     "ID_literal_hardCodeChar": {
         "checkPoint": "字符常量中不可存在应转义而未转义的字符",
         "level": "warning",
-        "comment": "在字符常量中，如果存在制表符或回车、换行等控制字符，应使用转义字符。",
+        "comment": "在字符常量中，如果存在制表符或控制字符，应使用转义字符。",
         "tag": "literal",
         "related": "ID_literal_hardCodeString"
         },
     "ID_literal_hardCodeString": {
         "checkPoint": "字符串常量中不可存在应转义而未转义的字符",
         "level": "warning",
-        "comment": "在字符串常量中，如果存在制表符或回车、换行等控制字符，应使用转义字符。",
+        "comment": "在字符串常量中，如果存在制表符或控制字符，应使用转义字符。",
         "tag": "literal",
         "related": "ID_literal_hardCodeChar"
         },
@@ -2646,7 +2646,7 @@
         "reference": "CWE-476,C++ Core Guidelines ES.65"
         },
     "ID_divideByZero": {
-        "checkPoint": "除数不可为 0",
+        "checkPoint": "除数的值不可为 0",
         "level": "error",
         "comment": "除数为 0 会使程序产生标准未定义的行为。",
         "tag": "security",

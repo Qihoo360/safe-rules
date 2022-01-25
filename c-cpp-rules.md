@@ -91,7 +91,7 @@
   - [R1.13 禁用不安全的字符串函数](#ID_unsafeStringFunction)
   - [R1.14 确保字符串以空字符结尾](#ID_improperNullTermination)
   - [R1.15 避免使用由实现定义的库函数](#ID_implementationDefinedFunction)
-  - [R1.16 除数不可为 0](#ID_divideByZero)
+  - [R1.16 除数的值不可为 0](#ID_divideByZero)
   - [R1.17 禁用 atof、atoi、atol 以及 atoll 等函数](#ID_forbidAtox)
   - [R1.18 格式化字符串应为常量](#ID_variableFormatString)
   - [R1.19 与程序实现相关的信息不可被外界感知](#ID_addressExposure)
@@ -1326,7 +1326,7 @@ MISRA C++ 2008 18-7-1
 <br/>
 <br/>
 
-### <span id="ID_divideByZero">▌R1.16 除数不可为 0</span>
+### <span id="ID_divideByZero">▌R1.16 除数的值不可为 0</span>
 
 ID_divideByZero&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security error
 
@@ -3779,7 +3779,7 @@ namespace NS {
 using namespace NS;   // Non-compliant
 using namespace std;  // Non-compliant
 ```
-下例展示的问题是头文件不同的包含顺序竟导致调用同一函数产生了不同的行为：
+下例展示的问题是头文件不同的包含顺序竟导致同一函数产生了不同的行为：
 ```
 // a.h
 void foo(char);
@@ -6723,19 +6723,18 @@ ID_inaccessibleTmpObject&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: declaration error
 示例：
 ```
 class A {
+    int a;
+
 public:
     A() {
         A(0);  // Non-compliant, just created an inaccessible temporary object
     }
 
-    A(int x): a(x)
-    {}
-
-private:
-    int a;
+    A(int x): a(x) {
+    }
 };
 ```
-例中 A(0); 只是生成了一个无效的临时对象，各成员并没有被正确初始化。如果要调用 A::A(int) 来完成初始化，应改为 this\->A::A(0); 等形式。  
+例中 A(0); 只生成了一个无效的临时对象，成员并没有被正确初始化，应改为 this\->A::A(0); 等形式。  
   
 又如：
 ```
@@ -6746,7 +6745,7 @@ void fun() {
     do_something_critical();
 } 
 ```
-设 LockGuard 是某种锁的类名，那么 LockGuard(); 一行只生成了一个临时对象，该对象会立即析构，起不到作用，这也是一种常见的错误。  
+设 LockGuard 是某种锁，LockGuard(); 只生成了一个临时对象，该对象会立即析构，起不到作用，这也是一种常见的错误。  
   
 应改为：
 ```
@@ -8658,33 +8657,34 @@ ID_definedInHeader&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 在头文件中实现的函数，如果不是内联、静态或模板函数，则可能被引入不同的翻译单元（translate\-unit）造成编译冲突。  
   
-头文件也是项目文档的重要组成部分，头文件的主要内容应是类型或接口的声明，有必要保持头文件简洁清晰，便于阅读。  
+头文件也是项目文档的重要组成部分，头文件的主要内容应是类型或接口的声明，有必要保持头文件简洁清晰。除非函数很简短，否则不建议在头文件中内联实现，大段的函数实现会影响头文件的可读性。  
   
 示例：
 ```
 // In a header file
-int foo() {            // Non-compliant, add ‘inline’ or move it to a cpp file
+int foo() {          // Non-compliant, add ‘inline’ or move it to a cpp file
     return 1;
 }
 
-inline int bar() {     // Compliant
+inline int bar() {   // Compliant
     return 2;
 }
 ```
-除非函数很简短，否则不建议在头文件中内联实现，大段的函数实现会影响头文件的可读性。
+对于较为复杂的模版函数，建议将其实现与主体头文件分离，如：
 ```
-// In a header file
-struct A {
-    int foo();          // OK
-
-    int bar() const {   // OK
-        return 0;
-    }
-
-    int baz() {         // Bad, move to a source file
-        // ... more than 3 lines
-    }
+// In B.h
+template <class T>
+struct B {
+    T foo(T&);
 };
+
+#include "impl/B.inc"
+
+// In impl/B.inc
+template <class T>
+T B<T>::foo(T& p) {
+    ....             // Complex implementation
+}
 ```
 <br/>
 <br/>
@@ -8980,11 +8980,13 @@ ID_illMemberAccess&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
 <hr/>
 
-当流程进入面向构造或析构函数体的 catch 块时，非静态成员的生命周期已经结束，如果再次访问会导致标准未定义的错误。  
+当流程进入面向构造或析构函数体的 catch 块时，非静态成员的生命周期经结束，如果继续访问会导致标准未定义的问题。  
   
 示例：
 ```
 class A {
+    int i = 0;
+
 public:
     A() try {        // Function-try-block
         ....
@@ -8997,9 +8999,6 @@ public:
     } catch (...) {
         access(i);   // Non-compliant, ‘i’ may no longer exist 
     }
-
-private:
-    int i;
 };
 ```
 例中 access(i) 等访问是有问题的。  
@@ -9009,8 +9008,7 @@ private:
 A::A() {
     try {
         ....
-    }
-    catch (...) {
+    } catch (...) {
         access(i);   // OK
     }
 }
@@ -14498,7 +14496,7 @@ ID_sideEffectAssertion&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
 断言中的表达式如果有副作用，不能保证在所有编译设置下都有效。  
   
-如标准断言 assert 会受宏 NDEBUG 的影响，当宏 NDEBUG 有定义时 assert 中的表达式不会被执行。  
+如标准断言 assert 会受宏 NDEBUG 的影响，当该宏被定义时 assert 中的表达式不会被执行。  
   
 示例：
 ```
@@ -14554,7 +14552,7 @@ void foo(int a, int b, int c) {
 void foo(int a, int b, int c) {
     assert(a != 0);
     assert(b > 10);
-    assert(c == b + 1);
+    assert(c == b + 1);  // Good
 }
 ```
 本着使代码便于调试的理念展开工作，可有效降低测试及维护成本。
@@ -14666,7 +14664,7 @@ ID_oddSubscripting&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-C/C\+\+ 语法规定，在数组取值时，数组下标可以在中括号的右侧也可以在左侧，然而这只是一种理论上的设计，在实际编码中，应采用约定俗成的方式，即数组的名称在中括号的左侧，下标在中括号的右侧。  
+C/C\+\+ 语言规定，数组下标可以在中括号的右侧也可以在左侧，然而这只是一种理论上的设计，在实际代码中，应采用约定俗成的方式，即数组的名称在中括号的左侧，下标在中括号的右侧。  
   
 示例：
 ```
@@ -14777,9 +14775,9 @@ ID_literal_suspiciousChar&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: literal warning
 auto i = '/t';
 cout << typeid(i).name() << ' ' << i;  // What is output?
 ```
-这种语言特性可以让一些笔误通过编译，使问题不易察觉。  
+例中 i 为 int 型变量，值为 12148，这种语言特性可以让一些笔误通过编译，造成不易察觉的问题。  
   
-示例：
+又如：
 ```
 auto* tab = wcschr(str, L'/t');
 ```
@@ -14808,7 +14806,7 @@ ID_literal_hardCodeChar&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: literal warning
 
 <hr/>
 
-在字符常量中，如果存在制表符或回车、换行等控制字符，应使用转义字符。  
+在字符常量中，如果存在制表符或控制字符，应使用转义字符。  
   
 示例：
 ```
@@ -14834,7 +14832,7 @@ ID_literal_hardCodeString&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: literal warning
 
 <hr/>
 
-在字符串常量中，如果存在制表符或回车、换行等控制字符，应使用转义字符。  
+在字符串常量中，如果存在制表符或控制字符，应使用转义字符。  
   
 示例：
 ```
