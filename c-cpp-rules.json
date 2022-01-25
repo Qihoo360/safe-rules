@@ -1423,6 +1423,7 @@
         "comment": "设 a 为变量，对于下列形式的赋值给出警告：\na = a++;\na = ++a;\n++a = a;\n++a = ++a;\n++a = a++;\n这种形式的赋值非但令人费解，而且不同的编译器会给出不同的解释从而得到不同的执行结果。",
         "tag": "expression",
         "related": "ID_evaluationOrderReliance",
+        "standard": "ISO/IEC 9899:2011 6.5(2)-undefined,ISO/IEC 14882:2003 5.3.2,ISO/IEC 14882:2011 5.3.2,ISO/IEC 14882:2003 5(4)-unspecified,ISO/IEC 14882:2011 1.9(15)-undefined",
         "reference": "C++ Core Guidelines ES.43,SEI CERT EXP50-CPP"
         },
     "ID_oddPtrCharAssignment": {
@@ -1486,6 +1487,7 @@
         "comment": "注意子表达式的求值顺序，不同的求值顺序不应导致主表达式有不同的结果。",
         "tag": "expression",
         "related": "ID_confusingAssignment",
+        "standard": "ISO/IEC 14882:2011 8.3.6(9)-unspecified",
         "reference": "CWE-758,C++ Core Guidelines ES.43,C++ Core Guidelines ES.44"
         },
     "ID_complexExpression": {
@@ -1949,9 +1951,9 @@
         "reference": "C++ Core Guidelines C.128"
         },
     "ID_incompleteNewDeletePair": {
-        "checkPoint": "重载的 new 和 delete 运算符应配对出现",
+        "checkPoint": "资源分配与回收方法应成对提供",
         "level": "suggestion",
-        "comment": "如果重载内存的分配方式，一定要重载相应的回收方式，反之亦然，否则容易造成分配与回收的冲突。",
+        "comment": "资源分配方法和相应的回收方法应在同一模块中提供。",
         "tag": "type",
         "reference": "C++ Core Guidelines R.15"
         },

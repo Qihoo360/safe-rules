@@ -194,7 +194,7 @@
     - [R5.1.13 不应过度使用 explicit 关键字](#ID_excessiveExplicit)
     - [R5.1.14 带模板的赋值运算符不应覆盖拷贝或移动赋值运算符](#ID_roughTemplateAssignOperator)
     - [R5.1.15 带模板的构造函数不应覆盖拷贝或移动构造函数](#ID_roughTemplateConstructor)
-    - [R5.1.16 重载的 new 和 delete 运算符应配对出现](#ID_incompleteNewDeletePair)
+    - [R5.1.16 资源分配与回收方法应成对提供](#ID_incompleteNewDeletePair)
     - [R5.1.17 抽象类禁用拷贝赋值运算符](#ID_unsuitableCopyAssignOperator)
     - [R5.1.18 数据成员的数量应在规定范围之内](#ID_tooManyFields)
     - [R5.1.19 存在构造、析构或虚函数的类不应采用 struct 关键字](#ID_unsuitableStructTag)
@@ -771,13 +771,13 @@ struct A {
 ```
 class A {
 public:
-    // ... methods for accessing passwords safely
+    // ... interfaces for accessing passwords safely
 private:
     string username;
     string password;      // Compliant
 };
 ```
-对敏感数据的存储最好对引用者完全隐藏。
+敏感数据最好对引用者完全隐藏，使数据与接口进一步分离，可参见“[Pimpl idiom](https://en.cppreference.com/w/cpp/language/pimpl)”等模式。
 <br/>
 <br/>
 
@@ -3657,7 +3657,7 @@ using namespace ns;
 #include "b.h"
 
 void fun1() {
-    bar();  // ‘bar’ calls ‘foo(char)’
+    bar();     // ‘bar’ calls ‘foo(char)’
 }
 
 // b.cpp
@@ -3665,7 +3665,7 @@ void fun1() {
 #include "a.h"
 
 void fun2() {
-    bar();  // ‘bar’ calls ‘foo(int)’
+    bar();     // ‘bar’ calls ‘foo(int)’
 }
 ```
 头文件 a.h 和 b.h 以不同的顺序被包含，使 bar 函数调用了不同的 foo 函数，导致这种混乱的正是 b.h 中的 using directive。
@@ -4821,15 +4821,39 @@ MISRA C++ 2008 14-5-2
 <br/>
 <br/>
 
-### <span id="ID_incompleteNewDeletePair">▌R5.1.16 重载的 new 和 delete 运算符应配对出现</span>
+### <span id="ID_incompleteNewDeletePair">▌R5.1.16 资源分配与回收方法应成对提供</span>
 
 ID_incompleteNewDeletePair&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestion
 
 <hr/>
 
-如果重载内存的分配方式，一定要重载相应的回收方式，反之亦然，否则容易造成分配与回收的冲突。  
+资源分配方法和相应的回收方法应在同一模块中提供。  
+  
+如果一个模块分配的资源需要另一个模块回收，会打破模块之间的独立性，使维护成本显著增加，而且 so、dll、exe 等模块一般都有独立的堆栈，跨模块的分配与回收往往会造成严重错误。  
   
 示例：
+```
+// In a.dll
+int* foo() {
+    return (int*)malloc(1024);
+}
+
+// In b.dll
+void bar(int* p) {
+    free(p);
+}
+
+// a.dll and b.dll imported
+int main() {
+    int* p = foo();
+    ....
+    bar(p);  // Crash
+}
+```
+例中 a.dll 分配的内存由 b.dll 释放，相当于在一个堆中处理另一个堆中的数据，程序一般会崩溃。  
+  
+对类等逻辑模块也有相同的要求，如在构造函数中分配了资源，应提供相应的析构函数，重载了 new 运算符，也应重载相应的 delete 运算符等。  
+
 ```
 class A {
     void* operator new(size_t);   // Non-compliant, missing ‘operator delete’
@@ -4844,7 +4868,7 @@ class C {
     void operator delete(void*);  // Compliant
 };
 ```
-placement\-new 与 placement\-delete 也必须配对出现：
+placement\-new 与 placement\-delete 也应成对提供：
 ```
 class E {
     void* operator new(size_t, bool);       // Non-compliant
@@ -12703,6 +12727,10 @@ i += 2;             // Compliant
 ID_confusingAssignment  
 <br/>
 
+#### 依据
+ISO/IEC 14882:2011 8.3.6(9)-unspecified  
+<br/>
+
 #### 参考
 CWE-758  
 C++ Core Guidelines ES.43  
@@ -12737,6 +12765,14 @@ a = a + 1;     // Compliant
 
 #### 相关
 ID_evaluationOrderReliance  
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 6.5(2)-undefined  
+ISO/IEC 14882:2003 5.3.2  
+ISO/IEC 14882:2011 5.3.2  
+ISO/IEC 14882:2003 5(4)-unspecified  
+ISO/IEC 14882:2011 1.9(15)-undefined  
 <br/>
 
 #### 参考
@@ -16650,10 +16686,10 @@ private:
 };
 
 auto* p = new A;
-p->foo();  // Looks innocent
+p->foo();         // Looks innocent
 
 p = new A[10];
-p->foo();  // Memory is still leaking
+p->foo();         // Memory is still leaking
 ```
 如果一定要使用 delete this，类的析构函数应设为私有，这样可以阻止类的对象在栈上定义而引发更大的混乱，并且要确保执行 delete this 后 this 指针再也不会被解引用，而且不能用 new\[\] 创建，否则仍然存在内存泄漏问题。  
 所以对框架以及语言工具之外的业务类或算法类代码建议禁用 delete this。
@@ -16707,16 +16743,16 @@ ID_missingResetNull&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: pointer suggestion
 示例：
 ```
 class T {
+    int* p = new int[123];
+
 public:
    ~T() {
         delete[] p;
         p = nullptr;  // Good
     }
-private:
-    int* p = new int[123];
 };
 ```
-例中指针 p 被释放之后置为 nullptr，如果 T 的析构函数被反复调用，也不会造成问题。本规则是关于“指针悬挂”问题的有效措施，可参见 ID\_danglingDeref 的进一步讨论。
+例中指针 p 被释放之后置为 nullptr，如果 T 的析构函数被外界反复调用也不会造成问题。本规则是关于“指针悬挂”问题的有效措施，可参见 ID\_danglingDeref 的进一步讨论。
 <br/>
 <br/>
 
