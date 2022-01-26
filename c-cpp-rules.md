@@ -435,7 +435,7 @@
     - [R10.1.8 可化简为逻辑表达式的三元表达式应尽量化简](#ID_simplifiableTernary)
   - [10.2 Evaluation](#expression.evaluation)
     - [R10.2.1 不应依赖特定的子表达式求值顺序](#ID_evaluationOrderReliance)
-    - [R10.2.2 被赋值的变量不应在同一个表达式中自增或自减](#ID_confusingAssignment)
+    - [R10.2.2 表达式不应多次读写同一对象](#ID_confusingAssignment)
     - [R10.2.3 注意运算符优先级，不可产生非预期的结果](#ID_unexpectedPrecedence)
     - [R10.2.4 不在同一数组中的指针不可比较或相减](#ID_illPtrDiff)
     - [R10.2.5 bool 型变量或表达式不应参与大小比较、位运算、自增自减等运算](#ID_illBoolOperation)
@@ -2259,7 +2259,7 @@ void fun(size_t size) {
     ....
 }
 ```
-例中 alloca 函数在失败时往往会直接崩溃，而不会像 malloc 等函数返回空指针，对其返回值的检查是无效的，这种后果不可控的函数应避免使用。
+例中 alloca 函数在失败时会直接崩溃，而不会返回空指针，对其返回值的检查是无效的，这种后果不可控的函数应避免使用。
 <br/>
 <br/>
 
@@ -4484,12 +4484,12 @@ class C: public A {};
 class D: public B, public C {};
 
 void foo(D& d) {
-    d.i = 1;     // Error
+    d.i = 1;     // Complie error
     d.B::i = 1;  // Odd
     d.C::i = 1;  // Odd
 }
 ```
-在 D 类对象中，基类 A 的成员 i 有两个不同的实例，对象 d 直接访问 i 是无法通过编译的。  
+在 D 类对象 d 中，基类 A 的成员 i 有两个不同的实例，d 不能直接访问 i，只能通过 d.B::i 或 d.C::i 这种怪异的方式访问。  
   
 将共同的基类设为虚基类可以解决这种问题： 
 ```
@@ -4543,11 +4543,16 @@ ID_missingCopyConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
   
 示例：
 ```
-struct A {    // Non-compliant
+class A {    // Non-compliant
     int* p;
 
-    A(): p(new int[123]) {}
-   ~A() { delete[] p; }
+public:
+    A(): p(new int[123]) {
+    }
+
+   ~A() {
+        delete[] p;
+    }
 };
 ```
 例中 A 有析构函数，但没有拷贝构造函数和赋值运算符，编译器会生成相关默认函数，但只进行变量值的复制，使多个对象的成员 p 指向同一块内存区域，导致析构时内存被重复释放，所以应定义拷贝构造函数和赋值运算符重新分配内存并复制数据。  
@@ -4556,12 +4561,20 @@ struct A {    // Non-compliant
   
 示例：
 ```
-struct B {
+class B {
     std::string a, b;
 
-    B(const B& rhs): a(rhs.a), b(rhs.b) {}   // Verbose
-    B& operator = (const B& rhs) { a = rhs.a; b = rhs.b; }   // Verbose
-   ~B() {}   // Verbose
+public:
+    B(const B& rhs): a(rhs.a), b(rhs.b) {  // Unnecessary
+    }
+
+    B& operator = (const B& rhs) {  // Unnecessary
+        a = rhs.a;
+        b = rhs.b;
+    }
+
+   ~B() {  // Unnecessary
+    }
 };
 ```
 例中 B 只涉及字符串对象的组合，复制和析构可交由成员对象完成，其拷贝构造、赋值运算符及析构函数是不必要的，应该去掉，编译器会进行更好的处理。  
@@ -4621,7 +4634,7 @@ public:
     A(const A&);
    ~A();
 
-    A& operator=(const A&);  // Assignment operator
+    A& operator = (const A&);  // Assignment operator
 };
 ```
 <br/>
@@ -4656,7 +4669,7 @@ class A {  // Non-compliant, missing destructor
 public:
     A();
     A(const A&);
-    A& operator=(const A&);
+    A& operator = (const A&);
 };
 ```
 应明确定义析构函数：
@@ -4665,7 +4678,7 @@ class A {  // Compliant
 public:
     A();
     A(const A&);
-    A& operator=(const A&);
+    A& operator = (const A&);
 
    ~A();   // Destructor
 };
@@ -7284,15 +7297,13 @@ ID_nonStdCopyAssignmentParam&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration war
   
 示例：
 ```
-class A {
-public:
+struct A {
     A& operator = (A);  // Non-compliant
 };
 ```
 应改为：
 ```
-class A {
-public:
+struct A {
     A& operator = (const A&);  // Compliant
 };
 ```
@@ -7314,25 +7325,33 @@ ID_nonStdMoveAssignmentParam&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration war
   
 示例：
 ```
-struct A {
+class A {
     char* p;
+
+public:
     A& operator = (const A&& a) {  // Non-compliant
         free(p);
         p = copy(a.p);             // Not necessary
         return *this;
     }
+
+    ....
 };
 ```
 例中赋值运算符不是真正的移动赋值运算符，仍是一种低效实现。应将 a.p 与 this\->p 交换，利用 a 的析构函数完成资源的释放，才是真正意义上的移动赋值：
 ```
-struct A {
+class A {
     char* p;
+
+public:
     A& operator = (A&& a) noexcept {  // Compliant
         char* tmp = p;
         p = a.p;
         a.p = tmp;
         return *this;
     }
+
+    ....
 };
 ```
 <br/>
@@ -8169,8 +8188,6 @@ ID_throwInMove&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 示例：
 ```
 class T {
-    int i = 0;
-    int* p = nullptr;
     ....
 
 public:
@@ -8183,9 +8200,7 @@ public:
         return *this;
     }
 
-    void swap(T& a) noexcept {
-        // Use your intelligence,
-        // be careful not to throw exceptions
+    void swap(T& a) noexcept {  // Do not throw exceptions
         ....
     }
 };
@@ -8606,8 +8621,8 @@ bool main() { .... }  // Non-compliant
 <br/>
 
 #### 依据
-ISO/IEC 9899:1999 5.1.2.2.1(1) 5.1.2.2.3(1)  
-ISO/IEC 9899:2011 5.1.2.2.1(1) 5.1.2.2.3(1)  
+ISO/IEC 9899:2011 5.1.2.2.1(1)  
+ISO/IEC 9899:2011 5.1.2.2.3(1)  
 <br/>
 
 #### 参考
@@ -9571,15 +9586,15 @@ ID_returnRValueReference&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
   
 示例：
 ```
-struct A { .... };
+class A { .... };
 
-A&& foo() {  // Non-compliant
+A&& foo() {         // Non-compliant
     return A();
 }
 
 void bar() {
     A&& a = foo();
-    access(a);     // Undefined behavior, ‘a’ refers to an invalid object
+    access(a);      // Undefined behavior, ‘a’ refers to an invalid object
 }
 ```
 例中 foo 函数返回类型为右值引用，这种情况下如果返回临时对象，那么一定是错误的，临时对象在函数返回前析构，返回的是无效引用。  
@@ -12780,24 +12795,30 @@ ID_evaluationOrderReliance&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warnin
 
 <hr/>
 
-注意子表达式的求值顺序，不同的求值顺序不应导致主表达式有不同的结果。  
-  
-C 语言和 C\+\+ 语言（C\+\+17 之前）对子表达式的求值顺序并没有明确的规定，由各编译器厂商自行决定。  
+不同的求值顺序不应产生不同的结果，否则极易导致意料之外的错误，也会降低代码的可移植性。  
   
 示例：
 ```
-a[i] = ++i;         // Non-compliant
-p->bar(p++);        // Non-compliant
-foo(++i, ++i);      // Non-compliant
+int i = 0;
+
+int foo() { return i += 1; }
+int bar() { return i += 2; }
+
+int main() {
+    return foo() - bar();   // Non-compliant
+}
 ```
-应去除不确定性，如：
-```
-foo(i + 1, i + 2);  // Compliant
-i += 2;             // Compliant
-```
-注意，参数的求值顺序和进栈顺序不同，进栈顺序可通过 stdcall、cdecl 等调用约定指明，而求值顺序在 C\+\+17 之前是没有规定的。  
+例中 foo 函数与 bar 函数哪个会先被执行呢？标准并无明确规定，不同的执行顺序会产生不同的结果。  
   
-即使遵循 C\+\+17 标准，也不应出现这种代码，不同的人对这种代码往往会有不同的理解，对维护工作产生较大困扰。
+应改为：
+```
+int main() {
+    int x = foo();
+    int y = bar();
+    return x - y;   // Compliant
+}
+```
+这样 foo 函数总是先于 bar 函数执行。
 <br/>
 <br/>
 
@@ -12816,28 +12837,60 @@ C++ Core Guidelines ES.44
 <br/>
 <br/>
 
-### <span id="ID_confusingAssignment">▌R10.2.2 被赋值的变量不应在同一个表达式中自增或自减</span>
+### <span id="ID_confusingAssignment">▌R10.2.2 表达式不应多次读写同一对象</span>
 
 ID_confusingAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-设 a 为变量，不应出现下列形式的赋值表达式：
+当表达式多次引用并修改同一对象时，很可能会因为非预期的求值顺序而产生错误的结果。  
+  
+关于对象的副作用在求值过程中何时生效这一问题，相关标准既复杂又有大量未定义或未声明的情况，避免在表达式中多次读写同一对象可有效规避相关错误。  
+  
+本规则是 ID\_evaluationOrderReliance 的特化。  
+  
+示例：
 ```
-a = a++;       // Non-compliant
-a = ++a;       // Non-compliant
-++a = a;       // Non-compliant
-++a = ++a;     // Non-compliant
-++a = a++;     // Non-compliant
-```
-这种形式的赋值非但令人费解，而且不同的编译器会给出不同的解释从而得到不同的执行结果。  
+a = a++;        // Non-compliant
+a = ++a;        // Non-compliant
 
+++b = b;        // Non-compliant
+b = a++ + a;    // Non-compliant
+
+v[i] = ++i;     // Non-compliant
+p->bar(p++);    // Non-compliant
+
+fun(a, a++);    // Non-compliant
+fun(++a, a++);  // Non-compliant
 ```
-++a;           // Compliant
-a += 1;        // Compliant
-a = a + 1;     // Compliant
+例中 \+\+ 泛指所有写入操作。  
+  
+设 a 的值为 0，如下表达式：
 ```
-本规则是 ID\_evaluationOrderReliance 的特化。
+a = a++;        // Non-compliant
+```
+对变量 a 有两次写入，分别是增 1 和赋值为 0（子表达式 a\+\+ 的值为 0），这两次写入的次序在 C 和 C\+\+17 之前的标准中是未定义的，如果先增 1 再赋 0，a 的值最终为 0，如果先赋 0 再增 1，a 的值最终为 1，这种不确定的结果应当避免，C\+\+17 规定了右子表达式的副作用先于赋值生效，所以在 C\+\+17 之后例中表达式是无效的。  
+  
+即使新的标准强化了子表达式的求值顺序，但这种代码使人费解，很容易造成理解上的偏差，故不应使用。  
+  
+应改为：
+```
+a++;            // Compliant
+a += 1;         // Compliant
+a = a + 1;      // Compliant
+```
+对于逻辑与、逻辑或、三元以及逗号表达式，标准明确规定了子表达式从左至右求值，左子表达式的副作用也会在右子表达式求值前生效，故可不受本规则限制，但其子表达式仍需受本规则限制，如：
+```
+a++ && b++      // Compliant
+a || b + b++    // Non-compliant
+
+a++? a++: b++   // Complaint
+a + a++? 0: 1   // Non-compliant
+
+a++, a++        // Compliant
+a = a++, a++    // Non-compliant
+```
+进一步可参见 “[序列点（sequence point）](https://en.wikipedia.org/wiki/Sequence_point)”及“[求值顺序](https://en.cppreference.com/w/cpp/language/eval_order)”等概念。
 <br/>
 <br/>
 
@@ -12847,10 +12900,11 @@ ID_evaluationOrderReliance
 
 #### 依据
 ISO/IEC 9899:2011 6.5(2)-undefined  
-ISO/IEC 14882:2003 5.3.2  
-ISO/IEC 14882:2011 5.3.2  
 ISO/IEC 14882:2003 5(4)-unspecified  
 ISO/IEC 14882:2011 1.9(15)-undefined  
+ISO/IEC 14882:2011 5.17(1)  
+ISO/IEC 14882:2017 8.18(1)  
+ISO/IEC 9899:2011 Annex C  
 <br/>
 
 #### 参考

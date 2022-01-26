@@ -830,7 +830,7 @@
         "level": "warning",
         "comment": "main 函数的返回值可作为整个进程执行情况的总结，按惯例返回 0 或 EXIT_SUCCESS 表示执行成功，非 0 或 EXIT_FAILURE 表示执行失败，main 函数的返回值会作为标准 exit 函数的参数。",
         "tag": "function",
-        "standard": "ISO/IEC 9899:1999 5.1.2.2.1(1) 5.1.2.2.3(1),ISO/IEC 9899:2011 5.1.2.2.1(1) 5.1.2.2.3(1)",
+        "standard": "ISO/IEC 9899:2011 5.1.2.2.1(1),ISO/IEC 9899:2011 5.1.2.2.3(1)",
         "reference": "C++ Core Guidelines F.46"
         },
     "ID_missingNamespace": {
@@ -1418,12 +1418,12 @@
         "reference": "CWE-682"
         },
     "ID_confusingAssignment": {
-        "checkPoint": "被赋值的变量不应在同一个表达式中自增或自减",
+        "checkPoint": "表达式不应多次读写同一对象",
         "level": "warning",
-        "comment": "设 a 为变量，对于下列形式的赋值给出警告：\na = a++;\na = ++a;\n++a = a;\n++a = ++a;\n++a = a++;\n这种形式的赋值非但令人费解，而且不同的编译器会给出不同的解释从而得到不同的执行结果。",
+        "comment": "当表达式多次引用并修改同一对象时，很可能会因为非预期的求值顺序而产生错误的结果。",
         "tag": "expression",
         "related": "ID_evaluationOrderReliance",
-        "standard": "ISO/IEC 9899:2011 6.5(2)-undefined,ISO/IEC 14882:2003 5.3.2,ISO/IEC 14882:2011 5.3.2,ISO/IEC 14882:2003 5(4)-unspecified,ISO/IEC 14882:2011 1.9(15)-undefined",
+        "standard": "ISO/IEC 9899:2011 6.5(2)-undefined,ISO/IEC 14882:2003 5(4)-unspecified,ISO/IEC 14882:2011 1.9(15)-undefined,ISO/IEC 14882:2011 5.17(1),ISO/IEC 14882:2017 8.18(1),ISO/IEC 9899:2011 Annex C",
         "reference": "C++ Core Guidelines ES.43,SEI CERT EXP50-CPP"
         },
     "ID_oddPtrCharAssignment": {
@@ -1484,7 +1484,7 @@
     "ID_evaluationOrderReliance": {
         "checkPoint": "不应依赖特定的子表达式求值顺序",
         "level": "warning",
-        "comment": "注意子表达式的求值顺序，不同的求值顺序不应导致主表达式有不同的结果。",
+        "comment": "不同的求值顺序不应产生不同的结果，否则极易导致意料之外的错误，也会降低代码的可移植性。",
         "tag": "expression",
         "related": "ID_confusingAssignment",
         "standard": "ISO/IEC 14882:2011 8.3.6(9)-unspecified",
