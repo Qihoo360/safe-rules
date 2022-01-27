@@ -96,16 +96,16 @@
         "tag": "expression"
         },
     "ID_stickyAssignmentOperator": {
-        "checkPoint": "赋值运算符与单目运算符之间应有空格，单目运算符与变量或表达式之间不应有空格",
+        "checkPoint": "赋值运算符与一元运算符之间应有空格，一元运算符与变量或表达式之间不应有空格",
         "level": "warning",
-        "comment": "如果赋值运算符与之后的 +、-、*、!、&、~ 等单目运算符之间没有空格，而单目运算符与变量或表达式之间有空格，是一种非常怪异的格式，造成阅读困难，而且也可能是 +=、-=、*=、&=、~= 等复合赋值相关的笔误。",
+        "comment": "如果 = 与 +、-、*、!、&、~ 等一元运算符之间没有空格，而一元运算符与其子表达式之间有空格，是一种非常怪异的格式，也可能是 +=、-=、*=、&=、~= 等复合赋值运算符的笔误。",
         "tag": "expression",
         "reference": "CWE-480"
         },
     "ID_redundantParentheses": {
         "checkPoint": "合理使用括号",
         "level": "suggestion",
-        "comment": "重复的或作用于单个对象的括号使代码显得繁琐，应去掉，但如果可以更好的表达逻辑意义，或不确定运算符优先级时，应使用括号。",
+        "comment": "重复的、作用于单个对象或一元运算符的括号使代码显得繁琐，应去掉，但如果可以更好的表达逻辑意义，或不确定运算符优先级时，应使用括号。",
         "tag": "expression"
         },
     "ID_throwNULL": {
@@ -904,7 +904,7 @@
     "ID_invalidFinal": {
         "checkPoint": "不应将 union 设为 final",
         "level": "warning",
-        "comment": "标准规定 union 不可作为基类，所以将 union 声明为 final 是没有意义的，为语言运用错误。",
+        "comment": "标准规定 union 不可作为基类，所以将 union 声明为 final 是没有意义的，属于语言运用错误。",
         "standard": "ISO/IEC 9899:2011 9.5(2)",
         "tag": "declaration"
         },
@@ -1418,13 +1418,13 @@
         "reference": "CWE-682"
         },
     "ID_confusingAssignment": {
-        "checkPoint": "表达式不应多次读写同一对象",
+        "checkPoint": "不应多次读写同一对象",
         "level": "warning",
-        "comment": "当表达式多次引用并修改同一对象时，很可能会因为非预期的求值顺序而产生错误的结果。",
+        "comment": "在表达式中多次引用并修改同一对象，很可能会因为非预期的求值顺序而产生错误的结果。",
         "tag": "expression",
         "related": "ID_evaluationOrderReliance",
         "standard": "ISO/IEC 9899:2011 6.5(2)-undefined,ISO/IEC 14882:2003 5(4)-unspecified,ISO/IEC 14882:2011 1.9(15)-undefined,ISO/IEC 14882:2011 5.17(1),ISO/IEC 14882:2017 8.18(1),ISO/IEC 9899:2011 Annex C",
-        "reference": "C++ Core Guidelines ES.43,SEI CERT EXP50-CPP"
+        "reference": "C++ Core Guidelines ES.43,SEI CERT EXP50-CPP,MISRA C++ 2008 5-0-1,MISRA C 2012 13.2"
         },
     "ID_oddPtrCharAssignment": {
         "checkPoint": "不应使用字符常量对指针赋值或初始化",
@@ -1482,12 +1482,12 @@
         "reference": "MISRA C 2004 12.4,MISRA C 2012 13.5,MISRA C++ 2008 5-14-1"
         },
     "ID_evaluationOrderReliance": {
-        "checkPoint": "不应依赖特定的子表达式求值顺序",
+        "checkPoint": "避免依赖特定的求值顺序",
         "level": "warning",
         "comment": "不同的求值顺序不应产生不同的结果，否则极易导致意料之外的错误，也会降低代码的可移植性。",
         "tag": "expression",
         "related": "ID_confusingAssignment",
-        "standard": "ISO/IEC 14882:2011 8.3.6(9)-unspecified",
+        "standard": "ISO/IEC 9899:2011 5.1.2.3(3),ISO/IEC 9899:2011 Annex C",
         "reference": "CWE-758,C++ Core Guidelines ES.43,C++ Core Guidelines ES.44"
         },
     "ID_complexExpression": {
@@ -1889,17 +1889,19 @@
     "ID_overloadLogicOperator": {
         "checkPoint": "不应重载“逻辑与”和“逻辑或”运算符",
         "level": "suggestion",
-        "comment": "对“逻辑与”、“逻辑或”等运算符的重载会影响效率，甚至造成与预期完全不符的结果。",
+        "comment": "对“逻辑与”、“逻辑或”等运算符的重载会影响效率，甚至造成不符合预期的结果。",
         "tag": "declaration",
         "related": "ID_overloadComma",
+        "standard": "ISO/IEC 14882:2011 5.2.2(8)",
         "reference": "MISRA C++ 2008 5-2-11"
         },
     "ID_overloadComma": {
         "checkPoint": "不应重载逗号运算符",
         "level": "suggestion",
-        "comment": "对于内置逗号表达式，标准规定从左到右计算子表达式的值，但对逗号运算符的重载会打破这一规则，造成不符合预期的结果。",
+        "comment": "逗号表达式意在从左至右依次执行各子表达式，但重载逗号运算符会打破这一规则，易造成意料之外的结果。",
         "tag": "declaration",
         "related": "ID_overloadLogicOperator",
+        "standard": "ISO/IEC 14882:2011 5.2.2(8)",
         "reference": "MISRA C++ 2008 5-2-11"
         },
     "ID_overloadAddressOperator": {
@@ -2734,7 +2736,7 @@
     "ID_forbidVolatile": {
         "checkPoint": "慎用 volatile 关键字",
         "level": "suggestion",
-        "comment": "对于硬件无关的功能性代码不妨禁用 volatile 关键字，否则误用该关键字会引发优化及同步相关的多种问题。",
+        "comment": "与硬件无关的功能性代码不应使用 volatile 关键字，误用该关键字会引发优化或同步相关的多种问题。",
         "tag": "declaration",
         "standard": "ISO/IEC 14882:2003 7.1.5.1(8),ISO/IEC 14882:2011 7.1.6.1(7)",
         "reference": "C++ Core Guidelines CP.8,C++ Core Guidelines CP.200"

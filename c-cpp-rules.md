@@ -434,8 +434,8 @@
     - [R10.1.7 逻辑表达式应保持简洁明了](#ID_simplifiableCondition)
     - [R10.1.8 可化简为逻辑表达式的三元表达式应尽量化简](#ID_simplifiableTernary)
   - [10.2 Evaluation](#expression.evaluation)
-    - [R10.2.1 不应依赖特定的子表达式求值顺序](#ID_evaluationOrderReliance)
-    - [R10.2.2 表达式不应多次读写同一对象](#ID_confusingAssignment)
+    - [R10.2.1 避免依赖特定的求值顺序](#ID_evaluationOrderReliance)
+    - [R10.2.2 不应多次读写同一对象](#ID_confusingAssignment)
     - [R10.2.3 注意运算符优先级，不可产生非预期的结果](#ID_unexpectedPrecedence)
     - [R10.2.4 不在同一数组中的指针不可比较或相减](#ID_illPtrDiff)
     - [R10.2.5 bool 型变量或表达式不应参与大小比较、位运算、自增自减等运算](#ID_illBoolOperation)
@@ -443,7 +443,7 @@
     - [R10.2.7 避免出现复合赋值的可疑形式](#ID_suspiciousCompoundAssignment)
     - [R10.2.8 &=、|=、\-=、/=、%= 左右子表达式不应相同](#ID_illSelfCompoundAssignment)
     - [R10.2.9 不应使用 NULL 对非指针变量赋值或初始化](#ID_oddNullAssignment)
-    - [R10.2.10 赋值运算符与单目运算符之间应有空格，单目运算符与变量或表达式之间不应有空格](#ID_stickyAssignmentOperator)
+    - [R10.2.10 赋值运算符与一元运算符之间应有空格，一元运算符与变量或表达式之间不应有空格](#ID_stickyAssignmentOperator)
     - [R10.2.11 赋值运算符左右子表达式不应重复](#ID_selfAssignment)
     - [R10.2.12 除法运算符、求余运算符左右子表达不应重复](#ID_selfDivision)
     - [R10.2.13 减法运算符左右子表达式不应重复](#ID_selfSubtraction)
@@ -2252,14 +2252,14 @@ alloca、\_\_builtin\_alloca 等在栈上分配内存的函数难以控制失败
 示例：
 ```
 void fun(size_t size) {
-    int* p = (int*)alloca(size);  // Bad practice
+    int* p = (int*)alloca(size);  // Non-compliant
     if (!p) {
         return;  // Invalid
     }
     ....
 }
 ```
-例中 alloca 函数在失败时会直接崩溃，而不会返回空指针，对其返回值的检查是无效的，这种后果不可控的函数应避免使用。
+例中 alloca 函数在失败时会直接崩溃，不会返回空指针，对其返回值的检查是无效的，这种后果不可控的函数应避免使用。
 <br/>
 <br/>
 
@@ -2640,23 +2640,23 @@ C 标准头文件均有对应的 C\+\+ 版本，C\+\+ 版本提供了更适合 C
   
 示例：
 ```
-#include <assert.h>  // Non-compliant, use <cassert>
-#include <ctype.h>   // Non-compliant, use <cctype>
-#include <errno.h>   // Non-compliant, use <cerrno>
-#include <float.h>   // Non-compliant, use <cfloat>
-#include <limits.h>  // Non-compliant, use <climits>
-#include <locale.h>  // Non-compliant, use <clocale>
-#include <math.h>    // Non-compliant, use <cmath>
-#include <setjmp.h>  // Non-compliant, use <csetjmp>
-#include <signal.h>  // Non-compliant, use <csignal>
-#include <stdarg.h>  // Non-compliant, use <cstdarg>
-#include <stddef.h>  // Non-compliant, use <cstddef>
-#include <stdio.h>   // Non-compliant, use <cstdio>
-#include <stdlib.h>  // Non-compliant, use <cstdlib>
-#include <string.h>  // Non-compliant, use <cstring>
-#include <time.h>    // Non-compliant, use <ctime>
-#include <wchar.h>   // Non-compliant, use <cwchar>
-#include <wctype.h>  // Non-compliant, use <cwctype>
+#include <assert.h>    // Non-compliant, use <cassert>
+#include <ctype.h>     // Non-compliant, use <cctype>
+#include <errno.h>     // Non-compliant, use <cerrno>
+#include <float.h>     // Non-compliant, use <cfloat>
+#include <limits.h>    // Non-compliant, use <climits>
+#include <locale.h>    // Non-compliant, use <clocale>
+#include <math.h>      // Non-compliant, use <cmath>
+#include <setjmp.h>    // Non-compliant, use <csetjmp>
+#include <signal.h>    // Non-compliant, use <csignal>
+#include <stdarg.h>    // Non-compliant, use <cstdarg>
+#include <stddef.h>    // Non-compliant, use <cstddef>
+#include <stdio.h>     // Non-compliant, use <cstdio>
+#include <stdlib.h>    // Non-compliant, use <cstdlib>
+#include <string.h>    // Non-compliant, use <cstring>
+#include <time.h>      // Non-compliant, use <ctime>
+#include <wchar.h>     // Non-compliant, use <cwchar>
+#include <wctype.h>    // Non-compliant, use <cwctype>
 ```
 <br/>
 <br/>
@@ -5998,11 +5998,11 @@ ID_forbidVolatile&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration suggestion
 
 <hr/>
 
-对于硬件无关的功能性代码不妨禁用 volatile 关键字，否则误用该关键字会引发优化及同步相关的多种问题。  
+与硬件无关的功能性代码不应使用 volatile 关键字，误用该关键字会引发优化或同步相关的多种问题。  
   
-volatile 关键字仅保证编译器不会对其修饰的变量进行额外优化，确保其有稳定的地址以供读写，在并发编程中容易使人产生误解，其实该关键字在 C/C\+\+ 语言中与同步机制并无关系。  
+volatile 关键字仅保证编译器不会对其修饰的对象进行优化，确保其有稳定的地址以供读写，在并发编程中容易使人产生误解，其实该关键字在 C/C\+\+ 语言中与同步机制并无关系。  
   
-当需要访问某个硬件地址，而其他进程或硬件可能会修改该地址上的数据时，应将其指针声明为 volatile：
+当需要访问某个地址，而其他进程或设备会修改该地址上的数据时，应将其指针声明为 volatile：
 ```
 volatile int* vp = get_hardware_address();
 ```
@@ -6010,9 +6010,9 @@ volatile int* vp = get_hardware_address();
 ```
 const volatile int* cvp = get_hardware_address();
 ```
-这样一来 vp 或 cvp 的值一直会与内存地址对应，利用 \*vp 或 \*cvp 总会执行从内存的读取操作，而不会因为编译器的优化而被忽略，可能需要保证进程之间的同步，但这与 volatile 关键字是没有关系的，这一点与 Java 等语言有较大区别，需要特别注意。  
+这样一来 vp 或 cvp 一直会与该地址对应，利用 \*vp 或 \*cvp 总会执行从内存的读取操作，不会因为编译器的优化而被忽略，可能需要提供一定的同步措施，但与 volatile 关键字没有关系，这一点与 Java 等语言有较大区别。  
   
-除此之外，利用 volatile 关键字阻止编译优化的特性可实现一些安全措施，参见 ID\_unsafeCleanup。
+另外，利用 volatile 关键字阻止编译优化的特性可实现一些安全措施，参见 ID\_unsafeCleanup。
 <br/>
 <br/>
 
@@ -6312,7 +6312,7 @@ ID_invalidFinal&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-标准规定 union 不可作为基类，所以将 union 声明为 final 是没有意义的，为语言运用错误。  
+标准规定 union 不可作为基类，所以将 union 声明为 final 是没有意义的，属于语言运用错误。  
   
 示例：
 ```
@@ -6395,6 +6395,7 @@ for (auto e: container) {  // Is it necessary to copy elements?
     ....
 }
 ```
+例中 p 为指针，但看起来像是个对象，bar 返回引用，但 r 并不是引用，在遍历容器时，e 是容器元素的复本，这些问题可能会造成错误，需谨慎对待。
 <br/>
 <br/>
 <br/>
@@ -7411,20 +7412,31 @@ ID_overloadComma&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-对于内置逗号表达式，标准规定从左到右计算子表达式的值，但对逗号运算符的重载会打破这一规则，造成不符合预期的结果。  
-  
-可参见 ID\_overloadLogicOperator 对这种问题的详细说明。  
+逗号表达式意在从左至右依次执行各子表达式，但重载逗号运算符会打破这一规则，易造成意料之外的结果。  
   
 示例：
 ```
-struct A;
-A& operator , (const A&, const A&);  // Non-compliant
+class A { .... };
+
+A& foo(int);
+A& operator , (int, A&);  // Non-compliant
+
+int bar(int i) {
+    ++i, foo(i);   // Disordered
+}
 ```
+例中逗号运算符被重载后变成了一个函数，\+\+i 和 foo(i) 变成了函数参数，函数参数的求值顺序在标准中是未声明的，foo(i) 很有可能会先被求值，\+\+i 则失去了意义。  
+  
+另外，也不应重载逻辑运算符，参见 ID\_overloadLogicOperator。
 <br/>
 <br/>
 
 #### 相关
 ID_overloadLogicOperator  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2011 5.2.2(8)  
 <br/>
 
 #### 参考
@@ -7438,9 +7450,9 @@ ID_overloadLogicOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggest
 
 <hr/>
 
-对“逻辑与”、“逻辑或”等运算符的重载会影响效率，甚至造成与预期完全不符的结果。  
+对“逻辑与”、“逻辑或”等运算符的重载会影响效率，甚至造成不符合预期的结果。  
   
-C/C\+\+ 语言明确地规定了内置的逗号、逻辑与、逻辑或等表达式的子表达式求值顺序。对于逻辑表达式，从左到右计算子表达式的值，当可以确定整个表达式的值时立即结束计算，如果还有其他子表达式未求值也不再计算了，这种规则称为“短路规则”，意在提升执行效率，然而对运算符的重载却打破了这一规则。  
+C/C\+\+ 标准明确规定了内置逗号、逻辑与、逻辑或等运算符的子表达式求值顺序。对于逻辑表达式，从左到右计算子表达式的值，当可以确定整个表达式的值时立即结束计算，如果还有其他子表达式未求值也不再计算了，这种规则称为“短路规则”，意在提高效率，然而运算符的重载却打破了这一规则。  
   
 示例：
 ```
@@ -7469,15 +7481,29 @@ bool operator && (const A& a, const A& b) {  // Non-compliant
 ```
 b && a.assign(b)
 ```
-按常理，此表达式的意思应该是如果 b 在某种意义上“有效”，就将 b 赋给 a，所以 b 的值应该先被求出，但由于 && 被重载成了一个函数，其左右子表达式成了函数的参数，C\+\+ 标准对函数参数的求值顺序并无明确规定，所以常规逻辑子表达式的计算顺序无法得到保证。目前 MSVC、g\+\+ 等主流编译器默认都是从右到左计算参数的值，例中 a.assign(b) 往往会先被执行，造成完全不符合预期的后果。  
+按常理，此表达式的意思应该是如果 b 在某种意义上“有效”，就将 b 赋给 a，所以 b 的值应先被求出，但由于 && 被重载成了一个函数，其左右子表达式成了函数的参数，“短路规则”不再有效，而且参数的求值顺序在标准中是未声明的，所以常规逻辑子表达式的求值顺序无法得到保证。目前 MSVC、g\+\+ 等主流编译器默认都是从右到左计算参数的值，例中 a.assign(b) 会先被执行，造成完全不符合预期的结果。  
   
-解决方法：  
-去掉对 && 的重载，对类 A 引入与 bool 类型的转换。
+解决方法：
+```
+class A {
+    ....
+
+public:
+    operator bool() const {
+        return valid();
+    }
+};
+```
+去掉对 && 的重载，在 A 中定义 bool 类型转换运算符，既可保证“短路规则”，又可保证求值顺序。
 <br/>
 <br/>
 
 #### 相关
 ID_overloadComma  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2011 5.2.2(8)  
 <br/>
 
 #### 参考
@@ -9597,7 +9623,7 @@ void bar() {
     access(a);      // Undefined behavior, ‘a’ refers to an invalid object
 }
 ```
-例中 foo 函数返回类型为右值引用，这种情况下如果返回临时对象，那么一定是错误的，临时对象在函数返回前析构，返回的是无效引用。  
+例中 foo 函数返回类型为右值引用，这种情况下返回临时对象一定是错误的，临时对象在返回前析构，返回的是无效引用。  
   
 也不应返回局部对象的右值引用，如：
 ```
@@ -9607,7 +9633,7 @@ A&& baz() {  // Non-compliant
     return std::move(a);
 }
 ```
-和返回临时对象一样，对象 a 在函数返回时析构，返回的也是无效引用。  
+和返回临时对象一样，对象 a 在函数返回前析构，返回的也是无效引用。  
   
 应直接返回对象，而不是对象的右值引用：
 ```
@@ -12789,7 +12815,7 @@ bool bar(int a) {
 
 ### <span id="expression.evaluation">10.2 Evaluation</span>
 
-### <span id="ID_evaluationOrderReliance">▌R10.2.1 不应依赖特定的子表达式求值顺序</span>
+### <span id="ID_evaluationOrderReliance">▌R10.2.1 避免依赖特定的求值顺序</span>
 
 ID_evaluationOrderReliance&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -12797,28 +12823,33 @@ ID_evaluationOrderReliance&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warnin
 
 不同的求值顺序不应产生不同的结果，否则极易导致意料之外的错误，也会降低代码的可移植性。  
   
+C 语言标准用“[序列点（sequence point）](https://en.wikipedia.org/wiki/Sequence_point)”定义求值顺序，序列点前面的表达式先于后面的表达式求值并落实相关副作用，逻辑与、逻辑或、三元、逗号等运算符以及函数调用的左括号与序列点相关，其左子表达式先于右子表达式求值并落实副作用，赋值、算术、位运算符与序列点无关，其左右子表达式的求值顺序是未声明的，函数各参数的求值顺序也是未声明的，C\+\+ 标准与 C 标准大致相同，C\+\+17 明确了赋值、移位等运算符的求值顺序。  
+  
+要注意子表达式的副作用在不同求值顺序下的正确性，可参见 ID\_confusingAssignment 的进一步说明。  
+  
 示例：
 ```
-int i = 0;
-
-int foo() { return i += 1; }
-int bar() { return i += 2; }
-
-int main() {
-    return foo() - bar();   // Non-compliant
-}
+Stack s {1, 2, 3};      // A stack, the top is 1
+int pop();              // Pop and return the top element from the stack
+int x = pop() - pop();  // Non-compliant
 ```
-例中 foo 函数与 bar 函数哪个会先被执行呢？标准并无明确规定，不同的执行顺序会产生不同的结果。  
+设 pop 函数弹出并返回栈顶元素，减号左右的两个 pop 函数哪个先执行呢？这是标准未声明的，x 的值可以是 1 \- 2，也可以是 2 \- 1，由编译器决定。  
   
 应改为：
 ```
-int main() {
-    int x = foo();
-    int y = bar();
-    return x - y;   // Compliant
-}
+int a = pop();
+int b = pop();
+x = a - b;      // Compliant, or ‘b – a’, depends on your needs
 ```
-这样 foo 函数总是先于 bar 函数执行。
+这样便确定是栈项的第一个元素减第二个元素。  
+  
+又如：
+```
+fun(pop(), pop());  // Non-compliant
+```
+设 fun 是函数名称或获取函数指针的表达式，标准规定 fun 会先于参数求值，但参数之间的求值顺序是未声明的。  
+  
+逻辑与、逻辑或、三元、逗号等表达式可不受本规则限制，但其子表达式需受本规则限制。
 <br/>
 <br/>
 
@@ -12827,7 +12858,8 @@ ID_confusingAssignment
 <br/>
 
 #### 依据
-ISO/IEC 14882:2011 8.3.6(9)-unspecified  
+ISO/IEC 9899:2011 5.1.2.3(3)  
+ISO/IEC 9899:2011 Annex C  
 <br/>
 
 #### 参考
@@ -12837,15 +12869,21 @@ C++ Core Guidelines ES.44
 <br/>
 <br/>
 
-### <span id="ID_confusingAssignment">▌R10.2.2 表达式不应多次读写同一对象</span>
+### <span id="ID_confusingAssignment">▌R10.2.2 不应多次读写同一对象</span>
 
 ID_confusingAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-当表达式多次引用并修改同一对象时，很可能会因为非预期的求值顺序而产生错误的结果。  
+在表达式中多次引用并修改同一对象，很可能会因为非预期的求值顺序而产生错误的结果。  
   
-关于对象的副作用在求值过程中何时生效这一问题，相关标准既复杂又有大量未定义或未声明的情况，避免在表达式中多次读写同一对象可有效规避相关错误。  
+关于对象的副作用在求值过程中何时生效这一问题，相关标准既复杂又有大量未声明和未定义的情况，故需注意：  
+1. 写入对象的次数不应超过 1 次  
+2. 对象不应既被读取又被写入，除非是为了计算对象的新状态并写入对象  
+  
+注意，对 volatile 对象的读取相当于更新对象的值，也是一种副作用，故：  
+1. volatile 对象在表达式中只应出现 1 次  
+2. volatile 对象不应既被读取又被写入  
   
 本规则是 ID\_evaluationOrderReliance 的特化。  
   
@@ -12857,40 +12895,34 @@ a = ++a;        // Non-compliant
 ++b = b;        // Non-compliant
 b = a++ + a;    // Non-compliant
 
-v[i] = ++i;     // Non-compliant
-p->bar(p++);    // Non-compliant
+arr[i] = ++i;   // Non-compliant
+p->fun(p++);    // Non-compliant
 
 fun(a, a++);    // Non-compliant
 fun(++a, a++);  // Non-compliant
 ```
-例中 \+\+ 泛指所有写入操作。  
+例中 \+\+ 泛指写入操作。  
   
-设 a 的值为 0，如下表达式：
+设 a 是值为 0 的整型变量，如下表达式：
 ```
 a = a++;        // Non-compliant
 ```
-对变量 a 有两次写入，分别是增 1 和赋值为 0（子表达式 a\+\+ 的值为 0），这两次写入的次序在 C 和 C\+\+17 之前的标准中是未定义的，如果先增 1 再赋 0，a 的值最终为 0，如果先赋 0 再增 1，a 的值最终为 1，这种不确定的结果应当避免，C\+\+17 规定了右子表达式的副作用先于赋值生效，所以在 C\+\+17 之后例中表达式是无效的。  
+对变量 a 有两次写入，分别是增 1 和赋值为 0（子表达式 a\+\+ 的值为 0），这两次写入的次序在 C 和 C\+\+17 之前的标准中是未声明的，如果先增 1 再赋 0，a 的值最终为 0，如果先赋 0 再增 1，a 的值最终为 1，这种不确定的结果应当避免，C\+\+17 规定了右子表达式的副作用先于赋值生效，所以在 C\+\+17 之后例中表达式是无效的。  
   
-即使新的标准强化了子表达式的求值顺序，但这种代码使人费解，很容易造成理解上的偏差，故不应使用。  
+虽然新的标准强化了求值顺序，但这种代码使人费解，很容易造成理解上的偏差，故不应使用。  
   
-应改为：
+如果 a 不是 volatile 变量，应改为：
 ```
-a++;            // Compliant
-a += 1;         // Compliant
+a++;            // Compliant, or
+a += 1;         // Compliant, or
 a = a + 1;      // Compliant
 ```
-对于逻辑与、逻辑或、三元以及逗号表达式，标准明确规定了子表达式从左至右求值，左子表达式的副作用也会在右子表达式求值前生效，故可不受本规则限制，但其子表达式仍需受本规则限制，如：
+如果 a 是 volatile 变量，应改为：
 ```
-a++ && b++      // Compliant
-a || b + b++    // Non-compliant
-
-a++? a++: b++   // Complaint
-a + a++? 0: 1   // Non-compliant
-
-a++, a++        // Compliant
-a = a++, a++    // Non-compliant
+int tmp = a;
+a = tmp + 1;    // Compliant
 ```
-进一步可参见 “[序列点（sequence point）](https://en.wikipedia.org/wiki/Sequence_point)”及“[求值顺序](https://en.cppreference.com/w/cpp/language/eval_order)”等概念。
+对于逻辑与、逻辑或、三元以及逗号表达式，标准明确规定了子表达式从左至右求值，左子表达式的副作用也会在右子表达式求值前生效，故可不受本规则限制，但其子表达式仍需受本规则限制，进一步可参见 “[序列点（sequence point）](https://en.wikipedia.org/wiki/Sequence_point)”及“[求值顺序](https://en.cppreference.com/w/cpp/language/eval_order)”等概念。
 <br/>
 <br/>
 
@@ -12910,6 +12942,8 @@ ISO/IEC 9899:2011 Annex C
 #### 参考
 C++ Core Guidelines ES.43  
 SEI CERT EXP50-CPP  
+MISRA C++ 2008 5-0-1  
+MISRA C 2012 13.2  
 <br/>
 <br/>
 
@@ -13134,26 +13168,25 @@ MISRA C++ 2008 4-10-1
 <br/>
 <br/>
 
-### <span id="ID_stickyAssignmentOperator">▌R10.2.10 赋值运算符与单目运算符之间应有空格，单目运算符与变量或表达式之间不应有空格</span>
+### <span id="ID_stickyAssignmentOperator">▌R10.2.10 赋值运算符与一元运算符之间应有空格，一元运算符与变量或表达式之间不应有空格</span>
 
 ID_stickyAssignmentOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-如果赋值运算符与之后的 \+、\-、\*、!、&、\~ 等单目运算符之间没有空格，而单目运算符与变量或表达式之间有空格，是一种非常怪异的格式，造成阅读困难，而且也可能是 \+=、\-=、\*=、&=、\~= 等复合赋值相关的笔误。  
+如果 = 与 \+、\-、\*、!、&、\~ 等一元运算符之间没有空格，而一元运算符与其子表达式之间有空格，是一种非常怪异的格式，也可能是 \+=、\-=、\*=、&=、\~= 等复合赋值运算符的笔误。  
   
 示例：
 ```
-int a(1), b(0);
+a =+ b;    // Non-compliant
+a =- b;    // Non-compliant
+a =~ b;    // Non-compliant
+a =! b;    // Non-compliant
 
-b =+ a;    // Non-compliant
-b =- a;    // Non-compliant
-b =~ a;    // Non-compliant
-b =! a;    // Non-compliant
-
-b = +a;    // Compliant
-b = -a;    // Compliant
-b ~= a;    // Compliant
+a += b;    // Compliant
+a = -b;    // Compliant
+a ~= b;    // Compliant
+a = !b;    // Compliant
 ```
 <br/>
 <br/>
@@ -14750,16 +14783,18 @@ ID_forbidCommaExpression&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: expression sugg
   
 示例：
 ```
+a = b++, b + 1;       // Non-compliant
 a, b, c = 0, 1, 2;    // Non-compliant
-delete p0, p1;        // Non-compliant
+delete p, q;          // Non-compliant
 foo((a, b), c);       // Non-compliant
 return a, b, c;       // Non-compliant
 ```
-例外：  
+逗号运算符和其他运算符组合在一起，易造成各种错误。  
+  
 在 for 迭代声明中的第 1 个和第 3 个表达式中使用逗号表达式为惯用方式，但这种方式并不值得提倡，不妨根据配置项选择是否放过这种情况。
 ```
 for (a = 0, b = 0; a < 100; a++, b++)  {  // let it go?
-    bar(a, b);
+    ....
 }
 ```
 <br/>
@@ -14782,7 +14817,7 @@ ID_redundantParentheses&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: expression suggestio
 
 <hr/>
 
-重复的或作用于单个对象的括号使代码显得繁琐，应去掉。  
+重复的、作用于单个对象或一元运算符的括号使代码显得繁琐，应去掉。  
   
 宏定义中的括号不受本规则限制。  
   
@@ -14790,12 +14825,16 @@ ID_redundantParentheses&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: expression suggestio
 ```
 a = 1 + (p[0]);      // Non-compliant
 a = 2 + (p->n);      // Non-compliant
+a = (sizeof(b));     // Non-compliant
+a = (fun(b));        // Non-compliant
 a = ((a + b)) * b;   // Non-compliant
 ```
 应去掉多余的括号：
 ```
 a = 1 + p[0];        // Compliant
 a = 2 + p->n;        // Compliant
+a = sizeof(b);       // Compliant
+a = fun(b);          // Compliant
 a = (a + b) * b;     // Compliant
 ```
 但如果可以更好的表达逻辑意义，或不确定运算符优先级时，应及时使用括号，如：
@@ -15303,12 +15342,10 @@ void foo(int i) {
 下面给出判断转换后数据是否完整的简单示例：
 ```
 template <class To, class From>
-To checked_cast(From x) {
-    To t = static_cast<To>(x);
-    if ((From)t != x) {
-        throw BadCast("....");
-    }
-    return t;
+To checked_cast(From x) noexcept(false) {
+    auto y = static_cast<To>(x);
+    auto z = static_cast<From>(y);
+    return x == z? y: throw BadCast();
 }
 
 void foo(int i) {
@@ -15316,7 +15353,9 @@ void foo(int i) {
     ....
 }
 ```
-在实际代码中还需要考虑将负数转为无符号数、浮点数转为整数等问题是否存在逻辑意义。
+例中模板函数 checked\_cast 将源类型转为目标类型，再将目标类型转回源类型，如果经两次转换得到的数据与源数据不符，说明转换存在数据丢失，抛出相关异常。  
+  
+在实际代码中还需要考虑负数与无符号数、浮点数与整数之间的转换是否存在逻辑意义。
 <br/>
 <br/>
 
@@ -16303,7 +16342,7 @@ bool fun2(T* p) {
     return p->foo() && p;  // Non-compliant
 }
 ```
-这是颠倒了对 p 的判断和解引用次序，也是一种常见错误。  
+这是颠倒了对 p 的判断和解引用次序，属于语言运用错误。  
   
 空指针解引用会导致标准未定义的错误，进程一般会崩溃，给用户不好的体验，而且要注意如果崩溃可由外部输入引起，会被攻击者利用从而迫使程序无法正常工作。
 <br/>
