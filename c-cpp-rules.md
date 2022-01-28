@@ -466,8 +466,8 @@
     - [R10.4.2 不可臆断返回值的意义](#ID_wrongUseOfReturnValue)
     - [R10.4.3 避免对象切片](#ID_objectSlicing)
     - [R10.4.4 非基本类型的对象不应传入可变参数列表](#ID_userObjectAsVariadicArgument)
-    - [R10.4.5 C 风格的格式化字符串与其参数的个数应严格一致](#ID_inconsistentFormatArgNum)
-    - [R10.4.6 C 风格的格式化字符串与其参数的类型应严格一致](#ID_inconsistentFormatArgType)
+    - [R10.4.5 C 格式化字符串与其参数的个数应一致](#ID_inconsistentFormatArgNum)
+    - [R10.4.6 C 格式化字符串与其参数的类型应一致](#ID_inconsistentFormatArgType)
     - [R10.4.7 在 C\+\+ 代码中禁用 C 风格字符串格式化方法](#ID_forbidCStringFormat)
     - [R10.4.8 不应显式调用析构函数](#ID_explicitDtorCall)
     - [R10.4.9 合理使用 std::move](#ID_unsuitableMove)
@@ -513,7 +513,7 @@
 <br/>
 
 <span id="__Cast">**[12. Cast](#cast)**</span>
-  - [R12.1 避免类型转换造成的数据丢失](#ID_narrowCast)
+  - [R12.1 避免类型转换造成数据丢失](#ID_narrowCast)
   - [R12.2 避免向下类型转换](#ID_downCast)
   - [R12.3 指针与整数不应相互转换](#ID_ptrIntCast)
   - [R12.4 类型转换时不应去掉 const、volatile 等属性](#ID_qualifierCastedAway)
@@ -522,13 +522,13 @@
   - [R12.7 多态类型与基本类型不应相互转换](#ID_castViolatePolymorphism)
   - [R12.8 不可直接转换不同的字符串类型](#ID_charWCharCast)
   - [R12.9 避免类型转换造成的指针运算错误](#ID_arrayPointerCast)
-  - [R12.10 对函数以及函数指针不应进行类型转换](#ID_functionPointerCast)
-  - [R12.11 向下类型转换时应使用 dynamic\_cast](#ID_nonDynamicDownCast)
+  - [R12.10 对函数指针不应进行类型转换](#ID_functionPointerCast)
+  - [R12.11 向下类型转换应使用 dynamic\_cast](#ID_nonDynamicDownCast)
   - [R12.12 对 new 表达式不应进行类型转换](#ID_oddNewCast)
   - [R12.13 不应存在多余的类型转换](#ID_redundantCast)
-  - [R12.14 可用 static\_cast、dynamic\_cast 完成的类型转换不可使用 reinterpret\_cast](#ID_unsuitableReinterpretCast)
+  - [R12.14 可用 static\_cast、dynamic\_cast 完成的类型转换不应使用 reinterpret\_cast](#ID_unsuitableReinterpretCast)
   - [R12.15 在 C\+\+ 代码中禁用 C 风格类型转换](#ID_forbidCStyleCast)
-  - [R12.16 使用 reinterpret\_cast 需有文档说明](#ID_forbidReinterpretCast)
+  - [R12.16 合理使用 reinterpret\_cast](#ID_forbidReinterpretCast)
 <br/>
 
 <span id="__Buffer">**[13. Buffer](#buffer)**</span>
@@ -7339,7 +7339,7 @@ public:
     ....
 };
 ```
-例中赋值运算符不是真正的移动赋值运算符，仍是一种低效实现。应将 a.p 与 this\->p 交换，利用 a 的析构函数完成资源的释放，才是真正意义上的移动赋值：
+例中赋值运算符先释放持有的资源，再复制 a 的资源，不是真正的移动赋值，仍是一种低效实现。应将 a.p 与 this\->p 交换，节省复制过程，并使原有资源由 a 的析构函数释放，才是真正意义上的移动赋值：
 ```
 class A {
     char* p;
@@ -7961,13 +7961,20 @@ ID_exceptionUnsafe&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 ```
 void foo() {
     lock();
-    process();   // Non-compliant if it may throw ...
+    procedure_may_throw();  // Unsafe
     unlock();
 }
 ```
-设 lock 是某种加锁操作，unlock 是解锁操作，process 是某个可能抛出异常的过程，那么 foo 函数就不是异常安全的，一旦有异常抛出会导致无法解锁。  
+设 lock 是某种获取资源的操作，unlock 是释放资源的操作，procedure\_may\_throw 是可能抛出异常的过程，那么 foo 函数就不是异常安全的，一旦有异常抛出会导致死锁或泄露等问题。  
   
-需要保证资源从申请到回收的过程不被异常中断，应采用面向对象的资源管理方法，使资源的申请和回收得以自动完成，可参见 ID\_ownerlessResource 的进一步讨论。  
+应保证资源从分配到回收的过程不被异常中断，采用面向对象的管理方法，使分配和回收得以自动完成：
+```
+void foo() {
+    LockOwner object;
+    procedure_may_throw();  // Safe
+}
+```
+将 lock 和 unlock 分别由 object 的构造和析构函数完成，即使 procedure\_may\_throw 抛出异常，相关资源也可被自动回收，实现了异常安全，资源的对象化管理方法可参见 ID\_ownerlessResource。  
   
 异常安全的另一个重要方面是抛出异常时应保证相关对象的状态是正确的，事务或算法在处理对象时可能要分多个步骤处理对象的多个成员，要注意中途抛出异常会造成数据不一致等问题。
 ```
@@ -7982,7 +7989,7 @@ public:
     }
 };
 ```
-设 a 和 b 是两个密切相关的成员，如账号和金额等，foo 是一个处理事务的函数，如果在中途抛出异常就会使对象处于一种错误的状态，解决方法可以考虑“复制 \- 交换”模式，如：
+设 a 和 b 是两个密切相关的成员，如账号和金额等，foo 是一个处理事务的函数，如果在中途抛出异常就会使对象处于错误的状态，解决方法可以考虑“复制 \- 交换”模式，如：
 ```
 class X {
     T a, b;
@@ -8002,7 +8009,7 @@ public:
 ```
 事务先处理对象的副本，处理成功后交换副本与对象的数据，交换过程需要保证不抛出异常，这样从对象副本的生成到事务处理完毕的过程中即使抛出异常也不影响对象的状态。  
   
-swap 过程不可抛出异常也是一个规则，可参见 ID\_throwInSwap。
+swap 过程不可抛出异常也是一个规则，参见 ID\_throwInSwap。
 <br/>
 <br/>
 
@@ -12922,7 +12929,7 @@ a = a + 1;      // Compliant
 int tmp = a;
 a = tmp + 1;    // Compliant
 ```
-对于逻辑与、逻辑或、三元以及逗号表达式，标准明确规定了子表达式从左至右求值，左子表达式的副作用也会在右子表达式求值前生效，故可不受本规则限制，但其子表达式仍需受本规则限制，进一步可参见 “[序列点（sequence point）](https://en.wikipedia.org/wiki/Sequence_point)”及“[求值顺序](https://en.cppreference.com/w/cpp/language/eval_order)”等概念。
+对于逻辑与、逻辑或、三元以及逗号表达式，标准明确规定了子表达式从左至右求值，左子表达式的副作用也会在右子表达式求值前生效，故可不受本规则限制，但其子表达式仍需受本规则限制，进一步可参见 “[序列点（sequence point）](https://en.wikipedia.org/wiki/Sequence_point)”以及“[求值顺序](https://en.cppreference.com/w/cpp/language/eval_order)”等概念。
 <br/>
 <br/>
 
@@ -13292,7 +13299,7 @@ ID_selfExclusiveOr&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
   
 对变量的清零，有一种惯用写法：
 ```
-a = a ^ a;
+a = a ^ a;   // Non-compliant
 ```
 这种复杂的写法在 C/C\+\+ 等高级语言中已不再提倡，a ^= a 也不再提倡，应将变量直接赋值为 0，编译器会作更好的优化。
 <br/>
@@ -13967,13 +13974,13 @@ SEI CERT EXP47-C
 <br/>
 <br/>
 
-### <span id="ID_inconsistentFormatArgNum">▌R10.4.5 C 风格的格式化字符串与其参数的个数应严格一致</span>
+### <span id="ID_inconsistentFormatArgNum">▌R10.4.5 C 格式化字符串与其参数的个数应一致</span>
 
 ID_inconsistentFormatArgNum&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
 <hr/>
 
-对于 C 风格的格式化函数（如 printf、fprintf、sprintf 等），格式化字符串与其对应参数的个数应严格一致，否则会引发严重的运行时堆栈错误。  
+格式化字符串与其对应参数的个数应严格一致，否则会引发严重的运行时堆栈错误。  
   
 示例：
 ```
@@ -13983,7 +13990,7 @@ void foo(int type, const char* msg) {
 ```
 示例代码的格式化参数需要两个，但只传入一个，参数 msg 之外的不相关栈信息也会被读入。  
   
-由于可变参数列表自身的局限，很难在编译时发现这种问题，而且在实现上也很难针对错误情况进行处理，故建议在 C\+\+ 代码中禁用 C 风格的格式化函数。
+由于可变参数列表自身的局限，很难在编译时发现这种问题，有些编译器会检查 printf、sprintf 等标准函数，但无法检查自定义函数，建议在 C\+\+ 代码中禁用可变参数列表和 C 风格的格式化函数。
 <br/>
 <br/>
 
@@ -14002,17 +14009,17 @@ SEI CERT FIO47-C
 <br/>
 <br/>
 
-### <span id="ID_inconsistentFormatArgType">▌R10.4.6 C 风格的格式化字符串与其参数的类型应严格一致</span>
+### <span id="ID_inconsistentFormatArgType">▌R10.4.6 C 格式化字符串与其参数的类型应一致</span>
 
 ID_inconsistentFormatArgType&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
 <hr/>
 
-对于 C 风格的格式化函数（如 printf、fprintf、sprintf 等），格式化字符串与其对应参数的类型应严格一致，否则会引发严重的运行时堆栈错误。  
+格式化字符串与其对应参数的类型应严格一致，否则会引发严重的运行时堆栈错误。  
   
 示例：
 ```
-void foo(const std::string& msg) {
+void foo(const string& msg) {
     printf("Message: %s\n", msg);  // Non-compliant
 }
 ```
@@ -14020,11 +14027,11 @@ void foo(const std::string& msg) {
   
 应改为：
 ```
-void foo(const std::string& msg) {
-    std::cout << "Message: " << msg << '\n';  // Compliant
+void foo(const string& msg) {
+    cout << "Message: " << msg << '\n';  // Compliant
 }
 ```
-由于可变参数列表自身的局限，很难在编译时发现这种问题，而且在实现上也很难针对错误情况进行处理，故建议在 C\+\+ 代码中禁用 C 风格的格式化函数。
+由于可变参数列表自身的局限，很难在编译时发现这种问题，有些编译器会检查 printf、sprintf 等标准函数，但无法检查自定义函数，建议在 C\+\+ 代码中禁用可变参数列表和 C 风格的格式化函数。
 <br/>
 <br/>
 
@@ -15323,7 +15330,7 @@ ISO/IEC 14882:2017 5.13.3(2)-implementation
 
 ## <span id="cast">12. Cast</span>
 
-### <span id="ID_narrowCast">▌R12.1 避免类型转换造成的数据丢失</span>
+### <span id="ID_narrowCast">▌R12.1 避免类型转换造成数据丢失</span>
 
 ID_narrowCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
@@ -15334,8 +15341,8 @@ ID_narrowCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 示例：
 ```
 void foo(int i) {
-    char c = i;        // Non-compliant, check it first
-    char d = (char)i;  // Non-compliant, irresponsible
+    char a = i;        // Non-compliant, check it first
+    char b = (char)i;  // Non-compliant, irresponsible
     ....
 }
 ```
@@ -15349,7 +15356,7 @@ To checked_cast(From x) noexcept(false) {
 }
 
 void foo(int i) {
-    char c = checked_cast<char>(i);  // Compliant
+    char a = checked_cast<char>(i);  // Compliant
     ....
 }
 ```
@@ -15433,25 +15440,34 @@ ID_ptrIntCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
 <hr/>
 
-指针转为整数，或整数转为指针（尤其是小于 64 位的整数或有符号的整数），容易造成地址不完整、寻址错误、降低可移植性等问题。  
+指针与整数相互转换，容易造成地址不完整、寻址错误、降低可移植性等多种问题。  
+  
+指针与整数的转换由实现定义，整数的符号和取值范围可能与指针有冲突，错误的值转为指针也会导致标准未定义的行为。  
   
 示例：
 ```
-class A {
-    std::vector<int> v;
-
-public:
-    void save(int* p) {
-        v.emplace_back((int)p);  // Non-compliant
-    }
-};
+void foo(int* p) {
+    vector<int> v;
+    v.emplace_back((int)p);  // Non-compliant
+    ....
+}
 ```
+例中将指针 p 转为 int 是不符合要求的，指针的值可能会超过 int 的范围。  
+  
+在多数实现中，指针的值可以安全地转为 size\_t 类型，不妨通过配置决定是否放过指针与 size\_t 的转换。
 <br/>
+<br/>
+
+#### 配置
+ID_expression/allowPointerSizeTCast：为 true 时可以放过指针与 size_t 的转换  
+<br/>
+
+#### 相关
+ID_fixedAddrToPointer  
 <br/>
 
 #### 依据
 ISO/IEC 9899:2011 6.3.2.3(5)-implementation  
-ISO/IEC 14882:2003 5.2.10(4 5)-implementation  
 ISO/IEC 14882:2011 5.2.10(4 5)-implementation  
 <br/>
 
@@ -15606,7 +15622,10 @@ ID_castViolatePolymorphism&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
   
 示例：
 ```
-struct A {
+class A {
+    ....
+
+public:
     virtual ~A() = 0;
 
     void save() const {
@@ -15620,8 +15639,6 @@ struct A {
         fread(this, sizeof(A), 1, fp);    // Non-compliant
         fclose(fp);
     }
-
-    ....
 };
 ```
 例中 A 是多态类型，save 函数将对象写入文件，fwrite 的第一个参数 this 被隐式转为 void\*，不符合本规则要求。对象的虚表指针等数据一并被写入文件，但虚表指针是运行时数据不应被保存，load 函数从文件中读取对象便破坏了运行时数据。  
@@ -15709,27 +15726,40 @@ C++ Core Guidelines C.152
 <br/>
 <br/>
 
-### <span id="ID_functionPointerCast">▌R12.10 对函数以及函数指针不应进行类型转换</span>
+### <span id="ID_functionPointerCast">▌R12.10 对函数指针不应进行类型转换</span>
 
 ID_functionPointerCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
 <hr/>
 
-将函数指针转换为其他类型会导致标准未定义的问题。  
+函数指针和不兼容的类型转换会导致标准未定义的行为。  
   
 示例：
 ```
 void foo();
+typedef void (*fnp_t)(int);
 
-void* p0 = (void*)&foo;  // Non-compliant
-void(*p1)(int) = (void (*)(int))&foo;  // Non-compliant
+void* p0 = (void*)&foo;    // Non-compliant
+fnp_t p1 = (fnp_t)&foo;    // Non-compliant
+
+p1(123);                   // Undefined behavior
 ```
+例外：
+```
+fnp_t p = NULL;            // Compliant
+
+(void)p;                   // Let it go
+p = (fnp_t)dlsym(h, "f");  // Let it go
+```
+对函数指针进行 (void) 转换可被放过，dlsym、GetProcAddress 等动态导入函数的系统接口可被放过。
 <br/>
 <br/>
 
 #### 依据
-ISO/IEC 14882:2003 5.2.10(6)-undefined  
-ISO/IEC 14882:2003 5.2.10(6)-unspecified  
+ISO/IEC 9899:2011 6.3.2.3(6 7 8)-undefined  
+ISO/IEC 9899:2011 6.5.2.2(9)-undefined  
+ISO/IEC 14882:2011 5.2.10(6)-undefined  
+ISO/IEC 14882:2011 5.2.10(8)-implementation  
 <br/>
 
 #### 参考
@@ -15739,7 +15769,7 @@ MISRA C++ 2008 5-2-6
 <br/>
 <br/>
 
-### <span id="ID_nonDynamicDownCast">▌R12.11 向下类型转换时应使用 dynamic_cast</span>
+### <span id="ID_nonDynamicDownCast">▌R12.11 向下类型转换应使用 dynamic_cast</span>
 
 ID_nonDynamicDownCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
@@ -15843,13 +15873,13 @@ CWE-704
 <br/>
 <br/>
 
-### <span id="ID_unsuitableReinterpretCast">▌R12.14 可用 static_cast、dynamic_cast 完成的类型转换不可使用 reinterpret_cast</span>
+### <span id="ID_unsuitableReinterpretCast">▌R12.14 可用 static_cast、dynamic_cast 完成的类型转换不应使用 reinterpret_cast</span>
 
 ID_unsuitableReinterpretCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
 <hr/>
 
-reinterpret\_cast 将某地址强行按另一种类型解释，不考虑类型转换需要的逻辑，当可以用其他方法转换时不可使用 reinterpret\_cast。  
+reinterpret\_cast 将某地址强行按另一种类型解释，不考虑转换需要的逻辑，可用其他方法转换时不应使用 reinterpret\_cast。  
   
 示例：
 ```
@@ -15917,13 +15947,13 @@ C++ Core Guidelines ES.49
 <br/>
 <br/>
 
-### <span id="ID_forbidReinterpretCast">▌R12.16 使用 reinterpret_cast 需有文档说明</span>
+### <span id="ID_forbidReinterpretCast">▌R12.16 合理使用 reinterpret_cast</span>
 
 ID_forbidReinterpretCast&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: cast suggestion
 
 <hr/>
 
-语言对 reinterpret\_cast 的定位不是为了安全性，而是为了灵活性，可以用其他方式实现的功能不可使用 reinterpret\_cast，如果必须使用需有明确文档说明。  
+语言对 reinterpret\_cast 的定位不是为了安全性，而是为了灵活性，可以用其他方式实现的功能不应使用 reinterpret\_cast，如果必须使用需提供明确的文档说明。  
   
 示例：
 ```
@@ -15935,12 +15965,12 @@ void foo(const char* path) {
     ....
 }
 ```
-例中通过 reinterpret\_cast 将二进制数据直接转为 MyData 类的对象，这不是一种安全的方式，妥善的做法是根据文件数据将 MyData 类的成员逐一构造出来，这样也可及时发现并处理问题。  
+例中通过 reinterpret\_cast 将二进制数据直接转为 MyData 对象，这不是一种安全的方式，妥善的做法是根据文件数据将 MyData 的成员逐一构造出来，这样也可及时发现并处理问题。  
   
 又如：
 ```
 struct data_type {
-    void* _dummy;
+    void* dummy;
 };
 
 data_type* external_interface();  // If it's out of control ...
@@ -16504,7 +16534,7 @@ ID_fixedAddrToPointer&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
   
 示例：
 ```
-const void* invalidPtrVal = (void*)0xffffffff;  // Non-compliant
+const void* badAddr = (void*)0xffffffff;  // Non-compliant
 ```
 示例代码的本意是声明一个表示无效地址的值，但在 64 位系统中这个地址可能是有效的。  
   
@@ -16512,14 +16542,20 @@ const void* invalidPtrVal = (void*)0xffffffff;  // Non-compliant
 ```
 typedef int (*fp_t)(int);
 fp_t fp = (fp_t)0x1234abcd;  // Non-compliant
-int res = (*fp)(123);
+int res = (*fp)(123);        // Unsafe
 ```
-示例代码假设在特定地址可以找到特定的函数，将该地址赋给一个指针并调用，这种假设本身可能就是错误的，会导致崩溃，或者攻击者可以更改预期地址上的内存，从而导致任意代码的执行。
+示例代码假设在特定地址可以找到特定的函数，将该地址赋给一个指针并调用，这种假设本身可能就是错误的，会导致崩溃，攻击者也可以更改预期地址上的内存，从而导致任意代码的执行。  
+  
+某些框架或系统会以 \-1 表示无效地址，但不具备通用性，不妨通过配置选择是否放过。
 <br/>
 <br/>
 
 #### 配置
 ID_expression/allowMinusOneAsPointerValue：为 true 时可以放过 -1 作为指针值的情况  
+<br/>
+
+#### 相关
+ID_ptrIntCast  
 <br/>
 
 #### 参考

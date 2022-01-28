@@ -48,8 +48,12 @@
         "checkPoint": "指针与整数不应相互转换",
         "level": "warning",
         "comment": "指针转为整数，或整数转为指针（尤其是小于 64 位的整数或有符号的整数），容易造成地址不完整、寻址错误、降低可移植性等问题。",
+        "config": {
+            "ID_expression/allowPointerSizeTCast": "为 true 时可以放过指针与 size_t 的转换"
+            },
         "tag": "cast",
-        "standard": "ISO/IEC 9899:2011 6.3.2.3(5)-implementation,ISO/IEC 14882:2003 5.2.10(4 5)-implementation,ISO/IEC 14882:2011 5.2.10(4 5)-implementation",
+        "standard": "ISO/IEC 9899:2011 6.3.2.3(5)-implementation,ISO/IEC 14882:2011 5.2.10(4 5)-implementation",
+        "related": "ID_fixedAddrToPointer",
         "reference": "SEI CERT INT36-C,MISRA C 2004 11.3,MISRA C 2012 11.4,MISRA C++ 2008 5-2-8,MISRA C++ 2008 5-2-9"
         },
     "ID_zeroAsPtrValue": {
@@ -1273,11 +1277,11 @@
         "reference": "CWE-704"
         },
     "ID_functionPointerCast": {
-        "checkPoint": "对函数以及函数指针不应进行类型转换",
+        "checkPoint": "对函数指针不应进行类型转换",
         "level": "warning",
-        "comment": "将函数指针转换为其他类型会导致标准未定义的问题。",
+        "comment": "函数指针和不兼容的类型转换会导致标准未定义的行为。",
         "tag": "cast",
-        "standard": "ISO/IEC 14882:2003 5.2.10(6)-undefined,ISO/IEC 14882:2003 5.2.10(6)-unspecified",
+        "standard": "ISO/IEC 9899:2011 6.3.2.3(6 7 8)-undefined,ISO/IEC 9899:2011 6.5.2.2(9)-undefined,ISO/IEC 14882:2011 5.2.10(6)-undefined,ISO/IEC 14882:2011 5.2.10(8)-implementation",
         "reference": "MISRA C 2004 11.1,MISRA C 2012 11.1,MISRA C++ 2008 5-2-6"
         },
     "ID_arrayPointerCast": {
@@ -1289,7 +1293,7 @@
         "reference": "C++ Core Guidelines C.152"
         },
     "ID_nonDynamicDownCast": {
-        "checkPoint": "向下类型转换时应使用 dynamic_cast",
+        "checkPoint": "向下类型转换应使用 dynamic_cast",
         "level": "warning",
         "comment": "向下类型转换如果不用 dynamic_cast 难以保证安全性。",
         "tag": "cast",
@@ -1298,9 +1302,9 @@
         "reference": "MISRA C++ 2008 5-2-2,C++ Core Guidelines Type.2"
         },
     "ID_unsuitableReinterpretCast": {
-        "checkPoint": "可用 static_cast、dynamic_cast 完成的类型转换不可使用 reinterpret_cast",
+        "checkPoint": "可用 static_cast、dynamic_cast 完成的类型转换不应使用 reinterpret_cast",
         "level": "warning",
-        "comment": "reinterpret_cast 将某地址强行按另一种类型解释，不考虑类型转换需要的逻辑，当可以用其他方法转换时不可使用 reinterpret_cast。",
+        "comment": "reinterpret_cast 将某地址强行按另一种类型解释，不考虑转换需要的逻辑，可用其他方法转换时不应使用 reinterpret_cast。",
         "tag": "cast",
         "standard": "ISO/IEC 14882:2003 5.2.10(7),ISO/IEC 14882:2011 5.2.10(7)",
         "reference": "C++ Core Guidelines Type.1"
@@ -1327,7 +1331,7 @@
         "related": "ID_forbidFlexibleArray"
         },
     "ID_narrowCast": {
-        "checkPoint": "避免类型转换造成的数据丢失",
+        "checkPoint": "避免类型转换造成数据丢失",
         "level": "warning",
         "comment": "类型转换时应检查转换的结果是否正确，避免数据丢失等错误。",
         "tag": "cast",
@@ -1548,6 +1552,7 @@
             "ID_expression/allowMinusOneAsPointerValue": "为 true 时可以放过 -1 作为指针值的情况"
             },
         "tag": "pointer",
+        "related": "ID_ptrIntCast",
         "reference": "CWE-587"
         },
     "ID_unnecessaryAllocation": {
@@ -2806,18 +2811,18 @@
         "reference": "CWE-253"
         },
     "ID_inconsistentFormatArgNum": {
-        "checkPoint": "C 风格的格式化字符串与其参数的个数应严格一致",
+        "checkPoint": "C 格式化字符串与其参数的个数应一致",
         "level": "error",
-        "comment": "对于 C 风格的格式化函数（如 printf、fprintf、sprintf 等），格式化字符串与其对应参数的个数应严格一致，否则会引发严重的运行时堆栈错误。",
+        "comment": "格式化字符串与其对应参数的个数应严格一致，否则会引发严重的运行时堆栈错误。",
         "tag": "expression",
         "related": "ID_inconsistentFormatArgType,ID_forbidCStringFormat",
         "standard": "ISO/IEC 9899:2011 7.16.1.1(2)-undefined,ISO/IEC 9899:2011 7.21.6.1(2)-undefined",
         "reference": "SEI CERT FIO47-C"
         },
     "ID_inconsistentFormatArgType": {
-        "checkPoint": "C 风格的格式化字符串与其参数的类型应严格一致",
+        "checkPoint": "C 格式化字符串与其参数的类型应一致",
         "level": "error",
-        "comment": "对于 C 风格的格式化函数（如 printf、fprintf、sprintf 等），格式化字符串与其对应参数的类型应严格一致，否则会引发严重的运行时堆栈错误。",
+        "comment": "格式化字符串与其对应参数的类型应严格一致，否则会引发严重的运行时堆栈错误。",
         "tag": "expression",
         "related": "ID_userObjectAsVariadicArgument,ID_inconsistentFormatArgNum,ID_forbidCStringFormat",
         "standard": "ISO/IEC 9899:2011 7.16.1.1(2)-undefined,ISO/IEC 9899:2011 7.21.6.1(2)-undefined",
@@ -2955,9 +2960,9 @@
         "standard": "ISO/IEC 14882:2003 18.1(5),ISO/IEC 14882:2011 18.2(4),ISO/IEC 14882:2017 21.2.4(1)"
         },
     "ID_forbidReinterpretCast": {
-        "checkPoint": "使用 reinterpret_cast 需有文档说明",
+        "checkPoint": "合理使用 reinterpret_cast",
         "level": "suggestion",
-        "comment": "语言对 reinterpret_cast 的定位不是为了安全性，而是为了灵活性，可以用其他方式实现的功能不可使用 reinterpret_cast，如果必须使用需有明确文档说明。",
+        "comment": "语言对 reinterpret_cast 的定位不是为了安全性，而是为了灵活性，可以用其他方式实现的功能不应使用 reinterpret_cast，如果必须使用需提供明确的文档说明。",
         "tag": "cast",
         "related": "ID_forbidCStyleCast",
         "reference": "CWE-843,C++ Core Guidelines Pro.safety"
