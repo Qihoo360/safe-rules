@@ -1393,7 +1393,7 @@ int foo(const char* s) {
     return v;
 }
 ```
-本例通过 ss.fail() 判断字符串前面的字符是否可以转为 int 型变量，也可以通过 !ss.eof()||ss.fail() 判断字符串整体是否可以转为 int 型变量。
+本例通过 ss.fail() 判断字符串前面的字符是否可以转为 int 型变量，也可通过 !ss.eof() || ss.fail() 判断字符串整体是否可以转为 int 型变量。
 <br/>
 <br/>
 
@@ -1519,6 +1519,8 @@ ID_deprecatedErrno&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 正确使用 errno 需要注意很多繁琐的细节，极易误用。  
   
+对异常情况的错误处理往往会成为业务漏洞，使攻击者轻易地实现其目的，不应使用 errno 和与其相同的模式，应通过返回值或 C\+\+ 异常机制来处理异常情况。  
+  
 示例：
 ```
 void foo() {
@@ -1547,7 +1549,6 @@ void baz(const char* s) {
     }
 }
 ```
-对异常情况的错误处理往往会成为业务漏洞，使攻击者轻易地实现其目的，不应使用 errno 和与其相同的模式，应通过返回值或 C\+\+ 异常机制来处理异常情况。
 <br/>
 <br/>
 
@@ -1612,7 +1613,7 @@ ID_memoryLeak&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 示例：
 ```
 void foo(size_t size) {
-    int* p = (int*)malloc(size * sizeof(*p));
+    char* p = (char*)malloc(size);
     if (cond) {
         return;  // Non-compliant, ‘p’ is lost
     }
@@ -1687,7 +1688,7 @@ ID_ownerlessResource&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warni
 
 对象化管理资源，免去繁琐易错的手工分配回收过程，是 C\+\+ 程序设计的重要方法。  
   
-将 new 表达式或 malloc 等函数的结果直接在程序中传递是非常不安全的，极易产生泄漏甚至死锁等问题。动态申请的资源只被普通变量引用，不受对象的构造或析构机制控制，这种资源称为“无主”资源，在 C\+\+ 程序设计中应当避免。  
+将 new 表达式或 malloc 等函数的结果直接在程序中传递是非常不安全的，极易产生泄漏或死锁等问题。动态申请的资源只被普通变量引用，不受对象的构造或析构机制控制，这种资源称为“无主”资源，在 C\+\+ 程序设计中应当避免。  
   
 示例：
 ```
@@ -1716,7 +1717,7 @@ public:
 };
 
 void baz() {
-    Y y(123);   // OK, ‘y’ is the owner of the resource
+    Y y(123);   // Good, ‘y’ is the owner of the resource
     ....
 }
 ```
@@ -1724,7 +1725,7 @@ void baz() {
   
 资源的所有权可以发生转移，但应保证转移前后均有对象负责管理相关资源，以及在转移过程中不会产生异常。  
   
-在 C\+\+ 程序设计中应尽量使用标准库提供的容器或 unique\_ptr、shared\_ptr 等资源管理手段，避免显式调用 new 和 delete。对于遵循 C\+\+11 之后标准的代码，建议用 make\_unique 函数代替 new 运算符。  
+应尽量使用标准库提供的容器或智能指针，避免显式调用 new 和 delete。对于遵循 C\+\+11 之后标准的代码，建议用 make\_unique 函数代替 new 运算符。  
   
 进一步理解资源的对象化管理方法，可参见“[RAII（Resource Acquisition Is Initialization）](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization)”等机制。  
   
@@ -1927,8 +1928,6 @@ public:
 
    ~A() {  // Non-compliant, must delete[] p
     }
-
-    ....
 };
 ```
 例中成员 p 与内存分配有关，但析构函数为空，不符合本规则要求。
@@ -2004,7 +2003,7 @@ public:
     }
 };
 ```
-例中内存分配可能会失败，抛出 bad\_alloc 异常，在某种条件下还会抛出自定义的异常，任何一种异常被抛出 A 的析构函数就不会被执行，已分配的资源就无法被回收，但已构造完毕的对象还是会正常析构的，所以应采用对象化资源管理方法，利用“[RAII](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization)”等机制使资源可以被自动回收。  
+例中内存分配可能会失败，抛出 bad\_alloc 异常，在某种条件下还会抛出自定义的异常，任何一种异常被抛出 A 的析构函数就不会被执行，已分配的资源就无法被回收，但已构造完毕的对象还是会正常析构的，所以应采用对象化资源管理方法，使资源可以被自动回收。  
   
 可改为：
 ```
@@ -2386,23 +2385,23 @@ ID_nullDerefAllocRet&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warni
 
 <hr/>
 
-malloc 等函数在分配失败时返回空指针，如果不加判断直接解引用会造成标准未定义的错误。  
+malloc 等函数在分配失败时返回空指针，如果不加判断直接使用会造成标准未定义的错误。  
   
-这类函数还包括 aligned\_alloc、calloc、realloc 等。  
+在有虚拟内存支持的平台中，正常的内存分配一般不会失败，但申请内存过多或有误时（如参数为负数）也会导致分配失败，而对于没有虚拟内存支持的或可用内存有限的嵌入式系统，检查分配资源是否成功是十分重要的，所以本规则应该作为代码编写的一般性要求。  
+  
+库的实现更需要注意这一点，如果库在分配失败时直接崩溃或不加说明地结束进程，相当于干扰了主程序的决策权，很可能会造成难以排查的问题，对于有高可靠性要求的软件来说，程序在极端环境中的行为是需要明确设定的。  
   
 示例：
 ```
-T* foo(size_t size) {
-    T* p = (T*)malloc(size * sizeof(T));
-    for (int i = 0; i < size; i++) {
-        bar(p[i]);  // Non-compliant, check ‘p’ first
+char* foo(size_t size) {
+    char* p = (char*)malloc(size);
+    for (size_t i = 0; i < size; i++) {
+        p[i] = '\0';  // Non-compliant, check ‘p’ first
     }
     return p;
 }
 ```
-在有虚拟内存支持的平台中，正常的内存分配一般不会失败，但申请内存过多或有误时（如参数为负数）也会导致分配失败，而对于没有虚拟内存支持的或可用内存有限的嵌入式系统，对申请资源是否成功的检查是十分重要的，所以本规则应该作为代码编写的一般性要求。  
-  
-对内存等资源分配失败的处理应作为软件设计的必要部分，应有明确的文档支持。
+示例代码未检查 p 的有效性便直接解引用是不符合要求的，一旦内存分配失败就会崩溃。
 <br/>
 <br/>
 
@@ -5322,6 +5321,7 @@ U u(1);
 u.s = "abc";  // No error, no warning, just crash
 ```
 示例代码在某些环境中会崩溃，原因是没能正确区分对象当前持有的类型，执行了错误的构造或析构过程。  
+  
 正确的做法是在类中用一个成员变量记录当前持有的类型，再将匿名 union 和类的构造函数以及析构函数相关联，从而根据当前持有的类型正确地初始化或销毁对象。
 <br/>
 <br/>
@@ -8188,7 +8188,7 @@ struct std::hash<MyType> {
     }
 };
 ```
-标准库规定容器的 find 或 count 等方法应通过返回值表示对象存在与否，然而如果 hash 过程抛出异常，这些方法也会抛出异常，相当于打破了这种约定，易造成意料之外的结果。
+标准库规定容器的 find、count 等方法应通过返回值表示对象存在与否，然而如果 hash 过程抛出异常，这些方法也会抛出异常，相当于打破了这种约定，易造成意料之外的结果。
 <br/>
 <br/>
 
@@ -9342,12 +9342,14 @@ ID_invalidWrite&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 1. 写入后未经读取再次被无条件写入  
 2. 写入后未经读取即结束了函数的执行  
   
-那么这样的写入是无效的，出现这种问题往往意味着逻辑错误或功能不完整。  
+这种写入是无效的，出现这种问题往往意味着逻辑错误或功能不完整。  
+  
+volatile 型数据和对象的初始化可不受本规则限制。  
   
 示例：
 ```
 void foo(int& a, int& b) {
-    a = 123;  // Non-compliant
+    a = 123;   // Non-compliant
     a = 456;
 }
 ```
@@ -9357,15 +9359,15 @@ void foo(int& a, int& b) {
 ```
 int bar() {
     int i = baz();
-    return i++;  // Non-compliant
+    return i++;    // Non-compliant
 }
 ```
 例中 bar 函数返回变量 i 自增前的值，自增运算是没有意义的。  
   
-变量的初始化可不受本规则限制，如：
+对象的初始化可不受本规则限制，如：
 ```
 int baz() {
-    int n = 0;  // OK
+    int n = 0;    // OK
     if (cond) {
         n = 123;
     } else {
@@ -9374,7 +9376,7 @@ int baz() {
     return n;
 }
 ```
-例中局部变量 n 初始化后经由 if\-else 分枝，在其两个分枝中都被赋值，也相当于被无条件写入，但变量在声明处初始化是值得提倡的，故这种情况不受本规则限制。
+例中局部变量 n 初始化后经由 if\-else 分枝，在其两个分枝中都被赋值，也相当于被无条件写入，但在声明处初始化是值得提倡的，故这种情况不受本规则限制。
 <br/>
 <br/>
 <br/>
@@ -13861,7 +13863,7 @@ ID_wrongUseOfReturnValue&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 示例：
 ```
 void foo(const string& s) {
-    if (s.find("bar")) {   // Non-compliant
+    if (s.find("bar")) {     // Non-compliant
         ....
     }
 }
@@ -13871,7 +13873,7 @@ void foo(const string& s) {
 应改为：
 ```
 void foo(const string& s) {
-    if (s.find("bar") != string::npos) {   // Compliant
+    if (s.find("bar") != string::npos) {    // Compliant
         ....
     }
 }
