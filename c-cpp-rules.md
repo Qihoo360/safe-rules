@@ -103,7 +103,7 @@
   - [R2.1 不可失去对已分配资源的控制](#ID_resourceLeak)
   - [R2.2 不可失去对已分配内存的控制](#ID_memoryLeak)
   - [R2.3 不可访问未初始化或已释放的资源](#ID_illAccess)
-  - [R2.4 资源管理应遵循面向对象的方法](#ID_ownerlessResource)
+  - [R2.4 资源应接受对象化管理](#ID_ownerlessResource)
   - [R2.5 资源的分配与回收方法应成对提供](#ID_incompleteNewDeletePair)
   - [R2.6 资源的分配与回收方法应配套使用](#ID_incompatibleDealloc)
   - [R2.7 模块之间不应传递容器等对象](#ID_crossModuleTransfer)
@@ -1385,7 +1385,7 @@ C\+\+ 标准流转换示例：
 ```
 int foo(const char* s) {
     int v = 0;
-    std::stringstream ss(s);
+    stringstream ss(s);
     ss >> v;
     if (ss.fail()) {  // Or use ‘!ss.eof() || ss.fail()’
         throw some_exception();
@@ -1547,7 +1547,7 @@ void baz(const char* s) {
     }
 }
 ```
-对异常情况的错误处理往往会成为业务漏洞，使攻击者轻易地实现其目的，不应使用 errno 和与其相同的模式，应通过返回值或面向对象的异常机制来处理异常情况。
+对异常情况的错误处理往往会成为业务漏洞，使攻击者轻易地实现其目的，不应使用 errno 和与其相同的模式，应通过返回值或 C\+\+ 异常机制来处理异常情况。
 <br/>
 <br/>
 
@@ -1679,15 +1679,15 @@ SEI CERT FIO46-C
 <br/>
 <br/>
 
-### <span id="ID_ownerlessResource">▌R2.4 资源管理应遵循面向对象的方法</span>
+### <span id="ID_ownerlessResource">▌R2.4 资源应接受对象化管理</span>
 
 ID_ownerlessResource&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
 <hr/>
 
-动态申请的资源应接受对象化管理，使资源的生命周期与对象的生命周期一致，从而实现资源的自动回收，这是 C\+\+ 程序设计的重要方法。  
+对象化管理资源，免去繁琐易错的手工分配回收过程，是 C\+\+ 程序设计的重要方法。  
   
-将 new 表达式或 malloc 等函数的结果直接在程序中传递是非常不安全的，极易产生泄漏甚至死锁等问题。将动态申请的资源赋值给普通变量，不受对象的构造或析构机制控制，这种资源称为“无主”资源，在 C\+\+ 程序设计中应当避免。  
+将 new 表达式或 malloc 等函数的结果直接在程序中传递是非常不安全的，极易产生泄漏甚至死锁等问题。动态申请的资源只被普通变量引用，不受对象的构造或析构机制控制，这种资源称为“无主”资源，在 C\+\+ 程序设计中应当避免。  
   
 示例：
 ```
@@ -1707,8 +1707,10 @@ void bar() {
     ....
 }
 
-struct Y {
-    int* p = nullptr;
+class Y {
+    int* p;
+
+public:
     Y(size_t n): p(new int[n]) {}
    ~Y() { delete[] p; }
 };
@@ -1724,7 +1726,7 @@ void baz() {
   
 在 C\+\+ 程序设计中应尽量使用标准库提供的容器或 unique\_ptr、shared\_ptr 等资源管理手段，避免显式调用 new 和 delete。对于遵循 C\+\+11 之后标准的代码，建议用 make\_unique 函数代替 new 运算符。  
   
-如需进一步理解资源的对象化管理方法，可参见“[RAII（Resource Acquisition Is Initialization）](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization)”等机制。  
+进一步理解资源的对象化管理方法，可参见“[RAII（Resource Acquisition Is Initialization）](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization)”等机制。  
   
 对系统 API 尤其是资源相关的 API 应进行合理封装，不应直接被业务代码引用，如：
 ```
@@ -1984,32 +1986,58 @@ ID_throwInConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warn
 示例：
 ```
 class A {
-    int* a = nullptr;
-    int* b = nullptr;
+    int *a, *b;
 
 public:
     A(size_t n):
         a(new int[n]),
-        b(new int[n])   // If the allocation fails ...
-    {}
+        b(new int[n])     // The allocations may fail
+    {
+        if (sth_wrong) {
+            throw E();    // User exceptions
+        }
+    }
 
-   ~A() {
+   ~A() {                 // May be invalid
         delete[] a;
         delete[] b;
     }
 };
 ```
-如果对成员 b 的内存分配失败，抛出 bad\_alloc 异常，A 的析构函数不会被执行，已分配的资源无法被正确回收，但已构造完毕的对象还是会正常析构的，所以应将资源相关的成员指针对象化，利用“[RAII](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization)”等机制使相关资源可以被自动回收。  
+例中内存分配可能会失败，抛出 bad\_alloc 异常，在某种条件下还会抛出自定义的异常，任何一种异常被抛出 A 的析构函数就不会被执行，已分配的资源就无法被回收，但已构造完毕的对象还是会正常析构的，所以应采用对象化资源管理方法，利用“[RAII](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization)”等机制使资源可以被自动回收。  
   
-应改为：
+可改为：
+```
+A::A(size_t n) {
+    // Use objects to hold resources
+    auto holder_a = make_unique<int[]>(n);
+    auto holder_b = make_unique<int[]>(n);
+
+    // Do the tasks that may throw exceptions
+    if (sth_wrong) {
+        throw E();
+    }
+
+    // Transfer ownership, make sure no exception is thrown
+    a = holder_a.release();
+    b = holder_b.release();
+}
+```
+先用 unique\_ptr 对象持有资源，完成可能抛出异常的事务之后，再将资源转移给相关成员，转移的过程不可抛出异常，这种模式可以保证异常安全，如果有异常抛出，资源均可被正常回收。  
+  
+示例代码意在讨论一种通用模式，实际代码可采用更直接的方式：
 ```
 class A {
-    vector<int> a, b;
+    vector<int> a, b;  // Or ‘unique_ptr’
 
 public:
-    A(size_t n): a(n), b(n) {}  // Safe and brief
+    A(size_t n): a(n), b(n) {  // Safe and brief
+        ....
+    }
 };
 ```
+保证已分配的资源时刻有对象负责回收是重要的设计原则，可参见 ID\_ownerlessResource 的进一步讨论。  
+  
 另外，需要注意访问“未成功初始化的对象”造成的逻辑错误，如：
 ```
 struct T {
@@ -2395,7 +2423,7 @@ ID_forbidMallocAndFree&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: resource warning
 
 <hr/>
 
-在 C\+\+ 代码中不应使用 malloc、free 等 C 内存管理函数，应使用面向对象的内存管理方法。  
+在 C\+\+ 代码中不应使用 malloc、free 等 C 内存管理函数，应使用对象化管理方法。  
   
 示例：
 ```
@@ -4562,7 +4590,7 @@ public:
 示例：
 ```
 class B {
-    std::string a, b;
+    string a, b;
 
 public:
     B(const B& rhs): a(rhs.a), b(rhs.b) {  // Unnecessary
@@ -5159,10 +5187,10 @@ enum Colour {
 应改为：
 ```
 enum Colour {
-    red,         // Compliant
+    red,
     blue,
     green,
-    yellow
+    yellow      // Compliant
 };
 ```
 <br/>
@@ -5276,13 +5304,13 @@ C\+\+98/03 禁止具有拷贝构造函数或析构函数的对象出现在联合
 ```
 union U {
     int i;
-    std::string s;  // Non-compliant
+    string s;  // Non-compliant
 
     U(int x): i(x) {
     }
 
     U(const char* x) {
-        new(&s) std::string(x);
+        new(&s) string(x);
     }
 
    ~U() {
@@ -5626,7 +5654,7 @@ ID_duplicatedName&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 示例：
 ```
 struct A {
-    int a, b, c;
+    ....
 };
 
 enum {
@@ -6318,7 +6346,7 @@ ID_invalidFinal&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 ```
 union U final  // Non-compliant, meaningless
 {
-    int a, b, c;
+    ....
 };
 ```
 <br/>
@@ -6650,13 +6678,9 @@ ID_mixedTypeObjDefinition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration sugges
   
 示例：
 ```
-struct _A {
-    int a, b, c;
-} A;  // Bad
-
-typedef struct _B {
-    int x, y, z;
-} B;  // Bad
+struct T {
+    ....
+} obj, *ptr;  // Bad
 ```
 <br/>
 <br/>
@@ -6708,7 +6732,7 @@ ID_tooManyDeclarators&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
   
 示例：
 ```
-int* a, b[10], c, d(int), e = 0;  // Bad
+int* a, b[8], c, d(int), e = 0;  // Bad
 ```
 例中只有 a 是指针，也只有 e 被初始化，d 为函数，应分开声明。
 <br/>
@@ -6756,7 +6780,7 @@ class LockGuard { .... };
 
 void fun() {
     LockGuard();   // Non-compliant, meaningless
-    do_something_critical();
+    ....
 } 
 ```
 设 LockGuard 是某种锁，LockGuard(); 只生成了一个临时对象，该对象会立即析构，起不到作用，这也是一种常见的错误。  
@@ -6765,7 +6789,7 @@ void fun() {
 ```
 void fun() {
     LockGuard guard;  // Compliant
-    do_something_critical();
+    ....
 }
 ```
 <br/>
@@ -7339,7 +7363,7 @@ public:
     ....
 };
 ```
-例中赋值运算符先释放持有的资源，再复制 a 的资源，不是真正的移动赋值，仍是一种低效实现。应将 a.p 与 this\->p 交换，节省复制过程，并使原有资源由 a 的析构函数释放，才是真正意义上的移动赋值：
+例中赋值运算符先释放持有的资源，再复制 a 的资源，不是真正的移动赋值，仍是一种低效实现。应将 a.p 与 this\->p 交换，省去复制过程，并使原有资源由 a 的析构函数释放，才是真正意义上的移动赋值：
 ```
 class A {
     char* p;
@@ -7742,7 +7766,15 @@ ID_forbidBitfield&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration suggestion
 
 引入位域的本意是为了节省空间，然而位域改变了变量约定俗成的取值范围，易造成理解上的偏差，也会造成维护困难。  
   
-位域与“引用”等 C\+\+ 概念有冲突，而且 C\+\+ 标准在位域的内存分配或数据对齐等方面定义的不够充分，存在很多由实现定义的内容，所以应改用某种更有效的算法达到节省空间或时间的目的。
+位域与“引用”等 C\+\+ 概念有冲突，而且 C\+\+ 标准在位域的内存分配和数据对齐等方面定义的不够充分，存在很多由实现定义的内容，所以应改用某种更有效的算法达到节省空间或时间的目的。  
+  
+示例：
+```
+struct A {
+    int a: 3;   // Non-compliant
+    int b;      // Compliant
+};
+```
 <br/>
 <br/>
 
@@ -7784,7 +7816,7 @@ ID_complexDeclaration&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 int (*foo(int))(bool);  // Bad, returns a function pointer
 int (*foo(char))[123];  // Bad, returns an array pointer
 ```
-例中有两个 foo 函数，但看起来像是函数指针，而且参数列表也显得混乱。  
+例中声明的是两个函数，但看起来像是函数指针，而且参数列表也显得混乱。  
   
 应改为：
 ```
@@ -7794,7 +7826,7 @@ typedef int(*arrptr)[123];
 funptr foo(int);   // Good
 arrptr foo(char);  // Good
 ```
-另外，指针的星号个数不宜超过两个，否则意味着指针的解引用逻辑过于复杂。
+另外，指针的星号个数不宜超过两个，否则意味着指针的解引用逻辑过于复杂，如：
 ```
 T *** x;  // Bad
 T * const * * const * y;  // Horrible
@@ -7967,7 +7999,7 @@ void foo() {
 ```
 设 lock 是某种获取资源的操作，unlock 是释放资源的操作，procedure\_may\_throw 是可能抛出异常的过程，那么 foo 函数就不是异常安全的，一旦有异常抛出会导致死锁或泄露等问题。  
   
-应保证资源从分配到回收的过程不被异常中断，采用面向对象的管理方法，使分配和回收得以自动完成：
+应保证资源从分配到回收的过程不被异常中断，采用对象化管理方法，使分配和回收得以自动完成：
 ```
 void foo() {
     LockOwner object;
@@ -8035,7 +8067,7 @@ ID_exceptionInException&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 示例：
 ```
 class MyException {
-    std::string msg;
+    string msg;
 
 public:
     MyException(const char* s) {
@@ -8173,7 +8205,7 @@ ID_throwInSwap&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
 两个对象在 swap（交换）过程中，每个对象的状态都是不完整的，如果在交换中途抛出异常，对象将处于错误的状态无法恢复。  
   
-标准库中存在大量与 swap 相关的接口或算法，如果 swap 过程抛出异常，也会使标准库无法按照约定的方式工作，所有 swap 过程均应标记为 noexcept。  
+标准库中存在大量与 swap 相关的接口和算法，如果 swap 抛出异常，也会使标准库无法按约定工作，所有 swap 函数均应标记为 noexcept。  
   
 注意，swap 是保证异常安全的重要手段，不抛出异常是基本要求，详见 ID\_exceptionUnsafe。  
   
@@ -8610,11 +8642,11 @@ ID_forbidException&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: exception warning
  1. 对时空性能有严格要求的项目  
  2. 代码所属框架不支持异常处理  
  3. 对 C 语言高度兼容的代码  
- 4. 项目整体没有依照面向对象的理念实施  
+ 4. 项目没有依照异常安全的理念实施  
   
 利用返回值或错误码的错误处理方式要求检查可能产生错误的每一个步骤，有些出错情况可能被遗漏，C\+\+ 的异常机制可大幅简化这种繁琐的方式，使代码更专注于事务或算法的实现，而且 C\+\+ 异常是不可被忽略的，然而 C\+\+ 的异常机制是需要一定开销的，对代码的设计与实现也有更严格的要求。  
   
-如果异常情况频繁出现，其成本是不可被忽视的，不适用于具有高性能要求的实时软件系统。如果代码所属项目没有依照面向对象的理念实施，无法保证异常安全，也是不建议使用异常机制的，可参见 ID\_exceptionUnsafe 的进一步讨论。
+如果异常情况频繁出现，其成本是不可被忽视的，不适用于具有高性能要求的实时软件系统。如果代码所属项目没有依照异常安全的理念实施，使用异常反而会造成更多问题，可参见 ID\_exceptionUnsafe 的进一步讨论。
 <br/>
 <br/>
 
@@ -8841,17 +8873,17 @@ ID_paramPassedByValue&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
   
 示例：
 ```
-void fun(const std::string s) {  // Non-compliant
+void fun(const string s) {  // Non-compliant
     ....
 }
 ```
 例中参数 s 为按值传递的对象，每当 fun 函数被调用时，s 都会作为一个新的对象被构造，因为其值又不能被改变，所以这种构造是没有意义的，利用常量引用即可解决这个问题：
 ```
-void fun(const std::string& s) {  // Compliant
+void fun(const string& s) {  // Compliant
     ....
 }
 ```
-改为常量引用后，s 的值和原来一样不可被改变，而且不需要额外的开销。
+改为常量引用后，s 的值和原来一样不可被改变，而且不需要额外的传值开销。
 <br/>
 <br/>
 
@@ -8874,7 +8906,7 @@ ID_illForwardingReference&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 ```
 template <class T>
 void bar(T&& x) {
-    x.foo();   // Non-compliant
+    x.foo();        // Non-compliant
 }
 ```
 例中参数 x 是转发引用，并不是一般的右值引用，在 bar 函数内部并不知道 x 是左值还是右值，而且 x 对应的实际参数也可能被 const 或 volatile 修饰，所以直接调用 x 的 foo 成员会引发逻辑上的混乱。
@@ -9008,9 +9040,10 @@ struct A {
 };
 
 struct B: A {
-    B(): A(member()) {}  // Non-compliant, undefined behavior
+    B(): A(member()) {  // Non-compliant, undefined behavior
+    }
 
-    int member();    
+    int member();
 };
 ```
 例中成员函数的返回值作为基类构造函数的参数，而这时基类对象尚未构造，相当于成员函数的调用者没有被初始化，这是一种逻辑错误。
@@ -9057,7 +9090,7 @@ A::A() {
     try {
         ....
     } catch (...) {
-        access(i);   // OK
+        access(i);   // Compliant
     }
 }
 ```
@@ -9855,13 +9888,13 @@ ID_redundantJump&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 示例：
 ```
 void foo() {
-    do_something();
+    ....
     return;   // Redundant
 }
 
 void bar() {
     while (condition) {
-        do_something();
+        ....
         continue;    // Redundant
     }
 }
@@ -9869,7 +9902,7 @@ void bar() {
 void baz() {
     goto L;   // Redundant
 L:
-    do_something();
+    ....
 }
 ```
 <br/>
@@ -9918,12 +9951,12 @@ ID_functionSpecialization&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 示例：
 ```
 template <class T>
-int foo(T) {  // #1
+int foo(T) {           // #1
     return 0;
 }
 
 template <class T>
-int foo(T*) {  // #2
+int foo(T*) {          // #2
     return 1;
 }
 
@@ -9945,7 +9978,7 @@ int foo(int*) {   // #3, compliant, safe and brief
     return 2;
 }
 ```
-这样例中的 main 函数会输出 2。
+这样例中 main 函数会输出 2。
 <br/>
 <br/>
 
@@ -10823,8 +10856,6 @@ else if (hamster) {
 // ... 3000 branches...
 // Computers have the courage to execute,
 // but do you have the courage to read?
-else if (puppie) {
-}
 else {
 }
 ```
@@ -10922,16 +10953,16 @@ ID_if_missingEndingElse&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
 单独的一个 if 分枝不要求接有 else 子句，如：
 ```
 if (x > 0) {
-    do_something();
+    ....
 }
 ```
 存在多个 if...else if 分枝时，需要接有 else 子句
 ```
 if (x > 0) {
-    do_something0();
+    ....
 }
 else if (y < 0){
-    do_something1();
+    ....
 }
 else {
     // Comment is the minimum requirement,
@@ -11499,7 +11530,7 @@ ID_do_emptyBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
 示例：
 ```
 void foo(char* d, const char* s) {
-    do {} while (*d++ = *s++);  // Non-compliant
+    do {} while (*d++ = *s++);      // Non-compliant
 }
 ```
 <br/>
@@ -12407,7 +12438,7 @@ ID_catch_emptyBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
 ```
 void foo() {
     try {
-        __foo();
+        ....
     }
     catch (...)
     {}  // Non-compliant, very bad
@@ -12419,7 +12450,7 @@ void foo() {
 ```
 void foo() noexcept {
     try {
-        __foo();
+        ....
     }
     catch (...) {  // Compliant
         log_unexpected_and_exit(__FILE__, __LINE__, "some messages");
@@ -12504,7 +12535,7 @@ try {
 
 try {
     ....
-} catch (std::string&) {  // Non-compliant
+} catch (string&) {  // Non-compliant
     ....
 }
 ```
@@ -13829,18 +13860,18 @@ ID_wrongUseOfReturnValue&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
   
 示例：
 ```
-void foo(const std::string& s) {
+void foo(const string& s) {
     if (s.find("bar")) {   // Non-compliant
         ....
     }
 }
 ```
-例中 find 函数返回 "bar" 在 s 中的位置，当 s 中不存在 "bar" 时返回 std::string::npos，将 find 函数的返回值转为 bool 型是没有逻辑意义的。  
+例中 find 函数返回 "bar" 在 s 中的位置，当 s 中不存在 "bar" 时返回 string::npos，将 find 函数的返回值转为 bool 型是没有逻辑意义的。  
   
 应改为：
 ```
-void foo(const std::string& s) {
-    if (s.find("bar") != std::string::npos) {   // Compliant
+void foo(const string& s) {
+    if (s.find("bar") != string::npos) {   // Compliant
         ....
     }
 }
@@ -13943,7 +13974,7 @@ ID_userObjectAsVariadicArgument&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression e
 示例：
 ```
 struct A {
-    std::string s;
+    string s;
     operator const char*() const {
         return s.c_str();
     }
@@ -14023,7 +14054,7 @@ void foo(const string& msg) {
     printf("Message: %s\n", msg);  // Non-compliant
 }
 ```
-例中 %s 要求对应 char\* 型参数，则 msg 实际上是 std::string 类型，造成栈读取错误。  
+例中 %s 要求对应 char\* 型参数，则 msg 实际上是 string 类型，造成栈读取错误。  
   
 应改为：
 ```
@@ -14143,7 +14174,7 @@ ID_unsuitableMove&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 std::move 的参数应为左值，返回值应直接作为接口的参数，除此之外的使用方式价值有限，且易产生错误。  
   
-std::move 将左值转为右值，意在宣告对象的数据将被转移到其他对象，之后应由合适的接口接管右值的数据。  
+std::move 将左值转为右值，意在宣告对象的数据将被转移到其他对象，应由合适的接口完成数据转移。  
   
 示例：
 ```
@@ -14175,7 +14206,7 @@ string foo() {
     return move(s);  // Non-compliant
 }
 ```
-例中 foo 函数返回对象，编译器会进行“[RVO（Return Value Optimization）](https://en.wikipedia.org/wiki/Copy_elision#Return_value_optimization)”优化，显式调用 move 是多余的，而且会干扰优化，不应出现 return std::move(...) 这种代码。  
+例中 foo 函数返回对象，编译器会进行“[RVO（Return Value Optimization）](https://en.wikipedia.org/wiki/Copy_elision#Return_value_optimization)”优化，显式调用 move 是多余的，而且会干扰优化，不应出现 return std::move(....) 这种代码。  
   
 应改为：
 ```
@@ -14433,13 +14464,13 @@ ID_sizeof_suspiciousAdd&emsp;&emsp;&emsp;&emsp;&nbsp;:question: expression suspi
 示例：
 ```
 int foo(int* p, int i) {
-    return *(p + i * sizeof(*p));  // Rather suspicious
+    return *(p + i * sizeof(int));  // Rather suspicious
 }
 ```
-如果 foo 函数是为了获取指针 p 之后的第 i 个整数的值，那么这种实现是错误的，应改为：
+如果 foo 函数是为了获取指针 p 之后第 i 个整数的值，那么这种实现是错误的，应改为：
 ```
 int foo(int* p, int i) {
-    return *(p + i);  // Right
+    return *(p + i);      // Right
 }
 ```
 <br/>
@@ -15174,7 +15205,7 @@ ID_literal_oddConcat&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: literal warning
   
 示例：
 ```
-std::string strs[] = {
+string strs[] = {
     "123", "456", "789",
     "123", "456", "789"   // Rather suspicious, missing a comma?
     "123", "456", "789"
@@ -15184,8 +15215,8 @@ std::string strs[] = {
   
 又如：
 ```
-void foo(const char* a);
-void foo(const char* a, const char* b);
+void foo(const char*);
+void foo(const char*, const char*);
 
 void bar() {
     foo("abc" "123");  // Rather suspicious, which ‘foo’ is right?
@@ -16183,7 +16214,6 @@ void bar(A& a, A& b) {
     memcpy(&a, &b, sizeof(a));  // Non-compliant, the vftable is corrupted
 }
 ```
-对象应利用其构造函数进行初始化或实现其专有的复制逻辑，memset、memcpy 等函数破坏了类型边界，在面向对象的程序设计中应避免使用。
 <br/>
 <br/>
 

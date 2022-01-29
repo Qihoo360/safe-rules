@@ -1573,15 +1573,15 @@
     "ID_forbidMallocAndFree": {
         "checkPoint": "C++ 代码中禁用 C 内存管理函数",
         "level": "warning",
-        "comment": "在 C++ 代码中不应使用malloc、free 等 C 内存管理函数，应使用面向对象的内存管理方法。",
+        "comment": "在 C++ 代码中不应使用 malloc、free 等 C 内存管理函数，应使用对象化管理方法。",
         "tag": "resource",
         "related": "ID_ownerlessResource",
         "reference": "C++ Core Guidelines R.10"
     },
     "ID_ownerlessResource": {
-        "checkPoint": "资源管理应遵循面向对象的方法",
+        "checkPoint": "资源应接受对象化管理",
         "level": "warning",
-        "comment": "动态申请的资源应接受对象化管理，使资源的生命周期与对象的生命周期一致，从而实现资源的自动回收，这是 C++ 程序设计的重要方法。",
+        "comment": "对象化管理资源，免去繁琐易错的手工分配回收过程，是 C++ 程序设计的重要方法。",
         "tag": "resource",
         "reference": "C++ Core Guidelines R.11,C++ Core Guidelines R.12"
         },
