@@ -962,7 +962,7 @@
     "ID_redundantOverride": {
         "checkPoint": "override 和 final 关键字不应同时出现",
         "level": "suggestion",
-        "comment": "final 关键字表示不可重写的重写，override 表示可再次重写的重写，出现 final 关键字时不应再出现 override 关键字，使代码更清晰简洁。",
+        "comment": "final 表示不可重写的重写，override 表示可再次重写的重写，这两个关键字不应同时出现。",
         "tag": "declaration",
         "reference": "C++ Core Guidelines C.128"
         },
@@ -2892,7 +2892,7 @@
     "ID_deprecatedSpecifier": {
         "checkPoint": "不应使用已过时的关键字",
         "level": "warning",
-        "comment": "根据 C++11 标准，register 等关键字已过时，不应再使用，auto 关键字也不可再作为存储类说明符（storage class specifier）继续使用。",
+        "comment": "根据 C++11 标准，register 等关键字已过时，不应再使用，auto 关键字也不可再作为存储类说明符（storage class specifier）。",
         "tag": "declaration",
         "standard": "ISO/IEC 14882:2011 D.2(1)-deprecated,ISO/IEC 14882:2011 7.1.6.4"
         },

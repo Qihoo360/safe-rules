@@ -1044,7 +1044,6 @@ void bar() {
 配置示例：
 ```
 [ID_dangerousName]
-$open=true
 srand|random_shuffle=Weak random
 EVP_des_ecb|EVP_des_cbc=Weak encryption
 http|ftp=Non encrypted protocol
@@ -1098,7 +1097,6 @@ gets 等函数无法检查缓冲区大小，是公认的危险函数，Terminate
 配置示例：
 ```
 [ID_dangerousFunction]
-$open=true
 gets|_getws=The most dangerous function
 TerminateThread=Forced termination of a thread can cause many problems
 ```
@@ -1148,7 +1146,6 @@ RegSetValue     // Use ‘RegSetValueEx’ instead
 配置示例：
 ```
 [ID_obsoleteFunction]
-$open=true
 asctime|asctime_r=use 'strftime' instead
 bcopy=use 'memmove' or 'memcpy' instead
 ```
@@ -2626,9 +2623,7 @@ stdio.h、signal.h、time.h、fenv.h 等头文件对于有高可靠性要求的�
   
 审计工具不妨通过配置设定不合规头文件的名称：
 ```
-[ID_include]
-$open=true
-$ID_forbiddenHeader=1
+[ID_forbiddenHeader]
 tgmath.h|ctgmath=May result in undefined behaviour
 setjmp.h|csetjmp=Forbidden header
 ```
@@ -2782,9 +2777,7 @@ __STDC_ISO_10646__、__STDCPP_STRICT_POINTER_SAFETY__
   
 审计工具不妨通过配置设定保留名称：
 ```
-[ID_macro]
-$open=true
-$ID_macro_defineReserved=1
+[ID_macro_defineReserved]
 keywordAsReserved=true
 NULL|NDEBUG|EOF=Reserved name should not be defined or undefined
 ```
@@ -2841,9 +2834,7 @@ __STDC_ISO_10646__、__STDCPP_STRICT_POINTER_SAFETY__
 ```
 审计工具不妨通过配置设定保留名称：
 ```
-[ID_macro]
-$open=true
-$ID_macro_undefReserved=1
+[ID_macro_undefReserved]
 keywordAsReserved=true
 NULL|NDEBUG|EOF=Reserved name should not be defined or undefined
 ```
@@ -2986,7 +2977,7 @@ ID_macro_insufficientArgs&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 ```
 #define M(a, b, c)  a ## b ## c
 
-char* foo() {
+const char* foo() {
     return M("x", "y");  // Non-compliant
 }
 ```
@@ -3016,7 +3007,7 @@ ID_macro_redundantArgs&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 ```
 #define M(a, b, c)  a ## b ## c
 
-char* foo() {
+const char* foo() {
     return M("a", "b", "c", "d");  // Non-compliant
 }
 ```
@@ -3888,11 +3879,11 @@ inline void bar() {
   
 如：
 ```
-// myarr.h
+// In myarr.h
 using MyArr = int[256];
 const MyArr& getMyArr();
 
-// myarr.cpp
+// In myarr.cpp
 #include "myarr.h"
 
 const MyArr& getMyArr() {
@@ -5347,23 +5338,23 @@ ID_forbidNakedUnion&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: type suggestion
   
 示例：
 ```
-union U {  // Non-compliant
-    int a, b;
+union U {   // Non-compliant, global union
+    ....
 };
 
 class A {
 public:
-    union {  // Non-compliant
-        int a, b;
+    union {   // Non-compliant, public union
+        ....
     };
 };
 
 class B {
 public:
-    // ... methods about union
+    // ... methods about the union
 private:
-    union {  // Compliant
-        int a, b;
+    union {   // Compliant, the union is under control
+        ....
     };
 };
 ```
@@ -5869,9 +5860,9 @@ const volatile long double cvld = 0;  // Compliant
 ```
 本规则对下列关键字有同样的要求：
 ```
-const、volatile
-inline、virtual、explicit
-register、static、thread_local、extern、mutable
+const、volatile、
+inline、virtual、explicit、
+register、static、thread_local、extern、mutable、
 friend、typedef、constexpr
 ```
 <br/>
@@ -6142,7 +6133,7 @@ ID_deprecatedSpecifier&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-根据 C\+\+11 标准，register 等关键字已过时，不应再使用，auto 关键字也不可再作为存储类说明符（storage class specifier）继续使用。  
+根据 C\+\+11 标准，register 等关键字已过时，不应再使用，auto 关键字也不可再作为存储类说明符（storage class specifier）。  
   
 示例：
 ```
@@ -6180,7 +6171,7 @@ constexpr int foo(int n) {  // Compliant
     return n + 1;
 }
 ```
-另外，在类的声明中实现的函数也相当于被声明为 inline，不应再重复声明：
+另外，在类声明中实现的函数也相当于被声明为 inline，不应重复声明：
 ```
 class A {
     ....
@@ -6279,7 +6270,7 @@ ID_redundantOverride&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-final 关键字表示不可重写的重写，override 表示可再次重写的重写，出现 final 关键字时不应再出现 override 关键字，使代码更清晰简洁。  
+final 表示不可重写的重写，override 表示可再次重写的重写，这两个关键字不应同时出现。  
   
 示例：
 ```
@@ -6385,8 +6376,8 @@ struct A {
 ```
 本规则对下列关键字有同样的要求：
 ```
-inline、virtual、explicit
-register、static、thread_local、extern、mutable
+inline、virtual、explicit、
+register、static、thread_local、extern、mutable、
 friend、typedef、constexpr
 ```
 对于 const 和 volatile 也建议出现在类型名的左侧。
@@ -16847,6 +16838,7 @@ p = new A[10];
 p->foo();         // Memory is still leaking
 ```
 如果一定要使用 delete this，类的析构函数应设为私有，这样可以阻止类的对象在栈上定义而引发更大的混乱，并且要确保执行 delete this 后 this 指针再也不会被解引用，而且不能用 new\[\] 创建，否则仍然存在内存泄漏问题。  
+  
 所以对框架以及语言工具之外的业务类或算法类代码建议禁用 delete this。
 <br/>
 <br/>
