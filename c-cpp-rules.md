@@ -2401,7 +2401,7 @@ char* foo(size_t size) {
     return p;
 }
 ```
-示例代码未检查 p 的有效性便直接解引用是不符合要求的，一旦内存分配失败就会崩溃。
+示例代码未检查 p 的有效性便直接使用是不符合要求的，一旦内存分配失败就会崩溃。
 <br/>
 <br/>
 
@@ -2722,7 +2722,7 @@ ID_macro_badName&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 <br/>
 
 #### 配置
-ID_macro/maxWordLength：连续无大小写变化的字符个数上限，超过则报出  
+maxWordLength：连续无大小写变化的字符个数上限，超过则报出  
 <br/>
 
 #### 相关
@@ -3078,7 +3078,7 @@ ID_macro_tooManyParams&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 <br/>
 
 #### 配置
-ID_macro/maxParamCount：参数个数上限，超过则报出  
+maxParamCount：参数个数上限，超过则报出  
 <br/>
 
 #### 相关
@@ -3344,7 +3344,7 @@ ID_missingHeaderGuard&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 <br/>
 
 #### 配置
-ID_missingHeaderGuard/allowPragmaOnce：为 true 时 #pragma once 也可作为符合要求的头文件守卫  
+allowPragmaOnce：为 true 时 #pragma once 也可作为符合要求的头文件守卫  
 <br/>
 
 #### 参考
@@ -3684,10 +3684,10 @@ int foo(int i) {
 <br/>
 
 #### 配置
-ID_global/ minVariableNameLength：全局对象名称长度下限，小于则报出  
-ID_global/minFunctionNameLength：全局函数名称长度下限，小于则报出  
-ID_global/minNameSpaceNameLength：全局命名空间名称长度下限，小于则报出  
-ID_global/minTypeNameLength：全局类型名称长度下限，小于则报出  
+minFunctionNameLength：全局函数名称长度下限，小于则报出  
+minNameSpaceNameLength：全局命名空间名称长度下限，小于则报出  
+minTypeNameLength：全局类型名称长度下限，小于则报出  
+minVariableNameLength：全局对象名称长度下限，小于则报出  
 <br/>
 
 #### 相关
@@ -5071,8 +5071,8 @@ union U
 <br/>
 
 #### 配置
-ID_class/maxFieldsCount：类数据成员的数量上限，超过则报出  
-ID_union/maxFieldsCount：联合体数据成员的数量上限，超过则报出  
+maxClassFieldsCount：类数据成员的数量上限，超过则报出  
+maxUnionFieldsCount：联合体数据成员的数量上限，超过则报出  
 <br/>
 <br/>
 
@@ -5487,7 +5487,7 @@ struct BinExpr {
 <br/>
 
 #### 配置
-ID_declaration/maxWordLength：连续无大小写变化的字符个数上限，超过则报出  
+maxWordLength：连续无大小写变化的字符个数上限，超过则报出  
 <br/>
 
 #### 依据
@@ -6659,7 +6659,7 @@ void foo() {
 <br/>
 
 #### 配置
-ID_declaration/maxLocalArraySize：局部数组的长度上限，超过则报出  
+maxLocalArraySize：局部数组的长度上限，超过则报出  
 <br/>
 
 #### 参考
@@ -6739,7 +6739,7 @@ int* a, b[8], c, d(int), e = 0;  // Bad
 <br/>
 
 #### 配置
-ID_declaration/maxDeclaratorCount：一个声明语句能包含的对象个数上限，超过则报出  
+maxDeclaratorCount：一个声明语句能包含的对象个数上限，超过则报出  
 <br/>
 
 #### 参考
@@ -8311,7 +8311,7 @@ int bar() throw();           // Let it go?
 <br/>
 
 #### 配置
-ID_declaration/forbidEmptyThrowSpecification：为 true 时报出空 throw 异常规格说明，否则放过  
+forbidEmptyThrowSpecification：为 true 时报出空 throw 异常规格说明，否则放过  
 <br/>
 
 #### 依据
@@ -9344,7 +9344,7 @@ ID_invalidWrite&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
   
 这种写入是无效的，出现这种问题往往意味着逻辑错误或功能不完整。  
   
-volatile 型数据和对象的初始化可不受本规则限制。  
+对象在初始化时的写入和 volatile 型数据可不受本规则限制。  
   
 示例：
 ```
@@ -10018,7 +10018,7 @@ L100:
 <br/>
 
 #### 配置
-ID_function/maxLabelCount：标签数量上限，超过则报出  
+maxLabelCount：标签数量上限，超过则报出  
 <br/>
 <br/>
 
@@ -10043,7 +10043,7 @@ int main()
 <br/>
 
 #### 配置
-ID_function/maxLineCount：行数上限，超过则报出  
+maxLineCount：行数上限，超过则报出  
 <br/>
 
 #### 参考
@@ -10081,7 +10081,7 @@ void foo()
 <br/>
 
 #### 配置
-ID_function/maxLambdaLineCount：行数上限，超过则报出  
+maxLambdaLineCount：lambda 表达式行数上限，超过则报出  
 <br/>
 <br/>
 
@@ -10123,8 +10123,8 @@ void foo(X x, Y y) {  // Good
 <br/>
 
 #### 配置
-ID_declaration/maxInnerFunParamCount：static 函数或 private 成员函数参数数量上限，超过则报出  
-ID_declaration/maxParamCount：参数数量上限，超过则报出  
+maxInnerFunParamCount：static 函数或 private 成员函数参数数量上限，超过则报出  
+maxParamCount：参数数量上限，超过则报出  
 <br/>
 
 #### 参考
@@ -10150,7 +10150,7 @@ ID_complexInlineFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 <br/>
 
 #### 配置
-ID_function/maxInlineFunctionLineCount：内联函数行数上限，超过则报出  
+maxInlineFunctionLineCount：内联函数行数上限，超过则报出  
 <br/>
 
 #### 参考
@@ -10595,7 +10595,7 @@ else {
 <br/>
 
 #### 配置
-ID_if/identicalBlockThreshold：重复分枝符号数量限制，不检查符号数量小于该值的分枝  
+blockTokenCountThreshold：重复分枝符号数量限制，不检查符号数量小于该值的分枝  
 <br/>
 
 #### 相关
@@ -10810,7 +10810,7 @@ if ((r = fun())) {  // Let it go?
 <br/>
 
 #### 配置
-ID_if_assignment/allowEnclosedAssignment：为 true 可以放过括号括起来的赋值表达式  
+allowEnclosedAssignment：为 true 可以放过括号括起来的赋值表达式  
 <br/>
 
 #### 参考
@@ -10866,7 +10866,7 @@ else {
 <br/>
 
 #### 配置
-ID_if/maxElseIfCount：分枝数量上限，超过则报出  
+maxElseIfCount：分枝数量上限，超过则报出  
 <br/>
 <br/>
 
@@ -11849,7 +11849,7 @@ case 3:
 <br/>
 
 #### 配置
-ID_switch/identicalBranchThreshold：重复分枝符号数量限制，不检查符号数量小于该值的分枝  
+branchTokenCountThreshold：重复分枝符号数量限制，不检查符号数量小于该值的分枝  
 <br/>
 
 #### 相关
@@ -11998,7 +11998,7 @@ case 1000: .... break;  // Non-compliant
 <br/>
 
 #### 配置
-ID_switch/maxCasesCount：分枝数量上限，超过则报出  
+maxCasesCount：分枝数量上限，超过则报出  
 <br/>
 <br/>
 
@@ -14607,7 +14607,7 @@ void bar(int x) {
 <br/>
 
 #### 配置
-ID_assertion/names：断言函数或宏的名称，如 assert、_ASSERT_EXPR 等，用“|”分隔  
+names：断言函数或宏的名称，如 assert、_ASSERT_EXPR 等，用“|”分隔  
 <br/>
 
 #### 依据
@@ -14642,7 +14642,7 @@ void foo(int* p) {
 <br/>
 
 #### 配置
-ID_assertion/names：断言函数或宏的名称，如 assert、_ASSERT_EXPR 等，用“|”分隔  
+names：断言函数或宏的名称，如 assert、_ASSERT_EXPR 等，用“|”分隔  
 <br/>
 
 #### 相关
@@ -14687,8 +14687,8 @@ void foo(int a, int b, int c) {
 <br/>
 
 #### 配置
-ID_assertion/maxLogicOperatorCount：断言表达式中“逻辑与”运算符的最大数量，超过则报出  
-ID_assertion/names：断言函数或宏的名称，如 assert、_ASSERT_EXPR 等，用“|”分隔  
+maxLogicOperatorCount：断言表达式中“逻辑与”运算符的最大数量，超过则报出  
+names：断言函数或宏的名称，如 assert、_ASSERT_EXPR 等，用“|”分隔  
 <br/>
 <br/>
 
@@ -14705,8 +14705,8 @@ ID_complexExpression&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: expression suggestion
 <br/>
 
 #### 配置
-ID_expression/maxLogicOperatorCount：逻辑运算符最大数量，超过则报出  
-ID_expression/maxOperatorCount：运算符最大数量，超过则报出  
+maxLogicOperatorCount：逻辑运算符最大数量，超过则报出  
+maxOperatorCount：运算符最大数量，超过则报出  
 <br/>
 
 #### 参考
@@ -14841,7 +14841,7 @@ for (a = 0, b = 0; a < 100; a++, b++)  {  // let it go?
 <br/>
 
 #### 配置
-ID_expression/allowCommaExpressionInForIteration：为 true 可以放过 for 迭代声明中的逗号表达式  
+allowCommaExpressionInForIteration：为 true 时放过 for 迭代声明中的逗号表达式  
 <br/>
 
 #### 参考
@@ -15261,7 +15261,7 @@ for (int i = 0; i < maxId; i++) {  // Compliant
 <br/>
 
 #### 配置
-ID_literal/magicNumberDigitThreshold：数字常量的位数上限，超过则报出  
+magicNumberDigitThreshold：数字常量的位数上限，超过则报出  
 <br/>
 
 #### 相关
@@ -15492,7 +15492,7 @@ void foo(int* p) {
 <br/>
 
 #### 配置
-ID_expression/allowPointerSizeTCast：为 true 时可以放过指针与 size_t 的转换  
+allowPointerToSizeType：为 true 时可以放过指针与 size_t 的转换  
 <br/>
 
 #### 相关
@@ -16583,7 +16583,7 @@ int res = (*fp)(123);        // Unsafe
 <br/>
 
 #### 配置
-ID_expression/allowMinusOneAsPointerValue：为 true 时可以放过 -1 作为指针值的情况  
+allowMinusOneAsPointerValue：为 true 时可以放过 -1 作为指针值的情况  
 <br/>
 
 #### 相关

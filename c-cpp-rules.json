@@ -49,7 +49,7 @@
         "level": "warning",
         "comment": "指针转为整数，或整数转为指针（尤其是小于 64 位的整数或有符号的整数），容易造成地址不完整、寻址错误、降低可移植性等问题。",
         "config": {
-            "ID_expression/allowPointerSizeTCast": "为 true 时可以放过指针与 size_t 的转换"
+            "allowPointerToSizeType": "为 true 时可以放过指针与 size_t 的转换"
             },
         "tag": "cast",
         "standard": "ISO/IEC 9899:2011 6.3.2.3(5)-implementation,ISO/IEC 14882:2011 5.2.10(4 5)-implementation",
@@ -210,7 +210,7 @@
         "level": "warning",
         "comment": "函数体过大违反模块化编程理念，使人难以阅读，更不便于维护，很有可能隐藏着各种错误，应适当重构。",
         "config": {
-            "ID_function/maxLineCount": "行数上限，超过则报出"
+            "maxLineCount": "行数上限，超过则报出"
             },
         "tag": "function",
         "reference": "C++ Core Guidelines F.2,C++ Core Guidelines F.3"
@@ -229,7 +229,7 @@
         "level": "warning",
         "comment": "复杂的 lambda 表达式与其调用者的代码混在一起时，是难以阅读的，引入 lambda 表达式的目的应该是“化简”，否则应使用普通函数。",
         "config": {
-            "ID_function/maxLambdaLineCount": "行数上限，超过则报出"
+            "maxLambdaLineCount": "lambda 表达式行数上限，超过则报出"
             },
         "tag": "function"
         },
@@ -238,7 +238,7 @@
         "level": "warning",
         "comment": "标签过多意味着函数内部的跳转逻辑过于复杂，违反结构化设计理念，应适当重构。",
         "config": {
-            "ID_function/maxLabelCount": "标签数量上限，超过则报出"
+            "maxLabelCount": "标签数量上限，超过则报出"
             },
         "tag": "function"
         },
@@ -367,7 +367,7 @@
         "level": "warning",
         "comment": "if...else-if 分枝超过指定数量，代码较为复杂不利于维护，而且在执行时各分枝的条件需逐一判断，效率较低，建议改为遵循某种算法的索引结构。",
         "config": {
-            "ID_if/maxElseIfCount": "分枝数量上限，超过则报出"
+            "maxElseIfCount": "分枝数量上限，超过则报出"
             },
         "tag": "control"
         },
@@ -433,7 +433,7 @@
         "level": "warning",
         "comment": "switch 语句分枝过多会使代码过于庞大不利于维护，分枝很多时建议将每个 case 的执行逻辑抽取成函数，再按遵循某种算法的索引结构组织在一起。",
         "config": {
-            "ID_switch/maxCasesCount": "分枝数量上限，超过则报出"
+            "maxCasesCount": "分枝数量上限，超过则报出"
             },
         "tag": "control"
         },
@@ -587,8 +587,8 @@
         "level": "warning",
         "comment": "类或联合体的数据成员过多意味着一个逻辑或功能单位承担了过多的职责，违反了模块化设计理念，是难以维护的。",
         "config": {
-            "ID_class/maxFieldsCount": "类数据成员的数量上限，超过则报出",
-            "ID_union/maxFieldsCount": "联合体数据成员的数量上限，超过则报出"
+            "maxClassFieldsCount": "类数据成员的数量上限，超过则报出",
+            "maxUnionFieldsCount": "联合体数据成员的数量上限，超过则报出"
             },
         "tag": "type"
         },
@@ -743,7 +743,7 @@
         "level": "suggestion",
         "comment": "在一个语句中不应声明过多对象或函数，建议在每个语句中只声明一个对象或函数，提高可读性也可减少笔误。",
         "config": {
-            "ID_declaration/maxDeclaratorCount": "一个声明语句能包含的对象个数上限，超过则报出"
+            "maxDeclaratorCount": "一个声明语句能包含的对象个数上限，超过则报出"
             },
         "tag": "declaration",
         "reference": "C++ Core Guidelines ES.10,MISRA C++ 2008 8-0-1"
@@ -886,7 +886,7 @@
         "level": "warning",
         "comment": "局部数组的长度过大增加函数堆栈的压力，易导致溢出错误。",
         "config": {
-            "ID_declaration/maxLocalArraySize": "局部数组的长度上限，超过则报出"
+            "maxLocalArraySize": "局部数组的长度上限，超过则报出"
             },
         "tag": "declaration",
         "reference": "CWE-770,SEI CERT MEM05-C"
@@ -939,7 +939,7 @@
         "level": "warning",
         "comment": "由 throw 关键字声明的动态异常规格说明已过时，应采用由 noexcept 关键字声明的方式。",
         "config": {
-            "ID_declaration/forbidEmptyThrowSpecification": "为 true 时报出空 throw 异常规格说明，否则放过"
+            "forbidEmptyThrowSpecification": "为 true 时报出空 throw 异常规格说明，否则放过"
             },
         "tag": "exception",
         "standard": "ISO/IEC 14882:2011 D.4-deprecated,ISO/IEC 14882:2017 D.3-deprecated",
@@ -1101,7 +1101,7 @@
         "level": "warning",
         "comment": "以 .h 或 .hpp 为扩展名的头文件应包含头文件守卫。",
         "config": {
-            "ID_missingHeaderGuard/allowPragmaOnce": "为 true 时 #pragma once 也可作为符合要求的头文件守卫"
+            "allowPragmaOnce": "为 true 时 #pragma once 也可作为符合要求的头文件守卫"
             },
         "tag": "precompile",
         "reference": "C++ Core Guidelines SF.8,MISRA C 2004 19.15,MISRA C++ 2008 16-2-3"
@@ -1133,7 +1133,7 @@
         "level": "suggestion",
         "comment": "逗号表达式将多个语句合成一个表达式，易形成笔误并造成阅读困难。",
         "config": {
-            "ID_expression/allowCommaExpressionInForIteration": "为 true 可以放过 for 迭代声明中的逗号表达式"
+            "allowCommaExpressionInForIteration": "为 true 时放过 for 迭代声明中的逗号表达式"
             },
         "tag": "expression",
         "reference": "MISRA C 2004 12.10,MISRA C 2012 12.3,MISRA C++ 2008 5-18-1"
@@ -1499,8 +1499,8 @@
         "level": "suggestion",
         "comment": "运算符超过一定数量意味着表达式过于复杂，易包含潜在的错误，更不利于调试与维护，应进行适当拆分。",
         "config": {
-            "ID_expression/maxOperatorCount": "运算符最大数量，超过则报出",
-            "ID_expression/maxLogicOperatorCount": "逻辑运算符最大数量，超过则报出"
+            "maxOperatorCount": "运算符最大数量，超过则报出",
+            "maxLogicOperatorCount": "逻辑运算符最大数量，超过则报出"
             },
         "tag": "expression",
         "reference": "C++ Core Guidelines ES.40"
@@ -1510,7 +1510,7 @@
         "level": "error",
         "comment": "恒为真的断言是没有意义的。",
         "config": {
-            "ID_assertion/names": "断言函数或宏的名称，如 assert、_ASSERT_EXPR 等，用“|”分隔"
+            "names": "断言函数或宏的名称，如 assert、_ASSERT_EXPR 等，用“|”分隔"
             },
         "tag": "expression",
         "standard": "ISO/IEC 9899:2011 7.2"
@@ -1520,7 +1520,7 @@
         "level": "error",
         "comment": "断言中的表达式如果有副作用，不能保证在所有编译设置下都有效。",
         "config": {
-            "ID_assertion/names": "断言函数或宏的名称，如 assert、_ASSERT_EXPR 等，用“|”分隔"
+            "names": "断言函数或宏的名称，如 assert、_ASSERT_EXPR 等，用“|”分隔"
             },
         "tag": "expression",
         "standard": "ISO/IEC 9899:2011 7.2",
@@ -1532,8 +1532,8 @@
         "level": "suggestion",
         "comment": "断言中的表达式不应过于复杂， 否则不易定位具体是哪一项不符合断言，不利于调试。",
         "config": {
-            "ID_assertion/names": "断言函数或宏的名称，如 assert、_ASSERT_EXPR 等，用“|”分隔",
-            "ID_assertion/maxLogicOperatorCount": "断言表达式中“逻辑与”运算符的最大数量，超过则报出"
+            "names": "断言函数或宏的名称，如 assert、_ASSERT_EXPR 等，用“|”分隔",
+            "maxLogicOperatorCount": "断言表达式中“逻辑与”运算符的最大数量，超过则报出"
             },
         "tag": "expression"
         },
@@ -1549,7 +1549,7 @@
         "level": "warning",
         "comment": "固定地址是不可移植的，且存在安全隐患。",
         "config": {
-            "ID_expression/allowMinusOneAsPointerValue": "为 true 时可以放过 -1 作为指针值的情况"
+            "allowMinusOneAsPointerValue": "为 true 时可以放过 -1 作为指针值的情况"
             },
         "tag": "pointer",
         "related": "ID_ptrIntCast",
@@ -1833,8 +1833,8 @@
         "level": "warning",
         "comment": "函数参数的数量应在规定范围之内。",
         "config": {
-            "ID_declaration/maxParamCount": "参数数量上限，超过则报出",
-            "ID_declaration/maxInnerFunParamCount": "static 函数或 private 成员函数参数数量上限，超过则报出"
+            "maxParamCount": "参数数量上限，超过则报出",
+            "maxInnerFunParamCount": "static 函数或 private 成员函数参数数量上限，超过则报出"
             },
         "tag": "function",
         "reference": "C++ Core Guidelines F.2,C++ Core Guidelines I.23"
@@ -1865,7 +1865,7 @@
         "level": "suggestion",
         "comment": "当有如下情况时，不适合将函数声明为内联函数：\n1. 行数超过指定限制\n2. 存在循环或异常处理语句\n3. 存在switch分枝语句\n4. 函数为递归函数\n实际上如果出现以上情况，编译器也不会将其实现为内联函数。",
         "config": {
-            "ID_function/maxInlineFunctionLineCount": "内联函数行数上限，超过则报出"
+            "maxInlineFunctionLineCount": "内联函数行数上限，超过则报出"
             },
         "tag": "function",
         "reference": "C++ Core Guidelines F.5"
@@ -2044,10 +2044,10 @@
         "level": "suggestion",
         "comment": "全局名称应具有标识性，长度不应过短，否则易与局部名称产生冲突。",
         "config": {
-            "ID_global/ minVariableNameLength": "全局对象名称长度下限，小于则报出",
-            "ID_global/minFunctionNameLength": "全局函数名称长度下限，小于则报出",
-            "ID_global/minNameSpaceNameLength": "全局命名空间名称长度下限，小于则报出",
-            "ID_global/minTypeNameLength": "全局类型名称长度下限，小于则报出"
+            "minVariableNameLength": "全局对象名称长度下限，小于则报出",
+            "minFunctionNameLength": "全局函数名称长度下限，小于则报出",
+            "minNameSpaceNameLength": "全局命名空间名称长度下限，小于则报出",
+            "minTypeNameLength": "全局类型名称长度下限，小于则报出"
             },
         "tag": "global",
         "related": "ID_badName",
@@ -2089,7 +2089,7 @@
         "level": "warning",
         "comment": "内容完全相同的分枝是没有意义的，也可能是由复制粘贴造成的错误。",
         "config": {
-            "ID_if/identicalBlockThreshold": "重复分枝符号数量限制，不检查符号数量小于该值的分枝"
+            "blockTokenCountThreshold": "重复分枝符号数量限制，不检查符号数量小于该值的分枝"
             },
         "tag": "control",
         "related": "ID_if_identicalBlock",
@@ -2139,7 +2139,7 @@
         "comment": "虽然语言允许在 if 语句的条件中赋值，但 = 和 == 极易混淆，建议所有产生 bool 型结果的表达式，都不要包含赋值运算符。",
         "tag": "control",
         "config": {
-            "ID_if_assignment/allowEnclosedAssignment": "为 true 可以放过括号括起来的赋值表达式"
+            "allowEnclosedAssignment": "为 true 可以放过括号括起来的赋值表达式"
             },
         "reference": "CWE-480,CWE-481,CWE-783"
         },
@@ -2293,7 +2293,7 @@
         "comment": "内容完全相同的分枝应合并为一个分枝，也可能是由复制粘贴造成的错误。",
         "tag": "control",
         "config": {
-            "ID_switch/identicalBranchThreshold": "重复分枝符号数量限制，不检查符号数量小于该值的分枝"
+            "branchTokenCountThreshold": "重复分枝符号数量限制，不检查符号数量小于该值的分枝"
             },
         "related": "ID_if_identicalBlock,ID_if_identicalElseIfBlock",
         "reference": "C++ Core Guidelines ES.3"
@@ -2442,7 +2442,7 @@
         "level": "suggestion",
         "comment": "对于直接出现在代码中的字面数值（magic number），建议改用具有适当名称的常量或枚举项表示。",
         "config": {
-            "ID_literal/magicNumberDigitThreshold": "数字常量的位数上限，超过则报出"
+            "magicNumberDigitThreshold": "数字常量的位数上限，超过则报出"
             },
         "tag": "literal",
         "related": "ID_literal_magicString",
@@ -2501,7 +2501,7 @@
         "level": "suggestion",
         "comment": "宏的名称应采用全大写字母的形式，非宏名称则应包含小写字母。",
         "config": {
-            "ID_macro/maxWordLength": "连续无大小写变化的字符个数上限，超过则报出"
+            "maxWordLength": "连续无大小写变化的字符个数上限，超过则报出"
             },
         "tag": "precompile",
         "related": "ID_badName",
@@ -2519,7 +2519,7 @@
         "level": "warning",
         "comment": "宏参数数量过多意味着宏功能过于复杂，不利于调试，应改为函数。",
         "config": {
-            "ID_macro/maxParamCount": "参数个数上限，超过则报出"
+            "maxParamCount": "参数个数上限，超过则报出"
             },
         "related": "ID_tooManyParams",
         "tag": "precompile"
@@ -2663,7 +2663,7 @@
     "ID_nullDerefAllocRet": {
         "checkPoint": "判断资源分配函数的返回值是否有效",
         "level": "warning",
-        "comment": "malloc 等函数在分配失败时返回空指针，如果不加判断直接解引用会造成标准未定义的错误。",
+        "comment": "malloc 等函数在分配失败时返回空指针，如果不加判断直接使用会造成标准未定义的错误。",
         "tag": "resource",
         "standard": "ISO/IEC 9899:1999 7.20.3(1),ISO/IEC 9899:2011 7.22.3(1)",
         "reference": "CWE-476,CWE-252"
@@ -2908,7 +2908,7 @@
         "level": "suggestion",
         "comment": "应遵循易于读写，并可准确表达代码意图的命名方式。",
         "config": {
-            "ID_declaration/maxWordLength": "连续无大小写变化的字符个数上限，超过则报出"
+            "maxWordLength": "连续无大小写变化的字符个数上限，超过则报出"
             },
         "tag": "declaration",
         "standard": "ISO/IEC 9899:1999 5.2.4.1(1),ISO/IEC 9899:1999 6.4.2.1(6)-undefined,ISO/IEC 9899:2011 5.2.4.1(1),ISO/IEC 9899:2011 6.4.2.1(6)-undefined",
