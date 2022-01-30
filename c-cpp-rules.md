@@ -2359,7 +2359,7 @@ void bar() {
 ```
 例中 strdup 函数和 vector 容器均使用了动态内存分配方法，是不符合本规则要求的。  
   
-对于要求相对宽松的程序，也应该尽量避免使用动态内存分配，如果能在栈上定义对象，就不应采用动态内存分配的方式。
+对于要求相对宽松的程序，也应尽量避免动态分配内存，如果能在栈上定义对象，就不应采用动态分配的方式。
 <br/>
 <br/>
 
@@ -3083,7 +3083,7 @@ ID_macro_misspelling&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
 <hr/>
 
-宏的名称不应存在拼写错误，尤其是供他人调用的宏，错误拼写会使代码的使用者对代码的质量产生疑虑，故须认真对待。  
+宏的名称不应存在拼写错误，尤其是供他人调用的宏，错误拼写会使代码的使用者对代码的质量产生疑虑，应认真对待。  
   
 示例：
 ```
@@ -4054,7 +4054,7 @@ ID_nonConstGlobalObject&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 char foo;         // Non-compliant
 extern char bar;  // Non-compliant, worse
 
-void baz() {
+void fun() {
     do_something(foo, bar);
 }
 ```
@@ -4062,7 +4062,7 @@ void baz() {
 ```
 class A {
 public:
-    void baz() {
+    void fun() {
         do_something(foo, bar);
     }
 private:
@@ -5351,7 +5351,7 @@ public:
 
 class B {
 public:
-    // ... methods about the union
+    // ... Interfaces about the union
 private:
     union {   // Compliant, the union is under control
         ....
@@ -8805,7 +8805,9 @@ public:
 };
 
 void foo(A);   // Non-compliant
+
 void bar(A&);  // Compliant
+void baz(A*);  // Compliant
 ```
 <br/>
 <br/>
@@ -9002,7 +9004,7 @@ struct A {
     int y = 0;  // Good
     int z = 0;  // Good
 
-    A(int i): x(i) {  // OK
+    A(int i): x(i) {  // Compliant
     }
 };
 ```
@@ -9310,11 +9312,11 @@ A& A::operator = (const A& rhs) {
 ```
 A& A::operator = (const A& rhs) {
     A tmp(rhs);
-    this->swap(tmp);
+    this->swap(tmp);   // Good
     return *this;
 }
 ```
-利用创建临时对象并与之交换的方法，也有效规避了冲突，这种方法使各函数更专注于自己的职责，不必重复编写分配或回收相关的代码，建议采用这种方法。
+利用创建临时对象并与之交换的方法，也有效规避了冲突，这种方法使各函数更专注于自己的职责，不必重复编写分配和回收相关的代码，建议采用这种方法。
 <br/>
 <br/>
 
@@ -9503,17 +9505,18 @@ ID_notAllBranchReturn&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 int fun() {
     if (condition1) {
         return 1;
-    } else if (condition2) {
+    }
+    else if (condition2) {
         return 2;
-    } else if (condition3) {
-        // Non-compliant if no return value
-    } else {
+    }
+    else if (condition3) {  // Non-compliant if no return value
+    }
+    else {
         return 4;
     }
 }
 ```
 当符合 condition3 的条件时，fun 函数的调用者将得到一个错误的返回值。  
-建议存在多分枝时，在函数结尾统一返回。  
   
 例外：  
 在 main 函数的结尾如果不显式调用 return 语句，编译器会自动添加 return 0，故对 main 函数不作要求。
@@ -9712,21 +9715,21 @@ ID_returnConstObject&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
   
 示例：
 ```
-const vector<int> foo() {  // Non-compliant
+const vector<int> fun() {  // Non-compliant
     return { 1, 2, 3 };
 }
 
-vector<int> bar(foo());    // Call ‘vector(const vector&)’
+vector<int> obj(fun());    // Call ‘vector(const vector&)’
 ```
-foo 函数返回 const vector 对象，构造 bar 对象时只能进行深拷贝，无法利用移动构造等特性。  
+fun 返回 const vector 对象，构造 obj 对象时只能进行深拷贝，无法利用移动构造等特性。  
   
 应改为：
 ```
-vector<int> foo() {        // Compliant
+vector<int> fun() {        // Compliant
     return { 1, 2, 3 };
 }
 
-vector<int> bar(foo());    // Call ‘vector(vector&&)’, more efficient
+vector<int> obj(fun());    // Call ‘vector(vector&&)’, more efficient
 ```
 这样可以利用移动构造函数提高效率。  
   
@@ -9779,11 +9782,11 @@ ID_returnSameConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 bool foo(int a) {
     if (a > 100) {
         return true;
-    } else if (a > 50) {
-        return true;
-    } else {
-        return true;  // Non-compliant, all return values are the same
     }
+    if (a > 50) {
+        return true;
+    }
+    return true;   // Non-compliant, all return values are the same
 }
 ```
 例外：  
@@ -9989,8 +9992,7 @@ ID_tooManyLabels&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 标签过多意味着函数内部的跳转逻辑过于复杂，违反结构化设计理念，应适当重构。  
   
-对于 C 代码，建议一个函数最多只有一个标签，作为函数统一的出口，或资源回收过程的入口。  
-对于 C\+\+ 代码，不建议使用标签。  
+对于 C 代码，建议一个函数只有一个标签，作为函数统一出口，对于 C\+\+ 代码，不建议使用标签。  
   
 示例：
 ```
@@ -10059,7 +10061,7 @@ void foo()
         // ... Many lines ...
     };
         // ... Many lambdas ...
-        // ... Even lambdas nested lambdas ...
+        // ... Even lambdas nest lambdas ...
     auto f100 = []() {
         // ...
     };
@@ -10155,7 +10157,7 @@ ID_forbidGotoBlocks&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function warning
 
 <hr/>
 
-不同的作用域往往对应不同的条件约束，在不同的作用域间跳转是对约束的破坏，很容易导致逻辑混乱。  
+不同的作用域对应不同的条件约束，在不同的作用域间跳转是对约束的破坏，很容易导致逻辑混乱。  
   
 向嵌套的或无包含关系的作用域跳转是不应被允许的，如果是为了结束当前流程而在同层或向外层作用域跳转，则可被本规则允许。  
   
@@ -10756,7 +10758,7 @@ if (condition1) {
     ....
 }
 ```
-这种情况可能是漏掉了 else 关键字，即使没有被漏掉，也应该让 if 关键字另起一行，否则这种换行习惯会增加遗漏 else 关键字的风险，而且可读性较差。
+这种情况很可能是漏掉了 else 关键字，即使没有被漏掉，也应该让 if 关键字另起一行，否则这种换行习惯会增加遗漏 else 关键字的风险，而且可读性较差。
 <br/>
 <br/>
 <br/>
@@ -10943,13 +10945,13 @@ ID_if_missingEndingElse&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
 
 所有 if...else if 分枝都以 else 子句结束是非常好的编程习惯，这与要求 switch 语句包含 defualt 分枝一样，是“防御性编程”思想的良好体现，参见 ID\_switch\_missingDefault。  
   
-单独的一个 if 分枝不要求接有 else 子句，如：
+单独的一个 if 分枝不要求接有 else 子句：
 ```
 if (x > 0) {
     ....
 }
 ```
-存在多个 if...else if 分枝时，需要接有 else 子句
+存在多个 if...else if 分枝时，需要接有 else 子句：
 ```
 if (x > 0) {
     ....
@@ -10988,7 +10990,7 @@ for 语句不应被分号隔断。
   
 示例：
 ```
-for (auto i: container);  // Non-compliant, see the semicolon
+for (....);  // Non-compliant, see the semicolon
 {
     ....
 }
@@ -11019,7 +11021,7 @@ ID_for_uncondBroken&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: control error
   
 示例：
 ```
-for (int i = 0; i < size; i++) {
+for (....) {
     if (cond)
         foo();
         break;  // Non-compliant
@@ -11048,10 +11050,10 @@ for 语句作用域的范围不应有误。
   
 示例：
 ```
-for (iteration-declaration)
+for (....)
     statement1; statement2;  // Non-compliant
 
-for (iteration-declaration)
+for (....)
     statement1;
     statement2;  // Non-compliant
 ```
@@ -11079,11 +11081,11 @@ ID_for_simplification&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
   
 示例：
 ```
-for (;condition;)
+for (;condition;)   // Non-compliant
 ```
 不妨化简为：
 ```
-while (condition)
+while (condition)   // Compliant
 ```
 例外：  
 for (;;) 被当作一种无限循环的惯用方法可被排除。
@@ -16961,11 +16963,9 @@ ID_spaceStyle&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style suggestion
 
 <hr/>
 
-与缩进、运算符、关键字有关的空格应遵循统一风格，过于随意的空格会对阅读产生较大干扰，甚至形成笔误。  
+与运算符、标点符、关键字相关的空格应遵循统一风格，过于随意的空格会干扰阅读，甚至形成笔误。  
   
-本规则暂不强调具体风格，但强调一致性，即同类运算符、关键字的空格方式应该是一致的。  
-  
-本规则是 ID\_stickyAssignmentOperator 的泛化，该规则描述了一种由空格造成的错误。  
+本规则暂不限定具体风格，但强调一致性，同类运算符、标点符、关键字的空格方式应保持一致，tab 等变长空白符不应用作空格。  
   
 示例：
 ```
@@ -16980,6 +16980,9 @@ baz (1 , 2 ,3);         // Bad
 if (cond)
 if(cond)                // Missing a unified style
 ```
+例中运算符和关键字相关的空格风格不一致，代码显得很混乱。  
+  
+本规则是 ID\_stickyAssignmentOperator 的泛化，该规则描述了一种由空格造成的错误。
 <br/>
 <br/>
 
@@ -16994,9 +16997,9 @@ ID_braceStyle&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style suggestion
 
 <hr/>
 
-大括号应遵循统一风格。  
+大括号应遵循统一的换行和缩进风格，否则会干扰阅读，甚至形成笔误。  
   
-对于命名空间、类、函数体、复合语句等不同类别的大括号，其换行方式可以不同，但同类大括号的换行方式应该是一致的。  
+命名空间、类、函数体、复合语句等不同类别的大括号，换行方式可以不同，但同类大括号的换行方式应该是一致的，本规则暂不限定具体风格，但强调一致性。  
   
 示例：
 ```
@@ -17020,8 +17023,14 @@ void bar()
     }
 }
 ```
-例中大括号换行的方式不一致，影响阅读。
+例中大括号换行的方式不一致，代码显得很混乱。  
+  
+本规则是 ID\_if\_mayBeElseIf 的泛化，该规则描述了一种由换行造成的错误。
 <br/>
+<br/>
+
+#### 相关
+ID_if_mayBeElseIf  
 <br/>
 <br/>
 

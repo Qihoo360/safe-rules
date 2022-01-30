@@ -1000,7 +1000,7 @@
     "ID_forbidGotoBlocks": {
         "checkPoint": "禁止 goto 语句向嵌套的或无包含关系的作用域跳转",
         "level": "warning",
-        "comment": "不同的作用域往往对应不同的条件约束，在不同的作用域间跳转是对约束的破坏，很容易导致逻辑混乱。",
+        "comment": "不同的作用域对应不同的条件约束，在不同的作用域间跳转是对约束的破坏，很容易导致逻辑混乱。",
         "tag": "function",
         "related": "ID_forbidGotoBack,ID_forbidGoto",
         "reference": "MISRA C 2012 15.3,MISRA C++ 2008 6-6-1"
@@ -1072,15 +1072,16 @@
     "ID_spaceStyle": {
         "checkPoint": "空格应遵循统一风格",
         "level": "suggestion",
-        "comment": "与缩进、运算符、关键字有关的空格应遵循统一风格，过于随意的空格会对阅读产生较大干扰，甚至形成笔误。",
+        "comment": "与运算符、标点符、关键字相关的空格应遵循统一风格，过于随意的空格会干扰阅读，甚至形成笔误。",
         "tag": "style",
         "related": "ID_stickyAssignmentOperator"
         },
     "ID_braceStyle": {
         "checkPoint": "大括号应遵循统一风格",
         "level": "suggestion",
-        "comment": "大括号应遵循统一风格。",
-        "tag": "style"
+        "comment": "大括号应遵循统一的换行和缩进风格，否则会对阅读产生较大干扰，甚至形成笔误。",
+        "tag": "style",
+        "related": "ID_if_mayBeElseIf"
         },
     "ID_returnSuperfluousConst": {
         "checkPoint": "基本类型的返回值不应使用 const 修饰",
@@ -2510,7 +2511,7 @@
     "ID_macro_misspelling": {
         "checkPoint": "宏名称中不应存在拼写错误",
         "level": "suggestion",
-        "comment": "宏的名称不应存在拼写错误，尤其是供他人调用的宏，错误拼写会使代码的使用者对代码的质量产生疑虑，故须认真对待。",
+        "comment": "宏的名称不应存在拼写错误，尤其是供他人调用的宏，错误拼写会使代码的使用者对代码的质量产生疑虑，应认真对待。",
         "tag": "precompile",
         "related": "ID_misspelling,ID_literal_misspelling"
         },
