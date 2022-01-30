@@ -114,7 +114,7 @@
   - [R2.12 用 delete 释放对象不可多写中括号](#ID_excessiveDelete)
   - [R2.13 用 delete 释放数组不可漏写中括号](#ID_insufficientDelete)
   - [R2.14 在栈上分配的空间以及非动态申请的资源不可被释放](#ID_illDealloc)
-  - [R2.15 在一个语句中最多执行一次显式资源分配](#ID_multiAllocation)
+  - [R2.15 在一个表达式语句中最多使用一次 new](#ID_multiAllocation)
   - [R2.16 流式资源对象不应被复制](#ID_copiedStream)
   - [R2.17 避免使用在栈上分配内存的函数](#ID_stackAllocation)
   - [R2.18 避免不必要的内存分配](#ID_unnecessaryAllocation)
@@ -1687,7 +1687,7 @@ ID_ownerlessResource&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warni
   
 将资源分配的结果直接在程序中传递是非常不安全的，极易产生泄漏或死锁等问题。动态申请的资源如果只用普通变量引用，不受对象的构造或析构机制控制，则称为“无主”资源，在 C\+\+ 程序设计中应当避免。  
   
-应尽量使用标准库提供的容器或智能指针，避免显式使用资源管理函数。本文示例中的 new 和 delete 意在代指一般的资源操作，仅作示例，在实际代码中应尽量避免。  
+应尽量使用标准库提供的容器或智能指针，避免显式使用资源管理接口。本文示例中的 new 和 delete 意在代指一般的资源操作，仅作示例，在实际代码中应尽量避免。  
   
 示例：
 ```
@@ -1724,7 +1724,7 @@ void baz() {
   
 资源的所有权可以发生转移，但应保证转移前后均有对象负责管理资源，并且在转移过程中不会产生异常。进一步理解对象化管理方法，可参见“[RAII（Resource Acquisition Is Initialization）](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization)”等机制。  
   
-对系统 API 尤其是资源相关的 API 应进行合理封装，不应直接被业务代码引用，如：
+与资源相关的系统接口不应直接被业务代码引用，如：
 ```
 void foo(const TCHAR* path) {
     HANDLE h;
@@ -1735,7 +1735,9 @@ void foo(const TCHAR* path) {
     CloseHandle(h);  // Is it right?
 }
 ```
-例中 Windows API FindFirstFile 返回资源句柄，这是一种“无主”资源，很可能被后续代码误用或遗忘，应对其进行合理的封装：
+例中 Windows API FindFirstFile 返回资源句柄，是“无主”资源，很可能被后续代码误用或遗忘。  
+  
+应进行合理封装：
 ```
 class MY_FIND_DATA
 {
@@ -1848,8 +1850,8 @@ void foo() {
     free(p);   // Non-compliant, use ‘delete’ instead
 }
 
-void bar(int n) {
-    int* p = (int*)malloc(n * sizeof(int));
+void bar(size_t n) {
+    char* p = (char*)malloc(n);
     ....
     delete[] p;  // Non-compliant, use ‘free’ instead
 }
@@ -1874,7 +1876,7 @@ ID_crossModuleTransfer&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource war
 
 <hr/>
 
-容器等相关资源可以动态变化的对象不应在模块之间传递，否则易造成分配回收方面的冲突。  
+容器的容量可以动态变化，这种对象不应在模块之间传递，否则易造成分配回收方面的冲突。  
   
 在模块间传递复杂的对象也意味着模块耦合过于紧密，不是良好的设计。如果必须在模块间传递对象，需将所有相关资源的分配与回收过程限定在同一模块内，是繁琐且不利于维护的。  
   
@@ -1955,7 +1957,7 @@ string foo(string a) {
     return a;  // Non-compliant
 }
 ```
-例中 a 对象的数据被转移到 b 对象，之后 a 对象不再有效，对 a 重新赋值之前再访问 a 将产生逻辑错误。
+例中 a 对象的数据被转移到 b 对象，之后 a 对象不再有效，对 a 重新赋值之前再访问 a 属于逻辑错误。
 <br/>
 <br/>
 
@@ -2196,36 +2198,39 @@ MISRA C 2012 22.2
 <br/>
 <br/>
 
-### <span id="ID_multiAllocation">▌R2.15 在一个语句中最多执行一次显式资源分配</span>
+### <span id="ID_multiAllocation">▌R2.15 在一个表达式语句中最多使用一次 new</span>
 
 ID_multiAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
 <hr/>
 
-在一个语句中最多执行一次显式资源分配，否则某个对象的构造函数抛出异常的话，会造成内存泄漏。  
+在对象化资源管理的基础上，如果表达式语句多次使用 new，一旦某个构造函数抛出异常，仍会造成内存泄漏。  
   
 示例：
 ```
-void foo(shared_ptr<T> a, shared_ptr<T> b);
-
-void bar(int x, int y) {
-    foo(
-        shared_ptr<T>(new T(x)),
-        shared_ptr<T>(new T(y))    // Non-compliant
-    );
-}
+fun(
+    shared_ptr<T>(new T),
+    shared_ptr<T>(new T))      // Non-compliant, potential memory leak
+);
 ```
-示例代码在一个语句中调用了两次 new 分配，实际执行时可以先为两个对象分配内存，再分别执行对象的构造函数，如果某个构造函数抛出异常，已分配的内存就得不到回收了。  
+例中 fun 的两个参数均为 new 表达式，实际执行时可以先为两个对象分配内存，再分别执行对象的构造函数，如果某个构造函数抛出异常，已分配的内存就得不到回收了。  
   
-应改为：
+保证一次内存分配对应一个构造函数可解决这种问题：
 ```
-void bar(int x, int y) {
-    auto a = shared_ptr<T>(new T(x));  // Compliant, ‘make_shared’ is better
-    auto b = shared_ptr<T>(new T(y));  // Compliant
-    foo(a, b);
-}
+auto a(shared_ptr<T>(new T));  // Compliant
+auto b(shared_ptr<T>(new T));  // Compliant
+fun(a, b);
 ```
-保证一次内存分配后执行一个构造函数可解决这种问题，如果构造函数抛出异常已分配的内存也可自动被回收。
+这样即使构造函数抛出异常也会自动回收已分配的内存。  
+  
+更好的方法是避免显式资源分配：
+```
+fun(
+    make_shared<T>(),
+    make_shared<T>()    // Compliant, safe and brief
+);
+```
+用 make\_shared、make\_unique 等函数代替 new 运算符可有效规避这种问题。
 <br/>
 <br/>
 
@@ -2340,24 +2345,18 @@ ID_dynamicAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warni
 
 <hr/>
 
-对于标准库提供的动态内存分配方法，其策略和算法不在使用者的控制之内，很多细节是标准没有明确规定的，而且也是内存泄漏或耗尽等问题的根源，对于有高可靠性要求的嵌入式软件系统可酌情选取本规则。  
+标准库提供的动态内存分配方法，其算法或策略不在使用者的控制之内，很多细节是标准没有规定的，而且也是内存耗尽等问题的根源，有高可靠性要求的嵌入式系统应选取本规则。  
+  
+在内存资源有限的环境中，由于难以控制具体的分配策略，很可能会导致已分配的空间用不上，未分配的空间不够用的情况。而在资源充足的环境中，也应尽量避免动态分配，如果能在栈上创建对象，就不应采用动态分配的方式，以提高效率并降低资源管理的复杂性。  
   
 示例：
 ```
-void foo(const char* s) {
-    char* p = strdup(s);    // Non-compliant
-    ....
-    free(p);
-}
-
-void bar() {
+void foo() {
     std::vector<int> v;     // Non-compliant
     ....
 }
 ```
-例中 strdup 函数和 vector 容器均使用了动态内存分配方法，是不符合本规则要求的。  
-  
-对于要求相对宽松的程序，也应尽量避免动态分配内存，如果能在栈上定义对象，就不应采用动态分配的方式。
+例中 vector 容器使用了动态内存分配方法，容量的增长策略可能会导致内存空间的浪费，使程序难以稳定运行。
 <br/>
 <br/>
 
@@ -2388,9 +2387,9 @@ malloc 等函数在分配失败时返回空指针，如果不加判断直接使�
   
 示例：
 ```
-char* foo(size_t size) {
-    char* p = (char*)malloc(size);
-    for (size_t i = 0; i < size; i++) {
+char* foo(size_t n) {
+    char* p = (char*)malloc(n);
+    for (size_t i = 0; i < n; i++) {
         p[i] = '\0';  // Non-compliant, check ‘p’ first
     }
     return p;
@@ -2421,16 +2420,16 @@ ID_forbidMallocAndFree&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: resource warning
   
 示例：
 ```
-void foo(size_t size) {
-    int* p = (int*)malloc(size * sizeof(int));  // Unsafe and verbose
+void foo(size_t n) {
+    int* p = (int*)malloc(n * sizeof(int));  // Unsafe and verbose
     ....
     free(p);
 }
 ```
 应改为：
 ```
-void foo(size_t size) {
-    auto p = make_unique<int[]>(size);  // Safe and brief
+void foo(size_t n) {
+    auto p = make_unique<int[]>(n);  // Safe and brief
     ....
 }
 ```
