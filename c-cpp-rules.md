@@ -1685,7 +1685,9 @@ ID_ownerlessResource&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warni
 
 对象化管理资源，免去繁琐易错的手工分配回收过程，是 C\+\+ 程序设计的重要方法。  
   
-将 new 表达式或 malloc 等函数的结果直接在程序中传递是非常不安全的，极易产生泄漏或死锁等问题。动态申请的资源只被普通变量引用，不受对象的构造或析构机制控制，这种资源称为“无主”资源，在 C\+\+ 程序设计中应当避免。  
+将资源分配函数的结果直接在程序中传递是非常不安全的，极易产生泄漏或死锁等问题。动态申请的资源只被普通变量引用，不受对象的构造或析构机制控制，这种资源称为“无主”资源，在 C\+\+ 程序设计中应当避免。  
+  
+应尽量使用标准库提供的容器或智能指针，避免显式使用资源管理函数。本文示例中出现的 new 和 delete 意在代指一般的资源操作，仅作示例，在实际代码中应尽量避免。  
   
 示例：
 ```
@@ -1720,11 +1722,7 @@ void baz() {
 ```
 例中 foo 和 bar 函数对资源的管理是不符合 C\+\+ 理念的，baz 函数中的 y 对象负责资源的分配与回收，称 y 对象具有资源的所有权，相关资源的生命周期与 y 的生命周期一致，有效避免了资源泄漏或错误回收等问题。  
   
-资源的所有权可以发生转移，但应保证转移前后均有对象负责管理相关资源，以及在转移过程中不会产生异常。  
-  
-应尽量使用标准库提供的容器或智能指针，避免显式调用 new 和 delete。对于遵循 C\+\+11 之后标准的代码，建议用 make\_unique 函数代替 new 运算符。  
-  
-进一步理解资源的对象化管理方法，可参见“[RAII（Resource Acquisition Is Initialization）](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization)”等机制。  
+资源的所有权可以发生转移，但应保证转移前后均有对象负责管理相关资源，以及在转移过程中不会产生异常。进一步理解资源的对象化管理方法，可参见“[RAII（Resource Acquisition Is Initialization）](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization)”等机制。  
   
 对系统 API 尤其是资源相关的 API 应进行合理封装，不应直接被业务代码引用，如：
 ```
@@ -2019,7 +2017,7 @@ A::A(size_t n) {
     b = holder_b.release();
 }
 ```
-先用 unique\_ptr 对象持有资源，完成可能抛出异常的事务之后，再将资源转移给相关成员，转移的过程不可抛出异常，这种模式可以保证异常安全，如果有异常抛出，资源均可被正常回收。  
+先用 unique\_ptr 对象持有资源，完成可能抛出异常的事务之后，再将资源转移给相关成员，转移的过程不可抛出异常，这种模式可以保证异常安全，如果有异常抛出，资源均可被正常回收。对遵循 C\+\+11 及之后标准的代码，建议用 make\_unique 函数代替 new 运算符。  
   
 示例代码意在讨论一种通用模式，实际代码可采用更直接的方式：
 ```
@@ -2034,7 +2032,7 @@ public:
 ```
 保证已分配的资源时刻有对象负责回收是重要的设计原则，可参见 ID\_ownerlessResource 的进一步讨论。  
   
-另外，需要注意访问“未成功初始化的对象”造成的逻辑错误，如：
+注意，“未成功初始化的对象”在 C\+\+ 语言中是不存在的，应避免相关逻辑错误，如：
 ```
 struct T {
     A() { throw CtorException(); }
@@ -2053,7 +2051,7 @@ void foo() {
     delete p;
 }
 ```
-例中 T 类型的对象在构造时会抛出异常，而实际上 p 并不会指向一个未能成功初始化的对象，赋值被异常中断，catch 块中的 p 仍然是一个空指针，对于未能成功执行的 new 表达式会自动回收其分配的内存，未能成功初始化的对象在 C\+\+ 语言中是不存在的。
+例中 T 类型的对象在构造时抛出异常，而实际上 p 并不会指向一个未能成功初始化的对象，赋值被异常中断，catch 块中的 p 仍然是一个空指针，new 表达式中抛出异常会自动回收已分配的内存。
 <br/>
 <br/>
 
@@ -5451,7 +5449,7 @@ namespace xxx  // Bad, meaningless name
     const int nVarietyisthespiceoflife = 123;  // Bad, hard to read
 }
 ```
-例中 xxx、fun 这种无意义或过于空泛的名称是不符合要求的，名称中各单词间应有下划线或大小写变化，否则是不便于读写的，本规则集合中出现的 foo、bar 等名称，意在泛指一般的代码元素，仅作示例，实际代码中不应出现。  
+例中 xxx、fun 这种无意义或过于空泛的名称是不符合要求的，名称中各单词间应有下划线或大小写变化，否则是不便于读写的。本文示例中出现的 foo、bar 等名称，意在代指一般的代码元素，仅作示例，实际代码中不应出现。  
   
 不良命名方式甚至会导致标准未定义的行为，如：
 ```
@@ -9721,7 +9719,7 @@ const vector<int> fun() {  // Non-compliant
 
 vector<int> obj(fun());    // Call ‘vector(const vector&)’
 ```
-fun 返回 const对象，构造 obj 对象时只能进行深拷贝，无法利用移动构造等特性。  
+fun 返回 const 对象，构造 obj 对象时只能进行深拷贝，无法利用移动构造等特性。  
   
 应改为：
 ```
@@ -10943,7 +10941,7 @@ ID_if_missingEndingElse&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
 
 <hr/>
 
-所有 if...else if 分枝都以 else 子句结束是非常好的编程习惯，这与要求 switch 语句包含 defualt 分枝一样，是“防御性编程”思想的良好体现，参见 ID\_switch\_missingDefault。  
+所有 if...else\-if 分枝都以 else 子句结束是非常好的编程习惯，这与要求 switch 语句包含 defualt 分枝一样，是“防御性编程”思想的良好体现，参见 ID\_switch\_missingDefault。  
   
 单独的一个 if 分枝不要求接有 else 子句：
 ```
@@ -10951,7 +10949,7 @@ if (x > 0) {
     ....
 }
 ```
-存在多个 if...else if 分枝时，要求接有 else 子句：
+存在多个 if...else\-if 分枝时，要求接有 else 子句：
 ```
 if (x > 0) {
     ....
