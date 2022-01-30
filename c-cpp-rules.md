@@ -1683,11 +1683,11 @@ ID_ownerlessResource&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warni
 
 <hr/>
 
-对象化管理资源，免去繁琐易错的手工分配回收过程，是 C\+\+ 程序设计的重要方法。  
+使资源接受对象化管理，免去繁琐易错的手工分配回收过程，是 C\+\+ 程序设计的重要方法。  
   
-将资源分配函数的结果直接在程序中传递是非常不安全的，极易产生泄漏或死锁等问题。动态申请的资源只被普通变量引用，不受对象的构造或析构机制控制，这种资源称为“无主”资源，在 C\+\+ 程序设计中应当避免。  
+将资源分配的结果直接在程序中传递是非常不安全的，极易产生泄漏或死锁等问题。动态申请的资源如果只用普通变量引用，不受对象的构造或析构机制控制，则称为“无主”资源，在 C\+\+ 程序设计中应当避免。  
   
-应尽量使用标准库提供的容器或智能指针，避免显式使用资源管理函数。本文示例中出现的 new 和 delete 意在代指一般的资源操作，仅作示例，在实际代码中应尽量避免。  
+应尽量使用标准库提供的容器或智能指针，避免显式使用资源管理函数。本文示例中的 new 和 delete 意在代指一般的资源操作，仅作示例，在实际代码中应尽量避免。  
   
 示例：
 ```
@@ -1722,7 +1722,7 @@ void baz() {
 ```
 例中 foo 和 bar 函数对资源的管理是不符合 C\+\+ 理念的，baz 函数中的 y 对象负责资源的分配与回收，称 y 对象具有资源的所有权，相关资源的生命周期与 y 的生命周期一致，有效避免了资源泄漏或错误回收等问题。  
   
-资源的所有权可以发生转移，但应保证转移前后均有对象负责管理相关资源，以及在转移过程中不会产生异常。进一步理解资源的对象化管理方法，可参见“[RAII（Resource Acquisition Is Initialization）](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization)”等机制。  
+资源的所有权可以发生转移，但应保证转移前后均有对象负责管理资源，并且在转移过程中不会产生异常。进一步理解对象化管理方法，可参见“[RAII（Resource Acquisition Is Initialization）](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization)”等机制。  
   
 对系统 API 尤其是资源相关的 API 应进行合理封装，不应直接被业务代码引用，如：
 ```
@@ -1735,7 +1735,7 @@ void foo(const TCHAR* path) {
     CloseHandle(h);  // Is it right?
 }
 ```
-例中 Windows API FindFirstFile 返回资源句柄，这是一种“无主”资源，很可能被后续代码误用或遗忘，应对其进行合理的封装。
+例中 Windows API FindFirstFile 返回资源句柄，这是一种“无主”资源，很可能被后续代码误用或遗忘，应对其进行合理的封装：
 ```
 class MY_FIND_DATA
 {
