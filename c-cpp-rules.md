@@ -9721,7 +9721,7 @@ const vector<int> fun() {  // Non-compliant
 
 vector<int> obj(fun());    // Call ‘vector(const vector&)’
 ```
-fun 返回 const vector 对象，构造 obj 对象时只能进行深拷贝，无法利用移动构造等特性。  
+fun 返回 const对象，构造 obj 对象时只能进行深拷贝，无法利用移动构造等特性。  
   
 应改为：
 ```
@@ -9790,7 +9790,7 @@ bool foo(int a) {
 }
 ```
 例外：  
-当函数可以抛出异常时可不受本规则限制，但需要在文档中指明。
+当函数可以抛出异常时不受本规则限制。
 <br/>
 <br/>
 <br/>
@@ -9992,7 +9992,7 @@ ID_tooManyLabels&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 标签过多意味着函数内部的跳转逻辑过于复杂，违反结构化设计理念，应适当重构。  
   
-对于 C 代码，建议一个函数只有一个标签，作为函数统一出口，对于 C\+\+ 代码，不建议使用标签。  
+对于 C 代码，建议一个函数只用一个标签作为函数统一出口，对于 C\+\+ 代码，不建议使用标签。  
   
 示例：
 ```
@@ -10951,7 +10951,7 @@ if (x > 0) {
     ....
 }
 ```
-存在多个 if...else if 分枝时，需要接有 else 子句：
+存在多个 if...else if 分枝时，要求接有 else 子句：
 ```
 if (x > 0) {
     ....
