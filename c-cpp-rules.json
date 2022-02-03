@@ -1629,7 +1629,7 @@
     "ID_multiAllocation": {
         "checkPoint": "在一个表达式语句中最多使用一次 new",
         "level": "warning",
-        "comment": "在对象化资源管理的基础上，如果表达式语句多次使用 new，一旦某个构造函数抛出异常，仍会造成内存泄漏。",
+        "comment": "如果表达式语句多次使用 new，一旦某个构造函数抛出异常，会造成内存泄漏。",
         "tag": "resource",
         "reference": "C++ Core Guidelines R.13"
         },
