@@ -3681,12 +3681,12 @@ ID_nameTooShort&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: global suggestion
 示例：
 ```
 // In global scope
-const int i = 0;   // Non-compliant, name too short
-typedef int t;     // Non-compliant, name too short
-class A { .... };  // Non-compliant, name too short
+const int i = 0;     // Non-compliant, name too short
+typedef int t;       // Non-compliant, name too short
+class A { .... };    // Non-compliant, name too short
 
 int foo(int i) {
-    return i + i;  // Confusing
+    return i + i;    // Confusing
 }
 ```
 名称适用的作用域范围越广，其长度也应该越长，建议全局名称长度不小于 3 个字符。
@@ -3818,7 +3818,7 @@ using namespace std;  // Non-compliant
 ```
 下例展示的问题是头文件不同的包含顺序竟导致同一函数产生了不同的行为：
 ```
-// a.h
+// In a.h
 void foo(char);
 
 namespace ns {
@@ -3829,11 +3829,11 @@ inline void bar() {
     foo(0);
 }
 
-// b.h
+// In b.h
 namespace ns {}
 using namespace ns;
 
-// a.cpp
+// In a.cpp
 #include "a.h"
 #include "b.h"
 
@@ -3841,7 +3841,7 @@ void fun1() {
     bar();     // ‘bar’ calls ‘foo(char)’
 }
 
-// b.cpp
+// In b.cpp
 #include "b.h"
 #include "a.h"
 
