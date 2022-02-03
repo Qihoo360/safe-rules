@@ -279,9 +279,10 @@
     "ID_incompatibleDealloc": {
         "checkPoint": "资源的分配与回收方法应配套使用",
         "level": "error",
-        "comment": "不同的分配回收方法属于不同的资源管理体系，如果不配套使用会引发严重错误。",
+        "comment": "使用了某种分配方法，就应使用与其配套的回收方法，否则会引发严重错误。",
         "tag": "resource",
         "standard": "ISO/IEC 9899:2011 7.22.3.3(2)-undefined,ISO/IEC 9899:2011 7.22.3.4(3)-undefined",
+        "related": "ID_incompleteNewDeletePair",
         "reference": "SEI CERT MEM51-CPP"
         },
     "ID_illAccess": {
@@ -1963,7 +1964,7 @@
         "level": "suggestion",
         "comment": "资源的分配方法和相应的回收方法应在同一模块中提供。",
         "tag": "resource",
-        "related": "ID_memberDeallocation,ID_crossModuleTransfer",
+        "related": "ID_memberDeallocation,ID_crossModuleTransfer,ID_incompatibleDealloc",
         "reference": "C++ Core Guidelines R.15"
         },
     "ID_crossModuleTransfer": {

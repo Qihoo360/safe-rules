@@ -1720,7 +1720,7 @@ void baz() {
     ....
 }
 ```
-例中 foo 和 bar 函数对资源的管理是不符合 C\+\+ 理念的，baz 函数中的 y 对象负责资源的分配与回收，称 y 对象具有资源的所有权，相关资源的生命周期与 y 的生命周期一致，有效避免了资源泄漏或错误回收等问题。  
+例中 foo 和 bar 函数的资源管理方式是不符合 C\+\+ 理念的，baz 函数中的 y 对象负责资源的分配与回收，称 y 对象具有资源的所有权，相关资源的生命周期与 y 的生命周期一致，有效避免了资源泄漏或错误回收等问题。  
   
 资源的所有权可以发生转移，但应保证转移前后均有对象负责管理资源，并且在转移过程中不会产生异常。进一步理解对象化管理方法，可参见“[RAII（Resource Acquisition Is Initialization）](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization)”等机制。  
   
@@ -1783,18 +1783,33 @@ int* foo() {
 }
 
 // In b.dll
-void bar(int* p) {
-    free(p);
-}
-
-// a.dll and b.dll imported
-int main() {
+void bar() {
     int* p = foo();
     ....
-    bar(p);  // Crash
+    free(p);  // Non-compliant, crash
 }
 ```
 例中 a.dll 分配的内存由 b.dll 释放，相当于在一个堆中处理另一个堆中的数据，程序一般会崩溃。  
+  
+应改为：
+```
+// In a.dll
+int* foo_alloc() {
+    return (int*)malloc(1024);
+}
+
+void foo_dealloc(int* p) {
+    free(p);
+}
+
+// In b.dll
+void bar(int* p) {
+    int* p = foo_alloc();
+    ....
+    foo_dealloc(p);  // Compliant
+}
+```
+例中 a.dll 成对提供分配与回收函数，b.dll 配套使用这些方法，避免了冲突。  
   
 对类等逻辑模块也有相同要求，在构造函数中分配了资源，应提供相应的析构函数，重载了 new 运算符，也应重载相应的 delete 运算符。  
 
@@ -1827,6 +1842,7 @@ class D {
 #### 相关
 ID_memberDeallocation  
 ID_crossModuleTransfer  
+ID_incompatibleDealloc  
 <br/>
 
 #### 参考
@@ -1840,7 +1856,7 @@ ID_incompatibleDealloc&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource err
 
 <hr/>
 
-不同的分配回收方法属于不同的资源管理体系，如果不配套使用会引发严重错误。  
+使用了某种分配方法，就应使用与其配套的回收方法，否则会引发严重错误。  
   
 示例：
 ```
@@ -1856,8 +1872,12 @@ void bar(size_t n) {
     delete[] p;  // Non-compliant, use ‘free’ instead
 }
 ```
-用 new 分配的资源应使用 delete 回收，malloc 分配的应使用 free 回收，不可混用。
+不同的分配回收方法属于不同的资源管理体系，用 new 分配的资源应使用 delete 回收，malloc 分配的应使用 free 回收。
 <br/>
+<br/>
+
+#### 相关
+ID_incompleteNewDeletePair  
 <br/>
 
 #### 依据
@@ -1877,6 +1897,8 @@ ID_crossModuleTransfer&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource war
 <hr/>
 
 容器的容量可以动态变化，这种对象不应在模块之间传递，否则易造成分配回收方面的冲突。  
+  
+具有同等功能的对象，如流、字符串、智能指针等均不应在模块之间传递。  
   
 在模块间传递复杂的对象也意味着模块耦合过于紧密，不是良好的设计。如果必须在模块间传递对象，需将所有相关资源的分配与回收过程限定在同一模块内，是繁琐且不利于维护的。  
   
@@ -2383,7 +2405,7 @@ malloc 等函数在分配失败时返回空指针，如果不加判断直接使�
   
 在有虚拟内存支持的平台中，正常的内存分配一般不会失败，但申请内存过多或有误时（如参数为负数）也会导致分配失败，而对于没有虚拟内存支持的或可用内存有限的嵌入式系统，检查分配资源是否成功是十分重要的，所以本规则应该作为代码编写的一般性要求。  
   
-库的实现更需要注意这一点，如果库在分配失败时直接崩溃或不加说明地结束进程，相当于干扰了主程序的决策权，很可能会造成难以排查的问题，对于有高可靠性要求的软件，程序在极端环境中的行为是需要明确设定的。  
+库的实现更需要注意这一点，如果库在分配失败时直接崩溃或不加说明地结束进程，相当于干扰了主程序的决策权，很可能会造成难以排查的问题，对于有高可靠性要求的软件，在极端环境中的行为是需要明确设定的。  
   
 示例：
 ```
@@ -15375,7 +15397,7 @@ template <class To, class From>
 To checked_cast(From x) noexcept(false) {
     auto y = static_cast<To>(x);
     auto z = static_cast<From>(y);
-    return x == z? y: throw BadCast();
+    return x == z? y: throw DataLoss();
 }
 
 void foo(int i) {
