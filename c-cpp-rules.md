@@ -9882,7 +9882,7 @@ ID_unsuitableReturnType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 示例：
 ```
 [[noreturn]] int foo();   // Non-compliant
-[[noreturn]] void bar();  // Ccompliant
+[[noreturn]] void bar();  // Compliant
 ```
 <br/>
 <br/>
