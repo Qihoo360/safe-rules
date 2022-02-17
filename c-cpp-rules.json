@@ -469,7 +469,7 @@
         "reference": "CWE-561,C++ Core Guidelines E.31,MISRA C++ 2008 15-3-7"
         },
     "ID_try_forbidNest": {
-        "checkPoint": "try-catch 语句不应嵌套",
+        "checkPoint": "不应嵌套 try-catch 语句",
         "level": "suggestion",
         "comment": "嵌套的 try-catch 使代码显得复杂，不利于维护。",
         "tag": "control",
@@ -508,9 +508,9 @@
         "reference": "C++ Core Guidelines E.14"
         },
     "ID_catch_justRethrow": {
-        "checkPoint": "捕获异常后不应直接重新抛出异常，需对异常进行有效处理",
+        "checkPoint": "捕获异常后不应直接再次抛出异常",
         "level": "warning",
-        "comment": "捕获异常后将其直接重新抛出是没有意义的，还会造成不必要的开销。",
+        "comment": "捕获异常后将其直接再次抛出是没有意义的，还会造成不必要的开销。",
         "tag": "control"
         },
     "ID_missingDestructor": {
@@ -931,7 +931,7 @@
     "ID_exceptionInException": {
         "checkPoint": "异常类的构造函数与异常信息相关的函数不应抛出异常",
         "level": "warning",
-        "comment": "抛出异常时，或获取异常相关的信息时，如果再抛出异常不利于异常的处理与定位。",
+        "comment": "抛出异常，或获取异常相关的信息时，如果再抛出异常不利于异常的定位与处理。",
         "tag": "exception",
         "standard": "ISO/IEC 14882:2011 18.8.1"
         },
@@ -1709,7 +1709,7 @@
         "reference": "C++ Core Guidelines C.36,C++ Core Guidelines C.37,C++ Core Guidelines E.16,SEI CERT DCL57-CPP,MISRA C++ 2008 15-5-1"
         },
     "ID_throwInHash": {
-        "checkPoint": "与 STL 标准库相关的 hash 过程不应抛出异常",
+        "checkPoint": "与标准库相关的 hash 过程不应抛出异常",
         "level": "suggestion",
         "comment": "对象的 hash 过程中不应抛出异常，否则相关的容器和算法无法正常工作。",
         "tag": "exception",
