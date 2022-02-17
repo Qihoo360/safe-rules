@@ -298,7 +298,7 @@
   - [R7.6 移动构造函数和移动赋值运算符不可抛出异常](#ID_throwInMove)
   - [R7.7 禁用含 throw 关键字的异常规格说明](#ID_forbidThrowSpecification)
   - [R7.8 重新抛出异常时应使用空 throw 表达式（throw;）](#ID_improperRethrow)
-  - [R7.9 不应在 catch 块外使用空 throw 表达式（throw;）](#ID_rethrowOutOfCatch)
+  - [R7.9 不应在 catch handler 外使用空 throw 表达式（throw;）](#ID_rethrowOutOfCatch)
   - [R7.10 不应抛出过于宽泛的异常](#ID_throwGenericException)
   - [R7.11 不应抛出非异常类型的对象](#ID_throwNonExceptionType)
   - [R7.12 不应将指针作为异常抛出](#ID_throwPointer)
@@ -319,7 +319,7 @@
   - [R8.9 局部变量在使用前必须初始化](#ID_localInitialization)
   - [R8.10 成员须在声明处或构造时初始化](#ID_memberInitialization)
   - [R8.11 基类对象构造完毕之前不可调用成员函数](#ID_illMemberCall)
-  - [R8.12 在面向构造或析构函数体的 catch 块中不可访问非静态成员](#ID_illMemberAccess)
+  - [R8.12 在面向构造或析构函数体的 catch handler 中不可访问非静态成员](#ID_illMemberAccess)
   - [R8.13 成员初始化应遵循声明的顺序](#ID_disorderedInitialization)
   - [R8.14 在构造函数中不应调用虚函数](#ID_virtualCallInConstructor)
   - [R8.15 在析构函数中不应调用虚函数](#ID_virtualCallInDestuctor)
@@ -401,7 +401,7 @@
     - [R9.5.5 case 和 default 标签应直接从属于 switch 语句](#ID_switch_badFormedCase)
     - [R9.5.6 不应存在紧邻 default 标签的空 case 标签](#ID_switch_uselessFallThrough)
     - [R9.5.7 不应存在内容完全相同的 case 分枝](#ID_switch_identicalBranch)
-    - [R9.5.8 switch 语句的条件变量或表达式不应为 bool 型](#ID_switch_bool)
+    - [R9.5.8 switch 语句的条件不应为 bool 型](#ID_switch_bool)
     - [R9.5.9 switch 语句不应只包含 default 标签](#ID_switch_onlyDefault)
     - [R9.5.10 switch 语句不应只包含一个 case 标签](#ID_switch_onlyOneCase)
     - [R9.5.11 switch 语句分枝数量应在规定范围之内](#ID_switch_tooManyCases)
@@ -411,14 +411,14 @@
     - [R9.5.15 switch 语句不应嵌套](#ID_switch_forbidNest)
   - [9.6 Try](#control.try)
     - [R9.6.1 不应存在空的 try 块](#ID_try_emptyBlock)
-    - [R9.6.2 catch 块序列中 catch\-all 块（ellipsis handler）应位于最后](#ID_try_disorderedEllipsis)
-    - [R9.6.3 catch 块序列中针对派生类的应排在前面，针对基类的应排在后面](#ID_try_disorderedHandlers)
-    - [R9.6.4 try 块不应嵌套](#ID_try_forbidNest)
+    - [R9.6.2 catch\-all handler 应位于最后](#ID_try_disorderedEllipsis)
+    - [R9.6.3 针对派生类的 catch handler 应排在前面，针对基类的应排在后面](#ID_try_disorderedHandlers)
+    - [R9.6.4 try\-catch 语句不应嵌套](#ID_try_forbidNest)
   - [9.7 Catch](#control.catch)
     - [R9.7.1 通过引用捕获异常](#ID_catch_value)
     - [R9.7.2 捕获异常时不应产生对象切片问题](#ID_catch_slicing)
     - [R9.7.3 捕获异常后不应直接重新抛出异常，需对异常进行有效处理](#ID_catch_justRethrow)
-    - [R9.7.4 不应存在空的 catch 块](#ID_catch_emptyBlock)
+    - [R9.7.4 不应存在空的 catch handler](#ID_catch_emptyBlock)
     - [R9.7.5 不应捕获过于宽泛的异常](#ID_catch_generic)
     - [R9.7.6 不应捕获非异常类型](#ID_catch_nonExceptionType)
 <br/>
@@ -426,28 +426,28 @@
 <span id="__Expression">**[10. Expression](#expression)**</span>
   - [10.1 Logic](#expression.logic)
     - [R10.1.1 不应出现不合逻辑的重复子表达式](#ID_illIdentical)
-    - [R10.1.2 逻辑表达式中各子表达式不应自相矛盾](#ID_conflictCondition)
+    - [R10.1.2 各逻辑子表达式不应自相矛盾](#ID_conflictCondition)
     - [R10.1.3 条件表达式不应恒为真或恒为假](#ID_invalidCondition)
     - [R10.1.4 不应使用多余的逻辑子表达式](#ID_redundantCondition)
     - [R10.1.5 逻辑表达式及其子表达式的结果不应为常量](#ID_constLogicExpression)
-    - [R10.1.6 逻辑表达式的右子表达不应有副作用](#ID_shortCircuitSideEffect)
+    - [R10.1.6 逻辑表达式的右子表达式不应有副作用](#ID_shortCircuitSideEffect)
     - [R10.1.7 逻辑表达式应保持简洁明了](#ID_simplifiableCondition)
     - [R10.1.8 可化简为逻辑表达式的三元表达式应尽量化简](#ID_simplifiableTernary)
   - [10.2 Evaluation](#expression.evaluation)
-    - [R10.2.1 避免依赖特定的求值顺序](#ID_evaluationOrderReliance)
-    - [R10.2.2 不应多次读写同一对象](#ID_confusingAssignment)
-    - [R10.2.3 注意运算符优先级，不可产生非预期的结果](#ID_unexpectedPrecedence)
+    - [R10.2.1 避免依赖特定的子表达式求值顺序](#ID_evaluationOrderReliance)
+    - [R10.2.2 在表达式中不应多次读写同一对象](#ID_confusingAssignment)
+    - [R10.2.3 注意运算符优先级，避免非预期的结果](#ID_unexpectedPrecedence)
     - [R10.2.4 不在同一数组中的指针不可比较或相减](#ID_illPtrDiff)
-    - [R10.2.5 bool 型变量或表达式不应参与大小比较、位运算、自增自减等运算](#ID_illBoolOperation)
+    - [R10.2.5 bool 值不应参与位运算、大小比较、数值增减](#ID_illBoolOperation)
     - [R10.2.6 不应出现复合赋值的错误形式](#ID_illFormedCompoundAssignment)
     - [R10.2.7 避免出现复合赋值的可疑形式](#ID_suspiciousCompoundAssignment)
     - [R10.2.8 &=、|=、\-=、/=、%= 左右子表达式不应相同](#ID_illSelfCompoundAssignment)
     - [R10.2.9 不应使用 NULL 对非指针变量赋值或初始化](#ID_oddNullAssignment)
-    - [R10.2.10 赋值运算符与一元运算符之间应有空格，一元运算符与变量或表达式之间不应有空格](#ID_stickyAssignmentOperator)
-    - [R10.2.11 赋值运算符左右子表达式不应重复](#ID_selfAssignment)
-    - [R10.2.12 除法运算符、求余运算符左右子表达不应重复](#ID_selfDivision)
-    - [R10.2.13 减法运算符左右子表达式不应重复](#ID_selfSubtraction)
-    - [R10.2.14 异或运算符左右子表达式不应重复](#ID_selfExclusiveOr)
+    - [R10.2.10 注意赋值运算符与一元运算符的空格方式](#ID_stickyAssignmentOperator)
+    - [R10.2.11 赋值运算符左右子表达式不应相同](#ID_selfAssignment)
+    - [R10.2.12 除法和求余运算符左右子表达式不应相同](#ID_selfDivision)
+    - [R10.2.13 减法运算符左右子表达式不应相同](#ID_selfSubtraction)
+    - [R10.2.14 异或运算符左右子表达式不应相同](#ID_selfExclusiveOr)
     - [R10.2.15 负号不应作用于无符号整数](#ID_minusOnUnsigned)
     - [R10.2.16 不应重复使用一元运算符](#ID_repeatedUnaryOperators)
     - [R10.2.17 运算结果不应溢出](#ID_evalOverflow)
@@ -455,11 +455,11 @@
     - [R10.2.19 移位数量不可超过相关类型比特位的数量](#ID_illShiftCount)
     - [R10.2.20 逗号表达式的子表达式应具有必要的副作用](#ID_invalidCommaSubExpression)
   - [10.3 Comparison](#expression.comparison)
-    - [R10.3.1 比较运算应在正确的范围内进行](#ID_illComparison)
+    - [R10.3.1 比较运算应在正确的取值范围内进行](#ID_illComparison)
     - [R10.3.2 不应使用 == 或 != 判断浮点数是否相等](#ID_illFloatComparison)
     - [R10.3.3 指针不应与字符串常量直接比较](#ID_illPtrStrComparison)
     - [R10.3.4 不应比较非同类枚举值](#ID_differentEnumComparison)
-    - [R10.3.5 比较运算符左右子表达式不应重复](#ID_selfComparison)
+    - [R10.3.5 比较运算符左右子表达式不应相同](#ID_selfComparison)
     - [R10.3.6 比较运算不可作为另一个比较运算的直接子表达式](#ID_successiveComparison)
   - [10.4 Call](#expression.call)
     - [R10.4.1 返回值不应被忽略](#ID_returnValueIgnored)
@@ -475,7 +475,7 @@
   - [10.5 Sizeof](#expression.sizeof)
     - [R10.5.1 sizeof 不应作用于有副作用的表达式](#ID_sizeof_sideEffect)
     - [R10.5.2 sizeof 的结果不应与 0 以及负数比较](#ID_sizeof_zeroComparison)
-    - [R10.5.3 对数组参数不应使用 sizeof](#ID_sizeof_arrayParameter)
+    - [R10.5.3 sizeof 不应作用于数组参数](#ID_sizeof_arrayParameter)
     - [R10.5.4 sizeof 不应作用于逻辑表达式](#ID_sizeof_oddExpression)
     - [R10.5.5 被除数不应是作用于指针的 sizeof 表达式](#ID_sizeof_pointerDivision)
     - [R10.5.6 指针加减偏移量时计入 sizeof 是可疑的](#ID_sizeof_suspiciousAdd)
@@ -2075,7 +2075,7 @@ void foo() {
     delete p;
 }
 ```
-例中 T 类型的对象在构造时抛出异常，而实际上 p 并不会指向一个未能成功初始化的对象，赋值被异常中断，catch 块中的 p 仍然是一个空指针，new 表达式中抛出异常会自动回收已分配的内存。
+例中 T 类型的对象在构造时抛出异常，而实际上 p 并不会指向一个未能成功初始化的对象，赋值被异常中断，catch  中的 p 仍然是一个空指针，new 表达式中抛出异常会自动回收已分配的内存。
 <br/>
 <br/>
 
@@ -3997,22 +3997,24 @@ ID_relyOnExternalObject&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
 <hr/>
 
-全局对象的初始化不可依赖其他源文件中定义的对象，也不可依赖在其后面定义的对象。  
+全局对象的初始化不可依赖在其他源文件中定义的全局对象，也不可依赖在其后面定义的对象。  
+  
+在不同源文件中定义的全局对象，以及类的静态成员对象，其初始化顺序是不确定的，在同一源文件中定义的对象，排在前面的会先于后面的初始化。为避免产生问题，建议只使用基本类型的常量作为全局对象，且尽量不要使用 extern 关键字。  
   
 示例：
 ```
 extern int i;  // Defined in other translate unit
 int j = i;     // Non-compliant
 ```
-例中 i 是其他源文件中定义的对象，j 初始化时无法保证 i 已被正确初始化。不同源文件全局对象初始化的顺序在标准中是不确定的（indeterminately）。  
+例中 i 是在其他源文件中定义的对象，j 初始化时无法保证 i 已被正确初始化。  
   
 又如：
 ```
-extern int x;  // Defined after y
+extern int x;  // Defined after ‘y’
 int y = x;     // Non-compliant
-int x = 0;
+int x = 123;
 ```
-在同一源文件中，x 在 y 的后面定义，语言标准规定了 x 的初始化也将在 y 后执行，而 y 依赖 x，所以 y 的初始化是无效的。
+例中 x 在 y 的后面定义，y 会先于 x 初始化，但 y 却依赖 x，所以 y 的初始化是无效的。
 <br/>
 <br/>
 
@@ -5477,7 +5479,7 @@ namespace xxx  // Bad, meaningless name
 extern int identifier_of_a_very_very_long_name_1;
 extern int identifier_of_a_very_very_long_name_2;   // Dangerous
 ```
-注意，如果两个名称有相同的前缀，而且相同前缀超过一定长度时是危险的，有可能导致编译器无法有效区分相关名称，造成标准未定义的问题。C 语言标准指明，保证名称前 31 位不同即可避免这种问题，可参见 ISO/IEC 9899:2011 5.2.4.1 的相关规定。  
+注意，如果两个名称有相同的前缀，而且相同前缀超过一定长度时是危险的，有可能导致编译器无法有效区分相关名称，造成标准未定义的问题。C 标准指明，保证名称前 31 位不同即可避免这种问题，可参见 ISO/IEC 9899:2011 5.2.4.1 的相关规定。  
   
 不建议采用相同“长前缀”\+ 不同“短后缀”的命名方式，这种名称非常容易形成笔误或由复制粘贴造成错误，如：
 ```
@@ -5688,9 +5690,9 @@ ID_misspelling&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-代码中不应存在拼写错误，尤其是供他人调用的代码，如命名空间名称、类的公有成员名称，全局函数名称等，更不应存在拼写错误。  
+代码中不应存在拼写错误，尤其是供他人调用的代码，如命名空间名称、公共接口名称等，更不应存在拼写错误。  
   
-错误拼写会使代码的使用者对代码的质量产生疑虑，而且这种代码被大量引用后也不便于改正。  
+拼写错误会使代码的使用者对代码的质量产生疑虑，而且相关代码被大量引用后也不便于改正。  
   
 示例：
 ```
@@ -8213,7 +8215,7 @@ ID_throwInSwap&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
 <hr/>
 
-两个对象在 swap（交换）过程中，每个对象的状态都是不完整的，如果在交换中途抛出异常，对象将处于错误的状态无法恢复。  
+两个对象在 swap（交换）过程中，每个对象的状态都是不完整的，如果在交换中途抛出异常，对象将处于错误的状态。  
   
 标准库中存在大量与 swap 相关的接口和算法，如果 swap 抛出异常，也会使标准库无法按约定工作，所有 swap 函数均应标记为 noexcept。  
   
@@ -8376,13 +8378,13 @@ ISO/IEC 14882:2011 15.1(8)
 <br/>
 <br/>
 
-### <span id="ID_rethrowOutOfCatch">▌R7.9 不应在 catch 块外使用空 throw 表达式（throw;）</span>
+### <span id="ID_rethrowOutOfCatch">▌R7.9 不应在 catch handler 外使用空 throw 表达式（throw;）</span>
 
 ID_rethrowOutOfCatch&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
 <hr/>
 
-空 throw 表达式用于重新抛出当前捕获的异常，用在 catch 块外是危险的，增大了流程控制的复杂性。  
+空 throw 表达式用于重新抛出当前捕获的异常，用在 catch handler 外是危险的，增大了流程控制的复杂性。  
   
 如果当前没有捕获异常的话，空 throw 表达式会引发 std::terminate 函数的执行，这种情况下是否清理调用栈之间的对象则是由实现定义的。  
   
@@ -8584,7 +8586,7 @@ void bar() {
     }
 }
 ```
-本例意在抛出一个空指针，然而会被捕获整数的 catch 块捕获。
+本例意在抛出一个空指针，然而会被捕获整数的 catch handler 捕获。
 <br/>
 <br/>
 
@@ -8612,7 +8614,7 @@ ID_throwNullptr&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
 <hr/>
 
-nullptr 可被所有接受指针的 catch 块捕捉，使异常处理失去针对性，故不应抛出 nullptr。  
+nullptr 可被所有接受指针的 catch handler 捕捉，使异常处理失去针对性，故不应抛出 nullptr。  
   
 示例：
 ```
@@ -8651,7 +8653,7 @@ ID_forbidException&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: exception warning
 本规则适用如下场景，可酌情选取。  
  1. 对时空性能有严格要求的项目  
  2. 代码所属框架不支持异常处理  
- 3. 对 C 语言高度兼容的代码  
+ 3. 与 C 或其他语言兼容的接口实现  
  4. 项目没有依照异常安全的理念实施  
   
 利用返回值或错误码的错误处理方式要求检查可能产生错误的每一个步骤，有些出错情况可能被遗漏，C\+\+ 的异常机制可大幅简化这种繁琐的方式，使代码更专注于事务或算法的实现，而且 C\+\+ 异常是不可被忽略的，然而 C\+\+ 的异常机制是需要一定开销的，对代码的设计与实现也有更严格的要求。  
@@ -9001,7 +9003,7 @@ ID_memberInitialization&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-由于成员声明的位置和使用的位置相距较远，所以更容易造成未初始化先使用的问题，应该在声明处或构造函数中初始化所有需要初始化的成员。  
+由于成员的声明和使用相距较远，更容易造成未初始化先使用的问题，所以应在声明处或构造函数中初始化所有成员。  
   
 示例：
 ```
@@ -9010,7 +9012,7 @@ struct A {
     int y = 0;
     int z;
 
-    A(int i): x(i) {  // Non-compliant, Missing initialization of ‘z’
+    A(int i): x(i) {  // Non-compliant, Missing the initialization for ‘z’
     }
 };
 ```
@@ -9067,13 +9069,13 @@ ISO/IEC 14882:2011 12.6.2(13)-undefined
 <br/>
 <br/>
 
-### <span id="ID_illMemberAccess">▌R8.12 在面向构造或析构函数体的 catch 块中不可访问非静态成员</span>
+### <span id="ID_illMemberAccess">▌R8.12 在面向构造或析构函数体的 catch handler 中不可访问非静态成员</span>
 
 ID_illMemberAccess&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
 <hr/>
 
-当流程进入面向构造或析构函数体的 catch 块时，非静态成员的生命周期经结束，如果继续访问会导致标准未定义的问题。  
+当流程进入面向构造或析构函数体的 catch handler 时，非静态成员的生命周期已经结束，如果继续访问会导致标准未定义的问题。  
   
 示例：
 ```
@@ -9756,6 +9758,10 @@ vector<int> obj(fun());    // Call ‘vector(vector&&)’, more efficient
 <br/>
 <br/>
 
+#### 相关
+ID_returnSuperfluousConst  
+<br/>
+
 #### 参考
 C++ Core Guidelines F.20  
 <br/>
@@ -9794,7 +9800,7 @@ ID_returnSameConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-如果一个函数有多个返回语句，但所有返回值都是相同的常量，那么这个函数的返回值是没有意义的。  
+函数所有返回值均为相同的常量是没有意义的。  
   
 示例：
 ```
@@ -9808,8 +9814,6 @@ bool foo(int a) {
     return true;   // Non-compliant, all return values are the same
 }
 ```
-例外：  
-当函数可以抛出异常时不受本规则限制。
 <br/>
 <br/>
 <br/>
@@ -9820,24 +9824,27 @@ ID_returnSuperfluousConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-基本类型（char、int、long 等）的返回值本来就不能作为可修改的左值，const 修饰符是多余的。  
+基本类型的对象作为返回值时，本来就是不可被修改的右值，const 修饰符是多余的。  
   
 示例：
 ```
-const int foo() {  // Non-compliant, ‘const’ is superfluous
-    return 123;
-}
+const int* foo();  // Compliant
+const int bar();   // Non-compliant, ‘const’ is superfluous
 
 class A {
-    int a = 123;
+    ....
 
 public:
-    int& foo() { return a;}
-    const int foo() const { return a; }  // Non-compliant, missing ‘&’
+    int& fun();
+    const int fun() const;  // Non-compliant, missing ‘&’
 };
 ```
 出现这种问题说明设计与使用存在一定的偏差，也可能本意是返回引用，而书写时漏掉了引用符号造成的。
 <br/>
+<br/>
+
+#### 相关
+ID_returnConstObject  
 <br/>
 
 #### 依据
@@ -9852,17 +9859,18 @@ ID_unsuitableReturn&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-属性为 noreturn 的函数中出现 return 语句说明函数还是可以正常返回的，这种矛盾会对调用者造成很大困扰，而且会导致标准未定义的问题。  
+在属性为 noreturn 的函数中使用 return 语句会导致标准未定义的问题。  
   
 示例：
 ```
-[[noreturn]] void foo(int a) {
-    if (a < 0) {
-        return;  // Non-compliant, undefined behavior
+[[noreturn]] void foo() {
+    if (cond) {
+        return;    // Non-compliant, undefined behavior
     }
     abort();
 }
 ```
+\[\[noreturn\]\] 表示函数不会返回，与 return 语句矛盾，也会对调用者造成很大困扰。
 <br/>
 <br/>
 
@@ -9877,12 +9885,15 @@ ID_unsuitableReturnType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-属性为 noreturn 的函数返回类型不是 void 说明函数还是有返回值的，这种矛盾会对调用者造成很大困扰。  
+返回类型不是 void 说明函数是有返回值的，与 noreturn 属性矛盾。  
   
 示例：
 ```
 [[noreturn]] int foo();   // Non-compliant
-[[noreturn]] void bar();  // Compliant
+```
+例中 foo 的返回类型为 int，与 noreturn 属性矛盾，也会对调用者造成很大困扰，应改为：
+```
+[[noreturn]] void foo();  // Compliant
 ```
 <br/>
 <br/>
@@ -11874,13 +11885,13 @@ C++ Core Guidelines ES.3
 <br/>
 <br/>
 
-### <span id="ID_switch_bool">▌R9.5.8 switch 语句的条件变量或表达式不应为 bool 型</span>
+### <span id="ID_switch_bool">▌R9.5.8 switch 语句的条件不应为 bool 型</span>
 
 ID_switch_bool&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
 <hr/>
 
-switch 语句的条件表达式为 bool 型时不应采用 switch 语句，应采用 if\-else 语句。  
+如果条件为 bool 型，应改用 if\-else 语句使代码的结构更清晰。  
   
 示例：
 ```
@@ -12209,13 +12220,13 @@ CWE-1071
 <br/>
 <br/>
 
-### <span id="ID_try_disorderedEllipsis">▌R9.6.2 catch 块序列中 catch-all 块（ellipsis handler）应位于最后</span>
+### <span id="ID_try_disorderedEllipsis">▌R9.6.2 catch-all handler 应位于最后</span>
 
 ID_try_disorderedEllipsis&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: control error
 
 <hr/>
 
-catch 块序列中 catch\-all 块（ellipsis handler）应位于最后，否则其后的 catch 块将失去作用。  
+catch\-all handler 应位于最后，否则后面的 handler 将失去作用。  
   
 示例：
 ```
@@ -12253,13 +12264,13 @@ MISRA C++ 2008 15-3-7
 <br/>
 <br/>
 
-### <span id="ID_try_disorderedHandlers">▌R9.6.3 catch 块序列中针对派生类的应排在前面，针对基类的应排在后面</span>
+### <span id="ID_try_disorderedHandlers">▌R9.6.3 针对派生类的 catch handler 应排在前面，针对基类的应排在后面</span>
 
 ID_try_disorderedHandlers&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: control error
 
 <hr/>
 
-catch 块序列中针对派生类的应排在前面，针对基类的应排在后面，如果违反这个顺序，针对派生类的 catch 块将失去作用。  
+如果违反这个顺序，针对派生类的 catch handler 将失去作用。  
   
 示例：
 ```
@@ -12299,7 +12310,7 @@ C++ Core Guidelines E.31
 <br/>
 <br/>
 
-### <span id="ID_try_forbidNest">▌R9.6.4 try 块不应嵌套</span>
+### <span id="ID_try_forbidNest">▌R9.6.4 try-catch 语句不应嵌套</span>
 
 ID_try_forbidNest&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: control suggestion
 
@@ -12320,7 +12331,7 @@ try {
     ....
 }
 ```
-嵌套的 try\-catch 较难看出哪个 try 块对应哪个 catch 块，当代码行数较多时这种问题会更为明显。
+嵌套的 try\-catch 较难看出哪个 try 对应哪个 catch，当代码行数较多时这种问题会更为明显。
 <br/>
 <br/>
 
@@ -12435,18 +12446,18 @@ void foo() {
     }
 }
 ```
-例中的 catch 块是没有意义的，应将其去掉。
+例中的 catch 是没有意义的，应将其去掉。
 <br/>
 <br/>
 <br/>
 
-### <span id="ID_catch_emptyBlock">▌R9.7.4 不应存在空的 catch 块</span>
+### <span id="ID_catch_emptyBlock">▌R9.7.4 不应存在空的 catch handler</span>
 
 ID_catch_emptyBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
 
 <hr/>
 
-空的 catch 块掩盖了异常，不利于问题的排查与纠正，应至少添加日志记录等操作。  
+空的 catch handler 掩盖了异常，不利于问题的排查与纠正，应至少添加日志记录等操作。  
   
 示例：
 ```
@@ -12611,7 +12622,7 @@ CWE-682
 <br/>
 <br/>
 
-### <span id="ID_conflictCondition">▌R10.1.2 逻辑表达式中各子表达式不应自相矛盾</span>
+### <span id="ID_conflictCondition">▌R10.1.2 各逻辑子表达式不应自相矛盾</span>
 
 ID_conflictCondition&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
@@ -12773,13 +12784,13 @@ MISRA C 2012 14.3
 <br/>
 <br/>
 
-### <span id="ID_shortCircuitSideEffect">▌R10.1.6 逻辑表达式的右子表达不应有副作用</span>
+### <span id="ID_shortCircuitSideEffect">▌R10.1.6 逻辑表达式的右子表达式不应有副作用</span>
 
 ID_shortCircuitSideEffect&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: expression suggestion
 
 <hr/>
 
-逻辑表达式的右子表达有副作用会使代码复杂度显著增加，易产生错误，且不利于维护。  
+逻辑表达式的右子表达式有副作用会使代码复杂度显著增加，易产生错误，且不利于维护。  
   
 对于逻辑表达式的求值，标准规定从左至右计算各子表达式的值，当可以确定整个表达式的值时，即使还有未计算的子表达式，也会立即结束求值，这种方法可提高效率，称为“短路规则（short\-circuit evaluation）”。  
   
@@ -12867,7 +12878,7 @@ bool bar(int a) {
 
 ### <span id="expression.evaluation">10.2 Evaluation</span>
 
-### <span id="ID_evaluationOrderReliance">▌R10.2.1 避免依赖特定的求值顺序</span>
+### <span id="ID_evaluationOrderReliance">▌R10.2.1 避免依赖特定的子表达式求值顺序</span>
 
 ID_evaluationOrderReliance&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -12875,7 +12886,7 @@ ID_evaluationOrderReliance&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warnin
 
 不同的求值顺序不应产生不同的结果，否则极易导致意料之外的错误，也会降低代码的可移植性。  
   
-C 语言标准用“[序列点（sequence point）](https://en.wikipedia.org/wiki/Sequence_point)”定义求值顺序，序列点前面的表达式先于后面的表达式求值并落实相关副作用，逻辑与、逻辑或、三元、逗号等运算符以及函数调用的左括号与序列点相关，其左子表达式先于右子表达式求值并落实副作用，赋值、算术、位运算符与序列点无关，其左右子表达式的求值顺序是未声明的，函数各参数的求值顺序也是未声明的，C\+\+ 标准与 C 标准大致相同，C\+\+17 明确了赋值、移位等运算符的求值顺序。  
+C 标准用“[序列点（sequence point）](https://en.wikipedia.org/wiki/Sequence_point)”定义求值顺序，序列点前面的表达式先于后面的表达式求值并落实相关副作用，逻辑与、逻辑或、三元、逗号等运算符以及函数调用的左括号与序列点相关，其左子表达式先于右子表达式求值并落实副作用，赋值、算术、位运算等运算符与序列点无关，其左右子表达式的求值顺序是未声明的，函数各参数的求值顺序也是未声明的，C\+\+ 标准与 C 标准大致相同，C\+\+17 明确了赋值、移位等运算符的求值顺序。  
   
 要注意子表达式的副作用在不同求值顺序下的正确性，可参见 ID\_confusingAssignment 的进一步说明。  
   
@@ -12921,7 +12932,7 @@ C++ Core Guidelines ES.44
 <br/>
 <br/>
 
-### <span id="ID_confusingAssignment">▌R10.2.2 不应多次读写同一对象</span>
+### <span id="ID_confusingAssignment">▌R10.2.2 在表达式中不应多次读写同一对象</span>
 
 ID_confusingAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -12999,7 +13010,7 @@ MISRA C 2012 13.2
 <br/>
 <br/>
 
-### <span id="ID_unexpectedPrecedence">▌R10.2.3 注意运算符优先级，不可产生非预期的结果</span>
+### <span id="ID_unexpectedPrecedence">▌R10.2.3 注意运算符优先级，避免非预期的结果</span>
 
 ID_unexpectedPrecedence&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -13067,13 +13078,13 @@ C++ Core Guidelines ES.62
 <br/>
 <br/>
 
-### <span id="ID_illBoolOperation">▌R10.2.5 bool 型变量或表达式不应参与大小比较、位运算、自增自减等运算</span>
+### <span id="ID_illBoolOperation">▌R10.2.5 bool 值不应参与位运算、大小比较、数值增减</span>
 
 ID_illBoolOperation&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-bool 值只能为真或假，不具有“大小”这种逻辑意义，所以 bool 型变量或表达式参与大小比较、位运算、自增自减等运算都是不合理的。  
+bool 值只能为真或假，不具有“大小”等数值意义，bool 值参与位运算、大小比较、数值增减是不合理的。  
   
 示例：
 ```
@@ -13220,7 +13231,7 @@ MISRA C++ 2008 4-10-1
 <br/>
 <br/>
 
-### <span id="ID_stickyAssignmentOperator">▌R10.2.10 赋值运算符与一元运算符之间应有空格，一元运算符与变量或表达式之间不应有空格</span>
+### <span id="ID_stickyAssignmentOperator">▌R10.2.10 注意赋值运算符与一元运算符的空格方式</span>
 
 ID_stickyAssignmentOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -13248,7 +13259,7 @@ CWE-480
 <br/>
 <br/>
 
-### <span id="ID_selfAssignment">▌R10.2.11 赋值运算符左右子表达式不应重复</span>
+### <span id="ID_selfAssignment">▌R10.2.11 赋值运算符左右子表达式不应相同</span>
 
 ID_selfAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -13284,13 +13295,13 @@ CWE-682
 <br/>
 <br/>
 
-### <span id="ID_selfDivision">▌R10.2.12 除法运算符、求余运算符左右子表达不应重复</span>
+### <span id="ID_selfDivision">▌R10.2.12 除法和求余运算符左右子表达式不应相同</span>
 
 ID_selfDivision&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-除法运算符、求余运算符左右子表达重复，结果总为 1 或 0 以及产生除零异常，这是没有意义的，往往是某种笔误。  
+除法或求余运算符左右子表达式相同，结果总为 1 或 0 以及产生除零异常，往往是某种笔误。  
   
 示例：
 ```
@@ -13306,7 +13317,7 @@ CWE-682
 <br/>
 <br/>
 
-### <span id="ID_selfSubtraction">▌R10.2.13 减法运算符左右子表达式不应重复</span>
+### <span id="ID_selfSubtraction">▌R10.2.13 减法运算符左右子表达式不应相同</span>
 
 ID_selfSubtraction&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -13334,7 +13345,7 @@ CWE-682
 <br/>
 <br/>
 
-### <span id="ID_selfExclusiveOr">▌R10.2.14 异或运算符左右子表达式不应重复</span>
+### <span id="ID_selfExclusiveOr">▌R10.2.14 异或运算符左右子表达式不应相同</span>
 
 ID_selfExclusiveOr&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -13484,7 +13495,7 @@ int bar(signed s, unsigned u) {
     return 0;
 }
 ```
-例中变量 s 为有符号类型，对其符号位的位运算是没有意义的，而且要注意对负数左移会导致未定义的行为，对负数右移则由实现定义。
+例中 s 为有符号整数，其符号位对位运算没有意义，对负数左移会导致标准未定义的行为，对负数右移则由实现定义。
 <br/>
 <br/>
 
@@ -13508,15 +13519,15 @@ ID_illShiftCount&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
 <hr/>
 
-移位数量不可过大，否则会导致标准未定义的错误。  
+移位数量超过相关类型比特位的数量会导致标准未定义的行为。  
   
 示例：
 ```
 uint64_t foo(uint32_t u) {
-    return u << 32;  // Non-compliant
+    return u << 32;  // Non-compliant, undefined behavior
 }
 ```
-例中 u 为 32 位整型变量，将其左移 32 位并不能得到 64 位的整数，其结果一般为 0，取决于编译器的具体实现。  
+例中 u 为 32 位整型变量，将其左移 32 位并不能得到 64 位整数，其行为是标准未定义的。  
   
 应改为：
 ```
@@ -13560,7 +13571,7 @@ void foo(int& a, int& b) {
     a = 0, b = 1;  // Compliant, but bad
 }
 ```
-本规则不建议使用逗号表达式，将逗号表达式拆分成合理的语句是更好的选择。  
+本规则集合不建议使用逗号表达式，将逗号表达式拆分成合理的语句是更好的选择。  
 
 ```
 void foo(int& a, int& b) {
@@ -13578,13 +13589,13 @@ ID_forbidCommaExpression
 
 ### <span id="expression.comparison">10.3 Comparison</span>
 
-### <span id="ID_illComparison">▌R10.3.1 比较运算应在正确的范围内进行</span>
+### <span id="ID_illComparison">▌R10.3.1 比较运算应在正确的取值范围内进行</span>
 
 ID_illComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
 <hr/>
 
-应在正确的范围内进行比较，否则会造成恒为真或恒为假的无效结果。  
+应在正确的取值范围内进行比较，否则会造成恒为真或恒为假的无效结果。  
   
 示例：
 ```
@@ -13762,7 +13773,7 @@ void bar(Pet p) {
 <br/>
 <br/>
 
-### <span id="ID_selfComparison">▌R10.3.5 比较运算符左右子表达式不应重复</span>
+### <span id="ID_selfComparison">▌R10.3.5 比较运算符左右子表达式不应相同</span>
 
 ID_selfComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -14380,7 +14391,7 @@ CWE-1025
 <br/>
 <br/>
 
-### <span id="ID_sizeof_arrayParameter">▌R10.5.3 对数组参数不应使用 sizeof</span>
+### <span id="ID_sizeof_arrayParameter">▌R10.5.3 sizeof 不应作用于数组参数</span>
 
 ID_sizeof_arrayParameter&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
@@ -14396,7 +14407,7 @@ void fun(char arr[32]) {
 ```
 例中参数 arr 是一个指针，而不是一个真实的数组。  
   
-如果有必要将参数设为数组，建议使用引用的方式，如：
+在 C\+\+ 语言中，如果有必要将参数设为数组，建议使用引用的方式，如：
 ```
 void fun(char (&arr)[32]) {
     memset(arr, 0, sizeof(arr));  // Compliant
@@ -14774,9 +14785,9 @@ ID_oddNew&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-new 表达式只应作为“=”的直接右子表达式，或直接作为参数表达式，其他形式均有问题。  
+new 表达式只应作为“=”的直接右子表达式，或直接作为参数，其他形式均有问题。  
   
-本规则对 replacement\-new 暂不作要求。  
+本规则对 replacement\-new 不作要求。  
   
 示例：
 ```
@@ -14788,7 +14799,7 @@ if (new int[123]) {            // Non-compliant
 
 char* p = new char[123] + n;   // Non-compliant
 ```
-这些问题多数是笔误或错误的宏展开造成的。
+这种问题多数是由笔误或错误的宏展开造成的。
 <br/>
 <br/>
 

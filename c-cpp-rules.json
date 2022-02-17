@@ -100,7 +100,7 @@
         "tag": "expression"
         },
     "ID_stickyAssignmentOperator": {
-        "checkPoint": "赋值运算符与一元运算符之间应有空格，一元运算符与变量或表达式之间不应有空格",
+        "checkPoint": "注意赋值运算符与一元运算符的空格方式",
         "level": "warning",
         "comment": "如果 = 与 +、-、*、!、&、~ 等一元运算符之间没有空格，而一元运算符与其子表达式之间有空格，是一种非常怪异的格式，也可能是 +=、-=、*=、&=、~= 等复合赋值运算符的笔误。",
         "tag": "expression",
@@ -124,7 +124,7 @@
     "ID_throwNullptr": {
         "checkPoint": "不应抛出 nullptr",
         "level": "warning",
-        "comment": "nullptr 可被所有接受指针的 catch 块捕捉，使异常处理失去针对性，故不应抛出 nullptr。",
+        "comment": "nullptr 可被所有接受指针的 catch handler 捕捉，使异常处理失去针对性，故不应抛出 nullptr。",
         "tag": "exception",
         "related": "ID_throwPointer",
         "reference": "MISRA C++ 2008 15-0-2"
@@ -146,9 +146,9 @@
         "reference": "CWE-397"
         },
     "ID_rethrowOutOfCatch": {
-        "checkPoint": "不应在 catch 块外使用空 throw 表达式（throw;）",
+        "checkPoint": "不应在 catch handler 外使用空 throw 表达式（throw;）",
         "level": "warning",
-        "comment": "空 throw 表达式用于重新抛出当前捕获的异常，用在 catch 块外是危险的，增大了流程控制的复杂性。",
+        "comment": "空 throw 表达式用于重新抛出当前捕获的异常，用在 catch handler 外是危险的，增大了流程控制的复杂性。",
         "tag": "exception",
         "standard": "ISO/IEC 14882:2003 15.1(6 8),ISO/IEC 14882:2003 15.3(9)-implementation,ISO/IEC 14882:2011 15.1(8 9),ISO/IEC 14882:2011 15.3(9)-implementation",
         "reference": "MISRA C++ 2008 15-1-3"
@@ -453,23 +453,23 @@
         "tag": "control"
         },
     "ID_try_disorderedHandlers": {
-        "checkPoint": "catch 块序列中针对派生类的应排在前面，针对基类的应排在后面",
+        "checkPoint": "针对派生类的 catch handler 应排在前面，针对基类的应排在后面",
         "level": "error",
-        "comment": "catch 块序列中针对派生类的应排在前面，针对基类的应排在后面，如果违反这个顺序，针对派生类的 catch 块将失去作用。",
+        "comment": "如果违反这个顺序，针对派生类的 catch handler 将失去作用。",
         "tag": "control",
         "standard": "ISO/IEC 14882:2003 15.3,ISO/IEC 14882:2011 15.3,ISO/IEC 14882:2011 18.3",
         "reference": "CWE-561,C++ Core Guidelines E.31"
         },
     "ID_try_disorderedEllipsis": {
-        "checkPoint": "catch 块序列中 catch-all 块（ellipsis handler）应位于最后",
+        "checkPoint": "catch-all handler 应位于最后",
         "level": "error",
-        "comment": "catch 块序列中 catch-all 块（ellipsis handler）应位于最后，否则其后的 catch 块将失去作用。",
+        "comment": "catch-all handler 应位于最后，否则后面的 handler 将失去作用。",
         "tag": "control",
         "standard": "ISO/IEC 14882:2003 15.3(6),ISO/IEC 14882:2011 15.3(5),ISO/IEC 14882:2011 18.3(5)",
         "reference": "CWE-561,C++ Core Guidelines E.31,MISRA C++ 2008 15-3-7"
         },
     "ID_try_forbidNest": {
-        "checkPoint": "try 块不应嵌套",
+        "checkPoint": "try-catch 语句不应嵌套",
         "level": "suggestion",
         "comment": "嵌套的 try-catch 使代码显得复杂，不利于维护。",
         "tag": "control",
@@ -1087,8 +1087,9 @@
     "ID_returnSuperfluousConst": {
         "checkPoint": "基本类型的返回值不应使用 const 修饰",
         "level": "warning",
-        "comment": "基本类型（char、int、long 等）的返回值本来就不能作为可修改的左值，const 修饰符是多余的。",
+        "comment": "基本类型的对象作为返回值时，本来就是不可被修改的右值，const 修饰符是多余的。",
         "tag": "function",
+        "related": "ID_returnConstObject",
         "standard": "ISO/IEC 14882:2003 3.10(5),ISO/IEC 14882:2011 3.10(1)"
         },
     "ID_nonPODFilling": {
@@ -1141,7 +1142,7 @@
         "reference": "MISRA C 2004 12.10,MISRA C 2012 12.3,MISRA C++ 2008 5-18-1"
         },
     "ID_conflictCondition": {
-        "checkPoint": "逻辑表达式中各子表达式不应自相矛盾",
+        "checkPoint": "各逻辑子表达式不应自相矛盾",
         "level": "error",
         "comment": "在逻辑表达式中，相互矛盾的子表达式会使整个表达式的结果恒为真或恒为假，造成条件失效。",
         "tag": "expression",
@@ -1155,9 +1156,9 @@
         "reference": "CWE-682"
         },
     "ID_illComparison": {
-        "checkPoint": "比较运算应在正确的范围内进行",
+        "checkPoint": "比较运算应在正确的取值范围内进行",
         "level": "error",
-        "comment": "应在正确的范围内进行比较，否则会造成恒为真或恒为假的无效结果。",
+        "comment": "应在正确的取值范围内进行比较，否则会造成恒为真或恒为假的无效结果。",
         "tag": "expression",
         "related": "ID_switch_caseOutOfRange",
         "reference": "CWE-697,CWE-1024,CWE-1025"
@@ -1188,13 +1189,13 @@
     "ID_illShiftCount": {
         "checkPoint": "移位数量不可超过相关类型比特位的数量",
         "level": "error",
-        "comment": "移位数量不可过大，否则会导致标准未定义的错误。",
+        "comment": "移位数量超过相关类型比特位的数量会导致标准未定义的行为。",
         "tag": "expression",
         "standard": "ISO/IEC 14882:2003 5.8(1)-undefined,ISO/IEC 14882:2011 5.8(1)-undefined,ISO/IEC 14882:2017 8.8(1)-undefined",
         "reference": "MISRA C++ 2008 5-8-1"
         },
     "ID_unexpectedPrecedence": {
-        "checkPoint": "注意运算符优先级，不可产生非预期的结果",
+        "checkPoint": "注意运算符优先级，避免非预期的结果",
         "level": "warning",
         "comment": "对运算符优先级的错误理解是产生逻辑错误的主要原因之一。",
         "tag": "expression",
@@ -1209,9 +1210,9 @@
         "reference": "MISRA C 2004 17.3,MISRA C++ 2008 5-0-17,MISRA C++ 2008 5-0-18,C++ Core Guidelines ES.62"
         },
     "ID_illBoolOperation": {
-        "checkPoint": "bool 型变量或表达式不应参与大小比较、位运算、自增自减等运算",
+        "checkPoint": "bool 值不应参与位运算、大小比较、数值增减",
         "level": "warning",
-        "comment": "bool 值只能为真或假，不具有“大小”这种逻辑意义，所以 bool 型变量或表达式参与大小比较、位运算、自增自减等运算都是不合理的。",
+        "comment": "bool 值只能为真或假，不具有“大小”等数值意义，bool 值参与位运算、大小比较、数值增减是不合理的。",
         "tag": "expression",
         "standard": "ISO/IEC 14882:2011 5.3.2(1 2) D.1-deprecated",
         "reference": "CWE-1024,CWE-1025,CWE-682,CWE-783,MISRA C 2004 12.7,MISRA C 2012 10.1,MISRA C++ 2008 5-0-21"
@@ -1321,7 +1322,7 @@
     "ID_oddNew": {
         "checkPoint": "new 表达式只可用于赋值或当作参数",
         "level": "warning",
-        "comment": "new 表达式只应作为“=”的直接右子表达式，或直接作为参数表达式，其他形式均有问题。",
+        "comment": "new 表达式只应作为“=”的直接右子表达式，或直接作为参数，其他形式均有问题。",
         "tag": "expression",
         "related": "ID_multiAllocation"
         },
@@ -1382,28 +1383,28 @@
         "reference": "CWE-1025"
         },
     "ID_selfComparison": {
-        "checkPoint": "比较运算符左右子表达式不应重复",
+        "checkPoint": "比较运算符左右子表达式不应相同",
         "level": "warning",
         "comment": "与自身的比较是没意义的，往往是某种笔误。",
         "tag": "expression",
         "reference": "CWE-1025"
         },
     "ID_selfSubtraction": {
-        "checkPoint": "减法运算符左右子表达式不应重复",
+        "checkPoint": "减法运算符左右子表达式不应相同",
         "level": "warning",
         "comment": "与自身做减法，结果总为 0，往往是某种笔误。",
         "tag": "expression",
         "reference": "CWE-682"
         },
     "ID_selfDivision": {
-        "checkPoint": "除法运算符、求余运算符左右子表达不应重复",
+        "checkPoint": "除法和求余运算符左右子表达式不应相同",
         "level": "warning",
-        "comment": "除法运算符、求余运算符左右子表达重复，结果总为 1 或 0 以及产生除零异常，这是没有意义的，往往是某种笔误。",
+        "comment": "除法或求余运算符左右子表达式相同，结果总为 1 或 0 以及产生除零异常，往往是某种笔误。",
         "tag": "expression",
         "reference": "CWE-682"
         },
     "ID_selfAssignment": {
-        "checkPoint": "赋值运算符左右子表达式不应重复",
+        "checkPoint": "赋值运算符左右子表达式不应相同",
         "level": "warning",
         "comment": "对自身赋值是没有逻辑意义的，往往是笔误或残留代码。",
         "tag": "expression",
@@ -1417,14 +1418,14 @@
         "reference": "CWE-682"
         },
     "ID_selfExclusiveOr": {
-        "checkPoint": "异或运算符左右子表达式不应重复",
+        "checkPoint": "异或运算符左右子表达式不应相同",
         "level": "warning",
         "comment": "与自身异或，结果总为 0，而且可能意味着某种错误。",
         "tag": "expression",
         "reference": "CWE-682"
         },
     "ID_confusingAssignment": {
-        "checkPoint": "不应多次读写同一对象",
+        "checkPoint": "在表达式中不应多次读写同一对象",
         "level": "warning",
         "comment": "在表达式中多次引用并修改同一对象，很可能会因为非预期的求值顺序而产生错误的结果。",
         "tag": "expression",
@@ -1480,15 +1481,15 @@
         "tag": "expression"
         },
     "ID_shortCircuitSideEffect": {
-        "checkPoint": "逻辑表达式的右子表达不应有副作用",
+        "checkPoint": "逻辑表达式的右子表达式不应有副作用",
         "level": "suggestion",
-        "comment": "逻辑表达式的右子表达有副作用会使代码复杂度显著增加，易产生错误，且不利于维护。",
+        "comment": "逻辑表达式的右子表达式有副作用会使代码复杂度显著增加，易产生错误，且不利于维护。",
         "tag": "expression",
         "standard": "ISO/IEC 9899:1999 6.5.13(4) 6.5.14(4),ISO/IEC 9899:2011 6.5.13(4) 6.5.14(4)",
         "reference": "MISRA C 2004 12.4,MISRA C 2012 13.5,MISRA C++ 2008 5-14-1"
         },
     "ID_evaluationOrderReliance": {
-        "checkPoint": "避免依赖特定的求值顺序",
+        "checkPoint": "避免依赖特定的子表达式求值顺序",
         "level": "warning",
         "comment": "不同的求值顺序不应产生不同的结果，否则极易导致意料之外的错误，也会降低代码的可移植性。",
         "tag": "expression",
@@ -1717,7 +1718,7 @@
     "ID_throwInSwap": {
         "checkPoint": "对象的 swap 过程不可抛出异常",
         "level": "warning",
-        "comment": "两个对象在 swap（交换）过程中，每个对象的状态都是不完整的，如果在交换中途抛出异常，对象将处于错误的状态无法恢复。",
+        "comment": "两个对象在 swap（交换）过程中，每个对象的状态都是不完整的，如果在交换中途抛出异常，对象将处于错误的状态。",
         "tag": "exception",
         "related": "ID_exceptionUnsafe,ID_throwInMove",
         "reference": "C++ Core Guidelines C.84,C++ Core Guidelines C.85"
@@ -1765,7 +1766,7 @@
     "ID_returnSameConst": {
         "checkPoint": "函数返回值不应为相同的常量",
         "level": "warning",
-        "comment": "如果一个函数有多个返回语句，但所有返回值都是相同的常量，那么这个函数的返回值是没有意义的。",
+        "comment": "函数所有返回值均为相同的常量是没有意义的。",
         "tag": "function"
         },
     "ID_returnOdd": {
@@ -1799,7 +1800,7 @@
     "ID_relyOnExternalObject": {
         "checkPoint": "全局对象的初始化不可依赖未初始化的对象",
         "level": "warning",
-        "comment": "全局对象的初始化不可依赖其他源文件中定义的对象，也不可依赖在其后面定义的对象。",
+        "comment": "全局对象的初始化不可依赖在其他源文件中定义的全局对象，也不可依赖在其后面定义的对象。",
         "tag": "global",
         "standard": "ISO/IEC 14882:2011 3.6.2(2 3),ISO/IEC 14882:2017 6.6.2(3),ISO/IEC 14882:2017 6.6.3(2)",
         "reference": "C++ Core Guidelines I.22"
@@ -1882,14 +1883,14 @@
     "ID_unsuitableReturn": {
         "checkPoint": "属性为 noreturn 的函数中不应出现 return 语句",
         "level": "warning",
-        "comment": "属性为 noreturn 的函数中出现 return 语句说明函数还是可以正常返回的，这种矛盾会对调用者造成很大困扰，而且会导致标准未定义的问题。",
+        "comment": "在属性为 noreturn 的函数中使用 return 语句会导致标准未定义的问题。",
         "tag": "function",
         "standard": "ISO/IEC 14882:2011 7.6.3(2)-undefined"
         },
     "ID_unsuitableReturnType": {
         "checkPoint": "属性为 noreturn 的函数返回类型只应为 void",
         "level": "warning",
-        "comment": "属性为 noreturn 的函数返回类型不是 void 说明函数还是有返回值的，这种矛盾会对调用者造成很大困扰。",
+        "comment": "返回类型不是 void 说明函数是有返回值的，与 noreturn 属性矛盾。",
         "tag": "function",
         "standard": "ISO/IEC 14882:2011 7.6.3(2)-undefined"
         },
@@ -2323,9 +2324,9 @@
         "reference": "CWE-1071"
         },
     "ID_switch_bool": {
-        "checkPoint": "switch 语句的条件变量或表达式不应为 bool 型",
+        "checkPoint": "switch 语句的条件不应为 bool 型",
         "level": "warning",
-        "comment": "switch 语句的条件表达式为bool型时不应采用 switch 语句，应采用 if-else 语句。",
+        "comment": "如果条件为 bool 型，应改用 if-else 语句使代码的结构更清晰。",
         "tag": "control",
         "reference": "MISRA C 2004 15.4,MISRA C 2012 16.7,MISRA C++ 2008 6-4-7"
         },
@@ -2353,9 +2354,9 @@
         "reference": "CWE-1071"
         },
     "ID_catch_emptyBlock": {
-        "checkPoint": "不应存在空的 catch 块",
+        "checkPoint": "不应存在空的 catch handler",
         "level": "suggestion",
-        "comment": "空的 catch 块掩盖了异常，不利于问题的排查与纠正，应至少添加日志记录等操作。",
+        "comment": "空的 catch handler 掩盖了异常，不利于问题的排查与纠正，应至少添加日志记录等操作。",
         "tag": "control",
         "reference": "CWE-1069,CWE-1071,CWE-391"
         },
@@ -2749,7 +2750,7 @@
         "reference": "C++ Core Guidelines CP.8,C++ Core Guidelines CP.200"
         },
     "ID_sizeof_arrayParameter": {
-        "checkPoint": "对数组参数不应使用 sizeof",
+        "checkPoint": "sizeof 不应作用于数组参数",
         "level": "error",
         "comment": "当函数的形式参数为数组时，实际上是一个指针，对这种参数使用 sizeof 无法获取到数组大小，往往意味着错误。",
         "tag": "expression",
@@ -2864,9 +2865,9 @@
         "reference": "CWE-1025"
         },
     "ID_illMemberAccess": {
-        "checkPoint": "在面向构造或析构函数体的 catch 块中不可访问非静态成员",
+        "checkPoint": "在面向构造或析构函数体的 catch handler 中不可访问非静态成员",
         "level": "error",
-        "comment": "当流程进入面向构造或析构函数体的 catch 块时，非静态成员的生命周期已经结束，如果再次访问会导致标准未定义的错误。",
+        "comment": "当流程进入面向构造或析构函数体的 catch handler 时，非静态成员的生命周期已经结束，如果再次访问会导致标准未定义的错误。",
         "tag": "function",
         "standard": "ISO/IEC 14882:2011 15.3(10)-undefined",
         "reference": "MISRA C++ 2008 15-3-3"
@@ -2935,7 +2936,7 @@
     "ID_misspelling": {
         "checkPoint": "不应存在拼写错误",
         "level": "suggestion",
-        "comment": "代码中不应存在拼写错误，尤其是供他人调用的代码，如命名空间名称、类的公有成员名称，全局函数名称等，更不应存在拼写错误。",
+        "comment": "代码中不应存在拼写错误，尤其是供他人调用的代码，如命名空间名称、公共接口名称等，更不应存在拼写错误。",
         "tag": "declaration"
         },
     "ID_mixNullptrAndNULL": {
@@ -3200,6 +3201,7 @@
         "level": "suggestion",
         "comment": "函数返回 const 对象不利于移动构造或移动赋值等机制，也可能本意是返回引用，但遗漏了引用符号。",
         "tag": "function",
+        "related": "ID_returnSuperfluousConst",
         "reference": "C++ Core Guidelines F.20"
         },
     "ID_nonPrivateData": {
