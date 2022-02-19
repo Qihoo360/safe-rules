@@ -357,9 +357,9 @@
         "reference": "CWE-798,CWE-259,SEI CERT MSC41-C"
         },
     "ID_throwPointer": {
-        "checkPoint": "不应将指针作为异常抛出",
+        "checkPoint": "不应抛出指针",
         "level": "suggestion",
-        "comment": "如果将指针作为异常抛出，并且该指针指向动态创建的对象，会增加不必要的内存管理开销，也容易造成意料之外的错误。",
+        "comment": "抛出指针会增加不必要的内存管理成本，也容易造成意料之外的错误。",
         "tag": "exception",
         "reference": "MISRA C++ 2008 15-0-2"
         },
@@ -455,13 +455,13 @@
     "ID_try_disorderedHandlers": {
         "checkPoint": "派生类的 catch handler 应排在基类 catch handler 之前",
         "level": "error",
-        "comment": "如果违反这个顺序，派生类的 catch  handler 将失去作用。",
+        "comment": "如果违反这个顺序，派生类的 catch handler 将失去作用。",
         "tag": "control",
         "standard": "ISO/IEC 14882:2003 15.3,ISO/IEC 14882:2011 15.3,ISO/IEC 14882:2011 18.3",
         "reference": "CWE-561,C++ Core Guidelines E.31"
         },
     "ID_try_disorderedEllipsis": {
-        "checkPoint": "catch-all handler 应位于最后",
+        "checkPoint": "捕获所有异常的 catch-all handler 应位于最后",
         "level": "error",
         "comment": "如果 catch-all handler 排在前面，其后面的 handler 将失去作用。",
         "tag": "control",
@@ -479,7 +479,7 @@
         "checkPoint": "通过引用捕获异常",
         "level": "warning",
         "comment": "通过值捕获异常会造成不必要的复制开销，也可能导致“对象切片”，通过指针捕获异常会增加不必要的内存管理开销，通过引用捕获异常才是最合理的方式。",
-        "tag": "control",
+        "tag": "exception",
         "related": "ID_catch_slicing,ID_throwPointer",
         "reference": "C++ Core Guidelines E.15,C++ Core Guidelines ES.63,MISRA C++ 2008 15-3-5"
         },
@@ -487,7 +487,7 @@
         "checkPoint": "捕获异常时不应产生对象切片问题",
         "level": "warning",
         "comment": "通过值捕获多态类的异常对象，会使对象的多态性失效，造成异常处理方面的错误。",
-        "tag": "control",
+        "tag": "exception",
         "related": "ID_catch_value,ID_objectSlicing",
         "reference": "C++ Core Guidelines C.145,C++ Core Guidelines ES.63"
         },
@@ -495,7 +495,7 @@
         "checkPoint": "不应捕获过于宽泛的异常",
         "level": "warning",
         "comment": "捕获过于宽泛的异常会使异常处理失去针对性，而且很可能会将本不应处理的异常一并捕获，造成混乱。",
-        "tag": "control",
+        "tag": "exception",
         "related": "ID_throwGenericException",
         "reference": "CWE-396"
         },
@@ -503,7 +503,7 @@
         "checkPoint": "不应捕获非异常类型",
         "level": "warning",
         "comment": "字符串或变量以及非异常相关的对象不应被当作异常捕获，否则意味着异常相关的设计是不健全的。",
-        "tag": "control",
+        "tag": "exception",
         "related": "ID_throwNonExceptionType",
         "reference": "C++ Core Guidelines E.14"
         },
@@ -511,7 +511,7 @@
         "checkPoint": "捕获异常后不应直接再次抛出异常",
         "level": "warning",
         "comment": "捕获异常后将其直接再次抛出是没有意义的，还会造成不必要的开销。",
-        "tag": "control"
+        "tag": "exception"
         },
     "ID_missingDestructor": {
         "checkPoint": "存在拷贝构造函数或赋值运算符时，不应缺少析构函数",
