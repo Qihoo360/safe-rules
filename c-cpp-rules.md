@@ -294,11 +294,11 @@
   - [R7.2 不应抛出过于宽泛的异常](#ID_throwGenericException)
   - [R7.3 不应捕获过于宽泛的异常](#ID_catch_generic)
   - [R7.4 不应抛出非异常类型的对象](#ID_throwNonExceptionType)
-  - [R7.5 不应捕获非异常类型](#ID_catch_nonExceptionType)
+  - [R7.5 不应捕获非异常类型的对象](#ID_catch_nonExceptionType)
   - [R7.6 析构函数不可抛出异常](#ID_throwInDestuctor)
   - [R7.7 对象的 swap 过程不可抛出异常](#ID_throwInSwap)
   - [R7.8 移动构造函数和移动赋值运算符不可抛出异常](#ID_throwInMove)
-  - [R7.9 异常类的构造函数与异常信息相关的函数不应抛出异常](#ID_exceptionInException)
+  - [R7.9 异常类的构造函数和异常信息相关的函数不应抛出异常](#ID_exceptionInException)
   - [R7.10 与标准库相关的 hash 过程不应抛出异常](#ID_throwInHash)
   - [R7.11 通过引用捕获异常](#ID_catch_value)
   - [R7.12 捕获异常时不应产生对象切片问题](#ID_catch_slicing)
@@ -415,11 +415,11 @@
     - [R9.5.14 switch 语句应该用大括号括起来](#ID_switch_brace)
     - [R9.5.15 switch 语句不应嵌套](#ID_switch_forbidNest)
   - [9.6 Try-catch](#control.try-catch)
-    - [R9.6.1 不应嵌套 try\-catch 语句](#ID_try_forbidNest)
-    - [R9.6.2 不应存在空的 try 块](#ID_try_emptyBlock)
-    - [R9.6.3 捕获所有异常的 catch\-all handler 应位于最后](#ID_try_disorderedEllipsis)
-    - [R9.6.4 派生类的 catch handler 应排在基类 catch handler 之前](#ID_try_disorderedHandlers)
-    - [R9.6.5 不应存在空的 catch handler](#ID_catch_emptyBlock)
+    - [R9.6.1 不应存在空的 try 块](#ID_try_emptyBlock)
+    - [R9.6.2 不应存在空的 catch handler](#ID_catch_emptyBlock)
+    - [R9.6.3 不应嵌套 try\-catch 语句](#ID_try_forbidNest)
+    - [R9.6.4 捕获所有异常的 catch\-all handler 应位于最后](#ID_try_disorderedEllipsis)
+    - [R9.6.5 派生类的 catch handler 应排在基类 catch handler 之前](#ID_try_disorderedHandlers)
 <br/>
 
 <span id="__Expression">**[10. Expression](#expression)**</span>
@@ -8212,7 +8212,7 @@ C++ Core Guidelines E.3
 <br/>
 <br/>
 
-### <span id="ID_catch_nonExceptionType">▌R7.5 不应捕获非异常类型</span>
+### <span id="ID_catch_nonExceptionType">▌R7.5 不应捕获非异常类型的对象</span>
 
 ID_catch_nonExceptionType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
@@ -8400,21 +8400,21 @@ C++ Core Guidelines C.66
 <br/>
 <br/>
 
-### <span id="ID_exceptionInException">▌R7.9 异常类的构造函数与异常信息相关的函数不应抛出异常</span>
+### <span id="ID_exceptionInException">▌R7.9 异常类的构造函数和异常信息相关的函数不应抛出异常</span>
 
 ID_exceptionInException&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
 <hr/>
 
-抛出异常，或获取异常相关的信息时，如果再抛出异常不利于异常的定位与处理。  
+构造异常对象或获取异常信息时，如果再抛出其他异常不利于异常的定位与处理。  
   
 示例：
 ```
-class MyException {
+class Exception {
     string msg;
 
 public:
-    MyException(const char* s) {
+    Exception(const char* s) {
         if (!s) {
             throw AnotherException();  // Non-compliant
         }
@@ -8431,16 +8431,16 @@ public:
 ```
 例中在构造函数和 what 函数中抛出异常是不符合要求的，而且要注意 string 类型的构造函数需要动态内存分配，当分配失败时也会抛出异常，有高可靠性要求的软件系统需要规避。  
   
-自定义的异常类应从标准库定义的相关异常基类派生，异常类的成员应尽量简单，如：
+自定义的异常类应从标准异常类派生，成员也应尽量简单，如：
 ```
-class MyException: public std::exception {
+class Exception: public std::exception {
 public:
     const char* what() const noexcept override {
         return "message";
     }
 };
 ```
-由标准异常类的定义，MyException 的构造函数可以保证不会抛出异常。
+由标准异常类的定义，Exception 的构造函数可以保证不会抛出异常。
 <br/>
 <br/>
 
@@ -8487,7 +8487,7 @@ ID_catch_value&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
 <hr/>
 
-通过值捕获异常会造成不必要的复制开销，也可能导致“[对象切片](https://en.wikipedia.org/wiki/Object_slicing)”，通过指针捕获异常会增加不必要的内存管理开销，通过引用捕获异常才是最合理的方式。  
+通过值捕获异常可能会导致“[对象切片](https://en.wikipedia.org/wiki/Object_slicing)”，通过指针捕获异常会增加内存管理成本，通过引用捕获异常才是最合理的方式。  
   
 示例：
 ```
@@ -8507,7 +8507,7 @@ try {
     ....
 }
 ```
-通过指针捕获异常也是不符合要求的，可参见 ID\_throwPointer 中的示例与讨论。
+通过指针捕获异常也是不符合要求的，参见 ID\_throwPointer。
 <br/>
 <br/>
 
@@ -11360,7 +11360,7 @@ ID_for_floatCounter&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
 用于控制循环次数的变量称为循环变量，这种变量不应采用浮点类型，否则循环的次数难以控制。  
   
-由于浮点型变量的不精确性使浮点型变量不适用于控制循环次数，相关讨论可参见 ID\_illFloatComparison。  
+由于浮点型变量的不精确性使浮点型变量不适用于控制循环次数，参见 ID\_illFloatComparison。  
   
 示例：
 ```
@@ -12381,7 +12381,74 @@ default:
 
 ### <span id="control.try-catch">9.6 Try-catch</span>
 
-### <span id="ID_try_forbidNest">▌R9.6.1 不应嵌套 try-catch 语句</span>
+### <span id="ID_try_emptyBlock">▌R9.6.1 不应存在空的 try 块</span>
+
+ID_try_emptyBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
+
+<hr/>
+
+空的 try 块是毫无意义的，有可能是残留代码或功能未实现。  
+  
+示例：
+```
+try {
+    // Empty block or some code commented out
+}
+catch (Exception& e) {
+    // The whole statement is meaningless
+}
+```
+如果是残留代码应及时删去，否则引入无意义的异常处理会影响代码优化。
+<br/>
+<br/>
+
+#### 参考
+CWE-1071  
+<br/>
+<br/>
+
+### <span id="ID_catch_emptyBlock">▌R9.6.2 不应存在空的 catch handler</span>
+
+ID_catch_emptyBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
+
+<hr/>
+
+空的 catch handler 掩盖了异常，不利于问题的排查与纠正，应至少添加日志记录等操作。  
+  
+示例：
+```
+void foo() {
+    try {
+        ....
+    }
+    catch (...)
+    {}  // Non-compliant, very bad
+}
+```
+这样做并不能真正提高程序的稳定性，相当于逃避了问题，而且掩盖没有被处理的异常也可能会影响到其他方面的正常运行。  
+  
+对于要求不能抛出异常的接口，不妨按下例处理，记录意料之外的异常情况，以便问题的排查：
+```
+void foo() noexcept {
+    try {
+        ....
+    }
+    catch (...) {  // Compliant
+        log_unexpected_and_exit(__FILE__, __LINE__, "some messages");
+    }
+}
+```
+<br/>
+<br/>
+
+#### 参考
+CWE-1069  
+CWE-1071  
+CWE-391  
+<br/>
+<br/>
+
+### <span id="ID_try_forbidNest">▌R9.6.3 不应嵌套 try-catch 语句</span>
 
 ID_try_forbidNest&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: control suggestion
 
@@ -12411,33 +12478,7 @@ C++ Core Guidelines E.17
 <br/>
 <br/>
 
-### <span id="ID_try_emptyBlock">▌R9.6.2 不应存在空的 try 块</span>
-
-ID_try_emptyBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
-
-<hr/>
-
-空的 try 块是毫无意义的，有可能是残留代码或功能未实现。  
-  
-示例：
-```
-try {
-    // Empty block or some code commented out
-}
-catch (Exception& e) {
-    // The whole statement is meaningless
-}
-```
-如果是残留代码应及时删去，否则引入无意义的异常处理会影响代码优化。
-<br/>
-<br/>
-
-#### 参考
-CWE-1071  
-<br/>
-<br/>
-
-### <span id="ID_try_disorderedEllipsis">▌R9.6.3 捕获所有异常的 catch-all handler 应位于最后</span>
+### <span id="ID_try_disorderedEllipsis">▌R9.6.4 捕获所有异常的 catch-all handler 应位于最后</span>
 
 ID_try_disorderedEllipsis&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: control error
 
@@ -12481,7 +12522,7 @@ MISRA C++ 2008 15-3-7
 <br/>
 <br/>
 
-### <span id="ID_try_disorderedHandlers">▌R9.6.4 派生类的 catch handler 应排在基类 catch handler 之前</span>
+### <span id="ID_try_disorderedHandlers">▌R9.6.5 派生类的 catch handler 应排在基类 catch handler 之前</span>
 
 ID_try_disorderedHandlers&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: control error
 
@@ -12529,47 +12570,6 @@ C++ Core Guidelines E.31
 <br/>
 <br/>
 
-### <span id="ID_catch_emptyBlock">▌R9.6.5 不应存在空的 catch handler</span>
-
-ID_catch_emptyBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
-
-<hr/>
-
-空的 catch handler 掩盖了异常，不利于问题的排查与纠正，应至少添加日志记录等操作。  
-  
-示例：
-```
-void foo() {
-    try {
-        ....
-    }
-    catch (...)
-    {}  // Non-compliant, very bad
-}
-```
-这样做并不能真正提高程序的稳定性，相当于逃避了问题，而且掩盖没有被处理的异常也可能会影响到其他方面的正常运行。  
-  
-对于要求不能抛出异常的接口，不妨按下例处理，记录意料之外的异常情况，以便问题的排查：
-```
-void foo() noexcept {
-    try {
-        ....
-    }
-    catch (...) {  // Compliant
-        log_unexpected_and_exit(__FILE__, __LINE__, "some messages");
-    }
-}
-```
-<br/>
-<br/>
-
-#### 参考
-CWE-1069  
-CWE-1071  
-CWE-391  
-<br/>
-<br/>
-
 ## <span id="expression">10. Expression</span>
 
 ### <span id="expression.logic">10.1 Logic</span>
@@ -12607,7 +12607,7 @@ if (fin.get() == 'a' && fin.get() == 'a') {  // Let it go
     ....
 }
 ```
-例中逻辑表达式从文件流中读取相邻的字符，但第二个子表达式可能不会被执行，这种代码即使没有逻辑错误也是不利于维护的，进一步讨论可参见 ID\_shortCircuitSideEffect。
+例中逻辑表达式从文件流中读取相邻的字符，但第二个子表达式可能不会被执行，这种代码即使没有逻辑错误也是不利于维护的，参见 ID\_shortCircuitSideEffect。
 <br/>
 <br/>
 
@@ -15851,7 +15851,7 @@ void foo(A* a) {
     ....
 }
 ```
-应尽量减少向下类型转换，可参见 ID\_downCast 的进一步讨论。
+应尽量减少向下类型转换，参见 ID\_downCast。
 <br/>
 <br/>
 
@@ -16917,7 +16917,7 @@ void foo(A* a) {
     }
 }
 ```
-使用 dynamic\_cast 需要一定开销，如果不对其结果作判断，还不如使用 static\_cast 等转换，但本规则集合不建议采用非 dynamic\_cast 之外的向下类型转换，可参见 ID\_nonDynamicDownCast 的相关讨论。
+使用 dynamic\_cast 需要一定开销，如果不对其结果作判断，还不如使用 static\_cast 等转换，但本规则集合不建议采用非 dynamic\_cast 之外的向下类型转换，参见 ID\_nonDynamicDownCast。
 <br/>
 <br/>
 

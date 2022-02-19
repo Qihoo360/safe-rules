@@ -478,7 +478,7 @@
     "ID_catch_value": {
         "checkPoint": "通过引用捕获异常",
         "level": "warning",
-        "comment": "通过值捕获异常会造成不必要的复制开销，也可能导致“对象切片”，通过指针捕获异常会增加不必要的内存管理开销，通过引用捕获异常才是最合理的方式。",
+        "comment": "通过值捕获异常可能会导致“对象切片”，通过指针捕获异常会增加内存管理成本，通过引用捕获异常才是最合理的方式。",
         "tag": "exception",
         "related": "ID_catch_slicing,ID_throwPointer",
         "reference": "C++ Core Guidelines E.15,C++ Core Guidelines ES.63,MISRA C++ 2008 15-3-5"
@@ -500,7 +500,7 @@
         "reference": "CWE-396"
         },
     "ID_catch_nonExceptionType": {
-        "checkPoint": "不应捕获非异常类型",
+        "checkPoint": "不应捕获非异常类型的对象",
         "level": "warning",
         "comment": "字符串或变量以及非异常相关的对象不应被当作异常捕获，否则意味着异常相关的设计是不健全的。",
         "tag": "exception",
@@ -929,9 +929,9 @@
         "reference": "Effective C++ item 29"
         },
     "ID_exceptionInException": {
-        "checkPoint": "异常类的构造函数与异常信息相关的函数不应抛出异常",
+        "checkPoint": "异常类的构造函数和异常信息相关的函数不应抛出异常",
         "level": "warning",
-        "comment": "抛出异常，或获取异常相关的信息时，如果再抛出异常不利于异常的定位与处理。",
+        "comment": "构造异常对象或获取异常信息时，如果再抛出其他异常不利于异常的定位与处理。",
         "tag": "exception",
         "standard": "ISO/IEC 14882:2011 18.8.1"
         },
