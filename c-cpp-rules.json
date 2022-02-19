@@ -47,12 +47,12 @@
     "ID_ptrIntCast": {
         "checkPoint": "指针与整数不应相互转换",
         "level": "warning",
-        "comment": "指针转为整数，或整数转为指针（尤其是小于 64 位的整数或有符号的整数），容易造成地址不完整、寻址错误、降低可移植性等问题。",
+        "comment": "指针与整数相互转换容易造成地址不完整、寻址错误、降低可移植性等多种问题。",
         "config": {
             "allowPointerToSizeType": "为 true 时可以放过指针与 size_t 的转换"
             },
         "tag": "cast",
-        "standard": "ISO/IEC 9899:2011 6.3.2.3(5)-implementation,ISO/IEC 14882:2011 5.2.10(4 5)-implementation",
+        "standard": "ISO/IEC 9899:2011 6.3.2.3(5)-implementation,ISO/IEC 14882:2011 5.2.10(4 5)-implementation,ISO/IEC 9899:2011 7.20.1.4(1)",
         "related": "ID_fixedAddrToPointer",
         "reference": "SEI CERT INT36-C,MISRA C 2004 11.3,MISRA C 2012 11.4,MISRA C++ 2008 5-2-8,MISRA C++ 2008 5-2-9"
         },
@@ -140,7 +140,7 @@
     "ID_throwGenericException": {
         "checkPoint": "不应抛出过于宽泛的异常",
         "level": "warning",
-        "comment": "抛出过于宽泛的异常如 std::exception、std::logic_error、std::runtime_error 等，使异常处理失去针对性，无法做到具体问题具体处理，而且处理这种异常时很可能将本不应处理的异常一并捕获，造成混乱。",
+        "comment": "抛出过于宽泛的异常，如 std::exception、std::logic_error、std::runtime_error 等，会使异常处理失去针对性，而且处理这种异常时很可能会将本不应处理的异常一并捕获，造成混乱。",
         "tag": "exception",
         "related": "ID_catch_generic",
         "reference": "CWE-397"
@@ -453,7 +453,7 @@
         "tag": "control"
         },
     "ID_try_disorderedHandlers": {
-        "checkPoint": "针对派生类的 catch handler 应排在前面，针对基类的应排在后面",
+        "checkPoint": "派生类的 catch handler 应排在前面，基类的应排在后面",
         "level": "error",
         "comment": "如果违反这个顺序，针对派生类的 catch handler 将失去作用。",
         "tag": "control",
@@ -478,7 +478,7 @@
     "ID_catch_value": {
         "checkPoint": "通过引用捕获异常",
         "level": "warning",
-        "comment": "如果按传值的方式捕获异常会造成不必要的复制开销，也可能产生对象切片问题；如果通过指针捕获异常，会增加不必要的内存管理开销，通过引用捕获异常才是合理的方式。",
+        "comment": "通过值捕获异常会造成不必要的复制开销，也可能导致“对象切片”，通过指针捕获异常会增加不必要的内存管理开销，通过引用捕获异常才是最合理的方式。",
         "tag": "control",
         "related": "ID_catch_slicing,ID_throwPointer",
         "reference": "C++ Core Guidelines E.15,C++ Core Guidelines ES.63,MISRA C++ 2008 15-3-5"
@@ -486,7 +486,7 @@
     "ID_catch_slicing": {
         "checkPoint": "捕获异常时不应产生对象切片问题",
         "level": "warning",
-        "comment": "如果catch块的参数是多态类的对象，则会产生对象切片问题，造成对异常的错误处理，故参数应改为对象的引用。",
+        "comment": "通过值捕获多态类的异常对象，会使对象的多态性失效，造成异常处理方面的错误。",
         "tag": "control",
         "related": "ID_catch_value,ID_objectSlicing",
         "reference": "C++ Core Guidelines C.145,C++ Core Guidelines ES.63"
@@ -494,7 +494,7 @@
     "ID_catch_generic": {
         "checkPoint": "不应捕获过于宽泛的异常",
         "level": "warning",
-        "comment": "捕获过于宽泛的异常如 std::exception、std::logic_error、std::runtime_error 等，使异常处理失去针对性，无法做到具体问题具体处理，而且很可能将本不应处理的异常一并捕获，造成混乱。",
+        "comment": "捕获过于宽泛的异常会使异常处理失去针对性，而且很可能会将本不应处理的异常一并捕获，造成混乱。",
         "tag": "control",
         "related": "ID_throwGenericException",
         "reference": "CWE-396"
@@ -1225,9 +1225,9 @@
         "reference": "CWE-665,C++ Core Guidelines ES.84"
         },
     "ID_qualifierCastedAway": {
-        "checkPoint": "类型转换时不应去掉 const、volatile 等属性",
+        "checkPoint": "类型转换不应去掉 const、volatile 等属性",
         "level": "warning",
-        "comment": "类型转换时去掉 const、volatile 等属性使相关机制失去了意义，这往往意味着设计上的缺陷，也会导致标准未定义的错误。",
+        "comment": "去掉 const、volatile 等属性会使相关机制失去意义，往往意味着设计上的缺陷，也会导致标准未定义的错误。",
         "tag": "cast",
         "standard": "ISO/IEC 14882:2003 7.1.5.1(4 5)-undefined,ISO/IEC 14882:2011 7.1.6.1(4)-undefined",
         "reference": "C++ Core Guidelines Type.3,MISRA C 2004 11.5,MISRA C 2012 11.8,MISRA C++ 2008 5-2-5"
@@ -1305,9 +1305,9 @@
         "reference": "MISRA C++ 2008 5-2-2,C++ Core Guidelines Type.2"
         },
     "ID_unsuitableReinterpretCast": {
-        "checkPoint": "可用 static_cast、dynamic_cast 完成的类型转换不应使用 reinterpret_cast",
+        "checkPoint": "可用其他方式完成的转换不应使用 reinterpret_cast",
         "level": "warning",
-        "comment": "reinterpret_cast 将某地址强行按另一种类型解释，不考虑转换需要的逻辑，可用其他方法转换时不应使用 reinterpret_cast。",
+        "comment": "reinterpret_cast 将地址强行按另一种类型解释，不考虑转换需要的逻辑，可用 static_cast、dynamic_cast 完成的转换不应使用 reinterpret_cast。",
         "tag": "cast",
         "standard": "ISO/IEC 14882:2003 5.2.10(7),ISO/IEC 14882:2011 5.2.10(7)",
         "reference": "C++ Core Guidelines Type.1"

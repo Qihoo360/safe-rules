@@ -414,7 +414,7 @@
     - [R9.6.2 捕获异常时不应产生对象切片问题](#ID_catch_slicing)
     - [R9.6.3 捕获异常后不应直接再次抛出异常](#ID_catch_justRethrow)
     - [R9.6.4 catch\-all handler 应位于最后](#ID_try_disorderedEllipsis)
-    - [R9.6.5 针对派生类的 catch handler 应排在前面，针对基类的应排在后面](#ID_try_disorderedHandlers)
+    - [R9.6.5 派生类的 catch handler 应排在前面，基类的应排在后面](#ID_try_disorderedHandlers)
     - [R9.6.6 不应存在空的 catch handler](#ID_catch_emptyBlock)
     - [R9.6.7 不应捕获过于宽泛的异常](#ID_catch_generic)
     - [R9.6.8 不应捕获非异常类型](#ID_catch_nonExceptionType)
@@ -515,7 +515,7 @@
   - [R12.1 避免类型转换造成数据丢失](#ID_narrowCast)
   - [R12.2 避免向下类型转换](#ID_downCast)
   - [R12.3 指针与整数不应相互转换](#ID_ptrIntCast)
-  - [R12.4 类型转换时不应去掉 const、volatile 等属性](#ID_qualifierCastedAway)
+  - [R12.4 类型转换不应去掉 const、volatile 等属性](#ID_qualifierCastedAway)
   - [R12.5 不应强制转换无继承关系的类型](#ID_castNoInheritance)
   - [R12.6 不应强制转换非公有继承关系的类型](#ID_castNonPublicInheritance)
   - [R12.7 多态类型与基本类型不应相互转换](#ID_castViolatePolymorphism)
@@ -525,7 +525,7 @@
   - [R12.11 向下类型转换应使用 dynamic\_cast](#ID_nonDynamicDownCast)
   - [R12.12 对 new 表达式不应进行类型转换](#ID_oddNewCast)
   - [R12.13 不应存在多余的类型转换](#ID_redundantCast)
-  - [R12.14 可用 static\_cast、dynamic\_cast 完成的类型转换不应使用 reinterpret\_cast](#ID_unsuitableReinterpretCast)
+  - [R12.14 可用其他方式完成的转换不应使用 reinterpret\_cast](#ID_unsuitableReinterpretCast)
   - [R12.15 在 C\+\+ 代码中禁用 C 风格类型转换](#ID_forbidCStyleCast)
   - [R12.16 合理使用 reinterpret\_cast](#ID_forbidReinterpretCast)
 <br/>
@@ -8423,7 +8423,7 @@ ID_throwGenericException&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
 <hr/>
 
-抛出过于宽泛的异常如 std::exception、std::logic\_error、std::runtime\_error 等，使异常处理失去针对性，无法做到具体问题具体处理，而且处理这种异常时很可能将本不应处理的异常一并捕获，造成混乱。  
+抛出过于宽泛的异常，如 std::exception、std::logic\_error、std::runtime\_error 等，会使异常处理失去针对性，而且处理这种异常时很可能会将本不应处理的异常一并捕获，造成混乱。  
   
 示例：
 ```
@@ -8493,22 +8493,20 @@ ID_throwNonExceptionType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
   
 值得强调的是 throw、try、catch 等关键字应专注于异常处理，不应使用这些关键字控制程序的业务流程，业务代码与异常处理代码应有明显区别，否则会使代码含混不明，效率也会降低。  
   
-示例（选自 C\+\+ Core Guidelines）：
+示例：
 ```
-// don't: exception not used for error handling
-int find_index(vector<string>& vec, const string& x)
-{
-    try {
-        for (gsl::index i = 0; i < vec.size(); ++i)
-            if (vec[i] == x) throw i;  // found x
+void foo(const vector<string>& v, const string& s) {
+    auto b = v.begin();
+    auto e = v.end();
+    for (auto i = b; i != e; ++i) {
+        if (*i == s) {
+            throw i - b;  // Non-compliant
+        }
     }
-    catch (int i) {
-        return i;
-    }
-    return -1;   // not found
+    throw -1;  // Non-compliant
 }
 ```
-这段代码比常规的实现要慢很多。
+例中 foo 抛出字符 s 在容器 v 中的位置，用异常机制实现与异常无关的功能，是不符合要求的。
 <br/>
 <br/>
 
@@ -12199,7 +12197,7 @@ ID_catch_value&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
 <hr/>
 
-如果按传值的方式捕获异常会造成不必要的复制开销，也可能产生“[对象切片](https://en.wikipedia.org/wiki/Object_slicing)”问题；如果通过指针捕获异常，会增加不必要的内存管理开销，通过引用捕获异常才是合理的方式。  
+通过值捕获异常会造成不必要的复制开销，也可能导致“[对象切片](https://en.wikipedia.org/wiki/Object_slicing)”，通过指针捕获异常会增加不必要的内存管理开销，通过引用捕获异常才是最合理的方式。  
   
 示例：
 ```
@@ -12241,29 +12239,28 @@ ID_catch_slicing&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
 <hr/>
 
-如果按传值的方式捕获多态类的异常对象，会使对象的多态性失效，造成错误的异常处理。  
+通过值捕获多态类的异常对象，会使对象的多态性失效，造成异常处理方面的错误。  
   
 本规则是 ID\_catch\_value 与 ID\_objectSlicing 的特化。  
   
 示例：
 ```
 class Exception {
+    ....
 public:
-    Exception();
-    virtual ~Exception();
     virtual const char* what() const { return nullptr; }
 };
 
 void foo() {
     try {
-        // Objects derived from Exception may be thrown...
+        ....  // If objects derived from Exception may be thrown
     }
-    catch (Exception e) {  // Non-compliant
+    catch (Exception e) {  // Non-compliant, use reference instead
         log(e.what());
     }
 }
 ```
-如果例中 Exception 类是所有异常类的基类，不论哪个异常被捕获，what 函数只能返回 nullptr，丧失了多态性，造成了异常的错误处理。
+设例中 Exception 是所有异常类的基类，不论哪种异常被捕获，what 只能返回 nullptr，丧失了多态性，使异常被错误处理。
 <br/>
 <br/>
 
@@ -12313,8 +12310,8 @@ catch\-all handler 应位于最后，否则后面的 handler 将失去作用。
 示例：
 ```
 try {
-    foo();
-} catch (...) {  // Non-compliant
+    ....
+} catch (...) {  // Catch-all handler, non-compliant
     ....
 } catch (const E&) {
     ....
@@ -12323,7 +12320,7 @@ try {
 应改为：
 ```
 try {
-    foo();
+    ....
 } catch (const E&) {
     ....
 } catch (...) {  // Compliant
@@ -12346,13 +12343,13 @@ MISRA C++ 2008 15-3-7
 <br/>
 <br/>
 
-### <span id="ID_try_disorderedHandlers">▌R9.6.5 针对派生类的 catch handler 应排在前面，针对基类的应排在后面</span>
+### <span id="ID_try_disorderedHandlers">▌R9.6.5 派生类的 catch handler 应排在前面，基类的应排在后面</span>
 
 ID_try_disorderedHandlers&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: control error
 
 <hr/>
 
-如果违反这个顺序，针对派生类的 catch handler 将失去作用。  
+如果违反这个顺序，派生类的 catch handler 将失去作用。  
   
 示例：
 ```
@@ -12360,17 +12357,19 @@ class B { .... };
 class D: public B { .... };
 
 try {
-    foo();
+    ....
 } catch (const B&) {
     ....
 } catch (const D&) {  // Non-compliant, unreachable
     ....
 }
 ```
+例中 B 为基类，D 为派生类，D 类异常会被 B 的 handler 捕获，D 的 handler 失去了作用。  
+  
 应改为：
 ```
 try {
-    foo();
+    ....
 } catch (const D&) {
     ....
 } catch (const B&) {  // Compliant
@@ -12439,7 +12438,7 @@ ID_catch_generic&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
 <hr/>
 
-捕获过于宽泛的异常如 std::exception、std::logic\_error、std::runtime\_error 等，使异常处理失去针对性，无法做到具体问题具体处理，而且很可能将本不应处理的异常一并捕获，造成混乱。  
+捕获过于宽泛的异常会使异常处理失去针对性，而且很可能会将本不应处理的异常一并捕获，造成混乱。  
   
 相关讨论详见 ID\_throwGenericException。  
   
@@ -15069,7 +15068,7 @@ auto* b = U"123" u"456";  // Non-compliant
 auto* a = L"123" L"456";  // Compliant
 auto* b = U"123" U"456";  // Compliant
 ```
-C\+\+03 规定宽字符串与窄字符串连接是未定义的。  
+C\+\+03 规定宽字符串与窄字符串连接会导致未定义的行为。  
 C\+\+11 规定一个字符串有前缀一个没有的话，结果以有前缀的为准，其他情况由实现定义。  
   
 如：
@@ -15493,9 +15492,9 @@ ID_ptrIntCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
 <hr/>
 
-指针与整数相互转换，容易造成地址不完整、寻址错误、降低可移植性等多种问题。  
+指针与整数相互转换容易造成地址不完整、寻址错误、降低可移植性等多种问题。  
   
-指针与整数的转换由实现定义，整数的符号和取值范围可能与指针有冲突，错误的值转为指针也会导致标准未定义的行为。  
+指针与整数的转换由实现定义，整数的符号和取值范围可能与指针有冲突，错误的值转为指针也会导致标准未定义的行为。在当今大多数平台上，指针可以安全地转为 size\_t，但标准对此并未明确规定，审计工具不妨通过配置决定是否放过这种转换。C 标准规定指针可以转为 intptr\_t 或 uintptr\_t，但也声明了这些类型不是编译器必须实现的类型。  
   
 示例：
 ```
@@ -15505,9 +15504,7 @@ void foo(int* p) {
     ....
 }
 ```
-例中将指针 p 转为 int 是不符合要求的，指针的值可能会超过 int 的范围。  
-  
-在多数实现中，指针的值可以安全地转为 size\_t 类型，不妨通过配置决定是否放过指针与 size\_t 的转换。
+例中将指针转为 int 是不符合要求的，指针的值可能会超过 int 的范围。
 <br/>
 <br/>
 
@@ -15522,6 +15519,7 @@ ID_fixedAddrToPointer
 #### 依据
 ISO/IEC 9899:2011 6.3.2.3(5)-implementation  
 ISO/IEC 14882:2011 5.2.10(4 5)-implementation  
+ISO/IEC 9899:2011 7.20.1.4(1)  
 <br/>
 
 #### 参考
@@ -15533,13 +15531,13 @@ MISRA C++ 2008 5-2-9
 <br/>
 <br/>
 
-### <span id="ID_qualifierCastedAway">▌R12.4 类型转换时不应去掉 const、volatile 等属性</span>
+### <span id="ID_qualifierCastedAway">▌R12.4 类型转换不应去掉 const、volatile 等属性</span>
 
 ID_qualifierCastedAway&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
 <hr/>
 
-类型转换时去掉 const、volatile 等属性使相关机制失去了意义，这往往意味着设计上的缺陷，也会导致标准未定义的错误。  
+去掉 const、volatile 等属性会使相关机制失去意义，往往意味着设计上的缺陷，也会导致标准未定义的错误。  
   
 示例：
 ```
@@ -15550,7 +15548,7 @@ void foo(const int& n) {
 }
 
 void bar() {
-    foo(N);  // Undefined behavior, modifies a const object
+    foo(N);   // Undefined behavior, modifies a const object
 }
 ```
 <br/>
@@ -15926,26 +15924,19 @@ CWE-704
 <br/>
 <br/>
 
-### <span id="ID_unsuitableReinterpretCast">▌R12.14 可用 static_cast、dynamic_cast 完成的类型转换不应使用 reinterpret_cast</span>
+### <span id="ID_unsuitableReinterpretCast">▌R12.14 可用其他方式完成的转换不应使用 reinterpret_cast</span>
 
 ID_unsuitableReinterpretCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
 <hr/>
 
-reinterpret\_cast 将某地址强行按另一种类型解释，不考虑转换需要的逻辑，可用其他方法转换时不应使用 reinterpret\_cast。  
+reinterpret\_cast 将地址强行按另一种类型解释，不考虑转换需要的逻辑，可用 static\_cast、dynamic\_cast 完成的转换不应使用 reinterpret\_cast。  
   
 示例：
 ```
-struct A {
-    int a = 1;
-};
-
-struct B {
-    int b = 2;
-};
-
-struct C: A, B {
-};
+struct A { int a = 1; };
+struct B { int b = 2; };
+struct C: A, B {};
 
 int main() {
     C c;
@@ -15953,7 +15944,7 @@ int main() {
     cout << reinterpret_cast<B*>(&c)->b << '\n';  // Non-compliant, what is output?
 }
 ```
-输出 2 1，如果想将派生类的地址 &c 转为基类指针，应使用 static\_cast 进行正确的偏移转换，而如果使用 reinterpret\_cast，不会进行偏移转换，这种情况下得到的成员 b 是错误的。
+输出 2 1，如果想将派生类对象的地址 &c 转为基类指针，应使用 static\_cast 进行正确的偏移转换，使用 reinterpret\_cast 不会进行偏移转换，得到的成员 b 是错误的。
 <br/>
 <br/>
 
