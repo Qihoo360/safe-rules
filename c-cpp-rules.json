@@ -453,9 +453,9 @@
         "tag": "control"
         },
     "ID_try_disorderedHandlers": {
-        "checkPoint": "派生类的 catch handler 应排在前面，基类的应排在后面",
+        "checkPoint": "派生类的 catch handler 应排在基类 catch handler 之前",
         "level": "error",
-        "comment": "如果违反这个顺序，针对派生类的 catch handler 将失去作用。",
+        "comment": "如果违反这个顺序，派生类的 catch  handler 将失去作用。",
         "tag": "control",
         "standard": "ISO/IEC 14882:2003 15.3,ISO/IEC 14882:2011 15.3,ISO/IEC 14882:2011 18.3",
         "reference": "CWE-561,C++ Core Guidelines E.31"
@@ -463,7 +463,7 @@
     "ID_try_disorderedEllipsis": {
         "checkPoint": "catch-all handler 应位于最后",
         "level": "error",
-        "comment": "catch-all handler 应位于最后，否则后面的 handler 将失去作用。",
+        "comment": "如果 catch-all handler 排在前面，其后面的 handler 将失去作用。",
         "tag": "control",
         "standard": "ISO/IEC 14882:2003 15.3(6),ISO/IEC 14882:2011 15.3(5),ISO/IEC 14882:2011 18.3(5)",
         "reference": "CWE-561,C++ Core Guidelines E.31,MISRA C++ 2008 15-3-7"

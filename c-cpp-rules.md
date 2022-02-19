@@ -414,7 +414,7 @@
     - [R9.6.2 捕获异常时不应产生对象切片问题](#ID_catch_slicing)
     - [R9.6.3 捕获异常后不应直接再次抛出异常](#ID_catch_justRethrow)
     - [R9.6.4 catch\-all handler 应位于最后](#ID_try_disorderedEllipsis)
-    - [R9.6.5 派生类的 catch handler 应排在前面，基类的应排在后面](#ID_try_disorderedHandlers)
+    - [R9.6.5 派生类的 catch handler 应排在基类 catch handler 之前](#ID_try_disorderedHandlers)
     - [R9.6.6 不应存在空的 catch handler](#ID_catch_emptyBlock)
     - [R9.6.7 不应捕获过于宽泛的异常](#ID_catch_generic)
     - [R9.6.8 不应捕获非异常类型](#ID_catch_nonExceptionType)
@@ -12305,7 +12305,7 @@ ID_try_disorderedEllipsis&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: control error
 
 <hr/>
 
-catch\-all handler 应位于最后，否则后面的 handler 将失去作用。  
+如果 catch\-all handler 排在前面，其后面的 handler 将失去作用。  
   
 示例：
 ```
@@ -12343,13 +12343,13 @@ MISRA C++ 2008 15-3-7
 <br/>
 <br/>
 
-### <span id="ID_try_disorderedHandlers">▌R9.6.5 派生类的 catch handler 应排在前面，基类的应排在后面</span>
+### <span id="ID_try_disorderedHandlers">▌R9.6.5 派生类的 catch handler 应排在基类 catch handler 之前</span>
 
 ID_try_disorderedHandlers&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: control error
 
 <hr/>
 
-如果违反这个顺序，派生类的 catch handler 将失去作用。  
+如果违反这个顺序，派生类的 catch  handler 将失去作用。  
   
 示例：
 ```
@@ -15944,7 +15944,7 @@ int main() {
     cout << reinterpret_cast<B*>(&c)->b << '\n';  // Non-compliant, what is output?
 }
 ```
-输出 2 1，如果想将派生类对象的地址 &c 转为基类指针，应使用 static\_cast 进行正确的偏移转换，使用 reinterpret\_cast 不会进行偏移转换，得到的成员 b 是错误的。
+输出 2 1，如果想将派生类对象的地址 &c 转为基类指针，应使用 static\_cast 进行正确的偏移转换，使用 reinterpret\_cast 不会进行偏移转换，得到的成员 b 不是真实的成员 b。
 <br/>
 <br/>
 
