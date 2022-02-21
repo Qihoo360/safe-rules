@@ -8183,11 +8183,34 @@ ID_throwNonExceptionType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
  - 可将异常情况有效分类  
  - 可方便地处理异常并进行调试  
   
-值得强调的是 throw、try、catch 等关键字应专注于异常处理，不应使用这些关键字控制程序的业务流程，业务代码与异常处理代码应有明显区别，否则会使代码含混不明，效率也会降低。  
+非异常类型难以满足这种需求。  
   
 示例：
 ```
-void foo(const vector<string>& v, const string& s) {
+void foo() {
+    if (cond) {
+        throw 1;          // Non-compliant
+    }
+    throw "message";      // Non-compliant
+}
+```
+整数或字符串无法区分异常的种类，如果多个模块将简单变量作为异常，很容易产生冲突。  
+  
+应明确定义异常类：
+```
+class E1: public std::exception { .... };
+class E2: public std::exception { .... };
+
+void foo() {
+    if (cond1) {
+        throw E1();       // Compliant
+    }
+    throw E2("message");  // Compliant
+}
+```
+注意，throw、try、catch 等关键字应专注于异常处理，不应使用这些关键字控制程序的业务流程，业务代码与异常处理代码应有明显区别，否则会使代码含混不明，效率也会降低，如：
+```
+void bar(const vector<string>& v, const string& s) {
     auto b = v.begin();
     auto e = v.end();
     for (auto i = b; i != e; ++i) {
@@ -8198,7 +8221,7 @@ void foo(const vector<string>& v, const string& s) {
     throw -1;  // Non-compliant
 }
 ```
-例中 foo 抛出字符 s 在容器 v 中的位置，用异常机制实现与异常无关的功能，是不符合要求的。
+例中 bar 抛出字符串 s 在容器 v 中的位置，用异常机制实现与异常无关的功能，是不符合要求的。
 <br/>
 <br/>
 
