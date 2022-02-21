@@ -132,7 +132,7 @@
     "ID_throwNonExceptionType": {
         "checkPoint": "不应抛出非异常类型的对象",
         "level": "warning",
-        "comment": "字符串或普通变量以及非异常相关的对象不应被当作异常抛出，否则意味着异常相关的设计是不健全的。",
+        "comment": "不应将整数、字符串等非异常相关的对象当作异常抛出，否则意味着异常相关的设计是不健全的。",
         "tag": "exception",
         "related": "ID_catch_nonExceptionType",
         "reference": "C++ Core Guidelines E.14,C++ Core Guidelines E.3"
