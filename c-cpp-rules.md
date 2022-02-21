@@ -1024,17 +1024,17 @@ ID_dangerousName&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 ```
 #include <openssl/md5.h>   // Non-compliant
 
-const string myUrl = "http://foo/bar";  // Non-compliant, use https
+const string myUrl = "http://foo/bar";  // Non-compliant, use https instead
 
 void foo() {
     MD5_CTX c;       // Non-compliant
-    MD5_Init(&c);    // Non-compliant
+    MD5_Init(&c);    // Non-compliant, obsolete hash algorithm
     ....
 }
 
 void bar() {
-    srand(0);        // Non-compliant
-    EVP_des_ecb();   // Non-compliant
+    srand(0);        // Non-compliant, unsafe random seed
+    EVP_des_ecb();   // Non-compliant, unsafe encryption algorithm
     ....
 }
 ```
@@ -1185,7 +1185,7 @@ lstrcat、lstrcatA、lstrcatW、lstrcpy、lstrcpyA、lstrcpyW
 char buf[100];
 gets(buf);      // Non-compliant
 ```
-例中 gets 函数无法检查缓冲区的大小，一旦输入超过了 buf 数组的边界，程序的数据或流程就会遭到破坏，这种情况也会成攻击者的常用手段，可参见 ID\_bufferOverflow 的进一步说明。如果代码中存在 gets 等函数，可以直接判定程序是有漏洞的。  
+例中 gets 函数无法检查缓冲区的大小，一旦输入超过了 buf 数组的边界，程序的数据或流程就会遭到破坏，这种情况会被攻击者利用，可参见 ID\_bufferOverflow 的进一步说明。如果代码中存在 gets 等函数，可以直接判定程序是有漏洞的。  
   
 应改为：
 ```
@@ -9754,29 +9754,45 @@ ID_localAddressFlowOut&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
 <hr/>
 
-局部对象的生命周期在函数返回后结束，其地址或引用也会失效，如果继续访问会造成标准未定义的错误。  
+对象的生命周期结束后，其地址或引用也会失效，如果继续访问会造严重错误，导致标准未定义的行为。  
   
 示例：
 ```
 int* foo() {
-    int i = 0;
+    int i = 0;  // Local object
     ....
     return &i;  // Non-compliant
 }
 
 int& bar() {
-    int i = 0;
+    int i = 0;  // Local object
     ....
     return i;   // Non-compliant
 }
 
 int&& baz() {
-    int i = 0;
+    int i = 0;  // Local object
     ....
     return std::move(i);   // Non-compliant
 }
 ```
+返回与局部对象相关的指针或引用是不符合要求的。  
+  
+注意，除了 return 语句，throw、赋值等表达式也受本规则限制，禁止将内层作用域中的地址向外层作用域传递，如：
+```
+char* global;
+
+void fun() {
+    char local[] = "....";
+    global = local;         // Non-compliant
+}
+```
+例中 local 是局部数组，函数返回后，全局指针会指向无效的内存区域。
 <br/>
+<br/>
+
+#### 相关
+ID_danglingDeref  
 <br/>
 
 #### 依据
@@ -14608,7 +14624,7 @@ ID_badAssertion&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 示例：
 ```
 void foo(int a[]) {
-    assert(sizeof(a));  // Non-compliant
+    assert(sizeof(a));        // Non-compliant
     assert("some comments");  // Non-compliant
 }
 ```
@@ -16441,18 +16457,32 @@ ID_danglingDeref&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: pointer error
   
 示例：
 ```
-void foo() {
+int foo() {
     int* p = new int[100];
     if (cond) {
         ....
         delete[] p;
     }
-    do_somthing(p[0]);  // Non-compliant, ‘p’ may be deallocated
+    return p[0];  // Non-compliant, ‘p’ may be deallocated
 }
 ```
 本来指针 p 指向有效的内存空间，但由于某种原因相关内存被释放，p 的值不变但已无效，这种情况被形象地称为“指针悬挂”， 未经初始化的指针和这种“被悬挂”的指针统称“野指针”，均指向无效地址不可被解引用。  
   
-在 C\+\+ 语言中，应避免持有可自动销毁的对象地址，如容器中对象的地址、智能指针所指对象的地址等。
+应避免内层作用域中的地址向外层传递，如：
+```
+int foo(int i) {
+    int* p = &i;
+    if (cond) {
+        int j = 0;
+        ....
+        p = &j;   // Bad practice
+    }
+    return *p;    // Non-compliant, ‘p’ may be deallocated
+}
+```
+例中局部变量 j 的地址被传给了外层作域中的 p，j 的生命周期结束后，p 为野指针。  
+  
+另外，在 C\+\+ 语言中，应避免持有可自动销毁的对象地址，如容器中对象的地址、智能指针所指对象的地址等。
 ```
 int bar(vector<int>& v) {
     int* p = &v.front();         // Bad practice
@@ -16477,6 +16507,7 @@ int baz() {
 
 #### 相关
 ID_illAccess  
+ID_localAddressFlowOut  
 <br/>
 
 #### 依据
@@ -16587,7 +16618,7 @@ int res = (*fp)(123);        // Unsafe
 ```
 示例代码假设在特定地址可以找到特定的函数，将该地址赋给一个指针并调用，这种假设本身可能就是错误的，会导致崩溃，攻击者也可以更改预期地址上的内存，从而导致任意代码的执行。  
   
-某些框架或系统会以 \-1 表示无效地址，但不具备通用性，不妨通过配置选择是否放过。
+某些框架或系统会以 \-1 表示无效地址，但不具备通用性，审计工具不妨通过配置选择是否放过。
 <br/>
 <br/>
 

@@ -1734,8 +1734,9 @@
     "ID_localAddressFlowOut": {
         "checkPoint": "不可返回局部对象的地址或引用",
         "level": "error",
-        "comment": "局部对象的生命周期在函数返回后结束，其地址或引用也会失效，如果继续访问会造成标准未定义的错误。",
+        "comment": "对象的生命周期结束后，其地址或引用也会失效，如果继续访问会造严重错误，导致标准未定义的行为。",
         "tag": "function",
+        "related": "ID_danglingDeref",
         "standard": "ISO/IEC 9899:1999 6.2.4(2)-undefined,ISO/IEC 9899:2011 6.2.4(2)-undefined",
         "reference": "CWE-562,C++ Core Guidelines F.43"
         },
@@ -2685,7 +2686,7 @@
         "level": "error",
         "comment": "已被释放的指针指向无效的内存空间，再次对其解引用会造成标准未定义的错误。",
         "tag": "pointer",
-        "related": "ID_illAccess",
+        "related": "ID_illAccess,ID_localAddressFlowOut",
         "standard": "ISO/IEC 9899:1999 6.5.3.2(4)-undefined,ISO/IEC 9899:2011 6.5.3.2(4)-undefined",
         "reference": "CWE-822,CWE-825,C++ Core Guidelines ES.65"
         },
