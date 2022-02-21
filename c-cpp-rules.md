@@ -1022,7 +1022,7 @@ ID_dangerousName&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
   
 示例：
 ```
-#include <openssl/md5.h>   // Non-compliant
+#include <openssl/md5.h>   // Non-compliant, obsolete hash algorithm
 
 const string myUrl = "http://foo/bar";  // Non-compliant, use https instead
 
@@ -9776,7 +9776,7 @@ int&& baz() {
     return std::move(i);   // Non-compliant
 }
 ```
-返回与局部对象相关的指针或引用是不符合要求的。  
+局部对象的生命周期在函数返回后结束，返回与局部对象相关的指针或引用是不符合要求的。  
   
 注意，除了 return 语句，throw、赋值等表达式也受本规则限制，禁止将内层作用域中的地址向外层作用域传递，如：
 ```
@@ -16453,7 +16453,7 @@ ID_danglingDeref&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: pointer error
 
 <hr/>
 
-已被释放的指针指向无效的内存空间，再次对其解引用会造成标准未定义的错误。  
+已被释放的指针指向无效的内存空间，再次对其解引用会造成严重错误，导致标准未定义的行为。  
   
 示例：
 ```
@@ -16616,7 +16616,7 @@ typedef int (*fp_t)(int);
 fp_t fp = (fp_t)0x1234abcd;  // Non-compliant
 int res = (*fp)(123);        // Unsafe
 ```
-示例代码假设在特定地址可以找到特定的函数，将该地址赋给一个指针并调用，这种假设本身可能就是错误的，会导致崩溃，攻击者也可以更改预期地址上的内存，从而导致任意代码的执行。  
+示例代码假设在特定地址可以找到特定的函数，将该地址赋给一个指针并调用，这种假设是不可移植的，也可能本身就是错误的，会导致崩溃，而且函数地址往往也属于敏感信息，不应被写入代码，否则一旦泄露，攻击者可以更改预期地址上的数据，导致恶意代码被执行。  
   
 某些框架或系统会以 \-1 表示无效地址，但不具备通用性，审计工具不妨通过配置选择是否放过。
 <br/>
@@ -16627,6 +16627,8 @@ allowMinusOneAsPointerValue：为 true 时可以放过 -1 作为指针值的情�
 <br/>
 
 #### 相关
+ID_addressExposure  
+ID_plainSensitiveInfo  
 ID_ptrIntCast  
 <br/>
 
