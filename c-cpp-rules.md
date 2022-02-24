@@ -3639,29 +3639,39 @@ ID_badBackslash&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
   
 示例：
 ```
-#define M(x,y) if(x) {\   // Compliant
-    foo(y);\              // Compliant
+#define M(x, y) if(x) {\    // Compliant
+    foo(y);\                // Compliant
 }
 
 void foo() {
-    if (condition1 \      // Non-compliant, meaningless
+    if (condition1 \        // Non-compliant, meaningless
      || condition2) {
     }
 }
 
-int a\                    // Non-compliant, odd usage
+int a\                      // Non-compliant, odd usage
 b\
 c = 123;
 
-/\                        // Non-compliant, odd usage
-/\ comment
-
 void bar() {
-    // comment  \         // Non-compliant, The next line is also commented out
+    // comment  \           // Non-compliant, The next line is also commented out
     do_something();
 }
 ```
+当“universal character name”被反斜杠截断会导致标准未定义的行为，如：
+```
+const char* s = "\u4e\      // Non-compliant, undefined behavior
+2d";
+```
+应去掉反斜杠：
+```
+const char* s = "\u4e2d";   // Compliant
+```
 <br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2011 2.2(2)-undefined  
 <br/>
 <br/>
 
@@ -4855,38 +4865,28 @@ ID_missingExplicitConvertor&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestion
 
 为了避免意料之外的类型转换，重载的类型转换运算符需用 explicit 关键字限定。  
   
-示例（选自 C\+\+ Core Guidelines）：
+示例：
 ```
-struct S1 {
-  string s;
-  // ...
-  operator char*() { return s.data(); }  // BAD, likely to cause surprises
+struct A {
+    ....
+    operator char*();  // Non-compliant
 };
 
-struct S2 {
-  string s;
-  // ...
-  explicit operator char*() { return s.data(); }
-};
+A foo();
 
-void f(S1 s1, S2 s2)
-{
-  char* x1 = s1;  // OK, but can cause surprises in many contexts
-  char* x2 = s2;  // error (and that's usually a good thing)
-  char* x3 = static_cast<char*>(s2); // we can be explicit (on your head be it)
+char* bar() {
+    return foo();  // Invalid address returned
 }
 ```
-一个由隐式类型转换引发的错误：
-```
-S1 ff();
-
-char* g()
-{
-  return ff();
-}
-```
-S1 的类型转换函数被隐式调用，然而当 g 函数返回后，临时对象被销毁，返回的指针为无效地址。  
+例中 foo 返回临时对象，类型转换运算符被隐式调用，然而当 bar 返回后，临时对象被销毁，返回的指针为无效地址。  
   
+将类型转换运算符用 explicit 关键字限定，有问题的代码例便不会通过编译：
+```
+struct A {
+    ....
+    explicit operator char*();  // Compliant
+};
+```
 在类的接口设计中，应尽量减少隐式转换以避免不易察觉的问题。
 <br/>
 <br/>
@@ -7590,35 +7590,19 @@ ID_virtualComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
   
 运算符 ==、!=、<、>、 <=、>= 均受本规则限制。  
   
-示例（选自 C\+\+ Core Guidelines）：
+示例：
 ```
-class B {
-  string name;
-  int number;
-  virtual bool operator==(const B& a) const
-  {
-    return name == a.name && number == a.number;
-  }
-  // ...
+class A {
+    ....
+public:
+    virtual bool operator == (const A&) const;  // Non-compliant
 };
 
-class D : B {
-  char character;
-  virtual bool operator==(const D& a) const
-  {
-    return name == a.name && number == a.number && character == a.character;
-  }
-  // ...
+class B: public A {
+    ....
+public:
+    virtual bool operator == (const B&) const;  // Non-compliant, not overloaded
 };
-
-B b = ...
-D d = ...
-b == d;    // compares name and number, ignores d's character
-d == b;    // error: no == defined
-D d2;
-d == d2;   // compares name, number, and character
-B& b2 = d2;
-b2 == d;   // compares name and number, ignores d2's and d's character
 ```
 <br/>
 <br/>
@@ -11441,22 +11425,16 @@ ID_for_counterChangedInBody&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
 用于控制循环次数的变量称为循环变量，这种变量只应在 for 迭代声明的第 3 个表达式中被改变，否则陡增逻辑复杂度，且可读性较差。  
   
-示例（选自 C\+\+ Core Guidelines）：
+示例：
 ```
-for (int i = 0; i < 10; ++i) {
-  // no updates to i -- ok
+for (int i = 0; i < 8; i++) {
+    ....         // Compliant, if no updates to ‘i’
 }
-for (int i = 0; i < 10; ++i) {
-  //
-  if (/*something*/) ++i; // BAD
-  //
-}
-bool skip = false;
-for (int i = 0; i < 10; ++i) {
-  if (skip) { skip = false; continue; }
-  //
-  if (/*something*/) skip = true; // Better:using two variables for two concepts.
-  //
+
+for (int i = 0; i < 8; i++) {
+    if (cond) {
+        ++i;     // Non-compliant
+    }
 }
 ```
 <br/>
@@ -15051,26 +15029,28 @@ ID_literal_nonStandardEsc&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: literal warning
   
 示例：
 ```
-string path("C:\Files\x.cpp");  // Non-compliant
+string path("C:\Files\x.cpp");    // Non-compliant
 ```
 例中 \\F 不是标准转义字符，\\x 也不符合 16 进制转义字符的格式，这显然是路径中的反斜杠忘了转义。  
   
 附 C/C\+\+ 标准转义字符：
 ```
-'\a'      // Alert
-'\b'      // Backspace
-'\f'      // Formfeed page break
-'\n'      // New line
-'\r'      // Carriage return
-'\t'      // Horizontal tab
-'\v'      // Vertical tab
-'\\'      // Backslash
-'\?'      // Question mark
-'\''      // Single quotation mark
-'\"'      // Double quotation mark
-'\0'      // Null character
-'\ddd'    // Any character, d is an octal number
-'\xhh'    // Any character, h is a hex number
+'\a'          // Alert
+'\b'          // Backspace
+'\f'          // Formfeed page break
+'\n'          // New line
+'\r'          // Carriage return
+'\t'          // Horizontal tab
+'\v'          // Vertical tab
+'\\'          // Backslash
+'\?'          // Question mark
+'\''          // Single quotation mark
+'\"'          // Double quotation mark
+'\0'          // Null character
+'\ddd'        // Any character, ‘d’ is an octal number
+'\xhh'        // Any character, ‘h’ is a hex number
+'\uhhhh'      // Universal character name, ‘h’ is a hex number
+'\uhhhhhhhh'  // Universal character name, ‘h’ is a hex number
 ```
 <br/>
 <br/>

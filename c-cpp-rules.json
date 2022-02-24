@@ -3258,6 +3258,7 @@
         "checkPoint": "除转义字符、宏定义之外不应使用反斜杠",
         "level": "warning",
         "comment": "反斜杠可用于标识转义字符，也可用于实现“伪换行”，即代码换行显示但在语法上并没有换行，一般用于宏定义，除此之外不应再使用反斜杠，否则没有实际意义，也会造成混乱。",
-        "tag": "precompile"
+        "tag": "precompile",
+        "standard": "ISO/IEC 14882:2011 2.2(2)-undefined"
         }
 }
