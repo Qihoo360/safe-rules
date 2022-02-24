@@ -3658,7 +3658,7 @@ void bar() {
     do_something();
 }
 ```
-当“universal character name”被反斜杠截断会导致标准未定义的行为，如：
+如果“universal character name”被反斜杠截断会导致标准未定义的行为，如：
 ```
 const char* s = "\u4e\      // Non-compliant, undefined behavior
 2d";
@@ -4878,7 +4878,7 @@ char* bar() {
     return foo();  // Invalid address returned
 }
 ```
-例中 foo 返回临时对象，类型转换运算符被隐式调用，然而当 bar 返回后，临时对象被销毁，返回的指针为无效地址。  
+例中 foo 返回临时对象，类型转换运算符被隐式调用，然而当 bar 返回后，临时对象被销毁，返回的指针是无效的。  
   
 将类型转换运算符用 explicit 关键字限定，有问题的代码例便不会通过编译：
 ```
@@ -15050,7 +15050,7 @@ string path("C:\Files\x.cpp");    // Non-compliant
 '\ddd'        // Any character, ‘d’ is an octal number
 '\xhh'        // Any character, ‘h’ is a hex number
 '\uhhhh'      // Universal character name, ‘h’ is a hex number
-'\uhhhhhhhh'  // Universal character name, ‘h’ is a hex number
+'\Uhhhhhhhh'  // Universal character name, ‘h’ is a hex number
 ```
 <br/>
 <br/>
