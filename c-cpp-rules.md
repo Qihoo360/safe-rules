@@ -235,7 +235,7 @@
     - [R6.3.2 不应使用已过时的关键字](#ID_deprecatedSpecifier)
     - [R6.3.3 不应使用多余的 inline 关键字](#ID_inlineRedundant)
     - [R6.3.4 extern 关键字不应作用于类成员的声明或定义](#ID_invalidExternSpecifier)
-    - [R6.3.5 所有重写的虚函数都应声明为 override 或 final](#ID_missingExplicitOverride)
+    - [R6.3.5 重写的虚函数应声明为 override 或 final](#ID_missingExplicitOverride)
     - [R6.3.6 override 和 final 关键字不应同时出现](#ID_redundantOverride)
     - [R6.3.7 有 override 或 final 关键字时，不应再出现 virtual 关键字](#ID_redundantVirtual)
     - [R6.3.8 不应将 union 设为 final](#ID_invalidFinal)
@@ -335,17 +335,17 @@
   - [R8.20 不应存在没有副作用的语句](#ID_missingSideEffect)
   - [R8.21 有返回值的函数其所有分枝都应有明确的返回值](#ID_notAllBranchReturn)
   - [R8.22 不可返回局部对象的地址或引用](#ID_localAddressFlowOut)
-  - [R8.23 合理设置 lambda 表达式对变量的捕获方式](#ID_unsuitableCapture)
-  - [R8.24 函数不应返回右值引用](#ID_returnRValueReference)
-  - [R8.25 函数返回值不应为 const 对象](#ID_returnConstObject)
-  - [R8.26 返回值应与函数的返回类型相符](#ID_returnOdd)
-  - [R8.27 函数返回值不应为相同的常量](#ID_returnSameConst)
-  - [R8.28 基本类型的返回值不应使用 const 修饰](#ID_returnSuperfluousConst)
+  - [R8.23 合理设置 lambda 表达式的捕获方式](#ID_unsuitableCapture)
+  - [R8.24 函数返回值不应为右值引用](#ID_returnRValueReference)
+  - [R8.25 函数返回值不应为常量对象](#ID_returnConstObject)
+  - [R8.26 被返回的表达式应与函数的返回类型相符](#ID_returnOdd)
+  - [R8.27 被返回的表达式不应为相同的常量](#ID_returnSameConst)
+  - [R8.28 函数返回值不应为基本类型的常量](#ID_returnSuperfluousConst)
   - [R8.29 属性为 noreturn 的函数中不应出现 return 语句](#ID_unsuitableReturn)
   - [R8.30 属性为 noreturn 的函数返回类型只应为 void](#ID_unsuitableReturnType)
   - [R8.31 不应出现多余的跳转语句](#ID_redundantJump)
   - [R8.32 va\_start 或 va\_copy 应配合 va\_end 使用](#ID_incompleteVAMacros)
-  - [R8.33 函数模版不应被特化](#ID_functionSpecialization)
+  - [R8.33 函数模板不应被特化](#ID_functionSpecialization)
   - [R8.34 函数的标签数量应在规定范围之内](#ID_tooManyLabels)
   - [R8.35 函数的行数应在规定范围之内](#ID_tooManyLines)
   - [R8.36 lambda 表达式的行数应在规定范围之内](#ID_tooManyLambdaLines)
@@ -468,7 +468,7 @@
     - [R10.4.5 C 格式化字符串与其参数的个数应一致](#ID_inconsistentFormatArgNum)
     - [R10.4.6 C 格式化字符串与其参数的类型应一致](#ID_inconsistentFormatArgType)
     - [R10.4.7 在 C\+\+ 代码中禁用 C 风格字符串格式化方法](#ID_forbidCStringFormat)
-    - [R10.4.8 不应显式调用析构函数](#ID_explicitDtorCall)
+    - [R10.4.8 避免显式调用析构函数](#ID_explicitDtorCall)
     - [R10.4.9 合理使用 std::move](#ID_unsuitableMove)
     - [R10.4.10 合理使用 std::forward](#ID_unsuitableForward)
   - [10.5 Sizeof](#expression.sizeof)
@@ -1882,6 +1882,7 @@ ID_incompleteNewDeletePair
 #### 依据
 ISO/IEC 9899:2011 7.22.3.3(2)-undefined  
 ISO/IEC 9899:2011 7.22.3.4(3)-undefined  
+ISO/IEC 14882:2011 3.7.4.2(3)-undefined  
 <br/>
 
 #### 参考
@@ -1916,7 +1917,7 @@ int main() {
     foo(v);          // Non-compliant, reallocation in a.dll, crash
 }
 ```
-例中容器 v 的初始内存由 b.exe 分配，b.exe 与 a.dll 有各自独立的堆栈，由于模版库的内联实现，reserve 函数会调用 a.dll 的内存管理函数重新分配 b.exe 中的内存，造成严重冲突。  
+例中容器 v 的初始内存由 b.exe 分配，b.exe 与 a.dll 有各自独立的堆栈，由于模板库的内联实现，reserve 函数会调用 a.dll 的内存管理函数重新分配 b.exe 中的内存，造成严重冲突。  
   
 另外，不同的模块可能由不同的编译器生成，声明与实现的差异也会导致冲突，参见“[Dll hell](https://en.wikipedia.org/wiki/DLL_Hell)”。
 <br/>
@@ -3893,7 +3894,7 @@ static int foo() {  // Non-compliant
 ```
 在编译每个包含该头文件的源文件时，变量 i 和函数 foo 都会生成不必要的副本。  
   
-在头文件中实现的内联或模版函数中，也不应使用静态声明，如：
+在头文件中实现的内联或模板函数中，也不应使用静态声明，如：
 ```
 // In a header file
 inline void bar() {
@@ -6153,7 +6154,9 @@ ID_deprecatedSpecifier&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-根据 C\+\+11 标准，register 等关键字已过时，不应再使用，auto 关键字也不可再作为存储类说明符（storage class specifier）。  
+根据 C\+\+11 标准，register 等关键字已过时，auto 关键字也不可再作为存储类说明符（storage class specifier）。  
+  
+本规则对 C\+\+ 代码适用。  
   
 示例：
 ```
@@ -6161,7 +6164,6 @@ register int a;  // Non-compliant
 auto int b;      // Non-compliant
 int foo(register int x);  // Non-compliant
 ```
-本规则对于 C\+\+ 适用，对于 C 可适当放宽要求。
 <br/>
 <br/>
 
@@ -6242,13 +6244,13 @@ ISO/IEC 14882:2017 12.2(9)
 <br/>
 <br/>
 
-### <span id="ID_missingExplicitOverride">▌R6.3.5 所有重写的虚函数都应声明为 override 或 final</span>
+### <span id="ID_missingExplicitOverride">▌R6.3.5 重写的虚函数应声明为 override 或 final</span>
 
 ID_missingExplicitOverride&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-将重写的虚函数都声明为 override 或 final，可明显提升代码可读性，并可确保虚函数被有效重写。  
+将重写的虚函数都声明为 override 或 final 可明显提升可读性，并可确保虚函数被有效重写。  
   
 示例：
 ```
@@ -6262,16 +6264,16 @@ class B: public A {
     virtual int bar();  // Non-compliant
 };
 ```
-如果 B 重写 A 中的 foo 和 bar 两个虚函数，可以按以上代码声明，但如果不看 A 的声明，无法确定 B 中的 foo 和 bar 是对基类虚函数的重写，也看不出 bar 是否是一个新的虚函数。  
+例中 B 重写 A 的 foo 和 bar 这两个虚函数，如果不看 A 的声明，则看不出 B::foo 是虚函数，也看不出 B::bar 是否是重写的虚函数。  
   
-如果改为：
+改为如下方式会清晰很多：
 ```
 class B: public A {
     int foo() override;  // Compliant
     int bar() override;  // Compliant
 };
 ```
-则会清晰很多，而且当重写的函数名、参数或返回值与基类声明不符时，不能通过编译，可及时修正问题。
+而且当重写的函数名、参数、返回类型与基类声明不符时，不能通过编译，可及时修正问题。
 <br/>
 <br/>
 
@@ -8309,7 +8311,7 @@ ID_throwInMove
 #### 依据
 ISO/IEC 14882:2003 15.2(3)  
 ISO/IEC 14882:2011 15.2(3)  
-ISO/IEC 14882:2011 3.7.4.2-undefined  
+ISO/IEC 14882:2011 3.7.4.2(3)-undefined  
 <br/>
 
 #### 参考
@@ -8956,7 +8958,7 @@ inline int bar() {   // Compliant
     return 2;
 }
 ```
-对于较为复杂的模版函数，建议将其实现与主体头文件分离，如：
+对于较为复杂的模板函数，建议将其实现与主体头文件分离，如：
 ```
 // In B.h
 template <class T>
@@ -9813,7 +9815,7 @@ C++ Core Guidelines F.43
 <br/>
 <br/>
 
-### <span id="ID_unsuitableCapture">▌R8.23 合理设置 lambda 表达式对变量的捕获方式</span>
+### <span id="ID_unsuitableCapture">▌R8.23 合理设置 lambda 表达式的捕获方式</span>
 
 ID_unsuitableCapture&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9869,7 +9871,7 @@ C++ Core Guidelines F.54
 <br/>
 <br/>
 
-### <span id="ID_returnRValueReference">▌R8.24 函数不应返回右值引用</span>
+### <span id="ID_returnRValueReference">▌R8.24 函数返回值不应为右值引用</span>
 
 ID_returnRValueReference&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
@@ -9936,13 +9938,13 @@ C++ Core Guidelines F.45
 <br/>
 <br/>
 
-### <span id="ID_returnConstObject">▌R8.25 函数返回值不应为 const 对象</span>
+### <span id="ID_returnConstObject">▌R8.25 函数返回值不应为常量对象</span>
 
 ID_returnConstObject&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
 <hr/>
 
-函数返回 const 对象不利于移动构造或移动赋值等机制，也可能本意是返回引用，但遗漏了引用符号。  
+函数返回常量对象不利于移动构造或移动赋值等机制，也可能本意是返回引用，但遗漏了引用符号。  
   
 示例：
 ```
@@ -9964,7 +9966,9 @@ vector<int> obj(fun());    // Call ‘vector(vector&&)’, more efficient
 ```
 这样可以利用移动构造函数提高效率。  
   
-对于遵循 C\+\+11 之前标准的代码，也不应返回 const 对象，函数返回的对象本来就需要通过 const 引用或传值的方式被后续代码使用，所以将返回值设为 const 的意义不大。
+对于遵循 C\+\+11 之前标准的代码，也不应返回常量对象，函数返回的对象本来就需要通过 const 引用或传值的方式被后续代码使用，所以将返回值设为常量的意义不大。  
+  
+函数返回值为基本类型的常量则是完全没有意义的，参见 ID\_returnSuperfluousConst。
 <br/>
 <br/>
 
@@ -9977,25 +9981,24 @@ C++ Core Guidelines F.20
 <br/>
 <br/>
 
-### <span id="ID_returnOdd">▌R8.26 返回值应与函数的返回类型相符</span>
+### <span id="ID_returnOdd">▌R8.26 被返回的表达式应与函数的返回类型相符</span>
 
 ID_returnOdd&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-返回值与返回类型不符的情况：  
+不应出现下列情况：  
  - 返回类型为 bool 型，却返回了非 true 非 false、非 0 非 1 的常量  
- - 返回类型为指针，却返回了非 0、非 NULL、非 nullptr 等常量  
+ - 返回类型为指针，却返回了非 0、非 NULL、非 nullptr 的常量  
  - 返回类型为整数，却返回了 NULL、true、false 等常量  
-  
-这些问题可能是在维护过程中产生的，也可能意味着逻辑错误，而且很容易造成误导，需谨慎对待。  
   
 示例：
 ```
 bool foo() { return NULL; }   // Non-compliant
-int  bar() { return false; }  // Non-compliant
+long bar() { return false; }  // Non-compliant
 int* baz() { return '\0'; }   // Non-compliant
 ```
+这种问题可能是在维护过程中产生的，也可能意味着逻辑错误，而且很容易造成误导，需谨慎对待。
 <br/>
 <br/>
 
@@ -10004,13 +10007,13 @@ MISRA C++ 2008 4-10-1
 <br/>
 <br/>
 
-### <span id="ID_returnSameConst">▌R8.27 函数返回值不应为相同的常量</span>
+### <span id="ID_returnSameConst">▌R8.27 被返回的表达式不应为相同的常量</span>
 
 ID_returnSameConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-函数所有返回值均为相同的常量是没有意义的。  
+被返回的表达式均为相同的常量是没有意义的。  
   
 示例：
 ```
@@ -10021,20 +10024,24 @@ bool foo(int a) {
     if (a > 50) {
         return true;
     }
-    return true;   // Non-compliant, all return values are the same
+    return true;   // Non-compliant, all the values returned are the same
 }
 ```
 <br/>
 <br/>
 <br/>
 
-### <span id="ID_returnSuperfluousConst">▌R8.28 基本类型的返回值不应使用 const 修饰</span>
+### <span id="ID_returnSuperfluousConst">▌R8.28 函数返回值不应为基本类型的常量</span>
 
 ID_returnSuperfluousConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
 基本类型的对象作为返回值时，本来就是不可被修改的右值，const 修饰符是多余的。  
+  
+出现这种问题说明设计与使用存在一定的偏差，也可能本意是返回引用或指针，而书写时漏掉了相关符号。  
+  
+本规则是 ID\_returnConstObject 的特化。  
   
 示例：
 ```
@@ -10049,7 +10056,6 @@ public:
     const int fun() const;  // Non-compliant, missing ‘&’
 };
 ```
-出现这种问题说明设计与使用存在一定的偏差，也可能本意是返回引用，而书写时漏掉了引用符号造成的。
 <br/>
 <br/>
 
@@ -10176,7 +10182,7 @@ ISO/IEC 9899:2011 7.16.1.3(2)-undefined
 <br/>
 <br/>
 
-### <span id="ID_functionSpecialization">▌R8.33 函数模版不应被特化</span>
+### <span id="ID_functionSpecialization">▌R8.33 函数模板不应被特化</span>
 
 ID_functionSpecialization&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -14169,13 +14175,13 @@ C++ Core Guidelines SL.io.3
 <br/>
 <br/>
 
-### <span id="ID_explicitDtorCall">▌R10.4.8 不应显式调用析构函数</span>
+### <span id="ID_explicitDtorCall">▌R10.4.8 避免显式调用析构函数</span>
 
 ID_explicitDtorCall&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: expression suggestion
 
 <hr/>
 
-显式调用析构函数使对象在生命周期未结束的时候被析构，在逻辑上使人困惑，而且在对象生命周期结束时其析构函数仍会被调用，有可能造成资源重复释放的问题。  
+显式调用析构函数会使对象的生命周期提前结束，可能会造成析构函数被重复执行，产生意料之外的错误。  
   
 示例：
 ```
@@ -14188,12 +14194,22 @@ public:
     }
 };
 
-void fun() {
+void foo() {
     A a;
     a.~A();  // Non-compliant, explicitly call the destructor
 }            // ~A() twice called, crash...
 ```
-例中对象 a 的析构函数被显式调用，之后 a 的生命周期结束会再次调用析构函数，造成内存的重复释放。应去掉显式调用，由类提供提前释放资源的方法，并保证资源不会被重复释放。
+例中对象 a 的析构函数被显式调用，foo 返回前会再次调用析构函数，造成内存被重复释放。应去掉显式调用，由类提供提前释放资源的方法，并保证资源不会被重复释放。  
+  
+例外：
+```
+char* p = new char[sizeof(Type)];
+Type* q = new (p) Type;
+....
+q->~Type();   // Compliant, used with replacement new
+delete[] p;
+```
+与 replacement new 配合的显式析构是实现容器或内存池的常规手段，可不受本规则约束。
 <br/>
 <br/>
 
@@ -14798,7 +14814,7 @@ ID_oddNew&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 new 表达式只应作为“=”的直接右子表达式，或直接作为参数，其他形式均有问题。  
   
-本规则对 replacement\-new 不作要求。  
+本规则对 replacement new 不作要求。  
   
 示例：
 ```
@@ -15819,7 +15835,7 @@ fnp_t p = NULL;            // Compliant
 (void)p;                   // Let it go
 p = (fnp_t)dlsym(h, "f");  // Let it go
 ```
-对函数指针进行 (void) 转换可被放过，dlsym、GetProcAddress 等动态导入函数的系统接口可被放过。
+对函数指针进行 (void) 转换，或 dlsym、GetProcAddress 等动态导入函数的系统接口可不受本规则约束。
 <br/>
 <br/>
 

@@ -199,7 +199,7 @@
         "standard": "ISO/IEC 9899:2011 7.16.1.3(2)-undefined"
         },
     "ID_functionSpecialization": {
-        "checkPoint": "函数模版不应被特化",
+        "checkPoint": "函数模板不应被特化",
         "level": "warning",
         "comment": "特化的函数模板不参与重载函数的选取，不属于常规用法，且容易造成混乱。",
         "tag": "function",
@@ -216,7 +216,7 @@
         "reference": "C++ Core Guidelines F.2,C++ Core Guidelines F.3"
         },
     "ID_unsuitableCapture": {
-        "checkPoint": "合理设置 lambda 表达式对变量的捕获方式",
+        "checkPoint": "合理设置 lambda 表达式的捕获方式",
         "level": "warning",
         "comment": "如果 lambda 表达式只在函数内部使用，可采用捕获引用的方式；如果 lambda 表达式可以超出函数作用域，应采用捕获值的方式。",
         "tag": "function",
@@ -281,7 +281,7 @@
         "level": "error",
         "comment": "使用了某种分配方法，就应使用与其配套的回收方法，否则会引发严重错误。",
         "tag": "resource",
-        "standard": "ISO/IEC 9899:2011 7.22.3.3(2)-undefined,ISO/IEC 9899:2011 7.22.3.4(3)-undefined",
+        "standard": "ISO/IEC 9899:2011 7.22.3.3(2)-undefined,ISO/IEC 9899:2011 7.22.3.4(3)-undefined,ISO/IEC 14882:2011 3.7.4.2(3)-undefined",
         "related": "ID_incompleteNewDeletePair",
         "reference": "SEI CERT MEM51-CPP"
         },
@@ -1085,7 +1085,7 @@
         "related": "ID_if_mayBeElseIf"
         },
     "ID_returnSuperfluousConst": {
-        "checkPoint": "基本类型的返回值不应使用 const 修饰",
+        "checkPoint": "函数返回值不应为基本类型的常量",
         "level": "warning",
         "comment": "基本类型的对象作为返回值时，本来就是不可被修改的右值，const 修饰符是多余的。",
         "tag": "function",
@@ -1541,9 +1541,9 @@
         "tag": "expression"
         },
     "ID_explicitDtorCall": {
-        "checkPoint": "不应显式调用析构函数",
+        "checkPoint": "避免显式调用析构函数",
         "level": "suggestion",
-        "comment": "显式调用析构函数使对象在生命周期未结束的时候被析构，在逻辑上使人困惑，而且在对象生命周期结束时其析构函数仍会被执行，有可能造成资源重复释放的问题。",
+        "comment": "显式调用析构函数会使对象的生命周期提前结束，可能会造成析构函数被重复执行，产生意料之外的错误。",
         "tag": "expression",
         "related": "ID_missingResetNull"
         },
@@ -1705,7 +1705,7 @@
         "comment": "析构函数抛出异常是违反异常处理机制的。",
         "tag": "exception",
         "related": "ID_throwInHash,ID_throwInSwap,ID_throwInMove",
-        "standard": "ISO/IEC 14882:2003 15.2(3),ISO/IEC 14882:2011 15.2(3),ISO/IEC 14882:2011 3.7.4.2-undefined",
+        "standard": "ISO/IEC 14882:2003 15.2(3),ISO/IEC 14882:2011 15.2(3),ISO/IEC 14882:2011 3.7.4.2(3)-undefined",
         "reference": "C++ Core Guidelines C.36,C++ Core Guidelines C.37,C++ Core Guidelines E.16,SEI CERT DCL57-CPP,MISRA C++ 2008 15-5-1"
         },
     "ID_throwInHash": {
@@ -1765,15 +1765,15 @@
         "reference": "CWE-394,MISRA C 2004 16.8,MISRA C 2012 17.4,MISRA C++ 2008 8-4-3"
         },
     "ID_returnSameConst": {
-        "checkPoint": "函数返回值不应为相同的常量",
+        "checkPoint": "被返回的表达式不应为相同的常量",
         "level": "warning",
         "comment": "函数所有返回值均为相同的常量是没有意义的。",
         "tag": "function"
         },
     "ID_returnOdd": {
-        "checkPoint": "返回值应与函数的返回类型相符",
+        "checkPoint": "被返回的表达式应与函数的返回类型相符",
         "level": "warning",
-        "comment": "返回值应与函数的返回类型相符。",
+        "comment": "被返回的表达式应与函数的返回类型相符。",
         "tag": "function",
         "reference": "MISRA C++ 2008 4-10-1"
         },
@@ -1954,9 +1954,9 @@
         "reference": "MISRA C++ 2008 14-5-3"
         },
     "ID_missingExplicitOverride": {
-        "checkPoint": "所有重写的虚函数都应声明为 override 或 final",
+        "checkPoint": "重写的虚函数应声明为 override 或 final",
         "level": "suggestion",
-        "comment": "将重写的虚函数都声明为 override 或 final，可明显提升代码可读性，并可确保虚函数被有效重写。",
+        "comment": "将重写的虚函数都声明为 override 或 final 可明显提升可读性，并可确保虚函数被有效重写。",
         "tag": "declaration",
         "standard": "ISO/IEC 14882:2011 10.3(4 5)",
         "reference": "C++ Core Guidelines C.128"
@@ -3190,7 +3190,7 @@
         "reference": "C++ Core Guidelines C.9,C++ Core Guidelines C.134"
         },
     "ID_returnRValueReference": {
-        "checkPoint": "函数不应返回右值引用",
+        "checkPoint": "函数返回值不应为右值引用",
         "level": "suggestion",
         "comment": "函数返回右值引用的实际价值有限，而且很容易产生错误。",
         "tag": "function",
@@ -3198,9 +3198,9 @@
         "reference": "C++ Core Guidelines F.45"
         },
     "ID_returnConstObject": {
-        "checkPoint": "函数返回值不应为 const 对象",
+        "checkPoint": "函数返回值不应为常量对象",
         "level": "suggestion",
-        "comment": "函数返回 const 对象不利于移动构造或移动赋值等机制，也可能本意是返回引用，但遗漏了引用符号。",
+        "comment": "函数返回常量对象不利于移动构造或移动赋值等机制，也可能本意是返回引用，但遗漏了引用符号。",
         "tag": "function",
         "related": "ID_returnSuperfluousConst",
         "reference": "C++ Core Guidelines F.20"
