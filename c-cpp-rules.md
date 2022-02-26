@@ -338,9 +338,9 @@
   - [R8.23 合理设置 lambda 表达式的捕获方式](#ID_unsuitableCapture)
   - [R8.24 函数返回值不应为右值引用](#ID_returnRValueReference)
   - [R8.25 函数返回值不应为常量对象](#ID_returnConstObject)
-  - [R8.26 被返回的表达式应与函数的返回类型相符](#ID_returnOdd)
-  - [R8.27 被返回的表达式不应为相同的常量](#ID_returnSameConst)
-  - [R8.28 函数返回值不应为基本类型的常量](#ID_returnSuperfluousConst)
+  - [R8.26 函数返回值不应为基本类型的常量](#ID_returnSuperfluousConst)
+  - [R8.27 被返回的表达式应与函数的返回类型相符](#ID_returnOdd)
+  - [R8.28 被返回的表达式不应为相同的常量](#ID_returnSameConst)
   - [R8.29 属性为 noreturn 的函数中不应出现 return 语句](#ID_unsuitableReturn)
   - [R8.30 属性为 noreturn 的函数返回类型只应为 void](#ID_unsuitableReturnType)
   - [R8.31 不应出现多余的跳转语句](#ID_redundantJump)
@@ -6156,7 +6156,7 @@ ID_deprecatedSpecifier&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 根据 C\+\+11 标准，register 等关键字已过时，auto 关键字也不可再作为存储类说明符（storage class specifier）。  
   
-本规则对 C\+\+ 代码适用。  
+本规则对 C\+\+ 代码适用，C 代码可不受限制。  
   
 示例：
 ```
@@ -6264,7 +6264,7 @@ class B: public A {
     virtual int bar();  // Non-compliant
 };
 ```
-例中 B 重写 A 的 foo 和 bar 这两个虚函数，如果不看 A 的声明，则看不出 B::foo 是虚函数，也看不出 B::bar 是否是重写的虚函数。  
+例中 B 重写 A 的 foo 和 bar 这两个虚函数，如果不看 A 的声明，则看不出 B::foo 是虚函数，也看不出 B::bar 是重写的虚函数。  
   
 改为如下方式会清晰很多：
 ```
@@ -9563,7 +9563,7 @@ void foo(int& a, int& b) {
     a = 456;
 }
 ```
-例中参数 a 被赋值为 123 之后，无条件地又被赋值为 456，显然第一次赋值是没有意义的，很有可能是漏掉了什么。  
+例中参数 a 被赋值为 123 之后，又被无条件地赋值为 456，显然第一次赋值是没有意义的，很有可能是漏掉了什么。  
   
 又如：
 ```
@@ -9966,9 +9966,7 @@ vector<int> obj(fun());    // Call ‘vector(vector&&)’, more efficient
 ```
 这样可以利用移动构造函数提高效率。  
   
-对于遵循 C\+\+11 之前标准的代码，也不应返回常量对象，函数返回的对象本来就需要通过 const 引用或传值的方式被后续代码使用，所以将返回值设为常量的意义不大。  
-  
-函数返回值为基本类型的常量则是完全没有意义的，参见 ID\_returnSuperfluousConst。
+对于遵循 C\+\+11 之前标准的代码，也不应返回常量对象，函数返回的对象本来就需要通过常量引用或传值的方式被后续代码使用，将返回值设为常量的意义不大。
 <br/>
 <br/>
 
@@ -9981,57 +9979,7 @@ C++ Core Guidelines F.20
 <br/>
 <br/>
 
-### <span id="ID_returnOdd">▌R8.26 被返回的表达式应与函数的返回类型相符</span>
-
-ID_returnOdd&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
-
-<hr/>
-
-不应出现下列情况：  
- - 返回类型为 bool 型，却返回了非 true 非 false、非 0 非 1 的常量  
- - 返回类型为指针，却返回了非 0、非 NULL、非 nullptr 的常量  
- - 返回类型为整数，却返回了 NULL、true、false 等常量  
-  
-示例：
-```
-bool foo() { return NULL; }   // Non-compliant
-long bar() { return false; }  // Non-compliant
-int* baz() { return '\0'; }   // Non-compliant
-```
-这种问题可能是在维护过程中产生的，也可能意味着逻辑错误，而且很容易造成误导，需谨慎对待。
-<br/>
-<br/>
-
-#### 参考
-MISRA C++ 2008 4-10-1  
-<br/>
-<br/>
-
-### <span id="ID_returnSameConst">▌R8.27 被返回的表达式不应为相同的常量</span>
-
-ID_returnSameConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
-
-<hr/>
-
-被返回的表达式均为相同的常量是没有意义的。  
-  
-示例：
-```
-bool foo(int a) {
-    if (a > 100) {
-        return true;
-    }
-    if (a > 50) {
-        return true;
-    }
-    return true;   // Non-compliant, all the values returned are the same
-}
-```
-<br/>
-<br/>
-<br/>
-
-### <span id="ID_returnSuperfluousConst">▌R8.28 函数返回值不应为基本类型的常量</span>
+### <span id="ID_returnSuperfluousConst">▌R8.26 函数返回值不应为基本类型的常量</span>
 
 ID_returnSuperfluousConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10066,6 +10014,56 @@ ID_returnConstObject
 #### 依据
 ISO/IEC 14882:2003 3.10(5)  
 ISO/IEC 14882:2011 3.10(1)  
+<br/>
+<br/>
+
+### <span id="ID_returnOdd">▌R8.27 被返回的表达式应与函数的返回类型相符</span>
+
+ID_returnOdd&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
+
+<hr/>
+
+不应出现下列情况：  
+ - 返回类型为 bool，却返回了非 true 非 false、非 0 非 1 的常量  
+ - 返回类型为指针，却返回了非 0、非 NULL、非 nullptr 的常量  
+ - 返回类型为整数，却返回了 NULL、true、false 等常量  
+  
+示例：
+```
+bool foo() { return NULL; }   // Non-compliant
+long bar() { return false; }  // Non-compliant
+int* baz() { return '\0'; }   // Non-compliant
+```
+这种问题可能是在维护过程中产生的，也可能意味着逻辑错误，而且很容易造成误导，需谨慎对待。
+<br/>
+<br/>
+
+#### 参考
+MISRA C++ 2008 4-10-1  
+<br/>
+<br/>
+
+### <span id="ID_returnSameConst">▌R8.28 被返回的表达式不应为相同的常量</span>
+
+ID_returnSameConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
+
+<hr/>
+
+被返回的表达式均为相同的常量是没有意义的。  
+  
+示例：
+```
+bool foo(int a) {
+    if (a > 100) {
+        return true;
+    }
+    if (a > 50) {
+        return true;
+    }
+    return true;   // Non-compliant, all the values returned are the same
+}
+```
+<br/>
 <br/>
 <br/>
 
