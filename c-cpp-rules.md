@@ -330,9 +330,9 @@
   - [R8.15 在析构函数中不应调用虚函数](#ID_virtualCallInDestuctor)
   - [R8.16 拷贝构造函数应避免实现复制之外的功能](#ID_sideEffectCopyConstructor)
   - [R8.17 赋值运算符应妥善处理参数就是自身对象时的情况](#ID_this_selfJudgement)
-  - [R8.18 避免无效写入](#ID_invalidWrite)
-  - [R8.19 不应存在得不到执行机会的代码](#ID_unreachableCode)
-  - [R8.20 不应存在没有副作用的语句](#ID_missingSideEffect)
+  - [R8.18 不应存在无效的写入操作](#ID_invalidWrite)
+  - [R8.19 不应存在没有副作用的语句](#ID_missingSideEffect)
+  - [R8.20 不应存在得不到执行机会的代码](#ID_unreachableCode)
   - [R8.21 有返回值的函数其所有分枝都应有明确的返回值](#ID_notAllBranchReturn)
   - [R8.22 不可返回局部对象的地址或引用](#ID_localAddressFlowOut)
   - [R8.23 合理设置 lambda 表达式的捕获方式](#ID_unsuitableCapture)
@@ -9542,7 +9542,7 @@ C++ Core Guidelines C.62
 <br/>
 <br/>
 
-### <span id="ID_invalidWrite">▌R8.18 避免无效写入</span>
+### <span id="ID_invalidWrite">▌R8.18 不应存在无效的写入操作</span>
 
 ID_invalidWrite&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9591,7 +9591,60 @@ int baz() {
 <br/>
 <br/>
 
-### <span id="ID_unreachableCode">▌R8.19 不应存在得不到执行机会的代码</span>
+### <span id="ID_missingSideEffect">▌R8.19 不应存在没有副作用的语句</span>
+
+ID_missingSideEffect&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
+
+<hr/>
+
+不能对程序状态产生影响的语句称为无“[副作用（side effect）](https://en.wikipedia.org/wiki/Side_effect_(computer_science))”的语句，往往属于笔误或调试痕迹，应当修正或去除。  
+  
+示例（设 a、b、p 为变量或指针）：
+```
+a == b;  // Non-compliant
+```
+单纯的判等是没有副作用的，很可能是赋值语句的笔误。  
+
+```
+*p++;    // Non-compliant
+```
+单纯从某个地址进行读取是没有副作用的，这是一种对运算符优先级理解不当造成的常见错误，应改为 (\*p)\+\+;  
+
+```
+p->fun;  // Non-compliant
+```
+由变量名或无实参列表的函数名作为一个语句是没有副作用的，此语句应改为正确的函数调用。  
+
+```
++a;      // Non-compliant
+```
+正号是没有副作用的，此句很可能应为 \+\+a;  
+  
+如果语句为逻辑与表达式，左子表达式可以作为右子表达式的条件，故左子表达式可以无副作用，而右子表达式一定要有副作用，如：
+```
+p && p->fun();  // OK
+p && p->fun;    // Non-compliant
+p->fun() && p;  // Non-compliant
+```
+如果语句为逻辑或表达式，则要求其左右子表达式均有副作用，如：
+```
+p || p->fun();  // Non-compliant
+p || p->fun;    // Non-compliant
+p->fun() || p;  // Non-compliant
+```
+<br/>
+<br/>
+
+#### 参考
+CWE-1164  
+CWE-482  
+MISRA C 2004 14.2  
+MISRA C 2012 2.2  
+MISRA C++ 2008 0-1-9  
+<br/>
+<br/>
+
+### <span id="ID_unreachableCode">▌R8.20 不应存在得不到执行机会的代码</span>
 
 ID_unreachableCode&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
@@ -9653,59 +9706,6 @@ CWE-561
 MISRA C 2004 14.1  
 MISRA C 2012 2.1  
 MISRA C++ 2008 0-1-1  
-<br/>
-<br/>
-
-### <span id="ID_missingSideEffect">▌R8.20 不应存在没有副作用的语句</span>
-
-ID_missingSideEffect&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
-
-<hr/>
-
-不能对程序状态产生影响的语句称为无“[副作用（side effect）](https://en.wikipedia.org/wiki/Side_effect_(computer_science))”的语句，往往属于笔误或调试痕迹，应当修正或去除。  
-  
-示例（设 a、b、p 为变量或指针）：
-```
-a == b;  // Non-compliant
-```
-单纯的判等是没有副作用的，很可能是赋值语句的笔误。  
-
-```
-*p++;    // Non-compliant
-```
-单纯从某个地址进行读取是没有副作用的，这是一种对运算符优先级理解不当造成的常见错误，应改为 (\*p)\+\+;  
-
-```
-p->fun;  // Non-compliant
-```
-由变量名或无实参列表的函数名作为一个语句是没有副作用的，此语句应改为正确的函数调用。  
-
-```
-+a;      // Non-compliant
-```
-正号是没有副作用的，此句很可能应为 \+\+a;  
-  
-如果语句为逻辑与表达式，左子表达式可以作为右子表达式的条件，故左子表达式可以无副作用，而右子表达式一定要有副作用，如：
-```
-p && p->fun();  // OK
-p && p->fun;    // Non-compliant
-p->fun() && p;  // Non-compliant
-```
-如果语句为逻辑或表达式，则要求其左右子表达式均有副作用，如：
-```
-p || p->fun();  // Non-compliant
-p || p->fun;    // Non-compliant
-p->fun() || p;  // Non-compliant
-```
-<br/>
-<br/>
-
-#### 参考
-CWE-1164  
-CWE-482  
-MISRA C 2004 14.2  
-MISRA C 2012 2.2  
-MISRA C++ 2008 0-1-9  
 <br/>
 <br/>
 

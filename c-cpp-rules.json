@@ -1657,7 +1657,7 @@
         "reference": "CWE-908,CWE-824,C++ Core Guidelines C.41"
         },
     "ID_invalidWrite": {
-        "checkPoint": "避免无效写入",
+        "checkPoint": "不应存在无效的写入操作",
         "level": "warning",
         "comment": "对于内存中的数据，写入之后应被读取，否则没有意义。",
         "tag": "function"
