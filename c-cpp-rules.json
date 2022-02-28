@@ -1543,7 +1543,7 @@
     "ID_explicitDtorCall": {
         "checkPoint": "避免显式调用析构函数",
         "level": "suggestion",
-        "comment": "显式调用析构函数会使对象的生命周期提前结束，可能会造成析构函数被重复执行，产生意料之外的错误。",
+        "comment": "显式调用析构函数会提前结束对象的生命周期，之后对该对象的任何访问都会导致标准未定义的行为，对于在栈上定义的对象，流程离开相关作用域时会再次自动调用其析构函数，对于动态创建的对象，用 delete 回收时也会调用其析构函数，使对象在生命周期之外被访问。",
         "tag": "expression",
         "related": "ID_missingResetNull"
         },
@@ -2100,7 +2100,7 @@
         "reference": "CWE-670"
         },
     "ID_if_identicalImplicitElseBlock": {
-        "checkPoint": "if 分枝和其隐含的 else 分枝的代码不应完全相同",
+        "checkPoint": "if 分枝和隐含的 else 分枝代码不应完全相同",
         "level": "warning",
         "comment": "带有 return、throw 或 break 等子句的 if 语句，其同一作用域的后续代码相当于它的 else 分枝，显然这种隐含的 else 分枝与 if 分枝完全相同是没有意义的，很可能是由复制粘贴造成的错误。",
         "tag": "control",
@@ -3129,7 +3129,7 @@
     "ID_missingResetNull": {
         "checkPoint": "指针在释放后应置空",
         "level": "suggestion",
-        "comment": "指针指向的动态内存空间被回收后指针不再有效，这时应将指针设为空指针，可避免重复释放造成的问题，如果后续对指针仍有错误的读写，也可使问题立即显现出来，不至于造成难以排查的问题。",
+        "comment": "指针指向的内存空间被回收后指针不再有效，这时应将指针设为空指针，可避免重复释放等问题，如果后续对指针仍有错误的读写，也可使问题立即显现出来，不至于造成难以排查的问题。",
         "tag": "pointer",
         "related": "ID_danglingDeref,ID_explicitDtorCall",
         "reference": "SEI CERT MEM01-C"

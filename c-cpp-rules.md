@@ -366,7 +366,7 @@
     - [R9.1.3 在 if...else\-if 分枝中不应有被遮盖的条件](#ID_if_hiddenCondition)
     - [R9.1.4 if 分枝和 else 分枝的代码不应完全相同](#ID_if_identicalBlock)
     - [R9.1.5 if...else\-if 各分枝的代码不应完全相同](#ID_if_identicalElseIfBlock)
-    - [R9.1.6 if 分枝和其隐含的 else 分枝的代码不应完全相同](#ID_if_identicalImplicitElseBlock)
+    - [R9.1.6 if 分枝和隐含的 else 分枝代码不应完全相同](#ID_if_identicalImplicitElseBlock)
     - [R9.1.7 没有 else 子句的 if 语句与其后续代码相同是可疑的](#ID_if_identicalSucceedingBlock)
     - [R9.1.8 if 分枝和 else 分枝的起止语句不应相同](#ID_if_commonStatements)
     - [R9.1.9 if 语句作用域的范围不应有误](#ID_if_scope)
@@ -9470,24 +9470,21 @@ class A {
     static int s;
 
 public:
-    A(): i(0) {}
+    A();
     A(const A& rhs) {
-        i = a.i;     // Compliant
-        s++;         // Non-compliant
-        ++i;         // Non-compliant
+        i = rhs.i;     // Compliant
+        s++;           // Non-compliant
     }
 };
 
-A foo() {
-    return A();
-}
+A foo();
 
 void bar() {
-    A a = foo();
+    A a = foo();       // Copy elision
     ....
 }
 ```
-bar 函数用 foo 函数返回的对象初始化 a 对象，理论上应执行拷贝构造函数，但标准允许编译器将 foo 函数返回的临时对象直接作为 a 对象，这种优化称为“[copy elision](https://en.wikipedia.org/wiki/Copy_elision)”，拷贝构造函数被执行的次数可能与预期不符，所以拷贝构造函数不应存在超出复制的副作用。  
+用 foo 函数返回的临时对象构造对象 a，理论上应执行拷贝构造函数，但标准允许编译器将 foo 函数返回的临时对象直接作为对象 a，这种优化称为“[copy elision](https://en.wikipedia.org/wiki/Copy_elision)”，拷贝构造函数被执行的次数可能与预期不符，所以拷贝构造函数不应存在复制之外的副作用，例中静态成员 A::s 在拷贝构造函数中被修改是不符合要求的。  
   
 进一步可参见“[RVO（Return Value Optimization）](https://en.wikipedia.org/wiki/Copy_elision#Return_value_optimization)”的相关介绍。
 <br/>
@@ -10844,7 +10841,7 @@ CWE-670
 <br/>
 <br/>
 
-### <span id="ID_if_identicalImplicitElseBlock">▌R9.1.6 if 分枝和其隐含的 else 分枝的代码不应完全相同</span>
+### <span id="ID_if_identicalImplicitElseBlock">▌R9.1.6 if 分枝和隐含的 else 分枝代码不应完全相同</span>
 
 ID_if_identicalImplicitElseBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
@@ -14179,7 +14176,7 @@ ID_explicitDtorCall&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: expression suggestion
 
 <hr/>
 
-显式调用析构函数会使对象的生命周期提前结束，可能会造成析构函数被重复执行，产生意料之外的错误。  
+显式调用析构函数会提前结束对象的生命周期，之后对该对象的任何访问都会导致标准未定义的行为，对于在栈上定义的对象，流程离开相关作用域时会再次自动调用其析构函数，对于动态创建的对象，用 delete 回收时也会调用其析构函数，使对象在生命周期之外被访问。  
   
 示例：
 ```
@@ -16991,23 +16988,26 @@ ID_missingResetNull&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: pointer suggestion
 
 <hr/>
 
-指针指向的动态内存空间被回收后指针不再有效，这时应将指针设为空指针，可避免重复释放造成的问题，如果后续对指针仍有错误的读写，也可使问题立即显现出来，不至于造成难以排查的问题。  
-  
-尤其是在析构函数中，建议所有需要释放的成员指针在释放后都置为空指针。  
+内存空间被回收后相关指针不再有效，这时应将指针设为空指针，可避免重复释放等问题，如果后续对指针有错误的访问，也可使问题立即显现出来，便于修正。  
   
 示例：
 ```
 class T {
     int* p = new int[123];
+    ....
 
 public:
    ~T() {
+        dealloc();
+    }
+
+    void dealloc() {
         delete[] p;
-        p = nullptr;  // Good
+        p = nullptr;    // Good
     }
 };
 ```
-例中指针 p 被释放之后置为 nullptr，如果 T 的析构函数被外界反复调用也不会造成问题。本规则是关于“指针悬挂”问题的有效措施，可参见 ID\_danglingDeref 的进一步讨论。
+例中 dealloc 函数释放指针 p 后将其置为空指针，如果 dealloc 函数被外界反复调用也没有问题。本规则是对“指针悬挂”等问题的有效措施，参见 ID\_danglingDeref。
 <br/>
 <br/>
 
