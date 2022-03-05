@@ -1691,7 +1691,7 @@
     "ID_exitCallInDestructor": {
         "checkPoint": "在析构函数中避免调用 exit 函数",
         "level": "warning",
-        "comment": "在析构函数中调用 exit 的对象不可作为全局、静态或 thread_local 对象，为规避意料之外的错误，应统一要求在析构函数中避免直接或间接地调用 exit。",
+        "comment": "程序调用 exit 后，具有静态或线程存储期的对象开始析构，如果这种对象的析构函数再调用 exit 会导致标准未定义的行为，为规避意料之外的错误，应统一要求在析构函数中避免直接或间接地调用 exit。",
         "tag": "function",
         "standard": "ISO/IEC 14882:2003 3.6.1(4)-undefined,ISO/IEC 14882:2011 3.6.1(4)-undefined"
         },
