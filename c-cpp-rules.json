@@ -3283,7 +3283,7 @@
     "ID_deleteIncompleteType": {
         "checkPoint": "用 delete 释放对象需保证其类型完整",
         "level": "warning",
-        "comment": "用 delete 释放不完整类型的对象，而在对象完整地类型声明中有 non-trival 析构函数，会导致标准未定义的行为。",
+        "comment": "如果用 delete 释放不完整类型的对象，而对象完整类型声明中有 non-trivial 析构函数，会导致标准未定义的行为。",
         "tag": "resource",
         "standard": "ISO/IEC 14882:2011 5.3.5(5)-undefined"
         },
