@@ -61,6 +61,7 @@
         "level": "suggestion",
         "comment": "不应使用常数 0 对指针赋值，在 C++ 代码中应使用 nullptr，在 C 代码中应使用 NULL，否则易出现类型转换相关的错误，且不利于阅读。",
         "tag": "pointer",
+        "standard": "ISO/IEC 9899:2011 7.19(3)-implementation,ISO/IEC 14882:2011 2.14.7(1)",
         "reference": "MISRA C++ 2008 4-10-2,C++ Core Guidelines ES.47"
         },
     "ID_charWCharCast": {
@@ -295,11 +296,11 @@
         "reference": "SEI CERT FIO46-C"
         },
     "ID_illDealloc": {
-        "checkPoint": "在栈上分配的空间以及非动态申请的资源不可被释放",
+        "checkPoint": "非动态申请的资源不可被释放",
         "level": "error",
-        "comment": "释放在栈上分配的空间以及非动态申请的资源会导致标准未定义的错误。",
-        "standard": "ISO/IEC 9899:2011 7.22.3.3(2)-undefined,ISO/IEC 9899:2011 7.22.3.4(3)-undefined,ISO/IEC 14882:2011 3.7.4.2(4)-undefined",
+        "comment": "释放非动态申请的资源会导致标准未定义的行为。",
         "tag": "resource",
+        "standard": "ISO/IEC 9899:2011 7.22.3.3(2)-undefined,ISO/IEC 9899:2011 7.22.3.4(3)-undefined,ISO/IEC 14882:2011 5.3.5(2)-undefined",
         "reference": "MISRA C 2012 22.2"
         },
     "ID_doubleFree": {
@@ -336,9 +337,10 @@
     "ID_arrayIndexOverflow": {
         "checkPoint": "数组下标不可越界",
         "level": "error",
-        "comment": "数组下标不在数组声明的大小范围之内，意味着内存读写错误，会导致难以控制的后果。",
+        "comment": "数组下标不在数组大小范围之内，意味着逻辑错误，会导致标准未定义的行为。",
         "tag": "buffer",
         "related": "ID_bufferOverflow",
+        "standard": "ISO/IEC 14882:2011 5.7(5)-undefined",
         "reference": "CWE-119,CWE-125,CWE-131,CWE-787,CWE-788,C++ Core Guidelines ES.103,SEI CERT ARR30-C"
         },
     "ID_oddSubscripting": {
@@ -735,7 +737,7 @@
     "ID_mixedTypeObjDefinition": {
         "checkPoint": "不建议将类型定义和对象声明写在一个语句中",
         "level": "suggestion",
-        "comment": "将类型定义和对象声明写在一个语句中可读性较差。",
+        "comment": "将类型定义和对象声明写在一个语句中可读性较差，应分开书写。",
         "tag": "declaration",
         "reference": "C++ Core Guidelines C.7"
         },
@@ -951,6 +953,7 @@
         "level": "warning",
         "comment": "可变参数列表对参数的类型和数量缺乏有效的限定和控制，是公认的不安全因素。",
         "tag": "declaration",
+        "standard": "ISO/IEC 14882:2003 5.2.2(7)-undefined",
         "reference": "C++ Core Guidelines ES.34,C++ Core Guidelines F.55,MISRA C 2004 16.1,MISRA C++ 2008 8-4-1"
         },
     "ID_redundantVirtual": {
@@ -1114,7 +1117,7 @@
         "level": "warning",
         "comment": "运算结果超出对应类型的存储范围往往意味着错误。",
         "tag": "expression",
-        "standard": "ISO/IEC 9899:2011 6.5(5)-undefined,ISO/IEC 9899:2011 6.2.5(9)",
+        "standard": "ISO/IEC 9899:2011 6.5(5)-undefined,ISO/IEC 9899:2011 6.2.5(9),ISO/IEC 14882:2011 5(4)-undefined",
         "reference": "CWE-190,C++ Core Guidelines ES.103,C++ Core Guidelines ES.104"
     },
     "ID_constLogicExpression": {
@@ -1245,7 +1248,7 @@
         "level": "error",
         "comment": "非基本类型的对象与可变参数列表的机制很难相容，如果这种对象被传入可变参数列表，往往意味着错误。",
         "tag": "expression",
-        "standard": "ISO/IEC 14882:2011 5.2.2(7)-implementation",
+        "standard": "ISO/IEC 14882:2003 5.2.2(7)-undefined,ISO/IEC 14882:2011 5.2.2(7)-implementation",
         "reference": "CWE-686,SEI CERT EXP47-C"
         },
     "ID_downCast": {
@@ -1262,7 +1265,7 @@
         "comment": "无继承关系的类型之间没有逻辑关系，不应强制转换，否则意味着设计缺陷或逻辑错误。",
         "tag": "cast",
         "related": "ID_narrowCast,ID_unsuitableReinterpretCast",
-        "standard": "ISO/IEC 14882:2003 5.2.10(7)-unspecified,ISO/IEC 14882:2011 5.2.10(7)-unspecified",
+        "standard": "ISO/IEC 14882:2011 4.1(1)-undefined,ISO/IEC 14882:2011 5.2.10(7)-unspecified",
         "reference": "MISRA C 2012 11.3,MISRA C++ 2008 5-2-7"
         },
     "ID_castNonPublicInheritance": {
@@ -1545,6 +1548,7 @@
         "level": "suggestion",
         "comment": "显式调用析构函数会提前结束对象的生命周期，之后对该对象的任何访问都会导致标准未定义的行为，对于在栈上定义的对象，流程离开相关作用域时会再次自动调用其析构函数，对于动态创建的对象，用 delete 回收时也会调用其析构函数，使对象在生命周期之外被访问。",
         "tag": "expression",
+        "standard": "ISO/IEC 14882:2011 12.4(15)-undefined",
         "related": "ID_missingResetNull"
         },
     "ID_fixedAddrToPointer": {
@@ -1684,6 +1688,13 @@
         "tag": "function",
         "reference": "C++ Core Guidelines C.82,Effective C++ item 9"
         },
+    "ID_exitCallInDestructor": {
+        "checkPoint": "在析构函数中避免调用 exit 函数",
+        "level": "warning",
+        "comment": "在析构函数中调用 exit 的对象不可作为全局、静态或 thread_local 对象，为规避意料之外的错误，应统一要求在析构函数中避免直接或间接地调用 exit。",
+        "tag": "function",
+        "standard": "ISO/IEC 14882:2003 3.6.1(4)-undefined,ISO/IEC 14882:2011 3.6.1(4)-undefined"
+        },
     "ID_sideEffectCopyConstructor": {
         "checkPoint": "拷贝构造函数应避免实现复制之外的功能",
         "level": "warning",
@@ -1704,9 +1715,18 @@
         "level": "error",
         "comment": "析构函数抛出异常是违反异常处理机制的。",
         "tag": "exception",
-        "related": "ID_throwInHash,ID_throwInSwap,ID_throwInMove",
+        "related": "ID_throwInDelete,ID_throwInHash,ID_throwInSwap,ID_throwInMove",
         "standard": "ISO/IEC 14882:2003 15.2(3),ISO/IEC 14882:2011 15.2(3),ISO/IEC 14882:2011 3.7.4.2(3)-undefined",
-        "reference": "C++ Core Guidelines C.36,C++ Core Guidelines C.37,C++ Core Guidelines E.16,SEI CERT DCL57-CPP,MISRA C++ 2008 15-5-1"
+        "reference": "C++ Core Guidelines C.36,C++ Core Guidelines C.37,SEI CERT DCL57-CPP,MISRA C++ 2008 15-5-1"
+        },
+    "ID_throwInDelete": {
+        "checkPoint": "内存回收函数不可抛出异常",
+        "level": "error",
+        "comment": "内存回收函数抛出异常会导致标准未定义的行为。",
+        "tag": "exception",
+        "related": "ID_throwInDestuctor,ID_throwInHash,ID_throwInSwap,ID_throwInMove",
+        "standard": "ISO/IEC 14882:2003 15.2(3),ISO/IEC 14882:2011 15.2(3),ISO/IEC 14882:2011 3.7.4.2(3)-undefined",
+        "reference": "C++ Core Guidelines E.16"
         },
     "ID_throwInHash": {
         "checkPoint": "与标准库相关的 hash 过程不应抛出异常",
@@ -2481,7 +2501,7 @@
         "level": "warning",
         "comment": "非标准格式的预编译指令往往意味着错误，也会导致标准未定义的问题。",
         "tag": "precompile",
-        "standard": "ISO/IEC 9899:2011 6.10(1),ISO/IEC 9899:2011 6.10.1(4)-undefined,ISO/IEC 14882:2011 16.1(4)-undefined",
+        "standard": "ISO/IEC 9899:2011 6.10(1),ISO/IEC 9899:2011 6.10.1(4)-undefined,ISO/IEC 14882:2011 16.1(4)-undefined,ISO/IEC 14882:2011 16.2(4)-undefined,ISO/IEC 14882:2011 16.4(3)-undefined,ISO/IEC 14882:2011 16.4(5)-undefined",
         "reference": "MISRA C++ 2008 16-0-7,MISRA C++ 2008 16-0-8,MISRA C++ 2008 16-1-1"
         },
     "ID_warningDisabled": {
@@ -2645,7 +2665,7 @@
         "level": "error",
         "comment": "在逻辑表达式中，需注意逻辑关系及运算符优先级，不可出现空指针解引用的问题。",
         "tag": "pointer",
-        "standard": "ISO/IEC 9899:1999 6.5.3.2(4)-undefined,ISO/IEC 9899:2011 6.5.3.2(4)-undefined",
+        "standard": "ISO/IEC 9899:2011 6.5.3.2(4)-undefined,ISO/IEC 14882:2011 8.3.2(5)-undefined",
         "reference": "CWE-476,CWE-783,C++ Core Guidelines ES.65"
         },
     "ID_nullDerefInScp": {
@@ -2653,7 +2673,7 @@
         "level": "error",
         "comment": "解引用空指针会使程序产生崩溃等标准未定义的行为。",
         "tag": "pointer",
-        "standard": "ISO/IEC 9899:1999 6.5.3.2(4)-undefined,ISO/IEC 9899:2011 6.5.3.2(4)-undefined",
+        "standard": "ISO/IEC 9899:2011 6.5.3.2(4)-undefined,ISO/IEC 14882:2011 8.3.2(5)-undefined",
         "reference": "CWE-476,C++ Core Guidelines ES.65"
         },
     "ID_divideByZero": {
@@ -2862,7 +2882,6 @@
         "level": "warning",
         "comment": "正常情况下 this 指针不会为空，而且判断 this 指针是否为空会影响编译器对 this 指针的优化，造成难以预料的后果。",
         "tag": "pointer",
-        "standard": "ISO/IEC 14882:2003 4.1(1),ISO/IEC 14882:2011 4.1(1)",
         "reference": "CWE-1025"
         },
     "ID_illMemberAccess": {
@@ -3260,5 +3279,35 @@
         "comment": "反斜杠可用于标识转义字符，也可用于实现“伪换行”，即代码换行显示但在语法上并没有换行，一般用于宏定义，除此之外不应再使用反斜杠，否则没有实际意义，也会造成混乱。",
         "tag": "precompile",
         "standard": "ISO/IEC 14882:2011 2.2(2)-undefined"
+        },
+    "ID_deleteIncompleteType": {
+        "checkPoint": "用 delete 释放对象需保证其类型完整",
+        "level": "warning",
+        "comment": "用 delete 释放不完整类型的对象，而在对象完整地类型声明中有 non-trival 析构函数，会导致标准未定义的行为。",
+        "tag": "resource",
+        "standard": "ISO/IEC 14882:2011 5.3.5(5)-undefined"
+        },
+    "ID_missingNewLineFileEnd": {
+        "checkPoint": "非空源文件应以换行符结尾",
+        "level": "suggestion",
+        "comment": "非空源文件未以换行符结尾，或以换行符结尾但换行符之前是反斜杠，会导致 C++03 标准未定义的行为。",
+        "tag": "precompile",
+        "standard": "ISO/IEC 14882:2003 2.1(2)-undefined"
+        },
+    "ID_directiveInMacroArgument": {
+        "checkPoint": "宏的参数列表中不应出现预编译指令",
+        "level": "warning",
+        "comment": "宏的参数列表中出现预处理指令会导致标准未定义的行为。",
+        "tag": "precompile",
+        "standard": "ISO/IEC 14882:2003 16.3(10)-undefined,ISO/IEC 14882:2011 16.3(11)-undefined",
+        "reference": "MISRA C++ 2008 16-0-5"
+        },
+    "ID_violateODR": {
+        "checkPoint": "不应违反 One Definition Rule",
+        "level": "warning",
+        "comment": "One Definition Rule，即任何翻译单元不得包含变量、函数、类型、枚举或模板的多个定义，否则会导致标准未定义的行为。",
+        "tag": "declaration",
+        "standard": "ISO/IEC 14882:2003 3.2(5)-undefined,ISO/IEC 14882:2011 3.2(5)-undefined",
+        "reference": "MISRA C++ 2008 3-2-2"
         }
 }

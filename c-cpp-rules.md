@@ -1,10 +1,10 @@
 <img src="logo.png" align="right"/>
 
-# C/C++ 安全规则集合 ![Version](https://img.shields.io/badge/version-1.1.0-brightgreen)
+# C/C++ 安全规则集合 ![Version](https://img.shields.io/badge/version-1.1.1-brightgreen)
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对 C、C++ 语言，本文收录了 417 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对 C、C++ 语言，本文收录了 423 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
@@ -111,16 +111,17 @@
   - [R2.9 对象被移动后不应再被使用](#ID_useAfterMove)
   - [R2.10 构造函数抛出异常需避免相关资源泄漏](#ID_throwInConstructor)
   - [R2.11 资源不可被重复释放](#ID_doubleFree)
-  - [R2.12 用 delete 释放对象不可多写中括号](#ID_excessiveDelete)
-  - [R2.13 用 delete 释放数组不可漏写中括号](#ID_insufficientDelete)
-  - [R2.14 在栈上分配的空间以及非动态申请的资源不可被释放](#ID_illDealloc)
-  - [R2.15 在一个表达式语句中最多使用一次 new](#ID_multiAllocation)
-  - [R2.16 流式资源对象不应被复制](#ID_copiedStream)
-  - [R2.17 避免使用在栈上分配内存的函数](#ID_stackAllocation)
-  - [R2.18 避免不必要的内存分配](#ID_unnecessaryAllocation)
-  - [R2.19 避免动态内存分配](#ID_dynamicAllocation)
-  - [R2.20 判断资源分配函数的返回值是否有效](#ID_nullDerefAllocRet)
-  - [R2.21 C\+\+ 代码中禁用 C 内存管理函数](#ID_forbidMallocAndFree)
+  - [R2.12 用 delete 释放对象需保证其类型完整](#ID_deleteIncompleteType)
+  - [R2.13 用 delete 释放对象不可多写中括号](#ID_excessiveDelete)
+  - [R2.14 用 delete 释放数组不可漏写中括号](#ID_insufficientDelete)
+  - [R2.15 非动态申请的资源不可被释放](#ID_illDealloc)
+  - [R2.16 在一个表达式语句中最多使用一次 new](#ID_multiAllocation)
+  - [R2.17 流式资源对象不应被复制](#ID_copiedStream)
+  - [R2.18 避免使用在栈上分配内存的函数](#ID_stackAllocation)
+  - [R2.19 避免不必要的内存分配](#ID_unnecessaryAllocation)
+  - [R2.20 避免动态内存分配](#ID_dynamicAllocation)
+  - [R2.21 判断资源分配函数的返回值是否有效](#ID_nullDerefAllocRet)
+  - [R2.22 C\+\+ 代码中禁用 C 内存管理函数](#ID_forbidMallocAndFree)
 <br/>
 
 <span id="__Precompile">**[3. Precompile](#precompile)**</span>
@@ -152,14 +153,16 @@
     - [R3.3.1 头文件不应缺少守卫](#ID_missingHeaderGuard)
     - [R3.3.2 不应出现非标准格式的预编译指令](#ID_illFormedDirective)
     - [R3.3.3 不应使用非标准预编译指令](#ID_nonStdDirective)
-    - [R3.3.4 对编译警告的屏蔽应慎重](#ID_warningDisabled)
-    - [R3.3.5 在高级别的警告设置下编译](#ID_warningDefault)
+    - [R3.3.4 宏的参数列表中不应出现预编译指令](#ID_directiveInMacroArgument)
+    - [R3.3.5 对编译警告的屏蔽应慎重](#ID_warningDisabled)
+    - [R3.3.6 在高级别的警告设置下编译](#ID_warningDefault)
   - [3.4 Comment](#precompile.comment)
     - [R3.4.1 关注 TODO、FIXME、XXX、BUG 等特殊注释](#ID_specialComment)
     - [R3.4.2 注释不可嵌套](#ID_nestedComment)
     - [R3.4.3 注释应出现在合理的位置](#ID_badCommentPosition)
   - [3.5 Other](#precompile.other)
-    - [R3.5.1 除转义字符、宏定义之外不应使用反斜杠](#ID_badBackslash)
+    - [R3.5.1 非空源文件应以换行符结尾](#ID_missingNewLineFileEnd)
+    - [R3.5.2 除转义字符、宏定义之外不应使用反斜杠](#ID_badBackslash)
 <br/>
 
 <span id="__Global">**[4. Global](#global)**</span>
@@ -283,10 +286,11 @@
   - [6.9 Complexity](#declaration.complexity)
     - [R6.9.1 不建议采用复杂的声明](#ID_complexDeclaration)
   - [6.10 Other](#declaration.other)
-    - [R6.10.1 不应存在没有用到的标签](#ID_labelNotUsed)
-    - [R6.10.2 不应存在未被使用的本地 static 函数](#ID_staticNotUsed)
-    - [R6.10.3 不应存在未被使用的 private 成员](#ID_privateNotUsed)
-    - [R6.10.4 避免使用 std::auto\_ptr](#ID_deprecatedAutoPtr)
+    - [R6.10.1 不应违反 One Definition Rule](#ID_violateODR)
+    - [R6.10.2 不应存在没有用到的标签](#ID_labelNotUsed)
+    - [R6.10.3 不应存在未被使用的本地 static 函数](#ID_staticNotUsed)
+    - [R6.10.4 不应存在未被使用的 private 成员](#ID_privateNotUsed)
+    - [R6.10.5 避免使用 std::auto\_ptr](#ID_deprecatedAutoPtr)
 <br/>
 
 <span id="__Exception">**[7. Exception](#exception)**</span>
@@ -296,20 +300,21 @@
   - [R7.4 不应抛出非异常类型的对象](#ID_throwNonExceptionType)
   - [R7.5 不应捕获非异常类型的对象](#ID_catch_nonExceptionType)
   - [R7.6 析构函数不可抛出异常](#ID_throwInDestuctor)
-  - [R7.7 对象的 swap 过程不可抛出异常](#ID_throwInSwap)
-  - [R7.8 移动构造函数和移动赋值运算符不可抛出异常](#ID_throwInMove)
-  - [R7.9 异常类的构造函数和异常信息相关的函数不应抛出异常](#ID_exceptionInException)
-  - [R7.10 与标准库相关的 hash 过程不应抛出异常](#ID_throwInHash)
-  - [R7.11 通过引用捕获异常](#ID_catch_value)
-  - [R7.12 捕获异常时不应产生对象切片问题](#ID_catch_slicing)
-  - [R7.13 捕获异常后不应直接再次抛出异常](#ID_catch_justRethrow)
-  - [R7.14 重新抛出异常时应使用空 throw 表达式（throw;）](#ID_improperRethrow)
-  - [R7.15 不应在 catch handler 外使用空 throw 表达式（throw;）](#ID_rethrowOutOfCatch)
-  - [R7.16 不应抛出指针](#ID_throwPointer)
-  - [R7.17 不应抛出 NULL](#ID_throwNULL)
-  - [R7.18 不应抛出 nullptr](#ID_throwNullptr)
-  - [R7.19 禁用含 throw 关键字的异常规格说明](#ID_forbidThrowSpecification)
-  - [R7.20 禁用 C\+\+ 异常](#ID_forbidException)
+  - [R7.7 内存回收函数不可抛出异常](#ID_throwInDelete)
+  - [R7.8 对象的 swap 过程不可抛出异常](#ID_throwInSwap)
+  - [R7.9 移动构造函数和移动赋值运算符不可抛出异常](#ID_throwInMove)
+  - [R7.10 异常类的构造函数和异常信息相关的函数不应抛出异常](#ID_exceptionInException)
+  - [R7.11 与标准库相关的 hash 过程不应抛出异常](#ID_throwInHash)
+  - [R7.12 通过引用捕获异常](#ID_catch_value)
+  - [R7.13 捕获异常时不应产生对象切片问题](#ID_catch_slicing)
+  - [R7.14 捕获异常后不应直接再次抛出异常](#ID_catch_justRethrow)
+  - [R7.15 重新抛出异常时应使用空 throw 表达式（throw;）](#ID_improperRethrow)
+  - [R7.16 不应在 catch handler 外使用空 throw 表达式（throw;）](#ID_rethrowOutOfCatch)
+  - [R7.17 不应抛出指针](#ID_throwPointer)
+  - [R7.18 不应抛出 NULL](#ID_throwNULL)
+  - [R7.19 不应抛出 nullptr](#ID_throwNullptr)
+  - [R7.20 禁用含 throw 关键字的异常规格说明](#ID_forbidThrowSpecification)
+  - [R7.21 禁用 C\+\+ 异常](#ID_forbidException)
 <br/>
 
 <span id="__Function">**[8. Function](#function)**</span>
@@ -328,35 +333,36 @@
   - [R8.13 成员初始化应遵循声明的顺序](#ID_disorderedInitialization)
   - [R8.14 在构造函数中不应调用虚函数](#ID_virtualCallInConstructor)
   - [R8.15 在析构函数中不应调用虚函数](#ID_virtualCallInDestuctor)
-  - [R8.16 拷贝构造函数应避免实现复制之外的功能](#ID_sideEffectCopyConstructor)
-  - [R8.17 赋值运算符应妥善处理参数就是自身对象时的情况](#ID_this_selfJudgement)
-  - [R8.18 不应存在无效的写入操作](#ID_invalidWrite)
-  - [R8.19 不应存在没有副作用的语句](#ID_missingSideEffect)
-  - [R8.20 不应存在得不到执行机会的代码](#ID_unreachableCode)
-  - [R8.21 有返回值的函数其所有分枝都应有明确的返回值](#ID_notAllBranchReturn)
-  - [R8.22 不可返回局部对象的地址或引用](#ID_localAddressFlowOut)
-  - [R8.23 合理设置 lambda 表达式的捕获方式](#ID_unsuitableCapture)
-  - [R8.24 函数返回值不应为右值引用](#ID_returnRValueReference)
-  - [R8.25 函数返回值不应为常量对象](#ID_returnConstObject)
-  - [R8.26 函数返回值不应为基本类型的常量](#ID_returnSuperfluousConst)
-  - [R8.27 被返回的表达式应与函数的返回类型相符](#ID_returnOdd)
-  - [R8.28 被返回的表达式不应为相同的常量](#ID_returnSameConst)
-  - [R8.29 属性为 noreturn 的函数中不应出现 return 语句](#ID_unsuitableReturn)
-  - [R8.30 属性为 noreturn 的函数返回类型只应为 void](#ID_unsuitableReturnType)
-  - [R8.31 不应出现多余的跳转语句](#ID_redundantJump)
-  - [R8.32 va\_start 或 va\_copy 应配合 va\_end 使用](#ID_incompleteVAMacros)
-  - [R8.33 函数模板不应被特化](#ID_functionSpecialization)
-  - [R8.34 函数的标签数量应在规定范围之内](#ID_tooManyLabels)
-  - [R8.35 函数的行数应在规定范围之内](#ID_tooManyLines)
-  - [R8.36 lambda 表达式的行数应在规定范围之内](#ID_tooManyLambdaLines)
-  - [R8.37 函数参数的数量应在规定范围之内](#ID_tooManyParams)
-  - [R8.38 不应定义过于复杂的内联函数](#ID_complexInlineFunction)
-  - [R8.39 禁止 goto 语句向嵌套的或无包含关系的作用域跳转](#ID_forbidGotoBlocks)
-  - [R8.40 禁止 goto 语句向前跳转](#ID_forbidGotoBack)
-  - [R8.41 禁用 goto 语句](#ID_forbidGoto)
-  - [R8.42 禁用 setjmp、longjmp](#ID_forbidLongjmp)
-  - [R8.43 避免递归实现](#ID_recursion)
-  - [R8.44 不应存在重复的函数实现](#ID_functionRepetition)
+  - [R8.16 在析构函数中避免调用 exit 函数](#ID_exitCallInDestructor)
+  - [R8.17 拷贝构造函数应避免实现复制之外的功能](#ID_sideEffectCopyConstructor)
+  - [R8.18 赋值运算符应妥善处理参数就是自身对象时的情况](#ID_this_selfJudgement)
+  - [R8.19 不应存在无效的写入操作](#ID_invalidWrite)
+  - [R8.20 不应存在没有副作用的语句](#ID_missingSideEffect)
+  - [R8.21 不应存在得不到执行机会的代码](#ID_unreachableCode)
+  - [R8.22 有返回值的函数其所有分枝都应有明确的返回值](#ID_notAllBranchReturn)
+  - [R8.23 不可返回局部对象的地址或引用](#ID_localAddressFlowOut)
+  - [R8.24 合理设置 lambda 表达式的捕获方式](#ID_unsuitableCapture)
+  - [R8.25 函数返回值不应为右值引用](#ID_returnRValueReference)
+  - [R8.26 函数返回值不应为常量对象](#ID_returnConstObject)
+  - [R8.27 函数返回值不应为基本类型的常量](#ID_returnSuperfluousConst)
+  - [R8.28 被返回的表达式应与函数的返回类型相符](#ID_returnOdd)
+  - [R8.29 被返回的表达式不应为相同的常量](#ID_returnSameConst)
+  - [R8.30 属性为 noreturn 的函数中不应出现 return 语句](#ID_unsuitableReturn)
+  - [R8.31 属性为 noreturn 的函数返回类型只应为 void](#ID_unsuitableReturnType)
+  - [R8.32 不应出现多余的跳转语句](#ID_redundantJump)
+  - [R8.33 va\_start 或 va\_copy 应配合 va\_end 使用](#ID_incompleteVAMacros)
+  - [R8.34 函数模板不应被特化](#ID_functionSpecialization)
+  - [R8.35 函数的标签数量应在规定范围之内](#ID_tooManyLabels)
+  - [R8.36 函数的行数应在规定范围之内](#ID_tooManyLines)
+  - [R8.37 lambda 表达式的行数应在规定范围之内](#ID_tooManyLambdaLines)
+  - [R8.38 函数参数的数量应在规定范围之内](#ID_tooManyParams)
+  - [R8.39 不应定义过于复杂的内联函数](#ID_complexInlineFunction)
+  - [R8.40 禁止 goto 语句向嵌套的或无包含关系的作用域跳转](#ID_forbidGotoBlocks)
+  - [R8.41 禁止 goto 语句向前跳转](#ID_forbidGotoBack)
+  - [R8.42 禁用 goto 语句](#ID_forbidGoto)
+  - [R8.43 禁用 setjmp、longjmp](#ID_forbidLongjmp)
+  - [R8.44 避免递归实现](#ID_recursion)
+  - [R8.45 不应存在重复的函数实现](#ID_functionRepetition)
 <br/>
 
 <span id="__Control">**[9. Control](#control)**</span>
@@ -2118,7 +2124,45 @@ CWE-415
 <br/>
 <br/>
 
-### <span id="ID_excessiveDelete">▌R2.12 用 delete 释放对象不可多写中括号</span>
+### <span id="ID_deleteIncompleteType">▌R2.12 用 delete 释放对象需保证其类型完整</span>
+
+ID_deleteIncompleteType&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
+
+<hr/>
+
+用 delete 释放不完整类型的对象，而在对象完整地类型声明中有 non\-trival 析构函数，会导致标准未定义的行为。  
+  
+示例：
+```
+struct T;
+
+void foo(T* p) {
+    delete p;       // Non-compliant, undefined behavior
+}
+
+struct T {
+   ~T();            // Non-trival destructor
+};
+```
+例中 delete 作用于不完整类型的指针 p，析构函数不会正确执行，应保证 T 在 foo 之前定义：
+```
+struct T {
+   ~T();
+};
+
+void foo(T* p) {
+    delete p;       // Compliant
+}
+```
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2011 5.3.5(5)-undefined  
+<br/>
+<br/>
+
+### <span id="ID_excessiveDelete">▌R2.13 用 delete 释放对象不可多写中括号</span>
 
 ID_excessiveDelete&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
 
@@ -2150,7 +2194,7 @@ C++ Core Guidelines ES.61
 <br/>
 <br/>
 
-### <span id="ID_insufficientDelete">▌R2.13 用 delete 释放数组不可漏写中括号</span>
+### <span id="ID_insufficientDelete">▌R2.14 用 delete 释放数组不可漏写中括号</span>
 
 ID_insufficientDelete&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
 
@@ -2185,13 +2229,13 @@ C++ Core Guidelines ES.61
 <br/>
 <br/>
 
-### <span id="ID_illDealloc">▌R2.14 在栈上分配的空间以及非动态申请的资源不可被释放</span>
+### <span id="ID_illDealloc">▌R2.15 非动态申请的资源不可被释放</span>
 
 ID_illDealloc&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
 
 <hr/>
 
-释放在栈上分配的空间以及非动态申请的资源会导致标准未定义的错误。  
+释放非动态申请的资源会导致标准未定义的行为。  
   
 示例：
 ```
@@ -2206,13 +2250,14 @@ void bar() {
     free(&i);  // Non-compliant, naughty behaviour
 }
 ```
+释放在栈上分配的空间或者局部对象的地址会造成严重的运行时错误。
 <br/>
 <br/>
 
 #### 依据
 ISO/IEC 9899:2011 7.22.3.3(2)-undefined  
 ISO/IEC 9899:2011 7.22.3.4(3)-undefined  
-ISO/IEC 14882:2011 3.7.4.2(4)-undefined  
+ISO/IEC 14882:2011 5.3.5(2)-undefined  
 <br/>
 
 #### 参考
@@ -2220,7 +2265,7 @@ MISRA C 2012 22.2
 <br/>
 <br/>
 
-### <span id="ID_multiAllocation">▌R2.15 在一个表达式语句中最多使用一次 new</span>
+### <span id="ID_multiAllocation">▌R2.16 在一个表达式语句中最多使用一次 new</span>
 
 ID_multiAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -2261,7 +2306,7 @@ C++ Core Guidelines R.13
 <br/>
 <br/>
 
-### <span id="ID_copiedStream">▌R2.16 流式资源对象不应被复制</span>
+### <span id="ID_copiedStream">▌R2.17 流式资源对象不应被复制</span>
 
 ID_copiedStream&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -2290,7 +2335,7 @@ MISRA C 2012 22.5
 <br/>
 <br/>
 
-### <span id="ID_stackAllocation">▌R2.17 避免使用在栈上分配内存的函数</span>
+### <span id="ID_stackAllocation">▌R2.18 避免使用在栈上分配内存的函数</span>
 
 ID_stackAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -2322,7 +2367,7 @@ SEI CERT MEM05-C
 <br/>
 <br/>
 
-### <span id="ID_unnecessaryAllocation">▌R2.18 避免不必要的内存分配</span>
+### <span id="ID_unnecessaryAllocation">▌R2.19 避免不必要的内存分配</span>
 
 ID_unnecessaryAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -2361,7 +2406,7 @@ ID_dynamicAllocation
 <br/>
 <br/>
 
-### <span id="ID_dynamicAllocation">▌R2.19 避免动态内存分配</span>
+### <span id="ID_dynamicAllocation">▌R2.20 避免动态内存分配</span>
 
 ID_dynamicAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -2395,7 +2440,7 @@ C++ Core Guidelines R.5
 <br/>
 <br/>
 
-### <span id="ID_nullDerefAllocRet">▌R2.20 判断资源分配函数的返回值是否有效</span>
+### <span id="ID_nullDerefAllocRet">▌R2.21 判断资源分配函数的返回值是否有效</span>
 
 ID_nullDerefAllocRet&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -2432,7 +2477,7 @@ CWE-252
 <br/>
 <br/>
 
-### <span id="ID_forbidMallocAndFree">▌R2.21 C++ 代码中禁用 C 内存管理函数</span>
+### <span id="ID_forbidMallocAndFree">▌R2.22 C++ 代码中禁用 C 内存管理函数</span>
 
 ID_forbidMallocAndFree&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: resource warning
 
@@ -3378,6 +3423,9 @@ ID_illFormedDirective&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
  - \#if、\#elif 之后应为正确的常量表达式  
  - \#ifdef、\#ifndef 之后只应为宏名称  
  - \#else、\#endif 之后应直接换行  
+ - \#line 之后应接整数常量，或整数常量和文件名称  
+ - \#line 指定的行号应在有效范围内  
+ - \#line 不应出现在非自动生成的代码中  
   
 示例：
 ```
@@ -3387,8 +3435,11 @@ ID_illFormedDirective&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 #define DEFINED defined  // Non-compliant
 #if DEFINED M            // Undefined behaviour
+
+#line 0                  // Non-compliant, invalid line number
+#line 4294967295         // Non-compliant, line number too large
 ```
-例中作用于比较表达式的 defined 会导致标准未定义的行为，在 \#if 条件表达式中由宏展开产生的 defined 也会导致标准未定义的行为。  
+例中作用于比较表达式的 defined 和 \#if 条件中由宏展开产生的 defined 均会导致未定义的行为，由 \#line 指定的行号应大于 0 且小于 2147483648（按 C\+\+03 标准则应小于 32768），否则也会导致未定义的行为。  
   
 又如：
 ```
@@ -3412,6 +3463,9 @@ int foo() {
 ISO/IEC 9899:2011 6.10(1)  
 ISO/IEC 9899:2011 6.10.1(4)-undefined  
 ISO/IEC 14882:2011 16.1(4)-undefined  
+ISO/IEC 14882:2011 16.2(4)-undefined  
+ISO/IEC 14882:2011 16.4(3)-undefined  
+ISO/IEC 14882:2011 16.4(5)-undefined  
 <br/>
 
 #### 参考
@@ -3449,7 +3503,43 @@ MISRA C 2012 20.13
 <br/>
 <br/>
 
-### <span id="ID_warningDisabled">▌R3.3.4 对编译警告的屏蔽应慎重</span>
+### <span id="ID_directiveInMacroArgument">▌R3.3.4 宏的参数列表中不应出现预编译指令</span>
+
+ID_directiveInMacroArgument&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
+
+<hr/>
+
+如果预编译指令出现在宏的参数列表中，指令和参数的处理顺序将是混乱的，导致标准未定义的行为。  
+  
+宏参数  
+  
+示例：
+```
+#define PRINT(s) printf(#s)
+
+PRINT(
+#ifdef MAC      // Non-compliant, undefined behavior
+    rabbit
+#else           // Non-compliant
+    hamster
+#endif          // Non-compliant
+);
+```
+结果可能是打印出 hamster，也可能是 \#ifdef MAC rabbit \#else hamster \#endif 这种怪异的结果。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 16.3(10)-undefined  
+ISO/IEC 14882:2011 16.3(11)-undefined  
+<br/>
+
+#### 参考
+MISRA C++ 2008 16-0-5  
+<br/>
+<br/>
+
+### <span id="ID_warningDisabled">▌R3.3.5 对编译警告的屏蔽应慎重</span>
 
 ID_warningDisabled&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
@@ -3480,7 +3570,7 @@ SEI CERT MSC00-C
 <br/>
 <br/>
 
-### <span id="ID_warningDefault">▌R3.3.5 在高级别的警告设置下编译</span>
+### <span id="ID_warningDefault">▌R3.3.6 在高级别的警告设置下编译</span>
 
 ID_warningDefault&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
@@ -3630,7 +3720,39 @@ void foo(int i /*= 0*/) {           // Let it go
 
 ### <span id="precompile.other">3.5 Other</span>
 
-### <span id="ID_badBackslash">▌R3.5.1 除转义字符、宏定义之外不应使用反斜杠</span>
+### <span id="ID_missingNewLineFileEnd">▌R3.5.1 非空源文件应以换行符结尾</span>
+
+ID_missingNewLineFileEnd&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
+
+<hr/>
+
+非空源文件未以换行符结尾，或以换行符结尾但换行符之前是反斜杠，会导致 C\+\+03 标准未定义的行为。  
+  
+一般情况下 IDE 或编辑器会保证源文件以空行结尾，而且 C\+\+11 规定编译器应补全所需的空行，但为了提高兼容性，尤其是自动生成的源文件，应以有效的换行符结尾。  
+  
+示例：
+```
+// a.h
+#ifndef A_H
+#define A_H
+....
+#endif      // Non-compliant if no line break
+
+// a.cpp
+#include "a.h"
+int main() {
+}
+```
+如果 a.h 不是以有效的换行符结尾，在某些编译环境中有可能会使 \#endif 和 int main 被合成一行。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 2.1(2)-undefined  
+<br/>
+<br/>
+
+### <span id="ID_badBackslash">▌R3.5.2 除转义字符、宏定义之外不应使用反斜杠</span>
 
 ID_badBackslash&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
@@ -5909,19 +6031,27 @@ ID_missingConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
   
 示例：
 ```
-char* p = "a string literal";  // Non-compliant
-....
-p[x] = '\0';   // Undefined behaivor
+char* p = "....";  // Non-compliant
+p[x] = '\0';       // Undefined behaivor
 ```
 例中 p 指向常量字符串，通过 p 修改相关内存区域会种程序产生未定义的行为。  
   
 应改为：
 ```
-const char* p = "a string literal";  // Compliant
-....
-p[x] = '\0';   // Compile-time protected
+const char* p = "....";  // Compliant
+p[x] = '\0';             // Compile-time protected
 ```
-改为常量字符串指针后，错误的操作无法通过编译。
+改为常量字符串指针后，错误的操作无法通过编译。  
+  
+常量字符串相关的参数传递同样受本规则约束，如：
+```
+void foo(char*);
+
+void bar() {
+    foo("....");   // Non-compliant
+}
+```
+应将 foo 的参数类型改为 const char\*，或将常量字符串复制后传给 foo 函数。
 <br/>
 <br/>
 
@@ -6512,6 +6642,10 @@ string format(const char* fmt, const Args& ...args) {  // Compliant
 <br/>
 <br/>
 
+#### 依据
+ISO/IEC 14882:2003 5.2.2(7)-undefined  
+<br/>
+
 #### 参考
 C++ Core Guidelines ES.34  
 C++ Core Guidelines F.55  
@@ -6687,13 +6821,22 @@ ID_mixedTypeObjDefinition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration sugges
 
 <hr/>
 
-将类型定义和对象声明写在一个语句中可读性较差。  
+将类型定义和对象声明写在一个语句中可读性较差，应分开书写。  
   
 示例：
 ```
 struct T {
     ....
 } obj, *ptr;  // Bad
+```
+应改为：
+```
+struct T {
+    ....
+};
+
+T obj;   // OK
+T* ptr;  // OK
 ```
 <br/>
 <br/>
@@ -7835,7 +7978,48 @@ T * const * * const * y;  // Horrible
 
 ### <span id="declaration.other">6.10 Other</span>
 
-### <span id="ID_labelNotUsed">▌R6.10.1 不应存在没有用到的标签</span>
+### <span id="ID_violateODR">▌R6.10.1 不应违反 One Definition Rule</span>
+
+ID_violateODR&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
+
+<hr/>
+
+One Definition Rule，即任何翻译单元不得包含变量、函数、类型、枚举或模板的多个定义，否则会导致标准未定义的行为。  
+  
+示例：
+```
+// In a.cpp 
+struct T { int i; };
+T* foo() { .... }
+
+// In b.cpp 
+struct T { long i; };   // Non-compliant, undefined behavior
+void bar(T*) { .... }
+
+// In c.cpp
+struct T;
+T* foo();
+void bar(T*);
+
+void baz() {
+    bar(foo());   // Problems
+}
+```
+例中 T 类型在两个翻译单元中有不同的定义，违反了 One Definition Rule，易造成难以排查的错误，应将类型声明移入头文件。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 3.2(5)-undefined  
+ISO/IEC 14882:2011 3.2(5)-undefined  
+<br/>
+
+#### 参考
+MISRA C++ 2008 3-2-2  
+<br/>
+<br/>
+
+### <span id="ID_labelNotUsed">▌R6.10.2 不应存在没有用到的标签</span>
 
 ID_labelNotUsed&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
@@ -7868,7 +8052,7 @@ MISRA C 2012 2.6
 <br/>
 <br/>
 
-### <span id="ID_staticNotUsed">▌R6.10.2 不应存在未被使用的本地 static 函数</span>
+### <span id="ID_staticNotUsed">▌R6.10.3 不应存在未被使用的本地 static 函数</span>
 
 ID_staticNotUsed&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
@@ -7897,7 +8081,7 @@ MISRA C++ 2008 0-1-10
 <br/>
 <br/>
 
-### <span id="ID_privateNotUsed">▌R6.10.3 不应存在未被使用的 private 成员</span>
+### <span id="ID_privateNotUsed">▌R6.10.4 不应存在未被使用的 private 成员</span>
 
 ID_privateNotUsed&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
@@ -7927,7 +8111,7 @@ MISRA C++ 2008 0-1-10
 <br/>
 <br/>
 
-### <span id="ID_deprecatedAutoPtr">▌R6.10.4 避免使用 std::auto_ptr</span>
+### <span id="ID_deprecatedAutoPtr">▌R6.10.5 避免使用 std::auto_ptr</span>
 
 ID_deprecatedAutoPtr&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
@@ -8303,6 +8487,7 @@ public:
 <br/>
 
 #### 相关
+ID_throwInDelete  
 ID_throwInHash  
 ID_throwInSwap  
 ID_throwInMove  
@@ -8317,13 +8502,54 @@ ISO/IEC 14882:2011 3.7.4.2(3)-undefined
 #### 参考
 C++ Core Guidelines C.36  
 C++ Core Guidelines C.37  
-C++ Core Guidelines E.16  
 SEI CERT DCL57-CPP  
 MISRA C++ 2008 15-5-1  
 <br/>
 <br/>
 
-### <span id="ID_throwInSwap">▌R7.7 对象的 swap 过程不可抛出异常</span>
+### <span id="ID_throwInDelete">▌R7.7 内存回收函数不可抛出异常</span>
+
+ID_throwInDelete&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: exception error
+
+<hr/>
+
+内存回收函数抛出异常会导致标准未定义的行为。  
+  
+示例：
+```
+class A {
+    ....
+public:
+    void operator delete(void* p) {
+        if (!p) {
+            throw Exception();   // Non-compliant, undefined behavior
+        }
+        ....
+    }
+};
+```
+<br/>
+<br/>
+
+#### 相关
+ID_throwInDestuctor  
+ID_throwInHash  
+ID_throwInSwap  
+ID_throwInMove  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 15.2(3)  
+ISO/IEC 14882:2011 15.2(3)  
+ISO/IEC 14882:2011 3.7.4.2(3)-undefined  
+<br/>
+
+#### 参考
+C++ Core Guidelines E.16  
+<br/>
+<br/>
+
+### <span id="ID_throwInSwap">▌R7.8 对象的 swap 过程不可抛出异常</span>
 
 ID_throwInSwap&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
@@ -8368,7 +8594,7 @@ C++ Core Guidelines C.85
 <br/>
 <br/>
 
-### <span id="ID_throwInMove">▌R7.8 移动构造函数和移动赋值运算符不可抛出异常</span>
+### <span id="ID_throwInMove">▌R7.9 移动构造函数和移动赋值运算符不可抛出异常</span>
 
 ID_throwInMove&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
@@ -8409,7 +8635,7 @@ C++ Core Guidelines C.66
 <br/>
 <br/>
 
-### <span id="ID_exceptionInException">▌R7.9 异常类的构造函数和异常信息相关的函数不应抛出异常</span>
+### <span id="ID_exceptionInException">▌R7.10 异常类的构造函数和异常信息相关的函数不应抛出异常</span>
 
 ID_exceptionInException&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
@@ -8458,7 +8684,7 @@ ISO/IEC 14882:2011 18.8.1
 <br/>
 <br/>
 
-### <span id="ID_throwInHash">▌R7.10 与标准库相关的 hash 过程不应抛出异常</span>
+### <span id="ID_throwInHash">▌R7.11 与标准库相关的 hash 过程不应抛出异常</span>
 
 ID_throwInHash&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: exception suggestion
 
@@ -8490,7 +8716,7 @@ C++ Core Guidelines C.89
 <br/>
 <br/>
 
-### <span id="ID_catch_value">▌R7.11 通过引用捕获异常</span>
+### <span id="ID_catch_value">▌R7.12 通过引用捕获异常</span>
 
 ID_catch_value&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
@@ -8532,7 +8758,7 @@ MISRA C++ 2008 15-3-5
 <br/>
 <br/>
 
-### <span id="ID_catch_slicing">▌R7.12 捕获异常时不应产生对象切片问题</span>
+### <span id="ID_catch_slicing">▌R7.13 捕获异常时不应产生对象切片问题</span>
 
 ID_catch_slicing&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
@@ -8574,7 +8800,7 @@ C++ Core Guidelines ES.63
 <br/>
 <br/>
 
-### <span id="ID_catch_justRethrow">▌R7.13 捕获异常后不应直接再次抛出异常</span>
+### <span id="ID_catch_justRethrow">▌R7.14 捕获异常后不应直接再次抛出异常</span>
 
 ID_catch_justRethrow&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
@@ -8598,7 +8824,7 @@ void foo() {
 <br/>
 <br/>
 
-### <span id="ID_improperRethrow">▌R7.14 重新抛出异常时应使用空 throw 表达式（throw;）</span>
+### <span id="ID_improperRethrow">▌R7.15 重新抛出异常时应使用空 throw 表达式（throw;）</span>
 
 ID_improperRethrow&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
@@ -8639,7 +8865,7 @@ ISO/IEC 14882:2011 15.1(8)
 <br/>
 <br/>
 
-### <span id="ID_rethrowOutOfCatch">▌R7.15 不应在 catch handler 外使用空 throw 表达式（throw;）</span>
+### <span id="ID_rethrowOutOfCatch">▌R7.16 不应在 catch handler 外使用空 throw 表达式（throw;）</span>
 
 ID_rethrowOutOfCatch&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
@@ -8679,7 +8905,7 @@ MISRA C++ 2008 15-1-3
 <br/>
 <br/>
 
-### <span id="ID_throwPointer">▌R7.16 不应抛出指针</span>
+### <span id="ID_throwPointer">▌R7.17 不应抛出指针</span>
 
 ID_throwPointer&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: exception suggestion
 
@@ -8716,7 +8942,7 @@ MISRA C++ 2008 15-0-2
 <br/>
 <br/>
 
-### <span id="ID_throwNULL">▌R7.17 不应抛出 NULL</span>
+### <span id="ID_throwNULL">▌R7.18 不应抛出 NULL</span>
 
 ID_throwNULL&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
@@ -8762,7 +8988,7 @@ MISRA C++ 2008 15-1-2
 <br/>
 <br/>
 
-### <span id="ID_throwNullptr">▌R7.18 不应抛出 nullptr</span>
+### <span id="ID_throwNullptr">▌R7.19 不应抛出 nullptr</span>
 
 ID_throwNullptr&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
@@ -8798,7 +9024,7 @@ MISRA C++ 2008 15-0-2
 <br/>
 <br/>
 
-### <span id="ID_forbidThrowSpecification">▌R7.19 禁用含 throw 关键字的异常规格说明</span>
+### <span id="ID_forbidThrowSpecification">▌R7.20 禁用含 throw 关键字的异常规格说明</span>
 
 ID_forbidThrowSpecification&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: exception warning
 
@@ -8840,7 +9066,7 @@ C++ Core Guidelines E.30
 <br/>
 <br/>
 
-### <span id="ID_forbidException">▌R7.20 禁用 C++ 异常</span>
+### <span id="ID_forbidException">▌R7.21 禁用 C++ 异常</span>
 
 ID_forbidException&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: exception warning
 
@@ -9453,7 +9679,32 @@ Effective C++ item 9
 <br/>
 <br/>
 
-### <span id="ID_sideEffectCopyConstructor">▌R8.16 拷贝构造函数应避免实现复制之外的功能</span>
+### <span id="ID_exitCallInDestructor">▌R8.16 在析构函数中避免调用 exit 函数</span>
+
+ID_exitCallInDestructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
+
+<hr/>
+
+在析构函数中调用 exit 的对象不可作为全局、静态或 thread\_local 对象，为规避意料之外的错误，应统一要求在析构函数中避免直接或间接地调用 exit。程序调用 exit 后静态或线程存储期的对象开始析构，如果在这种对象的析构函数中再调用 exit 会导致标准未定义的行为，可能会造成混乱的局面。  
+  
+示例：
+```
+class T {
+    ....
+public:
+   ~T() { exit(1); }  // Non-compliant
+};
+```
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 3.6.1(4)-undefined  
+ISO/IEC 14882:2011 3.6.1(4)-undefined  
+<br/>
+<br/>
+
+### <span id="ID_sideEffectCopyConstructor">▌R8.17 拷贝构造函数应避免实现复制之外的功能</span>
 
 ID_sideEffectCopyConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9500,7 +9751,7 @@ MISRA C++ 2008 12-8-1
 <br/>
 <br/>
 
-### <span id="ID_this_selfJudgement">▌R8.17 赋值运算符应妥善处理参数就是自身对象时的情况</span>
+### <span id="ID_this_selfJudgement">▌R8.18 赋值运算符应妥善处理参数就是自身对象时的情况</span>
 
 ID_this_selfJudgement&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9539,7 +9790,7 @@ C++ Core Guidelines C.62
 <br/>
 <br/>
 
-### <span id="ID_invalidWrite">▌R8.18 不应存在无效的写入操作</span>
+### <span id="ID_invalidWrite">▌R8.19 不应存在无效的写入操作</span>
 
 ID_invalidWrite&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9588,7 +9839,7 @@ int baz() {
 <br/>
 <br/>
 
-### <span id="ID_missingSideEffect">▌R8.19 不应存在没有副作用的语句</span>
+### <span id="ID_missingSideEffect">▌R8.20 不应存在没有副作用的语句</span>
 
 ID_missingSideEffect&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
@@ -9641,7 +9892,7 @@ MISRA C++ 2008 0-1-9
 <br/>
 <br/>
 
-### <span id="ID_unreachableCode">▌R8.20 不应存在得不到执行机会的代码</span>
+### <span id="ID_unreachableCode">▌R8.21 不应存在得不到执行机会的代码</span>
 
 ID_unreachableCode&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
@@ -9706,7 +9957,7 @@ MISRA C++ 2008 0-1-1
 <br/>
 <br/>
 
-### <span id="ID_notAllBranchReturn">▌R8.21 有返回值的函数其所有分枝都应有明确的返回值</span>
+### <span id="ID_notAllBranchReturn">▌R8.22 有返回值的函数其所有分枝都应有明确的返回值</span>
 
 ID_notAllBranchReturn&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
@@ -9754,7 +10005,7 @@ MISRA C++ 2008 8-4-3
 <br/>
 <br/>
 
-### <span id="ID_localAddressFlowOut">▌R8.22 不可返回局部对象的地址或引用</span>
+### <span id="ID_localAddressFlowOut">▌R8.23 不可返回局部对象的地址或引用</span>
 
 ID_localAddressFlowOut&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
@@ -9812,7 +10063,7 @@ C++ Core Guidelines F.43
 <br/>
 <br/>
 
-### <span id="ID_unsuitableCapture">▌R8.23 合理设置 lambda 表达式的捕获方式</span>
+### <span id="ID_unsuitableCapture">▌R8.24 合理设置 lambda 表达式的捕获方式</span>
 
 ID_unsuitableCapture&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9868,7 +10119,7 @@ C++ Core Guidelines F.54
 <br/>
 <br/>
 
-### <span id="ID_returnRValueReference">▌R8.24 函数返回值不应为右值引用</span>
+### <span id="ID_returnRValueReference">▌R8.25 函数返回值不应为右值引用</span>
 
 ID_returnRValueReference&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
@@ -9935,7 +10186,7 @@ C++ Core Guidelines F.45
 <br/>
 <br/>
 
-### <span id="ID_returnConstObject">▌R8.25 函数返回值不应为常量对象</span>
+### <span id="ID_returnConstObject">▌R8.26 函数返回值不应为常量对象</span>
 
 ID_returnConstObject&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
@@ -9976,7 +10227,7 @@ C++ Core Guidelines F.20
 <br/>
 <br/>
 
-### <span id="ID_returnSuperfluousConst">▌R8.26 函数返回值不应为基本类型的常量</span>
+### <span id="ID_returnSuperfluousConst">▌R8.27 函数返回值不应为基本类型的常量</span>
 
 ID_returnSuperfluousConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10014,7 +10265,7 @@ ISO/IEC 14882:2011 3.10(1)
 <br/>
 <br/>
 
-### <span id="ID_returnOdd">▌R8.27 被返回的表达式应与函数的返回类型相符</span>
+### <span id="ID_returnOdd">▌R8.28 被返回的表达式应与函数的返回类型相符</span>
 
 ID_returnOdd&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10040,7 +10291,7 @@ MISRA C++ 2008 4-10-1
 <br/>
 <br/>
 
-### <span id="ID_returnSameConst">▌R8.28 被返回的表达式不应为相同的常量</span>
+### <span id="ID_returnSameConst">▌R8.29 被返回的表达式不应为相同的常量</span>
 
 ID_returnSameConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10064,7 +10315,7 @@ bool foo(int a) {
 <br/>
 <br/>
 
-### <span id="ID_unsuitableReturn">▌R8.29 属性为 noreturn 的函数中不应出现 return 语句</span>
+### <span id="ID_unsuitableReturn">▌R8.30 属性为 noreturn 的函数中不应出现 return 语句</span>
 
 ID_unsuitableReturn&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10090,7 +10341,7 @@ ISO/IEC 14882:2011 7.6.3(2)-undefined
 <br/>
 <br/>
 
-### <span id="ID_unsuitableReturnType">▌R8.30 属性为 noreturn 的函数返回类型只应为 void</span>
+### <span id="ID_unsuitableReturnType">▌R8.31 属性为 noreturn 的函数返回类型只应为 void</span>
 
 ID_unsuitableReturnType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10114,7 +10365,7 @@ ISO/IEC 14882:2011 7.6.3(2)-undefined
 <br/>
 <br/>
 
-### <span id="ID_redundantJump">▌R8.31 不应出现多余的跳转语句</span>
+### <span id="ID_redundantJump">▌R8.32 不应出现多余的跳转语句</span>
 
 ID_redundantJump&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10146,7 +10397,7 @@ L:
 <br/>
 <br/>
 
-### <span id="ID_incompleteVAMacros">▌R8.32 va_start 或 va_copy 应配合 va_end 使用</span>
+### <span id="ID_incompleteVAMacros">▌R8.33 va_start 或 va_copy 应配合 va_end 使用</span>
 
 ID_incompleteVAMacros&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10177,7 +10428,7 @@ ISO/IEC 9899:2011 7.16.1.3(2)-undefined
 <br/>
 <br/>
 
-### <span id="ID_functionSpecialization">▌R8.33 函数模板不应被特化</span>
+### <span id="ID_functionSpecialization">▌R8.34 函数模板不应被特化</span>
 
 ID_functionSpecialization&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10225,7 +10476,7 @@ MISRA C++ 2008 14-8-1
 <br/>
 <br/>
 
-### <span id="ID_tooManyLabels">▌R8.34 函数的标签数量应在规定范围之内</span>
+### <span id="ID_tooManyLabels">▌R8.35 函数的标签数量应在规定范围之内</span>
 
 ID_tooManyLabels&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10256,7 +10507,7 @@ maxLabelCount：标签数量上限，超过则报出
 <br/>
 <br/>
 
-### <span id="ID_tooManyLines">▌R8.35 函数的行数应在规定范围之内</span>
+### <span id="ID_tooManyLines">▌R8.36 函数的行数应在规定范围之内</span>
 
 ID_tooManyLines&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10286,7 +10537,7 @@ C++ Core Guidelines F.3
 <br/>
 <br/>
 
-### <span id="ID_tooManyLambdaLines">▌R8.36 lambda 表达式的行数应在规定范围之内</span>
+### <span id="ID_tooManyLambdaLines">▌R8.37 lambda 表达式的行数应在规定范围之内</span>
 
 ID_tooManyLambdaLines&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10319,7 +10570,7 @@ maxLambdaLineCount：lambda 表达式行数上限，超过则报出
 <br/>
 <br/>
 
-### <span id="ID_tooManyParams">▌R8.37 函数参数的数量应在规定范围之内</span>
+### <span id="ID_tooManyParams">▌R8.38 函数参数的数量应在规定范围之内</span>
 
 ID_tooManyParams&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10367,7 +10618,7 @@ C++ Core Guidelines I.23
 <br/>
 <br/>
 
-### <span id="ID_complexInlineFunction">▌R8.38 不应定义过于复杂的内联函数</span>
+### <span id="ID_complexInlineFunction">▌R8.39 不应定义过于复杂的内联函数</span>
 
 ID_complexInlineFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
@@ -10392,7 +10643,7 @@ C++ Core Guidelines F.5
 <br/>
 <br/>
 
-### <span id="ID_forbidGotoBlocks">▌R8.39 禁止 goto 语句向嵌套的或无包含关系的作用域跳转</span>
+### <span id="ID_forbidGotoBlocks">▌R8.40 禁止 goto 语句向嵌套的或无包含关系的作用域跳转</span>
 
 ID_forbidGotoBlocks&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function warning
 
@@ -10436,7 +10687,7 @@ MISRA C++ 2008 6-6-1
 <br/>
 <br/>
 
-### <span id="ID_forbidGotoBack">▌R8.40 禁止 goto 语句向前跳转</span>
+### <span id="ID_forbidGotoBack">▌R8.41 禁止 goto 语句向前跳转</span>
 
 ID_forbidGotoBack&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function suggestion
 
@@ -10474,7 +10725,7 @@ MISRA C++ 2008 6-6-2
 <br/>
 <br/>
 
-### <span id="ID_forbidGoto">▌R8.41 禁用 goto 语句</span>
+### <span id="ID_forbidGoto">▌R8.42 禁用 goto 语句</span>
 
 ID_forbidGoto&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function suggestion
 
@@ -10546,7 +10797,7 @@ MISRA C 2012 15.1
 <br/>
 <br/>
 
-### <span id="ID_forbidLongjmp">▌R8.42 禁用 setjmp、longjmp</span>
+### <span id="ID_forbidLongjmp">▌R8.43 禁用 setjmp、longjmp</span>
 
 ID_forbidLongjmp&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function warning
 
@@ -10592,7 +10843,7 @@ C++ Core Guidelines SL.C.1
 <br/>
 <br/>
 
-### <span id="ID_recursion">▌R8.43 避免递归实现</span>
+### <span id="ID_recursion">▌R8.44 避免递归实现</span>
 
 ID_recursion&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10629,7 +10880,7 @@ MISRA C++ 2008 7-5-4
 <br/>
 <br/>
 
-### <span id="ID_functionRepetition">▌R8.44 不应存在重复的函数实现</span>
+### <span id="ID_functionRepetition">▌R8.45 不应存在重复的函数实现</span>
 
 ID_functionRepetition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
@@ -13475,6 +13726,7 @@ int64_t c = static_cast<int64_t>(a) * b;  // OK
 #### 依据
 ISO/IEC 9899:2011 6.5(5)-undefined  
 ISO/IEC 9899:2011 6.2.5(9)  
+ISO/IEC 14882:2011 5(4)-undefined  
 <br/>
 
 #### 参考
@@ -14033,6 +14285,7 @@ void foo(const A& a) {
 <br/>
 
 #### 依据
+ISO/IEC 14882:2003 5.2.2(7)-undefined  
 ISO/IEC 14882:2011 5.2.2(7)-implementation  
 <br/>
 
@@ -14210,6 +14463,10 @@ delete[] p;
 
 #### 相关
 ID_missingResetNull  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2011 12.4(15)-undefined  
 <br/>
 <br/>
 
@@ -15653,7 +15910,7 @@ ID_unsuitableReinterpretCast
 <br/>
 
 #### 依据
-ISO/IEC 14882:2003 5.2.10(7)-unspecified  
+ISO/IEC 14882:2011 4.1(1)-undefined  
 ISO/IEC 14882:2011 5.2.10(7)-unspecified  
 <br/>
 
@@ -16131,7 +16388,9 @@ ID_arrayIndexOverflow&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: buffer error
 
 <hr/>
 
-数组下标不在数组声明的大小范围之内，意味着内存读写错误，会导致难以控制的后果。  
+数组下标不在数组大小范围之内，意味着逻辑错误，会导致标准未定义的行为。  
+  
+通过 \[ \]、\+、\-、\+\+、\-\- 等运算符完成的数组元素定位均受本规则约束。  
   
 示例：
 ```
@@ -16170,6 +16429,10 @@ const char* bar() {
 
 #### 相关
 ID_bufferOverflow  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2011 5.7(5)-undefined  
 <br/>
 
 #### 参考
@@ -16405,8 +16668,8 @@ void bar(T* p) {
 <br/>
 
 #### 依据
-ISO/IEC 9899:1999 6.5.3.2(4)-undefined  
 ISO/IEC 9899:2011 6.5.3.2(4)-undefined  
+ISO/IEC 14882:2011 8.3.2(5)-undefined  
 <br/>
 
 #### 参考
@@ -16450,8 +16713,8 @@ bool fun2(T* p) {
 <br/>
 
 #### 依据
-ISO/IEC 9899:1999 6.5.3.2(4)-undefined  
 ISO/IEC 9899:2011 6.5.3.2(4)-undefined  
+ISO/IEC 14882:2011 8.3.2(5)-undefined  
 <br/>
 
 #### 参考
@@ -16709,6 +16972,8 @@ ID_zeroAsPtrValue&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: pointer suggestion
 
 不应使用常数 0 对指针赋值，在 C\+\+ 代码中应使用 nullptr，在 C 代码中应使用 NULL，否则易出现类型转换相关的错误，且不利于阅读。  
   
+注意，空指针是表示没有指向任何对象的指针，其具体值是由实现定义的，在某些系统中 0 也可能是有效的地址。  
+  
 示例：
 ```
 int foo(int* p);
@@ -16722,6 +16987,11 @@ int* p = nullptr;      // Compliant
 int i = foo(nullptr);  // Compliant
 ```
 <br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 7.19(3)-implementation  
+ISO/IEC 14882:2011 2.14.7(1)  
 <br/>
 
 #### 参考
@@ -16837,11 +17107,6 @@ cout << p->getX() << '\n';
 ```
 假设 foo 函数不应返回空指针，而某个错误导致其返回了空指针，程序本应崩溃，而 getX 函数却逃避了崩溃，这非但不能真正地解决问题，反而使问题难以定位，使程序难以调试，大大降低了可维护性。
 <br/>
-<br/>
-
-#### 依据
-ISO/IEC 14882:2003 4.1(1)  
-ISO/IEC 14882:2011 4.1(1)  
 <br/>
 
 #### 参考
@@ -17217,7 +17482,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 417 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
+&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 423 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
 
 &emsp;&emsp;此致
 
