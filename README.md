@@ -4,7 +4,7 @@
   
 # 代码安全规则集合
 
-[![Version](https://img.shields.io/badge/v-1.1-blue)](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md)
+[![Version](https://img.shields.io/badge/v-1.2-blue)](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md)
 [![License](https://img.shields.io/badge/license-Apache--2.0-brightgreen)](https://github.com/Qihoo360/safe-rules/blob/main/LICENSE)
 
 </div>
@@ -14,8 +14,9 @@
 
 &emsp;&emsp;目前主要针对 C 和 C++ 语言，提供：  
 
-&emsp;&emsp;[c-cpp-rules.md](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md)：C/C++ 规则详细说明文档  
-&emsp;&emsp;[c-cpp-rules.json](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.json)：C/C++ 规则结构化 json 文档  
+&emsp;&emsp; [c-cpp-rules.md](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md)：C/C++ 规则详细说明文档  
+&emsp;&emsp; [c-cpp-rules.json](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.json)：C/C++ 规则结构化 json 文档  
+&emsp;&emsp; [cpp-ub-list.md](https://github.com/Qihoo360/safe-rules/blob/main/cpp-ub-list.md)：C++ 未定义行为列表与 ISO 标准导读
 
 &emsp;&emsp;面向软件开发、测试及相关管理人员，适用于桌面、服务端及嵌入式软件系统。
 
