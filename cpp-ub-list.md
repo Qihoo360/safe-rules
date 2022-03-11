@@ -21,7 +21,7 @@
 | 9 | [窄字符串与宽字符串连接](#_9) | [`03-2.13.4(3)`](#_9) |
 | 10 | [违反 One Definition Rule](#_10) | [`11-3.2(5)`](#_10) |
 | 11 | [具有静态或线程存储期的对象在析构函数中调用 std::exit 函数](#_11) | [`11-3.6.1(4)`](#_11) |
-| 12 | [函数内具有静态或线程存储期的对象已析构，之后该函数又被调用并引用到之前已析构的对象](#_12) | [`11-3.6.3(2)`](#_12) |
+| 12 | [函数内具有静态或线程存储期的对象已析构，之后该函数又被调用并引用到已析构的对象](#_12) | [`11-3.6.3(2)`](#_12) |
 | 13 | [在对象析构之后使用对象](#_13) | [`11-3.6.3(4)`](#_13) |
 | 14 | [指针指向长度为 0 的内存空间并被解引用](#_14) | [`11-3.7.4.1(2)`](#_14) |
 | 15 | [内存回收函数抛出异常](#_15) | [`11-3.7.4.2(3)`](#_15) |
@@ -72,32 +72,33 @@
 | 60 | [基类对象构造完毕之前调用成员函数](#_60) | [`11-12.6.2(13)`](#_60) |
 | 61 | [对成员或基类对象的不合理引用](#_61) | [`11-12.7(1)`](#_61) |
 | 62 | [将对象指针转为其基类对象的指针时，基类对象尚未开始构造或已结束析构](#_62) | [`11-12.7(3)`](#_62) |
-| 63 | [通过 . 或 \-> 调用正在构造或析构的对象的虚函数，而且该对象的类型不符合要求](#_63) | [`11-12.7(4)`](#_63) |
-| 64 | [typeid 作用于正在构造或析构的对象，而且该对象的类型不符合要求](#_64) | [`11-12.7(5)`](#_64) |
-| 65 | [需要无限递归的模版实例化](#_65) | [`11-14.7.1(15)`](#_65) |
-| 66 | [构造或析构函数在 function\-try\-block 的 handler 中访问非静态成员](#_66) | [`11-15.2(10)`](#_66) |
-| 67 | [有返回值的函数在 function\-try\-block 的 handler 中没有正确返回](#_67) | [`11-15.3(15)`](#_67) |
-| 68 | [在 \#if、 \#elif 的条件中，由宏展开产生了 defined 表达式，或 defined 关键字格式不正确](#_68) | [`11-16.1(4)`](#_68) |
-| 69 | [\#include 指令经宏展开后不满足标准格式](#_69) | [`11-16.2(4)`](#_69) |
-| 70 | [宏的实参列表中出现预处理指令](#_70) | [`11-16.3(11)`](#_70) |
-| 71 | [预处理运算符 \# 的结果不是有效的字符串](#_71) | [`11-16.3.2(2)`](#_71) |
-| 72 | [预处理运算符 \#\# 的结果不是有效的符号](#_72) | [`11-16.3.3(3)`](#_72) |
-| 73 | [\#line 指定的行号为 0 或大于规定值](#_73) | [`11-16.4(3)`](#_73) |
-| 74 | [\#line 指令不符合标准格式](#_74) | [`11-16.4(5)`](#_74) |
-| 75 | [用 \#define 定义或用 \#undef 取消定义具有保留意义的名称](#_75) | [`11-16.8(4)`](#_75) |
-| 76 | [供语言机制调用的函数不符合条件](#_76) | [`11-17.3.21`](#_76) |
-| 77 | [程序实现了应由标准库提供的功能](#_77) | [`11-17.3.22`](#_77) |
-| 78 | [未经许可，向 std 命名空间添加声明或定义](#_78) | [`11-17.6.4.2.1(1)`](#_78) |
-| 79 | [对标准库，特化模板类成员函数，特化模板类成员模板函数，特化、偏特化成员类模版](#_79) | [`11-17.6.4.2.1(2)`](#_79) |
-| 80 | [未经许可，向 posix 命名空间添加声明或定义](#_80) | [`11-17.6.4.2.2(1)`](#_80) |
-| 81 | [声明或定义标准库保留名称](#_81) | [`11-17.6.4.3(2)`](#_81) |
-| 82 | [编译器未提供标准头文件，但编译时引入了非标准同名头文件](#_82) | [`11-17.6.4.4(1)`](#_82) |
-| 83 | [为标准库函数提供不符合要求的参数](#_83) | [`11-17.6.4.9(1)`](#_83) |
-| 84 | [多线程调用标准库函数造成 data race](#_84) | [`11-17.6.4.10(1)`](#_84) |
-| 85 | [违反标准库函数要求的前置条件，除非标准库函数声明了这种情况会抛出异常](#_85) | [`11-17.6.4.11(1)`](#_85) |
-| 86 | [offsetof 用于非 standard layout 类型，或用于计算静态成员以及成员函数的偏移量](#_86) | [`11-18.2(4)`](#_86) |
-| 87 | [可变参数列表省略号左侧的形式参数为函数、数组或引用](#_87) | [`11-18.10(3)`](#_87) |
-| 88 | [longjmp 跳转使应被执行的析构函数未被执行](#_88) | [`11-18.10(4)`](#_88) |
+| 63 | [正在构造或析构的对象通过 . 或 \-> 调用虚函数，而且该对象与当前构造或析构函数不属于同一个类或基类](#_63) | [`11-12.7(4)`](#_63) |
+| 64 | [typeid 作用于正在构造或析构的对象，而且该对象与当前构造或析构函数不属于同一个类或基类](#_64) | [`11-12.7(5)`](#_64) |
+| 65 | [dynamic\_cast 作用于正在构造或析构的对象，而且该对象与当前构造或析构函数不属于同一个类或基类](#_65) | [`11-12.7(6)`](#_65) |
+| 66 | [需要无限递归的模版实例化](#_66) | [`11-14.7.1(15)`](#_66) |
+| 67 | [构造或析构函数在 function\-try\-block 的 handler 中访问非静态成员](#_67) | [`11-15.2(10)`](#_67) |
+| 68 | [有返回值的函数在 function\-try\-block 的 handler 中没有正确返回](#_68) | [`11-15.3(15)`](#_68) |
+| 69 | [在 \#if、 \#elif 的条件中，由宏展开产生了 defined 表达式，或 defined 关键字格式不正确](#_69) | [`11-16.1(4)`](#_69) |
+| 70 | [\#include 指令经宏展开后不满足标准格式](#_70) | [`11-16.2(4)`](#_70) |
+| 71 | [宏的实参列表中出现预处理指令](#_71) | [`11-16.3(11)`](#_71) |
+| 72 | [预处理运算符 \# 的结果不是有效的字符串](#_72) | [`11-16.3.2(2)`](#_72) |
+| 73 | [预处理运算符 \#\# 的结果不是有效的符号](#_73) | [`11-16.3.3(3)`](#_73) |
+| 74 | [\#line 指定的行号为 0 或大于规定值](#_74) | [`11-16.4(3)`](#_74) |
+| 75 | [\#line 指令不符合标准格式](#_75) | [`11-16.4(5)`](#_75) |
+| 76 | [用 \#define 定义或用 \#undef 取消定义具有保留意义的名称](#_76) | [`11-16.8(4)`](#_76) |
+| 77 | [供语言机制调用的函数不符合条件](#_77) | [`11-17.3.21`](#_77) |
+| 78 | [程序实现了应由标准库提供的功能](#_78) | [`11-17.3.22`](#_78) |
+| 79 | [未经许可，向 std 命名空间添加声明或定义](#_79) | [`11-17.6.4.2.1(1)`](#_79) |
+| 80 | [对标准库，特化模板类成员函数，特化模板类成员模板函数，特化、偏特化成员类模版](#_80) | [`11-17.6.4.2.1(2)`](#_80) |
+| 81 | [未经许可，向 posix 命名空间添加声明或定义](#_81) | [`11-17.6.4.2.2(1)`](#_81) |
+| 82 | [声明或定义标准库保留名称](#_82) | [`11-17.6.4.3(2)`](#_82) |
+| 83 | [编译器未提供标准头文件，但编译时引入了非标准同名头文件](#_83) | [`11-17.6.4.4(1)`](#_83) |
+| 84 | [为标准库函数提供不符合要求的参数](#_84) | [`11-17.6.4.9(1)`](#_84) |
+| 85 | [多线程调用标准库函数造成 data race](#_85) | [`11-17.6.4.10(1)`](#_85) |
+| 86 | [违反标准库函数要求的前置条件，除非标准库函数声明了这种情况会抛出异常](#_86) | [`11-17.6.4.11(1)`](#_86) |
+| 87 | [offsetof 用于非 standard layout 类型，或用于计算静态成员以及成员函数的偏移量](#_87) | [`11-18.2(4)`](#_87) |
+| 88 | [可变参数列表省略号左侧的形式参数为函数、数组或引用](#_88) | [`11-18.10(3)`](#_88) |
+| 89 | [longjmp 跳转使应被执行的析构函数未被执行](#_89) | [`11-18.10(4)`](#_89) |
 
 <br/>
 <br/>
@@ -116,7 +117,9 @@ auto s = "\u54\
 auto \u54\
 0D = 'a';          // Undefined behavior
 ```
-例中字符串和变量名与下一行连接后产生了通用字符名称，会导致未定义的行为。
+例中字符串和变量名与下一行连接后产生了通用字符名称。  
+  
+这种代码和预处理过程存在矛盾，可能不会通过编译，也可能不会造成实际问题，但一定不具备可移植性。
 <br/>
 <br/>
 
@@ -168,7 +171,6 @@ ISO/IEC 14882:2003 2.1(2)-undefined
 
 int M(\u54, 0d) = 123;    // Undefined behavior
 ```
-示例代码意在连接 \\u54 和 0d，定义名为 \\u540d 的变量，但会导致未定义的行为。
 <br/>
 <br/>
 
@@ -187,13 +189,13 @@ ISO/IEC 14882:2011 2.2(4)-undefined
   
 示例：
 ```
-auto a = "abc\
+auto x = "abc\
 def";                       // OK
 
-auto b = "abc               // Undefined behavior
+auto y = "abc               // Undefined behavior
 def";
 ```
-例中第一个字符串在一个逻辑行中，第二个字符串常量被写到了两个逻辑行中，会导致未定义的行为。
+例中第一个字符串在一个逻辑行中，第二个字符串被写到了两个逻辑行中。
 <br/>
 <br/>
 
@@ -243,7 +245,7 @@ ISO/IEC 14882:2011 2.9(2)-implementation
 ```
 int a = 0xaaaabbbbccccddddeeeeffff;   // Undefined behavior in C++03
 ```
-例中字面整数常量过大，这种情况在 C\+\+03 中是未定义的，在 C\+\+11 中是 ill formed，不会通过编译。
+例中字面整数常量过大，这种情况在 C\+\+03 中是未定义的，在 C\+\+11 中是 ill formed，不应通过编译。
 <br/>
 <br/>
 
@@ -262,7 +264,7 @@ ISO/IEC 14882:2011 2.14.2(3)-illformed
 ```
 const char* p = "C:\Files\x.cpp";    // Undefined behavior in C++03
 ```
-例中 \\F、\\x 均非标准转义字符，这种情况在 C\+\+03 中是未定义的，在 C\+\+11 中则由实现定义。
+例中 \\F 不是标准转义字符，\\x 不符合标准转义字符的格式，这种情况在 C\+\+03 中是未定义的，在 C\+\+11 中则由实现定义。
 <br/>
 <br/>
 
@@ -283,8 +285,10 @@ ISO/IEC 14882:2011 2.14.3(3)-implementation
 
 示例：
 ```
-*((char*)"oops") = 'O';  // Undefined behaivor
+*((char*)"oops") = 'O';   // Undefined behaivor, may crash
+cout << "oops";           // If it doesn't crash, this might output ‘Oops’
 ```
+修改字面常量（literal）是一种逻辑错误。多数通用系统会在运行时保护常量数据，相关修改会造成崩溃，在没有这种保护机制的系统中，字符串常量可能会被修改，但也可能会影响到其他相同的字符串常量，因为相同的字符串常量可能共用相同的存储空间。
 <br/>
 <br/>
 
@@ -354,7 +358,7 @@ ISO/IEC 14882:2011 3.2(5)-undefined
 ### <span id="_11">11. 具有静态或线程存储期的对象在析构函数中调用 std::exit 函数</span>
 <br/>
 
-程序调用 exit 函数后，具有静态或线程存储期的对象开始析构，而这种对象的析构函数再调用 exit 函数会导致未定义的行为。  
+程序调用 exit 函数后，全局、静态或 thread\_local 对象开始析构，而这种对象的析构函数再调用 exit 函数会导致未定义的行为。  
   
 示例：
 ```
@@ -384,7 +388,7 @@ ISO/IEC 14882:2011 3.6.1(4)-undefined
 <br/>
 <br/>
 
-### <span id="_12">12. 函数内具有静态或线程存储期的对象已析构，之后该函数又被调用并引用到之前已析构的对象</span>
+### <span id="_12">12. 函数内具有静态或线程存储期的对象已析构，之后该函数又被调用并引用到已析构的对象</span>
 <br/>
 
 示例：
@@ -535,11 +539,13 @@ ISO/IEC 14882:2011 3.7.4.2(3)-undefined
 
 示例：
 ```
-int* p = new int;
-delete p;
-*p = 123;   // Undefined behavior
+int* p = new int(1);
+
+delete p;      // Well-defined
+delete p;      // Undefined behavior
+cout << *p;    // Undefined behavior
 ```
-例中指针 p 被释放之后又被使用，导致未定义的行为。
+指针指向的对象被回收后，指针的值和指针曾指向的对象均失败，继续访问会导致未定义的行为。
 <br/>
 <br/>
 
@@ -550,6 +556,7 @@ ISO/IEC 14882:2011 3.7.4.2(4)-undefined
 
 #### 规则
 [ID_illAccess](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_illAccess)  
+[ID_doubleFree](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_doubleFree)  
 [ID_danglingDeref](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_danglingDeref)  
 <br/>
 
@@ -597,19 +604,22 @@ ISO/IEC 14882:2011 3.8(4)-undefined
   
 示例：
 ```
-struct B {
-    virtual void foo();
-    virtual void bar();
+struct T {
+    T();
+   ~T();
+    void fun();
 };
 
-struct D: B {
-    void bar() override;
-};
+T* p = (T*)malloc(sizeof(T));
+p->fun();   // Undefined behavior
 
-void B::foo() {
-    new (this) D;    // Ends the lifetime of *this
-    this->bar();     // Undefined behavior
-}
+new (p) T();
+p->fun();   // Well-defined
+
+p->~T();
+p->fun();   // Undefined behavior
+
+free(p);
 ```
 <br/>
 <br/>
@@ -674,7 +684,7 @@ void foo() {
     new (&a) B;
 }   // Undefined behavior
 ```
-例中局部对象 a 的空间被 B 类型的对象占据，在 foo 函数返回前仍会调用 A 的析构函数，导致未定义的行为。
+例中局部对象 a 的空间被不相关类型的对象占据，在 foo 函数返回前仍会调用 A 的析构函数，导致未定义的行为。
 <br/>
 <br/>
 
@@ -717,7 +727,7 @@ ISO/IEC 14882:2011 3.8(9)-undefined
 ### <span id="_23">23. 通过 glvalue 访问对象，但 glvalue 的类型不符合要求</span>
 <br/>
 
-只应通过以下类型的 glvalue 访问对象：  
+只应通过以下类型的 glvalue 访问对象，否则导致未定义的行为：  
  - 对象的动态类型  
  - 用 const 或 volatile 限定的对象动态类型  
  - 与对象动态类型相似的类型（参见 ISO/IEC 14882:2011 4.4）  
@@ -727,7 +737,18 @@ ISO/IEC 14882:2011 3.8(9)-undefined
  - 对象动态类型的基类类型（也包括被 const 或 volatile 限定的基类类型）  
  - char 或 unsigned char  
   
-否则导致未定义的行为。
+示例：
+```
+int i = 0;
+
+cout << i;                 // Well-defined
+cout << (const int&)i;     // Well-defined
+cout << (unsigned int&)i;  // Well-defined
+cout << (char&)i;          // Well-defined
+
+cout << (long&)i;          // Undefined behavior
+cout << (float&&)i;        // Undefined behavior
+```
 <br/>
 <br/>
 
@@ -750,12 +771,12 @@ struct A { int i; };
 struct B { int i; };
 
 int foo(A& a) {
-    return reinterpret_cast<B&>(a).i;   // Undefined behavior
+    return ((B&)a).i;   // Undefined behavior, unrelated type conversion
 }
 
 int foo() {
     int i;
-    return i;   // Undefined behavior
+    return i;   // Undefined behavior, ‘i’ is not initialized
 }
 ```
 <br/>
@@ -871,7 +892,7 @@ ISO/IEC 14882:2003 5(4)-undefined
 
 示例：
 ```
-uint64_t u64 = UINT32_MAX * UINT32_MAX;  // Undefined behavior
+uint64_t u64 = UINT32_MAX * UINT32_MAX;  // Undefined behavior, overflow
 ```
 <br/>
 <br/>
@@ -1558,10 +1579,26 @@ ISO/IEC 14882:2011 7.6.3(2)-undefined
 ### <span id="_55">55. 空指针解引用</span>
 <br/>
 
+空指针表示没有指向任何对象的指针，通过空指针访问对象属于逻辑错误。  
+  
 示例：
 ```
-*((int*)nullptr) = 'UB';  // Undefined behavior
+struct T {
+    int i;
+
+    int foo() { return i; }
+    int bar() { return 0; }
+
+    static int baz();
+};
+
+T* p = nullptr;
+
+p->foo();   // Undefined behavior
+p->bar();   // Undefined behavior
+p->baz();   // Well-defined, ‘baz’ is a static member
 ```
+例中通过空指针调用对象的非静态成员函数会导致未定义的行为，即使成员函数没有引用成员数据。通过空指针调用静态成员函数不属于访问对象，所以这种情况不属于逻辑错误，但并不是好的编程风格。
 <br/>
 <br/>
 
@@ -1765,9 +1802,12 @@ ISO/IEC 14882:2011 12.7(1)-undefined
 
 示例：
 ```
-struct A {};
+struct A {
+    ....
+};
 
 struct B: A {
+    B();
     B(A*);
 };
 
@@ -1801,10 +1841,37 @@ ISO/IEC 14882:2011 12.7(3)-undefined
 <br/>
 <br/>
 
-### <span id="_63">63. 通过 . 或 \-> 调用正在构造或析构的对象的虚函数，而且该对象的类型不符合要求</span>
+### <span id="_63">63. 正在构造或析构的对象通过 . 或 \-> 调用虚函数，而且该对象与当前构造或析构函数不属于同一个类或基类</span>
 <br/>
 
-如果该对象与当前构造或析构函数不属于同一个类或基类，会导致未定义的行为。
+示例：
+```
+struct V {
+    virtual void foo();
+    virtual void bar();
+};
+
+struct A: virtual V {
+    void foo() override;
+};
+
+struct B: virtual V {
+    B(V*, A*);
+    void bar() override;
+};
+
+struct C: A, B {
+    C(): B((A*)this, this) {
+    }
+    void foo() override;
+    void bar() override;
+};
+
+B::B(V* v, A* a) {
+    v->bar();       // Well-defined, V is the base of B
+    a->foo();       // Undefined behavior, A is not a base of B
+}
+```
 <br/>
 <br/>
 
@@ -1816,10 +1883,27 @@ ISO/IEC 14882:2011 12.7(4)-undefined
 <br/>
 <br/>
 
-### <span id="_64">64. typeid 作用于正在构造或析构的对象，而且该对象的类型不符合要求</span>
+### <span id="_64">64. typeid 作用于正在构造或析构的对象，而且该对象与当前构造或析构函数不属于同一个类或基类</span>
 <br/>
 
-如果该对象与当前构造或析构函数不属于同一个类或基类，会导致未定义的行为。
+示例：
+```
+struct V {
+    virtual void foo();
+};
+
+struct A: virtual V {};
+struct B: virtual V { B(V*, A*); };
+
+struct C: A, B {
+    C(): B((A*)this, this) {}
+};
+
+B::B(V* v, A* a) {
+    typeid(*v);      // Well-defined, V is the base of B
+    typeid(*a);      // undefined behavior, A is not a base of B
+}
+```
 <br/>
 <br/>
 
@@ -1831,7 +1915,39 @@ ISO/IEC 14882:2011 12.7(5)-undefined
 <br/>
 <br/>
 
-### <span id="_65">65. 需要无限递归的模版实例化</span>
+### <span id="_65">65. dynamic\_cast 作用于正在构造或析构的对象，而且该对象与当前构造或析构函数不属于同一个类或基类</span>
+<br/>
+
+示例：
+```
+struct V {
+    virtual void foo();
+};
+
+struct A: virtual V {};
+struct B: virtual V { B(V*, A*); };
+
+struct C: A, B {
+    C(): B((A*)this, this) {}
+};
+
+B::B(V* v, A* a) {
+    dynamic_cast<B*>(v);  // Well-defined, V is the base of B
+    dynamic_cast<B*>(a);  // Undefined behavior, A is not a base of B
+}
+```
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 12.7(5)-undefined  
+ISO/IEC 14882:2011 12.7(6)-undefined  
+<br/>
+
+<br/>
+<br/>
+
+### <span id="_66">66. 需要无限递归的模版实例化</span>
 <br/>
 
 示例：
@@ -1840,11 +1956,10 @@ template <class T>
 class A
 {
     A<T>* p;   // OK
-    A<T*> a;   // Implicit generation of X<T> requires
-               // the implicit instantiation of X<T*> which requires
-               // the implicit instantiation of X<T**> which requires ....
+    A<T*> a;   // Undefined behavior
 };
 ```
+如果实例化A，需要实现化A<T\*>，如果实例化A<T\*>，需要实现化A<T\*\*>，以此类推，形成了无限递归。
 <br/>
 <br/>
 
@@ -1856,7 +1971,7 @@ ISO/IEC 14882:2011 14.7.1(15)-undefined
 <br/>
 <br/>
 
-### <span id="_66">66. 构造或析构函数在 function\-try\-block 的 handler 中访问非静态成员</span>
+### <span id="_67">67. 构造或析构函数在 function\-try\-block 的 handler 中访问非静态成员</span>
 <br/>
 
 示例：
@@ -1885,7 +2000,7 @@ ISO/IEC 14882:2011 15.2(10)-undefined
 <br/>
 <br/>
 
-### <span id="_67">67. 有返回值的函数在 function\-try\-block 的 handler 中没有正确返回</span>
+### <span id="_68">68. 有返回值的函数在 function\-try\-block 的 handler 中没有正确返回</span>
 <br/>
 
 示例：
@@ -1912,7 +2027,7 @@ ISO/IEC 14882:2011 15.3(15)-undefined
 <br/>
 <br/>
 
-### <span id="_68">68. 在 \#if、 \#elif 的条件中，由宏展开产生了 defined 表达式，或 defined 关键字格式不正确</span>
+### <span id="_69">69. 在 \#if、 \#elif 的条件中，由宏展开产生了 defined 表达式，或 defined 关键字格式不正确</span>
 <br/>
 
 <br/>
@@ -1931,7 +2046,7 @@ ISO/IEC 14882:2011 16.1(4)-undefined
 <br/>
 <br/>
 
-### <span id="_69">69. \#include 指令经宏展开后不满足标准格式</span>
+### <span id="_70">70. \#include 指令经宏展开后不满足标准格式</span>
 <br/>
 
 <br/>
@@ -1949,7 +2064,7 @@ ISO/IEC 14882:2011 16.2(4)-undefined
 <br/>
 <br/>
 
-### <span id="_70">70. 宏的实参列表中出现预处理指令</span>
+### <span id="_71">71. 宏的实参列表中出现预处理指令</span>
 <br/>
 
 示例：
@@ -1980,7 +2095,7 @@ ISO/IEC 14882:2011 16.3(11)-undefined
 <br/>
 <br/>
 
-### <span id="_71">71. 预处理运算符 \# 的结果不是有效的字符串</span>
+### <span id="_72">72. 预处理运算符 \# 的结果不是有效的字符串</span>
 <br/>
 
 <br/>
@@ -1998,7 +2113,7 @@ ISO/IEC 14882:2011 16.3.2(2)-undefined
 <br/>
 <br/>
 
-### <span id="_72">72. 预处理运算符 \#\# 的结果不是有效的符号</span>
+### <span id="_73">73. 预处理运算符 \#\# 的结果不是有效的符号</span>
 <br/>
 
 示例：
@@ -2019,7 +2134,7 @@ ISO/IEC 14882:2011 16.3.3(3)-undefined
 <br/>
 <br/>
 
-### <span id="_73">73. \#line 指定的行号为 0 或大于规定值</span>
+### <span id="_74">74. \#line 指定的行号为 0 或大于规定值</span>
 <br/>
 
 C\+\+03 规定指定的行号不可大于 32767，C\+\+11 规定不可大于 2147483647  
@@ -2044,7 +2159,7 @@ ISO/IEC 14882:2011 16.4(3)-undefined
 <br/>
 <br/>
 
-### <span id="_74">74. \#line 指令不符合标准格式</span>
+### <span id="_75">75. \#line 指令不符合标准格式</span>
 <br/>
 
 \#line 后只应为整数常量或整数常量和文件名称字符串，其他形式均会导致未定义的行为。  
@@ -2069,7 +2184,7 @@ ISO/IEC 14882:2011 16.4(5)-undefined
 <br/>
 <br/>
 
-### <span id="_75">75. 用 \#define 定义或用 \#undef 取消定义具有保留意义的名称</span>
+### <span id="_76">76. 用 \#define 定义或用 \#undef 取消定义具有保留意义的名称</span>
 <br/>
 
 如 \_\_LINE\_\_、\_\_FILE\_\_、\_\_DATE\_\_、\_\_TIME\_\_、\_\_STDC\_\_、\_\_cplusplus、defined 等名称被定义或取消定义。  
@@ -2095,7 +2210,7 @@ ISO/IEC 14882:2011 16.8(4)-undefined
 <br/>
 <br/>
 
-### <span id="_76">76. 供语言机制调用的函数不符合条件</span>
+### <span id="_77">77. 供语言机制调用的函数不符合条件</span>
 <br/>
 
 如 replacement functions 或 handler functions 不符合条件（required behavior），会导致未定义的行为。  
@@ -2133,7 +2248,7 @@ ISO/IEC 14882:2011 17.3.21-undefined
 <br/>
 <br/>
 
-### <span id="_77">77. 程序实现了应由标准库提供的功能</span>
+### <span id="_78">78. 程序实现了应由标准库提供的功能</span>
 <br/>
 
 <br/>
@@ -2147,7 +2262,7 @@ ISO/IEC 14882:2011 17.3.22-undefined
 <br/>
 <br/>
 
-### <span id="_78">78. 未经许可，向 std 命名空间添加声明或定义</span>
+### <span id="_79">79. 未经许可，向 std 命名空间添加声明或定义</span>
 <br/>
 
 <br/>
@@ -2164,7 +2279,7 @@ ISO/IEC 14882:2011 17.6.4.2.1(1)-undefined
 <br/>
 <br/>
 
-### <span id="_79">79. 对标准库，特化模板类成员函数，特化模板类成员模板函数，特化、偏特化成员类模版</span>
+### <span id="_80">80. 对标准库，特化模板类成员函数，特化模板类成员模板函数，特化、偏特化成员类模版</span>
 <br/>
 
 <br/>
@@ -2177,7 +2292,7 @@ ISO/IEC 14882:2011 17.6.4.2.1(2)-undefined
 <br/>
 <br/>
 
-### <span id="_80">80. 未经许可，向 posix 命名空间添加声明或定义</span>
+### <span id="_81">81. 未经许可，向 posix 命名空间添加声明或定义</span>
 <br/>
 
 <br/>
@@ -2190,7 +2305,7 @@ ISO/IEC 14882:2011 17.6.4.2.2(1)-undefined
 <br/>
 <br/>
 
-### <span id="_81">81. 声明或定义标准库保留名称</span>
+### <span id="_82">82. 声明或定义标准库保留名称</span>
 <br/>
 
 示例：
@@ -2214,7 +2329,7 @@ ISO/IEC 14882:2011 17.6.4.3(2)-undefined
 <br/>
 <br/>
 
-### <span id="_82">82. 编译器未提供标准头文件，但编译时引入了非标准同名头文件</span>
+### <span id="_83">83. 编译器未提供标准头文件，但编译时引入了非标准同名头文件</span>
 <br/>
 
 <br/>
@@ -2228,7 +2343,7 @@ ISO/IEC 14882:2011 17.6.4.4(1)-undefined
 <br/>
 <br/>
 
-### <span id="_83">83. 为标准库函数提供不符合要求的参数</span>
+### <span id="_84">84. 为标准库函数提供不符合要求的参数</span>
 <br/>
 
 <br/>
@@ -2242,7 +2357,7 @@ ISO/IEC 14882:2011 17.6.4.9(1)-undefined
 <br/>
 <br/>
 
-### <span id="_84">84. 多线程调用标准库函数造成 data race</span>
+### <span id="_85">85. 多线程调用标准库函数造成 data race</span>
 <br/>
 
 <br/>
@@ -2255,7 +2370,7 @@ ISO/IEC 14882:2011 17.6.4.10(1)-undefined
 <br/>
 <br/>
 
-### <span id="_85">85. 违反标准库函数要求的前置条件，除非标准库函数声明了这种情况会抛出异常</span>
+### <span id="_86">86. 违反标准库函数要求的前置条件，除非标准库函数声明了这种情况会抛出异常</span>
 <br/>
 
 示例：
@@ -2276,7 +2391,7 @@ ISO/IEC 14882:2011 17.6.4.11(1)-undefined
 <br/>
 <br/>
 
-### <span id="_86">86. offsetof 用于非 standard layout 类型，或用于计算静态成员以及成员函数的偏移量</span>
+### <span id="_87">87. offsetof 用于非 standard layout 类型，或用于计算静态成员以及成员函数的偏移量</span>
 <br/>
 
 示例：
@@ -2305,7 +2420,7 @@ ISO/IEC 14882:2011 18.2(4)-undefined
 <br/>
 <br/>
 
-### <span id="_87">87. 可变参数列表省略号左侧的形式参数为函数、数组或引用</span>
+### <span id="_88">88. 可变参数列表省略号左侧的形式参数为函数、数组或引用</span>
 <br/>
 
 示例：
@@ -2329,7 +2444,7 @@ ISO/IEC 14882:2011 18.10(3)-undefined
 <br/>
 <br/>
 
-### <span id="_88">88. longjmp 跳转使应被执行的析构函数未被执行</span>
+### <span id="_89">89. longjmp 跳转使应被执行的析构函数未被执行</span>
 <br/>
 
 示例：

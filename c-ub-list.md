@@ -45,7 +45,7 @@
 | 33 | 修改字符串字面常量 | 6.4.5 |
 | 34 | 引用头文件时，单引号、双引号、反斜杠、//、/\* 出现在定界符 < 和 > 之间，或单引号、反斜杠、//、/\* 出现在定界符 " 之间 | 6.4.7 |
 | 35 | 在序列点之间对同一对象产生多种顺序不定的副作用 | 6.5 |
-| 36 | 表达式的结果未在数学上定义或超过其类型的取值范围 | 6.5 |
+| 36 | 表达式的结果未在数学上定义或超出其类型的取值范围 | 6.5 |
 | 37 | 通过非法类型的 lvalue 访问对象 | 6.5 |
 | 38 | 调用没有原型声明的函数，实参与形参个数不符 | 6.5.2.2 |
 | 39 | 调用没有原型但在相关作用域中有定义的函数时实参与形参类型不兼容 | 6.5.2.2 |
@@ -154,7 +154,7 @@
 | 142 | 用 va\_copy 或 va\_start 重复初始化 va\_list，已被 va\_end 关闭的除外<sup> [\[注\]](#comment_142) </sup> | 7.16.1.2 |
 | 143 | parmN（省略号左侧的参数）具有寄存器存储期，或函数、数组等类型 | 7.16.1.4 |
 | 144 | offset 的第二个参数不是有效的 . 运算符右子表达式，或者是位域 | 7.19 |
-| 145 | integer\-constant 宏（如 INT32\_C、UINT64\_C 等）的参数不是合法的十进制、八进制或十六进制常量，或者参数的值超过相应类型的取值范围 | 7.20.4 |
+| 145 | integer\-constant 宏（如 INT32\_C、UINT64\_C 等）的参数不是合法的十进制、八进制或十六进制常量，或者参数的值超出相应类型的取值范围 | 7.20.4 |
 | 146 | 对面向宽字符的流使用面向字节的输入输出函数，或对面向字节的流使用面向宽字符的输入输出函数 | 7.21.2 |
 | 147 | 写入的宽字符覆盖了多节字字符的一部分，而后面的内容被使用 | 7.21.2 |
 | 148 | 文件对象在关闭后仍被使用 | 7.21.3 |
@@ -218,175 +218,175 @@
 
 ## 注释
 
-### <span id="comment_11"> 11.使用未初始化或已被销毁的具有自动存储期的对象 </span>
+### <span id="comment_11"> 11. 使用未初始化或已被销毁的具有自动存储期的对象 </span>
 
 此问题在 6.2.4、6.7.9、6.8 中均有涉及。
 <br/>
 <br/>
 <br/>
 
-### <span id="comment_112"> 112.在不适当的场合进行与 CX\_LIMITED\_RANGE、FENV\_ACCESS、FP\_CONTRACT 相关的预处理设置 </span>
+### <span id="comment_112"> 112. 在不适当的场合进行与 CX\_LIMITED\_RANGE、FENV\_ACCESS、FP\_CONTRACT 相关的预处理设置 </span>
 
 此问题在 7.3.4、7.6.1、7.12.2 中均有涉及。
 <br/>
 <br/>
 <br/>
 
-### <span id="comment_118"> 118.fesetenv 没有正确地与 fegetenv 配合使用，feupdateenv 没有正确地与 feholdexcept 配合使用 </span>
+### <span id="comment_118"> 118. fesetenv 没有正确地与 fegetenv 配合使用，feupdateenv 没有正确地与 feholdexcept 配合使用 </span>
 
 此问题在 7.6.4.3、7.6.4.4 中均有涉及。
 <br/>
 <br/>
 <br/>
 
-### <span id="comment_119"> 119.整数运算或转换函数的结果不能被有效表示 </span>
+### <span id="comment_119"> 119. 整数运算或转换函数的结果不能被有效表示 </span>
 
 此问题在 7.8.2.1、7.8.2.2、7.8.2.3、7.8.2.4、7.22.6.1、7.22.6.2、7.22.1 中均有涉及。
 <br/>
 <br/>
 <br/>
 
-### <span id="comment_123"> 123.为浮点数分类或比较相关的宏提供非真浮点类型的参数 </span>
+### <span id="comment_123"> 123. 为浮点数分类或比较相关的宏提供非真浮点类型的参数 </span>
 
 此问题在 7.12.3、7.12.14 中均有涉及。
 <br/>
 <br/>
 <br/>
 
-### <span id="comment_136"> 136.没有正确地通过 va\_list 访问可变参数，或在使用 va\_start 之前访问可变参数 </span>
+### <span id="comment_136"> 136. 没有正确地通过 va\_list 访问可变参数，或在使用 va\_start 之前访问可变参数 </span>
 
 此问题在 7.16、7.16.1.1、7.16.1.4 中均有涉及。
 <br/>
 <br/>
 <br/>
 
-### <span id="comment_139"> 139.va\_start 或 va\_copy 没有正确地与 va\_end 配合使用 </span>
+### <span id="comment_139"> 139. va\_start 或 va\_copy 没有正确地与 va\_end 配合使用 </span>
 
 此问题在 7.16.1、7.16.1.2、7.16.1.3、7.16.1.4 中均有涉及。
 <br/>
 <br/>
 <br/>
 
-### <span id="comment_142"> 142.用 va\_copy 或 va\_start 重复初始化 va\_list，已被 va\_end 关闭的除外 </span>
+### <span id="comment_142"> 142. 用 va\_copy 或 va\_start 重复初始化 va\_list，已被 va\_end 关闭的除外 </span>
 
 此问题在 7.16.1.2、7.16.1.4 中均有涉及。
 <br/>
 <br/>
 <br/>
 
-### <span id="comment_153"> 153.提供给格式化函数的参数数量不足，或者参数的类型不符合要求 </span>
+### <span id="comment_153"> 153. 提供给格式化函数的参数数量不足，或者参数的类型不符合要求 </span>
 
 此问题在 7.21.6.1、7.21.6.2、7.29.2.1、7.29.2.2 中均有涉及。
 <br/>
 <br/>
 <br/>
 
-### <span id="comment_154"> 154.与格式化函数 format 参数对应的不是符合要求的多字符序列 </span>
+### <span id="comment_154"> 154. 与格式化函数 format 参数对应的不是符合要求的多字符序列 </span>
 
 此问题在 7.21.6.1、7.21.6.2、7.27.3.5、7.29.2.1、7.29.2.2、7.29.5.1 中均有涉及。
 <br/>
 <br/>
 <br/>
 
-### <span id="comment_155"> 155.对 c、p、n、% 等无精度要求的占位符设定精度 </span>
+### <span id="comment_155"> 155. 对 c、p、n、% 等无精度要求的占位符设定精度 </span>
 
 此问题在 7.21.6.1、7.29.2.1 中均有涉及。
 <br/>
 <br/>
 <br/>
 
-### <span id="comment_156"> 156.设置了可变宽度或精度的格式化占位符，但并未提供相应的参数 </span>
+### <span id="comment_156"> 156. 设置了可变宽度或精度的格式化占位符，但并未提供相应的参数 </span>
 
 此问题在 7.21.6.1、7.29.2.1 中均有涉及。
 <br/>
 <br/>
 <br/>
 
-### <span id="comment_157"> 157.用 \# 修饰 o、x、X、a、A、e、E、f、F、g、G 之外的格式化占位符，用 0 修饰 d、i、o、u、x、X、a、A、e、E、f、F、g、G 之外的格式化占位符 </span>
+### <span id="comment_157"> 157. 用 \# 修饰 o、x、X、a、A、e、E、f、F、g、G 之外的格式化占位符，用 0 修饰 d、i、o、u、x、X、a、A、e、E、f、F、g、G 之外的格式化占位符 </span>
 
 此问题在 7.21.6.1、7.29.2.1 中均有涉及。
 <br/>
 <br/>
 <br/>
 
-### <span id="comment_158"> 158.用 length modifier 修饰 d、i、o、u、x、X、a、A、e、E、f、F、g、G 之外的格式化占位符 </span>
+### <span id="comment_158"> 158. 用 length modifier 修饰 d、i、o、u、x、X、a、A、e、E、f、F、g、G 之外的格式化占位符 </span>
 
 此问题在 7.21.6.1、7.21.6.2、7.29.2.1、7.29.2.2 中均有涉及。
 <br/>
 <br/>
 <br/>
 
-### <span id="comment_159"> 159.格式化输出占位符 s 对应的字符串参数不是以空字符结尾，除非对占位符 s 声明不需要空字符结尾的精度 </span>
+### <span id="comment_159"> 159. 格式化输出占位符 s 对应的字符串参数不是以空字符结尾，除非对占位符 s 声明不需要空字符结尾的精度 </span>
 
 此问题在 7.21.6.1、7.29.2.1 中均有涉及。
 <br/>
 <br/>
 <br/>
 
-### <span id="comment_160"> 160.对格式化占位符 n 声明任何宽度、精度、标志位、赋值抑制字符 </span>
+### <span id="comment_160"> 160. 对格式化占位符 n 声明任何宽度、精度、标志位、赋值抑制字符 </span>
 
 此问题在 7.21.6.1、7.21.6.2、7.29.2.1、7.29.2.2 中均有涉及。
 <br/>
 <br/>
 <br/>
 
-### <span id="comment_161"> 161.格式化占位符 % 不符合 %% 这种格式 </span>
+### <span id="comment_161"> 161. 格式化占位符 % 不符合 %% 这种格式 </span>
 
 此问题在 7.21.6.1、7.21.6.2、7.29.2.1、7.29.2.2 中均有涉及。
 <br/>
 <br/>
 <br/>
 
-### <span id="comment_162"> 162.使用无效的格式化占位符 </span>
+### <span id="comment_162"> 162. 使用无效的格式化占位符 </span>
 
 此问题在 7.21.6.1、7.21.6.2、7.27.3.5、7.29.2.1、7.29.2.2、7.29.5.1 中均有涉及。
 <br/>
 <br/>
 <br/>
 
-### <span id="comment_163"> 163.格式化输出函数参数过多，数量超过 INT\_MAX </span>
+### <span id="comment_163"> 163. 格式化输出函数参数过多，数量超过 INT\_MAX </span>
 
 此问题在 7.21.6.1、7.29.2.1 中均有涉及。
 <br/>
 <br/>
 <br/>
 
-### <span id="comment_164"> 164.格式化输入函数参数过多，数量超过 INT\_MAX </span>
+### <span id="comment_164"> 164. 格式化输入函数参数过多，数量超过 INT\_MAX </span>
 
 此问题在 7.21.6.2、7.29.2.2 中均有涉及。
 <br/>
 <br/>
 <br/>
 
-### <span id="comment_165"> 165.格式化占位符与对应的参数类型不匹配 </span>
+### <span id="comment_165"> 165. 格式化占位符与对应的参数类型不匹配 </span>
 
 此问题在 7.21.6.2、7.29.2.2 中均有涉及。
 <br/>
 <br/>
 <br/>
 
-### <span id="comment_166"> 166.格式化输入占位符 c、s、\[ 对应的参数没有足够的空间容纳输入的数据 </span>
+### <span id="comment_166"> 166. 格式化输入占位符 c、s、\[ 对应的参数没有足够的空间容纳输入的数据 </span>
 
 此问题在 7.21.6.2、7.29.2.2 中均有涉及。
 <br/>
 <br/>
 <br/>
 
-### <span id="comment_167"> 167.由 l 修饰的格式化输入占位符 c、s、\[ 对应的输入不是符合要求的多字符序列 </span>
+### <span id="comment_167"> 167. 由 l 修饰的格式化输入占位符 c、s、\[ 对应的输入不是符合要求的多字符序列 </span>
 
 此问题在 7.21.6.2、7.29.2.2 中均有涉及。
 <br/>
 <br/>
 <br/>
 
-### <span id="comment_168"> 168.格式化输入占位符 %p 对应的参数不是同一个进程中的指针 </span>
+### <span id="comment_168"> 168. 格式化输入占位符 %p 对应的参数不是同一个进程中的指针 </span>
 
 此问题在 7.21.6.2、7.29.2.2 中均有涉及。
 <br/>
 <br/>
 <br/>
 
-### <span id="comment_169"> 169.未正确初始化的 va\_last 作为 vfprintf、vscanf 等函数的参数，或者在函数返回后继续使用该参数 </span>
+### <span id="comment_169"> 169. 未正确初始化的 va\_last 作为 vfprintf、vscanf 等函数的参数，或者在函数返回后继续使用该参数 </span>
 
 vfprintf、vfscanf、vprintf、vscanf、vsnprintf、vsprintf、vsscanf、vfwprintf、vfwscanf、vswprintf、vswscanf、vwprintf、vwscanf 等函数均面对同样的问题。  
   
@@ -395,70 +395,70 @@ vfprintf、vfscanf、vprintf、vscanf、vsnprintf、vsprintf、vsscanf、vfwprin
 <br/>
 <br/>
 
-### <span id="comment_170"> 170.在 fgets 或 fgetws 失败后继续使用传入的数组 </span>
+### <span id="comment_170"> 170. 在 fgets 或 fgetws 失败后继续使用传入的数组 </span>
 
 此问题在 7.21.7.2、7.29.3.2 中均有涉及。
 <br/>
 <br/>
 <br/>
 
-### <span id="comment_172"> 172.在 fread 或 fwrite 失败后使用 file position indicator </span>
+### <span id="comment_172"> 172. 在 fread 或 fwrite 失败后使用 file position indicator </span>
 
 此问题在 7.21.8.1、7.21.8.2 中均有涉及。
 <br/>
 <br/>
 <br/>
 
-### <span id="comment_179"> 179.free 或 realloc 的参数不是由匹配的分配函数返回，或是已被释放的地址 </span>
+### <span id="comment_179"> 179. free 或 realloc 的参数不是由匹配的分配函数返回，或是已被释放的地址 </span>
 
 此问题在 7.22.3.3、7.22.3.5 中均有涉及。
 <br/>
 <br/>
 <br/>
 
-### <span id="comment_182"> 182.调用 exit 或 quick\_exit 超过一次，或这两个函数都被调用 </span>
+### <span id="comment_182"> 182. 调用 exit 或 quick\_exit 超过一次，或这两个函数都被调用 </span>
 
 此问题在 7.22.4.4、7.22.4.7 中均有涉及。
 <br/>
 <br/>
 <br/>
 
-### <span id="comment_183"> 183.调用由 atexit 或 at\_quick\_exit 注册的函数时，调用 longjmp 结束了被注册函数的执行 </span>
+### <span id="comment_183"> 183. 调用由 atexit 或 at\_quick\_exit 注册的函数时，调用 longjmp 结束了被注册函数的执行 </span>
 
 此问题在 7.22.4.4、7.22.4.7 中均有涉及。
 <br/>
 <br/>
 <br/>
 
-### <span id="comment_184"> 184.程序修改了由 getenv 或 strerror 引入的字符串 </span>
+### <span id="comment_184"> 184. 程序修改了由 getenv 或 strerror 引入的字符串 </span>
 
 此问题在 7.22.4.6、7.24.6.2 中均有涉及。
 <br/>
 <br/>
 <br/>
 
-### <span id="comment_191"> 191.字符串或宽字符串库函数越界访问相关对象 </span>
+### <span id="comment_191"> 191. 字符串或宽字符串库函数越界访问相关对象 </span>
 
 此问题在 7.24.1、7.29.4 中均有涉及。
 <br/>
 <br/>
 <br/>
 
-### <span id="comment_192"> 192.无效指针或无效长度作为字符串或宽字符串库函数的参数 </span>
+### <span id="comment_192"> 192. 无效指针或无效长度作为字符串或宽字符串库函数的参数 </span>
 
 此问题在 7.24.1、7.29.4 中均有涉及。
 <br/>
 <br/>
 <br/>
 
-### <span id="comment_193"> 193.strxfrm、strftime、wcsxfrm、wcsftime 的目标数组过小，无法存储以空字符结尾的完整结果 </span>
+### <span id="comment_193"> 193. strxfrm、strftime、wcsxfrm、wcsftime 的目标数组过小，无法存储以空字符结尾的完整结果 </span>
 
 此问题在 7.24.4.5、7.27.3.5、7.29.4.4.4、7.29.5.1 中均有涉及。
 <br/>
 <br/>
 <br/>
 
-### <span id="comment_194"> 194.第一次调用 strtok 或 wcstok 时，第一个参数是空指针 </span>
+### <span id="comment_194"> 194. 第一次调用 strtok 或 wcstok 时，第一个参数是空指针 </span>
 
 此问题在 7.24.5.8、7.29.4.5.7 中均有涉及。
 <br/>
