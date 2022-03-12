@@ -13,9 +13,9 @@
 | 1 | [代码行以反斜杠结尾，且与下一行连接后生成通用字符名称](#_1) | [`11-2.2(2)`](#_1) |
 | 2 | [非空源文件未以换行符结尾，或以换行符结尾但换行符之前是反斜杠](#_2) | [`03-2.1(2)`](#_2) |
 | 3 | [预处理符号连接产生了通用字符名称](#_3) | [`11-2.2(4)`](#_3) |
-| 4 | [在一个逻辑行中单引号或双引号不匹配](#_4) | [`11-2.5(2)`](#_4) |
-| 5 | [被引用的头文件名称中出现不合理的字符或字符序列](#_5) | [`03-2.8(2)`](#_5) |
-| 6 | [字面整数常量过大，超过所有整数类型的取值范围](#_6) | [`03-2.13.1(2)`](#_6) |
+| 4 | [存在不符合词法的单引号或双引号](#_4) | [`11-2.5(2)`](#_4) |
+| 5 | [在 \#include 指令中，'、"、\\、//、/\* 出现在定界符 <  > 之间，或 '、\\、//、/\* 出现在定界符 " 之间](#_5) | [`03-2.8(2)`](#_5) |
+| 6 | [无后缀 10 进制整数字面常量超过 long int 取值范围](#_6) | [`03-2.13.1(2)`](#_6) |
 | 7 | [使用非标准转义字符](#_7) | [`03-2.13.2(3)`](#_7) |
 | 8 | [修改字符串字面常量](#_8) | [`11-2.14.5(12)`](#_8) |
 | 9 | [窄字符串与宽字符串连接](#_9) | [`03-2.13.4(3)`](#_9) |
@@ -182,20 +182,17 @@ ISO/IEC 14882:2011 2.2(4)-undefined
 <br/>
 <br/>
 
-### <span id="_4">4. 在一个逻辑行中单引号或双引号不匹配</span>
+### <span id="_4">4. 存在不符合词法的单引号或双引号</span>
 <br/>
 
-源文件中的代码行称为物理行（physical source lines），预处理器会将以反斜杠结尾的物理行与下一行连接，连接后为逻辑行（logical source lines），在一个逻辑行中单引号或双引号不匹配会导致未定义的行为。  
+预处理器连接以反斜杠结尾的各行代码后将其转为预处理符号序列，在处理指令和展开宏之前，如果出现了不符合词法的单引号或双引号，会导致未定义的行为。  
   
 示例：
 ```
-auto x = "abc\
-def";                       // OK
-
-auto y = "abc               // Undefined behavior
-def";
+#defined X  "xxx     // Undefined behavior
+#defined Y  yyy"     // Undefined behavior
 ```
-例中第一个字符串在一个逻辑行中，第二个字符串被写到了两个逻辑行中。
+例中的引号无法与其他字符组成预处理符号，可能不会通过编译，也可能产生非预期的结果。
 <br/>
 <br/>
 
@@ -207,22 +204,15 @@ ISO/IEC 14882:2011 2.5(2)-undefined
 <br/>
 <br/>
 
-### <span id="_5">5. 被引用的头文件名称中出现不合理的字符或字符序列</span>
+### <span id="_5">5. 在 \#include 指令中，'、"、\\、//、/\* 出现在定界符 <  > 之间，或 '、\\、//、/\* 出现在定界符 " 之间</span>
 <br/>
 
-引用头文件名称的相关文法：
-```
-header-name:
-  < h-char-sequence >
-  " q-char-sequence "
-```
-C\+\+03 规定单引号、反斜杠、/\*、// 出现在 h\-char\-sequence 或 h\-char\-sequence 中，双引号出现在 h\-char\-sequence 中会导致未定义的行为，C\+\+11 规定这些情况由实现定义。  
-  
 示例：
 ```
 #include <"foo">        // Undefined behavior in C++03
 #include "foo//bar"     // Undefined behavior in C++03
 ```
+C\+\+03 声明了这些情况会导致未定义的行为，在 C\+\+11 中则由实现定义。
 <br/>
 <br/>
 
@@ -238,20 +228,19 @@ ISO/IEC 14882:2011 2.9(2)-implementation
 <br/>
 <br/>
 
-### <span id="_6">6. 字面整数常量过大，超过所有整数类型的取值范围</span>
+### <span id="_6">6. 无后缀 10 进制整数字面常量超过 long int 取值范围</span>
 <br/>
 
 示例：
 ```
-int a = 0xaaaabbbbccccddddeeeeffff;   // Undefined behavior in C++03
+cout << 2147483648;   // Undefined behavior in C++03
 ```
-例中字面整数常量过大，这种情况在 C\+\+03 中是未定义的，在 C\+\+11 中是 ill formed，不应通过编译。
+设当前环境 long int 为 32 位有符号整数类型，2147483648 超出了范围，其行为在 C\+\+03 中是未定义的，在 C\+\+11 中则会将 2147483648 归为 unsigned long int 类型。
 <br/>
 <br/>
 
 #### 依据
 ISO/IEC 14882:2003 2.13.1(2)-undefined  
-ISO/IEC 14882:2011 2.14.2(3)-illformed  
 <br/>
 
 <br/>
@@ -260,11 +249,24 @@ ISO/IEC 14882:2011 2.14.2(3)-illformed
 ### <span id="_7">7. 使用非标准转义字符</span>
 <br/>
 
-示例：
+标准转义字符：
 ```
-const char* p = "C:\Files\x.cpp";    // Undefined behavior in C++03
+\a          // Alert
+\b          // Backspace
+\f          // Formfeed page break
+\n          // New line
+\r          // Carriage return
+\t          // Horizontal tab
+\v          // Vertical tab
+\\          // Backslash
+\?          // Question mark
+\'          // Single quotation mark
+\"          // Double quotation mark
+\0          // Null character
+\ddd        // Any character, ‘d’ is an octal number
+\xhh        // Any character, ‘h’ is a hex number
 ```
-例中 \\F 不是标准转义字符，\\x 不符合标准转义字符的格式，这种情况在 C\+\+03 中是未定义的，在 C\+\+11 中则由实现定义。
+反斜杠后如果出现其他形式的字符或字符序列会导致未定义的行为。
 <br/>
 <br/>
 
