@@ -78,7 +78,7 @@
 | 66 | [需要无限递归的模版实例化](#_66) | [`11-14.7.1(15)`](#_66) |
 | 67 | [构造或析构函数在 function\-try\-block 的 handler 中访问非静态成员](#_67) | [`11-15.2(10)`](#_67) |
 | 68 | [有返回值的函数在 function\-try\-block 的 handler 中没有正确返回](#_68) | [`11-15.3(15)`](#_68) |
-| 69 | [在 \#if、 \#elif 的条件中，由宏展开产生了 defined 表达式，或 defined 关键字格式不正确](#_69) | [`11-16.1(4)`](#_69) |
+| 69 | [在 \#if、 \#elif 的条件中，由宏展开产生了 defined 表达式，或 defined 表达式格式不正确](#_69) | [`11-16.1(4)`](#_69) |
 | 70 | [\#include 指令经宏展开后不满足标准格式](#_70) | [`11-16.2(4)`](#_70) |
 | 71 | [宏的实参列表中出现预处理指令](#_71) | [`11-16.3(11)`](#_71) |
 | 72 | [预处理运算符 \# 的结果不是有效的字符串](#_72) | [`11-16.3.2(2)`](#_72) |
@@ -1741,14 +1741,14 @@ struct A {
 
 struct B: A {
     int i;
-    int m();
+    int fun();
 
-    B(): A(m()),   // Undefined
-         i(m()) {  // Well-defined
+    B(): A(fun()),     // Undefined
+         i(fun()) {    // Well-defined
     }   
 };
 ```
-例中用成员函数 m 的返回值作为基类构造函数的参数会导致未定义的行为，因为基类尚未开始构造，而用成员函数初始化成员变量则没有问题。
+例中成员函数 fun 的返回值是基类构造函数的参数，但基类尚未开始构造，会导致未定义的行为，用成员函数 fun 初始化成员 i 则没有问题，因为此时基类对象已构造完毕。
 <br/>
 <br/>
 
@@ -1907,8 +1907,8 @@ struct C: A, B {
 };
 
 B::B(V* v, A* a) {
-    typeid(*v);      // Well-defined, V is the base of B
-    typeid(*a);      // undefined behavior, A is not a base of B
+    typeid(*v);        // Well-defined, V is the base of B
+    typeid(*a);        // undefined behavior, A is not a base of B
 }
 ```
 <br/>
@@ -1939,8 +1939,8 @@ struct C: A, B {
 };
 
 B::B(V* v, A* a) {
-    dynamic_cast<B*>(v);  // Well-defined, V is the base of B
-    dynamic_cast<B*>(a);  // Undefined behavior, A is not a base of B
+    dynamic_cast<B*>(v);    // Well-defined, V is the base of B
+    dynamic_cast<B*>(a);    // Undefined behavior, A is not a base of B
 }
 ```
 <br/>
@@ -2034,7 +2034,7 @@ ISO/IEC 14882:2011 15.3(15)-undefined
 <br/>
 <br/>
 
-### <span id="_69">69. 在 \#if、 \#elif 的条件中，由宏展开产生了 defined 表达式，或 defined 关键字格式不正确</span>
+### <span id="_69">69. 在 \#if、 \#elif 的条件中，由宏展开产生了 defined 表达式，或 defined 表达式格式不正确</span>
 <br/>
 
 <br/>
