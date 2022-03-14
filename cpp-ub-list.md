@@ -189,8 +189,8 @@ ISO/IEC 14882:2011 2.2(4)-undefined
   
 示例：
 ```
-#defined X  "xxx     // Undefined behavior
-#defined Y  yyy"     // Undefined behavior
+#defined X  '     // Undefined behavior
+#defined Y  "     // Undefined behavior
 ```
 例中的引号无法与其他字符组成预处理符号，可能不会通过编译，也可能产生非预期的结果。
 <br/>
@@ -235,7 +235,7 @@ ISO/IEC 14882:2011 2.9(2)-implementation
 ```
 cout << 2147483648;   // Undefined behavior in C++03
 ```
-设当前环境 long int 为 32 位有符号整数类型，2147483648 超出了范围，其行为在 C\+\+03 中是未定义的，在 C\+\+11 中则会将 2147483648 归为 unsigned long int 类型。
+设 long int 为 32 位有符号整数类型，字面常量 2147483648 超出了范围，其行为在 C\+\+03 中是未定义的，在 C\+\+11 中则会将 2147483648 归为 unsigned long int 类型。
 <br/>
 <br/>
 
@@ -290,7 +290,7 @@ ISO/IEC 14882:2011 2.14.3(3)-implementation
 *((char*)"oops") = 'O';   // Undefined behaivor, may crash
 cout << "oops";           // If it doesn't crash, this might output ‘Oops’
 ```
-修改字面常量（literal）是一种逻辑错误。多数通用系统会在运行时保护常量数据，相关修改会造成崩溃，在没有这种保护机制的系统中，字符串常量可能会被修改，但也可能会影响到其他相同的字符串常量，因为相同的字符串常量可能共用相同的存储空间。
+修改字面常量是一种逻辑错误。多数通用系统会在运行时保护常量数据，相关修改会造成崩溃，在没有这种保护机制的系统中，字符串常量可能会被修改，但也可能会影响到其他相同的字符串常量，因为相同的字符串常量可能共用相同的存储空间。
 <br/>
 <br/>
 
@@ -360,7 +360,7 @@ ISO/IEC 14882:2011 3.2(5)-undefined
 ### <span id="_11">11. 具有静态或线程存储期的对象在析构函数中调用 std::exit 函数</span>
 <br/>
 
-程序调用 exit 函数后，全局、静态或 thread\_local 对象开始析构，而这种对象的析构函数再调用 exit 函数会导致未定义的行为。  
+程序调用 exit 函数后，全局、静态或 thread\_local 对象开始析构，而这种对象的析构函数再调用 exit 会导致未定义的行为。  
   
 示例：
 ```
@@ -842,7 +842,7 @@ long n = 1234567890L;
 float f0 = n;            // Cannot be represented exactly
 double f1 = n;           // OK
 ```
-例中 1234567890 无法被 float 型变量存储，但可被 double 型变量存储。
+例中 1234567890 无法被 float 变量存储，但可被 double 变量存储。
 <br/>
 <br/>
 
@@ -980,7 +980,7 @@ A& rc = c;
 static_cast<B&>(ra);    // Undefined behavior
 static_cast<C&>(rc);    // Undefined behavior
 ```
-例中 ra 引用的是基类对象，将其转为派生类的引用会导致未定义的行为，A 和 B 是 C 的虚基类，需要运行时数据体现虚基类对象和派生类对象的包含关系，static\_cast 不考虑与运行时相关的转换逻辑，无法正确转换。
+例中 ra 引用的是基类对象，将其转为派生类引用会导致未定义的行为，A 和 B 是 C 的虚基类，需要运行时数据体现虚基类对象和派生类对象的空间关系，static\_cast 不考虑与运行时相关的转换逻辑，无法正确转换。
 <br/>
 <br/>
 
@@ -1013,7 +1013,7 @@ A* pc = &c;
 static_cast<B*>(pa);    // Undefined behavior
 static_cast<C*>(pc);    // Undefined behavior
 ```
-例中 pa 指向基类对象，将其转为派生类的指针会导致未定义的行为，A 和 B 是 C 的虚基类，需要运行时数据体现虚基类对象和派生类对象的包含关系，static\_cast 不考虑与运行时相关的转换逻辑，无法正确转换。
+例中 pa 指向基类对象，将其转为派生类指针会导致未定义的行为，A 和 B 是 C 的虚基类，需要运行时数据体现虚基类对象和派生类对象的空间关系，static\_cast 不考虑与运行时相关的转换逻辑，无法正确转换。
 <br/>
 <br/>
 
@@ -1163,6 +1163,7 @@ ISO/IEC 14882:2003 5.3.4(6)-undefined
 示例：
 ```
 string object;
+
 delete &object;       // Undefined behavior
 delete "string";      // Undefined behavior
 delete new int[n];    // Undefined behavior
@@ -1605,7 +1606,7 @@ p->foo();   // Undefined behavior
 p->bar();   // Undefined behavior
 p->baz();   // Well-defined, ‘baz’ is a static member
 ```
-例中通过空指针调用对象的非静态成员函数会导致未定义的行为，即使成员函数没有引用成员数据。通过空指针调用静态成员函数不属于访问对象，所以这种情况不属于逻辑错误，但并不是好的编程风格。
+例中通过空指针调用对象的非静态成员函数会导致未定义的行为，即使成员函数没有引用成员数据。通过空指针调用静态成员函数不属于访问对象，所以这种情况不属于逻辑错误。
 <br/>
 <br/>
 
@@ -1909,7 +1910,7 @@ struct C: A, B {
 
 B::B(V* v, A* a) {
     typeid(*v);        // Well-defined, V is the base of B
-    typeid(*a);        // undefined behavior, A is not a base of B
+    typeid(*a);        // Undefined behavior, A is not a base of B
 }
 ```
 <br/>
@@ -1992,7 +1993,7 @@ public:
    ~T() try { .... } catch (...) { log(err); }  // Undefined behavior
 };
 ```
-例中 catch handler 访问非静态成员，会导致未定义的行为。
+流程进入 function\-try\-block 的 handler 时，非静态成员的生命周期已结束，不可再被访问。
 <br/>
 <br/>
 
@@ -2019,7 +2020,7 @@ int foo() try {    // Function-try-block
 catch (...) {      // Undefined behavior if there is no return statement
 }
 ```
-例中 catch handler 没有 return 语句，会导致未定义的行为。
+例中 function\-try\-block 的 handler 没有 return 语句，捕获异常后会返回不确定的值。
 <br/>
 <br/>
 
