@@ -1690,6 +1690,13 @@ ISO/IEC 14882:2011 10.4(6)-undefined
 ### <span id="_58">58. 对象的实际类型与当前静态类型不相关，并调用其析构函数</span>
 <br/>
 
+示例：
+```
+void foo(void* p) {
+    delete (T*)p;      // Undefined if delete an object of type other than T
+}
+```
+如果例中 p 指向的对象不是 T 类型的对象会导致未定义的行为。
 <br/>
 <br/>
 
@@ -1699,6 +1706,8 @@ ISO/IEC 14882:2011 12.4(13)-undefined
 <br/>
 
 #### 规则
+[ID_forbidFunctionVoidPtr](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_forbidFunctionVoidPtr)  
+[ID_forbidMemberVoidPtr](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_forbidMemberVoidPtr)  
 [ID_castNoInheritance](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_castNoInheritance)  
 <br/>
 
@@ -1717,6 +1726,18 @@ void foo() {
     obj.~T();  // End of lifetime
 }              // Undefined behavior
 ```
+显式调用 obj 的析构函数后，obj 的生命周期结束，但函数返回前还会调用 obj 的析构函数，导致未定义的行为。  
+  
+又如：
+```
+struct B { .... };
+struct D: B { .... };
+
+D* p = new D;
+p->B::~B();    // End of lifetime of base class object
+delete p;      // Undefined behavior
+```
+调用 p\->B::\~B() 后，基类对象的生命周期结束，但在 delete p 时基类析构函数仍会被执行，导致未定义的行为。
 <br/>
 <br/>
 
@@ -2097,7 +2118,7 @@ ISO/IEC 14882:2011 16.2(4)-undefined
 #define PRINT(s) printf(#s)
 
 PRINT(
-#ifdef MAC      // Undefined behavior 
+#ifdef MAC      // Undefined behavior
     rabbit
 #else
     hamster
@@ -2123,6 +2144,13 @@ ISO/IEC 14882:2011 16.3(11)-undefined
 ### <span id="_72">72. 预处理运算符 \# 的结果不是有效的字符串</span>
 <br/>
 
+示例：
+```
+#define M(x) #x
+
+cout << M();      // Undefined behavior
+```
+例中宏 M 的参数不足，可能不会通过编译，也可能产生空串，或者其他非预期的结果。
 <br/>
 <br/>
 
@@ -2145,8 +2173,8 @@ ISO/IEC 14882:2011 16.3.2(2)-undefined
 ```
 #define M(a, b)  a ## b
 
-int M(x, 0) = 0;   // OK
-int M(0, x) = 0;   // Undefined behavior
+int M(x, 0) = 0;   // OK, ‘x0’ is a valid token
+int M(0, x) = 0;   // Undefined behavior, ‘0x’ is not a valid token
 ```
 <br/>
 <br/>
@@ -2154,6 +2182,10 @@ int M(0, x) = 0;   // Undefined behavior
 #### 依据
 ISO/IEC 14882:2003 16.3.3(3)-undefined  
 ISO/IEC 14882:2011 16.3.3(3)-undefined  
+<br/>
+
+#### 规则
+[ID_macro_complexConcat](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_macro_complexConcat)  
 <br/>
 
 <br/>
@@ -2167,7 +2199,7 @@ C\+\+03 规定指定的行号不可大于 32767，C\+\+11 规定不可大于 214
 示例：
 ```
 #line 0             // Undefined behavior
-#line 4294967295    // Undefined behavior
+#line 2147483648    // Undefined behavior
 ```
 <br/>
 <br/>
@@ -2191,8 +2223,8 @@ ISO/IEC 14882:2011 16.4(3)-undefined
   
 示例：
 ```
-#line "filename"        // Undefined behavior
-#line NUM + 123         // Undefined behavior
+#line "name.cpp"        // Undefined behavior
+#line NUM + 1234        // Undefined behavior
 ```
 <br/>
 <br/>
@@ -2276,6 +2308,16 @@ ISO/IEC 14882:2011 17.3.21-undefined
 ### <span id="_78">78. 程序实现了应由标准库提供的功能</span>
 <br/>
 
+示例：
+```
+namespace std
+{
+    const int& max(const int& a, const int& b) {  // Undefined
+        ....
+    }
+}
+```
+示例代码实现的 max 会干扰标准库中的 max，导致未定义的行为。
 <br/>
 <br/>
 
@@ -2290,6 +2332,14 @@ ISO/IEC 14882:2011 17.3.22-undefined
 ### <span id="_79">79. 未经许可，向 std 命名空间添加声明或定义</span>
 <br/>
 
+示例：
+```
+namespace std  // Undefined behavior
+{
+    using tstring = basic_string<TCHAR, char_traits<TCHAR>, allocator<TCHAR>>;
+}
+```
+示例代码向标准库命名空间添加了声明，这种对特殊命名空间的修改是否会生效，以及是否会造成非预期的影响，均是未定义的。
 <br/>
 <br/>
 
@@ -2307,6 +2357,14 @@ ISO/IEC 14882:2011 17.6.4.2.1(1)-undefined
 ### <span id="_80">80. 对标准库，特化模板类成员函数，特化模板类成员模板函数，特化、偏特化成员类模版</span>
 <br/>
 
+示例：
+```
+template <>
+void std::vector<int>::push_back(const int&) {  // Undefined behavior
+    ....
+}
+```
+示例代码特化了 vector 类的 push\_back 函数，其产生的影响是未定义的。
 <br/>
 <br/>
 
@@ -2320,6 +2378,13 @@ ISO/IEC 14882:2011 17.6.4.2.1(2)-undefined
 ### <span id="_81">81. 未经许可，向 posix 命名空间添加声明或定义</span>
 <br/>
 
+示例：
+```
+namespace posix {    // Undefined behavior
+    ....
+}
+```
+posix 命名空间是 C\+\+ 的保留命名空间，自定义代码不应出现名为 posix 的命名空间。
 <br/>
 <br/>
 
@@ -2405,6 +2470,7 @@ string s{"...."};
 s[string::npos];         // Undefined behavior
 s.at(string::npos);      // Well-defined, throw out_of_range
 ```
+标准规定 string::at 的参数超出范围时抛出 out\_of\_range 异常，而 string::operator \[\] 的参数超出范围会导致未定义的行为。
 <br/>
 <br/>
 
