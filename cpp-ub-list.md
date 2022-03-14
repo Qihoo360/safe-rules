@@ -37,12 +37,12 @@
 | 25 | [浮点类型转换产生的结果无法在相应的空间中表示](#_25) | [`11-4.8(1)`](#_25) |
 | 26 | [浮点类型转为整数类型时，整数类型无法存储浮点类型的整数部分](#_26) | [`11-4.9(1)`](#_26) |
 | 27 | [整数类型转为浮点类型时，浮点类型无法存储整数的值](#_27) | [`11-4.9(2)`](#_27) |
-| 28 | [对同一对象产生多种无确定顺序的副作用](#_28) | [`03-5(4)`](#_28) |
+| 28 | [对同一对象产生多重无确定顺序的副作用](#_28) | [`03-5(4)`](#_28) |
 | 29 | [表达式的结果在数学上没有定义](#_29) | [`11-5(4)`](#_29) |
 | 30 | [被调用函数的语言链接性与该函数定义的语言链接性不符](#_30) | [`11-5.2.2(1)`](#_30) |
 | 31 | [将非 POD 类型对象传入可变参数列表](#_31) | [`03-5.2.2(7)`](#_31) |
-| 32 | [用 static\_cast 将基类引用转为派生类引用时，基类引用对应的实际对象并非派生类对象](#_32) | [`11-5.2.9(2)`](#_32) |
-| 33 | [用 static\_cast 将基类指针转为派生类指针时，基类指针指向的实际对象并非派生类对象](#_33) | [`11-5.2.9(11)`](#_33) |
+| 32 | [用 static\_cast 将基类引用转为派生类引用，基类为虚基类或引用的实际对象并非派生类对象](#_32) | [`11-5.2.9(2)`](#_32) |
+| 33 | [用 static\_cast 将基类指针转为派生类指针，基类为虚基类或指向的实际对象并非派生类对象](#_33) | [`11-5.2.9(11)`](#_33) |
 | 34 | [用 static\_cast 将成员指针转为基类成员指针时，基类中没有相关成员](#_34) | [`11-5.2.9(12)`](#_34) |
 | 35 | [函数指针被转为不兼容的类型并执行](#_35) | [`11-5.2.10(6)`](#_35) |
 | 36 | [类型转换时去掉对象 const 属性并修改对象](#_36) | [`11-5.2.11(7)`](#_36) |
@@ -857,21 +857,15 @@ ISO/IEC 14882:2011 4.9(2)-undefined
 <br/>
 <br/>
 
-### <span id="_28">28. 对同一对象产生多种无确定顺序的副作用</span>
+### <span id="_28">28. 对同一对象产生多重无确定顺序的副作用</span>
 <br/>
 
 示例：
 ```
-int a = 0;
-a = a++;        // Undefined behavior
-a = ++a;        // Undefined behavior
-a = a + a;      // OK
-
-volatile int b = 0;
-b = b++;        // Undefined behavior
-b = ++b;        // Undefined behavior
-b = b + b;      // Undefined behavior
+volatile int* p = foo();
+int n = *p + *p;          // Undefined behavior
 ```
+例中 n 的值在数学上应是 \*p 的二倍，但由于 p 指向 volatile 数据，结果可能不符合预期的数学关系。
 <br/>
 <br/>
 
@@ -948,8 +942,10 @@ ISO/IEC 14882:2011 5.2.2(1)-undefined
 
 示例：
 ```
-std::string str;
-printf("%s\n", str);  // Undefined behavior
+string str;
+void foo(...);
+
+foo(str);        // Undefined behavior
 ```
 <br/>
 <br/>
@@ -967,23 +963,24 @@ ISO/IEC 14882:2011 5.2.2(7)-implementation
 <br/>
 <br/>
 
-### <span id="_32">32. 用 static\_cast 将基类引用转为派生类引用时，基类引用对应的实际对象并非派生类对象</span>
+### <span id="_32">32. 用 static\_cast 将基类引用转为派生类引用，基类为虚基类或引用的实际对象并非派生类对象</span>
 <br/>
 
 示例：
 ```
-struct B {};
-struct D: B {};
+struct A {};
+struct B: A {};
+struct C: virtual B {};
 
-B b;
-D d;
-B& rb = b;
-B& rd = d;
+A a;
+C c;
+A& ra = a;
+A& rc = c;
 
-static_cast<D&>(rb);    // Undefined behavior
-static_cast<D&>(rd);    // OK
+static_cast<B&>(ra);    // Undefined behavior
+static_cast<C&>(rc);    // Undefined behavior
 ```
-例中 rb 引用基类对象，rd 引用派生类对象，将 rb 转为派生类对象的引用会导致未定义的行为。
+例中 ra 引用的是基类对象，将其转为派生类的引用会导致未定义的行为，A 和 B 是 C 的虚基类，需要运行时数据体现虚基类对象和派生类对象的包含关系，static\_cast 不考虑与运行时相关的转换逻辑，无法正确转换。
 <br/>
 <br/>
 
@@ -999,23 +996,24 @@ ISO/IEC 14882:2011 5.2.9(2)-undefined
 <br/>
 <br/>
 
-### <span id="_33">33. 用 static\_cast 将基类指针转为派生类指针时，基类指针指向的实际对象并非派生类对象</span>
+### <span id="_33">33. 用 static\_cast 将基类指针转为派生类指针，基类为虚基类或指向的实际对象并非派生类对象</span>
 <br/>
 
 示例：
 ```
-struct B {};
-struct D: B {};
+struct A {};
+struct B: A {};
+struct C: virtual B {};
 
-B b;
-D d;
-B* pb = &b;
-B* pd = &d;
+A a;
+C c;
+A* pa = &a;
+A* pc = &c;
 
-static_cast<D*>(pb);    // Undefined behavior
-static_cast<D*>(pd);    // OK
+static_cast<B*>(pa);    // Undefined behavior
+static_cast<C*>(pc);    // Undefined behavior
 ```
-例中 pb 指向基类对象，pd 指向派生类对象，将 pb 转为派生类对象的指针会导致未定义的行为。
+例中 pa 指向基类对象，将其转为派生类的指针会导致未定义的行为，A 和 B 是 C 的虚基类，需要运行时数据体现虚基类对象和派生类对象的包含关系，static\_cast 不考虑与运行时相关的转换逻辑，无法正确转换。
 <br/>
 <br/>
 
@@ -1520,7 +1518,7 @@ obj.j++;            // Ill-formed
 
 T* p = (T*)&obj;
 p->i = 0;           // Well-defined
-p->j = 1;           // Undefined
+p->j = 1;           // Undefined behavior
 ```
 <br/>
 <br/>
@@ -1565,10 +1563,12 @@ ISO/IEC 14882:2011 7.1.6.1(6)-undefined
 }
 
 [[noreturn]] void baz(int i) {  // Undefined behavior if ‘i’ != 0
-    if (i == 0)
+    if (i == 0) {
         throw Exception();
+    }
 }
 ```
+例中 bar 可以正常返回，baz 在某条件下正常返回，会导致未定义的行为。
 <br/>
 <br/>
 
@@ -1639,6 +1639,7 @@ int main() {
     return bar(&b);  // Undefined behavior
 }
 ```
+例中 A 与 B 是不同且没有继承关系的类，通过不合理的类型转换调用非静态成员函数会导致未定义的行为。
 <br/>
 <br/>
 
@@ -1661,8 +1662,8 @@ ISO/IEC 14882:2011 9.3.1(2)-undefined
 
 示例：
 ```
-struct A {
-    virtual ~A() {
+struct T {
+    virtual ~T() {
         release();   // Undefined behavior
     }
 
