@@ -40,7 +40,7 @@
 | 28 | [对同一对象产生多重无确定顺序的副作用](#_28) | [`03-5(4)`](#_28) |
 | 29 | [表达式的结果在数学上没有定义](#_29) | [`11-5(4)`](#_29) |
 | 30 | [被调用函数的语言链接性与该函数定义的语言链接性不符](#_30) | [`11-5.2.2(1)`](#_30) |
-| 31 | [将非 POD 类型对象传入可变参数列表](#_31) | [`03-5.2.2(7)`](#_31) |
+| 31 | [将非 POD 对象传入可变参数列表](#_31) | [`03-5.2.2(7)`](#_31) |
 | 32 | [用 static\_cast 将基类引用转为派生类引用，基类为虚基类，或引用的实际对象并非派生类对象](#_32) | [`11-5.2.9(2)`](#_32) |
 | 33 | [用 static\_cast 将基类指针转为派生类指针，基类为虚基类，或指向的实际对象并非派生类对象](#_33) | [`11-5.2.9(11)`](#_33) |
 | 34 | [用 static\_cast 将成员指针转为基类成员指针时，基类中没有相关成员](#_34) | [`11-5.2.9(12)`](#_34) |
@@ -937,9 +937,11 @@ ISO/IEC 14882:2011 5.2.2(1)-undefined
 <br/>
 <br/>
 
-### <span id="_31">31. 将非 POD 类型对象传入可变参数列表</span>
+### <span id="_31">31. 将非 POD 对象传入可变参数列表</span>
 <br/>
 
+可变参数列表是 C 语言的概念，C\+\+ 中具有拷贝构造或析构函数的对象难以与其兼容，将非 POD 对象传入可变参数列表在 C\+\+03 中是未定义的，在 C\+\+11 中是部分由实现定义的。  
+  
 示例：
 ```
 string str;
@@ -947,6 +949,7 @@ void foo(int, ...);
 
 foo(1, str);         // Undefined behavior
 ```
+例中 string 类对象 str 是非 POD 对象，由于其特殊的拷贝构造过程，在 foo 函数中通过 va\_arg 难以获取正确的对象。
 <br/>
 <br/>
 
@@ -1301,6 +1304,18 @@ ISO/IEC 14882:2011 5.5(6)-undefined
 ### <span id="_44">44. / 或 % 运算符第二个操作数的值为 0</span>
 <br/>
 
+示例：
+```
+int foo(int a, int b) try
+{
+    return a / b;   // Undefined behavior if ‘b’ is zero
+}
+catch (...)
+{
+    return 0;       // Unreachable
+}
+```
+除数为 0 会导致未定义的行为，且不受语言的异常机制控制。
 <br/>
 <br/>
 
@@ -1539,12 +1554,23 @@ ISO/IEC 14882:2011 7.1.6.1(4)-undefined
 ### <span id="_53">53. 使用没有 volatile 限定的 glvalue 访问有 volatile 限定的对象</span>
 <br/>
 
+示例：
+```
+int foo(int&);
+volatile int* bar();
+
+foo((int&)*bar());   // Undefined behavior
+```
 <br/>
 <br/>
 
 #### 依据
 ISO/IEC 14882:2003 7.1.5.1(7)-undefined  
 ISO/IEC 14882:2011 7.1.6.1(6)-undefined  
+<br/>
+
+#### 规则
+[ID_qualifierCastedAway](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_qualifierCastedAway)  
 <br/>
 
 <br/>
@@ -1696,7 +1722,7 @@ void foo(void* p) {
     delete (T*)p;      // Undefined if delete an object of type other than T
 }
 ```
-如果例中 p 指向的对象不是 T 类型的对象会导致未定义的行为。
+如果例中 p 指向的不是 T 类型的对象会导致未定义的行为。
 <br/>
 <br/>
 
@@ -2150,7 +2176,7 @@ ISO/IEC 14882:2011 16.3(11)-undefined
 
 cout << M();      // Undefined behavior
 ```
-例中宏 M 的参数不足，可能不会通过编译，也可能产生空串，或者其他非预期的结果。
+例中宏 M 的参数不足，无法生成有效的字符串，这可能不会通过编译，也可能产生空串，或其他非预期的结果。
 <br/>
 <br/>
 
@@ -2194,7 +2220,7 @@ ISO/IEC 14882:2011 16.3.3(3)-undefined
 ### <span id="_74">74. \#line 指定的行号为 0 或大于规定值</span>
 <br/>
 
-C\+\+03 规定指定的行号不可大于 32767，C\+\+11 规定不可大于 2147483647  
+C\+\+03 规定行号不可大于 32767，C\+\+11 规定不可大于 2147483647  
   
 示例：
 ```
@@ -2280,7 +2306,7 @@ struct T {
     }
 };
 ```
-标准要求 operator new 返回非空地址，分配失败则抛出 bad\_alloc 异常（见 ISO/IEC 14882:2011 18.6.1.1），不满足要求会导致未定义的行为。  
+标准要求 operator new 返回非空地址，分配失败则抛出 bad\_alloc 异常（见 ISO/IEC 14882:2011 18.6.1.1），否则导致未定义的行为。  
   
 又如：
 ```
@@ -2293,7 +2319,7 @@ int main() {
     ....
 }
 ```
-标准要求 terminate handler 结束进程的执行，不可返回（见 ISO/IEC 14882:2011 18.8.3.1），不满足要求会导致未定义的行为。
+标准要求 terminate handler 结束进程的执行，不可返回至调用方（见 ISO/IEC 14882:2011 18.8.3.1），否则导致未定义的行为。
 <br/>
 <br/>
 
@@ -2312,7 +2338,7 @@ ISO/IEC 14882:2011 17.3.21-undefined
 ```
 namespace std
 {
-    const int& max(const int& a, const int& b) {  // Undefined
+    const int& max(const int& a, const int& b) {  // Undefined behavior
         ....
     }
 }
@@ -2334,9 +2360,11 @@ ISO/IEC 14882:2011 17.3.22-undefined
 
 示例：
 ```
-namespace std  // Undefined behavior
+namespace std
 {
-    using tstring = basic_string<TCHAR, char_traits<TCHAR>, allocator<TCHAR>>;
+    using tstring = basic_string<
+        TCHAR, char_traits<TCHAR>, allocator<TCHAR>   // Undefined behavior
+    >;
 }
 ```
 示例代码向标准库命名空间添加了声明，这种对特殊命名空间的修改是否会生效，以及是否会造成非预期的影响，均是未定义的。
@@ -2384,7 +2412,7 @@ namespace posix {    // Undefined behavior
     ....
 }
 ```
-posix 命名空间是 C\+\+ 的保留命名空间，自定义代码不应出现名为 posix 的命名空间。
+posix 命名空间是 C\+\+ 的保留命名空间，自定义代码中不应出现名为 posix 的命名空间。
 <br/>
 <br/>
 
@@ -2400,8 +2428,9 @@ ISO/IEC 14882:2011 17.6.4.2.2(1)-undefined
 
 示例：
 ```
-#define override           // Undefined behavior
-#define new new(nothrow)   // Undefined behavior
+#define override             // Undefined behavior
+#define new new(nothrow)     // Undefined behavior
+#define string vector<char>  // Undefined behavior
 ```
 <br/>
 <br/>
@@ -2422,6 +2451,7 @@ ISO/IEC 14882:2011 17.6.4.3(2)-undefined
 ### <span id="_83">83. 编译器未提供标准头文件，但编译时引入了非标准同名头文件</span>
 <br/>
 
+应选用健全的编译器，并保证编译环境的安全。
 <br/>
 <br/>
 
@@ -2465,12 +2495,12 @@ ISO/IEC 14882:2011 17.6.4.10(1)-undefined
 
 示例：
 ```
-string s{"...."};
+string s{"abc"};
 
-s[string::npos];         // Undefined behavior
-s.at(string::npos);      // Well-defined, throw out_of_range
+cout << s[8];       // Undefined behavior
+cout << s.at(8);    // Well-defined, throw out_of_range
 ```
-标准规定 string::at 的参数超出范围时抛出 out\_of\_range 异常，而 string::operator \[\] 的参数超出范围会导致未定义的行为。
+标准规定 string::at 在参数超出范围时抛出 out\_of\_range 异常，而 string::operator \[\] 的参数超出范围会导致未定义的行为。
 <br/>
 <br/>
 
@@ -2516,9 +2546,9 @@ ISO/IEC 14882:2011 18.2(4)-undefined
 
 示例：
 ```
-void foo(void fun(), ...);     // Undefined behavior
-void foo(string& str, ...);    // Undefined behavior
-void foo(int arr[10], ...);    // Undefined behavior
+void foo(int f(), ...);     // Undefined behavior
+void foo(int& n, ...);      // Undefined behavior
+void foo(int a[10], ...);   // Undefined behavior
 ```
 <br/>
 <br/>
@@ -2543,7 +2573,7 @@ ISO/IEC 14882:2011 18.10(3)-undefined
 void foo() {
     string obj;
     ....
-    longjmp(buf, 1);   // Undefined behavior
+    longjmp(buf, x);   // Undefined behavior
 }
 ```
 例中局部对象 obj 的析构函数不会被执行，由此引发的问题会导致未定义的行为。
