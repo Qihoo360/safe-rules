@@ -57,11 +57,11 @@
         "reference": "SEI CERT INT36-C,MISRA C 2004 11.3,MISRA C 2012 11.4,MISRA C++ 2008 5-2-8,MISRA C++ 2008 5-2-9"
         },
     "ID_zeroAsPtrValue": {
-        "checkPoint": "不应使用常数 0 对指针赋值",
+        "checkPoint": "不应使用常量 0 表示空指针",
         "level": "suggestion",
-        "comment": "不应使用常数 0 对指针赋值，在 C++ 代码中应使用 nullptr，在 C 代码中应使用 NULL，否则易出现类型转换相关的错误，且不利于阅读。",
+        "comment": "对于空指针，在 C 代码中应使用 NULL，在 C++ 代码中应使用 nullptr。",
         "tag": "pointer",
-        "standard": "ISO/IEC 9899:2011 7.19(3)-implementation,ISO/IEC 14882:2011 2.14.7(1)",
+        "standard": "ISO/IEC 9899:2011 6.3.2.3(3),ISO/IEC 14882:2011 4.10(1)",
         "reference": "MISRA C++ 2008 4-10-2,C++ Core Guidelines ES.47"
         },
     "ID_charWCharCast": {
@@ -1437,21 +1437,21 @@
         "reference": "C++ Core Guidelines ES.43,SEI CERT EXP50-CPP,MISRA C++ 2008 5-0-1,MISRA C 2012 13.2"
         },
     "ID_oddPtrCharAssignment": {
-        "checkPoint": "不应使用字符常量对指针赋值或初始化",
+        "checkPoint": "不应使用 '\\0' 等字符常量对指针赋值",
         "level": "warning",
-        "comment": "用 '\\0'、L'\\0' 等字符常量对指针赋值或初始化是非常怪异的，往往意味错误。",
+        "comment": "用 '\\0'、L'\\0'、u'\\0'、U'\\0' 等字符常量对指针赋值是非常怪异的，往往意味错误。",
         "tag": "pointer",
         "reference": "CWE-351"
         },
     "ID_oddPtrBoolAssignment": {
-        "checkPoint": "不应使用 bool 常量对指针赋值或初始化",
+        "checkPoint": "不应使用 false 对指针赋值",
         "level": "warning",
-        "comment": "用 false 等 bool 常量对指针赋值或初始化是非常怪异的，会对代码阅读造成误导，而且也可能是书写错误。",
+        "comment": "用 false 对指针赋值是非常怪异的，会对代码阅读造成误导，而且也可能是书写错误。",
         "tag": "pointer",
         "reference": "CWE-351"
         },
     "ID_oddNullAssignment": {
-        "checkPoint": "不应使用 NULL 对非指针变量赋值或初始化",
+        "checkPoint": "不应使用 NULL 对非指针变量赋值",
         "level": "warning",
         "comment": "标识符 NULL 只应该用来表示空指针，否则会对代码阅读造成误导，而且也可能是书写错误。",
         "tag": "expression",
@@ -2779,9 +2779,9 @@
         "reference": "CWE-467"
         },
     "ID_sizeof_zeroComparison": {
-        "checkPoint": "sizeof 的结果不应与 0 以及负数比较",
+        "checkPoint": "sizeof 的结果不应与 0 或负数比较",
         "level": "error",
-        "comment": "标准规定，sizeof 的结果为无符号整型，对于完整类型结果一定不为 0，对于不完整类型则无法通过编译，所以将 sizeof 的结果与 0 甚至负数比较往往意味着逻辑错误。",
+        "comment": "将 sizeof 的结果与 0 或负数比较往往意味着逻辑错误。",
         "tag": "expression",
         "standard": "ISO/IEC 14882:2003 5.3.3(1 6) 9(3),ISO/IEC 14882:2011 5.3.3(1 6) 9(3),ISO/IEC 14882:2017 8.3.3(1 6) 12(4)",
         "reference": "CWE-1025"
@@ -2970,7 +2970,7 @@
     "ID_deprecatedNULL": {
         "checkPoint": "在 C++ 代码中用 nullptr 代替 NULL",
         "level": "suggestion",
-        "comment": "在 C++ 语言中，标识符 NULL 虽然可以用来表示空指针，但该标识符是由实现定义的，而且往往不能有效区分整型常量 0 和空指针，根据 C++11 标准，应使用 nullptr 表示空指针。",
+        "comment": "在 C++ 中，NULL 虽然可以表示空指针，但容易与整型常量 0 混淆，应使用 nullptr 表示空指针。",
         "tag": "style",
         "standard": "ISO/IEC 9899:1999 7.17(3)-implementation,ISO/IEC 9899:2011 7.19(3)-implementation,ISO/IEC 14882:2003 C.2.2.3(1)-implementation,ISO/IEC 14882:2011 C.3.2.4(1)-implementation,ISO/IEC 14882:2017 C.5.2.7(1)-implementation,ISO/IEC 14882:2011 2.14.7(1)",
         "reference": "C++ Core Guidelines ES.47"

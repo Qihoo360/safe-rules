@@ -447,7 +447,7 @@
     - [R10.2.6 不应出现复合赋值的错误形式](#ID_illFormedCompoundAssignment)
     - [R10.2.7 避免出现复合赋值的可疑形式](#ID_suspiciousCompoundAssignment)
     - [R10.2.8 &=、|=、\-=、/=、%= 左右子表达式不应相同](#ID_illSelfCompoundAssignment)
-    - [R10.2.9 不应使用 NULL 对非指针变量赋值或初始化](#ID_oddNullAssignment)
+    - [R10.2.9 不应使用 NULL 对非指针变量赋值](#ID_oddNullAssignment)
     - [R10.2.10 注意赋值运算符与一元运算符的空格方式](#ID_stickyAssignmentOperator)
     - [R10.2.11 赋值运算符左右子表达式不应相同](#ID_selfAssignment)
     - [R10.2.12 除法和求余运算符左右子表达式不应相同](#ID_selfDivision)
@@ -479,7 +479,7 @@
     - [R10.4.10 合理使用 std::forward](#ID_unsuitableForward)
   - [10.5 Sizeof](#expression.sizeof)
     - [R10.5.1 sizeof 不应作用于有副作用的表达式](#ID_sizeof_sideEffect)
-    - [R10.5.2 sizeof 的结果不应与 0 以及负数比较](#ID_sizeof_zeroComparison)
+    - [R10.5.2 sizeof 的结果不应与 0 或负数比较](#ID_sizeof_zeroComparison)
     - [R10.5.3 sizeof 不应作用于数组参数](#ID_sizeof_arrayParameter)
     - [R10.5.4 sizeof 不应作用于逻辑表达式](#ID_sizeof_oddExpression)
     - [R10.5.5 被除数不应是作用于指针的 sizeof 表达式](#ID_sizeof_pointerDivision)
@@ -552,9 +552,9 @@
   - [R14.4 避免无效的空指针检查](#ID_invalidNullCheck)
   - [R14.5 不应重复检查指针是否为空](#ID_repeatedNullCheck)
   - [R14.6 不应将非零常量值赋值给指针](#ID_fixedAddrToPointer)
-  - [R14.7 不应使用 bool 常量对指针赋值或初始化](#ID_oddPtrBoolAssignment)
-  - [R14.8 不应使用字符常量对指针赋值或初始化](#ID_oddPtrCharAssignment)
-  - [R14.9 不应使用常数 0 对指针赋值](#ID_zeroAsPtrValue)
+  - [R14.7 不应使用常量 0 表示空指针](#ID_zeroAsPtrValue)
+  - [R14.8 不应使用 false 对指针赋值](#ID_oddPtrBoolAssignment)
+  - [R14.9 不应使用 '\\0' 等字符常量对指针赋值](#ID_oddPtrCharAssignment)
   - [R14.10 指针不应与 bool 常量比较大小](#ID_oddPtrBoolComparison)
   - [R14.11 指针不应与字符常量比较大小](#ID_oddPtrCharComparison)
   - [R14.12 不应判断指针大于、大于等于、小于、小于等于 0](#ID_oddPtrZeroComparison)
@@ -13477,7 +13477,7 @@ CWE-682
 <br/>
 <br/>
 
-### <span id="ID_oddNullAssignment">▌R10.2.9 不应使用 NULL 对非指针变量赋值或初始化</span>
+### <span id="ID_oddNullAssignment">▌R10.2.9 不应使用 NULL 对非指针变量赋值</span>
 
 ID_oddNullAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -14651,13 +14651,15 @@ MISRA C++ 2008 5-3-4
 <br/>
 <br/>
 
-### <span id="ID_sizeof_zeroComparison">▌R10.5.2 sizeof 的结果不应与 0 以及负数比较</span>
+### <span id="ID_sizeof_zeroComparison">▌R10.5.2 sizeof 的结果不应与 0 或负数比较</span>
 
 ID_sizeof_zeroComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
 <hr/>
 
-标准规定，sizeof 的结果为无符号整型，对于完整类型结果一定不为 0，对于不完整类型则无法通过编译，所以将 sizeof 的结果与 0 甚至负数比较往往意味着逻辑错误。  
+将 sizeof 的结果与 0 或负数比较往往意味着逻辑错误。  
+  
+标准规定，如果 sizeof 作用于完整类型，结果一定大于 0，如果类型不完整则无法通过编译。  
   
 示例：
 ```
@@ -14667,6 +14669,12 @@ void foo(int* p) {
     }
 }
 ```
+注意，在某些 C 环境中，sizeof 作用于空结构体或联合体结果可能是 0，但这属于未定义的行为，如：
+```
+struct A {} a;
+printf("%zu\n", sizeof(a));  // What is output?
+```
+空结构体或联合体在 C 标准中属于非法类型，示例代码可能会输出 0，也可能不会通过编译。
 <br/>
 <br/>
 
@@ -16925,13 +16933,45 @@ CWE-587
 <br/>
 <br/>
 
-### <span id="ID_oddPtrBoolAssignment">▌R14.7 不应使用 bool 常量对指针赋值或初始化</span>
+### <span id="ID_zeroAsPtrValue">▌R14.7 不应使用常量 0 表示空指针</span>
+
+ID_zeroAsPtrValue&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: pointer suggestion
+
+<hr/>
+
+在 C 代码中应使用 NULL 表示空指针，在 C\+\+ 代码中应使用 nullptr 表示空指针。  
+  
+标准允许使用 0、'\\0'、false、1 \- 1 等值为 0 的常量表达式表示空指针，但易出现类型相关的错误，且不利于阅读。  
+  
+示例：
+```
+int* p;
+int foo(int*);
+
+p = 0;   // Non-compliant
+foo(0);  // Non-compliant
+```
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 6.3.2.3(3)  
+ISO/IEC 14882:2011 4.10(1)  
+<br/>
+
+#### 参考
+MISRA C++ 2008 4-10-2  
+C++ Core Guidelines ES.47  
+<br/>
+<br/>
+
+### <span id="ID_oddPtrBoolAssignment">▌R14.8 不应使用 false 对指针赋值</span>
 
 ID_oddPtrBoolAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 
 <hr/>
 
-用 false 等 bool 常量对指针赋值或初始化是非常怪异的，会对代码阅读造成误导，而且也可能是书写错误。  
+用 false 对指针赋值是非常怪异的，会对代码阅读造成误导，而且也可能是书写错误。  
   
 示例：
 ```
@@ -16947,13 +16987,13 @@ CWE-351
 <br/>
 <br/>
 
-### <span id="ID_oddPtrCharAssignment">▌R14.8 不应使用字符常量对指针赋值或初始化</span>
+### <span id="ID_oddPtrCharAssignment">▌R14.9 不应使用 '\0' 等字符常量对指针赋值</span>
 
 ID_oddPtrCharAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 
 <hr/>
 
-用 '\\0' 、L'\\0' 等字符常量对指针赋值或初始化是非常怪异的，往往意味错误。  
+用 '\\0'、L'\\0'、u'\\0'、U'\\0' 等字符常量对指针赋值是非常怪异的，往往意味错误。  
   
 示例：
 ```
@@ -16972,42 +17012,6 @@ void set_terminate(char* p) {
 
 #### 参考
 CWE-351  
-<br/>
-<br/>
-
-### <span id="ID_zeroAsPtrValue">▌R14.9 不应使用常数 0 对指针赋值</span>
-
-ID_zeroAsPtrValue&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: pointer suggestion
-
-<hr/>
-
-不应使用常数 0 对指针赋值，在 C\+\+ 代码中应使用 nullptr，在 C 代码中应使用 NULL，否则易出现类型转换相关的错误，且不利于阅读。  
-  
-注意，空指针是表示没有指向任何对象的指针，其具体值是由实现定义的，在某些系统中 0 也可能是有效的地址。  
-  
-示例：
-```
-int foo(int* p);
-
-int* p = 0;      // Non-compliant
-int i = foo(0);  // Non-compliant
-```
-应改为：
-```
-int* p = nullptr;      // Compliant
-int i = foo(nullptr);  // Compliant
-```
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 9899:2011 7.19(3)-implementation  
-ISO/IEC 14882:2011 2.14.7(1)  
-<br/>
-
-#### 参考
-MISRA C++ 2008 4-10-2  
-C++ Core Guidelines ES.47  
 <br/>
 <br/>
 
@@ -17407,23 +17411,23 @@ ID_deprecatedNULL&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style suggestion
 
 <hr/>
 
-在 C\+\+ 语言中，标识符 NULL 虽然可以用来表示空指针，但该标识符是由实现定义的，而且往往不能有效区分整型常量 0 和空指针，根据 C\+\+11 标准，应使用 nullptr 表示空指针。  
+在 C\+\+ 中，NULL 虽然可以表示空指针，但容易与整型常量 0 混淆，应使用 nullptr 表示空指针。  
   
 示例：
 ```
-void foo(int*) {
-    cout << "foo(int*)\n";
+void foo(int) {
+    cout << "foo-1\n";
 }
 
-void foo(int) {
-    cout << "foo(int)\n";
+void foo(int*) {
+    cout << "foo-2\n";
 }
 
 int main() {
     foo(NULL);  // Non-compliant, what is output?
 }
 ```
-显然，例中 main 函数中的 foo 函数预期应调用参数为指针的版本，然而不同的编译器对这段代码有不同的行为，有的无法通过编译，有的编译执行后会输出“foo(int)”，用 nullptr 代替 NULL 可解决这种问题。
+NULL 表示指针，所以应该调用参数为指针的重载函数，但不同的编译器对这段代码有不同的处理，有的无法通过编译，有的编译执行后会输出 foo\-1，用 nullptr 代替 NULL 可解决这种问题。
 <br/>
 <br/>
 
