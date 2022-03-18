@@ -1365,16 +1365,16 @@
         "reference": "MISRA C 2012 17.7,MISRA C++ 2008 0-1-7"
         },
     "ID_oddPtrCharComparison": {
-        "checkPoint": "指针不应与字符常量比较大小",
+        "checkPoint": "指针不应与 '\\0' 等字符常量比较大小",
         "level": "warning",
-        "comment": "指针与字符常量比较大小是非常怪异的，往往是某种笔误。",
+        "comment": "指针与 '\\0'、L'\\0'、u'\\0'、U'\\0' 等字符常量比较大小是非常怪异的，往往是某种笔误。",
         "tag": "pointer",
         "reference": "CWE-1025"
         },
     "ID_oddPtrBoolComparison": {
-        "checkPoint": "指针不应与 bool 常量比较大小",
+        "checkPoint": "指针不应与 false 比较大小",
         "level": "warning",
-        "comment": "指针与 bool 常量比较大小是非常怪异的，往往是某种笔误。",
+        "comment": "指针与 false 比较大小是非常怪异的，往往是某种笔误。",
         "tag": "pointer",
         "reference": "CWE-1025"
         },

@@ -555,8 +555,8 @@
   - [R14.7 不应使用常量 0 表示空指针](#ID_zeroAsPtrValue)
   - [R14.8 不应使用 false 对指针赋值](#ID_oddPtrBoolAssignment)
   - [R14.9 不应使用 '\\0' 等字符常量对指针赋值](#ID_oddPtrCharAssignment)
-  - [R14.10 指针不应与 bool 常量比较大小](#ID_oddPtrBoolComparison)
-  - [R14.11 指针不应与字符常量比较大小](#ID_oddPtrCharComparison)
+  - [R14.10 指针不应与 false 比较大小](#ID_oddPtrBoolComparison)
+  - [R14.11 指针不应与 '\\0' 等字符常量比较大小](#ID_oddPtrCharComparison)
   - [R14.12 不应判断指针大于、大于等于、小于、小于等于 0](#ID_oddPtrZeroComparison)
   - [R14.13 不应判断 this 指针是否为空](#ID_this_zeroComparison)
   - [R14.14 析构函数中不可使用 delete this](#ID_this_deleteInDestructor)
@@ -14659,7 +14659,7 @@ ID_sizeof_zeroComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
 将 sizeof 的结果与 0 或负数比较往往意味着逻辑错误。  
   
-标准规定，如果 sizeof 作用于完整类型，结果一定大于 0，如果类型不完整则无法通过编译。  
+标准规定，如果 sizeof 作用于完整类型结果一定大于 0，如果作用于不完整的类型则无法通过编译。  
   
 示例：
 ```
@@ -14815,13 +14815,13 @@ ID_sizeof_sizeof&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
 <hr/>
 
-sizeof(sizeof(....)) 等价于 sizeof(size\_t)，在实际应用中没有任何必要写成连续 sizeof 的形式，属于常见笔误，多数由复制粘贴或错误的宏展开导致。  
+sizeof(sizeof(....)) 等价于 sizeof(size\_t)，在实际应用中没有任何必要写成连续 sizeof 的形式，往往意味着逻辑错误，多数由复制粘贴或错误的宏展开导致。  
   
 示例：
 ```
 void foo() {
-    auto* sa = (PSecAttr)LocalAlloc(LPTR, sizeof(PSecAttr));
-    sa->nLength = sizeof(sizeof(PSecAttr));  // Non-compliant, copy-paste error
+    T* p = (T*)malloc(sizeof(T));
+    p->nLength = sizeof(sizeof(T));  // Non-compliant, copy-paste error
     ....
 }
 ```
@@ -17015,20 +17015,20 @@ CWE-351
 <br/>
 <br/>
 
-### <span id="ID_oddPtrBoolComparison">▌R14.10 指针不应与 bool 常量比较大小</span>
+### <span id="ID_oddPtrBoolComparison">▌R14.10 指针不应与 false 比较大小</span>
 
 ID_oddPtrBoolComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 
 <hr/>
 
-指针与 bool 常量比较大小是非常怪异的，往往是某种笔误。  
+指针与 false 比较大小是非常怪异的，往往是某种笔误。  
   
 示例（设 p 为指针）：
 ```
 p == false  // Non-compliant
 p != false  // Non-compliant
 ```
-如果判断指针是否为空，只应将指针与 NULL 或 nullptr 比较，其他常量均不合规。在 C\+\+ 语言中应优先使用 nullptr。
+如果判断指针是否为空，只应将指针与 NULL 或 nullptr 比较，其他常量均不合规。
 <br/>
 <br/>
 
@@ -17037,23 +17037,25 @@ CWE-1025
 <br/>
 <br/>
 
-### <span id="ID_oddPtrCharComparison">▌R14.11 指针不应与字符常量比较大小</span>
+### <span id="ID_oddPtrCharComparison">▌R14.11 指针不应与 '\0' 等字符常量比较大小</span>
 
 ID_oddPtrCharComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 
 <hr/>
 
-指针与字符常量比较大小是非常怪异的，往往是某种笔误。  
+指针与 '\\0'、L'\\0'、u'\\0'、U'\\0' 等字符常量比较大小是非常怪异的，往往是某种笔误。  
   
 示例（设 p 为指针）：
 ```
-p == '\0'    // Non-compliant
-p == L'\0'   // Non-compliant
+if (p == '\0') {    // Non-compliant
+    ....
+}
 ```
 这种情况很有可能是漏写了 \* 号：
 ```
-*p == '\0'   // Compliant
-*p == L'\0'  // Compliant
+if (*p == '\0') {   // Non-compliant
+    ....
+}
 ```
 否则只应将指针与 NULL 或 nullptr 比较。
 <br/>
@@ -17105,7 +17107,7 @@ ID_this_zeroComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 
 正常情况下 this 指针不会为空，而且判断 this 指针是否为空会影响编译器对 this 指针的优化，造成难以预料的后果。  
   
-在某些环境中用空指针调用非静态成员函数时，this 指针可能为空，但这并不符合标准。值得强调的是，任何情况下都不应逃避解引用空指针造成的问题。  
+在某些环境中通过空指针调用非静态成员函数时，this 指针可能为空，但这并不符合标准。值得强调的是，任何情况下都不应逃避解引用空指针造成的问题。  
   
 示例：
 ```
