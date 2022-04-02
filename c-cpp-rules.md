@@ -723,7 +723,7 @@ void foo() {
   
 C11 提供了 memset\_s 函数以避免这种问题，某些平台和库也提供了相关支持，如 SecureZeroMemory、explicit\_bzero、OPENSSL\_cleanse 等不会被优化掉的函数。  
   
-对于 C\+\+ 语言，可将敏感数据地址设为 volatile 以避免编译器的优化，再用 std::fill\_n 等方法清理，如：
+在 C\+\+ 语言中，可用 volatile 限定相关数据以避免编译器的优化，再用 std::fill\_n 等方法清理，如：
 ```
 void foo() {
     char password[8] = {};
@@ -6173,7 +6173,7 @@ ID_forbidVolatile&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration suggestion
   
 在这些场景中，如果相关对象没有用 volatile 限定，会导致优化后的程序和预期不符，volatile 关键字可以保证对象具有稳定的内存地址，任何读取或写入都可以来源于或作用于内存中的实际数据。  
   
-注意，volatile 和 C/C\+\+ 的同步机制没有关系，也无法保证对象的原子性。  
+注意，volatile 和 C/C\+\+ 的并发或同步机制没有关系，也无法保证相关操作的原子性。  
   
 示例：
 ```
@@ -6184,7 +6184,7 @@ void thread() {
     read_and_write(x);
 }
 ```
-设例中 thread 是线程函数，LockGuard 是互斥锁，在已保证同步机制的情况下，不应再将共享对象 x 声明为 volatile。
+设 thread 是线程函数，LockGuard 是自动锁，在已保证同步机制的情况下，不应使用 volatile 限定共享对象。
 <br/>
 <br/>
 
