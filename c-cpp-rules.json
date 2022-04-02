@@ -2763,9 +2763,9 @@
         "related": "ID_badQualifierPosition"
         },
     "ID_forbidVolatile": {
-        "checkPoint": "慎用 volatile 关键字",
+        "checkPoint": "非适当场景禁用 volatile 关键字",
         "level": "suggestion",
-        "comment": "与硬件无关的功能性代码不应使用 volatile 关键字，误用该关键字会引发优化或同步相关的多种问题。",
+        "comment": "应在适当的场景中合理使用 volatile 关键字，否则误用该关键字会引发优化或同步相关的多种问题。",
         "tag": "declaration",
         "standard": "ISO/IEC 14882:2003 7.1.5.1(8),ISO/IEC 14882:2011 7.1.6.1(7)",
         "reference": "C++ Core Guidelines CP.8,C++ Core Guidelines CP.200"

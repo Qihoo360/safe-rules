@@ -232,7 +232,7 @@
     - [R6.2.7 枚举类型的底层类型不应为 const 或 volatile](#ID_uselessQualifier)
     - [R6.2.8 对常量的定义不应为引用](#ID_constLiteralReference)
     - [R6.2.9 禁用 restrict 指针](#ID_forbidRestrictPtr)
-    - [R6.2.10 慎用 volatile 关键字](#ID_forbidVolatile)
+    - [R6.2.10 非适当场景禁用 volatile 关键字](#ID_forbidVolatile)
   - [6.3 Specifier](#declaration.specifier)
     - [R6.3.1 使用 auto 关键字需注意可读性](#ID_abusedAuto)
     - [R6.3.2 不应使用已过时的关键字](#ID_deprecatedSpecifier)
@@ -709,33 +709,30 @@ ID_unsafeCleanup&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 及时清理不再使用的敏感数据是重要的安全措施，且应保证清理过程不会因为编译器的优化而失效。  
   
+清理敏感数据的应用场景可参见 ID\_secretLeak。  
+  
 示例：
 ```
 void foo() {
-    char user[32] = {};
-    char password[32] = {};
-    if (get_input(user, password, 32)) {
-        login(user, password);
-    }
+    char password[8] = {};
+    ....
     memset(password, 0, sizeof(password));  // Non-compliant
 }
 ```
-本例调用 memset 覆盖敏感数据以达到清理的目的，然而敏感信息 password 为局部数组且 memset 之后没有再被引用，根据相关标准，编译器可将 memset 过程去掉，结果是没有得到有效清理。  
+示例代码调用 memset 覆盖敏感数据以达到清理目的，然而保存敏感信息的 password 为局部数组且 memset 之后没有再被引用，根据相关标准，编译器可将 memset 过程去掉，使敏感数据没有得到有效清理。  
   
 C11 提供了 memset\_s 函数以避免这种问题，某些平台和库也提供了相关支持，如 SecureZeroMemory、explicit\_bzero、OPENSSL\_cleanse 等不会被优化掉的函数。  
   
-对于 C\+\+ 语言，可将敏感数据地址设为 volatile 以避免编译器的优化，再用 std::fill 等方法清理，如：
+对于 C\+\+ 语言，可将敏感数据地址设为 volatile 以避免编译器的优化，再用 std::fill\_n 等方法清理，如：
 ```
 void foo() {
+    char password[8] = {};
     ....
     volatile char  v_padding = 0;
     volatile char* v_address = password;
     std::fill_n(v_address, sizeof(password), v_padding);   // Compliant
 }
 ```
-也可以仿照 std::fill\_n 利用 volatile 关键字的特性自行实现相关功能，可参见 ID\_forbidVolatile。  
-  
-关于本规则的实际应用可参见 ID\_secretLeak 的相关示例。
 <br/>
 <br/>
 
@@ -6160,27 +6157,34 @@ SEI CERT EXP43-C
 <br/>
 <br/>
 
-### <span id="ID_forbidVolatile">▌R6.2.10 慎用 volatile 关键字</span>
+### <span id="ID_forbidVolatile">▌R6.2.10 非适当场景禁用 volatile 关键字</span>
 
 ID_forbidVolatile&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration suggestion
 
 <hr/>
 
-与硬件无关的功能性代码不应使用 volatile 关键字，误用该关键字会引发优化或同步相关的多种问题。  
+应在适当的场景中合理使用 volatile 关键字，否则误用该关键字会引发优化或同步相关的多种问题。  
   
-volatile 关键字仅保证编译器不会对其修饰的对象进行优化，确保其有稳定的地址以供读写，在并发编程中容易使人产生误解，其实该关键字在 C/C\+\+ 语言中与同步机制并无关系。  
+除以下场景，应禁用 volatile：  
+ - 与汇编等语言混合处理同一对象  
+ - 信号或中断处理函数处理共享对象  
+ - 对象地址对应外设地址  
+ - 出于安全目的清理内存中的对象  
   
-当需要访问某个地址，而其他进程或设备会修改该地址上的数据时，应将其指针声明为 volatile：
-```
-volatile int* vp = get_hardware_address();
-```
-如果当前进程不需要主动改变数据，则可加 const 修饰符：
-```
-const volatile int* cvp = get_hardware_address();
-```
-这样一来 vp 或 cvp 一直会与该地址对应，利用 \*vp 或 \*cvp 总会执行从内存的读取操作，不会因为编译器的优化而被忽略，可能需要提供一定的同步措施，但与 volatile 关键字没有关系，这一点与 Java 等语言有较大区别。  
+在这些场景中，如果相关对象没有用 volatile 限定，会导致优化后的程序和预期不符，volatile 关键字可以保证对象具有稳定的内存地址，任何读取或写入都可以来源于或作用于内存中的实际数据。  
   
-另外，利用 volatile 关键字阻止编译优化的特性可实现一些安全措施，参见 ID\_unsafeCleanup。
+注意，volatile 和 C/C\+\+ 的同步机制没有关系，也无法保证对象的原子性。  
+  
+示例：
+```
+volatile int x;  // Noncompliant, ‘volatile’ is abused
+
+void thread() {
+    LockGuard g;
+    read_and_write(x);
+}
+```
+设例中 thread 是线程函数，LockGuard 是互斥锁，在已保证同步机制的情况下，不应再将共享对象 x 声明为 volatile。
 <br/>
 <br/>
 
@@ -16946,7 +16950,7 @@ ID_zeroAsPtrValue&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: pointer suggestion
 示例：
 ```
 int* p;
-int foo(int*);
+void foo(int*);
 
 p = 0;   // Non-compliant
 foo(0);  // Non-compliant
