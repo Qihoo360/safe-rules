@@ -853,7 +853,7 @@ void create(const char* path) {
     }
 }
 ```
-示例代码先通过路径判断文件是否存在，如果存在则不作处理，如果不存在则再次通过路径创建文件并写入数据。如果攻击者把握住时机，在程序执行到 \#1 和 \#2 之间时按 path 创建指向其他文件的链接，那么被指向的文件会遭到破坏，尤其是当被攻击的进程权限比较高时，破坏力是难以控制的。  
+示例代码先通过路径判断文件是否存在，如果存在则不作处理，如果不存在则再次通过路径创建文件并写入数据。如果攻击者把握住时机，在程序执行到 `#1` 和 `#2` 之间时按 path 创建指向其他文件的链接，那么被指向的文件会遭到破坏，尤其是当被攻击的进程权限比较高时，破坏力是难以控制的。  
   
 应只通过路径打开文件对象一次，只通过文件对象操作文件：
 ```
@@ -921,7 +921,7 @@ void bar() {
     }
 }
 ```
-如果 p 指向共享数据，那么攻击者可以通过控制共享数据实现对程序流程的劫持，比如在 \#0 处 \*p 的值本为 0，攻击者在 \#1 之前改变 \*p 的值，迫使流程向 \#2 或 \#3 处跳转。  
+如果 p 指向共享数据，那么攻击者可以通过控制共享数据实现对程序流程的劫持，比如在 `#0` 处 \*p 的值本为 0，攻击者在 `#1` 之前改变 \*p 的值，迫使流程向 `#2` 或 `#3` 处跳转。  
   
 如果程序的正确性依赖进线程处理数据的特定时序，一旦这种特定时序被打破，便会产生错误和漏洞，这种情况称为“[竞态条件（race conditon）](https://en.wikipedia.org/wiki/Race_condition)”，攻击者可以抢在某关键过程前后通过修改共享数据达到攻击目的，所以应合理设计数据的访问方式或使用锁、信号量等同步手段保证数据的可靠性。
 <br/>
@@ -3654,7 +3654,7 @@ ID_nestedComment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
      */                    // #3
 */                         // #4, Non-compliant
 ```
-根据标准，\#1 处的 /\* 与 \#3 处的 \*/ 匹配，而 \#4 处的 \*/ 处于失配状态。
+根据标准，`#1` 处的 /\* 与 `#3` 处的 \*/ 匹配，而 `#4` 处的 \*/ 处于失配状态。
 <br/>
 <br/>
 
@@ -10473,7 +10473,7 @@ int main() {
     cout << foo(p) << '\n';  // What is output?
 }
 ```
-输出 1，特化的函数模板不参与重载函数的选取，所以只会在 \#1 和 \#2 中选取，foo(p) 与 \#2 更贴近，而 \#3 是 \#1 的特化，所以不会选取 \#3，这种情况下 \#3 是无效的。  
+输出 1，特化的函数模板不参与重载函数的选取，所以只会在 `#1` 和 `#2` 中选取，foo(p) 与 `#2` 更贴近，而 `#3` 是 `#1` 的特化，所以不会选取 `#3`，这种情况下 `#3` 是无效的。  
   
 应去除对函数模板的特化，改为普通重载函数：
 ```
@@ -14410,17 +14410,17 @@ printf("%x %d", a, b);  // Non-compliant, #1
 printf("%lx %ld", a, b);  // Non-compliant, #2
 printf("%llx %lld", a, b);  // Non-compliant, #3
 ```
-size\_t、ptrdiff\_t 等类型是由实现定义的，标准没有规定其是否一定对应 unsigned int、long 或 long long 类型，而 %d、%lx、%llx 只对应 int、long、long long 类型，所以示例代码都是不合理的。\#1 在 64 位环境中会丢失数据，\#3 在 32 位环境中会造成参数栈读取错误，\#2 只在某些环境下可以正常工作不具备可移值性。  
+size\_t、ptrdiff\_t 等类型是由实现定义的，标准没有规定其是否一定对应 unsigned int、long 或 long long 类型，而 %d、%lx、%llx 只对应 int、long、long long 类型，所以示例代码都是不合理的。`#1` 在 64 位环境中会丢失数据，`#3` 在 32 位环境中会造成参数栈读取错误，`#2` 只在某些环境下可以正常工作不具备可移值性。  
   
 在 C 语言中正确的做法是 a 对应 %zx，b 对应 %zd，如：
 ```
 printf("%zx %zd", a, b);  // Non-compliant in C++, even if the result is correct
 ```
-参数的类型与个数和占位符必须严格对应，否则就会导致标准未定义的错误，当参数较多时极易出错，利用 C\+\+ iostream 可有效规避这些问题：
+参数的类型与个数和占位符必须严格对应，否则就会导致未定义的行为，当参数较多时极易出错，利用 C\+\+ iostream 可规避这类问题：
 ```
 std::cout << std::hex << a << ' ' << std::dec << b;  // Compliant
 ```
-然而当参数较多时，利用 iostream 的方式在形态上可能较为“松散”，其可读性可能不如 printf 等函数，对于这个问题可参见 ID\_forbidVariadicFunction 中的示例，用“[模板参数包](https://en.cppreference.com/w/cpp/language/parameter_pack)”等更安全的方法实现 printf 函数的功能。另外，C\+\+20 的“[std::format](https://en.cppreference.com/w/cpp/utility/format/format)”也提供了更多的格式化方法。
+然而当参数较多时，iostream 的方式在形态上可能较为“松散”，可读性可能不如 printf 等函数，这个问题可参见 ID\_forbidVariadicFunction 的示例，用“[模板参数包](https://en.cppreference.com/w/cpp/language/parameter_pack)”等更安全的方法实现 printf 函数的功能。另外，C\+\+20 的“[std::format](https://en.cppreference.com/w/cpp/utility/format/format)”也提供了更多的格式化方法。
 <br/>
 <br/>
 
