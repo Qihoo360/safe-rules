@@ -6165,19 +6165,19 @@ ID_forbidVolatile&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration suggestion
 
 应在适当的场景中合理使用 volatile 关键字，否则误用该关键字会引发优化或同步相关的多种问题。  
   
-除以下场景，应禁用 volatile：  
+在以下场景之外应禁用 volatile：  
  - 与汇编等语言混合处理同一对象  
  - 信号或中断处理函数处理共享对象  
  - 对象地址对应外设地址  
  - 出于安全目的清理内存中的对象  
   
-在这些场景中，如果相关对象没有用 volatile 限定，会导致优化后的程序和预期不符，volatile 关键字可以保证对象具有稳定的内存地址，任何读取或写入都可以来源于或作用于内存中的实际数据。  
+在这些场景中，如果相关对象没有用 volatile 限定，会导致程序和预期不符，volatile 关键字可以保证对象具有稳定的内存地址，任何读取或写入都可以来源于或作用于内存中的实际数据。  
   
-注意，volatile 和 C/C\+\+ 的并发或同步机制没有关系，也无法保证相关操作的原子性。  
+除此之外不应使用 volatile，而且要注意 volatile 和 C/C\+\+ 的并发或同步机制是没有关系的，也无法保证相关操作的原子性。  
   
 示例：
 ```
-volatile int x;  // Noncompliant, ‘volatile’ is abused
+volatile int x;  // Non-compliant, ‘volatile’ is abused
 
 void thread() {
     LockGuard g;
