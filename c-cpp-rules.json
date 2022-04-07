@@ -600,7 +600,7 @@
         "level": "warning",
         "comment": "没有 signed 或 unsigned 限制的 char 类型，是否有符号由具体的编译器决定。",
         "tag": "declaration",
-        "standard": "ISO/IEC 14882:2003 3.9.1(1)-implementation,ISO/IEC 14882:2011 3.9.1(1)-implementation",
+        "standard": "ISO/IEC 9899:2011 6.2.5(15)-implementation,ISO/IEC 14882:2011 3.9.1(1)-implementation",
         "reference": "MISRA C++ 2008 5-0-11,SEI CERT INT07-C"
         },
     "ID_plainBinaryChar": {

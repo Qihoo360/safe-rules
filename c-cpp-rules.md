@@ -7060,7 +7060,7 @@ void bar() {
 <br/>
 
 #### 依据
-ISO/IEC 14882:2003 3.9.1(1)-implementation  
+ISO/IEC 9899:2011 6.2.5(15)-implementation  
 ISO/IEC 14882:2011 3.9.1(1)-implementation  
 <br/>
 
