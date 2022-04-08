@@ -1,20 +1,20 @@
 {
-    "name": "C/C++安全规则集合",
-    "version": "1.1.0",
+    "name": "C/C++ 安全规则集合",
+    "version": "1.1.1",
     "encoding": "utf-8",
 
     "//": [
-        "checkPoint是规则的描述",
-        "comment是规则针对问题的简要说明",
-        "config是相关配置项的名称及含义",
-        "standard是相关ISO/IEC标准",
-        "reference是规则的参考条目，由逗号分隔",
-        "level是严重性等级，分为error、warning、suggestion、suspicious",
+        "checkPoint 是规则的描述",
+        "comment 是规则针对问题的简要说明",
+        "config 是相关配置项的名称及含义",
+        "standard 是相关 ISO/IEC 标准",
+        "reference 是规则的参考条目，由逗号分隔",
+        "level 是严重性等级，分为 error、warning、suggestion、suspicious",
             "error：错误代码",
             "warning：有严重错误倾向的代码",
             "suggestion：优化建议",
             "suspicious：可疑的代码，不一定有实际错误",
-        "tags是进一步细化的分类"
+        "tags 是进一步细化的分类"
     ],
 
     "ID_sizeof_oddExpression": {
@@ -187,7 +187,7 @@
     "ID_illMemberCall": {
         "checkPoint": "基类对象构造完毕之前不可调用成员函数",
         "level": "warning",
-        "comment": "基类对象未构造完毕时调用成员函数会导致标准未定义的错误。",
+        "comment": "基类对象未构造完毕时调用成员函数会导致标准未定义的行为。",
         "tag": "function",
         "standard": "ISO/IEC 14882:2011 12.6.2(13)-undefined"
         },
@@ -262,7 +262,7 @@
     "ID_insufficientDelete": {
         "checkPoint": "用 delete 释放数组不可漏写中括号",
         "level": "error",
-        "comment": "用 new 分配的数组应该用 delete[] 释放，不可漏写中括号，否则引发标准未定义的错误。",
+        "comment": "用 new 分配的数组应该用 delete[] 释放，不可漏写中括号，否则导致标准未定义的行为。",
         "tag": "resource",
         "related": "ID_excessiveDelete",
         "standard": "ISO/IEC 14882:2003 5.3.5(2)-undefined,ISO/IEC 14882:2011 5.3.5(2)-undefined,ISO/IEC 14882:2017 8.3.5(2)-undefined",
@@ -271,7 +271,7 @@
     "ID_excessiveDelete": {
         "checkPoint": "用 delete 释放对象不可多写中括号",
         "level": "error",
-        "comment": "用 new 分配的对象应该用 delete 释放，不可用 delete[] 释放，否则引发标准未定义的错误。",
+        "comment": "用 new 分配的对象应该用 delete 释放，不可用 delete[] 释放，否则导致标准未定义的行为。",
         "tag": "resource",
         "related": "ID_insufficientDelete",
         "standard": "ISO/IEC 14882:2003 5.3.5(2)-undefined,ISO/IEC 14882:2011 5.3.5(2)-undefined,ISO/IEC 14882:2017 8.3.5(2)-undefined",
@@ -306,7 +306,7 @@
     "ID_doubleFree": {
         "checkPoint": "资源不可被重复释放",
         "level": "error",
-        "comment": "重复释放资源属于逻辑错误，也会导致标准未定义的问题。",
+        "comment": "重复释放资源属于逻辑错误，导致标准未定义的行为。",
         "tag": "resource",
         "standard": "ISO/IEC 9899:2011 7.22.3.3(2)-undefined,ISO/IEC 14882:2011 3.7.4.2(4)-undefined",
         "reference": "CWE-415"
@@ -791,7 +791,7 @@
     "ID_missingConst": {
         "checkPoint": "避免用常量字符串对非常量字符串指针赋值",
         "level": "warning",
-        "comment": "用常量字符串对非常量字符串指针赋值，相关内存被修改会导致标准未定义的问题。",
+        "comment": "用常量字符串对非常量字符串指针赋值，相关内存被修改会导致标准未定义的行为。",
         "tag": "declaration",
         "standard": "ISO/IEC 14882:2003 2.13.4(2)-undefined,ISO/IEC 14882:2011 2.14.5(12)-undefined,ISO/IEC 14882:2011 5.13.5(16)-undefined",
         "reference": "MISRA C 2012 7.4"
@@ -989,7 +989,7 @@
     "ID_forbidRestrictPtr": {
         "checkPoint": "禁用 restrict 指针",
         "level": "warning",
-        "comment": "C 语言中的 restrict 指针要求其他指针不能再指向相同区域，有助于编译器优化，但不符合这种限制时会导致标准未定义的错误，相当于增加了误用的风险，也提高了测试成本。",
+        "comment": "C 语言中的 restrict 指针要求其他指针不能再指向相同区域，有助于编译器优化，但不符合这种限制时会导致标准未定义的行为，相当于增加了误用的风险，也提高了测试成本。",
         "tag": "declaration",
         "standard": "ISO/IEC 9899:1999 6.7.3.1(4 9 11)-undefined,ISO/IEC 9899:2011 6.7.3.1(4 9 11)-undefined",
         "reference": "MISRA C 2012 8.14,SEI CERT EXP43-C"
@@ -997,7 +997,7 @@
     "ID_forbidStaticArrSize": {
         "checkPoint": "声明数组参数的大小时禁用 static 关键字",
         "level": "warning",
-        "comment": "C 语言规定数组作为形式参数时，可用 static 关键字修饰大小，要求传入数组的大小不能小于由 static  关键字修饰的值，有助于编译器优化，但不符合这种限制时会导致标准未定义错误，相当于增加了误用的风险，也提高了测试成本。",
+        "comment": "C 语言规定数组作为形式参数时，可用 static 关键字修饰大小，要求传入数组的大小不能小于由 static  关键字修饰的值，有助于编译器优化，但不符合这种限制时会导致标准未定义的行为，相当于增加了误用的风险，也提高了测试成本。",
         "tag": "declaration",
         "standard": "ISO/IEC 9899:1999 6.7.6.3(7),ISO/IEC 9899:2011 6.7.6.3(7)",
         "reference": "MISRA C 2012 17.6"
@@ -1044,7 +1044,7 @@
     "ID_nonStandardCharInHeaderName": {
         "checkPoint": "include 指令中禁用不合规的字符",
         "level": "warning",
-        "comment": "字母、数字、下划线以及点号之外的字符可能与文件系统造成冲突，也可能导致标准之外的问题，所以不应出现在头文件名称中。",
+        "comment": "字母、数字、下划线、点号之外的字符可能与文件系统存在冲突，也可能导致标准未定义的行为，不应出现在头文件和相关目录名称中。",
         "tag": "precompile",
         "standard": "ISO/IEC 9899:1999 6.4.7(3)-undefined,ISO/IEC 9899:2011 6.4.7(3)-undefined,ISO/IEC 14882:2003 2.8(2)-undefined,ISO/IEC 14882:2011 2.9(2)-implementation",
         "reference": "MISRA C 2004 19.2,MISRA C 2012 20.2,MISRA C++ 2008 16-2-4"
@@ -1208,7 +1208,7 @@
     "ID_illPtrDiff": {
         "checkPoint": "不在同一数组中的指针不可比较或相减",
         "level": "warning",
-        "comment": "不在同一数组中的指针比较或相减属于逻辑错误，会导致标准未定义的问题。",
+        "comment": "不在同一数组中的指针比较或相减属于逻辑错误，会导致标准未定义的行为。",
         "tag": "expression",
         "standard": "ISO/IEC 14882:2003 5.7(6)-undefined,ISO/IEC 14882:2011 5.7(6)-undefined,ISO/IEC 14882:2011 8.7(5)-undefined",
         "reference": "MISRA C 2004 17.3,MISRA C++ 2008 5-0-17,MISRA C++ 2008 5-0-18,C++ Core Guidelines ES.62"
@@ -1231,7 +1231,7 @@
     "ID_qualifierCastedAway": {
         "checkPoint": "类型转换不应去掉 const、volatile 等属性",
         "level": "warning",
-        "comment": "去掉 const、volatile 等属性会使相关机制失去意义，往往意味着设计上的缺陷，也会导致标准未定义的错误。",
+        "comment": "去掉 const、volatile 等属性会使相关机制失去意义，往往意味着设计上的缺陷，也会导致标准未定义的行为。",
         "tag": "cast",
         "standard": "ISO/IEC 14882:2003 7.1.5.1(4 5)-undefined,ISO/IEC 14882:2011 7.1.6.1(4)-undefined",
         "reference": "C++ Core Guidelines Type.3,MISRA C 2004 11.5,MISRA C 2012 11.8,MISRA C++ 2008 5-2-5"
@@ -1678,14 +1678,14 @@
     "ID_virtualCallInConstructor": {
         "checkPoint": "在构造函数中不应调用虚函数",
         "level": "warning",
-        "comment": "虚函数在构造函数中的多态性不生效，而且调用未定义的纯虚函数会导致标准未定义的错误。",
+        "comment": "虚函数在构造函数中的多态性不生效，而且调用纯虚函数会导致标准未定义的行为。",
         "tag": "function",
         "reference": "C++ Core Guidelines C.82,Effective C++ item 9"
         },
     "ID_virtualCallInDestuctor": {
         "checkPoint": "在析构函数中不应调用虚函数",
         "level": "warning",
-        "comment": "虚函数在析构函数中的多态性不生效，而且调用未定义的纯虚函数会导致标准未定义的错误。",
+        "comment": "虚函数在析构函数中的多态性不生效，而且调用纯虚函数会导致标准未定义的行为。",
         "tag": "function",
         "reference": "C++ Core Guidelines C.82,Effective C++ item 9"
         },
@@ -1755,7 +1755,7 @@
     "ID_localAddressFlowOut": {
         "checkPoint": "不可返回局部对象的地址或引用",
         "level": "error",
-        "comment": "对象的生命周期结束后，其地址或引用也会失效，如果继续访问会造严重错误，导致标准未定义的行为。",
+        "comment": "对象的生命周期结束后，其地址或引用也会失效，如果继续访问会导致标准未定义的行为。",
         "tag": "function",
         "related": "ID_danglingDeref",
         "standard": "ISO/IEC 9899:1999 6.2.4(2)-undefined,ISO/IEC 9899:2011 6.2.4(2)-undefined",
@@ -1780,7 +1780,7 @@
     "ID_notAllBranchReturn": {
         "checkPoint": "有返回值的函数其所有分枝都应有明确的返回值",
         "level": "error",
-        "comment": "当函数的某个分枝没有明确的返回值时会引发标准未定义的错误。",
+        "comment": "当函数的某个分枝没有明确的返回值时会导致标准未定义的行为。",
         "tag": "function",
         "standard": "ISO/IEC 9899:1999 6.9.1(12)-undefined,ISO/IEC 9899:1999 5.1.2.2.3(1),ISO/IEC 9899:2011 6.9.1(12)-undefined,ISO/IEC 9899:2011 5.1.2.2.3(1),ISO/IEC 14882:2011 6.6.3(2)-undefined,ISO/IEC 14882:2017 9.6.3(2)-undefined",
         "reference": "CWE-394,MISRA C 2004 16.8,MISRA C 2012 17.4,MISRA C++ 2008 8-4-3"
@@ -1905,7 +1905,7 @@
     "ID_unsuitableReturn": {
         "checkPoint": "属性为 noreturn 的函数中不应出现 return 语句",
         "level": "warning",
-        "comment": "在属性为 noreturn 的函数中使用 return 语句会导致标准未定义的问题。",
+        "comment": "在属性为 noreturn 的函数中使用 return 语句会导致标准未定义的行为。",
         "tag": "function",
         "standard": "ISO/IEC 14882:2011 7.6.3(2)-undefined"
         },
@@ -2421,7 +2421,7 @@
     "ID_literal_nonStandardEsc": {
         "checkPoint": "不应使用非标准转义字符",
         "level": "warning",
-        "comment": "使用非标准转义字符会导致标准未定义的问题，也可能是忘了将反斜杠转义。",
+        "comment": "使用非标准转义字符会导致标准未定义的行为，也可能是忘了将反斜杠转义。",
         "tag": "literal",
         "standard": "ISO/IEC 14882:2003 2.13.2(3)-undefined,ISO/IEC 14882:2011 2.14.3(3)-implementation,ISO/IEC 14882:2017 5.13.3(7)-implementation",
         "reference": "MISRA C 2004 4.1,MISRA C++ 2008 2-13-1"
@@ -2500,7 +2500,7 @@
     "ID_illFormedDirective": {
         "checkPoint": "不应出现非标准格式的预编译指令",
         "level": "warning",
-        "comment": "非标准格式的预编译指令往往意味着错误，也会导致标准未定义的问题。",
+        "comment": "非标准格式的预编译指令往往意味着错误，也会导致标准未定义的行为。",
         "tag": "precompile",
         "standard": "ISO/IEC 9899:2011 6.10(1),ISO/IEC 9899:2011 6.10.1(4)-undefined,ISO/IEC 14882:2011 16.1(4)-undefined,ISO/IEC 14882:2011 16.2(4)-undefined,ISO/IEC 14882:2011 16.4(3)-undefined,ISO/IEC 14882:2011 16.4(5)-undefined",
         "reference": "MISRA C++ 2008 16-0-7,MISRA C++ 2008 16-0-8,MISRA C++ 2008 16-1-1"
@@ -2598,7 +2598,7 @@
     "ID_macro_defineReserved": {
         "checkPoint": "不可定义具有保留意义的宏名称",
         "level": "warning",
-        "comment": "重新定义已有特殊用途的名称，会使代码陷入难以维护的境地，也会导致标准未定义的问题。",
+        "comment": "重新定义已有特殊用途的名称，会使代码陷入难以维护的境地，也会导致标准未定义的行为。",
         "config": { "//": "详见说明" },
         "tag": "precompile",
         "standard": "ISO/IEC 9899:2011 7.1.3(2)-undefined,ISO/IEC 14882:2011 16.8(4)-undefined",
@@ -2608,7 +2608,7 @@
     "ID_macro_undefReserved": {
         "checkPoint": "不可取消定义具有保留意义的宏名称",
         "level": "warning",
-        "comment": "取消定义已有特殊用途的宏名称，会使代码陷入难以维护的境地，也会导致标准未定义的问题。",
+        "comment": "取消定义已有特殊用途的宏名称，会使代码陷入难以维护的境地，也会导致标准未定义的行为。",
         "tag": "precompile",
         "standard": "ISO/IEC 9899:2011 7.1.3(3)-undefined,ISO/IEC 14882:2011 16.8(4)-undefined",
         "related": "ID_macro_defineReserved,ID_reservedName",
@@ -2688,7 +2688,7 @@
     "ID_nullDerefAllocRet": {
         "checkPoint": "判断资源分配函数的返回值是否有效",
         "level": "warning",
-        "comment": "malloc 等函数在分配失败时返回空指针，如果不加判断直接使用会造成标准未定义的错误。",
+        "comment": "malloc 等函数在分配失败时返回空指针，如果不加判断直接使用会导致标准未定义的行为。",
         "tag": "resource",
         "standard": "ISO/IEC 9899:1999 7.20.3(1),ISO/IEC 9899:2011 7.22.3(1)",
         "reference": "CWE-476,CWE-252"
@@ -2888,7 +2888,7 @@
     "ID_illMemberAccess": {
         "checkPoint": "在面向构造或析构函数体的 catch handler 中不可访问非静态成员",
         "level": "error",
-        "comment": "当流程进入面向构造或析构函数体的 catch handler 时，非静态成员的生命周期已经结束，如果再次访问会导致标准未定义的错误。",
+        "comment": "当流程进入面向构造或析构函数体的 catch handler 时，非静态成员的生命周期已经结束，如果继续访问会导致标准未定义的行为。",
         "tag": "function",
         "standard": "ISO/IEC 14882:2011 15.3(10)-undefined",
         "reference": "MISRA C++ 2008 15-3-3"
@@ -2979,7 +2979,7 @@
     "ID_deprecatedOffsetof": {
         "checkPoint": "在 C++ 代码中不应使用宏 offsetof",
         "level": "suggestion",
-        "comment": "宏 offsetof 很难适用于具有 C++ 特性的类，易引发未定义的错误。",
+        "comment": "宏 offsetof 很难适用于具有 C++ 特性的类，易导致标准未定义的行为。",
         "tag": "precompile",
         "standard": "ISO/IEC 14882:2003 18.1(5),ISO/IEC 14882:2011 18.2(4),ISO/IEC 14882:2017 21.2.4(1)"
         },
@@ -3271,7 +3271,7 @@
     "ID_badCommentPosition": {
         "checkPoint": "注释应出现在合理的位置",
         "level": "suggestion",
-        "comment": "注释应出现在段落的前后或行尾，不应出现在行首或中间，否则对阅读产生较大干扰，也可能产生标准未定义的问题。",
+        "comment": "注释应出现在段落的前后或行尾，不应出现在行首或中间，否则对阅读产生较大干扰，也可能导致标准未定义的行为。",
         "tag": "precompile"
         },
     "ID_badBackslash": {
