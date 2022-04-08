@@ -4,7 +4,7 @@
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对 C、C++ 语言，本文收录了 423 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对 C、C++ 语言，本文收录了 426 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
@@ -264,9 +264,10 @@
     - [R6.6.2 不建议虚函数的参数有默认值](#ID_deprecatedDefaultArgument)
     - [R6.6.3 虚函数参数的默认值应与基类中声明的一致](#ID_inconsistentDefaultArgument)
     - [R6.6.4 不应将数组作为函数的形式参数](#ID_invalidParamArraySize)
-    - [R6.6.5 C 代码中参数列表如果为空应声明为“(void)”](#ID_missingVoid)
-    - [R6.6.6 C\+\+ 代码中参数列表如果为空不应声明为“(void)”](#ID_superfluousVoid)
-    - [R6.6.7 声明数组参数的大小时禁用 static 关键字](#ID_forbidStaticArrSize)
+    - [R6.6.5 parmN 的声明应符合要求](#ID_badParmN)
+    - [R6.6.6 C 代码中参数列表如果为空应声明为“(void)”](#ID_missingVoid)
+    - [R6.6.7 C\+\+ 代码中参数列表如果为空不应声明为“(void)”](#ID_superfluousVoid)
+    - [R6.6.8 声明数组参数的大小时禁用 static 关键字](#ID_forbidStaticArrSize)
   - [6.7 Function](#declaration.function)
     - [R6.7.1 派生类不应重新定义与基类相同的非虚函数](#ID_nonVirtualOverride)
     - [R6.7.2 拷贝赋值、移动赋值运算符应返回所属类的非 const 引用](#ID_nonStdAssignmentRetType)
@@ -350,19 +351,20 @@
   - [R8.30 属性为 noreturn 的函数中不应出现 return 语句](#ID_unsuitableReturn)
   - [R8.31 属性为 noreturn 的函数返回类型只应为 void](#ID_unsuitableReturnType)
   - [R8.32 不应出现多余的跳转语句](#ID_redundantJump)
-  - [R8.33 va\_start 或 va\_copy 应配合 va\_end 使用](#ID_incompleteVAMacros)
-  - [R8.34 函数模板不应被特化](#ID_functionSpecialization)
-  - [R8.35 函数的标签数量应在规定范围之内](#ID_tooManyLabels)
-  - [R8.36 函数的行数应在规定范围之内](#ID_tooManyLines)
-  - [R8.37 lambda 表达式的行数应在规定范围之内](#ID_tooManyLambdaLines)
-  - [R8.38 函数参数的数量应在规定范围之内](#ID_tooManyParams)
-  - [R8.39 不应定义过于复杂的内联函数](#ID_complexInlineFunction)
-  - [R8.40 禁止 goto 语句向嵌套的或无包含关系的作用域跳转](#ID_forbidGotoBlocks)
-  - [R8.41 禁止 goto 语句向前跳转](#ID_forbidGotoBack)
-  - [R8.42 禁用 goto 语句](#ID_forbidGoto)
-  - [R8.43 禁用 setjmp、longjmp](#ID_forbidLongjmp)
-  - [R8.44 避免递归实现](#ID_recursion)
-  - [R8.45 不应存在重复的函数实现](#ID_functionRepetition)
+  - [R8.33 va\_start 或 va\_copy 应配合 va\_end 使用](#ID_incompleteVaMacros)
+  - [R8.34 va\_arg 的类型参数应符合要求](#ID_badVaArgType)
+  - [R8.35 函数模板不应被特化](#ID_functionSpecialization)
+  - [R8.36 函数的标签数量应在规定范围之内](#ID_tooManyLabels)
+  - [R8.37 函数的行数应在规定范围之内](#ID_tooManyLines)
+  - [R8.38 lambda 表达式的行数应在规定范围之内](#ID_tooManyLambdaLines)
+  - [R8.39 函数参数的数量应在规定范围之内](#ID_tooManyParams)
+  - [R8.40 不应定义过于复杂的内联函数](#ID_complexInlineFunction)
+  - [R8.41 禁止 goto 语句向嵌套的或无包含关系的作用域跳转](#ID_forbidGotoBlocks)
+  - [R8.42 禁止 goto 语句向前跳转](#ID_forbidGotoBack)
+  - [R8.43 禁用 goto 语句](#ID_forbidGoto)
+  - [R8.44 禁用 setjmp、longjmp](#ID_forbidLongjmp)
+  - [R8.45 避免递归实现](#ID_recursion)
+  - [R8.46 不应存在重复的函数实现](#ID_functionRepetition)
 <br/>
 
 <span id="__Control">**[9. Control](#control)**</span>
@@ -519,21 +521,22 @@
 
 <span id="__Cast">**[12. Cast](#cast)**</span>
   - [R12.1 避免类型转换造成数据丢失](#ID_narrowCast)
-  - [R12.2 避免向下类型转换](#ID_downCast)
-  - [R12.3 指针与整数不应相互转换](#ID_ptrIntCast)
-  - [R12.4 类型转换不应去掉 const、volatile 等属性](#ID_qualifierCastedAway)
-  - [R12.5 不应强制转换无继承关系的类型](#ID_castNoInheritance)
-  - [R12.6 不应强制转换非公有继承关系的类型](#ID_castNonPublicInheritance)
-  - [R12.7 多态类型与基本类型不应相互转换](#ID_castViolatePolymorphism)
-  - [R12.8 不可直接转换不同的字符串类型](#ID_charWCharCast)
-  - [R12.9 避免类型转换造成的指针运算错误](#ID_arrayPointerCast)
-  - [R12.10 对函数指针不应进行类型转换](#ID_functionPointerCast)
-  - [R12.11 向下类型转换应使用 dynamic\_cast](#ID_nonDynamicDownCast)
-  - [R12.12 对 new 表达式不应进行类型转换](#ID_oddNewCast)
-  - [R12.13 不应存在多余的类型转换](#ID_redundantCast)
-  - [R12.14 可用其他方式完成的转换不应使用 reinterpret\_cast](#ID_unsuitableReinterpretCast)
-  - [R12.15 在 C\+\+ 代码中禁用 C 风格类型转换](#ID_forbidCStyleCast)
-  - [R12.16 合理使用 reinterpret\_cast](#ID_forbidReinterpretCast)
+  - [R12.2 避免与 void\* 相互转换](#ID_voidCast)
+  - [R12.3 避免向下类型转换](#ID_downCast)
+  - [R12.4 指针与整数不应相互转换](#ID_ptrIntCast)
+  - [R12.5 类型转换不应去掉 const、volatile 等属性](#ID_qualifierCastedAway)
+  - [R12.6 不应强制转换无继承关系的类型](#ID_castNoInheritance)
+  - [R12.7 不应强制转换非公有继承关系的类型](#ID_castNonPublicInheritance)
+  - [R12.8 多态类型与基本类型不应相互转换](#ID_castViolatePolymorphism)
+  - [R12.9 不可直接转换不同的字符串类型](#ID_charWCharCast)
+  - [R12.10 避免类型转换造成的指针运算错误](#ID_arrayPointerCast)
+  - [R12.11 对函数指针不应进行类型转换](#ID_functionPointerCast)
+  - [R12.12 向下类型转换应使用 dynamic\_cast](#ID_nonDynamicDownCast)
+  - [R12.13 对 new 表达式不应进行类型转换](#ID_oddNewCast)
+  - [R12.14 不应存在多余的类型转换](#ID_redundantCast)
+  - [R12.15 可用其他方式完成的转换不应使用 reinterpret\_cast](#ID_unsuitableReinterpretCast)
+  - [R12.16 在 C\+\+ 代码中禁用 C 风格类型转换](#ID_forbidCStyleCast)
+  - [R12.17 合理使用 reinterpret\_cast](#ID_forbidReinterpretCast)
 <br/>
 
 <span id="__Buffer">**[13. Buffer](#buffer)**</span>
@@ -4617,9 +4620,8 @@ delete p;           // But only ‘A::~A’ is called, ‘B::x’ leaks
 <br/>
 
 #### 依据
-ISO/IEC 14882:2003 12.4(7) 5.3.5(3)  
-ISO/IEC 14882:2011 12.4(9) 5.3.5(3)  
-ISO/IEC 14882:2017 15.4(10) 8.3.5(3)  
+ISO/IEC 14882:2011 12.4(9)  
+ISO/IEC 14882:2011 5.3.5(3)-undefined  
 <br/>
 
 #### 参考
@@ -6644,6 +6646,11 @@ string format(const char* fmt, const Args& ...args) {  // Compliant
 <br/>
 <br/>
 
+#### 相关
+ID_badParmN  
+ID_badVaArgType  
+<br/>
+
 #### 依据
 ISO/IEC 14882:2003 5.2.2(7)-undefined  
 <br/>
@@ -6728,6 +6735,7 @@ C\+\+ 语言规定 new 运算符的返回类型为 void\*，delete 运算符的�
 <br/>
 
 #### 相关
+ID_voidCast  
 ID_forbidMemberVoidPtr  
 <br/>
 
@@ -6769,6 +6777,7 @@ private:
 <br/>
 
 #### 相关
+ID_voidCast  
 ID_forbidFunctionVoidPtr  
 <br/>
 
@@ -7041,9 +7050,9 @@ void bar() {
     printf("%d", 2 * c);    // What is output?
 }
 ```
-这段代码可移植性较差，foo 在某些环境中可能只会返回 true，而 bar 可能输出 \-152，也可能输出 360。  
+示例代码可移植性较差，foo 在某些环境中可能只会返回 true，而 bar 可能输出 \-152，也可能输出 360。  
   
-char 类型在 PC 桌面、服务端等环境中一般是有符号的，在移动端或嵌入式系统中往往是无符号的，需明确其具体实现。  
+char 类型在桌面、服务端等环境中可能是有符号的，在移动端或嵌入式系统中可能是无符号的，需明确其具体实现。  
   
 应改为：
 ```
@@ -7255,7 +7264,7 @@ int bar() {
 void foo(int (&a)[100]);   // Compliant
 
 template <size_t size>
-void foo(int(&a)[size]) {  // Compliant
+void foo(int (&a)[size]) {  // Compliant
     ....
 }
 ```
@@ -7274,7 +7283,44 @@ MISRA C++ 2008 5-2-12
 <br/>
 <br/>
 
-### <span id="ID_missingVoid">▌R6.6.5 C 代码中参数列表如果为空应声明为“(void)”</span>
+### <span id="ID_badParmN">▌R6.6.5 parmN 的声明应符合要求</span>
+
+ID_badParmN&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: declaration error
+
+<hr/>
+
+可变参数列表中省略号的前一个参数称为 parmN，如果：  
+ - 在 C 语言中，parmN 为数组、函数，或具有寄存器存储期，以及与默认参数提升后不兼容的类型  
+ - 在 C\+\+ 语言中，parmN 为引用、数组、函数，或具有与默认参数提升后不兼容的类型  
+  
+会导致标准未定义的行为。  
+  
+示例：
+```
+void foo(float f, ...);          // Non-compliant
+void bar(int& i, ...);           // Non-compliant in C++
+void baz(register int n, ...);   // Non-compliant in C
+```
+例中参数 f 为 float 型，与“[默认参数提升（default argument promotion）](https://en.cppreference.com/w/cpp/language/variadic_arguments#Default_conversions)”后的类型 double 不兼容，参数 i 为引用，参数 n 被 register 修饰具有寄存器存储期，这种代码均会导致标准未定义的行为。
+<br/>
+<br/>
+
+#### 相关
+ID_badVaArgType  
+ID_forbidVariadicFunction  
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 7.16.1.4(4)-undefined  
+ISO/IEC 14882:2011 3.2(5)-undefined  
+<br/>
+
+#### 参考
+SEI CERT EXP58-CPP  
+<br/>
+<br/>
+
+### <span id="ID_missingVoid">▌R6.6.6 C 代码中参数列表如果为空应声明为“(void)”</span>
 
 ID_missingVoid&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
@@ -7330,7 +7376,7 @@ MISRA C 2004 16.5
 <br/>
 <br/>
 
-### <span id="ID_superfluousVoid">▌R6.6.6 C++ 代码中参数列表如果为空不应声明为“(void)”</span>
+### <span id="ID_superfluousVoid">▌R6.6.7 C++ 代码中参数列表如果为空不应声明为“(void)”</span>
 
 ID_superfluousVoid&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -7363,7 +7409,7 @@ C++ Core Guidelines NL.25
 <br/>
 <br/>
 
-### <span id="ID_forbidStaticArrSize">▌R6.6.7 声明数组参数的大小时禁用 static 关键字</span>
+### <span id="ID_forbidStaticArrSize">▌R6.6.8 声明数组参数的大小时禁用 static 关键字</span>
 
 ID_forbidStaticArrSize&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration warning
 
@@ -8022,8 +8068,8 @@ void baz() {
 <br/>
 
 #### 依据
-ISO/IEC 14882:2003 3.2(5)-undefined  
-ISO/IEC 14882:2011 3.2(5)-undefined  
+ISO/IEC 9899:2011 7.16.1.4(4)-undefined  
+ISO/IEC 14882:2011 18.10(3)-undefined  
 <br/>
 
 #### 参考
@@ -10412,9 +10458,9 @@ L:
 <br/>
 <br/>
 
-### <span id="ID_incompleteVAMacros">▌R8.33 va_start 或 va_copy 应配合 va_end 使用</span>
+### <span id="ID_incompleteVaMacros">▌R8.33 va_start 或 va_copy 应配合 va_end 使用</span>
 
-ID_incompleteVAMacros&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
+ID_incompleteVaMacros&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
@@ -10443,7 +10489,59 @@ ISO/IEC 9899:2011 7.16.1.3(2)-undefined
 <br/>
 <br/>
 
-### <span id="ID_functionSpecialization">▌R8.34 函数模板不应被特化</span>
+### <span id="ID_badVaArgType">▌R8.34 va_arg 的类型参数应符合要求</span>
+
+ID_badVaArgType&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
+
+<hr/>
+
+对于 va\_arg 的类型参数，如果：  
+ - 名称后加 \* 号不能表示指针类型  
+ - 与默认参数提升后的类型不兼容  
+ - 与下一个参数的类型不兼容，或没有实际的下一个参数  
+  
+会导致标准未定义的行为。  
+  
+以下类型不可作为 av\_arg 的参数：
+```
+bool、_Bool、
+char、signed char、unsigned char、char16_t、
+float、
+short、unsigned short、signed short、
+short int、signed short int、unsigned short int
+```
+这些类型的参数在传入可变参数列表时，会被提升为 int、unsigned int、double 等类型，具体可参见“[默认参数提升（default argument promotion）](https://en.cppreference.com/w/cpp/language/variadic_arguments#Default_conversions)”机制，va\_arg 如果再按这些类型解析参数的值就会造成错误。  
+  
+示例：
+```
+void foo(int n, ...) {
+    va_list vl;
+    va_start(vl, n);
+    for (int i = 0; i < n; i++) {
+        char c = va_arg(vl, char);   // Non-compliant, use ‘va_arg(vl, int)’ instead
+        ....
+    }
+    va_end(vl);
+}
+```
+<br/>
+<br/>
+
+#### 相关
+ID_badParmN  
+ID_forbidVariadicFunction  
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 7.16.1.1(2)-undefined  
+<br/>
+
+#### 参考
+SEI CERT EXP47-C  
+<br/>
+<br/>
+
+### <span id="ID_functionSpecialization">▌R8.35 函数模板不应被特化</span>
 
 ID_functionSpecialization&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10491,7 +10589,7 @@ MISRA C++ 2008 14-8-1
 <br/>
 <br/>
 
-### <span id="ID_tooManyLabels">▌R8.35 函数的标签数量应在规定范围之内</span>
+### <span id="ID_tooManyLabels">▌R8.36 函数的标签数量应在规定范围之内</span>
 
 ID_tooManyLabels&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10522,7 +10620,7 @@ maxLabelCount：标签数量上限，超过则报出
 <br/>
 <br/>
 
-### <span id="ID_tooManyLines">▌R8.36 函数的行数应在规定范围之内</span>
+### <span id="ID_tooManyLines">▌R8.37 函数的行数应在规定范围之内</span>
 
 ID_tooManyLines&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10552,7 +10650,7 @@ C++ Core Guidelines F.3
 <br/>
 <br/>
 
-### <span id="ID_tooManyLambdaLines">▌R8.37 lambda 表达式的行数应在规定范围之内</span>
+### <span id="ID_tooManyLambdaLines">▌R8.38 lambda 表达式的行数应在规定范围之内</span>
 
 ID_tooManyLambdaLines&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10585,7 +10683,7 @@ maxLambdaLineCount：lambda 表达式行数上限，超过则报出
 <br/>
 <br/>
 
-### <span id="ID_tooManyParams">▌R8.38 函数参数的数量应在规定范围之内</span>
+### <span id="ID_tooManyParams">▌R8.39 函数参数的数量应在规定范围之内</span>
 
 ID_tooManyParams&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10633,7 +10731,7 @@ C++ Core Guidelines I.23
 <br/>
 <br/>
 
-### <span id="ID_complexInlineFunction">▌R8.39 不应定义过于复杂的内联函数</span>
+### <span id="ID_complexInlineFunction">▌R8.40 不应定义过于复杂的内联函数</span>
 
 ID_complexInlineFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
@@ -10658,7 +10756,7 @@ C++ Core Guidelines F.5
 <br/>
 <br/>
 
-### <span id="ID_forbidGotoBlocks">▌R8.40 禁止 goto 语句向嵌套的或无包含关系的作用域跳转</span>
+### <span id="ID_forbidGotoBlocks">▌R8.41 禁止 goto 语句向嵌套的或无包含关系的作用域跳转</span>
 
 ID_forbidGotoBlocks&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function warning
 
@@ -10702,7 +10800,7 @@ MISRA C++ 2008 6-6-1
 <br/>
 <br/>
 
-### <span id="ID_forbidGotoBack">▌R8.41 禁止 goto 语句向前跳转</span>
+### <span id="ID_forbidGotoBack">▌R8.42 禁止 goto 语句向前跳转</span>
 
 ID_forbidGotoBack&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function suggestion
 
@@ -10740,7 +10838,7 @@ MISRA C++ 2008 6-6-2
 <br/>
 <br/>
 
-### <span id="ID_forbidGoto">▌R8.42 禁用 goto 语句</span>
+### <span id="ID_forbidGoto">▌R8.43 禁用 goto 语句</span>
 
 ID_forbidGoto&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function suggestion
 
@@ -10812,7 +10910,7 @@ MISRA C 2012 15.1
 <br/>
 <br/>
 
-### <span id="ID_forbidLongjmp">▌R8.43 禁用 setjmp、longjmp</span>
+### <span id="ID_forbidLongjmp">▌R8.44 禁用 setjmp、longjmp</span>
 
 ID_forbidLongjmp&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function warning
 
@@ -10858,7 +10956,7 @@ C++ Core Guidelines SL.C.1
 <br/>
 <br/>
 
-### <span id="ID_recursion">▌R8.44 避免递归实现</span>
+### <span id="ID_recursion">▌R8.45 避免递归实现</span>
 
 ID_recursion&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10895,7 +10993,7 @@ MISRA C++ 2008 7-5-4
 <br/>
 <br/>
 
-### <span id="ID_functionRepetition">▌R8.45 不应存在重复的函数实现</span>
+### <span id="ID_functionRepetition">▌R8.46 不应存在重复的函数实现</span>
 
 ID_functionRepetition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
@@ -15731,7 +15829,42 @@ C++ Core Guidelines ES.46
 <br/>
 <br/>
 
-### <span id="ID_downCast">▌R12.2 避免向下类型转换</span>
+### <span id="ID_voidCast">▌R12.2 避免与 void* 相互转换</span>
+
+ID_voidCast&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: cast suggestion
+
+<hr/>
+
+与 void\* 相互转换会丢失类型信息，也会导致标准未声明的行为。  
+  
+示例：
+```
+struct A { .... };
+
+void foo(void* v) {
+    A* a = (A*)v;      // Non-compliant 
+    ....
+}
+```
+<br/>
+<br/>
+
+#### 相关
+ID_forbidMemberVoidPtr  
+ID_forbidFunctionVoidPtr  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 5.2.10(7)-unspecified  
+<br/>
+
+#### 参考
+MISRA C 2012 11.5  
+MISRA C++ 2008 5-2-8  
+<br/>
+<br/>
+
+### <span id="ID_downCast">▌R12.3 避免向下类型转换</span>
 
 ID_downCast&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: cast suggestion
 
@@ -15794,7 +15927,7 @@ C++ Core Guidelines ES.48
 <br/>
 <br/>
 
-### <span id="ID_ptrIntCast">▌R12.3 指针与整数不应相互转换</span>
+### <span id="ID_ptrIntCast">▌R12.4 指针与整数不应相互转换</span>
 
 ID_ptrIntCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
@@ -15834,12 +15967,11 @@ ISO/IEC 9899:2011 7.20.1.4(1)
 SEI CERT INT36-C  
 MISRA C 2004 11.3  
 MISRA C 2012 11.4  
-MISRA C++ 2008 5-2-8  
 MISRA C++ 2008 5-2-9  
 <br/>
 <br/>
 
-### <span id="ID_qualifierCastedAway">▌R12.4 类型转换不应去掉 const、volatile 等属性</span>
+### <span id="ID_qualifierCastedAway">▌R12.5 类型转换不应去掉 const、volatile 等属性</span>
 
 ID_qualifierCastedAway&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
@@ -15875,7 +16007,7 @@ MISRA C++ 2008 5-2-5
 <br/>
 <br/>
 
-### <span id="ID_castNoInheritance">▌R12.5 不应强制转换无继承关系的类型</span>
+### <span id="ID_castNoInheritance">▌R12.6 不应强制转换无继承关系的类型</span>
 
 ID_castNoInheritance&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
@@ -15943,7 +16075,7 @@ MISRA C++ 2008 5-2-7
 <br/>
 <br/>
 
-### <span id="ID_castNonPublicInheritance">▌R12.6 不应强制转换非公有继承关系的类型</span>
+### <span id="ID_castNonPublicInheritance">▌R12.7 不应强制转换非公有继承关系的类型</span>
 
 ID_castNonPublicInheritance&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
@@ -15971,7 +16103,7 @@ ISO/IEC 9899:2011 4.10(3)
 <br/>
 <br/>
 
-### <span id="ID_castViolatePolymorphism">▌R12.7 多态类型与基本类型不应相互转换</span>
+### <span id="ID_castViolatePolymorphism">▌R12.8 多态类型与基本类型不应相互转换</span>
 
 ID_castViolatePolymorphism&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
@@ -16011,7 +16143,7 @@ CWE-843
 <br/>
 <br/>
 
-### <span id="ID_charWCharCast">▌R12.8 不可直接转换不同的字符串类型</span>
+### <span id="ID_charWCharCast">▌R12.9 不可直接转换不同的字符串类型</span>
 
 ID_charWCharCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
@@ -16044,7 +16176,7 @@ SEI CERT STR38-C
 <br/>
 <br/>
 
-### <span id="ID_arrayPointerCast">▌R12.9 避免类型转换造成的指针运算错误</span>
+### <span id="ID_arrayPointerCast">▌R12.10 避免类型转换造成的指针运算错误</span>
 
 ID_arrayPointerCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
@@ -16065,7 +16197,7 @@ void foo(A* p, int n) {
 
 void bar() {
     B arr[10];
-    foo(arr, 10);  // Bug
+    foo(arr, 10);  // Non-compliant
     ....
 }
 ```
@@ -16085,7 +16217,7 @@ C++ Core Guidelines C.152
 <br/>
 <br/>
 
-### <span id="ID_functionPointerCast">▌R12.10 对函数指针不应进行类型转换</span>
+### <span id="ID_functionPointerCast">▌R12.11 对函数指针不应进行类型转换</span>
 
 ID_functionPointerCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
@@ -16128,7 +16260,7 @@ MISRA C++ 2008 5-2-6
 <br/>
 <br/>
 
-### <span id="ID_nonDynamicDownCast">▌R12.11 向下类型转换应使用 dynamic_cast</span>
+### <span id="ID_nonDynamicDownCast">▌R12.12 向下类型转换应使用 dynamic_cast</span>
 
 ID_nonDynamicDownCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
@@ -16181,7 +16313,7 @@ C++ Core Guidelines Type.2
 <br/>
 <br/>
 
-### <span id="ID_oddNewCast">▌R12.12 对 new 表达式不应进行类型转换</span>
+### <span id="ID_oddNewCast">▌R12.13 对 new 表达式不应进行类型转换</span>
 
 ID_oddNewCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
@@ -16204,7 +16336,7 @@ ID_forbidFlexibleArray
 <br/>
 <br/>
 
-### <span id="ID_redundantCast">▌R12.13 不应存在多余的类型转换</span>
+### <span id="ID_redundantCast">▌R12.14 不应存在多余的类型转换</span>
 
 ID_redundantCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
@@ -16232,7 +16364,7 @@ CWE-704
 <br/>
 <br/>
 
-### <span id="ID_unsuitableReinterpretCast">▌R12.14 可用其他方式完成的转换不应使用 reinterpret_cast</span>
+### <span id="ID_unsuitableReinterpretCast">▌R12.15 可用其他方式完成的转换不应使用 reinterpret_cast</span>
 
 ID_unsuitableReinterpretCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
@@ -16266,7 +16398,7 @@ C++ Core Guidelines Type.1
 <br/>
 <br/>
 
-### <span id="ID_forbidCStyleCast">▌R12.15 在 C++ 代码中禁用 C 风格类型转换</span>
+### <span id="ID_forbidCStyleCast">▌R12.16 在 C++ 代码中禁用 C 风格类型转换</span>
 
 ID_forbidCStyleCast&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: cast suggestion
 
@@ -16299,7 +16431,7 @@ C++ Core Guidelines ES.49
 <br/>
 <br/>
 
-### <span id="ID_forbidReinterpretCast">▌R12.16 合理使用 reinterpret_cast</span>
+### <span id="ID_forbidReinterpretCast">▌R12.17 合理使用 reinterpret_cast</span>
 
 ID_forbidReinterpretCast&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: cast suggestion
 
@@ -17511,7 +17643,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 423 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
+&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 426 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
 
 &emsp;&emsp;此致
 

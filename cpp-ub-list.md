@@ -97,7 +97,7 @@
 | 85 | [多线程调用标准库函数造成 data race](#_85) | [`11-17.6.4.10(1)`](#_85) |
 | 86 | [违反标准库函数要求的前置条件，除非标准库函数声明了这种情况会抛出异常](#_86) | [`11-17.6.4.11(1)`](#_86) |
 | 87 | [offsetof 用于非 standard layout 类型，或用于计算静态成员以及成员函数的偏移量](#_87) | [`11-18.2(4)`](#_87) |
-| 88 | [可变参数列表中，省略号的前一个形式参数为引用、数组、函数，或具有与默认参数提升后不兼容的类型](#_88) | [`11-18.10(3)`](#_88) |
+| 88 | [可变参数列表中省略号的前一个形式参数为引用、数组、函数，或具有与默认参数提升后不兼容的类型](#_88) | [`11-18.10(3)`](#_88) |
 | 89 | [longjmp 跳转使应被执行的析构函数未被执行](#_89) | [`11-18.10(4)`](#_89) |
 
 <br/>
@@ -1224,6 +1224,7 @@ ISO/IEC 14882:2011 5.3.5(3)-undefined
 
 #### 规则
 [ID_missingVirtualDestructor](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_missingVirtualDestructor)  
+[ID_arrayPointerCast](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_arrayPointerCast)  
 <br/>
 
 <br/>
@@ -2548,7 +2549,7 @@ ISO/IEC 14882:2011 18.2(4)-undefined
 <br/>
 <br/>
 
-### <span id="_88">88. 可变参数列表中，省略号的前一个形式参数为引用、数组、函数，或具有与默认参数提升后不兼容的类型</span>
+### <span id="_88">88. 可变参数列表中省略号的前一个形式参数为引用、数组、函数，或具有与默认参数提升后不兼容的类型</span>
 <br/>
 
 示例：
@@ -2568,6 +2569,7 @@ ISO/IEC 14882:2011 18.10(3)-undefined
 <br/>
 
 #### 规则
+[ID_badParmN](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_badParmN)  
 [ID_forbidVariadicFunction](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_forbidVariadicFunction)  
 <br/>
 

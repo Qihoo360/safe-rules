@@ -54,7 +54,7 @@
         "tag": "cast",
         "standard": "ISO/IEC 9899:2011 6.3.2.3(5)-implementation,ISO/IEC 14882:2011 5.2.10(4 5)-implementation,ISO/IEC 9899:2011 7.20.1.4(1)",
         "related": "ID_fixedAddrToPointer",
-        "reference": "SEI CERT INT36-C,MISRA C 2004 11.3,MISRA C 2012 11.4,MISRA C++ 2008 5-2-8,MISRA C++ 2008 5-2-9"
+        "reference": "SEI CERT INT36-C,MISRA C 2004 11.3,MISRA C 2012 11.4,MISRA C++ 2008 5-2-9"
         },
     "ID_zeroAsPtrValue": {
         "checkPoint": "不应使用常量 0 表示空指针",
@@ -191,7 +191,7 @@
         "tag": "function",
         "standard": "ISO/IEC 14882:2011 12.6.2(13)-undefined"
         },
-    "ID_incompleteVAMacros": {
+    "ID_incompleteVaMacros": {
         "checkPoint": "va_start 或 va_copy 应配合 va_end 使用",
         "level": "warning",
         "comment": "可变参数列表相关的 va_start 或 va_copy 和 va_end 应在同一函数中使用，否则会导致标准未定义的错误。",
@@ -953,6 +953,7 @@
         "level": "warning",
         "comment": "可变参数列表对参数的类型和数量缺乏有效的限定和控制，是公认的不安全因素。",
         "tag": "declaration",
+        "related": "ID_badParmN,ID_badVaArgType",
         "standard": "ISO/IEC 14882:2003 5.2.2(7)-undefined",
         "reference": "C++ Core Guidelines ES.34,C++ Core Guidelines F.55,MISRA C 2004 16.1,MISRA C++ 2008 8-4-1"
         },
@@ -1946,7 +1947,7 @@
         "level": "warning",
         "comment": "为了避免意料之外的资源泄漏，有虚函数的基类，都应该具有虚析构函数。",
         "tag": "type",
-        "standard": "ISO/IEC 14882:2003 12.4(7) 5.3.5(3),ISO/IEC 14882:2011 12.4(9) 5.3.5(3),ISO/IEC 14882:2017 15.4(10) 8.3.5(3)",
+        "standard": "ISO/IEC 14882:2011 12.4(9),ISO/IEC 14882:2011 5.3.5(3)-undefined",
         "reference": "CWE-1079,CWE-1087,CWE-1045,C++ Core Guidelines C.35,C++ Core Guidelines C.127"
         },
     "ID_diamondInheritance": {
@@ -3051,7 +3052,7 @@
         "level": "warning",
         "comment": "与接口相关的数据类型应保持精确，不应将类成员声明为 void*，尤其是非 private 成员，更不应声明为 void*。",
         "tag": "declaration",
-        "related": "ID_forbidFunctionVoidPtr",
+        "related": "ID_voidCast,ID_forbidFunctionVoidPtr",
         "reference": "C++ Core Guidelines I.4"
         },
     "ID_forbidFunctionVoidPtr": {
@@ -3059,7 +3060,7 @@
         "level": "warning",
         "comment": "与接口相关的数据类型应保持精确，不应将参数或返回值声明为 void*。",
         "tag": "declaration",
-        "related": "ID_forbidMemberVoidPtr",
+        "related": "ID_voidCast,ID_forbidMemberVoidPtr",
         "reference": "C++ Core Guidelines I.4"
         },
     "ID_improperNullTermination": {
@@ -3307,7 +3308,34 @@
         "level": "warning",
         "comment": "One Definition Rule，即任何翻译单元不得包含变量、函数、类型、枚举或模板的多个定义，否则会导致标准未定义的行为。",
         "tag": "declaration",
-        "standard": "ISO/IEC 14882:2003 3.2(5)-undefined,ISO/IEC 14882:2011 3.2(5)-undefined",
+        "standard": "ISO/IEC 9899:2011 7.16.1.4(4)-undefined,ISO/IEC 14882:2011 18.10(3)-undefined",
         "reference": "MISRA C++ 2008 3-2-2"
+        },
+    "ID_badParmN": {
+        "checkPoint": "parmN 的声明应符合要求",
+        "level": "error",
+        "comment": "parmN 是可变参数列表中省略号的前一个参数，该参数不符合要求会导致标准未定义的行为。",
+        "tag": "declaration",
+        "related": "ID_badVaArgType,ID_forbidVariadicFunction",
+        "standard": "ISO/IEC 9899:2011 7.16.1.4(4)-undefined,ISO/IEC 14882:2011 3.2(5)-undefined",
+        "reference": "SEI CERT EXP58-CPP"
+        },
+    "ID_badVaArgType": {
+        "checkPoint": "va_arg 的类型参数应符合要求",
+        "level": "error",
+        "comment": "va_arg 的类型参数应符合要求。",
+        "tag": "function",
+        "related": "ID_badParmN,ID_forbidVariadicFunction",
+        "standard": "ISO/IEC 9899:2011 7.16.1.1(2)-undefined",
+        "reference": "SEI CERT EXP47-C"
+        },
+    "ID_voidCast": {
+        "checkPoint": "避免与 void* 相互转换",
+        "level": "suggestion",
+        "comment": "与 void* 相互转换会丢失类型信息，也会导致标准未声明的行为。",
+        "tag": "cast",
+        "standard": "ISO/IEC 14882:2003 5.2.10(7)-unspecified",
+        "related": "ID_forbidMemberVoidPtr,ID_forbidFunctionVoidPtr",
+        "reference": "MISRA C 2012 11.5,MISRA C++ 2008 5-2-8"
         }
 }
