@@ -132,37 +132,40 @@
     - [R3.1.4 include 指令中不应使用绝对路径](#ID_forbidAbsPathInHeaderName)
     - [R3.1.5 禁用不合规的头文件](#ID_forbiddenHeader)
     - [R3.1.6 C\+\+ 代码不应引用 C 头文件](#ID_forbidCHeaderInCpp)
-  - [3.2 Macro](#precompile.macro)
+  - [3.2 Macro-definition](#precompile.macro-definition)
     - [R3.2.1 宏应遵循合理的命名方式](#ID_macro_badName)
     - [R3.2.2 不可定义具有保留意义的宏名称](#ID_macro_defineReserved)
     - [R3.2.3 不可取消定义具有保留意义的宏名称](#ID_macro_undefReserved)
     - [R3.2.4 可作为子表达式的宏定义应该用括号括起来](#ID_macro_expNotEnclosed)
     - [R3.2.5 与运算符相关的宏参数应该用括号括起来](#ID_macro_paramNotEnclosed)
     - [R3.2.6 由多个语句组成的宏定义应该用 do\-while(0) 括起来](#ID_macro_stmtNotEnclosed)
-    - [R3.2.7 宏的实参个数不可小于形参个数](#ID_macro_insufficientArgs)
-    - [R3.2.8 宏的实参个数不可大于形参个数](#ID_macro_redundantArgs)
-    - [R3.2.9 宏参数不应有副作用](#ID_macro_sideEffectArgs)
-    - [R3.2.10 宏参数数量应在规定范围之内](#ID_macro_tooManyParams)
-    - [R3.2.11 宏名称中不应存在拼写错误](#ID_macro_misspelling)
-    - [R3.2.12 不应使用宏定义常量](#ID_macro_const)
-    - [R3.2.13 不应使用宏定义类型](#ID_macro_typeid)
-    - [R3.2.14 可由函数实现的功能不应使用宏实现](#ID_macro_function)
-    - [R3.2.15 在 C\+\+ 代码中不应使用宏 offsetof](#ID_deprecatedOffsetof)
-    - [R3.2.16 在宏定义中由 \# 修饰的参数后不应出现 \#\#](#ID_macro_complexConcat)
-  - [3.3 Directive](#precompile.directive)
-    - [R3.3.1 头文件不应缺少守卫](#ID_missingHeaderGuard)
-    - [R3.3.2 不应出现非标准格式的预编译指令](#ID_illFormedDirective)
-    - [R3.3.3 不应使用非标准预编译指令](#ID_nonStdDirective)
-    - [R3.3.4 宏的参数列表中不应出现预编译指令](#ID_directiveInMacroArgument)
-    - [R3.3.5 对编译警告的屏蔽应慎重](#ID_warningDisabled)
-    - [R3.3.6 在高级别的警告设置下编译](#ID_warningDefault)
-  - [3.4 Comment](#precompile.comment)
-    - [R3.4.1 关注 TODO、FIXME、XXX、BUG 等特殊注释](#ID_specialComment)
-    - [R3.4.2 注释不可嵌套](#ID_nestedComment)
-    - [R3.4.3 注释应出现在合理的位置](#ID_badCommentPosition)
-  - [3.5 Other](#precompile.other)
-    - [R3.5.1 非空源文件应以换行符结尾](#ID_missingNewLineFileEnd)
-    - [R3.5.2 除转义字符、宏定义之外不应使用反斜杠](#ID_badBackslash)
+    - [R3.2.7 在宏定义中由 \# 修饰的参数后不应出现 \#\#](#ID_macro_complexConcat)
+    - [R3.2.8 宏参数数量应在规定范围之内](#ID_macro_tooManyParams)
+    - [R3.2.9 不应使用宏定义常量](#ID_macro_const)
+    - [R3.2.10 不应使用宏定义类型](#ID_macro_typeid)
+    - [R3.2.11 可由函数实现的功能不应使用宏实现](#ID_macro_function)
+    - [R3.2.12 宏名称中不应存在拼写错误](#ID_macro_misspelling)
+  - [3.3 Macro-usage](#precompile.macro-usage)
+    - [R3.3.1 宏参数不应有副作用](#ID_macro_sideEffectArgs)
+    - [R3.3.2 宏的实参个数不可小于形参个数](#ID_macro_insufficientArgs)
+    - [R3.3.3 宏的实参个数不可大于形参个数](#ID_macro_redundantArgs)
+    - [R3.3.4 va\_start 或 va\_copy 应配合 va\_end 使用](#ID_incompleteVaMacros)
+    - [R3.3.5 va\_arg 的类型参数应符合要求](#ID_badVaArgType)
+    - [R3.3.6 在 C\+\+ 代码中不应使用宏 offsetof](#ID_deprecatedOffsetof)
+  - [3.4 Directive](#precompile.directive)
+    - [R3.4.1 头文件不应缺少守卫](#ID_missingHeaderGuard)
+    - [R3.4.2 不应出现非标准格式的预编译指令](#ID_illFormedDirective)
+    - [R3.4.3 不应使用非标准预编译指令](#ID_nonStdDirective)
+    - [R3.4.4 宏的参数列表中不应出现预编译指令](#ID_directiveInMacroArgument)
+    - [R3.4.5 对编译警告的屏蔽应慎重](#ID_warningDisabled)
+    - [R3.4.6 在高级别的警告设置下编译](#ID_warningDefault)
+  - [3.5 Comment](#precompile.comment)
+    - [R3.5.1 关注 TODO、FIXME、XXX、BUG 等特殊注释](#ID_specialComment)
+    - [R3.5.2 注释不可嵌套](#ID_nestedComment)
+    - [R3.5.3 注释应出现在合理的位置](#ID_badCommentPosition)
+  - [3.6 Other](#precompile.other)
+    - [R3.6.1 非空源文件应以换行符结尾](#ID_missingNewLineFileEnd)
+    - [R3.6.2 除转义字符、宏定义之外不应使用反斜杠](#ID_badBackslash)
 <br/>
 
 <span id="__Global">**[4. Global](#global)**</span>
@@ -232,7 +235,7 @@
     - [R6.2.7 枚举类型的底层类型不应为 const 或 volatile](#ID_uselessQualifier)
     - [R6.2.8 对常量的定义不应为引用](#ID_constLiteralReference)
     - [R6.2.9 禁用 restrict 指针](#ID_forbidRestrictPtr)
-    - [R6.2.10 非适当场景禁用 volatile 关键字](#ID_forbidVolatile)
+    - [R6.2.10 非适当场景禁用 volatile](#ID_forbidVolatile)
   - [6.3 Specifier](#declaration.specifier)
     - [R6.3.1 使用 auto 关键字需注意可读性](#ID_abusedAuto)
     - [R6.3.2 不应使用已过时的关键字](#ID_deprecatedSpecifier)
@@ -351,20 +354,18 @@
   - [R8.30 属性为 noreturn 的函数中不应出现 return 语句](#ID_unsuitableReturn)
   - [R8.31 属性为 noreturn 的函数返回类型只应为 void](#ID_unsuitableReturnType)
   - [R8.32 不应出现多余的跳转语句](#ID_redundantJump)
-  - [R8.33 va\_start 或 va\_copy 应配合 va\_end 使用](#ID_incompleteVaMacros)
-  - [R8.34 va\_arg 的类型参数应符合要求](#ID_badVaArgType)
-  - [R8.35 函数模板不应被特化](#ID_functionSpecialization)
-  - [R8.36 函数的标签数量应在规定范围之内](#ID_tooManyLabels)
-  - [R8.37 函数的行数应在规定范围之内](#ID_tooManyLines)
-  - [R8.38 lambda 表达式的行数应在规定范围之内](#ID_tooManyLambdaLines)
-  - [R8.39 函数参数的数量应在规定范围之内](#ID_tooManyParams)
-  - [R8.40 不应定义过于复杂的内联函数](#ID_complexInlineFunction)
-  - [R8.41 禁止 goto 语句向嵌套的或无包含关系的作用域跳转](#ID_forbidGotoBlocks)
-  - [R8.42 禁止 goto 语句向前跳转](#ID_forbidGotoBack)
-  - [R8.43 禁用 goto 语句](#ID_forbidGoto)
-  - [R8.44 禁用 setjmp、longjmp](#ID_forbidLongjmp)
-  - [R8.45 避免递归实现](#ID_recursion)
-  - [R8.46 不应存在重复的函数实现](#ID_functionRepetition)
+  - [R8.33 函数模板不应被特化](#ID_functionSpecialization)
+  - [R8.34 函数的标签数量应在规定范围之内](#ID_tooManyLabels)
+  - [R8.35 函数的行数应在规定范围之内](#ID_tooManyLines)
+  - [R8.36 lambda 表达式的行数应在规定范围之内](#ID_tooManyLambdaLines)
+  - [R8.37 函数参数的数量应在规定范围之内](#ID_tooManyParams)
+  - [R8.38 不应定义过于复杂的内联函数](#ID_complexInlineFunction)
+  - [R8.39 禁止 goto 语句向嵌套的或无包含关系的作用域跳转](#ID_forbidGotoBlocks)
+  - [R8.40 禁止 goto 语句向前跳转](#ID_forbidGotoBack)
+  - [R8.41 禁用 goto 语句](#ID_forbidGoto)
+  - [R8.42 禁用 setjmp、longjmp](#ID_forbidLongjmp)
+  - [R8.43 避免递归实现](#ID_recursion)
+  - [R8.44 不应存在重复的函数实现](#ID_functionRepetition)
 <br/>
 
 <span id="__Control">**[9. Control](#control)**</span>
@@ -2758,7 +2759,7 @@ MISRA C++ 2008 18-0-1
 <br/>
 <br/>
 
-### <span id="precompile.macro">3.2 Macro</span>
+### <span id="precompile.macro-definition">3.2 Macro-definition</span>
 
 ### <span id="ID_macro_badName">▌R3.2.1 宏应遵循合理的命名方式</span>
 
@@ -3029,100 +3030,42 @@ CWE-483
 <br/>
 <br/>
 
-### <span id="ID_macro_insufficientArgs">▌R3.2.7 宏的实参个数不可小于形参个数</span>
+### <span id="ID_macro_complexConcat">▌R3.2.7 在宏定义中由 # 修饰的参数后不应出现 ##</span>
 
-ID_macro_insufficientArgs&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
-
-<hr/>
-
-宏的实参个数小于形参个数是不符合 C/C\+\+ 标准的，参数个数不一致必然意味着某种错误，然而在某些编译环境下却可以通过编译。  
-  
-示例：
-```
-#define M(a, b, c)  a ## b ## c
-
-const char* foo() {
-    return M("x", "y");  // Non-compliant
-}
-```
-在早期标准中（如 ISO 9899:1990）这种情况是未定义的，而后续标准对其进行了约束，但 MSVC 2017 等编译器不把这种问题视作编译错误，需要特别注意。
-<br/>
-<br/>
-
-#### 相关
-ID_macro_redundantArgs  
-<br/>
-
-#### 参考
-CWE-628  
-MISRA C 2004 19.8  
-<br/>
-<br/>
-
-### <span id="ID_macro_redundantArgs">▌R3.2.8 宏的实参个数不可大于形参个数</span>
-
-ID_macro_redundantArgs&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
+ID_macro_complexConcat&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 <hr/>
 
-宏的实参个数大于形参个数是不符合 C/C\+\+ 标准的，参数个数不一致必然意味着某种错误，然而在某些编译环境下却可以通过编译。  
+不同编译器对 \# 和 \#\# 的优先级有不同的实现，在有可移植性要求的代码中不应嵌套使用，而且 \#\# 连接的单词数量不应超过两个。  
   
 示例：
 ```
-#define M(a, b, c)  a ## b ## c
+#define M0(a, b) # a ## b         // Non-compliant
+#define M1(a, b, c) a ## #b ## c  // Non-compliant
 
-const char* foo() {
-    return M("a", "b", "c", "d");  // Non-compliant
-}
+#define M2(a) #a             // Compliant
+#define M3(a, b) M1(a ## b)  // Compliant
 ```
 <br/>
 <br/>
 
-#### 相关
-ID_macro_insufficientArgs  
+#### 依据
+ISO/IEC 14882:2003 16.3.2(2)-unspecified  
+ISO/IEC 14882:2003 16.3.3(3)-unspecified  
+ISO/IEC 14882:2011 16.3.2(2)-unspecified  
+ISO/IEC 14882:2011 16.3.3(3)-unspecified  
+ISO/IEC 14882:2017 19.3.2(2)-unspecified  
+ISO/IEC 14882:2017 19.3.3(3)-unspecified  
 <br/>
 
 #### 参考
-CWE-628  
+MISRA C 2004 19.12  
+MISRA C 2012 20.11  
+MISRA C++ 2008 16-3-1  
 <br/>
 <br/>
 
-### <span id="ID_macro_sideEffectArgs">▌R3.2.9 宏参数不应有副作用</span>
-
-ID_macro_sideEffectArgs&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
-
-<hr/>
-
-当宏参数有“[副作用（side effect）](https://en.wikipedia.org/wiki/Side_effect_(computer_science))”时，如果宏定义中没有或多次引用到该参数，会导致意料之外的错误。  
-  
-示例：
-```
-#define I(a)
-#define M(a) ((a) + (a))
-
-int foo(int& a) {
-    return M(++a);  // Non-compliant, returns ‘((++a) + (++a))’
-}
-
-void bar(int& a) {
-    I(a--);         // Non-compliant, does nothing
-}
-```
-例中 M 和 I 看起来像是函数调用，而展开后的结果却在意料之外。
-<br/>
-<br/>
-
-#### 相关
-ID_sideEffectAssertion  
-ID_macro_function  
-<br/>
-
-#### 参考
-SEI CERT PRE31-C  
-<br/>
-<br/>
-
-### <span id="ID_macro_tooManyParams">▌R3.2.10 宏参数数量应在规定范围之内</span>
+### <span id="ID_macro_tooManyParams">▌R3.2.8 宏参数数量应在规定范围之内</span>
 
 ID_macro_tooManyParams&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
@@ -3141,28 +3084,7 @@ ID_tooManyParams
 <br/>
 <br/>
 
-### <span id="ID_macro_misspelling">▌R3.2.11 宏名称中不应存在拼写错误</span>
-
-ID_macro_misspelling&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
-
-<hr/>
-
-宏的名称不应存在拼写错误，尤其是供他人调用的宏，错误拼写会使代码的使用者对代码的质量产生疑虑，应认真对待。  
-  
-示例：
-```
-#define FRIST(p) p->first()  // Non-compliant, should be FIRST
-```
-<br/>
-<br/>
-
-#### 相关
-ID_misspelling  
-ID_literal_misspelling  
-<br/>
-<br/>
-
-### <span id="ID_macro_const">▌R3.2.12 不应使用宏定义常量</span>
+### <span id="ID_macro_const">▌R3.2.9 不应使用宏定义常量</span>
 
 ID_macro_const&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
@@ -3211,7 +3133,7 @@ C++ Core Guidelines Enum.1
 <br/>
 <br/>
 
-### <span id="ID_macro_typeid">▌R3.2.13 不应使用宏定义类型</span>
+### <span id="ID_macro_typeid">▌R3.2.10 不应使用宏定义类型</span>
 
 ID_macro_typeid&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
@@ -3246,7 +3168,7 @@ C++ Core Guidelines ES.30
 <br/>
 <br/>
 
-### <span id="ID_macro_function">▌R3.2.14 可由函数实现的功能不应使用宏实现</span>
+### <span id="ID_macro_function">▌R3.2.11 可由函数实现的功能不应使用宏实现</span>
 
 ID_macro_function&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
@@ -3281,7 +3203,206 @@ MISRA C++ 2008 16-0-4
 <br/>
 <br/>
 
-### <span id="ID_deprecatedOffsetof">▌R3.2.15 在 C++ 代码中不应使用宏 offsetof</span>
+### <span id="ID_macro_misspelling">▌R3.2.12 宏名称中不应存在拼写错误</span>
+
+ID_macro_misspelling&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
+
+<hr/>
+
+宏的名称不应存在拼写错误，尤其是供他人调用的宏，错误拼写会使代码的使用者对代码的质量产生疑虑，应认真对待。  
+  
+示例：
+```
+#define FRIST(p) p->first()  // Non-compliant, should be FIRST
+```
+<br/>
+<br/>
+
+#### 相关
+ID_misspelling  
+ID_literal_misspelling  
+<br/>
+<br/>
+
+### <span id="precompile.macro-usage">3.3 Macro-usage</span>
+
+### <span id="ID_macro_sideEffectArgs">▌R3.3.1 宏参数不应有副作用</span>
+
+ID_macro_sideEffectArgs&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
+
+<hr/>
+
+当宏参数有“[副作用（side effect）](https://en.wikipedia.org/wiki/Side_effect_(computer_science))”时，如果宏定义中没有或多次引用到该参数，会导致意料之外的错误。  
+  
+示例：
+```
+#define I(a)
+#define M(a) ((a) + (a))
+
+int foo(int& a) {
+    return M(++a);  // Non-compliant, returns ‘((++a) + (++a))’
+}
+
+void bar(int& a) {
+    I(a--);         // Non-compliant, does nothing
+}
+```
+例中 M 和 I 看起来像是函数调用，而展开后的结果却在意料之外。
+<br/>
+<br/>
+
+#### 相关
+ID_sideEffectAssertion  
+ID_macro_function  
+<br/>
+
+#### 参考
+SEI CERT PRE31-C  
+<br/>
+<br/>
+
+### <span id="ID_macro_insufficientArgs">▌R3.3.2 宏的实参个数不可小于形参个数</span>
+
+ID_macro_insufficientArgs&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
+
+<hr/>
+
+宏的实参个数小于形参个数是不符合 C/C\+\+ 标准的，参数个数不一致必然意味着某种错误，然而在某些编译环境下却可以通过编译。  
+  
+示例：
+```
+#define M(a, b, c)  a ## b ## c
+
+const char* foo() {
+    return M("x", "y");  // Non-compliant
+}
+```
+在早期标准中（如 ISO 9899:1990）这种情况是未定义的，而后续标准对其进行了约束，但 MSVC 2017 等编译器不把这种问题视作编译错误，需要特别注意。
+<br/>
+<br/>
+
+#### 相关
+ID_macro_redundantArgs  
+<br/>
+
+#### 参考
+CWE-628  
+MISRA C 2004 19.8  
+<br/>
+<br/>
+
+### <span id="ID_macro_redundantArgs">▌R3.3.3 宏的实参个数不可大于形参个数</span>
+
+ID_macro_redundantArgs&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
+
+<hr/>
+
+宏的实参个数大于形参个数是不符合 C/C\+\+ 标准的，参数个数不一致必然意味着某种错误，然而在某些编译环境下却可以通过编译。  
+  
+示例：
+```
+#define M(a, b, c)  a ## b ## c
+
+const char* foo() {
+    return M("a", "b", "c", "d");  // Non-compliant
+}
+```
+<br/>
+<br/>
+
+#### 相关
+ID_macro_insufficientArgs  
+<br/>
+
+#### 参考
+CWE-628  
+<br/>
+<br/>
+
+### <span id="ID_incompleteVaMacros">▌R3.3.4 va_start 或 va_copy 应配合 va_end 使用</span>
+
+ID_incompleteVaMacros&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
+
+<hr/>
+
+可变参数列表相关的 va\_start 或 va\_copy 和 va\_end 应在同一函数中使用，否则会导致标准未定义的错误。  
+  
+示例：
+```
+void foo(const char* s, ...) {  // Non-compliant, missing ‘va_end(vl);’
+    va_list vl;
+    va_start(vl, s);
+    for (const char* p = s; *p; p++) {
+        ....
+    }
+}
+```
+应在返回前使用 va\_end。
+<br/>
+<br/>
+
+#### 相关
+ID_forbidVariadicFunction  
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 7.16.1.3(2)-undefined  
+<br/>
+<br/>
+
+### <span id="ID_badVaArgType">▌R3.3.5 va_arg 的类型参数应符合要求</span>
+
+ID_badVaArgType&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: precompile error
+
+<hr/>
+
+对于 va\_arg 的类型参数，如果：  
+ - 名称后加 \* 号不能表示指针类型  
+ - 与默认参数提升后的类型不兼容  
+ - 与下一个参数的类型不兼容，或没有实际的下一个参数  
+  
+会导致标准未定义的行为。  
+  
+以下类型不可作为 av\_arg 的参数：
+```
+bool、_Bool、
+char、signed char、unsigned char、char16_t、
+float、
+short、unsigned short、signed short、
+short int、signed short int、unsigned short int
+```
+这些类型的参数在传入可变参数列表时，会被提升为 int、unsigned int、double 等类型，va\_arg 如果再提升前的类型解析参数的值就会造成错误，参见“[默认参数提升（default argument promotion）](https://en.cppreference.com/w/cpp/language/variadic_arguments#Default_conversions)”机制。  
+  
+示例：
+```
+void foo(int n, ...) {
+    va_list vl;
+    va_start(vl, n);
+    for (int i = 0; i < n; i++) {
+        char c = va_arg(vl, char);   // Non-compliant, use ‘va_arg(vl, int)’ instead
+        ....
+    }
+    va_end(vl);
+}
+```
+<br/>
+<br/>
+
+#### 相关
+ID_badParmN  
+ID_forbidVariadicFunction  
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 7.16.1.1(2)-undefined  
+<br/>
+
+#### 参考
+SEI CERT EXP47-C  
+<br/>
+<br/>
+
+### <span id="ID_deprecatedOffsetof">▌R3.3.6 在 C++ 代码中不应使用宏 offsetof</span>
 
 ID_deprecatedOffsetof&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
@@ -3328,44 +3449,9 @@ ISO/IEC 14882:2017 21.2.4(1)
 <br/>
 <br/>
 
-### <span id="ID_macro_complexConcat">▌R3.2.16 在宏定义中由 # 修饰的参数后不应出现 ##</span>
+### <span id="precompile.directive">3.4 Directive</span>
 
-ID_macro_complexConcat&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
-
-<hr/>
-
-不同编译器对 \# 和 \#\# 的优先级有不同的实现，在有可移植性要求的代码中不应嵌套使用，而且 \#\# 连接的单词数量不应超过两个。  
-  
-示例：
-```
-#define M0(a, b) # a ## b         // Non-compliant
-#define M1(a, b, c) a ## #b ## c  // Non-compliant
-
-#define M2(a) #a             // Compliant
-#define M3(a, b) M1(a ## b)  // Compliant
-```
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 14882:2003 16.3.2(2)-unspecified  
-ISO/IEC 14882:2003 16.3.3(3)-unspecified  
-ISO/IEC 14882:2011 16.3.2(2)-unspecified  
-ISO/IEC 14882:2011 16.3.3(3)-unspecified  
-ISO/IEC 14882:2017 19.3.2(2)-unspecified  
-ISO/IEC 14882:2017 19.3.3(3)-unspecified  
-<br/>
-
-#### 参考
-MISRA C 2004 19.12  
-MISRA C 2012 20.11  
-MISRA C++ 2008 16-3-1  
-<br/>
-<br/>
-
-### <span id="precompile.directive">3.3 Directive</span>
-
-### <span id="ID_missingHeaderGuard">▌R3.3.1 头文件不应缺少守卫</span>
+### <span id="ID_missingHeaderGuard">▌R3.4.1 头文件不应缺少守卫</span>
 
 ID_missingHeaderGuard&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
@@ -3409,7 +3495,7 @@ MISRA C++ 2008 16-2-3
 <br/>
 <br/>
 
-### <span id="ID_illFormedDirective">▌R3.3.2 不应出现非标准格式的预编译指令</span>
+### <span id="ID_illFormedDirective">▌R3.4.2 不应出现非标准格式的预编译指令</span>
 
 ID_illFormedDirective&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
@@ -3475,7 +3561,7 @@ MISRA C++ 2008 16-1-1
 <br/>
 <br/>
 
-### <span id="ID_nonStdDirective">▌R3.3.3 不应使用非标准预编译指令</span>
+### <span id="ID_nonStdDirective">▌R3.4.3 不应使用非标准预编译指令</span>
 
 ID_nonStdDirective&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
@@ -3503,7 +3589,7 @@ MISRA C 2012 20.13
 <br/>
 <br/>
 
-### <span id="ID_directiveInMacroArgument">▌R3.3.4 宏的参数列表中不应出现预编译指令</span>
+### <span id="ID_directiveInMacroArgument">▌R3.4.4 宏的参数列表中不应出现预编译指令</span>
 
 ID_directiveInMacroArgument&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
@@ -3537,7 +3623,7 @@ MISRA C++ 2008 16-0-5
 <br/>
 <br/>
 
-### <span id="ID_warningDisabled">▌R3.3.5 对编译警告的屏蔽应慎重</span>
+### <span id="ID_warningDisabled">▌R3.4.5 对编译警告的屏蔽应慎重</span>
 
 ID_warningDisabled&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
@@ -3568,7 +3654,7 @@ SEI CERT MSC00-C
 <br/>
 <br/>
 
-### <span id="ID_warningDefault">▌R3.3.6 在高级别的警告设置下编译</span>
+### <span id="ID_warningDefault">▌R3.4.6 在高级别的警告设置下编译</span>
 
 ID_warningDefault&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
@@ -3606,9 +3692,9 @@ SEI CERT MSC00-C
 <br/>
 <br/>
 
-### <span id="precompile.comment">3.4 Comment</span>
+### <span id="precompile.comment">3.5 Comment</span>
 
-### <span id="ID_specialComment">▌R3.4.1 关注 TODO、FIXME、XXX、BUG 等特殊注释</span>
+### <span id="ID_specialComment">▌R3.5.1 关注 TODO、FIXME、XXX、BUG 等特殊注释</span>
 
 ID_specialComment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
@@ -3640,7 +3726,7 @@ CWE-546
 <br/>
 <br/>
 
-### <span id="ID_nestedComment">▌R3.4.2 注释不可嵌套</span>
+### <span id="ID_nestedComment">▌R3.5.2 注释不可嵌套</span>
 
 ID_nestedComment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
@@ -3673,7 +3759,7 @@ MISRA C++ 2008 2-7-1
 <br/>
 <br/>
 
-### <span id="ID_badCommentPosition">▌R3.4.3 注释应出现在合理的位置</span>
+### <span id="ID_badCommentPosition">▌R3.5.3 注释应出现在合理的位置</span>
 
 ID_badCommentPosition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
@@ -3716,9 +3802,9 @@ void foo(int i /*= 0*/) {           // Let it go
 <br/>
 <br/>
 
-### <span id="precompile.other">3.5 Other</span>
+### <span id="precompile.other">3.6 Other</span>
 
-### <span id="ID_missingNewLineFileEnd">▌R3.5.1 非空源文件应以换行符结尾</span>
+### <span id="ID_missingNewLineFileEnd">▌R3.6.1 非空源文件应以换行符结尾</span>
 
 ID_missingNewLineFileEnd&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
@@ -3750,7 +3836,7 @@ ISO/IEC 14882:2003 2.1(2)-undefined
 <br/>
 <br/>
 
-### <span id="ID_badBackslash">▌R3.5.2 除转义字符、宏定义之外不应使用反斜杠</span>
+### <span id="ID_badBackslash">▌R3.6.2 除转义字符、宏定义之外不应使用反斜杠</span>
 
 ID_badBackslash&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
@@ -6159,15 +6245,15 @@ SEI CERT EXP43-C
 <br/>
 <br/>
 
-### <span id="ID_forbidVolatile">▌R6.2.10 非适当场景禁用 volatile 关键字</span>
+### <span id="ID_forbidVolatile">▌R6.2.10 非适当场景禁用 volatile</span>
 
 ID_forbidVolatile&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration suggestion
 
 <hr/>
 
-应在适当的场景中合理使用 volatile 关键字，否则误用该关键字会引发优化或同步相关的多种问题。  
+应在适当的场景中合理使用 volatile，否则会导致优化或同步相关的多种问题。  
   
-在以下场景之外应禁用 volatile：  
+只应在以下场景使用 volatile：  
  - 与汇编等语言混合处理同一对象  
  - 信号或中断处理函数处理共享对象  
  - 对象地址对应外设地址  
@@ -10458,90 +10544,7 @@ L:
 <br/>
 <br/>
 
-### <span id="ID_incompleteVaMacros">▌R8.33 va_start 或 va_copy 应配合 va_end 使用</span>
-
-ID_incompleteVaMacros&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
-
-<hr/>
-
-可变参数列表相关的 va\_start 或 va\_copy 和 va\_end 应在同一函数中使用，否则会导致标准未定义的错误。  
-  
-示例：
-```
-void foo(const char* s, ...) {  // Non-compliant, missing ‘va_end(vl);’
-    va_list vl;
-    va_start(vl, s);
-    for (const char* p = s; *p; p++) {
-        ....
-    }
-}
-```
-应在返回前使用 va\_end。
-<br/>
-<br/>
-
-#### 相关
-ID_forbidVariadicFunction  
-<br/>
-
-#### 依据
-ISO/IEC 9899:2011 7.16.1.3(2)-undefined  
-<br/>
-<br/>
-
-### <span id="ID_badVaArgType">▌R8.34 va_arg 的类型参数应符合要求</span>
-
-ID_badVaArgType&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
-
-<hr/>
-
-对于 va\_arg 的类型参数，如果：  
- - 名称后加 \* 号不能表示指针类型  
- - 与默认参数提升后的类型不兼容  
- - 与下一个参数的类型不兼容，或没有实际的下一个参数  
-  
-会导致标准未定义的行为。  
-  
-以下类型不可作为 av\_arg 的参数：
-```
-bool、_Bool、
-char、signed char、unsigned char、char16_t、
-float、
-short、unsigned short、signed short、
-short int、signed short int、unsigned short int
-```
-这些类型的参数在传入可变参数列表时，会被提升为 int、unsigned int、double 等类型，具体可参见“[默认参数提升（default argument promotion）](https://en.cppreference.com/w/cpp/language/variadic_arguments#Default_conversions)”机制，va\_arg 如果再按这些类型解析参数的值就会造成错误。  
-  
-示例：
-```
-void foo(int n, ...) {
-    va_list vl;
-    va_start(vl, n);
-    for (int i = 0; i < n; i++) {
-        char c = va_arg(vl, char);   // Non-compliant, use ‘va_arg(vl, int)’ instead
-        ....
-    }
-    va_end(vl);
-}
-```
-<br/>
-<br/>
-
-#### 相关
-ID_badParmN  
-ID_forbidVariadicFunction  
-<br/>
-
-#### 依据
-ISO/IEC 9899:2011 7.16.1.1(2)-undefined  
-<br/>
-
-#### 参考
-SEI CERT EXP47-C  
-<br/>
-<br/>
-
-### <span id="ID_functionSpecialization">▌R8.35 函数模板不应被特化</span>
+### <span id="ID_functionSpecialization">▌R8.33 函数模板不应被特化</span>
 
 ID_functionSpecialization&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10589,7 +10592,7 @@ MISRA C++ 2008 14-8-1
 <br/>
 <br/>
 
-### <span id="ID_tooManyLabels">▌R8.36 函数的标签数量应在规定范围之内</span>
+### <span id="ID_tooManyLabels">▌R8.34 函数的标签数量应在规定范围之内</span>
 
 ID_tooManyLabels&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10620,7 +10623,7 @@ maxLabelCount：标签数量上限，超过则报出
 <br/>
 <br/>
 
-### <span id="ID_tooManyLines">▌R8.37 函数的行数应在规定范围之内</span>
+### <span id="ID_tooManyLines">▌R8.35 函数的行数应在规定范围之内</span>
 
 ID_tooManyLines&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10650,7 +10653,7 @@ C++ Core Guidelines F.3
 <br/>
 <br/>
 
-### <span id="ID_tooManyLambdaLines">▌R8.38 lambda 表达式的行数应在规定范围之内</span>
+### <span id="ID_tooManyLambdaLines">▌R8.36 lambda 表达式的行数应在规定范围之内</span>
 
 ID_tooManyLambdaLines&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10683,7 +10686,7 @@ maxLambdaLineCount：lambda 表达式行数上限，超过则报出
 <br/>
 <br/>
 
-### <span id="ID_tooManyParams">▌R8.39 函数参数的数量应在规定范围之内</span>
+### <span id="ID_tooManyParams">▌R8.37 函数参数的数量应在规定范围之内</span>
 
 ID_tooManyParams&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10731,7 +10734,7 @@ C++ Core Guidelines I.23
 <br/>
 <br/>
 
-### <span id="ID_complexInlineFunction">▌R8.40 不应定义过于复杂的内联函数</span>
+### <span id="ID_complexInlineFunction">▌R8.38 不应定义过于复杂的内联函数</span>
 
 ID_complexInlineFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
@@ -10756,7 +10759,7 @@ C++ Core Guidelines F.5
 <br/>
 <br/>
 
-### <span id="ID_forbidGotoBlocks">▌R8.41 禁止 goto 语句向嵌套的或无包含关系的作用域跳转</span>
+### <span id="ID_forbidGotoBlocks">▌R8.39 禁止 goto 语句向嵌套的或无包含关系的作用域跳转</span>
 
 ID_forbidGotoBlocks&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function warning
 
@@ -10800,7 +10803,7 @@ MISRA C++ 2008 6-6-1
 <br/>
 <br/>
 
-### <span id="ID_forbidGotoBack">▌R8.42 禁止 goto 语句向前跳转</span>
+### <span id="ID_forbidGotoBack">▌R8.40 禁止 goto 语句向前跳转</span>
 
 ID_forbidGotoBack&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function suggestion
 
@@ -10838,7 +10841,7 @@ MISRA C++ 2008 6-6-2
 <br/>
 <br/>
 
-### <span id="ID_forbidGoto">▌R8.43 禁用 goto 语句</span>
+### <span id="ID_forbidGoto">▌R8.41 禁用 goto 语句</span>
 
 ID_forbidGoto&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function suggestion
 
@@ -10910,7 +10913,7 @@ MISRA C 2012 15.1
 <br/>
 <br/>
 
-### <span id="ID_forbidLongjmp">▌R8.44 禁用 setjmp、longjmp</span>
+### <span id="ID_forbidLongjmp">▌R8.42 禁用 setjmp、longjmp</span>
 
 ID_forbidLongjmp&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function warning
 
@@ -10956,7 +10959,7 @@ C++ Core Guidelines SL.C.1
 <br/>
 <br/>
 
-### <span id="ID_recursion">▌R8.45 避免递归实现</span>
+### <span id="ID_recursion">▌R8.43 避免递归实现</span>
 
 ID_recursion&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10993,7 +10996,7 @@ MISRA C++ 2008 7-5-4
 <br/>
 <br/>
 
-### <span id="ID_functionRepetition">▌R8.46 不应存在重复的函数实现</span>
+### <span id="ID_functionRepetition">▌R8.44 不应存在重复的函数实现</span>
 
 ID_functionRepetition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 

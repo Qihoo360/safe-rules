@@ -195,7 +195,7 @@
         "checkPoint": "va_start 或 va_copy 应配合 va_end 使用",
         "level": "warning",
         "comment": "可变参数列表相关的 va_start 或 va_copy 和 va_end 应在同一函数中使用，否则会导致标准未定义的错误。",
-        "tag": "function",
+        "tag": "precompile",
         "related": "ID_forbidVariadicFunction",
         "standard": "ISO/IEC 9899:2011 7.16.1.3(2)-undefined"
         },
@@ -2764,9 +2764,9 @@
         "related": "ID_badQualifierPosition"
         },
     "ID_forbidVolatile": {
-        "checkPoint": "非适当场景禁用 volatile 关键字",
+        "checkPoint": "非适当场景禁用 volatile",
         "level": "suggestion",
-        "comment": "应在适当的场景中合理使用 volatile 关键字，否则误用该关键字会引发优化或同步相关的多种问题。",
+        "comment": "应在适当的场景中合理使用 volatile，否则会导致优化或同步相关的多种问题。",
         "tag": "declaration",
         "standard": "ISO/IEC 14882:2003 7.1.5.1(8),ISO/IEC 14882:2011 7.1.6.1(7)",
         "reference": "C++ Core Guidelines CP.8,C++ Core Guidelines CP.200"
@@ -3324,7 +3324,7 @@
         "checkPoint": "va_arg 的类型参数应符合要求",
         "level": "error",
         "comment": "va_arg 的类型参数应符合要求。",
-        "tag": "function",
+        "tag": "precompile",
         "related": "ID_badParmN,ID_forbidVariadicFunction",
         "standard": "ISO/IEC 9899:2011 7.16.1.1(2)-undefined",
         "reference": "SEI CERT EXP47-C"
