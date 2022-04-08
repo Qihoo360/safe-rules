@@ -60,10 +60,10 @@
 
 其中“性质”分为：
 
- - undefined：一般指某种错误，使程序产生 undefined behavior
- - unspecified：标准不作明确规定的情况，由编译器或环境自主定义，具有随意性
- - implementation defined：由实现定义，也是由编译器或环境自主定义，与 unspecified 不同，要求有明确的文档支持
- - deprecated：已过时或已废弃的用法
+ - undefined：可使程序产生未定义的行为，这种行为造成的后果是不可预期的
+ - unspecified：可使程序产生未声明的行为，这种行为由编译器或环境定义，具有随意性
+ - implementation：可使程序产生由实现定义的行为，这种行为由编译器或环境定义，有明确的文档支持
+ - deprecated：已被废弃的或不建议继续使用的编程方式
 
 本文以 ISO/IEC 9899:2011、ISO/IEC 14882:2011 为主要依据，兼顾 C18、C++17 以及历史标准，没有特殊说明的规则同时适用于 C 语言和 C++ 语言，只适用于某一种语言的规则会另有说明。
 
@@ -1381,7 +1381,7 @@ ID_forbidAtox&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: security warning
 cout << atoi("abcdefg") << '\n';  // Non-compliant
 cout << atoi("100000000000") << '\n';  // Non-compliant
 ```
-例中字符串“abcdefg”不表示数字，字符串“100000000000”超出了正常 int 型变量的范围，这些情况会导致标准未定义的问题。  
+例中字符串“abcdefg”不表示数字，字符串“100000000000”超出了正常 int 型变量的范围，这些情况会导致标准未定义的行为。  
   
 更严重的问题是无法通过这种函数判断转换是否成功，这种不确定性也意味着代码在实现上存在缺陷。  
   
@@ -2100,7 +2100,7 @@ ID_doubleFree&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
 
 <hr/>
 
-重复释放资源属于逻辑错误，也会导致标准未定义的问题。  
+重复释放资源属于逻辑错误，导致标准未定义的行为。  
   
 示例：
 ```
@@ -2170,7 +2170,7 @@ ID_excessiveDelete&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
 
 <hr/>
 
-用 new 分配的对象应该用 delete 释放，不可用 delete\[\] 释放，否则引发标准未定义的错误。  
+用 new 分配的对象应该用 delete 释放，不可用 delete\[\] 释放，否则导致标准未定义的行为。  
   
 示例：
 ```
@@ -2202,7 +2202,7 @@ ID_insufficientDelete&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource erro
 
 <hr/>
 
-用 new 分配的数组应该用 delete\[\] 释放，不可漏写中括号，否则引发标准未定义的错误。  
+用 new 分配的数组应该用 delete\[\] 释放，不可漏写中括号，否则导致标准未定义的行为。  
   
 示例：
 ```
@@ -2448,7 +2448,7 @@ ID_nullDerefAllocRet&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warni
 
 <hr/>
 
-malloc 等函数在分配失败时返回空指针，如果不加判断直接使用会造成标准未定义的错误。  
+malloc 等函数在分配失败时返回空指针，如果不加判断直接使用会导致标准未定义的行为。  
   
 在有虚拟内存支持的平台中，正常的内存分配一般不会失败，但申请内存过多或有误时（如参数为负数）也会导致分配失败，而对于没有虚拟内存支持的或可用内存有限的嵌入式系统，检查分配资源是否成功是十分重要的，所以本规则应该作为代码编写的一般性要求。  
   
@@ -2577,7 +2577,7 @@ ID_nonStandardCharInHeaderName&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompil
 
 <hr/>
 
-字母、数字、下划线、点号之外的字符可能与文件系统存在冲突，也可能导致标准未定义的问题，不应出现在头文件和相关目录名称中。  
+字母、数字、下划线、点号之外的字符可能与文件系统存在冲突，也可能导致标准未定义的行为，不应出现在头文件和相关目录名称中。  
   
 示例：
 ```
@@ -2624,7 +2624,7 @@ ID_forbidBackslashInHeaderName&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompil
 
 <hr/>
 
-在 include 指令中使用反斜杠不利于代码移植，而且可能会导致标准未定义的问题。  
+在 include 指令中使用反斜杠不利于代码移植，而且可能会导致标准未定义的行为。  
   
 示例：
 ```
@@ -2634,7 +2634,7 @@ ID_forbidBackslashInHeaderName&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompil
 
 #include <foo/bar.h>     // Compliant
 ```
-C\+\+11 之前的标准指明反斜杠出现在尖括号或引号之间的行为是未定义的，C\+\+11 之后则由实现定义，所以对有高可移植性要求的代码应避免使用反斜杠。
+C\+\+11 之前的标准指明反斜杠出现在尖括号或引号之间会导致未定义的行为，C\+\+11 之后则由实现定义，所以对有高可移植性要求的代码应避免使用反斜杠。
 <br/>
 <br/>
 
@@ -2802,7 +2802,7 @@ ID_macro_defineReserved&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 <hr/>
 
-重新定义已有特殊用途的名称，会使代码陷入难以维护的境地，也会导致标准未定义的问题。  
+重新定义已有特殊用途的名称，会使代码陷入难以维护的境地，也会导致标准未定义的行为。  
   
 C\+\+ 标准指明不可重新定义的宏有：
 ```
@@ -2879,7 +2879,7 @@ ID_macro_undefReserved&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 <hr/>
 
-取消定义已有特殊用途的宏名称，会使代码陷入难以维护的境地，也会导致标准未定义的问题。  
+取消定义已有特殊用途的宏名称，会使代码陷入难以维护的境地，也会导致标准未定义的行为。  
   
 C\+\+ 标准指明不可取消定义的宏有：
 ```
@@ -3326,7 +3326,7 @@ ID_incompleteVaMacros&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 <hr/>
 
-可变参数列表相关的 va\_start 或 va\_copy 和 va\_end 应在同一函数中使用，否则会导致标准未定义的错误。  
+可变参数列表相关的 va\_start 或 va\_copy 和 va\_end 应在同一函数中使用，否则会导致标准未定义的行为。  
   
 示例：
 ```
@@ -3338,7 +3338,7 @@ void foo(const char* s, ...) {  // Non-compliant, missing ‘va_end(vl);’
     }
 }
 ```
-应在返回前使用 va\_end。
+示例代码应在返回前使用 va\_end。
 <br/>
 <br/>
 
@@ -3409,7 +3409,7 @@ ID_deprecatedOffsetof&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
 <hr/>
 
-宏 offsetof 很难适用于具有 C\+\+ 特性的类，易引发未定义的错误。  
+宏 offsetof 很难适用于具有 C\+\+ 特性的类，易导致标准未定义的行为。  
   
 示例：
 ```
@@ -3502,7 +3502,7 @@ ID_illFormedDirective&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 <hr/>
 
-非标准格式的预编译指令往往意味着错误，也会导致标准未定义的问题。  
+非标准格式的预编译指令往往意味着错误，也会导致标准未定义的行为。  
   
 需注意：  
  - defined 只应作用于宏名称或括号括起来的宏名称  
@@ -3766,7 +3766,7 @@ ID_badCommentPosition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
 <hr/>
 
-注释应出现在段落的前后或行尾，不应出现在行首或中间，否则对阅读产生较大干扰，也可能产生标准未定义的问题。  
+注释应出现在段落的前后或行尾，不应出现在行首或中间，否则对阅读产生较大干扰，也可能导致标准未定义的行为。  
   
 示例：
 ```
@@ -4367,7 +4367,7 @@ ID_forbidUsingDirectives&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: global suggesti
 
 将其他命名空间中的名称一并引入当前命名空间，是对命名空间机制的破坏。  
   
-标准库命名空间作为基础设施可被放过。  
+标准库命名空间作为基础设施可不受本规则约束。  
   
 示例：
 ```
@@ -5685,7 +5685,7 @@ namespace xxx  // Bad, meaningless name
 extern int identifier_of_a_very_very_long_name_1;
 extern int identifier_of_a_very_very_long_name_2;   // Dangerous
 ```
-注意，如果两个名称有相同的前缀，而且相同前缀超过一定长度时是危险的，有可能导致编译器无法有效区分相关名称，造成标准未定义的问题。C 标准指明，保证名称前 31 位不同即可避免这种问题，可参见 ISO/IEC 9899:2011 5.2.4.1 的相关规定。  
+注意，如果两个名称有相同的前缀，而且相同前缀超过一定长度时是危险的，有可能会导致编译器无法有效区分相关名称。C 标准指明，保证名称前 31 位不同即可避免这种问题，可参见 ISO/IEC 9899:2011 5.2.4.1 的相关规定。  
   
 不建议采用相同“长前缀”\+ 不同“短后缀”的命名方式，这种名称非常容易形成笔误或由复制粘贴造成错误，如：
 ```
@@ -5731,7 +5731,7 @@ ID_reservedName&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 自定义的名称不应与关键字、标准库或系统中的名称重复，否则极易造成阅读和维护上的困扰。  
   
-对于宏，本规则特化为 ID\_macro\_defineReserved、ID\_macro\_undefReserved，如果宏名称出现这种问题，会导致标准未定义的错误。  
+对于宏，本规则特化为 ID\_macro\_defineReserved、ID\_macro\_undefReserved，如果宏名称出现这种问题，会导致标准未定义的行为。  
   
 示例：
 ```
@@ -6111,7 +6111,7 @@ ID_missingConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-用常量字符串对非常量字符串指针赋值，相关内存被修改会导致标准未定义的问题。  
+用常量字符串对非常量字符串指针赋值，相关内存被修改会导致标准未定义的行为。  
   
 示例：
 ```
@@ -6211,7 +6211,7 @@ ID_forbidRestrictPtr&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration warning
 
 <hr/>
 
-C 语言中的 restrict 指针要求其他指针不能再指向相同区域，有助于编译器优化，但不符合这种限制时会导致标准未定义的错误，相当于增加了误用的风险，也提高了测试成本。  
+C 语言中的 restrict 指针要求其他指针不能再指向相同区域，有助于编译器优化，但不符合这种限制时会导致标准未定义的行为，相当于增加了误用的风险，也提高了测试成本。  
   
 示例：
 ```
@@ -7502,7 +7502,7 @@ ID_forbidStaticArrSize&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration warni
 
 <hr/>
 
-C 语言规定数组作为形式参数时，可用 static 关键字修饰大小，要求传入数组的大小不能小于由 static  关键字修饰的值，有助于编译器优化，但不符合这种限制时会导致标准未定义的错误，相当于增加了误用的风险，也提高了测试成本。  
+C 语言规定数组作为形式参数时，可用 static 关键字修饰大小，要求传入数组的大小不能小于由 static  关键字修饰的值，有助于编译器优化，但不符合这种限制时会导致标准未定义的行为，相当于增加了误用的风险，也提高了测试成本。  
   
 示例：
 ```
@@ -7706,7 +7706,7 @@ X* bar(X& x) {
     return &x;  // Call ‘X::operator&’
 }
 ```
-例中 foo 函数存在标准未定义的问题，可能会返回 x 对象的实际地址，而 bar 函数会调用重载了的取地址运算符，这是一种混乱的局面。
+例中 foo 会导致未定义的行为，可能会返回 x 对象的实际地址，而 bar 会调用重载了的取地址运算符，这是一种混乱的局面。
 <br/>
 <br/>
 
@@ -9612,7 +9612,7 @@ ID_illMemberCall&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-基类对象未构造完毕时调用成员函数会导致标准未定义的错误。  
+基类对象未构造完毕时调用成员函数会导致标准未定义的行为。  
   
 示例：
 ```
@@ -9642,7 +9642,7 @@ ID_illMemberAccess&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
 <hr/>
 
-当流程进入面向构造或析构函数体的 catch handler 时，非静态成员的生命周期已经结束，如果继续访问会导致标准未定义的问题。  
+当流程进入面向构造或析构函数体的 catch handler 时，非静态成员的生命周期已结束，如果继续访问会导致标准未定义的行为。  
   
 示例：
 ```
@@ -9752,7 +9752,7 @@ ID_virtualCallInConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-虚函数在构造函数中的多态性不生效，而且调用未定义的纯虚函数会导致标准未定义的错误。  
+虚函数在构造函数中的多态性不生效，而且调用纯虚函数会导致标准未定义的行为。  
   
 示例：
 ```
@@ -9784,7 +9784,7 @@ ID_virtualCallInDestuctor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-虚函数在析构函数中的多态性不生效，而且调用未定义的纯虚函数会导致标准未定义的错误。  
+虚函数在析构函数中的多态性不生效，而且调用纯虚函数会导致标准未定义的行为。  
   
 示例：
 ```
@@ -10111,7 +10111,7 @@ ID_notAllBranchReturn&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
 <hr/>
 
-当函数的某个分枝没有明确的返回值时会引发标准未定义的错误。  
+当函数的某个分枝没有明确的返回值时会导致标准未定义的行为。  
   
 示例：
 ```
@@ -10159,7 +10159,7 @@ ID_localAddressFlowOut&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
 <hr/>
 
-对象的生命周期结束后，其地址或引用也会失效，如果继续访问会造严重错误，导致标准未定义的行为。  
+对象的生命周期结束后，其地址或引用也会失效，如果继续访问会导致标准未定义的行为。  
   
 示例：
 ```
@@ -10227,7 +10227,7 @@ auto foo() -> function<int()> {
     return [&]() { return ++i; };  // Non-compliant
 }
 ```
-例中的 lambda 表达式引用了局部变量 i，但返回后 i 的地址不再有效，会引发标准未定义的错误。  
+例中的 lambda 表达式引用了局部变量 i，但返回后 i 的地址不再有效，会引发标准未定义的行为。  
   
 另外，要注意解引用指针造成的间接引用：
 ```
@@ -10469,7 +10469,7 @@ ID_unsuitableReturn&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-在属性为 noreturn 的函数中使用 return 语句会导致标准未定义的问题。  
+在属性为 noreturn 的函数中使用 return 语句会导致标准未定义的行为。  
   
 示例：
 ```
@@ -13428,7 +13428,7 @@ ID_illPtrDiff&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-不在同一数组中的指针比较或相减属于逻辑错误，会导致标准未定义的问题。  
+不在同一数组中的指针比较或相减属于逻辑错误，会导致标准未定义的行为。  
   
 示例：
 ```
@@ -13762,8 +13762,8 @@ unsigned int a = 1;
 long long b = -a;    // Non-compliant, b is 4294967295, confusing
 ```
 例外：  
-unsigned char、unsigned short 等可以“[类型提升](https://en.wikipedia.org/wiki/Type_conversion#Type_promotion)”为 int 的无符号类型可被放过。  
-\-1U、\-1UL、\-1ULL 作为 UINT\_MAX、ULONG\_MAX、ULLONG\_MAX 的惯用简写形式可被放过。
+unsigned char、unsigned short 等可以“[类型提升](https://en.wikipedia.org/wiki/Type_conversion#Type_promotion)”为 int 的无符号类型可不受本规则约束。  
+\-1U、\-1UL、\-1ULL 作为 UINT\_MAX、ULONG\_MAX、ULLONG\_MAX 的惯用简写形式可不受本规则约束。
 <br/>
 <br/>
 
@@ -15420,7 +15420,7 @@ ID_literal_nonStandardEsc&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: literal warning
 
 <hr/>
 
-使用非标准转义字符会导致标准未定义的问题，也可能是忘了将反斜杠转义。  
+使用非标准转义字符会导致标准未定义的行为，也可能是忘了将反斜杠转义。  
   
 示例：
 ```
@@ -15983,7 +15983,7 @@ ID_qualifierCastedAway&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
 <hr/>
 
-去掉 const、volatile 等属性会使相关机制失去意义，往往意味着设计上的缺陷，也会导致标准未定义的错误。  
+去掉 const、volatile 等属性会使相关机制失去意义，往往意味着设计上的缺陷，也会导致标准未定义的行为。  
   
 示例：
 ```
@@ -16061,7 +16061,7 @@ void bar(U* u) {
 ```
 例中 U 和 V 是无继承关系的类，但 U 实现了向 V 的转换方法，U 和 V 之间存在逻辑关系，这时的 C 风格类型转换可被本规则放过，但不符合规则 ID\_forbidCStyleCast，这种情况仍然不能使用 reinterpret\_cast，可参见 ID\_unsuitableReinterpretCast。  
   
-注意，对于基本类型，指针或引用之间的转换受本规则限制，值之间的转换可被放过，但应注意转换造成的精度损失，可参见 ID\_narrowCast。
+注意，对于基本类型，指针或引用之间的转换受本规则约束，值之间的转换可不受本规则约束，但应注意转换造成的精度损失，参见 ID\_narrowCast。
 <br/>
 <br/>
 
@@ -16167,7 +16167,7 @@ wchar_t* to_unicode(char* str) {
 ```
 示例代码显然是错误的，应改用 iconv、MultiByteToWideChar 等字符集编码转换函数。  
   
-由于 unsigned char\* 一般针对二进制数据，unsigned char\* 与其他字符串类型之间的转换可被放过，但 char\* 不应作为二进制数据的类型，可参见 ID\_plainBinaryChar。
+由于 unsigned char\* 一般针对二进制数据，unsigned char\* 与其他字符串类型之间的转换可不受本规则约束，但 char\* 不应作为二进制数据的类型，参见 ID\_plainBinaryChar。
 <br/>
 <br/>
 
@@ -16869,7 +16869,7 @@ bool fun2(T* p) {
 ```
 这是颠倒了对 p 的判断和解引用次序，属于语言运用错误。  
   
-空指针解引用会导致标准未定义的错误，进程一般会崩溃，给用户不好的体验，而且要注意如果崩溃可由外部输入引起，会被攻击者利用从而迫使程序无法正常工作。
+空指针解引用会导致标准未定义的行为，进程一般会崩溃，给用户不好的体验，而且要注意如果崩溃可由外部输入引起，会被攻击者利用从而迫使程序无法正常工作。
 <br/>
 <br/>
 
