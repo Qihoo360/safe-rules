@@ -418,18 +418,18 @@
     - [R9.5.13 switch 语句的每个非空分枝都应该用无条件的 break 语句终止](#ID_switch_breakOmitted)
     - [R9.5.14 switch 语句应该用大括号括起来](#ID_switch_brace)
     - [R9.5.15 switch 语句不应嵌套](#ID_switch_forbidNest)
-  - [9.6 Jump](#control.jump)
-    - [R9.6.1 禁止 goto 语句向嵌套的或无包含关系的作用域跳转](#ID_forbidGotoBlocks)
-    - [R9.6.2 禁止 goto 语句向前跳转](#ID_forbidGotoBack)
-    - [R9.6.3 禁用 goto 语句](#ID_forbidGoto)
-    - [R9.6.4 禁用 setjmp、longjmp](#ID_forbidLongjmp)
-    - [R9.6.5 不应出现多余的跳转语句](#ID_redundantJump)
-  - [9.7 Try-catch](#control.try-catch)
-    - [R9.7.1 不应存在空的 try 块](#ID_try_emptyBlock)
-    - [R9.7.2 不应存在空的 catch handler](#ID_catch_emptyBlock)
-    - [R9.7.3 不应嵌套 try\-catch 语句](#ID_try_forbidNest)
-    - [R9.7.4 捕获所有异常的 catch\-all handler 应位于最后](#ID_try_disorderedEllipsis)
-    - [R9.7.5 派生类的 catch handler 应排在基类 catch handler 之前](#ID_try_disorderedHandlers)
+  - [9.6 Try-catch](#control.try-catch)
+    - [R9.6.1 不应存在空的 try 块](#ID_try_emptyBlock)
+    - [R9.6.2 不应存在空的 catch handler](#ID_catch_emptyBlock)
+    - [R9.6.3 不应嵌套 try\-catch 语句](#ID_try_forbidNest)
+    - [R9.6.4 捕获所有异常的 catch\-all handler 应位于最后](#ID_try_disorderedEllipsis)
+    - [R9.6.5 派生类的 catch handler 应排在基类 catch handler 之前](#ID_try_disorderedHandlers)
+  - [9.7 Jump](#control.jump)
+    - [R9.7.1 禁止 goto 语句向嵌套的或无包含关系的作用域跳转](#ID_forbidGotoBlocks)
+    - [R9.7.2 禁止 goto 语句向前跳转](#ID_forbidGotoBack)
+    - [R9.7.3 禁用 goto 语句](#ID_forbidGoto)
+    - [R9.7.4 禁用 setjmp、longjmp](#ID_forbidLongjmp)
+    - [R9.7.5 不应出现多余的跳转语句](#ID_redundantJump)
 <br/>
 
 <span id="__Expression">**[10. Expression](#expression)**</span>
@@ -12533,9 +12533,200 @@ default:
 <br/>
 <br/>
 
-### <span id="control.jump">9.6 Jump</span>
+### <span id="control.try-catch">9.6 Try-catch</span>
 
-### <span id="ID_forbidGotoBlocks">▌R9.6.1 禁止 goto 语句向嵌套的或无包含关系的作用域跳转</span>
+### <span id="ID_try_emptyBlock">▌R9.6.1 不应存在空的 try 块</span>
+
+ID_try_emptyBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
+
+<hr/>
+
+空的 try 块是毫无意义的，有可能是残留代码或功能未实现。  
+  
+示例：
+```
+try {
+    // Empty block or some code commented out
+}
+catch (Exception& e) {
+    // The whole statement is meaningless
+}
+```
+如果是残留代码应及时删去，否则引入无意义的异常处理会影响代码优化。
+<br/>
+<br/>
+
+#### 参考
+CWE-1071  
+<br/>
+<br/>
+
+### <span id="ID_catch_emptyBlock">▌R9.6.2 不应存在空的 catch handler</span>
+
+ID_catch_emptyBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
+
+<hr/>
+
+空的 catch handler 掩盖了异常，不利于问题的排查与纠正，应至少添加日志记录等操作。  
+  
+示例：
+```
+void foo() {
+    try {
+        ....
+    }
+    catch (...)
+    {}  // Non-compliant, very bad
+}
+```
+这样做并不能真正提高程序的稳定性，相当于逃避了问题，而且掩盖没有被处理的异常也可能会影响到其他方面的正常运行。  
+  
+对于要求不能抛出异常的接口，不妨按下例处理，记录意料之外的异常情况，以便问题的排查：
+```
+void foo() noexcept {
+    try {
+        ....
+    }
+    catch (...) {  // Compliant
+        log_unexpected_and_exit(__FILE__, __LINE__, "some messages");
+    }
+}
+```
+<br/>
+<br/>
+
+#### 参考
+CWE-1069  
+CWE-1071  
+CWE-391  
+<br/>
+<br/>
+
+### <span id="ID_try_forbidNest">▌R9.6.3 不应嵌套 try-catch 语句</span>
+
+ID_try_forbidNest&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: control suggestion
+
+<hr/>
+
+嵌套的 try\-catch 使代码显得复杂，不利于维护。  
+  
+示例：
+```
+try {
+    ....
+    try {       // Non-compliant
+        ....
+    } catch (A&) {
+        ....
+    }
+} catch (B&) {
+    ....
+}
+```
+嵌套的 try\-catch 较难看出哪个 try 对应哪个 catch，当代码行数较多时这种问题会更为明显。
+<br/>
+<br/>
+
+#### 参考
+C++ Core Guidelines E.17  
+<br/>
+<br/>
+
+### <span id="ID_try_disorderedEllipsis">▌R9.6.4 捕获所有异常的 catch-all handler 应位于最后</span>
+
+ID_try_disorderedEllipsis&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: control error
+
+<hr/>
+
+如果 catch\-all handler 排在前面，其后面的 handler 将失去作用。  
+  
+示例：
+```
+try {
+    ....
+} catch (...) {  // Catch-all handler, non-compliant
+    ....
+} catch (const E&) {
+    ....
+}
+```
+应改为：
+```
+try {
+    ....
+} catch (const E&) {
+    ....
+} catch (...) {  // Compliant
+    ....
+}
+```
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 15.3(6)  
+ISO/IEC 14882:2011 15.3(5)  
+ISO/IEC 14882:2011 18.3(5)  
+<br/>
+
+#### 参考
+CWE-561  
+C++ Core Guidelines E.31  
+MISRA C++ 2008 15-3-7  
+<br/>
+<br/>
+
+### <span id="ID_try_disorderedHandlers">▌R9.6.5 派生类的 catch handler 应排在基类 catch handler 之前</span>
+
+ID_try_disorderedHandlers&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: control error
+
+<hr/>
+
+如果违反这个顺序，派生类的 catch handler 将失去作用。  
+  
+示例：
+```
+class B { .... };
+class D: public B { .... };
+
+try {
+    ....
+} catch (const B&) {
+    ....
+} catch (const D&) {  // Non-compliant, unreachable
+    ....
+}
+```
+例中 B 为基类，D 为派生类，D 类异常会被 B 的 handler 捕获，D 的 handler 失去了作用。  
+  
+应改为：
+```
+try {
+    ....
+} catch (const D&) {
+    ....
+} catch (const B&) {  // Compliant
+    ....
+}
+```
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 15.3  
+ISO/IEC 14882:2011 15.3  
+ISO/IEC 14882:2011 18.3  
+<br/>
+
+#### 参考
+CWE-561  
+C++ Core Guidelines E.31  
+<br/>
+<br/>
+
+### <span id="control.jump">9.7 Jump</span>
+
+### <span id="ID_forbidGotoBlocks">▌R9.7.1 禁止 goto 语句向嵌套的或无包含关系的作用域跳转</span>
 
 ID_forbidGotoBlocks&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: control warning
 
@@ -12579,7 +12770,7 @@ MISRA C++ 2008 6-6-1
 <br/>
 <br/>
 
-### <span id="ID_forbidGotoBack">▌R9.6.2 禁止 goto 语句向前跳转</span>
+### <span id="ID_forbidGotoBack">▌R9.7.2 禁止 goto 语句向前跳转</span>
 
 ID_forbidGotoBack&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: control suggestion
 
@@ -12617,7 +12808,7 @@ MISRA C++ 2008 6-6-2
 <br/>
 <br/>
 
-### <span id="ID_forbidGoto">▌R9.6.3 禁用 goto 语句</span>
+### <span id="ID_forbidGoto">▌R9.7.3 禁用 goto 语句</span>
 
 ID_forbidGoto&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: control suggestion
 
@@ -12689,7 +12880,7 @@ MISRA C 2012 15.1
 <br/>
 <br/>
 
-### <span id="ID_forbidLongjmp">▌R9.6.4 禁用 setjmp、longjmp</span>
+### <span id="ID_forbidLongjmp">▌R9.7.4 禁用 setjmp、longjmp</span>
 
 ID_forbidLongjmp&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: control warning
 
@@ -12735,7 +12926,7 @@ C++ Core Guidelines SL.C.1
 <br/>
 <br/>
 
-### <span id="ID_redundantJump">▌R9.6.5 不应出现多余的跳转语句</span>
+### <span id="ID_redundantJump">▌R9.7.5 不应出现多余的跳转语句</span>
 
 ID_redundantJump&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
@@ -12764,197 +12955,6 @@ L:
 }
 ```
 <br/>
-<br/>
-<br/>
-
-### <span id="control.try-catch">9.7 Try-catch</span>
-
-### <span id="ID_try_emptyBlock">▌R9.7.1 不应存在空的 try 块</span>
-
-ID_try_emptyBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
-
-<hr/>
-
-空的 try 块是毫无意义的，有可能是残留代码或功能未实现。  
-  
-示例：
-```
-try {
-    // Empty block or some code commented out
-}
-catch (Exception& e) {
-    // The whole statement is meaningless
-}
-```
-如果是残留代码应及时删去，否则引入无意义的异常处理会影响代码优化。
-<br/>
-<br/>
-
-#### 参考
-CWE-1071  
-<br/>
-<br/>
-
-### <span id="ID_catch_emptyBlock">▌R9.7.2 不应存在空的 catch handler</span>
-
-ID_catch_emptyBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
-
-<hr/>
-
-空的 catch handler 掩盖了异常，不利于问题的排查与纠正，应至少添加日志记录等操作。  
-  
-示例：
-```
-void foo() {
-    try {
-        ....
-    }
-    catch (...)
-    {}  // Non-compliant, very bad
-}
-```
-这样做并不能真正提高程序的稳定性，相当于逃避了问题，而且掩盖没有被处理的异常也可能会影响到其他方面的正常运行。  
-  
-对于要求不能抛出异常的接口，不妨按下例处理，记录意料之外的异常情况，以便问题的排查：
-```
-void foo() noexcept {
-    try {
-        ....
-    }
-    catch (...) {  // Compliant
-        log_unexpected_and_exit(__FILE__, __LINE__, "some messages");
-    }
-}
-```
-<br/>
-<br/>
-
-#### 参考
-CWE-1069  
-CWE-1071  
-CWE-391  
-<br/>
-<br/>
-
-### <span id="ID_try_forbidNest">▌R9.7.3 不应嵌套 try-catch 语句</span>
-
-ID_try_forbidNest&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: control suggestion
-
-<hr/>
-
-嵌套的 try\-catch 使代码显得复杂，不利于维护。  
-  
-示例：
-```
-try {
-    ....
-    try {       // Non-compliant
-        ....
-    } catch (A&) {
-        ....
-    }
-} catch (B&) {
-    ....
-}
-```
-嵌套的 try\-catch 较难看出哪个 try 对应哪个 catch，当代码行数较多时这种问题会更为明显。
-<br/>
-<br/>
-
-#### 参考
-C++ Core Guidelines E.17  
-<br/>
-<br/>
-
-### <span id="ID_try_disorderedEllipsis">▌R9.7.4 捕获所有异常的 catch-all handler 应位于最后</span>
-
-ID_try_disorderedEllipsis&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: control error
-
-<hr/>
-
-如果 catch\-all handler 排在前面，其后面的 handler 将失去作用。  
-  
-示例：
-```
-try {
-    ....
-} catch (...) {  // Catch-all handler, non-compliant
-    ....
-} catch (const E&) {
-    ....
-}
-```
-应改为：
-```
-try {
-    ....
-} catch (const E&) {
-    ....
-} catch (...) {  // Compliant
-    ....
-}
-```
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 14882:2003 15.3(6)  
-ISO/IEC 14882:2011 15.3(5)  
-ISO/IEC 14882:2011 18.3(5)  
-<br/>
-
-#### 参考
-CWE-561  
-C++ Core Guidelines E.31  
-MISRA C++ 2008 15-3-7  
-<br/>
-<br/>
-
-### <span id="ID_try_disorderedHandlers">▌R9.7.5 派生类的 catch handler 应排在基类 catch handler 之前</span>
-
-ID_try_disorderedHandlers&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: control error
-
-<hr/>
-
-如果违反这个顺序，派生类的 catch handler 将失去作用。  
-  
-示例：
-```
-class B { .... };
-class D: public B { .... };
-
-try {
-    ....
-} catch (const B&) {
-    ....
-} catch (const D&) {  // Non-compliant, unreachable
-    ....
-}
-```
-例中 B 为基类，D 为派生类，D 类异常会被 B 的 handler 捕获，D 的 handler 失去了作用。  
-  
-应改为：
-```
-try {
-    ....
-} catch (const D&) {
-    ....
-} catch (const B&) {  // Compliant
-    ....
-}
-```
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 14882:2003 15.3  
-ISO/IEC 14882:2011 15.3  
-ISO/IEC 14882:2011 18.3  
-<br/>
-
-#### 参考
-CWE-561  
-C++ Core Guidelines E.31  
 <br/>
 <br/>
 
