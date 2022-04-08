@@ -264,10 +264,10 @@
     - [R6.5.5 字节的类型应为 unsigned char](#ID_plainBinaryChar)
   - [6.6 Parameter](#declaration.parameter)
     - [R6.6.1 函数原型声明中的参数应具有合理的名称](#ID_missingParamName)
-    - [R6.6.2 不建议虚函数的参数有默认值](#ID_deprecatedDefaultArgument)
-    - [R6.6.3 虚函数参数的默认值应与基类中声明的一致](#ID_inconsistentDefaultArgument)
-    - [R6.6.4 不应将数组作为函数的形式参数](#ID_invalidParamArraySize)
-    - [R6.6.5 parmN 的声明应符合要求](#ID_badParmN)
+    - [R6.6.2 不应将数组作为函数的形式参数](#ID_invalidParamArraySize)
+    - [R6.6.3 parmN 的声明应符合要求](#ID_badParmN)
+    - [R6.6.4 虚函数参数的默认值应与基类中声明的一致](#ID_inconsistentDefaultArgument)
+    - [R6.6.5 不建议虚函数的参数有默认值](#ID_deprecatedDefaultArgument)
     - [R6.6.6 C 代码中参数列表如果为空应声明为“(void)”](#ID_missingVoid)
     - [R6.6.7 C\+\+ 代码中参数列表如果为空不应声明为“(void)”](#ID_superfluousVoid)
     - [R6.6.8 声明数组参数的大小时禁用 static 关键字](#ID_forbidStaticArrSize)
@@ -353,19 +353,14 @@
   - [R8.29 被返回的表达式不应为相同的常量](#ID_returnSameConst)
   - [R8.30 属性为 noreturn 的函数中不应出现 return 语句](#ID_unsuitableReturn)
   - [R8.31 属性为 noreturn 的函数返回类型只应为 void](#ID_unsuitableReturnType)
-  - [R8.32 不应出现多余的跳转语句](#ID_redundantJump)
-  - [R8.33 函数模板不应被特化](#ID_functionSpecialization)
-  - [R8.34 函数的标签数量应在规定范围之内](#ID_tooManyLabels)
-  - [R8.35 函数的行数应在规定范围之内](#ID_tooManyLines)
-  - [R8.36 lambda 表达式的行数应在规定范围之内](#ID_tooManyLambdaLines)
-  - [R8.37 函数参数的数量应在规定范围之内](#ID_tooManyParams)
-  - [R8.38 不应定义过于复杂的内联函数](#ID_complexInlineFunction)
-  - [R8.39 禁止 goto 语句向嵌套的或无包含关系的作用域跳转](#ID_forbidGotoBlocks)
-  - [R8.40 禁止 goto 语句向前跳转](#ID_forbidGotoBack)
-  - [R8.41 禁用 goto 语句](#ID_forbidGoto)
-  - [R8.42 禁用 setjmp、longjmp](#ID_forbidLongjmp)
-  - [R8.43 避免递归实现](#ID_recursion)
-  - [R8.44 不应存在重复的函数实现](#ID_functionRepetition)
+  - [R8.32 函数模板不应被特化](#ID_functionSpecialization)
+  - [R8.33 函数的标签数量应在规定范围之内](#ID_tooManyLabels)
+  - [R8.34 函数的行数应在规定范围之内](#ID_tooManyLines)
+  - [R8.35 lambda 表达式的行数应在规定范围之内](#ID_tooManyLambdaLines)
+  - [R8.36 函数参数的数量应在规定范围之内](#ID_tooManyParams)
+  - [R8.37 不应定义过于复杂的内联函数](#ID_complexInlineFunction)
+  - [R8.38 避免递归实现](#ID_recursion)
+  - [R8.39 避免重复的函数实现](#ID_functionRepetition)
 <br/>
 
 <span id="__Control">**[9. Control](#control)**</span>
@@ -423,12 +418,18 @@
     - [R9.5.13 switch 语句的每个非空分枝都应该用无条件的 break 语句终止](#ID_switch_breakOmitted)
     - [R9.5.14 switch 语句应该用大括号括起来](#ID_switch_brace)
     - [R9.5.15 switch 语句不应嵌套](#ID_switch_forbidNest)
-  - [9.6 Try-catch](#control.try-catch)
-    - [R9.6.1 不应存在空的 try 块](#ID_try_emptyBlock)
-    - [R9.6.2 不应存在空的 catch handler](#ID_catch_emptyBlock)
-    - [R9.6.3 不应嵌套 try\-catch 语句](#ID_try_forbidNest)
-    - [R9.6.4 捕获所有异常的 catch\-all handler 应位于最后](#ID_try_disorderedEllipsis)
-    - [R9.6.5 派生类的 catch handler 应排在基类 catch handler 之前](#ID_try_disorderedHandlers)
+  - [9.6 Jump](#control.jump)
+    - [R9.6.1 禁止 goto 语句向嵌套的或无包含关系的作用域跳转](#ID_forbidGotoBlocks)
+    - [R9.6.2 禁止 goto 语句向前跳转](#ID_forbidGotoBack)
+    - [R9.6.3 禁用 goto 语句](#ID_forbidGoto)
+    - [R9.6.4 禁用 setjmp、longjmp](#ID_forbidLongjmp)
+    - [R9.6.5 不应出现多余的跳转语句](#ID_redundantJump)
+  - [9.7 Try-catch](#control.try-catch)
+    - [R9.7.1 不应存在空的 try 块](#ID_try_emptyBlock)
+    - [R9.7.2 不应存在空的 catch handler](#ID_catch_emptyBlock)
+    - [R9.7.3 不应嵌套 try\-catch 语句](#ID_try_forbidNest)
+    - [R9.7.4 捕获所有异常的 catch\-all handler 应位于最后](#ID_try_disorderedEllipsis)
+    - [R9.7.5 派生类的 catch handler 应排在基类 catch handler 之前](#ID_try_disorderedHandlers)
 <br/>
 
 <span id="__Expression">**[10. Expression](#expression)**</span>
@@ -7237,50 +7238,85 @@ MISRA C 2012 8.2
 <br/>
 <br/>
 
-### <span id="ID_deprecatedDefaultArgument">▌R6.6.2 不建议虚函数的参数有默认值</span>
+### <span id="ID_invalidParamArraySize">▌R6.6.2 不应将数组作为函数的形式参数</span>
 
-ID_deprecatedDefaultArgument&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
+ID_invalidParamArraySize&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-虚函数参数的默认值不受多态规则控制，通过基类指针或引用调用派生类重写的虚函数时，默认值仍采用基类中的定义，易造成混淆，建议虚函数参数不使用默认值。  
+在形式参数中对数组大小的声明起不到实际的限制作用。  
   
 示例：
 ```
-class A {
-public:
-    virtual int foo(int i = 0);  // Bad
-};
+int foo(int a[100]);  // Non-compliant
+
+int bar() {
+    int a[50] = {};
+    return foo(a);    // It can be compiled
+}
 ```
-应尽量去掉默认参数值，或改用重载函数的方式：
+在 C\+\+ 语言中可改为数组的引用：
 ```
-class A {
-public:
-    virtual int foo();  // OK
-    virtual int foo(int i);  // OK
-};
+void foo(int (&a)[100]);   // Compliant
+
+template <size_t size>
+void foo(int (&a)[size]) {  // Compliant
+    ....
+}
 ```
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.7.5.3(7)  
+ISO/IEC 9899:2011 6.7.6.3(7)  
+<br/>
+
+#### 参考
+C++ Core Guidelines I.13  
+C++ Core Guidelines R.14  
+MISRA C++ 2008 5-2-12  
+<br/>
+<br/>
+
+### <span id="ID_badParmN">▌R6.6.3 parmN 的声明应符合要求</span>
+
+ID_badParmN&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: declaration error
+
+<hr/>
+
+可变参数列表中省略号的前一个参数称为 parmN，如果：  
+ - 在 C 语言中，parmN 为数组、函数，或具有寄存器存储期，以及与默认参数提升后不兼容的类型  
+ - 在 C\+\+ 语言中，parmN 为引用、数组、函数，或具有与默认参数提升后不兼容的类型  
+  
+会导致标准未定义的行为。  
+  
+示例：
+```
+void foo(float f, ...);          // Non-compliant
+void bar(int& i, ...);           // Non-compliant in C++
+void baz(register int n, ...);   // Non-compliant in C
+```
+例中参数 f 为 float 型，与“[默认参数提升（default argument promotion）](https://en.cppreference.com/w/cpp/language/variadic_arguments#Default_conversions)”后的类型 double 不兼容，参数 i 为引用，参数 n 被 register 修饰具有寄存器存储期，这种代码均会导致标准未定义的行为。
 <br/>
 <br/>
 
 #### 相关
-ID_inconsistentDefaultArgument  
+ID_badVaArgType  
+ID_forbidVariadicFunction  
 <br/>
 
 #### 依据
-ISO/IEC 14882:2003 8.3.6(10)  
-ISO/IEC 14882:2011 8.3.6(10)  
-ISO/IEC 14882:2017 11.3.6(10)  
+ISO/IEC 9899:2011 7.16.1.4(4)-undefined  
+ISO/IEC 14882:2011 3.2(5)-undefined  
 <br/>
 
 #### 参考
-CWE-628  
-C++ Core Guidelines C.140  
-MISRA C++ 2008 8-3-1  
+SEI CERT EXP58-CPP  
 <br/>
 <br/>
 
-### <span id="ID_inconsistentDefaultArgument">▌R6.6.3 虚函数参数的默认值应与基类中声明的一致</span>
+### <span id="ID_inconsistentDefaultArgument">▌R6.6.4 虚函数参数的默认值应与基类中声明的一致</span>
 
 ID_inconsistentDefaultArgument&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: declaration error
 
@@ -7328,81 +7364,46 @@ MISRA C++ 2008 8-3-1
 <br/>
 <br/>
 
-### <span id="ID_invalidParamArraySize">▌R6.6.4 不应将数组作为函数的形式参数</span>
+### <span id="ID_deprecatedDefaultArgument">▌R6.6.5 不建议虚函数的参数有默认值</span>
 
-ID_invalidParamArraySize&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
-
-<hr/>
-
-在形式参数中对数组大小的声明起不到实际的限制作用。  
-  
-示例：
-```
-int foo(int a[100]);  // Non-compliant
-
-int bar() {
-    int a[50] = {};
-    return foo(a);    // It can be compiled
-}
-```
-在 C\+\+ 语言中可改为数组的引用：
-```
-void foo(int (&a)[100]);   // Compliant
-
-template <size_t size>
-void foo(int (&a)[size]) {  // Compliant
-    ....
-}
-```
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 9899:1999 6.7.5.3(7)  
-ISO/IEC 9899:2011 6.7.6.3(7)  
-<br/>
-
-#### 参考
-C++ Core Guidelines I.13  
-C++ Core Guidelines R.14  
-MISRA C++ 2008 5-2-12  
-<br/>
-<br/>
-
-### <span id="ID_badParmN">▌R6.6.5 parmN 的声明应符合要求</span>
-
-ID_badParmN&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: declaration error
+ID_deprecatedDefaultArgument&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-可变参数列表中省略号的前一个参数称为 parmN，如果：  
- - 在 C 语言中，parmN 为数组、函数，或具有寄存器存储期，以及与默认参数提升后不兼容的类型  
- - 在 C\+\+ 语言中，parmN 为引用、数组、函数，或具有与默认参数提升后不兼容的类型  
-  
-会导致标准未定义的行为。  
+虚函数参数的默认值不受多态规则控制，通过基类指针或引用调用派生类重写的虚函数时，默认值仍采用基类中的定义，易造成混淆，建议虚函数参数不使用默认值。  
   
 示例：
 ```
-void foo(float f, ...);          // Non-compliant
-void bar(int& i, ...);           // Non-compliant in C++
-void baz(register int n, ...);   // Non-compliant in C
+class A {
+public:
+    virtual int foo(int i = 0);  // Bad
+};
 ```
-例中参数 f 为 float 型，与“[默认参数提升（default argument promotion）](https://en.cppreference.com/w/cpp/language/variadic_arguments#Default_conversions)”后的类型 double 不兼容，参数 i 为引用，参数 n 被 register 修饰具有寄存器存储期，这种代码均会导致标准未定义的行为。
+应尽量去掉默认参数值，或改用重载函数的方式：
+```
+class A {
+public:
+    virtual int foo();  // OK
+    virtual int foo(int i);  // OK
+};
+```
 <br/>
 <br/>
 
 #### 相关
-ID_badVaArgType  
-ID_forbidVariadicFunction  
+ID_inconsistentDefaultArgument  
 <br/>
 
 #### 依据
-ISO/IEC 9899:2011 7.16.1.4(4)-undefined  
-ISO/IEC 14882:2011 3.2(5)-undefined  
+ISO/IEC 14882:2003 8.3.6(10)  
+ISO/IEC 14882:2011 8.3.6(10)  
+ISO/IEC 14882:2017 11.3.6(10)  
 <br/>
 
 #### 参考
-SEI CERT EXP58-CPP  
+CWE-628  
+C++ Core Guidelines C.140  
+MISRA C++ 2008 8-3-1  
 <br/>
 <br/>
 
@@ -9489,7 +9490,7 @@ void bar(T&& x) {
     x.foo();        // Non-compliant
 }
 ```
-例中参数 x 是转发引用，并不是一般的右值引用，在 bar 函数内部并不知道 x 是左值还是右值，而且 x 对应的实际参数也可能被 const 或 volatile 修饰，所以直接调用 x 的 foo 成员会引发逻辑上的混乱。
+例中参数 x 是转发引用，并不是右值引用，在 bar 函数内部并不知道 x 是左值还是右值，而且 x 对应的实际参数也可能被 const 或 volatile 修饰，所以直接调用 x 的 foo 成员会引发逻辑上的混乱。
 <br/>
 <br/>
 
@@ -10512,39 +10513,7 @@ ISO/IEC 14882:2011 7.6.3(2)-undefined
 <br/>
 <br/>
 
-### <span id="ID_redundantJump">▌R8.32 不应出现多余的跳转语句</span>
-
-ID_redundantJump&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
-
-<hr/>
-
-无返回值函数的最后一条 return 语句、循环体的最后一条 continue 语句、goto 到下一条语句等是多余的，应当去除。  
-  
-示例：
-```
-void foo() {
-    ....
-    return;   // Redundant
-}
-
-void bar() {
-    while (condition) {
-        ....
-        continue;    // Redundant
-    }
-}
-
-void baz() {
-    goto L;   // Redundant
-L:
-    ....
-}
-```
-<br/>
-<br/>
-<br/>
-
-### <span id="ID_functionSpecialization">▌R8.33 函数模板不应被特化</span>
+### <span id="ID_functionSpecialization">▌R8.32 函数模板不应被特化</span>
 
 ID_functionSpecialization&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10592,7 +10561,7 @@ MISRA C++ 2008 14-8-1
 <br/>
 <br/>
 
-### <span id="ID_tooManyLabels">▌R8.34 函数的标签数量应在规定范围之内</span>
+### <span id="ID_tooManyLabels">▌R8.33 函数的标签数量应在规定范围之内</span>
 
 ID_tooManyLabels&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10623,7 +10592,7 @@ maxLabelCount：标签数量上限，超过则报出
 <br/>
 <br/>
 
-### <span id="ID_tooManyLines">▌R8.35 函数的行数应在规定范围之内</span>
+### <span id="ID_tooManyLines">▌R8.34 函数的行数应在规定范围之内</span>
 
 ID_tooManyLines&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10653,7 +10622,7 @@ C++ Core Guidelines F.3
 <br/>
 <br/>
 
-### <span id="ID_tooManyLambdaLines">▌R8.36 lambda 表达式的行数应在规定范围之内</span>
+### <span id="ID_tooManyLambdaLines">▌R8.35 lambda 表达式的行数应在规定范围之内</span>
 
 ID_tooManyLambdaLines&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10686,7 +10655,7 @@ maxLambdaLineCount：lambda 表达式行数上限，超过则报出
 <br/>
 <br/>
 
-### <span id="ID_tooManyParams">▌R8.37 函数参数的数量应在规定范围之内</span>
+### <span id="ID_tooManyParams">▌R8.36 函数参数的数量应在规定范围之内</span>
 
 ID_tooManyParams&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10734,7 +10703,7 @@ C++ Core Guidelines I.23
 <br/>
 <br/>
 
-### <span id="ID_complexInlineFunction">▌R8.38 不应定义过于复杂的内联函数</span>
+### <span id="ID_complexInlineFunction">▌R8.37 不应定义过于复杂的内联函数</span>
 
 ID_complexInlineFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
@@ -10759,207 +10728,7 @@ C++ Core Guidelines F.5
 <br/>
 <br/>
 
-### <span id="ID_forbidGotoBlocks">▌R8.39 禁止 goto 语句向嵌套的或无包含关系的作用域跳转</span>
-
-ID_forbidGotoBlocks&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function warning
-
-<hr/>
-
-不同的作用域对应不同的条件约束，在不同的作用域间跳转是对约束的破坏，很容易导致逻辑混乱。  
-  
-向嵌套的或无包含关系的作用域跳转是不应被允许的，如果是为了结束当前流程而在同层或向外层作用域跳转，则可被本规则允许。  
-  
-示例：
-```
-int foo(int a) {
-    if (a == 0) {
-        goto L;    // Non-compliant, jumps into a block
-    }
-    for (int i = 0; i < a; i++) {
-        for (int j = 0; j < a; j++) {
-L:
-            if (cond) {
-                goto M;   // Compliant, jumps out of loops
-            }
-        }
-        ....
-    }
-M:
-    return a;
-}
-```
-例中 goto L 从 if 语句跳入循环语句是应当被禁止的，而 goto M 用于结束循环流程，可以保留。
-<br/>
-<br/>
-
-#### 相关
-ID_forbidGotoBack  
-ID_forbidGoto  
-<br/>
-
-#### 参考
-MISRA C 2012 15.3  
-MISRA C++ 2008 6-6-1  
-<br/>
-<br/>
-
-### <span id="ID_forbidGotoBack">▌R8.40 禁止 goto 语句向前跳转</span>
-
-ID_forbidGotoBack&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function suggestion
-
-<hr/>
-
-向先于当前 goto 语句定义的标签跳转，可读性较差，是公认的不良实现。  
-  
-示例：
-```
-int foo() {
-    int i = 0, j = 0;
-L:
-    j += 1;
-    i += j;
-    if (j > 100) {
-        goto M;    // Compliant
-    }
-    goto L;        // Non-compliant
-M:
-    return i;
-}
-```
-例中 goto M 向后跳转符合本规则要求，而 goto L 向前跳转不符合要求，应改用循环等结构性语句。
-<br/>
-<br/>
-
-#### 相关
-ID_forbidGotoBlocks  
-ID_forbidGoto  
-<br/>
-
-#### 参考
-MISRA C 2012 15.2  
-MISRA C++ 2008 6-6-2  
-<br/>
-<br/>
-
-### <span id="ID_forbidGoto">▌R8.41 禁用 goto 语句</span>
-
-ID_forbidGoto&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function suggestion
-
-<hr/>
-
-历史表明，goto 语句会破坏程序的结构性规划，很容易导致逻辑混乱且不利于维护，在非自动生成的、对可读性有要求的代码中，建议禁用 goto 语句。  
-  
-示例：
-```
-if (cond0) {
-    goto L;   // Non-compliant
-}
-....
-if (cond1) {
-L:
-    ....
-}
-```
-语句的排列和作用域的嵌套描述了程序的静态结构，清晰的静态结构使人易于理解程序的行为，而 goto 语句会打破这种结构，无规律的跳转会显著降低代码的可读性，例中 goto L 会绕过第二个 if 语句的条件约束，可读性很差，应被禁止。  
-  
-C 语言的流程管理较为简单，goto 语句可提供一定的灵活性，但不应作为常规实现手段，也应受一定的限制，在 C 代码中使用 goto 语句应遵循 ID\_forbidGotoBlocks 和 ID\_forbidGotoBack 等规则。  
-  
-C\+\+ 语言提供了更丰富的流程管理功能，在 C\+\+ 代码中不应再使用 goto 语句。  
-  
-下面给出 goto 语句的一种常用模式：
-```
-void foo(size_t n)
-{
-    int *a = NULL, *b = NULL, *c = NULL;
-    a = (int*)malloc(n);
-    if (!a) {
-        goto E;
-    }
-    b = (int*)malloc(n);
-    if (!b) {
-        goto E;
-    }
-    c = (int*)malloc(n);    // Multiple resource allocation
-    if (!c) {
-        goto E;
-    }
-    ....
-E:                          // Single exit point
-    free(a);
-    free(b);
-    free(c);
-}
-```
-在多次资源分配过程中，如果某次分配失败则需要释放已分配的资源，利用 goto 语句可实现资源的统一释放，在 C 代码中如果不用 goto 语句反而会很繁琐，所以这种模式在 C 代码中可以复用。  
-  
-由于 C\+\+ 提供容器、智能指针等更丰富的资源管理手段，所以不建议在 C\+\+ 代码中再使用这种模式，即使标准库没有和相关资源对应的功能，也应该利用“[RAII](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization)”等机制对其先封装再使用。
-```
-void foo(size_t n) {
-    std::vector<int> a, b, c;   // Safe and brief
-    ....
-}
-```
-<br/>
-<br/>
-
-#### 相关
-ID_forbidGotoBlocks  
-ID_forbidGotoBack  
-<br/>
-
-#### 参考
-C++ Core Guidelines ES.76  
-MISRA C 2012 15.1  
-<br/>
-<br/>
-
-### <span id="ID_forbidLongjmp">▌R8.42 禁用 setjmp、longjmp</span>
-
-ID_forbidLongjmp&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: function warning
-
-<hr/>
-
-setjmp、longjmp 可以在函数间跳转，进一步破坏了结构化编程理念，非框架代码不应使用。  
-  
-示例：
-```
-jmp_buf buf;
-
-float div(int a, int b) {
-    if (b == 0) {
-        longjmp(buf, 1);     // Non-compliant
-    }
-    return (float)a / b;
-}
-
-int main() {
-    if (setjmp(buf) == 0) {  // Non-compliant
-        printf("%f\n", div(3, 0));
-    } else {
-        return 1;
-    }
-}
-```
-setjmp 返回 0 表示设置跳转位置成功，之后如果调用 longjmp 会跳回 setjmp 的位置，这时 setjmp 返回非 0 值，这种机制在 C 语言中可以用作异常处理，也可以实现“协程”等概念，但会使代码的可维护性显著降低，在普通的业务逻辑或算法实现中不应使用。  
-  
-setjmp 与 longjmp 由 jmp\_buf 参数关联，应在同一线程中使用，如果调用 longjmp 时没有对应的 setjmp，或 setjmp 所在函数已经结束执行，会导致标准未定义的行为，而且要注意 setjmp、longjmp 无法与 C\+\+ 对象自动析构等机制兼容，极易造成意料之外的错误。
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 9899:1999 7.13.2.1(2)-undefined  
-ISO/IEC 14882:2011 18.10(4)-undefined  
-<br/>
-
-#### 参考
-MISRA C 2004 20.7  
-MISRA C 2012 21.4  
-MISRA C++ 2008 17-0-5  
-C++ Core Guidelines SL.C.1  
-<br/>
-<br/>
-
-### <span id="ID_recursion">▌R8.43 避免递归实现</span>
+### <span id="ID_recursion">▌R8.38 避免递归实现</span>
 
 ID_recursion&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10996,7 +10765,7 @@ MISRA C++ 2008 7-5-4
 <br/>
 <br/>
 
-### <span id="ID_functionRepetition">▌R8.44 不应存在重复的函数实现</span>
+### <span id="ID_functionRepetition">▌R8.39 避免重复的函数实现</span>
 
 ID_functionRepetition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
@@ -12764,9 +12533,243 @@ default:
 <br/>
 <br/>
 
-### <span id="control.try-catch">9.6 Try-catch</span>
+### <span id="control.jump">9.6 Jump</span>
 
-### <span id="ID_try_emptyBlock">▌R9.6.1 不应存在空的 try 块</span>
+### <span id="ID_forbidGotoBlocks">▌R9.6.1 禁止 goto 语句向嵌套的或无包含关系的作用域跳转</span>
+
+ID_forbidGotoBlocks&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: control warning
+
+<hr/>
+
+不同的作用域对应不同的条件约束，在不同的作用域间跳转是对约束的破坏，很容易导致逻辑混乱。  
+  
+向嵌套的或无包含关系的作用域跳转是不应被允许的，如果是为了结束当前流程而在同层或向外层作用域跳转，则可被本规则允许。  
+  
+示例：
+```
+int foo(int a) {
+    if (a == 0) {
+        goto L;    // Non-compliant, jumps into a block
+    }
+    for (int i = 0; i < a; i++) {
+        for (int j = 0; j < a; j++) {
+L:
+            if (cond) {
+                goto M;   // Compliant, jumps out of loops
+            }
+        }
+        ....
+    }
+M:
+    return a;
+}
+```
+例中 goto L 从 if 语句跳入循环语句是应当被禁止的，而 goto M 用于结束循环流程，可以保留。
+<br/>
+<br/>
+
+#### 相关
+ID_forbidGotoBack  
+ID_forbidGoto  
+<br/>
+
+#### 参考
+MISRA C 2012 15.3  
+MISRA C++ 2008 6-6-1  
+<br/>
+<br/>
+
+### <span id="ID_forbidGotoBack">▌R9.6.2 禁止 goto 语句向前跳转</span>
+
+ID_forbidGotoBack&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: control suggestion
+
+<hr/>
+
+向先于当前 goto 语句定义的标签跳转，可读性较差，是公认的不良实现。  
+  
+示例：
+```
+int foo() {
+    int i = 0, j = 0;
+L:
+    j += 1;
+    i += j;
+    if (j > 100) {
+        goto M;    // Compliant
+    }
+    goto L;        // Non-compliant
+M:
+    return i;
+}
+```
+例中 goto M 向后跳转符合本规则要求，而 goto L 向前跳转不符合要求，应改用循环等结构性语句。
+<br/>
+<br/>
+
+#### 相关
+ID_forbidGotoBlocks  
+ID_forbidGoto  
+<br/>
+
+#### 参考
+MISRA C 2012 15.2  
+MISRA C++ 2008 6-6-2  
+<br/>
+<br/>
+
+### <span id="ID_forbidGoto">▌R9.6.3 禁用 goto 语句</span>
+
+ID_forbidGoto&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: control suggestion
+
+<hr/>
+
+历史表明，goto 语句会破坏程序的结构性规划，很容易导致逻辑混乱且不利于维护，在非自动生成的、对可读性有要求的代码中，建议禁用 goto 语句。  
+  
+示例：
+```
+if (cond0) {
+    goto L;   // Non-compliant
+}
+....
+if (cond1) {
+L:
+    ....
+}
+```
+语句的排列和作用域的嵌套描述了程序的静态结构，清晰的静态结构使人易于理解程序的行为，而 goto 语句会打破这种结构，无规律的跳转会显著降低代码的可读性，例中 goto L 会绕过第二个 if 语句的条件约束，可读性很差，应被禁止。  
+  
+C 语言的流程管理较为简单，goto 语句可提供一定的灵活性，但不应作为常规实现手段，也应受一定的限制，在 C 代码中使用 goto 语句应遵循 ID\_forbidGotoBlocks 和 ID\_forbidGotoBack 等规则。  
+  
+C\+\+ 语言提供了更丰富的流程管理功能，在 C\+\+ 代码中不应再使用 goto 语句。  
+  
+下面给出 goto 语句的一种常用模式：
+```
+void foo(size_t n)
+{
+    int *a = NULL, *b = NULL, *c = NULL;
+    a = (int*)malloc(n);
+    if (!a) {
+        goto E;
+    }
+    b = (int*)malloc(n);
+    if (!b) {
+        goto E;
+    }
+    c = (int*)malloc(n);    // Multiple resource allocation
+    if (!c) {
+        goto E;
+    }
+    ....
+E:                          // Single exit point
+    free(a);
+    free(b);
+    free(c);
+}
+```
+在多次资源分配过程中，如果某次分配失败则需要释放已分配的资源，利用 goto 语句可实现资源的统一释放，在 C 代码中如果不用 goto 语句反而会很繁琐，所以这种模式在 C 代码中可以复用。  
+  
+由于 C\+\+ 提供容器、智能指针等更丰富的资源管理手段，所以不建议在 C\+\+ 代码中再使用这种模式，即使标准库没有和相关资源对应的功能，也应该利用“[RAII](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization)”等机制对其先封装再使用。
+```
+void foo(size_t n) {
+    std::vector<int> a, b, c;   // Safe and brief
+    ....
+}
+```
+<br/>
+<br/>
+
+#### 相关
+ID_forbidGotoBlocks  
+ID_forbidGotoBack  
+<br/>
+
+#### 参考
+C++ Core Guidelines ES.76  
+MISRA C 2012 15.1  
+<br/>
+<br/>
+
+### <span id="ID_forbidLongjmp">▌R9.6.4 禁用 setjmp、longjmp</span>
+
+ID_forbidLongjmp&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: control warning
+
+<hr/>
+
+setjmp、longjmp 可以在函数间跳转，进一步破坏了结构化编程理念，非框架代码不应使用。  
+  
+示例：
+```
+jmp_buf buf;
+
+float div(int a, int b) {
+    if (b == 0) {
+        longjmp(buf, 1);     // Non-compliant
+    }
+    return (float)a / b;
+}
+
+int main() {
+    if (setjmp(buf) == 0) {  // Non-compliant
+        printf("%f\n", div(3, 0));
+    } else {
+        return 1;
+    }
+}
+```
+setjmp 返回 0 表示设置跳转位置成功，之后如果调用 longjmp 会跳回 setjmp 的位置，这时 setjmp 返回非 0 值，这种机制在 C 语言中可以用作异常处理，也可以实现“协程”等概念，但会使代码的可维护性显著降低，在普通的业务逻辑或算法实现中不应使用。  
+  
+setjmp 与 longjmp 由 jmp\_buf 参数关联，应在同一线程中使用，如果调用 longjmp 时没有对应的 setjmp，或 setjmp 所在函数已经结束执行，会导致标准未定义的行为，而且要注意 setjmp、longjmp 无法与 C\+\+ 对象自动析构等机制兼容，极易造成意料之外的错误。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 7.13.2.1(2)-undefined  
+ISO/IEC 14882:2011 18.10(4)-undefined  
+<br/>
+
+#### 参考
+MISRA C 2004 20.7  
+MISRA C 2012 21.4  
+MISRA C++ 2008 17-0-5  
+C++ Core Guidelines SL.C.1  
+<br/>
+<br/>
+
+### <span id="ID_redundantJump">▌R9.6.5 不应出现多余的跳转语句</span>
+
+ID_redundantJump&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
+
+<hr/>
+
+无返回值函数的最后一条 return 语句、循环体的最后一条 continue 语句、goto 到下一条语句等是多余的，应当去除。  
+  
+示例：
+```
+void foo() {
+    ....
+    return;   // Redundant
+}
+
+void bar() {
+    while (condition) {
+        ....
+        continue;    // Redundant
+    }
+}
+
+void baz() {
+    goto L;   // Redundant
+L:
+    ....
+}
+```
+<br/>
+<br/>
+<br/>
+
+### <span id="control.try-catch">9.7 Try-catch</span>
+
+### <span id="ID_try_emptyBlock">▌R9.7.1 不应存在空的 try 块</span>
 
 ID_try_emptyBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
@@ -12792,7 +12795,7 @@ CWE-1071
 <br/>
 <br/>
 
-### <span id="ID_catch_emptyBlock">▌R9.6.2 不应存在空的 catch handler</span>
+### <span id="ID_catch_emptyBlock">▌R9.7.2 不应存在空的 catch handler</span>
 
 ID_catch_emptyBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
 
@@ -12833,7 +12836,7 @@ CWE-391
 <br/>
 <br/>
 
-### <span id="ID_try_forbidNest">▌R9.6.3 不应嵌套 try-catch 语句</span>
+### <span id="ID_try_forbidNest">▌R9.7.3 不应嵌套 try-catch 语句</span>
 
 ID_try_forbidNest&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: control suggestion
 
@@ -12863,7 +12866,7 @@ C++ Core Guidelines E.17
 <br/>
 <br/>
 
-### <span id="ID_try_disorderedEllipsis">▌R9.6.4 捕获所有异常的 catch-all handler 应位于最后</span>
+### <span id="ID_try_disorderedEllipsis">▌R9.7.4 捕获所有异常的 catch-all handler 应位于最后</span>
 
 ID_try_disorderedEllipsis&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: control error
 
@@ -12907,7 +12910,7 @@ MISRA C++ 2008 15-3-7
 <br/>
 <br/>
 
-### <span id="ID_try_disorderedHandlers">▌R9.6.5 派生类的 catch handler 应排在基类 catch handler 之前</span>
+### <span id="ID_try_disorderedHandlers">▌R9.7.5 派生类的 catch handler 应排在基类 catch handler 之前</span>
 
 ID_try_disorderedHandlers&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: control error
 
@@ -14225,7 +14228,7 @@ ID_returnValueIgnored&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-返回值不应被忽略，尤其是与资源分配、信息获取、状态判断有关的返回值。  
+与资源分配、信息获取、状态判断有关的返回值不应被忽略。  
   
 示例：
 ```

@@ -1006,7 +1006,7 @@
         "checkPoint": "禁止 goto 语句向嵌套的或无包含关系的作用域跳转",
         "level": "warning",
         "comment": "不同的作用域对应不同的条件约束，在不同的作用域间跳转是对约束的破坏，很容易导致逻辑混乱。",
-        "tag": "function",
+        "tag": "control",
         "related": "ID_forbidGotoBack,ID_forbidGoto",
         "reference": "MISRA C 2012 15.3,MISRA C++ 2008 6-6-1"
         },
@@ -1014,7 +1014,7 @@
         "checkPoint": "禁止 goto 语句向前跳转",
         "level": "suggestion",
         "comment": "向先于当前 goto 语句定义的标签跳转，可读性较差，是公认的不良实现。",
-        "tag": "function",
+        "tag": "control",
         "related": "ID_forbidGotoBlocks,ID_forbidGoto",
         "reference": "MISRA C 2012 15.2,MISRA C++ 2008 6-6-2"
         },
@@ -1022,7 +1022,7 @@
         "checkPoint": "禁用 goto 语句",
         "level": "suggestion",
         "comment": "历史表明，goto 语句会破坏程序的结构性规划，很容易导致逻辑混乱且不利于维护，在非自动生成的、对可读性有要求的代码中，建议禁用 goto 语句。",
-        "tag": "function",
+        "tag": "control",
         "related": "ID_forbidGotoBlocks,ID_forbidGotoBack",
         "reference": "C++ Core Guidelines ES.76,MISRA C 2012 15.1"
         },
@@ -1802,7 +1802,7 @@
         "checkPoint": "不应出现多余的跳转语句",
         "level": "warning",
         "comment": "无返回值函数的最后一条 return 语句、循环体的最后一条 continue 语句、goto 到下一条语句等是多余的，应当去除。",
-        "tag": "function"
+        "tag": "control"
         },
     "ID_paramPassedByValue": {
         "checkPoint": "由 const 修饰的参数应为引用或指针",
@@ -2647,7 +2647,7 @@
         "reference": "C++ Core Guidelines ES.31,MISRA C 2004 19.7,MISRA C 2012 Dir 4.9,MISRA C++ 2008 16-0-4"
         },
     "ID_functionRepetition": {
-        "checkPoint": "不应存在重复的函数实现",
+        "checkPoint": "避免重复的函数实现",
         "level": "suggestion",
         "comment": "不同的函数代码却完全相同或过于相似是不利于维护的。",
         "tag": "function",
@@ -3100,7 +3100,7 @@
         "checkPoint": "禁用 setjmp、longjmp",
         "level": "warning",
         "comment": "setjmp、longjmp 可以在函数间跳转，进一步破坏了结构化编程理念，非框架代码不应使用。",
-        "tag": "function",
+        "tag": "control",
         "standard": "ISO/IEC 9899:1999 7.13.2.1(2)-undefined,ISO/IEC 14882:2011 18.10(4)-undefined",
         "reference": "MISRA C 2004 20.7,MISRA C 2012 21.4,MISRA C++ 2008 17-0-5,C++ Core Guidelines SL.C.1"
         },
