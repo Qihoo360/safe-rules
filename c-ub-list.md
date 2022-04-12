@@ -141,8 +141,8 @@
 | 129 | 与计算异常（computational exception）对应的信号处理函数正常返回 | 7.14.1.1 |
 | 130 | SIGFPE、SIGILL、SIGSEGV 的信号处理函数，或其他由实现定义的与计算异常（computational exception）对应的信号处理函数正常返回 | 7.14.1.1 |
 | 131 | 处理 abort 或 raise 函数产生的信号时，在信号处理函数中调用 raise 函数 | 7.14.1.1 |
-| 132 | 在信号处理函数中引用非 lock\-free 并具有静态或线程存储期的对象，或使用 abort、\_Exit、quick\_exit、signal 之外的库函数 | 7.14.1.1 |
-| 133 | 在信号处理函数中调用 signal 函数，当其返回 SIG\_ERR 时访问 errno 的值 | 7.14.1.1 |
+| 132 | 处理程序外部产生的信号时引用非 lock\-free 并具有静态或线程存储期的对象，且这种对象不是 volatile sig\_atomic\_t 类型，相关操作也不是赋值，或者使用 abort、\_Exit、quick\_exit、signal 之外的库函数<sup> [\[注\]](#comment_132) </sup> | 7.14.1.1 |
+| 133 | 处理程序外部产生的信号时调用 signal 函数，当其返回 SIG\_ERR 时访问 errno 的值<sup> [\[注\]](#comment_133) </sup> | 7.14.1.1 |
 | 134 | 异步信号处理函数产生信号 | 7.14.1.1 |
 | 135 | 在多线程环境中使用 signal 函数 | 7.14.1.1 |
 | 136 | 没有正确地通过 va\_list 访问可变参数，或在使用 va\_start 之前访问可变参数<sup> [\[注\]](#comment_136) </sup> | 7.16 |
@@ -249,6 +249,20 @@
 ### <span id="comment_123"> 123. 为浮点数分类或比较相关的宏提供非真浮点类型的参数 </span>
 
 此问题在 7.12.3、7.12.14 中均有涉及。
+<br/>
+<br/>
+<br/>
+
+### <span id="comment_132"> 132. 处理程序外部产生的信号时引用非 lock\-free 并具有静态或线程存储期的对象，且这种对象不是 volatile sig\_atomic\_t 类型，相关操作也不是赋值，或者使用 abort、\_Exit、quick\_exit、signal 之外的库函数 </span>
+
+程序外部产生的信号指不是 abort 也不是 raise 函数产生的信号。
+<br/>
+<br/>
+<br/>
+
+### <span id="comment_133"> 133. 处理程序外部产生的信号时调用 signal 函数，当其返回 SIG\_ERR 时访问 errno 的值 </span>
+
+程序外部产生的信号指不是 abort 也不是 raise 函数产生的信号。
 <br/>
 <br/>
 <br/>
