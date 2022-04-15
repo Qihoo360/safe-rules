@@ -3352,7 +3352,7 @@
     "ID_sig_nonAsyncSafeCall": {
         "checkPoint": "处理信号时避免使用非异步信号安全函数",
         "level": "warning",
-        "comment": "不处理共享数据也不会影响程状态的函数，以及不会被信号中断的函数称为“异步信号安全”函数，处理信号时只应使用这种函数。",
+        "comment": "不处理共享数据也不会影响程序状态的函数，以及不会被信号中断的函数称为“异步信号安全”函数，处理信号时只应使用这种函数。",
         "tag": "interruption",
         "standard": "ISO/IEC 9899:2011 7.14.1.1(5)-undefined",
         "related": "ID_sig_dataRaces,ID_dataRaces",
@@ -3369,7 +3369,7 @@
     "ID_forbidSignalFunction": {
         "checkPoint": "禁用 signal 函数",
         "level": "suggestion",
-        "comment": "signal 函数具有一定的局限性，且各平台实现差异较大，建议用 sigaction 函数代替。",
+        "comment": "signal 函数具有一定的局限性，且各平台实现差异较大，可用 sigaction 函数代替。",
         "tag": "interruption",
         "standard": "ISO/IEC 9899:2011 7.14.1.1(3)-implementation,ISO/IEC 9899:2011 7.14.1.1(7)-implementation",
         "related": "ID_signalInMultiThreading,ID_implementationDefinedFunction",
@@ -3402,7 +3402,7 @@
     "ID_spuriouslyWakeUp": {
         "checkPoint": "避免虚假唤醒造成同步错误",
         "level": "warning",
-        "comment": "条件变量可以在条件不满足时被唤醒，这种问题称为“虚假唤醒（spurious wakeup）”，条件变量被唤醒后应检查相关条件是否满足，否则会造成同步相关的错误。",
+        "comment": "条件不满足时条件变量也可以被唤醒，这种情况称为“虚假唤醒（spurious wakeup）”，条件变量被唤醒后应检查相关条件是否满足，否则会造成同步相关的错误。",
         "tag": "concurrency",
         "reference": "SEI CERT CON36-C,SEI CERT CON54-CPP"
         },

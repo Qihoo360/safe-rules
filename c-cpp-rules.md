@@ -17504,13 +17504,13 @@ ID_sig_dataRaces&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: interruption warning
 
 <hr/>
 
-异步信号处理函数的调用会随时打断主程序的流程，当处理函数返回后，主程序在被打断的位置继续执行，故称“[中断（interrupt）](https://en.wikipedia.org/wiki/Interrupt)”，这一点与执行非并发的线程相似，但没有锁等同步机制，而且信号处理函数本身也可能被中断，所以实现信号处理函数访问共享数据时应格外小心。  
+异步信号处理函数的调用会随时打断主程序的流程，当处理函数返回后，主程序在被打断的位置继续执行，故称“[中断（interrupt）](https://en.wikipedia.org/wiki/Interrupt)”，这一点与执行非并发的线程相似，但没有锁等同步机制，而且信号处理函数本身也可能被中断，所以在信号处理函数中访问共享数据应格外小心。  
   
-异步信号处理函数的实现模式：  
- - 调用“异步信号安全”函数执行清理或结束进程，如 abort、\_Exit 等  
+异步信号处理函数的安全模式：  
+ - 调用“[异步信号安全](https://man7.org/linux/man-pages/man7/signal-safety.7.html)”函数执行清理或结束进程，如 abort、\_Exit 等  
  - 对 volatile sig\_atomic\_t 等类型的共享对象赋值，主程序周期性地检查共享对象并执行相应动作  
- - 向某管道写入一个字节，主程序监控该管道并执行相应动作  
- - 利用 sigsetjmp、siglongjmp 等函数将控制返回到主程序中的预定位置  
+ - 利用 sigsetjmp、siglongjmp 等函数将流程返回到主程序中的预定位置  
+ - 通过管道等方式与主程序通信，向管道写入一个字节，主程序监控该管道并执行相应动作  
   
 只应选择其中一种方式，且尽量避免访问共享数据，否则对共享数据的错误处理会使程序产生未定义的行为。  
   
@@ -17570,7 +17570,7 @@ ID_sig_nonAsyncSafeCall&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: interruption warning
 
 <hr/>
 
-不处理共享数据也不会影响程状态的函数，以及不会被信号中断的函数称为“异步信号安全”函数，处理信号时只应使用这种函数。  
+不处理共享数据也不会影响程序状态的函数，以及不会被信号中断的函数称为“[异步信号安全](https://man7.org/linux/man-pages/man7/signal-safety.7.html)”函数，处理信号时只应使用这种函数。  
   
 示例：
 ```
@@ -17625,7 +17625,7 @@ int main() {
     ....
 }
 ```
-例中 handler 不应正常返回，应使用 abort、\_Exit 等函数终止程序的执行。
+当发生除 0 等计算异常时，程序会收到 SIGFPE 信号，这种信号对应的处理函数只应使用 abort、\_Exit 等函数终止程序的执行，不可正常返回，否则可能会造成更严重的损失。
 <br/>
 <br/>
 
@@ -17644,7 +17644,7 @@ ID_forbidSignalFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: interruption sug
 
 <hr/>
 
-signal 函数具有一定的局限性，且各平台实现差异较大，建议用 sigaction 函数代替。  
+signal 函数具有一定的局限性，且各平台实现差异较大，可用 sigaction 函数代替。  
   
 示例：
 ```
@@ -17655,7 +17655,7 @@ void handler(int signum) {     // #1
     ....
 }
 ```
-设例中 handler 是某种信号的处理函数。在某些平台上，signal 指定的函数只能被执行一次，所以需要在处理函数中再次调用 signal 指定处理函数，但如果程序在运行到 `#1` 和 `#2` 之间时收到同样的信号，会执行不符合预期的默认处理函数，这是一种竞态条件；而在另一些平台上，signal 指定的函数会一直有效，处理函数再次调用 signal 是多余的。  
+设例中 handler 是某种信号的处理函数。在某些平台上，signal 指定的函数只能被执行一次，所以需要在 handler 中再次调用 signal 指定处理函数，但如果程序在运行到 `#1` 和 `#2` 之间时收到同样的信号，会执行不符合预期的默认处理函数，这是一种竞态条件；而在另一些平台上，signal 指定的函数会一直有效，handler 再次调用 signal 是多余的。  
   
 sigaction 函数不存在这些问题，也可提供更多的功能，但要注意该函数尚未在语言标准中定义。
 <br/>
@@ -17725,7 +17725,7 @@ void bar() {
     pthread_cancel(thrd);   // Non-compliant, leak or deadlock
 }
 ```
-例中 foo 和 bar 是两个相关的异步过程，在一个过程中暴力终止另一个过程是非常危险的，会使锁、信号量以及动态分配的资源无法得到释放，所以应使线程可以主动执行清理再结束执行。
+例中 foo 和 bar 是两个相关的异步过程，在一个过程中暴力终止另一个过程是非常危险的，会使锁、信号量以及动态分配的资源无法得到释放，所以应使线程主动执行清理。
 <br/>
 <br/>
 
@@ -17785,7 +17785,7 @@ ID_spuriouslyWakeUp&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: concurrency warning
 
 <hr/>
 
-条件变量可以在条件不满足时被唤醒，这种问题称为“[虚假唤醒（spurious wakeup）](https://en.wikipedia.org/wiki/Spurious_wakeup)”，条件变量被唤醒后应检查相关条件是否满足，否则会造成同步相关的错误。  
+条件不满足时条件变量也可以被唤醒，这种情况称为“[虚假唤醒（spurious wakeup）](https://en.wikipedia.org/wiki/Spurious_wakeup)”，条件变量被唤醒后应检查相关条件是否满足，否则会造成同步相关的错误。  
   
 示例：
 ```
@@ -17801,9 +17801,9 @@ void thread() {
     ....
 }
 ```
-设例中 cv 是条件变量，cnd 代表相关条件，cnd\_wait 等待条件被其他异步过程满足，条件的判断与更改应是互斥的，cnd\_wait 会解锁并进入等待状态，当得到 cnd\_signal 或 cnd\_broadcast 的通知后会退出等待状态并再次加锁，当条件不满足时也可能退出等待，原因主要有：  
+设例中 cv 是条件变量，cnd 代表相关条件，cnd\_wait 等待条件被其他异步过程满足，条件的判断与更改应是互斥的，cnd\_wait 会解锁并进入等待状态，当得到 cnd\_signal 或 cnd\_broadcast 的通知后会退出等待状态并再次加锁，但在条件不满足时也可能退出等待，原因主要有：  
  - 一个条件变量对应多个条件，与当前条件无关的条件被满足并通知了条件变量  
- - 退出等待并加锁的过程中其他线程使条件不被满足  
+ - 在退出等待并加锁的过程中其他线程使条件不被满足  
  - 等待过程被信号打断  
   
 这些问题取决于程序和系统的具体实现，在循环中等待并判断条件可一并解决这些问题：
