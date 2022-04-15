@@ -4,18 +4,18 @@
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对 C、C++ 语言，本文收录了 426 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对 C、C++ 语言，本文收录了 436 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
 ## 规则说明
 
-规则按如下主题分为 15 个类别：
+规则按如下主题分为 17 个类别：
 
- 1. [Security](#__Security)：敏感数据保护、攻击防御等问题
+ 1. [Security](#__Security)：敏感数据保护、攻击防御
  2. [Resource](#__Resource)：资源分配、使用与回收
- 3. [Precompile](#__Precompile)：预处理指令、宏、注释等问题
- 4. [Global](#__Global)：全局及命名空间作用域相关问题
+ 3. [Precompile](#__Precompile)：预处理指令、宏、注释
+ 4. [Global](#__Global)：全局及命名空间作用域
  5. [Type](#__Type)：类型相关的设计与实现
  6. [Declaration](#__Declaration)：声明
  7. [Exception](#__Exception)：异常
@@ -26,7 +26,9 @@
  12. [Cast](#__Cast)：类型转换
  13. [Buffer](#__Buffer)：缓冲区
  14. [Pointer](#__Pointer)：指针
- 15. [Style](#__Style)：样式、风格等问题
+ 15. [Interruption](#__Interruption)：中断与信号处理
+ 16. [Concurrency](#__Concurrency)：异步与并发
+ 17. [Style](#__Style)：样式与风格
 
 每条规则包括：
 
@@ -339,7 +341,7 @@
   - [R8.15 在析构函数中不应调用虚函数](#ID_virtualCallInDestuctor)
   - [R8.16 在析构函数中避免调用 exit 函数](#ID_exitCallInDestructor)
   - [R8.17 拷贝构造函数应避免实现复制之外的功能](#ID_sideEffectCopyConstructor)
-  - [R8.18 赋值运算符应妥善处理参数就是自身对象时的情况](#ID_this_selfJudgement)
+  - [R8.18 拷贝赋值运算符应处理参数是自身对象时的情况](#ID_this_selfJudgement)
   - [R8.19 不应存在无效的写入操作](#ID_invalidWrite)
   - [R8.20 不应存在没有副作用的语句](#ID_missingSideEffect)
   - [R8.21 不应存在得不到执行机会的代码](#ID_unreachableCode)
@@ -443,26 +445,27 @@
     - [R10.1.7 逻辑表达式应保持简洁明了](#ID_simplifiableCondition)
     - [R10.1.8 可化简为逻辑表达式的三元表达式应尽量化简](#ID_simplifiableTernary)
   - [10.2 Evaluation](#expression.evaluation)
-    - [R10.2.1 避免依赖特定的子表达式求值顺序](#ID_evaluationOrderReliance)
-    - [R10.2.2 在表达式中不应多次读写同一对象](#ID_confusingAssignment)
-    - [R10.2.3 注意运算符优先级，避免非预期的结果](#ID_unexpectedPrecedence)
-    - [R10.2.4 不在同一数组中的指针不可比较或相减](#ID_illPtrDiff)
-    - [R10.2.5 bool 值不应参与位运算、大小比较、数值增减](#ID_illBoolOperation)
-    - [R10.2.6 不应出现复合赋值的错误形式](#ID_illFormedCompoundAssignment)
-    - [R10.2.7 避免出现复合赋值的可疑形式](#ID_suspiciousCompoundAssignment)
-    - [R10.2.8 &=、|=、\-=、/=、%= 左右子表达式不应相同](#ID_illSelfCompoundAssignment)
-    - [R10.2.9 不应使用 NULL 对非指针变量赋值](#ID_oddNullAssignment)
-    - [R10.2.10 注意赋值运算符与一元运算符的空格方式](#ID_stickyAssignmentOperator)
-    - [R10.2.11 赋值运算符左右子表达式不应相同](#ID_selfAssignment)
-    - [R10.2.12 除法和求余运算符左右子表达式不应相同](#ID_selfDivision)
-    - [R10.2.13 减法运算符左右子表达式不应相同](#ID_selfSubtraction)
-    - [R10.2.14 异或运算符左右子表达式不应相同](#ID_selfExclusiveOr)
-    - [R10.2.15 负号不应作用于无符号整数](#ID_minusOnUnsigned)
-    - [R10.2.16 不应重复使用一元运算符](#ID_repeatedUnaryOperators)
-    - [R10.2.17 运算结果不应溢出](#ID_evalOverflow)
-    - [R10.2.18 位运算符不应作用于有符号整数](#ID_bitwiseOperOnSigned)
-    - [R10.2.19 移位数量不可超过相关类型比特位的数量](#ID_illShiftCount)
-    - [R10.2.20 逗号表达式的子表达式应具有必要的副作用](#ID_invalidCommaSubExpression)
+    - [R10.2.1 不可依赖不会生效的副作用](#ID_unevaluatedSideEffect)
+    - [R10.2.2 避免依赖特定的子表达式求值顺序](#ID_evaluationOrderReliance)
+    - [R10.2.3 在表达式中不应多次读写同一对象](#ID_confusingAssignment)
+    - [R10.2.4 注意运算符优先级，避免非预期的结果](#ID_unexpectedPrecedence)
+    - [R10.2.5 不在同一数组中的指针不可比较或相减](#ID_illPtrDiff)
+    - [R10.2.6 bool 值不应参与位运算、大小比较、数值增减](#ID_illBoolOperation)
+    - [R10.2.7 不应出现复合赋值的错误形式](#ID_illFormedCompoundAssignment)
+    - [R10.2.8 避免出现复合赋值的可疑形式](#ID_suspiciousCompoundAssignment)
+    - [R10.2.9 &=、|=、\-=、/=、%= 左右子表达式不应相同](#ID_illSelfCompoundAssignment)
+    - [R10.2.10 不应使用 NULL 对非指针变量赋值](#ID_oddNullAssignment)
+    - [R10.2.11 注意赋值运算符与一元运算符的空格方式](#ID_stickyAssignmentOperator)
+    - [R10.2.12 赋值运算符左右子表达式不应相同](#ID_selfAssignment)
+    - [R10.2.13 除法和求余运算符左右子表达式不应相同](#ID_selfDivision)
+    - [R10.2.14 减法运算符左右子表达式不应相同](#ID_selfSubtraction)
+    - [R10.2.15 异或运算符左右子表达式不应相同](#ID_selfExclusiveOr)
+    - [R10.2.16 负号不应作用于无符号整数](#ID_minusOnUnsigned)
+    - [R10.2.17 不应重复使用一元运算符](#ID_repeatedUnaryOperators)
+    - [R10.2.18 运算结果不应溢出](#ID_evalOverflow)
+    - [R10.2.19 位运算符不应作用于有符号整数](#ID_bitwiseOperOnSigned)
+    - [R10.2.20 移位数量不可超过相关类型比特位的数量](#ID_illShiftCount)
+    - [R10.2.21 逗号表达式的子表达式应具有必要的副作用](#ID_invalidCommaSubExpression)
   - [10.3 Comparison](#expression.comparison)
     - [R10.3.1 比较运算应在正确的取值范围内进行](#ID_illComparison)
     - [R10.3.2 不应使用 == 或 != 判断浮点数是否相等](#ID_illFloatComparison)
@@ -471,7 +474,7 @@
     - [R10.3.5 比较运算符左右子表达式不应相同](#ID_selfComparison)
     - [R10.3.6 比较运算不可作为另一个比较运算的直接子表达式](#ID_successiveComparison)
   - [10.4 Call](#expression.call)
-    - [R10.4.1 返回值不应被忽略](#ID_returnValueIgnored)
+    - [R10.4.1 不应忽略重要的返回值](#ID_returnValueIgnored)
     - [R10.4.2 不可臆断返回值的意义](#ID_wrongUseOfReturnValue)
     - [R10.4.3 避免对象切片](#ID_objectSlicing)
     - [R10.4.4 非基本类型的对象不应传入可变参数列表](#ID_userObjectAsVariadicArgument)
@@ -482,13 +485,13 @@
     - [R10.4.9 合理使用 std::move](#ID_unsuitableMove)
     - [R10.4.10 合理使用 std::forward](#ID_unsuitableForward)
   - [10.5 Sizeof](#expression.sizeof)
-    - [R10.5.1 sizeof 不应作用于有副作用的表达式](#ID_sizeof_sideEffect)
-    - [R10.5.2 sizeof 的结果不应与 0 或负数比较](#ID_sizeof_zeroComparison)
-    - [R10.5.3 sizeof 不应作用于数组参数](#ID_sizeof_arrayParameter)
-    - [R10.5.4 sizeof 不应作用于逻辑表达式](#ID_sizeof_oddExpression)
-    - [R10.5.5 被除数不应是作用于指针的 sizeof 表达式](#ID_sizeof_pointerDivision)
-    - [R10.5.6 指针加减偏移量时计入 sizeof 是可疑的](#ID_sizeof_suspiciousAdd)
-    - [R10.5.7 sizeof 不应再作用于 sizeof](#ID_sizeof_sizeof)
+    - [R10.5.1 sizeof 不应作用于数组参数](#ID_sizeof_arrayParameter)
+    - [R10.5.2 sizeof 不应作用于逻辑表达式](#ID_sizeof_oddExpression)
+    - [R10.5.3 sizeof 作用于指针是可疑的](#ID_sizeof_pointer)
+    - [R10.5.4 被除数不应是作用于指针的 sizeof 表达式](#ID_sizeof_pointerDivision)
+    - [R10.5.5 指针加减偏移量时计入 sizeof 是可疑的](#ID_sizeof_suspiciousAdd)
+    - [R10.5.6 sizeof 表达式的结果不应与 0 或负数比较](#ID_sizeof_zeroComparison)
+    - [R10.5.7 sizeof 不应再作用于 sizeof 表达式](#ID_sizeof_sizeof)
     - [R10.5.8 C\+\+ 代码中 sizeof 不应作用于 NULL](#ID_sizeof_NULL)
     - [R10.5.9 sizeof 不可作用于 void](#ID_sizeof_void)
   - [10.6 Assertion](#expression.assertion)
@@ -566,18 +569,33 @@
   - [R14.13 不应判断 this 指针是否为空](#ID_this_zeroComparison)
   - [R14.14 析构函数中不可使用 delete this](#ID_this_deleteInDestructor)
   - [R14.15 禁用 delete this](#ID_this_forbidDeleteThis)
-  - [R14.16 sizeof 作用于指针是可疑的](#ID_sizeof_pointer)
-  - [R14.17 判断 dynamic\_cast 转换是否成功](#ID_nullDerefDynamicCast)
-  - [R14.18 指针在释放后应置空](#ID_missingResetNull)
+  - [R14.16 判断 dynamic\_cast 转换是否成功](#ID_nullDerefDynamicCast)
+  - [R14.17 指针在释放后应置空](#ID_missingResetNull)
 <br/>
 
-<span id="__Style">**[15. Style](#style)**</span>
-  - [R15.1 空格应遵循统一风格](#ID_spaceStyle)
-  - [R15.2 大括号应遵循统一风格](#ID_braceStyle)
-  - [R15.3 NULL 和 nullptr 不应混用](#ID_mixNullptrAndNULL)
-  - [R15.4 在 C\+\+ 代码中用 nullptr 代替 NULL](#ID_deprecatedNULL)
-  - [R15.5 赋值表达式不应作为子表达式](#ID_assignmentAsSubExpression)
-  - [R15.6 不应存在多余的分号](#ID_redundantSemicolon)<br/><br/>
+<span id="__Interruption">**[15. Interruption](#interruption)**</span>
+  - [R15.1 避免由信号处理产生的数据竞争](#ID_sig_dataRaces)
+  - [R15.2 处理信号时避免使用非异步信号安全函数](#ID_sig_nonAsyncSafeCall)
+  - [R15.3 SIGFPE、SIGILL、SIGSEGV 等信号的处理函数不可返回](#ID_sig_illReturn)
+  - [R15.4 禁用 signal 函数](#ID_forbidSignalFunction)
+<br/>
+
+<span id="__Concurrency">**[16. Concurrency](#concurrency)**</span>
+  - [R16.1 避免死锁](#ID_deadlock)
+  - [R16.2 避免异步终止共享对象的生命周期](#ID_illLifetime)
+  - [R16.3 避免异步终止线程](#ID_asynchronousTermination)
+  - [R16.4 避免虚假唤醒造成同步错误](#ID_spuriouslyWakeUp)
+  - [R16.5 避免并发访问位域造成的数据竞争](#ID_bitfieldDataRaces)
+  - [R16.6 多线程程序不可使用 signal 函数](#ID_signalInMultiThreading)
+<br/>
+
+<span id="__Style">**[17. Style](#style)**</span>
+  - [R17.1 空格应遵循统一风格](#ID_spaceStyle)
+  - [R17.2 大括号应遵循统一风格](#ID_braceStyle)
+  - [R17.3 NULL 和 nullptr 不应混用](#ID_mixNullptrAndNULL)
+  - [R17.4 在 C\+\+ 代码中用 nullptr 代替 NULL](#ID_deprecatedNULL)
+  - [R17.5 赋值表达式不应作为子表达式](#ID_assignmentAsSubExpression)
+  - [R17.6 不应存在多余的分号](#ID_redundantSemicolon)<br/><br/>
 ## <span id="security">1. Security</span>
 
 ### <span id="ID_plainSensitiveInfo">▌R1.1 敏感数据不可写入代码</span>
@@ -932,6 +950,11 @@ void bar() {
 <br/>
 <br/>
 
+#### 相关
+ID_sig_dataRaces  
+ID_sig_nonAsyncSafeCall  
+<br/>
+
 #### 依据
 ISO/IEC 9899:2011 5.1.2.4(3)-undefined  
 ISO/IEC 9899:2011 5.1.2.4(20)-undefined  
@@ -941,6 +964,7 @@ ISO/IEC 9899:2011 5.1.2.4(25)-undefined
 #### 参考
 CWE-362  
 C++ Core Guidelines CP.2  
+SEI CERT CON43-C  
 <br/>
 <br/>
 
@@ -8056,6 +8080,7 @@ struct A {
 #### 相关
 ID_exceededBitfield  
 ID_singleSignedBitfield  
+ID_bitfieldDataRaces  
 ID_forbidEnumBitfield  
 <br/>
 
@@ -9416,24 +9441,27 @@ ID_paramNotUsed&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
 <hr/>
 
-如果函数的某个参数在函数内没有被用到过，意味着函数的功能与设计预期存在差距。  
+如果函数的某个参数在函数内没有被用到，意味着函数的功能与设计之间存在差距。  
   
-如果某个参数确实不需要被用到，建议尽量从函数的声明中将其删除，如果需要遵循某种约定而必须保留参数的话（如虚函数或回调函数），不妨在参数的声明中将参数的名称删掉，使该参数成为抽象声明，并佐以一定的注释说明。  
+如果某个参数确实不需要被用到，应尽量从参数列表中将其删除，如果需要遵循某种约定而必须保留参数的话（如虚函数或回调函数），在 C\+\+ 语言中不妨将参数的名称删掉，在 C 语言中可用 (void) 转换说明未使用的参数在预期之内，并用注释说明参数未被使用的原因。  
   
-有时编译器会对没有用到的参数给出警告，为了消除警告有人会采用“参数 = 参数”或“(void) 参数”的方式来消除警告，这是不可取的，如：
+示例：
 ```
-void fun(int a) {
-    a = a;  // Or ‘(void)a’, not recommended
-    ....
+int foo(int x) {   // Non-compliant, ‘x’ is not used
+    return 0;
 }
 ```
 应改为：
 ```
-void fun(int) {
-    ....
+int foo(int x) {   // Compliant in C
+    (void)x;
+    return 0;
+}
+
+int foo(int) {     // Compliant in C++
+    return 0;   
 }
 ```
-这样编译器不会给出警告，而且也不会有多余的代码。
 <br/>
 <br/>
 
@@ -9899,23 +9927,26 @@ MISRA C++ 2008 12-8-1
 <br/>
 <br/>
 
-### <span id="ID_this_selfJudgement">▌R8.18 赋值运算符应妥善处理参数就是自身对象时的情况</span>
+### <span id="ID_this_selfJudgement">▌R8.18 拷贝赋值运算符应处理参数是自身对象时的情况</span>
 
 ID_this_selfJudgement&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-赋值运算符应妥善处理参数就是自身对象时的情况，防止资源分配或回收的冲突。  
+如果拷贝赋值运算符的参数是自身对象，需防止资源分配和回收方面的冲突。  
   
 示例：
 ```
-A a;
-a = a;  // Self assignment ...
+class A { .... };
+
+void foo(A* p, A* q) {
+    *p = *q;            // If ‘p’ and ‘q’ point to the same object ...
+}
 ```
-如果例中 A 是需要深拷贝的类，在赋值运算符中应判断这种对自身赋值的情况：
+设例中 A 是需要深拷贝的类，其赋值运算符往往需要先释放自身的资源，再复制参数的资源，如果参数就是自身，则需要避免资源被释放，可在赋值运算符中判断 this 与参数地址是否相同：
 ```
 A& A::operator = (const A& rhs) {
-    if (this != &rhs) {  // Required
+    if (this != &rhs) {            // Required
         ....
     }
     return *this;
@@ -10198,6 +10229,7 @@ void fun() {
 
 #### 相关
 ID_danglingDeref  
+ID_illLifetime  
 <br/>
 
 #### 依据
@@ -13260,7 +13292,54 @@ bool bar(int a) {
 
 ### <span id="expression.evaluation">10.2 Evaluation</span>
 
-### <span id="ID_evaluationOrderReliance">▌R10.2.1 避免依赖特定的子表达式求值顺序</span>
+### <span id="ID_unevaluatedSideEffect">▌R10.2.1 不可依赖不会生效的副作用</span>
+
+ID_unevaluatedSideEffect&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
+
+<hr/>
+
+有些运算符只关注类型，其子表达式不会被求值，子表达式的副作用也不会有实际效果。  
+  
+这类运算在 C 语言中有：
+```
+sizeof、_Alignof、_Generic
+```
+在 C\+\+ 语言中有：
+```
+sizeof、typeid、noexcept、decltype、declval
+```
+其中 typeid 较为特殊，当其子表达式是函数调用，且返回多态类型的引用时，也会执行具体函数。  
+  
+示例：
+```
+int a = 0;
+cout << sizeof(a++) << ' ';   // Non-compliant
+cout << a << '\n';            // What is output?
+```
+输出 4 0，a\+\+ 不会生效。
+<br/>
+<br/>
+
+#### 相关
+ID_sideEffectAssertion  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 5.3.3(1)  
+ISO/IEC 14882:2011 5.3.3(1)  
+ISO/IEC 14882:2017 8.3.3(1)  
+<br/>
+
+#### 参考
+MISRA C 2004 12.3  
+MISRA C 2012 13.6  
+MISRA C++ 2008 5-3-4  
+SEI CERT EXP44-C  
+SEI CERT EXP52-CPP  
+<br/>
+<br/>
+
+### <span id="ID_evaluationOrderReliance">▌R10.2.2 避免依赖特定的子表达式求值顺序</span>
 
 ID_evaluationOrderReliance&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -13314,7 +13393,7 @@ C++ Core Guidelines ES.44
 <br/>
 <br/>
 
-### <span id="ID_confusingAssignment">▌R10.2.2 在表达式中不应多次读写同一对象</span>
+### <span id="ID_confusingAssignment">▌R10.2.3 在表达式中不应多次读写同一对象</span>
 
 ID_confusingAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -13392,7 +13471,7 @@ MISRA C 2012 13.2
 <br/>
 <br/>
 
-### <span id="ID_unexpectedPrecedence">▌R10.2.3 注意运算符优先级，避免非预期的结果</span>
+### <span id="ID_unexpectedPrecedence">▌R10.2.4 注意运算符优先级，避免非预期的结果</span>
 
 ID_unexpectedPrecedence&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -13422,7 +13501,7 @@ CWE-783
 <br/>
 <br/>
 
-### <span id="ID_illPtrDiff">▌R10.2.4 不在同一数组中的指针不可比较或相减</span>
+### <span id="ID_illPtrDiff">▌R10.2.5 不在同一数组中的指针不可比较或相减</span>
 
 ID_illPtrDiff&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -13460,7 +13539,7 @@ C++ Core Guidelines ES.62
 <br/>
 <br/>
 
-### <span id="ID_illBoolOperation">▌R10.2.5 bool 值不应参与位运算、大小比较、数值增减</span>
+### <span id="ID_illBoolOperation">▌R10.2.6 bool 值不应参与位运算、大小比较、数值增减</span>
 
 ID_illBoolOperation&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -13500,7 +13579,7 @@ MISRA C++ 2008 5-0-21
 <br/>
 <br/>
 
-### <span id="ID_illFormedCompoundAssignment">▌R10.2.6 不应出现复合赋值的错误形式</span>
+### <span id="ID_illFormedCompoundAssignment">▌R10.2.7 不应出现复合赋值的错误形式</span>
 
 ID_illFormedCompoundAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -13523,7 +13602,7 @@ CWE-682
 <br/>
 <br/>
 
-### <span id="ID_suspiciousCompoundAssignment">▌R10.2.7 避免出现复合赋值的可疑形式</span>
+### <span id="ID_suspiciousCompoundAssignment">▌R10.2.8 避免出现复合赋值的可疑形式</span>
 
 ID_suspiciousCompoundAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:question: expression suspicious
 
@@ -13557,7 +13636,7 @@ CWE-682
 <br/>
 <br/>
 
-### <span id="ID_illSelfCompoundAssignment">▌R10.2.8 &=、|=、-=、/=、%= 左右子表达式不应相同</span>
+### <span id="ID_illSelfCompoundAssignment">▌R10.2.9 &=、|=、-=、/=、%= 左右子表达式不应相同</span>
 
 ID_illSelfCompoundAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -13585,7 +13664,7 @@ CWE-682
 <br/>
 <br/>
 
-### <span id="ID_oddNullAssignment">▌R10.2.9 不应使用 NULL 对非指针变量赋值</span>
+### <span id="ID_oddNullAssignment">▌R10.2.10 不应使用 NULL 对非指针变量赋值</span>
 
 ID_oddNullAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -13613,7 +13692,7 @@ MISRA C++ 2008 4-10-1
 <br/>
 <br/>
 
-### <span id="ID_stickyAssignmentOperator">▌R10.2.10 注意赋值运算符与一元运算符的空格方式</span>
+### <span id="ID_stickyAssignmentOperator">▌R10.2.11 注意赋值运算符与一元运算符的空格方式</span>
 
 ID_stickyAssignmentOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -13641,17 +13720,18 @@ CWE-480
 <br/>
 <br/>
 
-### <span id="ID_selfAssignment">▌R10.2.11 赋值运算符左右子表达式不应相同</span>
+### <span id="ID_selfAssignment">▌R10.2.12 赋值运算符左右子表达式不应相同</span>
 
 ID_selfAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-对自身赋值是没有逻辑意义的，往往是笔误或残留代码。  
+赋值运算符左右子表达式相同是没有逻辑意义的，往往是笔误或残留代码。  
   
 示例：
 ```
-a = .... = b = a = ....  // Non-compliant
+a = a;       // Non-compliant
+a = b = a;   // Non-compliant
 ```
 也可能是对语言特性不了解所致，如：
 ```
@@ -13666,9 +13746,9 @@ public:
 ```
 例中构造函数对成员 a 的赋值是无效的，应改为 this\->a = a;  
   
-有时这种代码是为了消除编译警告，编译器可能会报出没有被用到的函数参数，有人将参数赋值给自身从而去除警告，但毕竟引入了没有实际意义的代码，改进方法可参见 ID\_paramNotUsed。  
+有时这种代码被用来消除编译警告，编译器可能会报出没有被用到的参数，将参数赋值给自身可去除警告，但这并不是一种好方法，引入了没有实际意义的代码，改进方法可参见 ID\_paramNotUsed。  
   
-有时为了设置调试断点，但又找不到合适的位置，于是增加了这种代码作为断点，显然这种非正式的代码是不应被保留的。
+有时为了设置调试断点，但又找不到合适的位置，可以增加这种代码作为断点，但这种非正式的代码是不应被保留的。
 <br/>
 <br/>
 
@@ -13677,7 +13757,7 @@ CWE-682
 <br/>
 <br/>
 
-### <span id="ID_selfDivision">▌R10.2.12 除法和求余运算符左右子表达式不应相同</span>
+### <span id="ID_selfDivision">▌R10.2.13 除法和求余运算符左右子表达式不应相同</span>
 
 ID_selfDivision&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -13699,7 +13779,7 @@ CWE-682
 <br/>
 <br/>
 
-### <span id="ID_selfSubtraction">▌R10.2.13 减法运算符左右子表达式不应相同</span>
+### <span id="ID_selfSubtraction">▌R10.2.14 减法运算符左右子表达式不应相同</span>
 
 ID_selfSubtraction&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -13727,7 +13807,7 @@ CWE-682
 <br/>
 <br/>
 
-### <span id="ID_selfExclusiveOr">▌R10.2.14 异或运算符左右子表达式不应相同</span>
+### <span id="ID_selfExclusiveOr">▌R10.2.15 异或运算符左右子表达式不应相同</span>
 
 ID_selfExclusiveOr&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -13748,7 +13828,7 @@ CWE-682
 <br/>
 <br/>
 
-### <span id="ID_minusOnUnsigned">▌R10.2.15 负号不应作用于无符号整数</span>
+### <span id="ID_minusOnUnsigned">▌R10.2.16 负号不应作用于无符号整数</span>
 
 ID_minusOnUnsigned&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -13779,7 +13859,7 @@ MISRA C++ 2008 5-3-2
 <br/>
 <br/>
 
-### <span id="ID_repeatedUnaryOperators">▌R10.2.16 不应重复使用一元运算符</span>
+### <span id="ID_repeatedUnaryOperators">▌R10.2.17 不应重复使用一元运算符</span>
 
 ID_repeatedUnaryOperators&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -13807,7 +13887,7 @@ bool f = !!!a;  // Non-compliant
 <br/>
 <br/>
 
-### <span id="ID_evalOverflow">▌R10.2.17 运算结果不应溢出</span>
+### <span id="ID_evalOverflow">▌R10.2.18 运算结果不应溢出</span>
 
 ID_evalOverflow&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -13855,7 +13935,7 @@ C++ Core Guidelines ES.104
 <br/>
 <br/>
 
-### <span id="ID_bitwiseOperOnSigned">▌R10.2.18 位运算符不应作用于有符号整数</span>
+### <span id="ID_bitwiseOperOnSigned">▌R10.2.19 位运算符不应作用于有符号整数</span>
 
 ID_bitwiseOperOnSigned&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -13896,7 +13976,7 @@ C++ Core Guidelines ES.101
 <br/>
 <br/>
 
-### <span id="ID_illShiftCount">▌R10.2.19 移位数量不可超过相关类型比特位的数量</span>
+### <span id="ID_illShiftCount">▌R10.2.20 移位数量不可超过相关类型比特位的数量</span>
 
 ID_illShiftCount&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
@@ -13932,7 +14012,7 @@ MISRA C++ 2008 5-8-1
 <br/>
 <br/>
 
-### <span id="ID_invalidCommaSubExpression">▌R10.2.20 逗号表达式的子表达式应具有必要的副作用</span>
+### <span id="ID_invalidCommaSubExpression">▌R10.2.21 逗号表达式的子表达式应具有必要的副作用</span>
 
 ID_invalidCommaSubExpression&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -14222,7 +14302,7 @@ CWE-1025
 
 ### <span id="expression.call">10.4 Call</span>
 
-### <span id="ID_returnValueIgnored">▌R10.4.1 返回值不应被忽略</span>
+### <span id="ID_returnValueIgnored">▌R10.4.1 不应忽略重要的返回值</span>
 
 ID_returnValueIgnored&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -14727,77 +14807,7 @@ C++ Core Guidelines F.19
 
 ### <span id="expression.sizeof">10.5 Sizeof</span>
 
-### <span id="ID_sizeof_sideEffect">▌R10.5.1 sizeof 不应作用于有副作用的表达式</span>
-
-ID_sizeof_sideEffect&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
-
-<hr/>
-
-sizeof 只关注类型，其子表达式不会被求值，如果存在可以影响程序状态的运算符或函数调用，也不会有实际效果。  
-  
-示例：
-```
-int a = 0;
-cout << sizeof(a++) << ' ';  // Non-compliant
-cout << a << '\n';  // What is output?
-```
-输出 4 0，a\+\+ 不会被执行。
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 14882:2003 5.3.3(1)  
-ISO/IEC 14882:2011 5.3.3(1)  
-ISO/IEC 14882:2017 8.3.3(1)  
-<br/>
-
-#### 参考
-SEI CERT EXP52-CPP  
-MISRA C 2004 12.3  
-MISRA C 2012 13.6  
-MISRA C++ 2008 5-3-4  
-<br/>
-<br/>
-
-### <span id="ID_sizeof_zeroComparison">▌R10.5.2 sizeof 的结果不应与 0 或负数比较</span>
-
-ID_sizeof_zeroComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
-
-<hr/>
-
-将 sizeof 的结果与 0 或负数比较往往意味着逻辑错误。  
-  
-标准规定，如果 sizeof 作用于完整类型结果一定大于 0，如果作用于不完整的类型则无法通过编译。  
-  
-示例：
-```
-void foo(int* p) {
-    if (sizeof(p)) {  // Non-compliant, always true
-        ....
-    }
-}
-```
-注意，在某些 C 环境中，sizeof 作用于空结构体或联合体结果可能是 0，但这属于未定义的行为，如：
-```
-struct A {} a;
-printf("%zu\n", sizeof(a));  // What is output?
-```
-空结构体或联合体在 C 标准中属于非法类型，示例代码可能会输出 0，也可能不会通过编译。
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 14882:2003 5.3.3(1 6) 9(3)  
-ISO/IEC 14882:2011 5.3.3(1 6) 9(3)  
-ISO/IEC 14882:2017 8.3.3(1 6) 12(4)  
-<br/>
-
-#### 参考
-CWE-1025  
-<br/>
-<br/>
-
-### <span id="ID_sizeof_arrayParameter">▌R10.5.3 sizeof 不应作用于数组参数</span>
+### <span id="ID_sizeof_arrayParameter">▌R10.5.1 sizeof 不应作用于数组参数</span>
 
 ID_sizeof_arrayParameter&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
@@ -14833,7 +14843,7 @@ CWE-467
 <br/>
 <br/>
 
-### <span id="ID_sizeof_oddExpression">▌R10.5.4 sizeof 不应作用于逻辑表达式</span>
+### <span id="ID_sizeof_oddExpression">▌R10.5.2 sizeof 不应作用于逻辑表达式</span>
 
 ID_sizeof_oddExpression&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -14854,7 +14864,40 @@ if (sizeof(a >= x)) {  // Non-compliant, may be sizeof(a) >= x
 <br/>
 <br/>
 
-### <span id="ID_sizeof_pointerDivision">▌R10.5.5 被除数不应是作用于指针的 sizeof 表达式</span>
+### <span id="ID_sizeof_pointer">▌R10.5.3 sizeof 作用于指针是可疑的</span>
+
+ID_sizeof_pointer&emsp;&emsp;&emsp;&emsp;&nbsp;:question: expression suspicious
+
+<hr/>
+
+sizeof 作用于指针获取到的是指针变量的大小，而不是指针指向内容的大小，sizeof 作用于指针很容易造成错误。  
+  
+示例：
+```
+void foo(int* p) {
+    memset(p, 0, sizeof(p));   // Logic error
+}
+```
+应改为：
+```
+void foo(int* p, int n) {
+    memset(p, 0, n * sizeof(*p));  // OK
+}
+```
+其中参数 n 是数组元素的个数。
+<br/>
+<br/>
+
+#### 相关
+ID_sizeof_pointerDivision  
+<br/>
+
+#### 参考
+CWE-467  
+<br/>
+<br/>
+
+### <span id="ID_sizeof_pointerDivision">▌R10.5.4 被除数不应是作用于指针的 sizeof 表达式</span>
 
 ID_sizeof_pointerDivision&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -14884,7 +14927,7 @@ CWE-467
 <br/>
 <br/>
 
-### <span id="ID_sizeof_suspiciousAdd">▌R10.5.6 指针加减偏移量时计入 sizeof 是可疑的</span>
+### <span id="ID_sizeof_suspiciousAdd">▌R10.5.5 指针加减偏移量时计入 sizeof 是可疑的</span>
 
 ID_sizeof_suspiciousAdd&emsp;&emsp;&emsp;&emsp;&nbsp;:question: expression suspicious
 
@@ -14917,7 +14960,45 @@ CWE-468
 <br/>
 <br/>
 
-### <span id="ID_sizeof_sizeof">▌R10.5.7 sizeof 不应再作用于 sizeof</span>
+### <span id="ID_sizeof_zeroComparison">▌R10.5.6 sizeof 表达式的结果不应与 0 或负数比较</span>
+
+ID_sizeof_zeroComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
+
+<hr/>
+
+将 sizeof 表达式的结果与 0 或负数比较往往意味着逻辑错误。  
+  
+标准规定，如果 sizeof 作用于完整类型结果一定大于 0，如果作用于不完整的类型则无法通过编译。  
+  
+示例：
+```
+void foo(int* p) {
+    if (sizeof(p)) {  // Non-compliant, always true
+        ....
+    }
+}
+```
+注意，在某些 C 环境中，sizeof 作用于空结构体或联合体结果可能是 0，但这属于未定义的行为，如：
+```
+struct A {} a;
+printf("%zu\n", sizeof(a));  // What is output?
+```
+空结构体或联合体在 C 标准中属于非法类型，示例代码可能会输出 0，也可能不会通过编译。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 5.3.3(1 6) 9(3)  
+ISO/IEC 14882:2011 5.3.3(1 6) 9(3)  
+ISO/IEC 14882:2017 8.3.3(1 6) 12(4)  
+<br/>
+
+#### 参考
+CWE-1025  
+<br/>
+<br/>
+
+### <span id="ID_sizeof_sizeof">▌R10.5.7 sizeof 不应再作用于 sizeof 表达式</span>
 
 ID_sizeof_sizeof&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
@@ -15076,6 +15157,7 @@ names：断言函数或宏的名称，如 assert、_ASSERT_EXPR 等，用“|”
 
 #### 相关
 ID_macro_sideEffectArgs  
+ID_unevaluatedSideEffect  
 <br/>
 
 #### 依据
@@ -16946,6 +17028,7 @@ int baz() {
 #### 相关
 ID_illAccess  
 ID_localAddressFlowOut  
+ID_illLifetime  
 <br/>
 
 #### 依据
@@ -16957,6 +17040,7 @@ ISO/IEC 9899:2011 6.5.3.2(4)-undefined
 CWE-822  
 CWE-825  
 C++ Core Guidelines ES.65  
+SEI CERT EXP54-CPP  
 <br/>
 <br/>
 
@@ -17019,7 +17103,7 @@ void foo(int* p) {
     if (!p) {
         return;
     }
-    if (p) {      // Non-compliant, p is not nullptr
+    if (p) {      // Non-compliant, ‘p’ is not nullptr
         ....
     } else {
         ....      // Unreachable
@@ -17333,40 +17417,7 @@ p->foo();         // Memory is still leaking
 <br/>
 <br/>
 
-### <span id="ID_sizeof_pointer">▌R14.16 sizeof 作用于指针是可疑的</span>
-
-ID_sizeof_pointer&emsp;&emsp;&emsp;&emsp;&nbsp;:question: pointer suspicious
-
-<hr/>
-
-sizeof 作用于指针获取到的是指针变量的大小，而不是指针指向内容的大小，sizeof 作用于指针很容易造成错误。  
-  
-示例：
-```
-void foo(int* p) {
-    memset(p, 0, sizeof(p));   // Logic error
-}
-```
-应改为：
-```
-void foo(int* p, int n) {
-    memset(p, 0, n * sizeof(*p));  // OK
-}
-```
-其中参数 n 是数组元素的个数。
-<br/>
-<br/>
-
-#### 相关
-ID_sizeof_pointerDivision  
-<br/>
-
-#### 参考
-CWE-467  
-<br/>
-<br/>
-
-### <span id="ID_nullDerefDynamicCast">▌R14.17 判断 dynamic_cast 转换是否成功</span>
+### <span id="ID_nullDerefDynamicCast">▌R14.16 判断 dynamic_cast 转换是否成功</span>
 
 ID_nullDerefDynamicCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 
@@ -17406,7 +17457,7 @@ C++ Core Guidelines C.148
 <br/>
 <br/>
 
-### <span id="ID_missingResetNull">▌R14.18 指针在释放后应置空</span>
+### <span id="ID_missingResetNull">▌R14.17 指针在释放后应置空</span>
 
 ID_missingResetNull&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: pointer suggestion
 
@@ -17445,9 +17496,395 @@ SEI CERT MEM01-C
 <br/>
 <br/>
 
-## <span id="style">15. Style</span>
+## <span id="interruption">15. Interruption</span>
 
-### <span id="ID_spaceStyle">▌R15.1 空格应遵循统一风格</span>
+### <span id="ID_sig_dataRaces">▌R15.1 避免由信号处理产生的数据竞争</span>
+
+ID_sig_dataRaces&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: interruption warning
+
+<hr/>
+
+异步信号处理函数的调用会随时打断主程序的流程，当处理函数返回后，主程序在被打断的位置继续执行，故称“[中断（interrupt）](https://en.wikipedia.org/wiki/Interrupt)”，这一点与执行非并发的线程相似，但没有锁等同步机制，而且信号处理函数本身也可能被中断，所以实现信号处理函数访问共享数据时应格外小心。  
+  
+异步信号处理函数的实现模式：  
+ - 调用“异步信号安全”函数执行清理或结束进程，如 abort、\_Exit 等  
+ - 对 volatile sig\_atomic\_t 等类型的共享对象赋值，主程序周期性地检查共享对象并执行相应动作  
+ - 向某管道写入一个字节，主程序监控该管道并执行相应动作  
+ - 利用 sigsetjmp、siglongjmp 等函数将控制返回到主程序中的预定位置  
+  
+只应选择其中一种方式，且尽量避免访问共享数据，否则对共享数据的错误处理会使程序产生未定义的行为。  
+  
+示例：
+```
+char msg[32];
+
+void handler(int signum) {
+    strcpy(msg, "SIGINT received");      // Non-compliant
+}
+
+int main() {
+    signal(SIGINT, handler);
+    strcpy(msg, "No signal received");   // Race condition
+    ....
+    printf("%s\n", msg);
+}
+```
+例中信号处理函数和主程序均访问了共享数据，handler 中的 strcpy 可以在 main 中的 strcpy 执行之前或中途执行，造成非预期的结果。  
+  
+应改为：
+```
+volatile sig_atomic_t flag = 0;
+
+void handler(int signum) {
+    flag = 1;                // Compliant
+}
+
+int main() {
+    signal(SIGINT, handler);
+    ....
+    printf("%s received\n", flag? "SIGINT": "No signal");
+}
+```
+用 SIG\_ATOMIC\_MIN 和 SIG\_ATOMIC\_MAX 之间的值对 sig\_atomic\_t 类型的对象赋值可以保证原子性，从而避免数据竞争。
+<br/>
+<br/>
+
+#### 相关
+ID_dataRaces  
+ID_sig_nonAsyncSafeCall  
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 7.14.1.1(5)-undefined  
+ISO/IEC 14882:2011 1.9(6)-undefined  
+<br/>
+
+#### 参考
+SEI CERT SIG31-C  
+<br/>
+<br/>
+
+### <span id="ID_sig_nonAsyncSafeCall">▌R15.2 处理信号时避免使用非异步信号安全函数</span>
+
+ID_sig_nonAsyncSafeCall&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: interruption warning
+
+<hr/>
+
+不处理共享数据也不会影响程状态的函数，以及不会被信号中断的函数称为“异步信号安全”函数，处理信号时只应使用这种函数。  
+  
+示例：
+```
+#include <signal.h>
+
+void handler(int signum) {
+    printf("....");         // Non-compliant
+}
+
+int main() {
+    signal(SIGINT, handler);
+    printf("....");
+}
+```
+printf 不是异步信号安全函数，例中两个 printf 的输出结果可能会交织在一起，甚至会产生运行时错误。
+<br/>
+<br/>
+
+#### 相关
+ID_sig_dataRaces  
+ID_dataRaces  
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 7.14.1.1(5)-undefined  
+<br/>
+
+#### 参考
+SEI CERT SIG30-C  
+<br/>
+<br/>
+
+### <span id="ID_sig_illReturn">▌R15.3 SIGFPE、SIGILL、SIGSEGV 等信号的处理函数不可返回</span>
+
+ID_sig_illReturn&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: interruption warning
+
+<hr/>
+
+与计算异常相关的信号由不可恢复的错误引起，程序接收到这种信号时应终止执行，否则导致标准未定义的行为。  
+  
+示例：
+```
+#include <signal.h>
+
+void handler(int signum) {
+    ....
+    return;      // Non-compliant
+}
+
+int main() {
+    signal(SIGFPE, handler);
+    ....
+}
+```
+例中 handler 不应正常返回，应使用 abort、\_Exit 等函数终止程序的执行。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 7.14.1.1(3)-undefined  
+<br/>
+
+#### 参考
+SEI CERT SIG35-C  
+<br/>
+<br/>
+
+### <span id="ID_forbidSignalFunction">▌R15.4 禁用 signal 函数</span>
+
+ID_forbidSignalFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: interruption suggestion
+
+<hr/>
+
+signal 函数具有一定的局限性，且各平台实现差异较大，建议用 sigaction 函数代替。  
+  
+示例：
+```
+#include <signal.h>
+
+void handler(int signum) {     // #1
+    signal(signum, handler);   // #2, non-compliant, race condition
+    ....
+}
+```
+设例中 handler 是某种信号的处理函数。在某些平台上，signal 指定的函数只能被执行一次，所以需要在处理函数中再次调用 signal 指定处理函数，但如果程序在运行到 `#1` 和 `#2` 之间时收到同样的信号，会执行不符合预期的默认处理函数，这是一种竞态条件；而在另一些平台上，signal 指定的函数会一直有效，处理函数再次调用 signal 是多余的。  
+  
+sigaction 函数不存在这些问题，也可提供更多的功能，但要注意该函数尚未在语言标准中定义。
+<br/>
+<br/>
+
+#### 相关
+ID_signalInMultiThreading  
+ID_implementationDefinedFunction  
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 7.14.1.1(3)-implementation  
+ISO/IEC 9899:2011 7.14.1.1(7)-implementation  
+<br/>
+
+#### 参考
+MISRA C 2012 21.5  
+SEI CERT SIG01-C  
+SEI CERT SIG34-C  
+<br/>
+<br/>
+
+## <span id="concurrency">16. Concurrency</span>
+
+### <span id="ID_deadlock">▌R16.1 避免死锁</span>
+
+ID_deadlock&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: concurrency warning
+
+<hr/>
+
+避免死锁。  
+
+```
+(TODO)
+```
+<br/>
+<br/>
+
+#### 参考
+SEI CERT CON35-C  
+SEI CERT CON53-CPP  
+SEI CERT CON56-CPP  
+<br/>
+<br/>
+
+### <span id="ID_illLifetime">▌R16.2 避免异步终止共享对象的生命周期</span>
+
+ID_illLifetime&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: concurrency warning
+
+<hr/>
+
+在异步过程中无法获取共享对象的使用情况，异步终止共享对象的生命周期往往会导致标准未定义的行为。  
+  
+示例：
+```
+void foo(mutex* pm) {
+    lock(pm);
+    ....
+}
+
+void bar() {
+    mutex m;
+    beginThread(foo, &m);   // Non-compliant, ‘m’ is a local object
+    beginThread(foo, &m);   // Non-compliant
+}
+```
+设例中 beginThread 创建执行 foo 函数的线程，bar 与 foo 是异步过程，共享对象 m 在 bar 返回后失效，如果 foo 继续访问共享对象就会出错，bar 应等待线程执行完毕后返回或调整共享对象的生命周期。
+<br/>
+<br/>
+
+#### 相关
+ID_asynchronousTermination  
+ID_localAddressFlowOut  
+ID_danglingDeref  
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 30.4.1.2.1(5)-undefined  
+<br/>
+
+#### 参考
+SEI CERT CON31-C  
+SEI CERT CON50-CPP  
+<br/>
+<br/>
+
+### <span id="ID_asynchronousTermination">▌R16.3 避免异步终止线程</span>
+
+ID_asynchronousTermination&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: concurrency warning
+
+<hr/>
+
+在异步过程中无法获取资源或共享对象的使用情况，异步终止线程往往会导致泄漏或死锁等严重问题。  
+  
+示例：
+```
+void* foo(void* dummy) {
+    pthread_setcanceltype(
+        PTHREAD_CANCEL_ASYNCHRONOUS, ....  // Non-compliant
+    );
+    ....                                   // Allocate or lock
+}
+
+void bar() {
+    pthread_t thrd;
+    pthread_create(&thrd, NULL, foo, NULL);
+    ....
+    pthread_cancel(thrd);   // Non-compliant, leak or deadlock
+}
+```
+例中 foo 和 bar 是两个相关的异步过程，暴力终止某个过程的执行是非常危险的，线程持有的锁或动态分配的资源无法得到释放，所以应使线程可以主动执行清理再结束执行。
+<br/>
+<br/>
+
+#### 相关
+ID_illLifetime  
+<br/>
+
+#### 参考
+SEI CERT POS47-C  
+<br/>
+<br/>
+
+### <span id="ID_spuriouslyWakeUp">▌R16.4 避免虚假唤醒造成同步错误</span>
+
+ID_spuriouslyWakeUp&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: concurrency warning
+
+<hr/>
+
+条件变量可以在条件不满足时被唤醒，这种问题称为“[虚假唤醒（spurious wakeup）](https://en.wikipedia.org/wiki/Spurious_wakeup)”，条件变量被唤醒后应检查相关条件是否满足，否则会造成同步相关的错误。  
+  
+示例：
+```
+mtx_t m;                    // Mutex
+cnd_t cv;                   // Condition variable
+bool cnd;                   // Represents the condition
+
+void thread() {
+    mtx_lock(&m);           // Lock
+    if (!cnd) {             // Non-compliant, use a while loop instead
+        cnd_wait(&cv, &m);  // Wait
+    }
+    ....
+}
+```
+设例中 cv 是条件变量，cnd 代表相关条件，cnd\_wait 等待条件被其他异步过程满足，条件的判断与更改应是互斥的，cnd\_wait 会解锁并进入等待状态，当得到 cnd\_signal 或 cnd\_broadcast 的通知后会退出等待状态并再次加锁，当条件不满足时也可能退出等待，原因主要有：  
+ - 一个条件变量对应多个条件，与当前条件无关的条件被满足并通知了条件变量  
+ - 退出等待并加锁的过程中其他线程使条件不被满足  
+ - 等待过程被信号打断  
+  
+这些问题取决于程序和系统的具体实现，在循环中等待并判断条件可一并解决这些问题：
+```
+void foo() {
+    mtx_lock(&m);
+    while (!cnd) {          // Compliant
+        cnd_wait(&cv, &m);
+    }
+    ....
+}
+```
+<br/>
+<br/>
+
+#### 参考
+SEI CERT CON36-C  
+SEI CERT CON54-CPP  
+<br/>
+<br/>
+
+### <span id="ID_bitfieldDataRaces">▌R16.5 避免并发访问位域造成的数据竞争</span>
+
+ID_bitfieldDataRaces&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: concurrency warning
+
+<hr/>
+
+避免并发访问位域造成的数据竞争。  
+
+```
+(TODO)
+```
+<br/>
+<br/>
+
+#### 相关
+ID_dataRaces  
+ID_forbidBitfield  
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 3.14(3)  
+ISO/IEC 14882:2011 1.7(4)  
+<br/>
+
+#### 参考
+SEI CERT CON32-C  
+SEI CERT CON52-CPP  
+<br/>
+<br/>
+
+### <span id="ID_signalInMultiThreading">▌R16.6 多线程程序不可使用 signal 函数</span>
+
+ID_signalInMultiThreading&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: concurrency warning
+
+<hr/>
+
+多线程程序使用 signal 函数会导致标准未定义的行为。  
+
+```
+(TODO)
+```
+<br/>
+<br/>
+
+#### 相关
+ID_forbidSignalFunction  
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 7.14.1.1(7)-undefined  
+<br/>
+
+#### 参考
+SEI CERT CON37-C  
+<br/>
+<br/>
+
+## <span id="style">17. Style</span>
+
+### <span id="ID_spaceStyle">▌R17.1 空格应遵循统一风格</span>
 
 ID_spaceStyle&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style suggestion
 
@@ -17481,7 +17918,7 @@ ID_stickyAssignmentOperator
 <br/>
 <br/>
 
-### <span id="ID_braceStyle">▌R15.2 大括号应遵循统一风格</span>
+### <span id="ID_braceStyle">▌R17.2 大括号应遵循统一风格</span>
 
 ID_braceStyle&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style suggestion
 
@@ -17524,7 +17961,7 @@ ID_if_mayBeElseIf
 <br/>
 <br/>
 
-### <span id="ID_mixNullptrAndNULL">▌R15.3 NULL 和 nullptr 不应混用</span>
+### <span id="ID_mixNullptrAndNULL">▌R17.3 NULL 和 nullptr 不应混用</span>
 
 ID_mixNullptrAndNULL&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style warning
 
@@ -17549,7 +17986,7 @@ C++ Core Guidelines ES.47
 <br/>
 <br/>
 
-### <span id="ID_deprecatedNULL">▌R15.4 在 C++ 代码中用 nullptr 代替 NULL</span>
+### <span id="ID_deprecatedNULL">▌R17.4 在 C++ 代码中用 nullptr 代替 NULL</span>
 
 ID_deprecatedNULL&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style suggestion
 
@@ -17589,7 +18026,7 @@ C++ Core Guidelines ES.47
 <br/>
 <br/>
 
-### <span id="ID_assignmentAsSubExpression">▌R15.5 赋值表达式不应作为子表达式</span>
+### <span id="ID_assignmentAsSubExpression">▌R17.5 赋值表达式不应作为子表达式</span>
 
 ID_assignmentAsSubExpression&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style suggestion
 
@@ -17619,7 +18056,7 @@ MISRA C++ 2008 6-2-1
 <br/>
 <br/>
 
-### <span id="ID_redundantSemicolon">▌R15.6 不应存在多余的分号</span>
+### <span id="ID_redundantSemicolon">▌R17.6 不应存在多余的分号</span>
 
 ID_redundantSemicolon&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style suggestion
 
@@ -17649,7 +18086,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 426 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
+&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 436 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
 
 &emsp;&emsp;此致
 

@@ -977,7 +977,7 @@
         "comment": "引入位域的本意是为了节省空间，然而位域改变了变量约定俗成的取值范围，易造成理解上的偏差，也会造成维护困难。",
         "tag": "declaration",
         "standard": "ISO/IEC 14882:2003 9.6(1)-implementation,ISO/IEC 14882:2003 9.6(3),ISO/IEC 14882:2011 9.6(1)-implementation,ISO/IEC 14882:2011 9.6(3),ISO/IEC 14882:2017 12.2.4(1)-implementation,ISO/IEC 14882:2017 12.2.4(3)",
-        "related": "ID_exceededBitfield,ID_singleSignedBitfield,ID_forbidEnumBitfield"
+        "related": "ID_exceededBitfield,ID_singleSignedBitfield,ID_bitfieldDataRaces,ID_forbidEnumBitfield"
         },
     "ID_labelNotUsed": {
         "checkPoint": "不应存在没有用到的标签",
@@ -1359,9 +1359,9 @@
         "reference": "CWE-1164,CWE-482,MISRA C 2004 14.2,MISRA C 2012 2.2,MISRA C++ 2008 0-1-9"
         },
     "ID_returnValueIgnored": {
-        "checkPoint": "返回值不应被忽略",
+        "checkPoint": "不应忽略重要的返回值",
         "level": "warning",
-        "comment": "返回值不应被忽略，尤其是与资源分配、信息获取、状态判断有关的返回值。",
+        "comment": "与资源分配、信息获取、状态判断有关的返回值不应被忽略。",
         "tag": "expression",
         "reference": "MISRA C 2012 17.7,MISRA C++ 2008 0-1-7"
         },
@@ -1410,7 +1410,7 @@
     "ID_selfAssignment": {
         "checkPoint": "赋值运算符左右子表达式不应相同",
         "level": "warning",
-        "comment": "对自身赋值是没有逻辑意义的，往往是笔误或残留代码。",
+        "comment": "赋值运算符左右子表达式相同是没有逻辑意义的，往往是笔误或残留代码。",
         "tag": "expression",
         "reference": "CWE-682"
         },
@@ -1531,7 +1531,7 @@
             },
         "tag": "expression",
         "standard": "ISO/IEC 9899:2011 7.2",
-        "related": "ID_macro_sideEffectArgs",
+        "related": "ID_macro_sideEffectArgs,ID_unevaluatedSideEffect",
         "reference": "SEI CERT PRE31-C"
         },
     "ID_complexAssertion": {
@@ -1757,7 +1757,7 @@
         "level": "error",
         "comment": "对象的生命周期结束后，其地址或引用也会失效，如果继续访问会导致标准未定义的行为。",
         "tag": "function",
-        "related": "ID_danglingDeref",
+        "related": "ID_danglingDeref,ID_illLifetime",
         "standard": "ISO/IEC 9899:1999 6.2.4(2)-undefined,ISO/IEC 9899:2011 6.2.4(2)-undefined",
         "reference": "CWE-562,C++ Core Guidelines F.43"
         },
@@ -1867,7 +1867,7 @@
     "ID_paramNotUsed": {
         "checkPoint": "不应存在未被使用的具名形式参数",
         "level": "suggestion",
-        "comment": "如果函数的某个参数在函数内没有被用到过，意味着函数的功能与设计预期存在差距。",
+        "comment": "如果函数的某个参数在函数内没有被用到，意味着函数的功能与设计之间存在差距。",
         "tag": "function",
         "reference": "C++ Core Guidelines F.9,MISRA C 2012 2.7,MISRA C++ 2008 0-1-11"
         },
@@ -2707,9 +2707,9 @@
         "level": "error",
         "comment": "已被释放的指针指向无效的内存空间，再次对其解引用会造成严重错误，导致标准未定义的行为。",
         "tag": "pointer",
-        "related": "ID_illAccess,ID_localAddressFlowOut",
+        "related": "ID_illAccess,ID_localAddressFlowOut,ID_illLifetime",
         "standard": "ISO/IEC 9899:1999 6.5.3.2(4)-undefined,ISO/IEC 9899:2011 6.5.3.2(4)-undefined",
-        "reference": "CWE-822,CWE-825,C++ Core Guidelines ES.65"
+        "reference": "CWE-822,CWE-825,C++ Core Guidelines ES.65,SEI CERT EXP54-CPP"
         },
     "ID_sensitiveName": {
         "checkPoint": "公共成员或全局对象不应记录敏感数据",
@@ -2780,28 +2780,29 @@
         "reference": "CWE-467"
         },
     "ID_sizeof_zeroComparison": {
-        "checkPoint": "sizeof 的结果不应与 0 或负数比较",
+        "checkPoint": "sizeof 表达式的结果不应与 0 或负数比较",
         "level": "error",
-        "comment": "将 sizeof 的结果与 0 或负数比较往往意味着逻辑错误。",
+        "comment": "将 sizeof 表达式的结果与 0 或负数比较往往意味着逻辑错误。",
         "tag": "expression",
         "standard": "ISO/IEC 14882:2003 5.3.3(1 6) 9(3),ISO/IEC 14882:2011 5.3.3(1 6) 9(3),ISO/IEC 14882:2017 8.3.3(1 6) 12(4)",
         "reference": "CWE-1025"
         },
     "ID_sizeof_sizeof": {
-        "checkPoint": "sizeof 不应再作用于 sizeof",
+        "checkPoint": "sizeof 不应再作用于 sizeof 表达式",
         "level": "error",
         "comment": "sizeof(sizeof(....)) 等价于 sizeof(size_t)，在实际应用中没有任何必要写成连续 sizeof 的形式，属于常见笔误，多数由复制粘贴或错误的宏展开导致。",
         "tag": "expression",
         "standard": "ISO/IEC 14882:2003 5.3.3(6),ISO/IEC 14882:2011 5.3.3(6),ISO/IEC 14882:2017 8.3.3(6)",
         "reference": "CWE-682"
         },
-    "ID_sizeof_sideEffect": {
-        "checkPoint": "sizeof 不应作用于有副作用的表达式",
+    "ID_unevaluatedSideEffect": {
+        "checkPoint": "不可依赖不会生效的副作用",
         "level": "warning",
-        "comment": "sizeof 只关注类型，其子表达式不会被求值，如果存在可以影响程序状态的运算符或函数调用，也不会有实际效果。",
+        "comment": "有些运算符只关注类型，其子表达式不会被求值，子表达式的副作用也不会有实际效果。",
         "tag": "expression",
+        "related": "ID_sideEffectAssertion",
         "standard": "ISO/IEC 14882:2003 5.3.3(1),ISO/IEC 14882:2011 5.3.3(1),ISO/IEC 14882:2017 8.3.3(1)",
-        "reference": "SEI CERT EXP52-CPP,MISRA C 2004 12.3,MISRA C 2012 13.6,MISRA C++ 2008 5-3-4"
+        "reference": "MISRA C 2004 12.3,MISRA C 2012 13.6,MISRA C++ 2008 5-3-4,SEI CERT EXP44-C,SEI CERT EXP52-CPP"
         },
     "ID_sizeof_NULL": {
         "checkPoint": "C++ 代码中 sizeof 不应作用于 NULL",
@@ -2816,7 +2817,7 @@
         "checkPoint": "sizeof 作用于指针是可疑的",
         "level": "suspicious",
         "comment": "sizeof 作用于指针获取到的是指针变量的大小，而不是指针指向内容的大小，sizeof 作用于指针很容易造成错误。",
-        "tag": "pointer",
+        "tag": "expression",
         "related": "ID_sizeof_pointerDivision",
         "reference": "CWE-467"
         },
@@ -2894,9 +2895,9 @@
         "reference": "MISRA C++ 2008 15-3-3"
         },
     "ID_this_selfJudgement": {
-        "checkPoint": "赋值运算符应妥善处理参数就是自身对象时的情况",
+        "checkPoint": "拷贝赋值运算符应处理参数是自身对象时的情况",
         "level": "warning",
-        "comment": "赋值运算符应妥善处理参数就是自身对象时的情况，防止资源分配或回收的冲突。",
+        "comment": "如果拷贝赋值运算符的参数是自身对象，需防止资源分配和回收方面的冲突。",
         "tag": "function",
         "reference": "C++ Core Guidelines C.62"
         },
@@ -3168,7 +3169,8 @@
         "comment": "共享数据可被多个执行单位或硬件读写，需要合理控制访问的先后顺序。",
         "tag": "security",
         "standard": "ISO/IEC 9899:2011 5.1.2.4(3)-undefined,ISO/IEC 9899:2011 5.1.2.4(20)-undefined,ISO/IEC 9899:2011 5.1.2.4(25)-undefined",
-        "reference": "CWE-362,C++ Core Guidelines CP.2"
+        "related": "ID_sig_dataRaces,ID_sig_nonAsyncSafeCall",
+        "reference": "CWE-362,C++ Core Guidelines CP.2,SEI CERT CON43-C"
         },
     "ID_TOCTOU": {
         "checkPoint": "避免在一个事务中通过路径多次访问同一文件",
@@ -3337,5 +3339,89 @@
         "standard": "ISO/IEC 14882:2003 5.2.10(7)-unspecified",
         "related": "ID_forbidMemberVoidPtr,ID_forbidFunctionVoidPtr",
         "reference": "MISRA C 2012 11.5,MISRA C++ 2008 5-2-8"
+        },
+    "ID_sig_dataRaces": {
+        "checkPoint": "避免由信号处理产生的数据竞争",
+        "level": "warning",
+        "comment": "避免由信号处理产生的数据竞争。",
+        "tag": "interruption",
+        "standard": "ISO/IEC 9899:2011 7.14.1.1(5)-undefined,ISO/IEC 14882:2011 1.9(6)-undefined",
+        "related": "ID_dataRaces,ID_sig_nonAsyncSafeCall",
+        "reference": "SEI CERT SIG31-C"
+        },
+    "ID_sig_nonAsyncSafeCall": {
+        "checkPoint": "处理信号时避免使用非异步信号安全函数",
+        "level": "warning",
+        "comment": "不处理共享数据也不会影响程状态的函数，以及不会被信号中断的函数称为“异步信号安全”函数，处理信号时只应使用这种函数。",
+        "tag": "interruption",
+        "standard": "ISO/IEC 9899:2011 7.14.1.1(5)-undefined",
+        "related": "ID_sig_dataRaces,ID_dataRaces",
+        "reference": "SEI CERT SIG30-C"
+        },
+    "ID_sig_illReturn": {
+        "checkPoint": "SIGFPE、SIGILL、SIGSEGV 等信号的处理函数不可返回",
+        "level": "warning",
+        "comment": "与计算异常相关的信号由不可恢复的错误引起，程序接收到这种信号时应终止执行，否则导致标准未定义的行为。",
+        "tag": "interruption",
+        "standard": "ISO/IEC 9899:2011 7.14.1.1(3)-undefined",
+        "reference": "SEI CERT SIG35-C"
+        },
+    "ID_forbidSignalFunction": {
+        "checkPoint": "禁用 signal 函数",
+        "level": "suggestion",
+        "comment": "signal 函数具有一定的局限性，且各平台实现差异较大，建议用 sigaction 函数代替。",
+        "tag": "interruption",
+        "standard": "ISO/IEC 9899:2011 7.14.1.1(3)-implementation,ISO/IEC 9899:2011 7.14.1.1(7)-implementation",
+        "related": "ID_signalInMultiThreading,ID_implementationDefinedFunction",
+        "reference": "MISRA C 2012 21.5,SEI CERT SIG01-C,SEI CERT SIG34-C"
+        },
+    "ID_deadlock": {
+        "checkPoint": "避免死锁",
+        "level": "warning",
+        "comment": "避免死锁。",
+        "tag": "concurrency",
+        "reference": "SEI CERT CON35-C,SEI CERT CON53-CPP,SEI CERT CON56-CPP"
+        },
+    "ID_illLifetime": {
+        "checkPoint": "避免异步终止共享对象的生命周期",
+        "level": "warning",
+        "comment": "在异步过程中无法获取共享对象的使用情况，异步终止共享对象的生命周期往往会导致标准未定义的行为。",
+        "tag": "concurrency",
+        "standard": "ISO/IEC 9899:2011 30.4.1.2.1(5)-undefined",
+        "related": "ID_asynchronousTermination,ID_localAddressFlowOut,ID_danglingDeref",
+        "reference": "SEI CERT CON31-C,SEI CERT CON50-CPP"
+        },
+    "ID_asynchronousTermination": {
+        "checkPoint": "避免异步终止线程",
+        "level": "warning",
+        "comment": "在异步过程中无法获取资源或共享对象的使用情况，异步终止线程往往会导致泄漏或死锁等严重问题。",
+        "tag": "concurrency",
+        "related": "ID_illLifetime",
+        "reference": "SEI CERT POS47-C"
+        },
+    "ID_spuriouslyWakeUp": {
+        "checkPoint": "避免虚假唤醒造成同步错误",
+        "level": "warning",
+        "comment": "条件变量可以在条件不满足时被唤醒，这种问题称为“虚假唤醒（spurious wakeup）”，条件变量被唤醒后应检查相关条件是否满足，否则会造成同步相关的错误。",
+        "tag": "concurrency",
+        "reference": "SEI CERT CON36-C,SEI CERT CON54-CPP"
+        },
+    "ID_bitfieldDataRaces": {
+        "checkPoint": "避免并发访问位域造成的数据竞争",
+        "level": "warning",
+        "comment": "避免并发访问位域造成的数据竞争。",
+        "tag": "concurrency",
+        "related": "ID_dataRaces,ID_forbidBitfield",
+        "standard": "ISO/IEC 9899:2011 3.14(3),ISO/IEC 14882:2011 1.7(4)",
+        "reference": "SEI CERT CON32-C,SEI CERT CON52-CPP"
+        },
+    "ID_signalInMultiThreading": {
+        "checkPoint": "多线程程序不可使用 signal 函数",
+        "level": "warning",
+        "comment": "多线程程序使用 signal 函数会导致标准未定义的行为。",
+        "tag": "concurrency",
+        "standard": "ISO/IEC 9899:2011 7.14.1.1(7)-undefined",
+        "related": "ID_forbidSignalFunction",
+        "reference": "SEI CERT CON37-C"
         }
 }
