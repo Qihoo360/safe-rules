@@ -582,8 +582,8 @@
 
 <span id="__Concurrency">**[16. Concurrency](#concurrency)**</span>
   - [R16.1 避免死锁](#ID_deadlock)
-  - [R16.2 避免异步终止共享对象的生命周期](#ID_illLifetime)
-  - [R16.3 避免异步终止线程](#ID_asynchronousTermination)
+  - [R16.2 避免异步终止线程](#ID_asynchronousTermination)
+  - [R16.3 避免异步终止共享对象的生命周期](#ID_illLifetime)
   - [R16.4 避免虚假唤醒造成同步错误](#ID_spuriouslyWakeUp)
   - [R16.5 避免并发访问位域造成的数据竞争](#ID_bitfieldDataRaces)
   - [R16.6 多线程程序不可使用 signal 函数](#ID_signalInMultiThreading)
@@ -17701,7 +17701,44 @@ SEI CERT CON56-CPP
 <br/>
 <br/>
 
-### <span id="ID_illLifetime">▌R16.2 避免异步终止共享对象的生命周期</span>
+### <span id="ID_asynchronousTermination">▌R16.2 避免异步终止线程</span>
+
+ID_asynchronousTermination&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: concurrency warning
+
+<hr/>
+
+资源的使用情况在异步过程中是难以掌控的，异步终止线程往往会导致泄漏或死锁等严重问题。  
+  
+示例：
+```
+void* foo(void* dummy) {
+    pthread_setcanceltype(
+        PTHREAD_CANCEL_ASYNCHRONOUS, ....  // Non-compliant
+    );
+    ....                                   // Allocate or lock
+}
+
+void bar() {
+    pthread_t thrd;
+    pthread_create(&thrd, NULL, foo, NULL);
+    ....
+    pthread_cancel(thrd);   // Non-compliant, leak or deadlock
+}
+```
+例中 foo 和 bar 是两个相关的异步过程，在一个过程中暴力终止另一个过程是非常危险的，会使锁、信号量以及动态分配的资源无法得到释放，所以应使线程可以主动执行清理再结束执行。
+<br/>
+<br/>
+
+#### 相关
+ID_illLifetime  
+<br/>
+
+#### 参考
+SEI CERT POS47-C  
+<br/>
+<br/>
+
+### <span id="ID_illLifetime">▌R16.3 避免异步终止共享对象的生命周期</span>
 
 ID_illLifetime&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: concurrency warning
 
@@ -17739,43 +17776,6 @@ ISO/IEC 9899:2011 30.4.1.2.1(5)-undefined
 #### 参考
 SEI CERT CON31-C  
 SEI CERT CON50-CPP  
-<br/>
-<br/>
-
-### <span id="ID_asynchronousTermination">▌R16.3 避免异步终止线程</span>
-
-ID_asynchronousTermination&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: concurrency warning
-
-<hr/>
-
-资源的使用情况在异步过程中是难以掌控的，异步终止线程往往会导致泄漏或死锁等严重问题。  
-  
-示例：
-```
-void* foo(void* dummy) {
-    pthread_setcanceltype(
-        PTHREAD_CANCEL_ASYNCHRONOUS, ....  // Non-compliant
-    );
-    ....                                   // Allocate or lock
-}
-
-void bar() {
-    pthread_t thrd;
-    pthread_create(&thrd, NULL, foo, NULL);
-    ....
-    pthread_cancel(thrd);   // Non-compliant, leak or deadlock
-}
-```
-例中 foo 和 bar 是两个相关的异步过程，在一个过程中暴力终止另一个过程是非常危险的，锁、信号量以及动态分配的资源无法得到释放，所以应使线程可以主动执行清理再结束执行。
-<br/>
-<br/>
-
-#### 相关
-ID_illLifetime  
-<br/>
-
-#### 参考
-SEI CERT POS47-C  
 <br/>
 <br/>
 
