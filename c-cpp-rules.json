@@ -3385,7 +3385,7 @@
     "ID_illLifetime": {
         "checkPoint": "避免异步终止共享对象的生命周期",
         "level": "warning",
-        "comment": "在异步过程中无法获取共享对象的使用情况，异步终止共享对象的生命周期往往会导致标准未定义的行为。",
+        "comment": "共享对象的使用情况在异步过程中是难以掌控的，贸然终止共享对象的生命周期往往会导致标准未定义的行为。",
         "tag": "concurrency",
         "standard": "ISO/IEC 9899:2011 30.4.1.2.1(5)-undefined",
         "related": "ID_asynchronousTermination,ID_localAddressFlowOut,ID_danglingDeref",
@@ -3394,7 +3394,7 @@
     "ID_asynchronousTermination": {
         "checkPoint": "避免异步终止线程",
         "level": "warning",
-        "comment": "在异步过程中无法获取资源或共享对象的使用情况，异步终止线程往往会导致泄漏或死锁等严重问题。",
+        "comment": "资源的使用情况在异步过程中是难以掌控的，异步终止线程往往会导致泄漏或死锁等严重问题。",
         "tag": "concurrency",
         "related": "ID_illLifetime",
         "reference": "SEI CERT POS47-C"

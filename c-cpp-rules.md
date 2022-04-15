@@ -12,11 +12,11 @@
 
 规则按如下主题分为 17 个类别：
 
- 1. [Security](#__Security)：敏感数据保护、攻击防御
- 2. [Resource](#__Resource)：资源分配、使用与回收
- 3. [Precompile](#__Precompile)：预处理指令、宏、注释
+ 1. [Security](#__Security)：敏感信息防护
+ 2. [Resource](#__Resource)：资源管理
+ 3. [Precompile](#__Precompile)：预处理、宏、注释
  4. [Global](#__Global)：全局及命名空间作用域
- 5. [Type](#__Type)：类型相关的设计与实现
+ 5. [Type](#__Type)：类型设计与实现
  6. [Declaration](#__Declaration)：声明
  7. [Exception](#__Exception)：异常
  8. [Function](#__Function)：函数实现
@@ -17707,7 +17707,7 @@ ID_illLifetime&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: concurrency warning
 
 <hr/>
 
-在异步过程中无法获取共享对象的使用情况，异步终止共享对象的生命周期往往会导致标准未定义的行为。  
+共享对象的使用情况在异步过程中是难以掌控的，贸然终止共享对象的生命周期往往会导致标准未定义的行为。  
   
 示例：
 ```
@@ -17722,7 +17722,7 @@ void bar() {
     beginThread(foo, &m);   // Non-compliant
 }
 ```
-设例中 beginThread 创建执行 foo 函数的线程，bar 与 foo 是异步过程，共享对象 m 在 bar 返回后失效，如果 foo 继续访问共享对象就会出错，bar 应等待线程执行完毕后返回或调整共享对象的生命周期。
+设例中 beginThread 创建执行 foo 函数的线程，bar 与 foo 是异步过程，共享对象 m 在 bar 返回后失效，如果 foo 继续访问共享对象就会出错，bar 应等待线程执行完毕或调整共享对象的生命周期。
 <br/>
 <br/>
 
@@ -17748,7 +17748,7 @@ ID_asynchronousTermination&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: concurrency warni
 
 <hr/>
 
-在异步过程中无法获取资源或共享对象的使用情况，异步终止线程往往会导致泄漏或死锁等严重问题。  
+资源的使用情况在异步过程中是难以掌控的，异步终止线程往往会导致泄漏或死锁等严重问题。  
   
 示例：
 ```
@@ -17766,7 +17766,7 @@ void bar() {
     pthread_cancel(thrd);   // Non-compliant, leak or deadlock
 }
 ```
-例中 foo 和 bar 是两个相关的异步过程，暴力终止某个过程的执行是非常危险的，线程持有的锁或动态分配的资源无法得到释放，所以应使线程可以主动执行清理再结束执行。
+例中 foo 和 bar 是两个相关的异步过程，在一个过程中暴力终止另一个过程是非常危险的，锁、信号量以及动态分配的资源无法得到释放，所以应使线程可以主动执行清理再结束执行。
 <br/>
 <br/>
 
