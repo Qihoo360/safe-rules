@@ -3416,9 +3416,9 @@
         "reference": "SEI CERT CON32-C,SEI CERT CON52-CPP"
         },
     "ID_signalInMultiThreading": {
-        "checkPoint": "多线程程序不可使用 signal 函数",
+        "checkPoint": "多线程环境中不可使用 signal 函数",
         "level": "warning",
-        "comment": "多线程程序使用 signal 函数会导致标准未定义的行为。",
+        "comment": "在多线程环境中使用 signal 函数会导致标准未定义的行为。",
         "tag": "concurrency",
         "standard": "ISO/IEC 9899:2011 7.14.1.1(7)-undefined",
         "related": "ID_forbidSignalFunction",

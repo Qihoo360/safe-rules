@@ -586,7 +586,7 @@
   - [R16.3 避免异步终止共享对象的生命周期](#ID_illLifetime)
   - [R16.4 避免虚假唤醒造成同步错误](#ID_spuriouslyWakeUp)
   - [R16.5 避免并发访问位域造成的数据竞争](#ID_bitfieldDataRaces)
-  - [R16.6 多线程程序不可使用 signal 函数](#ID_signalInMultiThreading)
+  - [R16.6 多线程环境中不可使用 signal 函数](#ID_signalInMultiThreading)
 <br/>
 
 <span id="__Style">**[17. Style](#style)**</span>
@@ -17855,13 +17855,13 @@ SEI CERT CON52-CPP
 <br/>
 <br/>
 
-### <span id="ID_signalInMultiThreading">▌R16.6 多线程程序不可使用 signal 函数</span>
+### <span id="ID_signalInMultiThreading">▌R16.6 多线程环境中不可使用 signal 函数</span>
 
 ID_signalInMultiThreading&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: concurrency warning
 
 <hr/>
 
-多线程程序使用 signal 函数会导致标准未定义的行为。  
+在多线程环境中使用 signal 函数会导致标准未定义的行为。  
 
 ```
 (TODO)
