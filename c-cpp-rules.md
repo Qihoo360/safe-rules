@@ -6297,7 +6297,7 @@ void thread() {
     read_and_write(x);
 }
 ```
-设 thread 是线程函数，LockGuard 是自动锁，在已保证同步机制的情况下，不应使用 volatile 限定共享对象。
+设 thread 是线程函数，LockGuard 是自动锁，在已保证同步机制的情况下，不应再使用 volatile 限定共享对象。
 <br/>
 <br/>
 
@@ -17726,7 +17726,7 @@ void thr2() {
     ....
 }
 ```
-设 thr1 和 thr2 是两个可以并发执行的线程函数，如果 a.m 被 thr1 锁定，b.m 被 thr2 锁定，thr1 等待 b.m 解锁，而 thr2 等待 a.m 解锁，这种相互等待导致了死锁的局面。例中 a 和 b 是具名全局对象，在各线程中按统一的顺序加锁可避免死锁。  
+设 thr1 和 thr2 是两个可以并发执行的函数，如果 a.m 被 thr1 锁定，b.m 被 thr2 锁定，thr1 等待 b.m 解锁，而 thr2 等待 a.m 解锁，这种相互等待导致了死锁的局面。例中 a 和 b 是具名全局对象，在各线程中按统一的顺序加锁可避免死锁。  
   
 在更普遍的情况下，为不同对象加锁前，可使对象按某种内在的标准“排序”，再依次加锁，如：
 ```
@@ -17769,7 +17769,7 @@ ID_asynchronousTermination&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: concurrency warni
   
 示例：
 ```
-void* foo(void* dummy) {
+void* foo(void* param) {
     pthread_setcanceltype(
         PTHREAD_CANCEL_ASYNCHRONOUS, ....  // Non-compliant
     );
@@ -17783,7 +17783,9 @@ void bar() {
     pthread_cancel(thrd);   // Non-compliant, leak or deadlock
 }
 ```
-例中 foo 和 bar 是两个相关的异步过程，在一个过程中暴力终止另一个过程是非常危险的，会使锁、信号量以及动态分配的资源无法得到释放，所以应使线程主动执行清理。
+以 pthread 线程库为例，foo 和 bar 是两个相关的异步过程，foo 通过 PTHREAD\_CANCEL\_ASYNCHRONOUS 选项指定其线程可以随时被终止，bar 调用 pthread\_cancel 终止 foo 线程，在一个过程中暴力终止另一个过程是非常危险的，会使锁、信号量以及动态分配的资源无法得到释放。  
+  
+PTHREAD\_CANCEL\_ASYNCHRONOUS 选项、Windows 的 TerminateThread 函数，以及具有相同功能的选项或 API 均不应使用，应使线程主动执行清理并正常结束执行。
 <br/>
 <br/>
 
@@ -17906,7 +17908,7 @@ void thr2() {
     a.y = 1;    // Non-compliant, missing lock
 }
 ```
-设例中 thr1 和 thr2 是可以并发执行的线程函数，位域成员 x 和 y 在一个存储单元中，对 x 或 y 的更新相当于用新数据更新存储单元的值，再将存储单元的值整体写入内存，这个过程如果是异步并发执行的就会产生错误，所以对不同位域成员的并发访问也应保证合理的同步措施。
+设例中 thr1 和 thr2 是可以并发执行的函数，位域成员 x 和 y 在一个存储单元中，对 x 或 y 的更新相当于用新数据更新存储单元的值，再将存储单元的值整体写入内存，这个过程如果是异步并发执行的就会产生错误，所以对不同位域成员的并发访问也应保证合理的同步措施。
 <br/>
 <br/>
 
