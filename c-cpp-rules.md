@@ -909,7 +909,7 @@ ID_dataRaces&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-共享数据可被多个执行单位或硬件读写，需要合理控制访问的先后顺序。  
+共享数据可被多个执行单位或硬件设备读写，需要合理控制访问的先后顺序。  
   
 示例：
 ```
@@ -8063,9 +8063,11 @@ ID_forbidBitfield&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration suggestion
 
 <hr/>
 
-引入位域的本意是为了节省空间，然而位域改变了变量约定俗成的取值范围，易造成理解上的偏差，也会造成维护困难。  
+引入位域的本意是为了节省空间，然而位域改变了变量约定俗成的取值范围和存储方式，易造成理解上的偏差，也会提高维护成本。  
   
 位域与“引用”等 C\+\+ 概念有冲突，而且 C\+\+ 标准在位域的内存分配和数据对齐等方面定义的不够充分，存在很多由实现定义的内容，所以应改用某种更有效的算法达到节省空间或时间的目的。  
+  
+多线程访问位域还可能造成数据竞争，参见 ID\_bitfieldDataRaces。  
   
 示例：
 ```
@@ -17686,12 +17688,68 @@ ID_deadlock&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: concurrency warning
 
 <hr/>
 
-避免死锁。  
+对于锁等资源，错误的请求时序或管理方式会使程序永远陷入等待状态，这种问题称为“[死锁（deadlock）](https://en.wikipedia.org/wiki/Deadlock)”。  
+  
+示例：
+```
+mtx_t m;               // Non-recursive mutex
 
+void foo() {
+    mtx_lock(&m);      // Lock the mutex
+    ....
+}
+
+void bar() {
+    mtx_lock(&m);      // Lock the mutex
+    foo();             // Undefined behavior, may deadlock
+    ....
+}
 ```
-(TODO)
+设 m 是非递归互斥量，bar 锁定互斥量后调用 foo，而 foo 也会锁定互斥量，导致 foo 等待 bar 解锁，而 foo 返回之前 bar 不可能解锁，这是一种导致死锁的逻辑错误，C11 也明确规定在同一线程中不可重复锁定非递归互斥量。  
+  
+另外，线程之间相互等待对方解锁也是死锁的主要原因，如：
 ```
+struct A {
+    ....
+    mtx_t m;          // Mutex
+} a, b;
+
+void thr1() {
+    mtx_lock(&a.m);   // Lock
+    mtx_lock(&b.m);
+    ....
+}
+
+void thr2() {
+    mtx_lock(&b.m);   // Lock in another order
+    mtx_lock(&a.m);   // May deadlock
+    ....
+}
+```
+设 thr1 和 thr2 是两个可以并发执行的线程函数，如果 a.m 被 thr1 锁定，b.m 被 thr2 锁定，thr1 等待 b.m 解锁，而 thr2 等待 a.m 解锁，这种相互等待导致了死锁的局面。例中 a 和 b 是具名全局对象，在各线程中按统一的顺序加锁可避免死锁。  
+  
+在更普遍的情况下，为不同对象加锁前，可使对象按某种内在的标准“排序”，再依次加锁，如：
+```
+struct A {
+    int id;           // Unique identifier
+    ....
+    mtx_t m;          // Mutex
+};
+
+void lock_in_order(A* p, A* q) {
+    if (p->id > q->id) {
+        A* t = p; p = q; q = t;
+    }
+    mtx_lock(&p->m);
+    mtx_lock(&q->m);
+}
+```
+为每个对象分配一个 id 以标识不同的对象，每次 id 小的先加锁，可有效避免相互等待造成的死锁。示例代码忽略了 id 相等的情况，在实际代码中应补全，否则也会造成第一个例子中的问题。
 <br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 7.26.4.3(2)-undefined  
 <br/>
 
 #### 参考
@@ -17831,11 +17889,24 @@ ID_bitfieldDataRaces&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: concurrency warning
 
 <hr/>
 
-避免并发访问位域造成的数据竞争。  
+相邻的位域成员可能在一个存储单元中，所以并发访问位域也可能造成数据竞争。  
+  
+示例：
+```
+struct A {
+    unsigned x: 1;
+    unsigned y: 1;
+} a;
 
+void thr1() {
+    a.x = 0;    // Non-compliant, missing lock
+}
+
+void thr2() {
+    a.y = 1;    // Non-compliant, missing lock
+}
 ```
-(TODO)
-```
+设例中 thr1 和 thr2 是可以并发执行的线程函数，位域成员 x 和 y 在一个存储单元中，对 x 或 y 的更新相当于用新数据更新存储单元的值，再将存储单元的值整体写入内存，这个过程如果是异步并发执行的就会产生错误，所以对不同位域成员的并发访问也应保证合理的同步措施。
 <br/>
 <br/>
 
@@ -17862,10 +17933,20 @@ ID_signalInMultiThreading&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: concurrency warnin
 <hr/>
 
 在多线程环境中使用 signal 函数会导致标准未定义的行为。  
+  
+示例：
+```
+#include <signal.h>
+#include <threads.h>
 
+void handler(int);
+
+int thread(void* param) {
+    signal(SIGINT, handler);  // Non-compliant
+    ....
+}
 ```
-(TODO)
-```
+设例中 thread 是线程函数，在多线程环境中使用 signal 函数是不符合要求的。
 <br/>
 <br/>
 

@@ -974,7 +974,7 @@
     "ID_forbidBitfield": {
         "checkPoint": "禁用位域",
         "level": "suggestion",
-        "comment": "引入位域的本意是为了节省空间，然而位域改变了变量约定俗成的取值范围，易造成理解上的偏差，也会造成维护困难。",
+        "comment": "引入位域的本意是为了节省空间，然而位域改变了变量约定俗成的取值范围和存储方式，易造成理解上的偏差，也会提高维护成本。",
         "tag": "declaration",
         "standard": "ISO/IEC 14882:2003 9.6(1)-implementation,ISO/IEC 14882:2003 9.6(3),ISO/IEC 14882:2011 9.6(1)-implementation,ISO/IEC 14882:2011 9.6(3),ISO/IEC 14882:2017 12.2.4(1)-implementation,ISO/IEC 14882:2017 12.2.4(3)",
         "related": "ID_exceededBitfield,ID_singleSignedBitfield,ID_bitfieldDataRaces,ID_forbidEnumBitfield"
@@ -3166,7 +3166,7 @@
     "ID_dataRaces": {
         "checkPoint": "访问共享数据应遵循合理的同步机制",
         "level": "warning",
-        "comment": "共享数据可被多个执行单位或硬件读写，需要合理控制访问的先后顺序。",
+        "comment": "共享数据可被多个执行单位或硬件设备读写，需要合理控制访问的先后顺序。",
         "tag": "security",
         "standard": "ISO/IEC 9899:2011 5.1.2.4(3)-undefined,ISO/IEC 9899:2011 5.1.2.4(20)-undefined,ISO/IEC 9899:2011 5.1.2.4(25)-undefined",
         "related": "ID_sig_dataRaces,ID_sig_nonAsyncSafeCall",
@@ -3378,8 +3378,9 @@
     "ID_deadlock": {
         "checkPoint": "避免死锁",
         "level": "warning",
-        "comment": "避免死锁。",
+        "comment": "对于锁等资源，错误的请求时序或管理方式会使程序永远陷入等待状态，这种问题称为“死锁（deadlock）”。",
         "tag": "concurrency",
+        "standard": "ISO/IEC 9899:2011 7.26.4.3(2)-undefined",
         "reference": "SEI CERT CON35-C,SEI CERT CON53-CPP,SEI CERT CON56-CPP"
         },
     "ID_illLifetime": {
