@@ -17783,7 +17783,7 @@ void bar() {
     pthread_cancel(thrd);   // Non-compliant, leak or deadlock
 }
 ```
-以 pthread 线程库为例，foo 和 bar 是两个相关的异步过程，foo 通过 PTHREAD\_CANCEL\_ASYNCHRONOUS 选项指定其线程可以随时被终止，bar 调用 pthread\_cancel 终止 foo 线程，在一个过程中暴力终止另一个过程是非常危险的，会使锁、信号量以及动态分配的资源无法得到释放。  
+以 pthread 线程库为例，foo 和 bar 是两个相关的异步过程，foo 通过 PTHREAD\_CANCEL\_ASYNCHRONOUS 指定其线程可以随时被终止，bar 调用 pthread\_cancel 终止 foo 线程，在一个过程中暴力终止另一个过程是非常危险的，会使锁、信号量或动态分配的资源无法释放。  
   
 PTHREAD\_CANCEL\_ASYNCHRONOUS 选项、Windows 的 TerminateThread 函数，以及具有相同功能的选项或 API 均不应使用，应使线程主动执行清理并正常结束执行。
 <br/>
