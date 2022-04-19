@@ -534,7 +534,7 @@
   - [R12.7 不应强制转换非公有继承关系的类型](#ID_castNonPublicInheritance)
   - [R12.8 多态类型与基本类型不应相互转换](#ID_castViolatePolymorphism)
   - [R12.9 不可直接转换不同的字符串类型](#ID_charWCharCast)
-  - [R12.10 避免类型转换造成的指针运算错误](#ID_arrayPointerCast)
+  - [R12.10 避免转换指向数组的指针](#ID_arrayPointerCast)
   - [R12.11 对函数指针不应进行类型转换](#ID_functionPointerCast)
   - [R12.12 向下类型转换应使用 dynamic\_cast](#ID_nonDynamicDownCast)
   - [R12.13 对 new 表达式不应进行类型转换](#ID_oddNewCast)
@@ -857,7 +857,7 @@ ID_dataRaces&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-如果一份数据被多个线程、进程或中断处理过程同时读写，其结果将是不确定的，这种情况称为“[数据竞争（data race）](https://en.cppreference.com/w/cpp/language/memory_model#Threads_and_data_races)”，会导致标准未定义的行为，应建立合理的同步机制来控制访问的先后顺序。  
+如果一份数据同时被多个线程、进程或中断处理过程读写，会产生不确定的结果，这种情况称为“[数据竞争（data race）](https://en.cppreference.com/w/cpp/language/memory_model#Threads_and_data_races)”，导致标准未定义的行为，应建立合理的同步机制来控制访问的先后顺序。  
   
 示例：
 ```
@@ -4692,41 +4692,31 @@ ID_missingVirtualDestructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
 
 为了避免意料之外的资源泄漏，有虚函数的基类，都应该具有虚析构函数。  
   
-当通过基类指针析构派生类对象时，如果基类没有虚析构函数，派生类对象的析构函数是无法被执行的，造成不易排查的资源泄漏。  
+通过基类指针析构派生类对象时，如果基类没有虚析构函数会导致标准未定义的行为，无法正确执行派生类的析构函数。  
   
 示例：
 ```
 class A {
 public:
-    A() {}
-   ~A() {}  // Non-compliant, missing ‘virtual’
-    virtual size_t size() = 0;
+    A() = default;
+   ~A() = default;          // Non-compliant, missing ‘virtual’
+    virtual int foo() = 0;
 };
 
 class B: public A {
-    int* x;
-    size_t n;
+    int *m, n;              // New resource
 
 public:
-    B(size_t s): n(s), x(new int[s]) {
-    }
-
-   ~B() {
-        delete[] x;
-    }
-
-    size_t size() override {
-        return n;
-    }
+    B(int s): m(new int[s]), n(s) {}
+   ~B() { delete[] m; }
+    int foo() override { return n; }
 };
+
+A* p = new B(10);
+....
+delete p;                   // Undefined behavior, may leak
 ```
-按下列调用：
-```
-A* p = new B(32);
-cout << p->size();  // OK, output 32
-delete p;           // But only ‘A::~A’ is called, ‘B::x’ leaks
-```
-由于 A 的析构函数不是虚函数，所以 delete p 只调用了 A 的析构函数，导致派生类对象中的资源没有得到释放。
+由于基类 A 的析构函数不是虚函数，delete p 只调用了基类析构函数，派生类对象的资源没有得到释放。
 <br/>
 <br/>
 
@@ -4763,9 +4753,9 @@ class C: public A {};
 class D: public B, public C {};
 
 void foo(D& d) {
-    d.i = 1;     // Complie error
-    d.B::i = 1;  // Odd
-    d.C::i = 1;  // Odd
+    d.i = 1;       // Complie error
+    d.B::i = 1;    // Odd
+    d.C::i = 1;    // Odd
 }
 ```
 在 D 类对象 d 中，基类 A 的成员 i 有两个不同的实例，d 不能直接访问 i，只能通过 d.B::i 或 d.C::i 这种怪异的方式访问。  
@@ -4777,10 +4767,10 @@ class C: virtual public A {};
 class D: public B, public C {};
 
 void foo(D& d) {
-    d.i = 1;     // OK
+    d.i = 1;       // OK
 }
 ```
-注意，直接将虚基类指针转为派生类指针是标准未定义的行为，如：
+注意，直接将虚基类指针转为派生类指针会导致标准未定义的行为，如：
 ```
 void bar(A* a) {
     B* p = (B*)a;  // Undefined behavior
@@ -15932,7 +15922,7 @@ ID_voidCast&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: cast suggestion
 struct A { .... };
 
 void foo(void* v) {
-    A* a = (A*)v;      // Non-compliant 
+    A* a = (A*)v;     // Non-compliant
     ....
 }
 ```
@@ -16266,13 +16256,13 @@ SEI CERT STR38-C
 <br/>
 <br/>
 
-### <span id="ID_arrayPointerCast">▌R12.10 避免类型转换造成的指针运算错误</span>
+### <span id="ID_arrayPointerCast">▌R12.10 避免转换指向数组的指针</span>
 
 ID_arrayPointerCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
 <hr/>
 
-指针的逻辑大小与类型有关，不适当的类型转换会造成指针运算错误，应避免转换指向数组的指针。  
+指针的逻辑大小与类型相关，转换指向数组的指针极易造成元素定位、空间计算等方面的错误。  
   
 示例：
 ```
@@ -16281,25 +16271,30 @@ struct B: A { int y; };
 
 void foo(A* p, int n) {
     for (int i = 0; i < n; i++) {
-        p[i].x = 123; 
+        p[i].x = 1; 
     }
 }
 
 void bar() {
-    B arr[10];
-    foo(arr, 10);  // Non-compliant
+    B arr[100];
+    foo(arr, 100);    // Non-compliant
     ....
 }
 ```
-例中 B 类型的数组 arr 作为 foo 函数的参数，被转换成了基类指针，foo 函数中对基类指针的运算将是错误的，B 的成员 y 也会被错误地赋值。  
+例中派生类对象的数组被转换成了基类指针，foo 函数中对数组元素的定位将是错误的。  
   
-这是一个很危险的问题，本规则针对所有数组相关的隐式和显式类型转换。
+另外，在回收动态分配的数组时，如果指针的类型与实际元素的类型不一致，会导致标准未定义的行为：
+```
+A* p = new B[100];    // Non-compliant
+delete[] p;           // Undefined behavior
+```
+这是一个危险的问题，本规则针对所有数组相关的隐式和显式类型转换。
 <br/>
 <br/>
 
 #### 依据
-ISO/IEC 9899:1999 6.5.6(8)  
 ISO/IEC 9899:2011 6.5.6(8)  
+ISO/IEC 14882:2011 5.3.5(3)-undefined  
 <br/>
 
 #### 参考

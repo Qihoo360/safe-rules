@@ -1292,11 +1292,11 @@
         "reference": "MISRA C 2004 11.1,MISRA C 2012 11.1,MISRA C++ 2008 5-2-6"
         },
     "ID_arrayPointerCast": {
-        "checkPoint": "避免类型转换造成的指针运算错误",
+        "checkPoint": "避免转换指向数组的指针",
         "level": "warning",
-        "comment": "指针的逻辑大小与类型有关，不适当的类型转换会造成指针运算错误，应避免转换指向数组的指针。",
+        "comment": "指针的逻辑大小与类型相关，转换指向数组的指针极易造成元素定位、空间计算等方面的错误。",
         "tag": "cast",
-        "standard": "ISO/IEC 9899:1999 6.5.6(8),ISO/IEC 9899:2011 6.5.6(8)",
+        "standard": "ISO/IEC 9899:2011 6.5.6(8),ISO/IEC 14882:2011 5.3.5(3)-undefined",
         "reference": "C++ Core Guidelines C.152"
         },
     "ID_nonDynamicDownCast": {
@@ -3166,7 +3166,7 @@
     "ID_dataRaces": {
         "checkPoint": "访问共享数据应遵循合理的同步机制",
         "level": "warning",
-        "comment": "如果一份数据被多个线程、进程或中断处理过程同时读写，其结果将是不确定的，这种情况称为“数据竞争（data race）”，会导致标准未定义的行为，应建立合理的同步机制来控制访问的先后顺序。",
+        "comment": "如果一份数据同时被多个线程、进程或中断处理过程读写，会产生不确定的结果，这种情况称为“数据竞争（data race）”，导致标准未定义的行为，应建立合理的同步机制来控制访问的先后顺序。",
         "tag": "security",
         "standard": "ISO/IEC 9899:2011 5.1.2.4(3)-undefined,ISO/IEC 9899:2011 5.1.2.4(20)-undefined,ISO/IEC 9899:2011 5.1.2.4(25)-undefined",
         "related": "ID_sig_dataRaces,ID_sig_nonAsyncSafeCall",
