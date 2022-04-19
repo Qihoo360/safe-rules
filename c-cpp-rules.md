@@ -83,8 +83,8 @@
   - [R1.3 敏感数据在使用后应被有效清理](#ID_unsafeCleanup)
   - [R1.4 公共成员或全局对象不应记录敏感数据](#ID_sensitiveName)
   - [R1.5 预判用户输入造成的不良后果](#ID_hijack)
-  - [R1.6 避免在一个事务中通过路径多次访问同一文件](#ID_TOCTOU)
-  - [R1.7 访问共享数据应遵循合理的同步机制](#ID_dataRaces)
+  - [R1.6 访问共享数据应遵循合理的同步机制](#ID_dataRaces)
+  - [R1.7 避免在事务中通过路径多次访问同一文件](#ID_TOCTOU)
   - [R1.8 对文件设定合理的权限](#ID_unlimitedAuthority)
   - [R1.9 落实对用户的权限管理](#ID_improperAuthorization)
   - [R1.10 不应引用危险符号名称](#ID_dangerousName)
@@ -851,7 +851,72 @@ CWE-73
 <br/>
 <br/>
 
-### <span id="ID_TOCTOU">▌R1.6 避免在一个事务中通过路径多次访问同一文件</span>
+### <span id="ID_dataRaces">▌R1.6 访问共享数据应遵循合理的同步机制</span>
+
+ID_dataRaces&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
+
+<hr/>
+
+如果一份数据被多个线程、进程或中断处理过程同时读写，其结果将是不确定的，这种情况称为“[数据竞争（data race）](https://en.cppreference.com/w/cpp/language/memory_model#Threads_and_data_races)”，导致标准未定义的行为，所以需要合理控制访问的先后顺序。  
+  
+示例：
+```
+int foo() {
+    static int id = 0;
+    return id++;        // Data races in multithreading
+}
+```
+这个函数意在每次被调用都可以返回不同的整数，但如果多个线程同时执行 id\+\+，会使读取、计算、写入等步骤交织在一起，得到错误的结果，这是一种典型的数据竞争。  
+  
+应改为：
+```
+int foo() {
+    static atomic<int> id(0);
+    return id.fetch_add(1);    // OK
+}
+```
+其中 atomic 是 C\+\+ 标准原子类，fetch\_add 将对象持有的整数增 1 并返回之前的值，这个过程不会被多个线程同时执行，只能依次执行，从而保证了返回值的唯一性和正确性。  
+  
+又如：
+```
+void bar() {
+    int* p = baz();      // #0, ‘p’ points to shared data
+    if (*p == 0) {       // #1, ‘*p’ is unreliable
+        ....
+    }
+    else if (*p == 1) {  // #2, ‘*p’ is unreliable
+        ....
+    }
+    else {               // #3
+        ....
+    }
+}
+```
+如果 p 指向共享数据，那么攻击者可以通过控制共享数据实现对程序流程的劫持，比如在 `#0` 处 \*p 的值本为 0，攻击者在 `#1` 之前改变 \*p 的值，迫使流程向 `#2` 或 `#3` 处跳转。  
+  
+考虑比数据竞争更高层面的问题，如果程序的正确性依赖进线程处理数据的特定时序，一旦这种特定时序被打破，便会产生错误或漏洞，攻击者可以抢在某关键过程前后通过修改共享数据达到攻击目的，这种情况称为“[竞态条件（race conditon）](https://en.wikipedia.org/wiki/Race_condition)”，进一步讨论可参见 ID\_TOCTOU 和 ID\_forbidSignalFunction 等规则。
+<br/>
+<br/>
+
+#### 相关
+ID_sig_dataRaces  
+ID_sig_nonAsyncSafeCall  
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 5.1.2.4(3)-undefined  
+ISO/IEC 9899:2011 5.1.2.4(20)-undefined  
+ISO/IEC 9899:2011 5.1.2.4(25)-undefined  
+<br/>
+
+#### 参考
+CWE-362  
+C++ Core Guidelines CP.2  
+SEI CERT CON43-C  
+<br/>
+<br/>
+
+### <span id="ID_TOCTOU">▌R1.7 避免在事务中通过路径多次访问同一文件</span>
 
 ID_TOCTOU&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
@@ -859,7 +924,7 @@ ID_TOCTOU&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 攻击者可以在两次通过路径访问文件的中途对文件做手脚，从而造成不良后果。  
   
-这种问题称为“[TOCTOU（Time\-of\-check to time\-of\-use）](https://en.wikipedia.org/wiki/Time-of-check_to_time-of-use)”。有时需要先检查文件的某种状态，如果状态满足条件的话，再使用该文件，如果“检查”和“使用”都是通过路径完成的，攻击者可以在中途将文件替换成不满足条件的文件，如将文件替换成指向另一个文件的链接，从而对系统造成破坏。  
+这种问题称为“[TOCTOU（Time\-of\-check to time\-of\-use）](https://en.wikipedia.org/wiki/Time-of-check_to_time-of-use)”。有时需要先检查文件的某种状态，如果状态满足条件的话，再使用该文件，如果“检查”和“使用”都是通过路径完成的，攻击者可以在中途将文件替换成不满足条件的文件，如将文件替换成指向另一个文件的链接，从而对系统造成破坏，这是一种典型的“[竞态条件](https://en.wikipedia.org/wiki/Race_condition)”。  
   
 示例：
 ```
@@ -900,71 +965,6 @@ ISO/IEC 9899:2011 7.21.5.3(3)
 
 #### 参考
 CWE-367  
-<br/>
-<br/>
-
-### <span id="ID_dataRaces">▌R1.7 访问共享数据应遵循合理的同步机制</span>
-
-ID_dataRaces&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
-
-<hr/>
-
-共享数据可被多个执行单位或硬件设备读写，需要合理控制访问的先后顺序。  
-  
-示例：
-```
-int foo() {
-    static int id = 0;
-    return id++;        // Data races in multithreading
-}
-```
-例中 foo 函数意在返回不同的整数，但如果 id 被多个线程同时读写会导致标准未定义的行为，得到错误的结果。  
-  
-应改为：
-```
-int foo() {
-    static atomic<int> id(0);
-    return id.fetch_add(1);    // OK
-}
-```
-其中 atomic 是 C\+\+ 标准原子类，fetch\_add 将对象持有的整数增 1 并返回之前的值，这个过程不会被多个线程同时执行，只能依次执行，从而保证了返回值的唯一性。  
-  
-又如：
-```
-void bar() {
-    int* p = baz();      // #0, ‘p’ points to shared data
-    if (*p == 0) {       // #1, ‘*p’ is unreliable
-        ....
-    }
-    else if (*p == 1) {  // #2, ‘*p’ is unreliable
-        ....
-    }
-    else {               // #3
-        ....
-    }
-}
-```
-如果 p 指向共享数据，那么攻击者可以通过控制共享数据实现对程序流程的劫持，比如在 `#0` 处 \*p 的值本为 0，攻击者在 `#1` 之前改变 \*p 的值，迫使流程向 `#2` 或 `#3` 处跳转。  
-  
-如果程序的正确性依赖进线程处理数据的特定时序，一旦这种特定时序被打破，便会产生错误和漏洞，这种情况称为“[竞态条件（race conditon）](https://en.wikipedia.org/wiki/Race_condition)”，攻击者可以抢在某关键过程前后通过修改共享数据达到攻击目的，所以应合理设计数据的访问方式或使用锁、信号量等同步手段保证数据的可靠性。
-<br/>
-<br/>
-
-#### 相关
-ID_sig_dataRaces  
-ID_sig_nonAsyncSafeCall  
-<br/>
-
-#### 依据
-ISO/IEC 9899:2011 5.1.2.4(3)-undefined  
-ISO/IEC 9899:2011 5.1.2.4(20)-undefined  
-ISO/IEC 9899:2011 5.1.2.4(25)-undefined  
-<br/>
-
-#### 参考
-CWE-362  
-C++ Core Guidelines CP.2  
-SEI CERT CON43-C  
 <br/>
 <br/>
 
@@ -17785,7 +17785,7 @@ void bar() {
 ```
 以 pthread 线程库为例，foo 和 bar 是两个相关的异步过程，foo 通过 PTHREAD\_CANCEL\_ASYNCHRONOUS 指定其线程可以随时被终止，bar 调用 pthread\_cancel 终止 foo 线程，在一个过程中暴力终止另一个过程是非常危险的，会使锁、信号量或动态分配的资源无法释放。  
   
-PTHREAD\_CANCEL\_ASYNCHRONOUS 选项、Windows 的 TerminateThread 函数，以及具有相同功能的选项或 API 均不应使用，应使线程主动执行清理并正常结束执行。
+PTHREAD\_CANCEL\_ASYNCHRONOUS 等选项、TerminateThread 等 Windows API，以及具有相同功能的选项或 API 均不应使用，应使线程主动执行清理并正常结束执行。
 <br/>
 <br/>
 
