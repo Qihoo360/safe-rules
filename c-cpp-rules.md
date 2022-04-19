@@ -85,7 +85,7 @@
   - [R1.5 预判用户输入造成的不良后果](#ID_hijack)
   - [R1.6 访问共享数据应遵循合理的同步机制](#ID_dataRaces)
   - [R1.7 避免在事务中通过路径多次访问同一文件](#ID_TOCTOU)
-  - [R1.8 对文件设定合理的权限](#ID_unlimitedAuthority)
+  - [R1.8 对文件设定合理的访问权限](#ID_unlimitedAuthority)
   - [R1.9 落实对用户的权限管理](#ID_improperAuthorization)
   - [R1.10 不应引用危险符号名称](#ID_dangerousName)
   - [R1.11 避免调用具有危险性的函数](#ID_dangerousFunction)
@@ -857,7 +857,7 @@ ID_dataRaces&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-如果一份数据被多个线程、进程或中断处理过程同时读写，其结果将是不确定的，这种情况称为“[数据竞争（data race）](https://en.cppreference.com/w/cpp/language/memory_model#Threads_and_data_races)”，导致标准未定义的行为，所以需要合理控制访问的先后顺序。  
+如果一份数据被多个线程、进程或中断处理过程同时读写，其结果将是不确定的，这种情况称为“[数据竞争（data race）](https://en.cppreference.com/w/cpp/language/memory_model#Threads_and_data_races)”，会导致标准未定义的行为，应建立合理的同步机制来控制访问的先后顺序。  
   
 示例：
 ```
@@ -968,7 +968,7 @@ CWE-367
 <br/>
 <br/>
 
-### <span id="ID_unlimitedAuthority">▌R1.8 对文件设定合理的权限</span>
+### <span id="ID_unlimitedAuthority">▌R1.8 对文件设定合理的访问权限</span>
 
 ID_unlimitedAuthority&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 

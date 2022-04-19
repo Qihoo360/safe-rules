@@ -3156,7 +3156,7 @@
         "reference": "SEI CERT MEM01-C"
         },
     "ID_unlimitedAuthority": {
-        "checkPoint": "对文件设定合理的权限",
+        "checkPoint": "对文件设定合理的访问权限",
         "level": "warning",
         "comment": "文件的访问权限不可过于宽松，否则很容易遭到窃取或篡改。",
         "tag": "security",
@@ -3166,7 +3166,7 @@
     "ID_dataRaces": {
         "checkPoint": "访问共享数据应遵循合理的同步机制",
         "level": "warning",
-        "comment": "如果一份数据被多个线程、进程或中断处理过程同时读写，其结果将是不确定的，这种情况称为“数据竞争（data race）”，导致标准未定义的行为，所以需要合理控制访问的先后顺序。",
+        "comment": "如果一份数据被多个线程、进程或中断处理过程同时读写，其结果将是不确定的，这种情况称为“数据竞争（data race）”，会导致标准未定义的行为，应建立合理的同步机制来控制访问的先后顺序。",
         "tag": "security",
         "standard": "ISO/IEC 9899:2011 5.1.2.4(3)-undefined,ISO/IEC 9899:2011 5.1.2.4(20)-undefined,ISO/IEC 9899:2011 5.1.2.4(25)-undefined",
         "related": "ID_sig_dataRaces,ID_sig_nonAsyncSafeCall",
