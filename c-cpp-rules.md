@@ -532,7 +532,7 @@
   - [R12.5 类型转换不应去掉 const、volatile 等属性](#ID_qualifierCastedAway)
   - [R12.6 不应强制转换无继承关系的类型](#ID_castNoInheritance)
   - [R12.7 不应强制转换非公有继承关系的类型](#ID_castNonPublicInheritance)
-  - [R12.8 多态类型与基本类型不应相互转换](#ID_castViolatePolymorphism)
+  - [R12.8 多态类型与基本类型之间不应相互转换](#ID_castViolatePolymorphism)
   - [R12.9 不同的字符串类型之间不可直接转换](#ID_charWCharCast)
   - [R12.10 避免转换指向数组的指针](#ID_arrayPointerCast)
   - [R12.11 避免转换函数指针](#ID_functionPointerCast)
@@ -1718,7 +1718,7 @@ ID_ownerlessResource&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warni
   
 将资源分配的结果直接在程序中传递是非常不安全的，极易产生泄漏或死锁等问题。动态申请的资源如果只用普通变量引用，不受对象的构造或析构机制控制，则称为“无主”资源，在 C\+\+ 程序设计中应当避免。  
   
-应尽量使用标准库提供的容器或智能指针，避免显式使用资源管理接口。本文示例中的 new 和 delete 意在代指一般的资源操作，仅作示例，在实际代码中应尽量避免。  
+应尽量使用标准库提供的容器或智能指针，避免显式使用资源管理接口。本规则集合示例中的 new/delete、lock/unlock 意在代指一般的资源操作，仅作示例，在实际代码中应尽量避免。  
   
 示例：
 ```
@@ -5693,7 +5693,7 @@ namespace xxx  // Bad, meaningless name
     const int nVarietyisthespiceoflife = 123;  // Bad, hard to read
 }
 ```
-例中 xxx、fun 这种无意义或过于空泛的名称是不符合要求的，名称中各单词间应有下划线或大小写变化，否则是不便于读写的。本文示例中出现的 foo、bar 等名称，意在代指一般的代码元素，仅作示例，实际代码中不应出现。  
+例中 xxx、fun 这种无意义或过于空泛的名称是不符合要求的，名称中各单词间应有下划线或大小写变化，否则是不便于读写的。本规则集合示例中出现的 foo、bar 等名称，意在代指一般的代码元素，仅作示例，实际代码中不应出现。  
   
 不良命名方式甚至会导致标准未定义的行为，如：
 ```
@@ -15929,7 +15929,7 @@ void foo(void* v) {
     ....
 }
 ```
-示例代码的正确性单方面依赖编写者的小心谨慎，是不可靠的。
+这种代码的正确性单方面依赖编写者的小心谨慎，是不可靠的。
 <br/>
 <br/>
 
@@ -16101,19 +16101,15 @@ class A { .... };
 class B { .... };
 class C: public A, public B { .... };
 
-void foo() {
-    A* a = new C;
+A* a = new C;
 
-    B* b0 = (B*)a;                    // Non-compliant
-    B* b1 = reinterpret_cast<B*>(a);  // Non-compliant
+B* b0 = (B*)a;                    // Non-compliant
+B* b1 = reinterpret_cast<B*>(a);  // Non-compliant
 
-    B* b2 = static_cast<B*>(a);       // Compliant, compile-time protected
-    B* b3 = dynamic_cast<B*>(a);      // Compliant, run-time protected
-
-    ....
-}
+B* b2 = static_cast<B*>(a);       // Compliant, compile-time protected
+B* b3 = dynamic_cast<B*>(a);      // Compliant, run-time protected
 ```
-例中 A 与 B 没有继承关系，C 从 A 和 B 继承，指针 a 为 A 类型但实际指向 C 的实例，这种情况下将 a 直接强制转为 B 类型的指针将得到错误的结果，这个问题在实际代码中也很常见。  
+例中 A 与 B 没有继承关系，C 从 A 和 B 继承，指针 a 为 A 类型但实际指向 C 的实例，这种情况下将 a 直接强制转为 B 类型的指针将得到错误的结果，这种问题在实际代码中也很常见。  
   
 本规则限制无继承关系的 C 风格类型转换以及 reinterpret\_cast 转换，放过 static\_cast 和 dynamic\_cast 转换，示例中的 static\_cast 转换将得到编译错误从而锁定问题，如果 A 和 B 是多态类型，用 dynamic\_cast 会得到正确的结果。  
   
@@ -16127,11 +16123,10 @@ public:
     operator V*();
 };
 
-void bar(U* u) {
-    V* v0 = (V*)u;                    // Compliant, but bad
-    V* v1 = reinterpret_cast<V*>(u);  // Still non-compliant
-    ....
-}
+U* u = new U;
+
+V* v0 = (V*)u;                    // Compliant, but bad
+V* v1 = reinterpret_cast<V*>(u);  // Still non-compliant
 ```
 例中 U 和 V 是无继承关系的类，但 U 实现了向 V 的转换方法，U 和 V 之间存在逻辑关系，这时的 C 风格类型转换可被本规则放过，但不符合规则 ID\_forbidCStyleCast，这种情况仍然不能使用 reinterpret\_cast，可参见 ID\_unsuitableReinterpretCast。  
   
@@ -16171,7 +16166,7 @@ class B: private A { .... };
 void bar(A* a);
 
 void foo(B* b) {
-    bar((A*)b);  // Non-compliant
+    bar((A*)b);    // Non-compliant
 }
 ```
 例中 B 是对 A 的某种改造，如果再用 A 的方法去处理 B 的对象，显然是有问题的。
@@ -16183,7 +16178,7 @@ ISO/IEC 9899:2011 4.10(3)
 <br/>
 <br/>
 
-### <span id="ID_castViolatePolymorphism">▌R12.8 多态类型与基本类型不应相互转换</span>
+### <span id="ID_castViolatePolymorphism">▌R12.8 多态类型与基本类型之间不应相互转换</span>
 
 ID_castViolatePolymorphism&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 

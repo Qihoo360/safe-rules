@@ -1317,7 +1317,7 @@
         "reference": "C++ Core Guidelines Type.1"
         },
     "ID_castViolatePolymorphism": {
-        "checkPoint": "多态类型与基本类型不应相互转换",
+        "checkPoint": "多态类型与基本类型之间不应相互转换",
         "level": "warning",
         "comment": "多态类型会维护虚表指针等用户不可见的数据以保证多态机制的执行，将其与基本类型转换会破坏这种机制。",
         "tag": "cast",
