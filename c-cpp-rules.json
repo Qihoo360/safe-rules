@@ -65,7 +65,7 @@
         "reference": "MISRA C++ 2008 4-10-2,C++ Core Guidelines ES.47"
         },
     "ID_charWCharCast": {
-        "checkPoint": "不可直接转换不同的字符串类型",
+        "checkPoint": "不同的字符串类型之间不可直接转换",
         "level": "warning",
         "comment": "char* 和 wchar_t* 直接转换并不进行字符集编码转换，往往意味着语言运用错误，char*、wchar_t*、char16_t* 和 char32_t* 之间均不可直接转换。",
         "tag": "cast",
@@ -1284,7 +1284,7 @@
         "reference": "CWE-704"
         },
     "ID_functionPointerCast": {
-        "checkPoint": "对函数指针不应进行类型转换",
+        "checkPoint": "避免转换函数指针",
         "level": "warning",
         "comment": "函数指针和不兼容的类型转换会导致标准未定义的行为。",
         "tag": "cast",
@@ -1313,7 +1313,7 @@
         "level": "warning",
         "comment": "reinterpret_cast 将地址强行按另一种类型解释，不考虑转换需要的逻辑，可用 static_cast、dynamic_cast 完成的转换不应使用 reinterpret_cast。",
         "tag": "cast",
-        "standard": "ISO/IEC 14882:2003 5.2.10(7),ISO/IEC 14882:2011 5.2.10(7)",
+        "standard": "ISO/IEC 14882:2011 5.2.10(7)-unspecified",
         "reference": "C++ Core Guidelines Type.1"
         },
     "ID_castViolatePolymorphism": {
@@ -2824,7 +2824,7 @@
     "ID_accessPaddingData": {
         "checkPoint": "不应访问填充数据",
         "level": "warning",
-        "comment": "变量之间可能存在填充数据，这种数据只为实现“内存对齐”而无数值意义，而且填充数据的值是标准未声明的。",
+        "comment": "内存中各对象之间可能存在填充数据，这种数据只为实现“内存对齐”而无数值意义，而且填充数据的值是标准未声明的。",
         "tag": "expression",
         "standard": "ISO/IEC 9899:2011 6.2.6.2(5)-unspecified"
         },
@@ -3334,9 +3334,8 @@
     "ID_voidCast": {
         "checkPoint": "避免与 void* 相互转换",
         "level": "suggestion",
-        "comment": "与 void* 相互转换会丢失类型信息，也会导致标准未声明的行为。",
+        "comment": "与 void* 相互转换会打破类型限制，是不安全的类型转换。",
         "tag": "cast",
-        "standard": "ISO/IEC 14882:2003 5.2.10(7)-unspecified",
         "related": "ID_forbidMemberVoidPtr,ID_forbidFunctionVoidPtr",
         "reference": "MISRA C 2012 11.5,MISRA C++ 2008 5-2-8"
         },

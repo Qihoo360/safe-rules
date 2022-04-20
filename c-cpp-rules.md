@@ -533,9 +533,9 @@
   - [R12.6 不应强制转换无继承关系的类型](#ID_castNoInheritance)
   - [R12.7 不应强制转换非公有继承关系的类型](#ID_castNonPublicInheritance)
   - [R12.8 多态类型与基本类型不应相互转换](#ID_castViolatePolymorphism)
-  - [R12.9 不可直接转换不同的字符串类型](#ID_charWCharCast)
+  - [R12.9 不同的字符串类型之间不可直接转换](#ID_charWCharCast)
   - [R12.10 避免转换指向数组的指针](#ID_arrayPointerCast)
-  - [R12.11 对函数指针不应进行类型转换](#ID_functionPointerCast)
+  - [R12.11 避免转换函数指针](#ID_functionPointerCast)
   - [R12.12 向下类型转换应使用 dynamic\_cast](#ID_nonDynamicDownCast)
   - [R12.13 对 new 表达式不应进行类型转换](#ID_oddNewCast)
   - [R12.14 不应存在多余的类型转换](#ID_redundantCast)
@@ -4777,11 +4777,12 @@ void bar(A* a) {
     ....
 }
 ```
-这种情况一般不会通过编译，但在较低版本的编译器中也有例外。  
-  
-应改用 dynamic\_cast：
+这种转换一般不会通过编译，但标准并未要求编译器必须阻止这种转换，改用 dynamic\_cast 可解决这些问题：
 ```
-B* p = dynamic_cast<B*>(a);  // OK
+void bar(A* a) {
+    B* p = dynamic_cast<B*>(a);  // OK
+    ....
+}
 ```
 <br/>
 <br/>
@@ -15225,7 +15226,7 @@ ID_accessPaddingData&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-变量之间可能存在填充数据，这种数据只为实现“[内存对齐](https://en.wikipedia.org/wiki/Data_structure_alignment)”而无数值意义，而且填充数据的值是标准未声明的。  
+内存中各对象之间可能存在填充数据，这种数据只为实现“[内存对齐](https://en.wikipedia.org/wiki/Data_structure_alignment)”而无数值意义，而且填充数据的值是标准未声明的。  
   
 示例：
 ```
@@ -15915,7 +15916,9 @@ ID_voidCast&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: cast suggestion
 
 <hr/>
 
-与 void\* 相互转换会丢失类型信息，也会导致标准未声明的行为。  
+与 void\* 相互转换会打破类型限制，是不安全的类型转换。  
+  
+C 语言的某些传统接口会使用 void\*，可不受本规则限制，但在 C\+\+ 代码中应避免使用。  
   
 示例：
 ```
@@ -15926,16 +15929,13 @@ void foo(void* v) {
     ....
 }
 ```
+示例代码的正确性单方面依赖编写者的小心谨慎，是不可靠的。
 <br/>
 <br/>
 
 #### 相关
 ID_forbidMemberVoidPtr  
 ID_forbidFunctionVoidPtr  
-<br/>
-
-#### 依据
-ISO/IEC 14882:2003 5.2.10(7)-unspecified  
 <br/>
 
 #### 参考
@@ -16223,7 +16223,7 @@ CWE-843
 <br/>
 <br/>
 
-### <span id="ID_charWCharCast">▌R12.9 不可直接转换不同的字符串类型</span>
+### <span id="ID_charWCharCast">▌R12.9 不同的字符串类型之间不可直接转换</span>
 
 ID_charWCharCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
@@ -16236,7 +16236,7 @@ char\* 和 wchar\_t\* 直接转换并不进行字符集转换，属于语言运�
 示例：
 ```
 wchar_t* to_unicode(char* str) {
-    return (wchar_t*)str;  // Remarkably brave, but totally wrong
+    return (wchar_t*)str;          // Remarkably brave, but totally wrong
 }
 ```
 示例代码显然是错误的，应改用 iconv、MultiByteToWideChar 等字符集编码转换函数。  
@@ -16302,7 +16302,7 @@ C++ Core Guidelines C.152
 <br/>
 <br/>
 
-### <span id="ID_functionPointerCast">▌R12.11 对函数指针不应进行类型转换</span>
+### <span id="ID_functionPointerCast">▌R12.11 避免转换函数指针</span>
 
 ID_functionPointerCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
@@ -16474,8 +16474,7 @@ int main() {
 <br/>
 
 #### 依据
-ISO/IEC 14882:2003 5.2.10(7)  
-ISO/IEC 14882:2011 5.2.10(7)  
+ISO/IEC 14882:2011 5.2.10(7)-unspecified  
 <br/>
 
 #### 参考
