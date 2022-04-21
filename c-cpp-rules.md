@@ -532,8 +532,8 @@
   - [R12.4 指针与整数不应相互转换](#ID_ptrIntCast)
   - [R12.5 类型转换不应去掉 const、volatile 等属性](#ID_qualifierCastedAway)
   - [R12.6 不应强制转换无继承关系的指针或引用](#ID_castNoInheritance)
-  - [R12.7 不应强制转换非公有继承关系的类型](#ID_castNonPublicInheritance)
-  - [R12.8 多态类型与基本类型之间不应相互转换](#ID_castViolatePolymorphism)
+  - [R12.7 不应强制转换非公有继承关系的指针或引用](#ID_castNonPublicInheritance)
+  - [R12.8 非 POD 类的指针与基本类型的指针不应相互转换](#ID_nonPODBinaryCast)
   - [R12.9 不同的字符串类型之间不可直接转换](#ID_charWCharCast)
   - [R12.10 避免向对齐要求更严格的指针转换](#ID_stricterAlignedCast)
   - [R12.11 避免转换指向数组的指针](#ID_arrayPointerCast)
@@ -542,15 +542,15 @@
   - [R12.14 对 new 表达式不应进行类型转换](#ID_oddNewCast)
   - [R12.15 不应存在多余的类型转换](#ID_redundantCast)
   - [R12.16 可用其他方式完成的转换不应使用 reinterpret\_cast](#ID_unsuitableReinterpretCast)
-  - [R12.17 在 C\+\+ 代码中禁用 C 风格类型转换](#ID_forbidCStyleCast)
-  - [R12.18 合理使用 reinterpret\_cast](#ID_forbidReinterpretCast)
+  - [R12.17 合理使用 reinterpret\_cast](#ID_forbidReinterpretCast)
+  - [R12.18 在 C\+\+ 代码中禁用 C 风格类型转换](#ID_forbidCStyleCast)
 <br/>
 
 <span id="__Buffer">**[13. Buffer](#buffer)**</span>
   - [R13.1 对缓冲区的读写应在有效边界内进行](#ID_bufferOverflow)
   - [R13.2 数组下标不可越界](#ID_arrayIndexOverflow)
   - [R13.3 为缓冲区分配足够的空间](#ID_insufficientBuffer)
-  - [R13.4 memset 等函数不应作用于带有虚函数的对象](#ID_nonPODFilling)
+  - [R13.4 memset 等函数不应作用于非 POD 对象](#ID_nonPODFilling)
   - [R13.5 memset 等函数长度相关的参数不应有误](#ID_badLength)
   - [R13.6 memset 等函数填充值相关的参数不应有误](#ID_valueOverflow)
 <br/>
@@ -2080,7 +2080,7 @@ A::A(size_t n) {
 示例代码意在讨论一种通用模式，实际代码可采用更直接的方式：
 ```
 class A {
-    vector<int> a, b;  // Or ‘unique_ptr’
+    vector<int> a, b;  // Or use ‘unique_ptr’
 
 public:
     A(size_t n): a(n), b(n) {  // Safe and brief
@@ -2102,7 +2102,7 @@ void foo() {
         p = new T;
     }
     catch (CtorException&) {
-        delete p;   // Logic error, ‘p’ is nullptr
+        delete p;              // Logic error, ‘p’ is nullptr
         return;
     }
     ....
@@ -6824,12 +6824,14 @@ struct A {
 };
 
 A* cpy(const A* p) {
-    A* a = (A*)malloc(sizeof(A) + p->len * sizeof(int));
-    *a = *p;   // Error, only p->len is copied
+    A* a = (A*)malloc(
+        sizeof(A) + p->len * sizeof(int)
+    );
+    *a = *p;    // Error, only p->len is copied
     return a;
 }
 ```
-例中 \*a=\*p 这种拷贝赋值运算会漏掉数组的内容，而且数组不会计入 sizeof 的结果，易引起意料之外的错误，所以在 C 语言中也不建议使用这种柔性数组。
+例中 \*a = \*p 这种拷贝赋值运算会漏掉数组的内容，而且数组不会计入 sizeof 的结果，易引起意料之外的错误，所以在 C 语言中也不建议使用这种柔性数组。
 <br/>
 <br/>
 
@@ -13982,13 +13984,13 @@ ID_bitwiseOperOnSigned&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 示例：
 ```
 int foo(signed s, unsigned u) {
-    return s & u;  // Non-compliant
+    return s & u;                // Non-compliant
 }
 
 int bar(signed s, unsigned u) {
     if (s < 0) {
-        int a = s << u;  // Non-compliant, undefined
-        int b = s >> u;  // Non-compliant, implementation-defined
+        int a = s << u;          // Non-compliant, undefined
+        int b = s >> u;          // Non-compliant, implementation-defined
         return a + b;
     }
     return 0;
@@ -16210,7 +16212,7 @@ SEI CERT EXP39-C
 <br/>
 <br/>
 
-### <span id="ID_castNonPublicInheritance">▌R12.7 不应强制转换非公有继承关系的类型</span>
+### <span id="ID_castNonPublicInheritance">▌R12.7 不应强制转换非公有继承关系的指针或引用</span>
 
 ID_castNonPublicInheritance&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
@@ -16238,13 +16240,13 @@ ISO/IEC 9899:2011 4.10(3)
 <br/>
 <br/>
 
-### <span id="ID_castViolatePolymorphism">▌R12.8 多态类型与基本类型之间不应相互转换</span>
+### <span id="ID_nonPODBinaryCast">▌R12.8 非 POD 类的指针与基本类型的指针不应相互转换</span>
 
-ID_castViolatePolymorphism&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
+ID_nonPODBinaryCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
 <hr/>
 
-多态类型会维护虚表指针等用户不可见的数据以保证多态机制的执行，将其与基本类型转换会破坏这种机制。  
+非“[POD](https://en.cppreference.com/w/cpp/named_req/PODType)”对象相关数据之间存在特殊的内在关系，尤其是虚函数表指针、虚基类表指针这种由实现定义的运行时数据，不应当作普通二进制数据处理。  
   
 示例：
 ```
@@ -16267,10 +16269,12 @@ public:
     }
 };
 ```
-例中 A 是多态类型，save 函数将对象写入文件，fwrite 的第一个参数 this 被隐式转为 void\*，不符合本规则要求。对象的虚表指针等数据一并被写入文件，但虚表指针是运行时数据不应被保存，load 函数从文件中读取对象便破坏了运行时数据。  
-  
-注意，正常的代码不应显式访问虚表指针等运行时数据，否则是不可移植的，标准只定义了多态类的行为，并未规定具体实现方式。
+例中 A 是多态类型，save 函数将对象写入文件，fwrite 的第一个参数 this 被隐式转为 void\*，不符合本规则要求。对象的虚表指针等数据一并被写入文件，但虚表指针是运行时数据不应被保存，load 函数从文件中读取对象便破坏了运行时数据。
 <br/>
+<br/>
+
+#### 相关
+ID_nonPODFilling  
 <br/>
 
 #### 参考
@@ -16462,8 +16466,8 @@ class A { .... };
 class B: public A { .... };
 
 void foo(A* a) {
-    bar((B*)a);  // Non-compliant
-    baz(dynamic_cast<B*>(a));  // Compliant
+    bar((B*)a);                 // Non-compliant
+    baz(dynamic_cast<B*>(a));   // Compliant
 }
 ```
 如果参数 a 实际指向的不是 B 类的对象，(B\*)a 将得到一个无法判断对错的值，而 dynamic\_cast<B\*>(a) 会得到一个空值，便于进一步处理。  
@@ -16476,8 +16480,8 @@ struct C: virtual A { .... };
 struct D: B, C { .... };
 
 void foo(A* a) {
-    D* d0 = (D*)a;  // Undefined behavior
-    D* d1 = dynamic_cast<D*>(a);  // Right
+    D* d0 = (D*)a;                 // Undefined behavior
+    D* d1 = dynamic_cast<D*>(a);   // Right
     ....
 }
 ```
@@ -16507,7 +16511,7 @@ ID_oddNewCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
 <hr/>
 
-new 表达式本身是类型明确的，转换 new 表达式的类型不符合 C\+\+ 严谨的类型理念，也容易造成分配、访问或回收相关的错误。  
+new 表达式本身是类型明确的，转换 new 表达式的类型也容易造成分配、访问或回收相关的错误。  
   
 示例：
 ```
@@ -16515,12 +16519,12 @@ int* p = (int*)new char[123];  // Non-compliant
 ....
 delete[] p;  // What will happen?
 ```
-例中 char 数组转为 int 数组，由于元素个数不兼容也会导致内存访问与回收的错误。
+例中 char 数组被转为 int 数组，由于元素个数不兼容也会导致内存访问与回收的错误。
 <br/>
 <br/>
 
 #### 相关
-ID_forbidFlexibleArray  
+ID_arrayPointerCast  
 <br/>
 <br/>
 
@@ -16589,40 +16593,7 @@ C++ Core Guidelines Type.1
 <br/>
 <br/>
 
-### <span id="ID_forbidCStyleCast">▌R12.17 在 C++ 代码中禁用 C 风格类型转换</span>
-
-ID_forbidCStyleCast&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: cast suggestion
-
-<hr/>
-
-C 语言的类型观念弱于 C\+\+，易造成逻辑错误或数据丢失，应尽量避免类型转换，或使用 static\_cast、dynamic\_cast 等方法。  
-  
-示例：
-```
-class A { .... };
-class B { .... };
-
-void foo(A* a) {
-    B* b = (B*)a;  // Non-compliant, an error value with no logical meaning
-    ....
-}
-
-void bar(A* a) {
-    B* b = dynamic_cast<B*>(a);  // Compliant, prevent errors at compile time
-    ....
-}
-```
-例中 A 和 B 是两种不相关的类型，用 C 语言的转换方式是可以转换成功的，但并没有逻辑意义，在 C\+\+ 语言中应使用 static\_cast 或 dynamic\_cast 等方法在编译时或运行时保障转换的有效性。
-<br/>
-<br/>
-
-#### 参考
-MISRA C++ 2008 5-2-4  
-C++ Core Guidelines ES.49  
-<br/>
-<br/>
-
-### <span id="ID_forbidReinterpretCast">▌R12.18 合理使用 reinterpret_cast</span>
+### <span id="ID_forbidReinterpretCast">▌R12.17 合理使用 reinterpret_cast</span>
 
 ID_forbidReinterpretCast&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: cast suggestion
 
@@ -16663,6 +16634,39 @@ ID_stricterAlignedCast
 #### 参考
 CWE-843  
 C++ Core Guidelines Pro.safety  
+<br/>
+<br/>
+
+### <span id="ID_forbidCStyleCast">▌R12.18 在 C++ 代码中禁用 C 风格类型转换</span>
+
+ID_forbidCStyleCast&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: cast suggestion
+
+<hr/>
+
+C 语言的类型观念弱于 C\+\+，易造成逻辑错误或数据丢失，应尽量避免类型转换，或使用 static\_cast、dynamic\_cast 等方法。  
+  
+示例：
+```
+class A { .... };
+class B { .... };
+
+void foo(A* a) {
+    B* b = (B*)a;  // Non-compliant, an error value with no logical meaning
+    ....
+}
+
+void bar(A* a) {
+    B* b = dynamic_cast<B*>(a);  // Compliant, prevent errors at compile time
+    ....
+}
+```
+例中 A 和 B 是两种不相关的类型，用 C 语言的转换方式是可以转换成功的，但并没有逻辑意义，在 C\+\+ 语言中应使用 static\_cast 或 dynamic\_cast 等方法在编译时或运行时保障转换的有效性。
+<br/>
+<br/>
+
+#### 参考
+MISRA C++ 2008 5-2-4  
+C++ Core Guidelines ES.49  
 <br/>
 <br/>
 
@@ -16835,32 +16839,34 @@ CWE-135
 <br/>
 <br/>
 
-### <span id="ID_nonPODFilling">▌R13.4 memset 等函数不应作用于带有虚函数的对象</span>
+### <span id="ID_nonPODFilling">▌R13.4 memset 等函数不应作用于非 POD 对象</span>
 
 ID_nonPODFilling&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: buffer error
 
 <hr/>
 
-memset、memcpy、memmove 等具有填充功能的函数不应作用于带有虚函数的对象，否则会破坏其虚函数表等结构。  
+memset、memcpy、memmove 等具有填充功能的函数不应作用于非“[POD](https://en.cppreference.com/w/cpp/named_req/PODType)”对象，否则会破坏其数据的内存关系。  
+  
+本规则是 ID\_nonPODBinaryCast 的特化。  
   
 示例：
 ```
 class A {
-    int i;
-
+    ....
 public:
     virtual ~A();
 };
 
 void foo(A& a) {
-    memset(&a, 0, sizeof(a));   // Non-compliant, the vftable is corrupted
-}
-
-void bar(A& a, A& b) {
-    memcpy(&a, &b, sizeof(a));  // Non-compliant, the vftable is corrupted
+    memset(&a, 0, sizeof(a));   // Non-compliant, the ‘vfptr’ is corrupted
 }
 ```
+例中 memset 填充非 POD 对象，其虚函数表指针会被破坏，造成严重的运行时错误。
 <br/>
+<br/>
+
+#### 相关
+ID_nonPODBinaryCast  
 <br/>
 
 #### 参考

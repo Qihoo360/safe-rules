@@ -1097,10 +1097,11 @@
         "standard": "ISO/IEC 14882:2003 3.10(5),ISO/IEC 14882:2011 3.10(1)"
         },
     "ID_nonPODFilling": {
-        "checkPoint": "memset 等函数不应作用于带有虚函数的对象",
+        "checkPoint": "memset 等函数不应作用于非 POD 对象",
         "level": "error",
-        "comment": "memset、memcpy、memmove 等具有填充功能的函数不应作用于带有虚函数的对象，否则会破坏其虚函数表等结构。",
+        "comment": "memset、memcpy、memmove 等具有填充功能的函数不应作用于非“POD”对象，否则会破坏其数据的内存关系。",
         "tag": "buffer",
+        "related": "ID_nonPODBinaryCast",
         "reference": "CWE-463,C++ Core Guidelines SL.con.4,C++ Core Guidelines C.90"
         },
     "ID_missingHeaderGuard": {
@@ -1273,7 +1274,7 @@
         "reference": "MISRA C 2012 11.3,MISRA C++ 2008 5-2-7,SEI CERT EXP39-C"
         },
     "ID_castNonPublicInheritance": {
-        "checkPoint": "不应强制转换非公有继承关系的类型",
+        "checkPoint": "不应强制转换非公有继承关系的指针或引用",
         "level": "warning",
         "comment": "公有继承表示派生类是基类的某种扩展，而非公有继承往往表示派生类是基类的某种“例外”，基类的方法不再适用于派生类的对象。",
         "standard": "ISO/IEC 9899:2011 4.10(3)",
@@ -1320,11 +1321,12 @@
         "standard": "ISO/IEC 14882:2011 5.2.10(7)-unspecified",
         "reference": "C++ Core Guidelines Type.1"
         },
-    "ID_castViolatePolymorphism": {
-        "checkPoint": "多态类型与基本类型之间不应相互转换",
+    "ID_nonPODBinaryCast": {
+        "checkPoint": "非 POD 类的指针与基本类型的指针不应相互转换",
         "level": "warning",
-        "comment": "多态类型会维护虚表指针等用户不可见的数据以保证多态机制的执行，将其与基本类型转换会破坏这种机制。",
+        "comment": "非“POD”对象相关数据之间存在特殊的内在关系，尤其是虚函数表指针、虚基类表指针这种由实现定义的运行时数据，不应当作普通二进制数据处理。",
         "tag": "cast",
+        "related": "ID_nonPODFilling",
         "reference": "CWE-843"
         },
     "ID_oddNew": {
@@ -1337,9 +1339,9 @@
     "ID_oddNewCast": {
         "checkPoint": "对 new 表达式不应进行类型转换",
         "level": "warning",
-        "comment": "new 表达式本身是类型明确的，转换 new 表达式的类型不符合 C++ 严谨的类型理念，也容易造成分配、访问或回收相关的错误。",
+        "comment": "new 表达式本身是类型明确的，转换 new 表达式的类型也容易造成分配、访问或回收相关的错误。",
         "tag": "cast",
-        "related": "ID_forbidFlexibleArray"
+        "related": "ID_arrayPointerCast"
         },
     "ID_narrowCast": {
         "checkPoint": "避免类型转换造成数据丢失",
