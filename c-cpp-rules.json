@@ -3439,7 +3439,7 @@
         "reference": "SEI CERT EXP36-C"
         },
     "ID_ignorePaddingData": {
-        "checkPoint": "不应忽视填充数据",
+        "checkPoint": "数据成员之间的填充数据不应被忽视",
         "level": "warning",
         "comment": "成员之间存在填充数据，且没有声明对齐方式时，填充数据的长度是由实现定义的，这种数据不应在不同的环境之间传输，而且应注意成员的声明顺序，避免由填充数据造成的空间浪费。",
         "tag": "type",

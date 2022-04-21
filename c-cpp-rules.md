@@ -207,7 +207,7 @@
     - [R5.1.15 带模板的构造函数不应覆盖拷贝或移动构造函数](#ID_roughTemplateConstructor)
     - [R5.1.16 抽象类禁用拷贝赋值运算符](#ID_unsuitableCopyAssignOperator)
     - [R5.1.17 数据成员的数量应在规定范围之内](#ID_tooManyFields)
-    - [R5.1.18 不应忽视填充数据](#ID_ignorePaddingData)
+    - [R5.1.18 数据成员之间的填充数据不应被忽视](#ID_ignorePaddingData)
     - [R5.1.19 存在构造、析构或虚函数的类不应采用 struct 关键字](#ID_unsuitableStructTag)
   - [5.2 Enum](#type.enum)
     - [R5.2.1 同类枚举项的值不应相同](#ID_duplicateEnumerator)
@@ -5311,7 +5311,7 @@ maxUnionFieldsCount：联合体数据成员的数量上限，超过则报出
 <br/>
 <br/>
 
-### <span id="ID_ignorePaddingData">▌R5.1.18 不应忽视填充数据</span>
+### <span id="ID_ignorePaddingData">▌R5.1.18 数据成员之间的填充数据不应被忽视</span>
 
 ID_ignorePaddingData&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
 
@@ -16150,7 +16150,7 @@ int* p = (int*)&f;  // Non-compliant
 ```
 基本类型之间没有继承关系，float\* 转为 int\* 属于逻辑错误，导致标准未定义的行为。  
   
-有时为了考察对象内部结构，需要将对象指针转为 unsigned char\* 等类型，但这种转换打破了类型的边界，超越了数据处理的常规方法，易造成兼容或移植等方面的问题，审计工具不妨通过配置决定是否放过这种转换。  
+有时为了考察对象内部结构，需要将对象指针转为 unsigned char\* 等类型，但这种转换打破了类型的边界，超越了数据处理的常规方法，易造成移植等方面的问题，审计工具不妨通过配置决定是否放过这种转换。  
   
 又如：
 ```
@@ -16185,7 +16185,7 @@ U* u = new U;
 V* v0 = (V*)u;                     // Compliant, but bad
 V* v1 = reinterpret_cast<V*>(u);   // Still non-compliant
 ```
-例中 U 和 V 是无继承关系的类，但 U 实现了向 V 的转换方法，U 和 V 之间存在逻辑关系，这时的 C 风格类型转换可被本规则放过，但不符合规则 ID\_forbidCStyleCast，这种情况仍然不能使用 reinterpret\_cast，参见 ID\_unsuitableReinterpretCast。
+例中 U 和 V 是无继承关系的类，但 U 实现了向 V 的转换运算符，U 和 V 之间存在逻辑关系，这时的 C 风格类型转换可被本规则放过，但不符合规则 ID\_forbidCStyleCast，这种情况仍然不能使用 reinterpret\_cast，参见 ID\_unsuitableReinterpretCast。
 <br/>
 <br/>
 
@@ -16331,7 +16331,7 @@ void foo(unsigned char* p) {
     ....
 }
 ```
-二进制数据转向结构化数据时，这种问题较为常见，例中 p 与 n 的对齐要求不同，不应直接转换。  
+二进制数据转向结构化数据时，这种问题较为常见，例中 p \+ 1 与 long 型变量的对齐要求不同，不应直接转换。  
   
 应改为：
 ```
