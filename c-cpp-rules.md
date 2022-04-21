@@ -10233,21 +10233,21 @@ ID_localAddressFlowOut&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 示例：
 ```
 int* foo() {
-    int i = 0;  // Local object
+    int i = 0;    // Local object
     ....
-    return &i;  // Non-compliant
+    return &i;    // Non-compliant
 }
 
 int& bar() {
-    int i = 0;  // Local object
+    int i = 0;    // Local object
     ....
-    return i;   // Non-compliant
+    return i;     // Non-compliant
 }
 
 int&& baz() {
-    int i = 0;  // Local object
+    int i = 0;    // Local object
     ....
-    return std::move(i);   // Non-compliant
+    return std::move(i);    // Non-compliant
 }
 ```
 局部对象的生命周期在函数返回后结束，返回与局部对象相关的指针或引用是不符合要求的。  
@@ -10261,7 +10261,9 @@ void fun() {
     global = local;         // Non-compliant
 }
 ```
-例中 local 是局部数组，函数返回后，全局指针会指向无效的内存区域。
+例中 local 是局部数组，函数返回后，全局指针会指向无效的内存区域。  
+  
+另外，将对象地址传入异步过程时也需要注意对象的生命周期，参见 ID\_illLifetime。
 <br/>
 <br/>
 
@@ -10362,7 +10364,7 @@ void bar() {
   
 也不应返回局部对象的右值引用，如：
 ```
-A&& baz() {  // Non-compliant
+A&& baz() {   // Non-compliant
     A a;
     ....
     return std::move(a);
@@ -10372,11 +10374,11 @@ A&& baz() {  // Non-compliant
   
 应直接返回对象，而不是对象的右值引用：
 ```
-A foo() {  // Compliant
+A foo() {     // Compliant
     return A();
 }
 
-A baz() {  // Compliant
+A baz() {     // Compliant
     A a;
     ....
     return a;
@@ -10384,7 +10386,7 @@ A baz() {  // Compliant
 ```
 对于函数引用的参数，或函数作用域之外的对象，如果通过 move 返回右值引用，如：
 ```
-A&& baz(A& a) {  // Non-compliant
+A&& baz(A& a) {           // Non-compliant
     do_something_to(a);
     return std::move(a);
 }
@@ -13984,13 +13986,13 @@ ID_bitwiseOperOnSigned&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 示例：
 ```
 int foo(signed s, unsigned u) {
-    return s & u;                // Non-compliant
+    return s & u;                 // Non-compliant
 }
 
 int bar(signed s, unsigned u) {
     if (s < 0) {
-        int a = s << u;          // Non-compliant, undefined
-        int b = s >> u;          // Non-compliant, implementation-defined
+        int a = s << u;           // Non-compliant, undefined
+        int b = s >> u;           // Non-compliant, implementation-defined
         return a + b;
     }
     return 0;
@@ -16197,6 +16199,7 @@ allowWeakerCast：为 true 可放过对象指针向 unsigned char* 的转换
 
 #### 相关
 ID_stricterAlignedCast  
+ID_castNonPublicInheritance  
 <br/>
 
 #### 依据
@@ -16235,8 +16238,12 @@ void foo(B* b) {
 <br/>
 <br/>
 
+#### 相关
+ID_castNoInheritance  
+<br/>
+
 #### 依据
-ISO/IEC 9899:2011 4.10(3)  
+ISO/IEC 14882:2011 4.10(3)  
 <br/>
 <br/>
 
@@ -16246,7 +16253,7 @@ ID_nonPODBinaryCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
 <hr/>
 
-非“[POD](https://en.cppreference.com/w/cpp/named_req/PODType)”对象相关数据之间存在特殊的内在关系，尤其是虚函数表指针、虚基类表指针这种由实现定义的运行时数据，不应当作普通二进制数据处理。  
+非“[POD](https://en.cppreference.com/w/cpp/named_req/PODType)”对象相关数据之间存在特殊的内在关系，尤其是虚函数表指针、虚基类表指针这种由实现定义的运行时数据，不应当作普通二进制数据处理，非 POD 对象的指针也不应与 void\*、unsigned char\* 等基本类型的指针相互转换。  
   
 示例：
 ```
