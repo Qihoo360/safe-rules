@@ -757,6 +757,10 @@ ISO/IEC 14882:2003 3.10(15)-undefined
 ISO/IEC 14882:2011 3.10(10)-undefined  
 <br/>
 
+#### 规则
+[ID_castNoInheritance](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_castNoInheritance)  
+<br/>
+
 <br/>
 <br/>
 

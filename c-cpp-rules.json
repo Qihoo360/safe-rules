@@ -1261,13 +1261,16 @@
         "reference": "C++ Core Guidelines ES.48"
         },
     "ID_castNoInheritance": {
-        "checkPoint": "不应强制转换无继承关系的类型",
+        "checkPoint": "不应强制转换无继承关系的指针或引用",
         "level": "warning",
-        "comment": "无继承关系的类型之间没有逻辑关系，不应强制转换，否则意味着设计缺陷或逻辑错误。",
+        "comment": "无继承关系的指针或引用之间没有逻辑关系，不应强制转换，否则意味着设计缺陷或逻辑错误。",
+        "config": {
+            "allowWeakerCast": "为 true 可放过对象指针向 unsigned char* 的转换"
+            },
         "tag": "cast",
-        "related": "ID_narrowCast,ID_unsuitableReinterpretCast",
-        "standard": "ISO/IEC 14882:2011 4.1(1)-undefined,ISO/IEC 14882:2011 5.2.10(7)-unspecified",
-        "reference": "MISRA C 2012 11.3,MISRA C++ 2008 5-2-7"
+        "related": "ID_stricterAlignedCast",
+        "standard": "ISO/IEC 9899:2011 6.5(7)-undefined,ISO/IEC 14882:2011 3.10(10)-undefined,ISO/IEC 14882:2011 4.1(1)-undefined",
+        "reference": "MISRA C 2012 11.3,MISRA C++ 2008 5-2-7,SEI CERT EXP39-C"
         },
     "ID_castNonPublicInheritance": {
         "checkPoint": "不应强制转换非公有继承关系的类型",
@@ -1313,6 +1316,7 @@
         "level": "warning",
         "comment": "reinterpret_cast 将地址强行按另一种类型解释，不考虑转换需要的逻辑，可用 static_cast、dynamic_cast 完成的转换不应使用 reinterpret_cast。",
         "tag": "cast",
+        "related": "ID_voidCast",
         "standard": "ISO/IEC 14882:2011 5.2.10(7)-unspecified",
         "reference": "C++ Core Guidelines Type.1"
         },
@@ -2826,6 +2830,7 @@
         "level": "warning",
         "comment": "内存中各对象之间可能存在填充数据，这种数据只为实现“内存对齐”而无数值意义，而且填充数据的值是标准未声明的。",
         "tag": "expression",
+        "related": "ID_ignorePaddingData",
         "standard": "ISO/IEC 9899:2011 6.2.6.2(5)-unspecified"
         },
     "ID_wrongUseOfReturnValue": {
@@ -2989,7 +2994,7 @@
         "level": "suggestion",
         "comment": "语言对 reinterpret_cast 的定位不是为了安全性，而是为了灵活性，可以用其他方式实现的功能不应使用 reinterpret_cast，如果必须使用需提供明确的文档说明。",
         "tag": "cast",
-        "related": "ID_forbidCStyleCast",
+        "related": "ID_stricterAlignedCast",
         "reference": "CWE-843,C++ Core Guidelines Pro.safety"
         },
     "ID_sizeof_suspiciousAdd": {
@@ -3423,5 +3428,22 @@
         "standard": "ISO/IEC 9899:2011 7.14.1.1(7)-undefined",
         "related": "ID_forbidSignalFunction",
         "reference": "SEI CERT CON37-C"
+        },
+    "ID_stricterAlignedCast": {
+        "checkPoint": "避免向对齐要求更严格的指针转换",
+        "level": "warning",
+        "comment": "访问不符合对齐要求的数据会导致标准未定义的行为。",
+        "tag": "cast",
+        "standard": "ISO/IEC 9899:2011 6.3.2.3(7)-undefined",
+        "related": "ID_castNoInheritance",
+        "reference": "SEI CERT EXP36-C"
+        },
+    "ID_ignorePaddingData": {
+        "checkPoint": "不应忽视填充数据",
+        "level": "warning",
+        "comment": "成员之间存在填充数据，且没有声明对齐方式时，填充数据的长度是由实现定义的，这种数据不应在不同的环境之间传输，而且应注意成员的声明顺序，避免由填充数据造成的空间浪费。",
+        "tag": "type",
+        "related": "ID_accessPaddingData",
+        "standard": "ISO/IEC 9899:2011 6.2.8(1)-implementation,ISO/IEC 14882:2011 3.11(1)-implementation"
         }
 }

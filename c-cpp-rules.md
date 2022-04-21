@@ -4,7 +4,7 @@
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对 C、C++ 语言，本文收录了 436 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对 C、C++ 语言，本文收录了 438 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
@@ -207,7 +207,8 @@
     - [R5.1.15 带模板的构造函数不应覆盖拷贝或移动构造函数](#ID_roughTemplateConstructor)
     - [R5.1.16 抽象类禁用拷贝赋值运算符](#ID_unsuitableCopyAssignOperator)
     - [R5.1.17 数据成员的数量应在规定范围之内](#ID_tooManyFields)
-    - [R5.1.18 存在构造、析构或虚函数的类不应采用 struct 关键字](#ID_unsuitableStructTag)
+    - [R5.1.18 不应忽视填充数据](#ID_ignorePaddingData)
+    - [R5.1.19 存在构造、析构或虚函数的类不应采用 struct 关键字](#ID_unsuitableStructTag)
   - [5.2 Enum](#type.enum)
     - [R5.2.1 同类枚举项的值不应相同](#ID_duplicateEnumerator)
     - [R5.2.2 合理初始化各枚举项](#ID_casualInitialization)
@@ -530,18 +531,19 @@
   - [R12.3 避免向下类型转换](#ID_downCast)
   - [R12.4 指针与整数不应相互转换](#ID_ptrIntCast)
   - [R12.5 类型转换不应去掉 const、volatile 等属性](#ID_qualifierCastedAway)
-  - [R12.6 不应强制转换无继承关系的类型](#ID_castNoInheritance)
+  - [R12.6 不应强制转换无继承关系的指针或引用](#ID_castNoInheritance)
   - [R12.7 不应强制转换非公有继承关系的类型](#ID_castNonPublicInheritance)
   - [R12.8 多态类型与基本类型之间不应相互转换](#ID_castViolatePolymorphism)
   - [R12.9 不同的字符串类型之间不可直接转换](#ID_charWCharCast)
-  - [R12.10 避免转换指向数组的指针](#ID_arrayPointerCast)
-  - [R12.11 避免转换函数指针](#ID_functionPointerCast)
-  - [R12.12 向下类型转换应使用 dynamic\_cast](#ID_nonDynamicDownCast)
-  - [R12.13 对 new 表达式不应进行类型转换](#ID_oddNewCast)
-  - [R12.14 不应存在多余的类型转换](#ID_redundantCast)
-  - [R12.15 可用其他方式完成的转换不应使用 reinterpret\_cast](#ID_unsuitableReinterpretCast)
-  - [R12.16 在 C\+\+ 代码中禁用 C 风格类型转换](#ID_forbidCStyleCast)
-  - [R12.17 合理使用 reinterpret\_cast](#ID_forbidReinterpretCast)
+  - [R12.10 避免向对齐要求更严格的指针转换](#ID_stricterAlignedCast)
+  - [R12.11 避免转换指向数组的指针](#ID_arrayPointerCast)
+  - [R12.12 避免转换函数指针](#ID_functionPointerCast)
+  - [R12.13 向下类型转换应使用 dynamic\_cast](#ID_nonDynamicDownCast)
+  - [R12.14 对 new 表达式不应进行类型转换](#ID_oddNewCast)
+  - [R12.15 不应存在多余的类型转换](#ID_redundantCast)
+  - [R12.16 可用其他方式完成的转换不应使用 reinterpret\_cast](#ID_unsuitableReinterpretCast)
+  - [R12.17 在 C\+\+ 代码中禁用 C 风格类型转换](#ID_forbidCStyleCast)
+  - [R12.18 合理使用 reinterpret\_cast](#ID_forbidReinterpretCast)
 <br/>
 
 <span id="__Buffer">**[13. Buffer](#buffer)**</span>
@@ -5309,7 +5311,48 @@ maxUnionFieldsCount：联合体数据成员的数量上限，超过则报出
 <br/>
 <br/>
 
-### <span id="ID_unsuitableStructTag">▌R5.1.18 存在构造、析构或虚函数的类不应采用 struct 关键字</span>
+### <span id="ID_ignorePaddingData">▌R5.1.18 不应忽视填充数据</span>
+
+ID_ignorePaddingData&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
+
+<hr/>
+
+成员之间存在填充数据，且没有声明对齐方式时，填充数据的长度是由实现定义的，这种数据不应在不同的环境之间传输，而且应注意成员的声明顺序，避免由填充数据造成的空间浪费。  
+  
+关于填充数据的具体组织方式，详见“[内存对齐](https://en.wikipedia.org/wiki/Data_structure_alignment)”。  
+  
+示例：
+```
+struct T {
+    int8_t  a;
+    int32_t b;
+} obj;
+
+recv(sockfd, &obj, sizeof obj, flags);   // Non-compliant
+```
+例中成员 a 和 b 之间存在填充数据，但没有声明对齐方式，直接在网络上传输这种类型的对象是不符合要求的，如果发送端的对齐方式与接收端不一致就会造成混乱。  
+  
+应在发送端和接收端统一声明对齐方式：
+```
+struct alignas(4) T {   // Or use _Alignas in C
+    int8_t  a;
+    int32_t b;
+};
+```
+<br/>
+<br/>
+
+#### 相关
+ID_accessPaddingData  
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 6.2.8(1)-implementation  
+ISO/IEC 14882:2011 3.11(1)-implementation  
+<br/>
+<br/>
+
+### <span id="ID_unsuitableStructTag">▌R5.1.19 存在构造、析构或虚函数的类不应采用 struct 关键字</span>
 
 ID_unsuitableStructTag&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestion
 
@@ -7154,7 +7197,7 @@ void bar() {
 ```
 示例代码可移植性较差，foo 在某些环境中可能只会返回 true，而 bar 可能输出 \-152，也可能输出 360。  
   
-char 类型在桌面、服务端等环境中可能是有符号的，在移动端或嵌入式系统中可能是无符号的，需明确其具体实现。  
+char 类型在桌面、服务端等环境中可能是有符号的，在移动端或嵌入式系统中可能是无符号的，需明确其具体编译环境。  
   
 应改为：
 ```
@@ -15255,6 +15298,10 @@ void foo(A* x, A* y) {
 <br/>
 <br/>
 
+#### 相关
+ID_ignorePaddingData  
+<br/>
+
 #### 依据
 ISO/IEC 9899:2011 6.2.6.2(5)-unspecified  
 <br/>
@@ -15929,7 +15976,7 @@ void foo(void* v) {
     ....
 }
 ```
-这种代码的正确性单方面依赖编写者的小心谨慎，是不可靠的。
+例中参数 v 可以随意地接受非 A 对象的指针，进而导致标准未定义的行为，这种代码的正确性单方面依赖编写者，是不可靠的。
 <br/>
 <br/>
 
@@ -16087,15 +16134,25 @@ MISRA C++ 2008 5-2-5
 <br/>
 <br/>
 
-### <span id="ID_castNoInheritance">▌R12.6 不应强制转换无继承关系的类型</span>
+### <span id="ID_castNoInheritance">▌R12.6 不应强制转换无继承关系的指针或引用</span>
 
 ID_castNoInheritance&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
 <hr/>
 
-无继承关系的类型之间没有逻辑关系，不应强制转换，否则意味着设计缺陷或逻辑错误。  
+无继承关系的指针或引用之间没有逻辑关系，不应强制转换，否则意味着设计缺陷或逻辑错误。  
   
 示例：
+```
+float f = 0;
+int* p = (int*)&f;  // Non-compliant
+(*p)++;             // Undefined behavior
+```
+基本类型之间没有继承关系，float\* 转为 int\* 属于逻辑错误，导致标准未定义的行为。  
+  
+有时为了考察对象内部结构，需要将对象指针转为 unsigned char\* 等类型，但这种转换打破了类型的边界，超越了数据处理的常规方法，易造成兼容或移植等方面的问题，审计工具不妨通过配置决定是否放过这种转换。  
+  
+又如：
 ```
 class A { .... };
 class B { .... };
@@ -16120,33 +16177,36 @@ class V { .... };
 class U {
     ....
 public:
-    operator V*();
+    operator V*();   // Conversion operator
 };
 
 U* u = new U;
 
-V* v0 = (V*)u;                    // Compliant, but bad
-V* v1 = reinterpret_cast<V*>(u);  // Still non-compliant
+V* v0 = (V*)u;                     // Compliant, but bad
+V* v1 = reinterpret_cast<V*>(u);   // Still non-compliant
 ```
-例中 U 和 V 是无继承关系的类，但 U 实现了向 V 的转换方法，U 和 V 之间存在逻辑关系，这时的 C 风格类型转换可被本规则放过，但不符合规则 ID\_forbidCStyleCast，这种情况仍然不能使用 reinterpret\_cast，可参见 ID\_unsuitableReinterpretCast。  
-  
-注意，对于基本类型，指针或引用之间的转换受本规则约束，值之间的转换可不受本规则约束，但应注意转换造成的精度损失，参见 ID\_narrowCast。
+例中 U 和 V 是无继承关系的类，但 U 实现了向 V 的转换方法，U 和 V 之间存在逻辑关系，这时的 C 风格类型转换可被本规则放过，但不符合规则 ID\_forbidCStyleCast，这种情况仍然不能使用 reinterpret\_cast，参见 ID\_unsuitableReinterpretCast。
 <br/>
+<br/>
+
+#### 配置
+allowWeakerCast：为 true 可放过对象指针向 unsigned char* 的转换  
 <br/>
 
 #### 相关
-ID_narrowCast  
-ID_unsuitableReinterpretCast  
+ID_stricterAlignedCast  
 <br/>
 
 #### 依据
+ISO/IEC 9899:2011 6.5(7)-undefined  
+ISO/IEC 14882:2011 3.10(10)-undefined  
 ISO/IEC 14882:2011 4.1(1)-undefined  
-ISO/IEC 14882:2011 5.2.10(7)-unspecified  
 <br/>
 
 #### 参考
 MISRA C 2012 11.3  
 MISRA C++ 2008 5-2-7  
+SEI CERT EXP39-C  
 <br/>
 <br/>
 
@@ -16251,7 +16311,55 @@ SEI CERT STR38-C
 <br/>
 <br/>
 
-### <span id="ID_arrayPointerCast">▌R12.10 避免转换指向数组的指针</span>
+### <span id="ID_stricterAlignedCast">▌R12.10 避免向对齐要求更严格的指针转换</span>
+
+ID_stricterAlignedCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
+
+<hr/>
+
+访问不符合对齐要求的数据会导致标准未定义的行为。  
+  
+对象的存储地址与其占用空间的长度相关，如变量的地址往往是其长度的整数倍，这种机制称为“[内存对齐](https://en.wikipedia.org/wiki/Data_structure_alignment)”，可提高处理器访问数据的效率，如果对象的地址不符合这种要求，访问对象的效率就会降低，在某些平台上甚至会崩溃，详见“[unaligned access](https://en.wikipedia.org/wiki/Bus_error#Unaligned_access)”。  
+  
+每种对象类型都有一个“[对齐要求（alignment requirement）](https://en.cppreference.com/w/c/language/object#Alignment)”，一般来说占用空间越大的类型，对齐要求越严格，如 char 对象可以存储在任意地址，而 int 对象的地址只应是 sizeof(int) 的整数倍，所以解引用由 char 指针转换成的 int 指针很可能会造成“[unaligned access](https://en.wikipedia.org/wiki/Bus_error#Unaligned_access)”。  
+  
+示例：
+```
+void foo(unsigned char* p) {
+    char c = *(char*)p;            // Compliant
+    long n = *(long*)(p + 1);      // Non-compliant
+    ....
+}
+```
+二进制数据转向结构化数据时，这种问题较为常见，例中 p 与 n 的对齐要求不同，不应直接转换。  
+  
+应改为：
+```
+void foo(unsigned char* p) {
+    char c = *(char*)p;            // Compliant
+    long n;
+    memcpy(&n, p + 1, sizeof(n));  // Compliant
+    ....
+}
+```
+用 memcpy 等函数将低对齐要求的数据复制到高对齐要求的对象中，是避免相关问题的通用模式。
+<br/>
+<br/>
+
+#### 相关
+ID_castNoInheritance  
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 6.3.2.3(7)-undefined  
+<br/>
+
+#### 参考
+SEI CERT EXP36-C  
+<br/>
+<br/>
+
+### <span id="ID_arrayPointerCast">▌R12.11 避免转换指向数组的指针</span>
 
 ID_arrayPointerCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
@@ -16297,7 +16405,7 @@ C++ Core Guidelines C.152
 <br/>
 <br/>
 
-### <span id="ID_functionPointerCast">▌R12.11 避免转换函数指针</span>
+### <span id="ID_functionPointerCast">▌R12.12 避免转换函数指针</span>
 
 ID_functionPointerCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
@@ -16340,7 +16448,7 @@ MISRA C++ 2008 5-2-6
 <br/>
 <br/>
 
-### <span id="ID_nonDynamicDownCast">▌R12.12 向下类型转换应使用 dynamic_cast</span>
+### <span id="ID_nonDynamicDownCast">▌R12.13 向下类型转换应使用 dynamic_cast</span>
 
 ID_nonDynamicDownCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
@@ -16393,7 +16501,7 @@ C++ Core Guidelines Type.2
 <br/>
 <br/>
 
-### <span id="ID_oddNewCast">▌R12.13 对 new 表达式不应进行类型转换</span>
+### <span id="ID_oddNewCast">▌R12.14 对 new 表达式不应进行类型转换</span>
 
 ID_oddNewCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
@@ -16416,7 +16524,7 @@ ID_forbidFlexibleArray
 <br/>
 <br/>
 
-### <span id="ID_redundantCast">▌R12.14 不应存在多余的类型转换</span>
+### <span id="ID_redundantCast">▌R12.15 不应存在多余的类型转换</span>
 
 ID_redundantCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
@@ -16444,7 +16552,7 @@ CWE-704
 <br/>
 <br/>
 
-### <span id="ID_unsuitableReinterpretCast">▌R12.15 可用其他方式完成的转换不应使用 reinterpret_cast</span>
+### <span id="ID_unsuitableReinterpretCast">▌R12.16 可用其他方式完成的转换不应使用 reinterpret_cast</span>
 
 ID_unsuitableReinterpretCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
@@ -16468,6 +16576,10 @@ int main() {
 <br/>
 <br/>
 
+#### 相关
+ID_voidCast  
+<br/>
+
 #### 依据
 ISO/IEC 14882:2011 5.2.10(7)-unspecified  
 <br/>
@@ -16477,7 +16589,7 @@ C++ Core Guidelines Type.1
 <br/>
 <br/>
 
-### <span id="ID_forbidCStyleCast">▌R12.16 在 C++ 代码中禁用 C 风格类型转换</span>
+### <span id="ID_forbidCStyleCast">▌R12.17 在 C++ 代码中禁用 C 风格类型转换</span>
 
 ID_forbidCStyleCast&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: cast suggestion
 
@@ -16510,7 +16622,7 @@ C++ Core Guidelines ES.49
 <br/>
 <br/>
 
-### <span id="ID_forbidReinterpretCast">▌R12.17 合理使用 reinterpret_cast</span>
+### <span id="ID_forbidReinterpretCast">▌R12.18 合理使用 reinterpret_cast</span>
 
 ID_forbidReinterpretCast&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: cast suggestion
 
@@ -16528,15 +16640,11 @@ void foo(const char* path) {
     ....
 }
 ```
-例中通过 reinterpret\_cast 将二进制数据直接转为 MyData 对象，这不是一种安全的方式，妥善的做法是根据文件数据将 MyData 的成员逐一构造出来，这样也可及时发现并处理问题。  
+设例中 read\_from\_file 读取并返回文件的二进制数据，用 reinterpret\_cast 将二进制数据直接转为对象是不安全的，妥善的做法是根据文件数据将对象的成员逐一构造出来，可参见 ID\_stricterAlignedCast 介绍的方法，这样也可以及时发现并处理问题。  
   
 又如：
 ```
-struct data_type {
-    void* dummy;
-};
-
-data_type* external_interface();  // If it's out of control ...
+void* external_interface();  // If it's out of control ...
 
 void foo() {
     auto* data = external_interface();
@@ -16544,12 +16652,12 @@ void foo() {
     ....
 }
 ```
-例中 external\_interface 是项目外部的一个接口，它的实现方式完全不受控制，返回类型也不是有效类型，甚至需要某种“hacking”才能使用这个接口，这已经不属于正常的开发范围了，可以用 reinterpret\_cast 强调这是一种非正常的转换，但需注明这种情况产生的原因，以及是否有改进的余地等信息。
+例中 external\_interface 是项目外部的一个接口，它的实现方式完全不受控制，返回类型也不可见，甚至需要某种“hacking”才能使用这个接口，这已经不属于正常的开发范围了，可以用 reinterpret\_cast 强调这是一种非正常的转换，但需注明这种情况产生的原因，以及是否有改进的余地等信息。
 <br/>
 <br/>
 
 #### 相关
-ID_forbidCStyleCast  
+ID_stricterAlignedCast  
 <br/>
 
 #### 参考
@@ -18158,7 +18266,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 436 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
+&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 438 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
 
 &emsp;&emsp;此致
 
