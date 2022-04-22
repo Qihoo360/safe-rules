@@ -368,7 +368,7 @@
     "ID_if_tooManyElseIf": {
         "checkPoint": "if...else-if 分枝数量应在规定范围之内",
         "level": "warning",
-        "comment": "if...else-if 分枝超过指定数量，代码较为复杂不利于维护，而且在执行时各分枝的条件需逐一判断，效率较低，建议改为遵循某种算法的索引结构。",
+        "comment": "if...else-if 分枝过多不利于维护，而且执行时各分枝的条件需逐一判断，效率较低，建议改为遵循某种算法的索引结构。",
         "config": {
             "maxElseIfCount": "分枝数量上限，超过则报出"
             },
@@ -2194,7 +2194,7 @@
     "ID_if_missingEndingElse": {
         "checkPoint": "所有 if...else-if 分枝都应以 else 子句结束",
         "level": "suggestion",
-        "comment": "所有 if...else if 分枝都以 else 子句结束是非常好的编程习惯，这与要求 switch 语句包含 defualt 分枝一样，是“防御性编程”思想的良好体现，参见 ID_switch_missingDefault。",
+        "comment": "所有 if...else-if 分枝都以 else 子句结束是“防御性编程”思想的良好体现。",
         "tag": "control",
         "related": "ID_switch_missingDefault",
         "reference": "MISRA C 2012 15.7,MISRA C++ 2008 6-4-2"
@@ -2371,7 +2371,7 @@
     "ID_switch_missingDefault": {
         "checkPoint": "switch 语句应配有 default 分枝",
         "level": "suggestion",
-        "comment": "所有 switch 语句都配有 default 分枝是非常好的编程习惯，这与 if...else-if 分枝要求有 else 分枝一样，是“防御性编程”思想的良好体现，参见 ID_if_missingEndingElse。",
+        "comment": "所有 switch 语句都配有 default 分枝是“防御性编程”思想的良好体现。",
         "tag": "control",
         "related": "ID_if_missingEndingElse",
         "reference": "CWE-478,MISRA C++ 2008 6-4-6"

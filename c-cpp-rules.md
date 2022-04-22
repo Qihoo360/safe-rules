@@ -9049,8 +9049,8 @@ void foo() {
     try {
         throw EDerive();
     }
-    catch (const EBase& e) {
-        throw e;  // Non-compliant, use throw;
+    catch (EBase& e) {
+        throw e;            // Non-compliant, use ‘throw;’ instead
     }
 }
 
@@ -9058,8 +9058,8 @@ void bar() {
     try {
         foo();
     }
-    catch (const EDerive& e) {
-        // Cannot catch EDerive
+    catch (EDerive& e) {
+        ....                // Cannot catch EDerive
     }
 }
 ```
@@ -9086,15 +9086,15 @@ ID_rethrowOutOfCatch&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 示例：
 ```
 void foo() {
-    throw;   // Non-compliant
+    throw;           // Non-compliant
 }
 
 void bar() {
     try {
-        throw;  // Non-compliant
+        throw;       // Non-compliant
     }
     catch (...) {
-        // Cannot catch "throw;"
+        ....         // Cannot catch "throw;"
     }
 }
 ```
@@ -9977,13 +9977,13 @@ ID_this_selfJudgement&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 class A { .... };
 
 void foo(A* p, A* q) {
-    *p = *q;            // If ‘p’ and ‘q’ point to the same object ...
+    *p = *q;             // If ‘p’ and ‘q’ point to the same object ...
 }
 ```
 设例中 A 是需要深拷贝的类，其赋值运算符往往需要先释放自身的资源，再复制参数的资源，如果参数就是自身，则需要避免资源被释放，可在赋值运算符中判断 this 与参数地址是否相同：
 ```
 A& A::operator = (const A& rhs) {
-    if (this != &rhs) {            // Required
+    if (this != &rhs) {             // Required
         ....
     }
     return *this;
@@ -9993,7 +9993,7 @@ A& A::operator = (const A& rhs) {
 ```
 A& A::operator = (const A& rhs) {
     A tmp(rhs);
-    this->swap(tmp);   // Good
+    this->swap(tmp);                // Good
     return *this;
 }
 ```
@@ -10023,7 +10023,7 @@ ID_invalidWrite&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 示例：
 ```
 void foo(int& a, int& b) {
-    a = 123;   // Non-compliant
+    a = 123;                 // Non-compliant
     a = 456;
 }
 ```
@@ -10033,7 +10033,7 @@ void foo(int& a, int& b) {
 ```
 int bar() {
     int i = baz();
-    return i++;    // Non-compliant
+    return i++;              // Non-compliant
 }
 ```
 例中 bar 函数返回变量 i 自增前的值，自增运算是没有意义的。  
@@ -10041,7 +10041,7 @@ int bar() {
 对象的初始化可不受本规则限制，如：
 ```
 int baz() {
-    int n = 0;    // OK
+    int n = 0;               // OK
     if (cond) {
         n = 123;
     } else {
@@ -11290,7 +11290,7 @@ ID_if_tooManyElseIf&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
 <hr/>
 
-if...else\-if 分枝超过指定数量，代码较为复杂不利于维护，而且在执行时各分枝的条件需逐一判断，效率较低，建议改为遵循某种算法的索引结构。  
+if...else\-if 分枝过多不利于维护，而且执行时各分枝的条件需逐一判断，效率较低，建议改为遵循某种算法的索引结构。  
   
 示例：
 ```
@@ -11393,7 +11393,7 @@ ID_if_missingEndingElse&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
 
 <hr/>
 
-所有 if...else\-if 分枝都以 else 子句结束是非常好的编程习惯，这与要求 switch 语句包含 defualt 分枝一样，是“防御性编程”思想的良好体现，参见 ID\_switch\_missingDefault。  
+所有 if...else\-if 分枝都以 else 子句结束是“防御性编程”思想的良好体现。  
   
 单独的一个 if 分枝不要求接有 else 子句：
 ```
@@ -12445,7 +12445,7 @@ ID_switch_missingDefault&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
 
 <hr/>
 
-所有 switch 语句都配有 default 分枝是非常好的编程习惯，这与 if...else\-if 分枝要求有 else 分枝一样，是“防御性编程”思想的良好体现，参见 ID\_if\_missingEndingElse。  
+所有 switch 语句都配有 default 分枝是“防御性编程”思想的良好体现。  
   
 示例：
 ```
