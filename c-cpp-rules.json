@@ -1099,7 +1099,7 @@
     "ID_nonPODFilling": {
         "checkPoint": "memset 等函数不应作用于非 POD 对象",
         "level": "error",
-        "comment": "memset、memcpy、memmove 等具有填充功能的函数不应作用于非“POD”对象，否则会破坏其数据的内存关系。",
+        "comment": "memset、memcpy、memmove 等具有填充功能的函数不应作用于非“POD”对象，否则会破坏其数据的内在关系。",
         "tag": "buffer",
         "related": "ID_nonPODBinaryCast",
         "reference": "CWE-463,C++ Core Guidelines SL.con.4,C++ Core Guidelines C.90"
