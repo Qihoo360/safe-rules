@@ -2989,9 +2989,10 @@
     "ID_deprecatedOffsetof": {
         "checkPoint": "在 C++ 代码中不应使用宏 offsetof",
         "level": "suggestion",
-        "comment": "宏 offsetof 很难适用于具有 C++ 特性的类，易导致标准未定义的行为。",
+        "comment": "宏 offsetof 很难适用于具有 C++ 特性的类，在 C++ 代码中不应使用。",
         "tag": "precompile",
-        "standard": "ISO/IEC 14882:2003 18.1(5),ISO/IEC 14882:2011 18.2(4),ISO/IEC 14882:2017 21.2.4(1)"
+        "standard": "ISO/IEC 14882:2011 18.2(4)-undefined",
+        "reference": "SEI CERT EXP59-CPP"
         },
     "ID_forbidReinterpretCast": {
         "checkPoint": "合理使用 reinterpret_cast",

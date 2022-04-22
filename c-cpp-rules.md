@@ -2796,7 +2796,7 @@ ID_macro_badName&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
 宏的名称应采用全大写字母的形式，非宏名称则应包含小写字母。  
   
-宏用文本处理，不受语言规则限制，易被误用，在命名方式上将其与普通代码分开可引起使用者或维护者的注意，从而有助于规避错误。  
+宏用于文本处理，不受语言规则限制，易被误用，在命名方式上将其与普通代码分开可引起使用者或维护者的注意，从而有助于规避错误。  
   
 本规则是 ID\_badName 的特化。  
   
@@ -3023,7 +3023,7 @@ ID_macro_stmtNotEnclosed&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 示例：
 ```
 #define SWAP(a, b)\
-    a ^= b; b ^= a; a ^= b    // Non-compliant
+    a ^= b; b ^= a; a ^= b      // Non-compliant
 ```
 如果按如下使用方式：
 ```
@@ -3032,13 +3032,13 @@ if (x > y)
 ```
 展开后 b ^= a; a ^= b; 不在 if 语句的范围内，应改为：
 ```
-#define SWAP(a, b) {\       // Compliant
+#define SWAP(a, b) {\          // Compliant
     a ^= b; b ^= a; a ^= b;\
 }
 ```
 更进一步地，建议使用 do\-while(0) 结构：
 ```
-#define SWAP(a, b) do {\    // Good
+#define SWAP(a, b) do {\       // Good
     a ^= b; b ^= a; a ^= b;\
 } while(0)
 ```
@@ -3435,17 +3435,19 @@ ID_deprecatedOffsetof&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
 <hr/>
 
-宏 offsetof 很难适用于具有 C\+\+ 特性的类，易导致标准未定义的行为。  
+宏 offsetof 很难适用于具有 C\+\+ 特性的类，在 C\+\+ 代码中不应使用。  
+  
+如果 offsetof 用于：  
+ - 非“[standard layout](https://en.cppreference.com/w/cpp/named_req/StandardLayoutType)”类型  
+ - 计算静态成员或成员函数的偏移量  
+  
+会导致标准未定义的行为。  
   
 示例：
 ```
-#include <cstddef>
-
 struct A {
-    A();
-    virtual ~A();
-
-    int i, j;
+    int i;
+    virtual int f();
 };
 
 int foo() {
@@ -3454,8 +3456,7 @@ int foo() {
 
 struct B {
     static int i;
-    int j;
-    int fun();
+    int f();
 };
 
 int bar() {
@@ -3463,16 +3464,18 @@ int bar() {
 }
 
 int baz() {
-    return offsetof(B, fun);  // Non-compliant, undefined behavior
+    return offsetof(B, f);  // Non-compliant, undefined behavior
 }
 ```
 <br/>
 <br/>
 
 #### 依据
-ISO/IEC 14882:2003 18.1(5)  
-ISO/IEC 14882:2011 18.2(4)  
-ISO/IEC 14882:2017 21.2.4(1)  
+ISO/IEC 14882:2011 18.2(4)-undefined  
+<br/>
+
+#### 参考
+SEI CERT EXP59-CPP  
 <br/>
 <br/>
 
@@ -3729,7 +3732,7 @@ ID_specialComment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 TODO、FIXME、XXX、BUG 等特殊注释表示代码中存在问题，这种问题不应被遗忘，应有计划地予以解决。  
   
-当存在问题时在注释中及时记录是好的编程习惯，而且记录时最好有署名和日期。  
+及时记录问题是一种好习惯，而且最好有署名和日期。  
   
 示例：
 ```
@@ -3741,10 +3744,11 @@ void foo() {
 
 void foo() {
     /* TODO:
-     * Some plans...  --my name, date     // Good
+     * Some plans...  -- my name, date     // Good
      */
 }
 ```
+审计工具不妨定期搜索这些关键词对应的注释，以供相关人员核对问题解决情况。
 <br/>
 <br/>
 
@@ -3986,9 +3990,9 @@ namespace NS {
 ```
 对于 main 函数和 extern "C" 声明的代码可不受本规则限制，如：
 ```
-extern "C" int bar();  // Compliant
+extern "C" int bar();    // Compliant
 
-int main () {          // Compliant
+int main () {            // Compliant
     ....
 }
 ```
@@ -10023,7 +10027,7 @@ ID_invalidWrite&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 示例：
 ```
 void foo(int& a, int& b) {
-    a = 123;                 // Non-compliant
+    a = 123;   // Non-compliant
     a = 456;
 }
 ```
@@ -10033,7 +10037,7 @@ void foo(int& a, int& b) {
 ```
 int bar() {
     int i = baz();
-    return i++;              // Non-compliant
+    return i++;      // Non-compliant
 }
 ```
 例中 bar 函数返回变量 i 自增前的值，自增运算是没有意义的。  
@@ -10041,7 +10045,7 @@ int bar() {
 对象的初始化可不受本规则限制，如：
 ```
 int baz() {
-    int n = 0;               // OK
+    int n = 0;    // OK
     if (cond) {
         n = 123;
     } else {
@@ -11393,7 +11397,7 @@ ID_if_missingEndingElse&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
 
 <hr/>
 
-所有 if...else\-if 分枝都以 else 子句结束是“防御性编程”思想的良好体现。  
+所有 if...else\-if 分枝都以 else 子句结束是“[防御性编程](https://en.wikipedia.org/wiki/Defensive_programming)”思想的良好体现。  
   
 单独的一个 if 分枝不要求接有 else 子句：
 ```
@@ -12445,7 +12449,7 @@ ID_switch_missingDefault&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
 
 <hr/>
 
-所有 switch 语句都配有 default 分枝是“防御性编程”思想的良好体现。  
+所有 switch 语句都配有 default 分枝是“[防御性编程](https://en.wikipedia.org/wiki/Defensive_programming)”思想的良好体现。  
   
 示例：
 ```
