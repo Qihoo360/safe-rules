@@ -802,12 +802,23 @@ ISO/IEC 14882:2011 4.1(1)-undefined
 ### <span id="_25">25. 浮点类型转换产生的结果无法在相应的空间中表示</span>
 <br/>
 
+示例：
+```
+double d = FLT_MAX;
+d = d * 10;
+float f = d;   // Non-defined behaivor
+```
+例中 d 的值超过了 float 的取值范围，将 d 的值转为 float 会导致未定义的行为。
 <br/>
 <br/>
 
 #### 依据
 ISO/IEC 14882:2003 4.8(1)-undefined  
 ISO/IEC 14882:2011 4.8(1)-undefined  
+<br/>
+
+#### 规则
+[ID_narrowCast](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_narrowCast)  
 <br/>
 
 <br/>

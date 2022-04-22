@@ -93,7 +93,7 @@
   - [R1.13 禁用不安全的字符串函数](#ID_unsafeStringFunction)
   - [R1.14 确保字符串以空字符结尾](#ID_improperNullTermination)
   - [R1.15 避免使用由实现定义的库函数](#ID_implementationDefinedFunction)
-  - [R1.16 除数的值不可为 0](#ID_divideByZero)
+  - [R1.16 避免除 0 等计算异常](#ID_divideByZero)
   - [R1.17 禁用 atof、atoi、atol 以及 atoll 等函数](#ID_forbidAtox)
   - [R1.18 格式化字符串应为常量](#ID_variableFormatString)
   - [R1.19 与程序实现相关的信息不可被外界感知](#ID_addressExposure)
@@ -1356,13 +1356,13 @@ MISRA C++ 2008 18-7-1
 <br/>
 <br/>
 
-### <span id="ID_divideByZero">▌R1.16 除数的值不可为 0</span>
+### <span id="ID_divideByZero">▌R1.16 避免除 0 等计算异常</span>
 
 ID_divideByZero&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security error
 
 <hr/>
 
-除数为 0 会使程序产生标准未定义的行为。  
+除 0 等计算异常会使程序产生标准未定义的行为。  
   
 示例：
 ```
@@ -9426,9 +9426,9 @@ ID_inconsistentParamName&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
   
 示例：
 ```
-int foo(int a, int b);  // Prototype
+int foo(int a, int b);    // Prototype
 
-int foo(int b, int a) {  // Non-compliant, which is which??
+int foo(int b, int a) {   // Non-compliant, which is which??
     return a? b + 1: 0;
 }
 ```
@@ -9520,13 +9520,13 @@ ID_paramPassedByValue&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
   
 示例：
 ```
-void fun(const string s) {  // Non-compliant
+void fun(const string s) {    // Non-compliant
     ....
 }
 ```
 例中参数 s 为按值传递的对象，每当 fun 函数被调用时，s 都会作为一个新的对象被构造，因为其值又不能被改变，所以这种构造是没有意义的，利用常量引用即可解决这个问题：
 ```
-void fun(const string& s) {  // Compliant
+void fun(const string& s) {   // Compliant
     ....
 }
 ```
@@ -9592,10 +9592,10 @@ int foo() {
   
 建议的模式：
 ```
-int a = 0;  // Compliant
+int a = 0;     // Compliant
 
 int b;
-b = foo();  // Compliant
+b = foo();     // Compliant
 ```
 不建议的模式：
 ```
@@ -10364,7 +10364,7 @@ void bar() {
   
 也不应返回局部对象的右值引用，如：
 ```
-A&& baz() {   // Non-compliant
+A&& baz() {         // Non-compliant
     A a;
     ....
     return std::move(a);
@@ -10374,11 +10374,11 @@ A&& baz() {   // Non-compliant
   
 应直接返回对象，而不是对象的右值引用：
 ```
-A foo() {     // Compliant
+A foo() {           // Compliant
     return A();
 }
 
-A baz() {     // Compliant
+A baz() {           // Compliant
     A a;
     ....
     return a;
@@ -10386,12 +10386,12 @@ A baz() {     // Compliant
 ```
 对于函数引用的参数，或函数作用域之外的对象，如果通过 move 返回右值引用，如：
 ```
-A&& baz(A& a) {           // Non-compliant
-    do_something_to(a);
+A&& baz(A& a) {     // Non-compliant
+    access(a);
     return std::move(a);
 }
 ```
-这种情况在运行机制上可能没有问题，但满足的实际需求较为有限，而且相当于将 do\_something\_to(a) 和 move(a) 两种事务合在一个函数中，在某种程度上违反了“[单一职责原则](https://en.wikipedia.org/wiki/Single-responsibility_principle)”。  
+这种情况在运行机制上可能没有问题，但满足的实际需求较为有限，而且相当于将 access(a) 和 move(a) 两种事务合在一个函数中，在某种程度上违反了“[单一职责原则](https://en.wikipedia.org/wiki/Single-responsibility_principle)”。  
   
 综上所述，应统一要求函数不应返回右值引用。
 <br/>
@@ -10623,7 +10623,9 @@ int foo(int*) {   // #3, compliant, safe and brief
     return 2;
 }
 ```
-这样例中 main 函数会输出 2。
+这样例中 main 函数会输出 2。  
+  
+某些特殊情况确实需要通过模板特化来实现，不妨将函数委托给模板类实现，通过特化模板类实现特殊的需求，参见 ID\_narrowCast 的示例。
 <br/>
 <br/>
 
@@ -15926,34 +15928,69 @@ ID_narrowCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
 <hr/>
 
-类型转换时应检查转换的结果是否正确，避免数据丢失等错误。  
+应检查类型转换的结果是否正确，避免数据丢失等问题。  
+  
+各整型、浮点型对象的取值范围不同，大范围对象转小范围对象需考虑数据丢失问题，这种问题在浮点型转整型、整型转浮点型，以及浮点型转浮点型时会导致标准未定义的行为。  
   
 示例：
 ```
-void foo(int i) {
-    char a = i;        // Non-compliant, check it first
-    char b = (char)i;  // Non-compliant, irresponsible
+void foo(int i, double d) {
+    char c = i;              // Non-compliant
+    float f = (float)d;      // Non-compliant, may cause undefined behavior
     ....
 }
 ```
-下面给出判断转换后数据是否完整的简单示例：
+直接将 int 转为 char、double 转为 float 是不符合要求的，应判断源对象的值是否在目标对象的取值范围内。  
+  
+下面给出判断转换是否安全的简单示例：
 ```
 template <class To, class From>
-To checked_cast(From x) noexcept(false) {
-    auto y = static_cast<To>(x);
-    auto z = static_cast<From>(y);
-    return x == z? y: throw DataLoss();
-}
+struct CastChecker
+{
+    static To cast(From x) {
+        auto y = static_cast<To>(x);
+        auto z = static_cast<From>(y);
+        return x == z? y: throw DataLoss();
+    }
+};
 
-void foo(int i) {
-    char a = checked_cast<char>(i);  // Compliant
+template <class To, class From>
+To checked_cast(From x) {
+    return CastChecker<To, From>::cast(x);
+}
+```
+checked\_cast 函数委托 CastChecker 将源类型转为目标类型，再将目标类型转回源类型，如果经两次转换得到的数据与源数据不符，说明转换存在数据丢失，抛出 DataLoss 异常，使用方法如下：
+```
+void foo(int i, double d) {
+    char c = checked_cast<char>(i);     // Compliant
+    float f = checked_cast<float>(d);   // Compliant
     ....
 }
 ```
-例中模板函数 checked\_cast 将源类型转为目标类型，再将目标类型转回源类型，如果经两次转换得到的数据与源数据不符，说明转换存在数据丢失，抛出相关异常。  
-  
-在实际代码中还需要考虑负数与无符号数、浮点数与整数之间的转换是否存在逻辑意义。
+浮点型转换可能导致标准未定义的行为，应在转换之前判断取值范围，可通过特化 CastChecker 实现：
+```
+template <>
+struct CastChecker<float, double>
+{
+    static bool check(double x) {
+        return !isnan(x)
+            && !isgreater(fabs(x), FLT_MAX)
+            && !isless(fabs(x), FLT_MIN);
+    }
+    static float cast(double x) {
+        return check(x)? static_cast<float>(x): throw DataLoss();
+    }
+};
+```
+这样当 double 对象的值超出 float 对象的取值范围时会抛出异常。另外，浮点型转整型时小数部分如何取舍、负数是否可以转为无符号数等问题均可以通过特化 CastChecker 来实现。
 <br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 6.3.1.4(1)-undefined  
+ISO/IEC 9899:2011 6.3.1.5(1)-undefined  
+ISO/IEC 14882:2011 4.8(1)-undefined  
+ISO/IEC 14882:2011 4.9(1 2)-undefined  
 <br/>
 
 #### 参考

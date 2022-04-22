@@ -1347,8 +1347,9 @@
     "ID_narrowCast": {
         "checkPoint": "避免类型转换造成数据丢失",
         "level": "warning",
-        "comment": "类型转换时应检查转换的结果是否正确，避免数据丢失等错误。",
+        "comment": "应检查类型转换的结果是否正确，避免数据丢失等问题。",
         "tag": "cast",
+        "standard": "ISO/IEC 9899:2011 6.3.1.4(1)-undefined,ISO/IEC 9899:2011 6.3.1.5(1)-undefined,ISO/IEC 14882:2011 4.8(1)-undefined,ISO/IEC 14882:2011 4.9(1 2)-undefined",
         "reference": "C++ Core Guidelines ES.46"
         },
     "ID_forbidCStyleCast": {
@@ -2685,9 +2686,9 @@
         "reference": "CWE-476,C++ Core Guidelines ES.65"
         },
     "ID_divideByZero": {
-        "checkPoint": "除数的值不可为 0",
+        "checkPoint": "避免除 0 等计算异常",
         "level": "error",
-        "comment": "除数为 0 会使程序产生标准未定义的行为。",
+        "comment": "除 0 等计算异常会使程序产生标准未定义的行为。",
         "tag": "security",
         "standard": "ISO/IEC 9899:1999 6.5.5(5)-undefined,ISO/IEC 9899:2011 6.5.5(5)-undefined,ISO/IEC 14882:2011 5.6(4)-undefined,ISO/IEC 14882:2017 8.6(4)-undefined",
         "reference": "CWE-369,C++ Core Guidelines ES.105"
