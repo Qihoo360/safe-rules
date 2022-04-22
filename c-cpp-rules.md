@@ -333,7 +333,7 @@
   - [R8.6 不应存在未被使用的具名形式参数](#ID_paramNotUsed)
   - [R8.7 由 const 修饰的参数应为引用或指针](#ID_paramPassedByValue)
   - [R8.8 转发引用只应作为 std::forward 的参数](#ID_illForwardingReference)
-  - [R8.9 局部变量在使用前必须初始化](#ID_localInitialization)
+  - [R8.9 局部对象在使用前必须初始化](#ID_localInitialization)
   - [R8.10 成员须在声明处或构造时初始化](#ID_memberInitialization)
   - [R8.11 基类对象构造完毕之前不可调用成员函数](#ID_illMemberCall)
   - [R8.12 在面向构造或析构函数体的 catch handler 中不可访问非静态成员](#ID_illMemberAccess)
@@ -9516,7 +9516,7 @@ ID_paramPassedByValue&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-函数参数按值传递时会产生复制及构造开销，而且如果有 const 修饰，意味着对象不可改变，那么按值传递是没有意义的。  
+参数按值传递时会产生复制开销，而且如果有 const 修饰，意味着对象不可改变，按值传递是没有意义的。  
   
 示例：
 ```
@@ -9524,13 +9524,13 @@ void fun(const string s) {    // Non-compliant
     ....
 }
 ```
-例中参数 s 为按值传递的对象，每当 fun 函数被调用时，s 都会作为一个新的对象被构造，因为其值又不能被改变，所以这种构造是没有意义的，利用常量引用即可解决这个问题：
+例中 s 为按值传递的参数，每当 fun 被调用时，s 都会作为一个新的对象被构造，因为其值又不能被改变，所以这种构造是没有意义的，利用常量引用即可解决这个问题：
 ```
 void fun(const string& s) {   // Compliant
     ....
 }
 ```
-改为常量引用后，s 的值和原来一样不可被改变，而且不需要额外的传值开销。
+改为常量引用后，s 的值和原来一样不可被改变，而且不需要额外的开销。
 <br/>
 <br/>
 
@@ -9569,13 +9569,13 @@ C++ Core Guidelines F.19
 <br/>
 <br/>
 
-### <span id="ID_localInitialization">▌R8.9 局部变量在使用前必须初始化</span>
+### <span id="ID_localInitialization">▌R8.9 局部对象在使用前必须初始化</span>
 
 ID_localInitialization&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
 <hr/>
 
-未经初始化即使用的局部变量，其值是不确定的，意味着程序存在严重逻辑错误。  
+未经初始化的局部对象具有不确定的值，在初始化前使用局部对象会导致标准未定义的行为。  
   
 示例：
 ```
@@ -9587,10 +9587,9 @@ int foo() {
     return a;  // Non-compliant, an indeterminate value
 }
 ```
-例中变量 a 的初始化依赖条件 cond，在条件范围之外使用是错误的。  
-建议变量在声明处初始化，即使不方便在声明处初始化，也应该在声明的附近进行不依赖条件的初始化。  
+例中 a 的初始化依赖某种条件，在条件范围之外使用是错误的。  
   
-建议的模式：
+建议对象在声明处初始化，即使不方便在声明处初始化，也应该在声明的附近进行无条件初始化：
 ```
 int a = 0;     // Compliant
 
@@ -9600,22 +9599,22 @@ b = foo();     // Compliant
 不建议的模式：
 ```
 int a;
-if (some_cond) {
-    a = foo();
+if (x) {
+    a = 0;
 }
 ....
-if (another_cond) {
-    use(a);
+if (y) {
+    use(a);    // Dangerous
 }
 ```
-a 的初始化依赖于条件 some\_cond，即使 some\_cond 和 another\_cond 有一定相关性可以保证对 a 的读取是正确的，也会造成潜在的维护困难，当条件比较复杂时极易出错。
+例中 a 的初始化依赖于条件 x，并在满足条件 y 时被使用，即使条件 x 和条件 y 有一定相关性可以保证对 a 的使用是正确的，也会造成潜在的维护困难，当条件比较复杂或有变化时极易出错。
 <br/>
 <br/>
 
 #### 依据
-ISO/IEC 14882:2003 8.5(9)  
+ISO/IEC 9899:2011 6.3.2.1(2)-undefined  
+ISO/IEC 14882:2011 4.1(1)-undefined  
 ISO/IEC 14882:2011 8.5(11)  
-ISO/IEC 14882:2017 11.6(12)  
 <br/>
 
 #### 参考
@@ -9636,7 +9635,7 @@ ID_memberInitialization&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-由于成员的声明和使用相距较远，更容易造成未初始化先使用的问题，所以应在声明处或构造函数中初始化所有成员。  
+成员的声明和使用相距较远，更容易造成未初始化先使用的问题，所以应在声明处或构造函数中初始化所有成员。  
   
 示例：
 ```
@@ -9649,9 +9648,9 @@ struct A {
     }
 };
 ```
-例中构造函数没有对 z 初始化是不符合要求的，尤其是公有成员出现这种问题时会造成更大的风险，建议所有成员都在声明处初始化。  
+例中构造函数没有对 z 初始化是不符合要求的，尤其是公有成员出现这种问题时会造成更大的风险。  
   
-应改为：
+建议所有成员都在声明处初始化：
 ```
 struct A {
     int x = 0;  // Good
@@ -10625,7 +10624,7 @@ int foo(int*) {   // #3, compliant, safe and brief
 ```
 这样例中 main 函数会输出 2。  
   
-某些特殊情况确实需要通过模板特化来实现，不妨将函数委托给模板类实现，通过特化模板类实现特殊的需求，参见 ID\_narrowCast 的示例。
+如果某些特殊情况确实需要特化模板，不妨将函数委托给模板类实现，通过特化模板类实现特殊的需求，参见 ID\_narrowCast 的示例。
 <br/>
 <br/>
 
@@ -15959,7 +15958,7 @@ To checked_cast(From x) {
     return CastChecker<To, From>::cast(x);
 }
 ```
-checked\_cast 函数委托 CastChecker 将源类型转为目标类型，再将目标类型转回源类型，如果经两次转换得到的数据与源数据不符，说明转换存在数据丢失，抛出 DataLoss 异常，使用方法如下：
+函数 checked\_cast 委托类 CastChecker 将源类型转为目标类型，再将目标类型转回源类型，如果经两次转换得到的数据与源数据不符，说明转换存在数据丢失，抛出 DataLoss 异常，使用方法如下：
 ```
 void foo(int i, double d) {
     char c = checked_cast<char>(i);     // Compliant
@@ -15967,7 +15966,7 @@ void foo(int i, double d) {
     ....
 }
 ```
-浮点型转换可能导致标准未定义的行为，应在转换之前判断取值范围，可通过特化 CastChecker 实现：
+浮点型转换可能导致标准未定义的行为，所以应在转换之前判断取值范围，可通过特化 CastChecker 实现：
 ```
 template <>
 struct CastChecker<float, double>
@@ -15995,6 +15994,7 @@ ISO/IEC 14882:2011 4.9(1 2)-undefined
 
 #### 参考
 C++ Core Guidelines ES.46  
+SEI CERT FLP34-C  
 <br/>
 <br/>
 

@@ -1350,7 +1350,7 @@
         "comment": "应检查类型转换的结果是否正确，避免数据丢失等问题。",
         "tag": "cast",
         "standard": "ISO/IEC 9899:2011 6.3.1.4(1)-undefined,ISO/IEC 9899:2011 6.3.1.5(1)-undefined,ISO/IEC 14882:2011 4.8(1)-undefined,ISO/IEC 14882:2011 4.9(1 2)-undefined",
-        "reference": "C++ Core Guidelines ES.46"
+        "reference": "C++ Core Guidelines ES.46,SEI CERT FLP34-C"
         },
     "ID_forbidCStyleCast": {
         "checkPoint": "在 C++ 代码中禁用 C 风格类型转换",
@@ -1665,7 +1665,7 @@
     "ID_memberInitialization": {
         "checkPoint": "成员须在声明处或构造时初始化",
         "level": "warning",
-        "comment": "由于成员声明的位置和使用的位置相距较远，所以更容易造成未初始化先使用的问题，应该在声明处或构造函数中初始化所有需要初始化的成员。",
+        "comment": "成员的声明和使用相距较远，更容易造成未初始化先使用的问题，所以应在声明处或构造函数中初始化所有成员。",
         "tag": "function",
         "reference": "CWE-908,CWE-824,C++ Core Guidelines C.41"
         },
@@ -1778,11 +1778,11 @@
         "reference": "CWE-561,MISRA C 2004 14.1,MISRA C 2012 2.1,MISRA C++ 2008 0-1-1"
         },
     "ID_localInitialization": {
-        "checkPoint": "局部变量在使用前必须初始化",
+        "checkPoint": "局部对象在使用前必须初始化",
         "level": "error",
-        "comment": "未经初始化即使用的局部变量，其值是不确定的，意味着程序存在严重逻辑错误。",
+        "comment": "未经初始化的局部对象具有不确定的值，在初始化前使用局部对象会导致标准未定义的行为。",
         "tag": "function",
-        "standard": "ISO/IEC 14882:2003 8.5(9),ISO/IEC 14882:2011 8.5(11),ISO/IEC 14882:2017 11.6(12)",
+        "standard": "ISO/IEC 9899:2011 6.3.2.1(2)-undefined,ISO/IEC 14882:2011 4.1(1)-undefined,ISO/IEC 14882:2011 8.5(11)",
         "reference": "CWE-909,CWE-908,CWE-824,CWE-457,C++ Core Guidelines ES.20,MISRA C 2004 9.1,MISRA C 2012 9.1,MISRA C++ 2008 8-5-1"
         },
     "ID_notAllBranchReturn": {
@@ -1815,7 +1815,7 @@
     "ID_paramPassedByValue": {
         "checkPoint": "由 const 修饰的参数应为引用或指针",
         "level": "warning",
-        "comment": "函数参数按值传递时会产生复制及构造开销，而且如果有 const 修饰，意味着对象不可改变，那么按值传递是没有意义的。",
+        "comment": "参数按值传递时会产生复制开销，而且如果有 const 修饰，意味着对象不可改变，按值传递是没有意义的。",
         "tag": "function",
         "reference": "C++ Core Guidelines F.16"
         },
