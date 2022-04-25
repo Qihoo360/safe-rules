@@ -5249,31 +5249,31 @@ ID_unsuitableCopyAssignOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: type war
 
 <hr/>
 
-抽象类没有独立的对象，不应存在拷贝赋值运算符，否则赋值是不完整的。  
+抽象类只能作为基类，没有独立的对象，不应调用拷贝赋值运算符。  
   
 示例：
 ```
 struct A {
     virtual ~A() = 0;
-    A& operator = (const A&);  // Non-compliant
+    A& operator = (const A&);   // Non-compliant
     ....
 };
 
 void foo(A& x, A& y) {
-    x = y;                     // Incomplete assignment
+    x = y;               // Incomplete assignment
 }
 ```
-例中 foo 函数的参数只能是 A 的派生类对象，派生类对象调用基类的赋值运算符会造成数据不一致等问题。  
+例中 foo 函数的参数只能是 A 的派生类对象，派生类对象调用基类的拷贝赋值运算符会得到不完整的复制结果。  
   
-应将赋值运算符设为 =delete 或 private：
+应改为：
 ```
 struct A {
     virtual ~A() = 0;
-    A& operator = (const A&) = delete;  // Compliant
+    A& operator = (const A&) = delete;   // Compliant
     ....
 };
 ```
-使这种问题无法通过编译，可及时更换正确的方法。
+将虚基类的拷贝赋值运算符设为 =delete 或 private，可在编译期阻止不完整的复制。
 <br/>
 <br/>
 
@@ -11874,7 +11874,7 @@ flg.clear();
 ```
 示例代码循环检测并设置某标志位，这些功能被压缩到了循环条件中，而且容易使人误以为下一行代码也与循环有关。  
   
-循环体的内容才是循环主体功能的体现，不应被省略：
+应改为：
 ```
 while (true) {                  // Compliant
     if (!flg.test_and_set()) {
@@ -11884,6 +11884,7 @@ while (true) {                  // Compliant
 i = (i * j) % n;
 flg.clear();
 ```
+循环体的内容才是循环主体功能的体现，不应为空。
 <br/>
 <br/>
 
@@ -14372,10 +14373,9 @@ void foo(string& s) {
     s.empty();          // Non-compliant
 }
 ```
-例中 empty 返回字符串是否为空，如果忽略返回值会使函数调用失去意义。示例代码很可能是混淆了 MFC CString 的 Empty 函数与 std::string 的 empty 函数，这两个函数有不同的功能，需认真对待。  
+例中 empty 返回字符串是否为空，如果忽略返回值会使函数调用失去意义。示例代码很可能是误将 std::string 的 empty 函数当成了 MFC CString 的 Empty 函数，这两个函数有不同的功能，需区别对待。  
   
-另外，C\+\+ 中由用户添加的具有 \[\[nodiscard\]\] 属性的函数，返回值也不应被忽略，如：  
-
+又如：
 ```
 [[nodiscard]] int getStatus();
 
@@ -14383,6 +14383,7 @@ void baz() {
     getStatus();   // Non-compliant
 }
 ```
+C\+\+ 中由用户添加的具有 \[\[nodiscard\]\] 属性的函数，返回值也不应被忽略。
 <br/>
 <br/>
 

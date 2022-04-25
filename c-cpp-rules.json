@@ -574,7 +574,7 @@
     "ID_unsuitableCopyAssignOperator": {
         "checkPoint": "抽象类禁用拷贝赋值运算符",
         "level": "warning",
-        "comment": "抽象类没有独立的对象，不应存在拷贝赋值运算符，否则赋值是不完整的。",
+        "comment": "抽象类只能作为基类，没有独立的对象，不应调用拷贝赋值运算符。",
         "tag": "type",
         "reference": "MISRA C++ 2008 12-8-2,C++ Core Guidelines C.67"
         },
