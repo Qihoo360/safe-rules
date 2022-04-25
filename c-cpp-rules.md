@@ -5601,7 +5601,7 @@ u.s = "abc";  // No error, no warning, just crash
 ```
 示例代码在某些环境中会崩溃，原因是没能正确区分对象当前持有的类型，执行了错误的构造或析构过程。  
   
-正确的做法是在类中用一个成员变量记录当前持有的类型，再将匿名 union 和类的构造函数以及析构函数相关联，从而根据当前持有的类型正确地初始化或销毁对象。
+正确的做法是在类中用一个成员变量记录当前持有的类型，再将匿名联合体与类的构造函数以及析构函数相关联，从而根据当前持有的类型正确地初始化或销毁对象。
 <br/>
 <br/>
 
@@ -6217,7 +6217,7 @@ ID_uselessQualifier&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-将 enum 或 enum class 的底层类型（underlying type）设为 const 或 volatile 是没有意义的，会被编译器忽略，为语言用法错误。  
+将 enum 或 enum class 的底层类型（underlying type）设为 const 或 volatile 是没有意义的，会被编译器忽略，为语言运用错误。  
   
 示例：
 ```
@@ -6504,7 +6504,7 @@ ID_invalidExternSpecifier&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warnin
 
 <hr/>
 
-extern 关键字作用于类成员的声明或定义是没有意义的，为语言用法错误。  
+extern 关键字作用于类成员的声明或定义是没有意义的，为语言运用错误。  
   
 示例：
 ```
@@ -11567,30 +11567,35 @@ ID_for_emptyBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
 <hr/>
 
-空的 for 循环将逻辑功能全部压缩到了迭代表达式中，可读性较差。  
+空的 for 循环结构不清晰，可读性较差。  
   
 示例：
 ```
-void foo(int n, vector<int>& v) {
-    int i = 0;
-    for (; i < n; i++);   // Non-compliant
-    bar(i);               // The indent is odd here
-    for (auto x: v);      // Non-compliant, meaningless
+int foo1(int n) {
+    int s = 0;
+    for (int i = 1; i <= n; s += i++);   // Non-compliant
+    return s;
 }
 ```
+for 语句小括号内的三个表达式应专注于循环变量的初始化、循环条件的判断以及循环变量的增减，循环体应专注于迭代算法的实现，使程序具有清晰的静态结构，便于阅读，利于维护。  
+  
 应改为：
 ```
-void foo(int n, vector<int>& v) {
-    int i = 0;
-    for (; i < n; ) {   // Compliant, but a while-loop is better
-        i++;
+int foo(int n) {
+    int s = 0;
+    for (int i = 1; i <= n; i++) {   // Compliant
+        s += i;
     }
-    bar(i);
-    for (auto x: v) {   // Compliant
-        use(x);
-    }
+    return s;
 }
 ```
+另外，在 C\+\+ 语言中，如果只通过 for 语句遍历容器，而不对元素进行操作是没有意义的，如：
+```
+void bar(vector<int>& v) {
+    for (auto i: v);         // Non-compliant
+}
+```
+这种代码多为残留代码或功能未实现，应当及时去除或补全功能。
 <br/>
 <br/>
 
@@ -11859,26 +11864,26 @@ ID_while_emptyBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
 
 <hr/>
 
-空的 while 循环将逻辑功能全部压缩到了条件表达式中，可读性较差。  
+空的 while 循环将功能全部压缩到了条件表达式中，各子句的职责划分不明确，可读性较差。  
   
 示例：
 ```
-void foo(char* d, const char* s) {
-    while (*d++ = *s++);             // Non-compliant
-}
+while (flg.test_and_set());     // Non-compliant
+i = (i * j) % n;                // The indent is odd here
+flg.clear();
 ```
-应将条件和运算分开，提高可读性：
+示例代码循环检测并设置某标志位，这些功能被压缩到了循环条件中，而且容易使人误以为下一行代码也与循环有关。  
+  
+循环体的内容才是循环主体功能的体现，不应被省略：
 ```
-void foo(char* d, const char* s) {
-    int i = 0;
-    while (s[i] != '\0') {           // Compliant
-        d[i] = s[i];
-        i += 1;
+while (true) {                  // Compliant
+    if (!flg.test_and_set()) {
+        break;
     }
-    d[i] = '\0';
 }
+i = (i * j) % n;
+flg.clear();
 ```
-经过现代编译器的优化，这两种方式在效率上并无区别，而后者可读性更高。
 <br/>
 <br/>
 
@@ -11978,7 +11983,7 @@ ID_do_emptyBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
 
 <hr/>
 
-空的 do\-while 循环将逻辑功能全部压缩到了条件表达式中，可读性较差。  
+空的 do\-while 循环将功能全部压缩到了条件表达式中，各子句的职责划分不明确，可读性较差。  
   
 示例：
 ```
@@ -11986,6 +11991,7 @@ void foo(char* d, const char* s) {
     do {} while (*d++ = *s++);       // Non-compliant
 }
 ```
+示例代码将循环的条件和循环产生的副作用叠加在了一起，易使人误解。
 <br/>
 <br/>
 
@@ -12981,13 +12987,13 @@ jmp_buf buf;
 
 float div(int a, int b) {
     if (b == 0) {
-        longjmp(buf, 1);     // Non-compliant
+        longjmp(buf, 1);            // Non-compliant
     }
     return (float)a / b;
 }
 
 int main() {
-    if (setjmp(buf) == 0) {  // Non-compliant
+    if (setjmp(buf) == 0) {          // Non-compliant
         printf("%f\n", div(3, 0));
     } else {
         return 1;
@@ -14366,6 +14372,8 @@ void foo(string& s) {
     s.empty();          // Non-compliant
 }
 ```
+例中 empty 返回字符串是否为空，如果忽略返回值会使函数调用失去意义。示例代码很可能是混淆了 MFC CString 的 Empty 函数与 std::string 的 empty 函数，这两个函数有不同的功能，需认真对待。  
+  
 另外，C\+\+ 中由用户添加的具有 \[\[nodiscard\]\] 属性的函数，返回值也不应被忽略，如：  
 
 ```

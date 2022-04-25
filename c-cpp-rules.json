@@ -172,7 +172,7 @@
     "ID_invalidExternSpecifier": {
         "checkPoint": "extern 关键字不应作用于类成员的声明或定义",
         "level": "warning",
-        "comment": "extern 关键字作用于类成员的声明或定义是没有意义的，为语言用法错误。",
+        "comment": "extern 关键字作用于类成员的声明或定义是没有意义的，为语言运用错误。",
         "tag": "declaration",
         "standard": "ISO/IEC 14882:2003 9.2(6),ISO/IEC 14882:2011 9.2(6),ISO/IEC 14882:2017 12.2(9)"
         },
@@ -399,7 +399,7 @@
     "ID_for_emptyBlock": {
         "checkPoint": "for 循环体不应为空",
         "level": "warning",
-        "comment": "空的 for 循环将逻辑功能全部压缩到了迭代表达式中，可读性较差。",
+        "comment": "空的 for 循环结构不清晰，可读性较差。",
         "tag": "control",
         "reference": "C++ Core Guidelines ES.85"
         },
@@ -614,7 +614,7 @@
     "ID_uselessQualifier": {
         "checkPoint": "枚举类型的底层类型不应为 const 或 volatile",
         "level": "warning",
-        "comment": "将 enum 或 enum class 的底层类型（underlying type）设为 const 或 volatile 是没有意义的，会被编译器忽略，为语言用法错误。",
+        "comment": "将 enum 或 enum class 的底层类型（underlying type）设为 const 或 volatile 是没有意义的，会被编译器忽略，为语言运用错误。",
         "tag": "declaration",
         "standard": "ISO/IEC 14882:2011 7.2(2),ISO/IEC 14882:2011 10.2(2)"
         },
@@ -1686,14 +1686,14 @@
     "ID_virtualCallInConstructor": {
         "checkPoint": "在构造函数中不应调用虚函数",
         "level": "warning",
-        "comment": "虚函数在构造函数中的多态性不生效，而且调用纯虚函数会导致标准未定义的行为。",
+        "comment": "虚函数的多态性在构造函数中不生效，而且在构造函数中调用纯虚函数会导致标准未定义的行为。",
         "tag": "function",
         "reference": "C++ Core Guidelines C.82,Effective C++ item 9"
         },
     "ID_virtualCallInDestuctor": {
         "checkPoint": "在析构函数中不应调用虚函数",
         "level": "warning",
-        "comment": "虚函数在析构函数中的多态性不生效，而且调用纯虚函数会导致标准未定义的行为。",
+        "comment": "虚函数的多态性在析构函数中不生效，而且在析构函数中调用纯虚函数会导致标准未定义的行为。",
         "tag": "function",
         "reference": "C++ Core Guidelines C.82,Effective C++ item 9"
         },
@@ -2241,14 +2241,14 @@
     "ID_while_emptyBlock": {
         "checkPoint": "while 循环体不应为空",
         "level": "suggestion",
-        "comment": "空的 while 循环将逻辑功能全部压缩到了条件表达式中，可读性较差。",
+        "comment": "空的 while 循环将功能全部压缩到了条件表达式中，各子句的职责划分不明确，可读性较差。",
         "tag": "control",
         "reference": "CWE-1071,C++ Core Guidelines ES.85"
         },
     "ID_do_emptyBlock": {
         "checkPoint": "do-while 循环体不应为空",
         "level": "suggestion",
-        "comment": "空的 do-while 循环将逻辑功能全部压缩到了条件表达式中，可读性较差。",
+        "comment": "空的 do-while 循环将功能全部压缩到了条件表达式中，各子句的职责划分不明确，可读性较差。",
         "tag": "control",
         "related": "ID_while_emptyBlock",
         "reference": "CWE-1071,C++ Core Guidelines ES.85"
