@@ -670,7 +670,7 @@ public:
         auto* tmp = (unsigned char*)VirtualAlloc(
             0, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE
         );
-        if (VirtualLock(tmp, size)) {  // The key point
+        if (VirtualLock(tmp, size)) {   // The key point
             buf = tmp;
             len = size;
         } else {
@@ -679,7 +679,7 @@ public:
     }
 
    ~SecretBuf() {
-        SecureZeroMemory(buf, len);     // Clear the secret content
+        SecureZeroMemory(buf, len);   // Clear the secret content
         VirtualUnlock(buf, len);
         VirtualFree(buf, 0, MEM_RELEASE);
         len = 0;
@@ -755,7 +755,7 @@ void foo() {
     ....
     volatile char  v_padding = 0;
     volatile char* v_address = password;
-    std::fill_n(v_address, sizeof(password), v_padding);   // Compliant
+    std::fill_n(v_address, sizeof(password), v_padding);  // Compliant
 }
 ```
 <br/>
@@ -799,7 +799,7 @@ struct A {
 ```
 class A {
 public:
-    // ... interfaces for accessing passwords safely
+    ....                  // Interfaces for accessing passwords safely
 private:
     string username;
     string password;      // Compliant
@@ -826,7 +826,7 @@ ID_hijack&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 ```
 Result foo() {
     return sqlQuery(
-        "select * from db where key='%s'", userInput()  // Non-compliant
+        "select * from db where key='%s'", userInput()   // Non-compliant
     );
 }
 ```
@@ -836,7 +836,7 @@ Result foo() {
 ```
 string bar() {
     return readFile(
-        "/myhome/mydata/" + userInput()  // Non-compliant
+        "/myhome/mydata/" + userInput()   // Non-compliant
     );
 }
 ```
@@ -948,7 +948,7 @@ void create(const char* path) {
 应只通过路径打开文件对象一次，只通过文件对象操作文件：
 ```
 void create(const char* path) {
-    FILE* fp = fopen(path, "wx");  // Compliant, since C11
+    FILE* fp = fopen(path, "wx");   // Compliant, since C11
     if (fp != NULL) {
         fwrite("abc", 1, 3, fp);
         fclose(fp);
@@ -980,8 +980,8 @@ ID_unlimitedAuthority&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
   
 示例：
 ```
-umask(000);  // Non-compliant
-FILE* fp = fopen("bar", "w");  // Old method
+umask(000);                     // Non-compliant
+FILE* fp = fopen("bar", "w");   // Old method
 ....
 fclose(fp);
 ```
@@ -992,7 +992,7 @@ fclose(fp);
 fopen\_s 简例：
 ```
 FILE* fp = NULL;
-errno_t e = fopen_s(&fp, "bar", "w");  // Good
+errno_t e = fopen_s(&fp, "bar", "w");   // Good
 ....
 fclose(fp);
 ```
@@ -1058,7 +1058,7 @@ ID_dangerousName&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 ```
 #include <openssl/md5.h>   // Non-compliant, obsolete hash algorithm
 
-const string myUrl = "http://foo/bar";  // Non-compliant, use https instead
+const string myUrl = "http://foo/bar";   // Non-compliant, use https instead
 
 void foo() {
     MD5_CTX c;       // Non-compliant
@@ -1273,7 +1273,7 @@ ID_improperNullTermination&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warnin
 void foo(const char* p) {
     char a[4];
     strncpy(a, p, sizeof(a));
-    printf("%s\n", strupr(a));  // To upper case and print, dangerous
+    printf("%s\n", strupr(a));      // To upper case and print, dangerous
 }
 ```
 例示代码将字符串复制到数组中，转为大写并打印，然而如果 p 所指字符串的长度超过 3，strncpy 不会在数组的结尾安置空字符 '\\0'，会导致内存访问错误。  
@@ -1327,7 +1327,7 @@ ID_implementationDefinedFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security 
 #include <cstdlib>
 
 void foo() {
-    abort();  // Non-compliant
+    abort();   // Non-compliant
 }
 ```
 标准规定调用 abort 后进程应被终止，但进程打开的流是否会被关闭，创建的临时文件是否会被清理等问题没明确定义。
@@ -1370,7 +1370,7 @@ int foo(int n) {
     if (n) {
         ....
     }
-    return 100 / n;  // Non-compliant, must determine whether ‘n’ is 0
+    return 100 / n;   // Non-compliant, must determine whether ‘n’ is 0
 }
 ```
 当除数为 0 时，对于整形数据的除法，进程往往会崩溃，对于浮点型数据的除法，一般会产生“[NaN](https://en.wikipedia.org/wiki/NaN)”这种无效的结果。  
@@ -1404,8 +1404,8 @@ ID_forbidAtox&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: security warning
   
 示例：
 ```
-cout << atoi("abcdefg") << '\n';  // Non-compliant
-cout << atoi("100000000000") << '\n';  // Non-compliant
+cout << atoi("abcdefg") << '\n';        // Non-compliant
+cout << atoi("100000000000") << '\n';   // Non-compliant
 ```
 例中字符串“abcdefg”不表示数字，字符串“100000000000”超出了正常 int 型变量的范围，这些情况会导致标准未定义的行为。  
   
@@ -1417,7 +1417,7 @@ int foo(const char* s) {
     int v = 0;
     stringstream ss(s);
     ss >> v;
-    if (ss.fail()) {  // Or use ‘!ss.eof() || ss.fail()’
+    if (ss.fail()) {              // Or use ‘!ss.eof() || ss.fail()’
         throw some_exception();
     }
     return v;
@@ -1516,16 +1516,16 @@ ID_hardcodedIP&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
   
 示例：
 ```
-string host = "10.16.25.93";  // Non-compliant
-foo("172.16.10.36:8080");     // Non-compliant
-bar("https://192.168.73.90/index.html");  // Non-compliant
+string host = "10.16.25.93";    // Non-compliant
+foo("172.16.10.36:8080");       // Non-compliant
+bar("https://192.168.73.90");   // Non-compliant
 ```
 应从配置文件中获取 IP 地址，并配以加密措施：
 ```
 MyConf cfg;
-string host = cfg.host();     // Compliant
-foo(cfg.port());              // Compliant
-bar(cfg.url());               // Compliant
+string host = cfg.host();   // Compliant
+foo(cfg.port());            // Compliant
+bar(cfg.url());             // Compliant
 ```
 某些特殊的 IP 地址可以被排除：
 ```
@@ -1556,7 +1556,7 @@ ID_deprecatedErrno&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 void foo() {
     if (somecall() == FAILED) {
         printf("somecall() failed\n");
-        if (errno == SOME_VALUE) {  // ‘errno’ may have been changed by the printf
+        if (errno == SOME_VALUE) {       // ‘errno’ may have been changed by the printf
             .... 
         }
     }
@@ -1566,7 +1566,7 @@ void bar() {
     somecall0();
     somecall1();
     somecall2();
-    if (errno) {  // ‘errno’ may come from any of the above functions
+    if (errno) {       // ‘errno’ may come from any of the above functions
         ....
     }
 }
@@ -1574,7 +1574,7 @@ void bar() {
 void baz(const char* s) {
     errno = 0;
     int i = atoi(s);
-    if (errno) {  // Invalid, ‘atoi’ has nothing to do with ‘errno’
+    if (errno) {       // Invalid, ‘atoi’ has nothing to do with ‘errno’
         ....
     }
 }
@@ -1608,7 +1608,7 @@ ID_resourceLeak&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 void foo(const char* path) {
     FILE* p = fopen(path, "w");
     if (cond) {
-        return;  // Non-compliant, ‘p’ is lost
+        return;    // Non-compliant, ‘p’ is lost
     }
     ....
     fclose(p);
@@ -1645,7 +1645,7 @@ ID_memoryLeak&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 void foo(size_t size) {
     char* p = (char*)malloc(size);
     if (cond) {
-        return;  // Non-compliant, ‘p’ is lost
+        return;    // Non-compliant, ‘p’ is lost
     }
     ....
     free(p);
@@ -1725,8 +1725,8 @@ ID_ownerlessResource&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warni
 示例：
 ```
 void foo(size_t size) {
-    int* p = new int[size];  // Bad, ownerless
-    ....                     // If any exception is thrown, or a wrong jump, leak
+    int* p = new int[size];   // Bad, ownerless
+    ....                      // If any exception is thrown, or a wrong jump, leak
     delete[] p;
 }
 
@@ -1819,7 +1819,7 @@ int* foo() {
 void bar() {
     int* p = foo();
     ....
-    free(p);  // Non-compliant, crash
+    free(p);   // Non-compliant, crash
 }
 ```
 例中 a.dll 分配的内存由 b.dll 释放，相当于混淆了不同堆栈中的数据，程序一般会崩溃。  
@@ -1839,7 +1839,7 @@ void foo_dealloc(int* p) {
 void bar(int* p) {
     int* p = foo_alloc();
     ....
-    foo_dealloc(p);  // Compliant
+    foo_dealloc(p);   // Compliant
 }
 ```
 修正后 a.dll 成对提供分配回收函数，b.dll 配套使用这些函数，避免了冲突。  
@@ -1852,21 +1852,21 @@ class A {
 };
 
 class B {
-    void operator delete(void*);  // Non-compliant, missing ‘operator new’
+    void operator delete(void*);   // Non-compliant, missing ‘operator new’
 };
 
 class C {
     void* operator new(size_t);   // Compliant
-    void operator delete(void*);  // Compliant
+    void operator delete(void*);   // Compliant
 };
 ```
 placement\-new 与 placement\-delete 也应成对提供：
 ```
 class D {
-    void* operator new(size_t, bool);       // Non-compliant
+    void* operator new(size_t, bool);   // Non-compliant
 
     void* operator new(size_t, int, int);   // Compliant
-    void operator delete(void*, int, int);  // Compliant
+    void operator delete(void*, int, int);   // Compliant
 };
 ```
 <br/>
@@ -1902,7 +1902,7 @@ void foo() {
 void bar(size_t n) {
     char* p = (char*)malloc(n);
     ....
-    delete[] p;  // Non-compliant, use ‘free’ instead
+    delete[] p;   // Non-compliant, use ‘free’ instead
 }
 ```
 不同的分配回收方法属于不同的资源管理体系，用 new 分配的资源应使用 delete 回收，malloc 分配的应使用 free 回收。
@@ -2010,7 +2010,7 @@ std::move 宣告对象的数据即将被转移到其他对象，转移之后对�
 ```
 string foo(string a) {
     string b = std::move(a);
-    return a + b;  // Non-compliant
+    return a + b;              // Non-compliant
 }
 ```
 例中 a 对象的数据被转移到 b 对象，之后 a 对象不再有效，对 a 重新赋值之前访问 a 属于逻辑错误。
@@ -2270,12 +2270,12 @@ ID_illDealloc&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
 void foo(size_t size) {
     int* p = (int*)alloca(size);
     ....
-    free(p);  // Non-compliant, ‘p’ should not be freed
+    free(p);    // Non-compliant, ‘p’ should not be freed
 }
 
 void bar() {
     int i;
-    free(&i);  // Non-compliant, naughty behaviour
+    free(&i);   // Non-compliant, naughty behaviour
 }
 ```
 释放在栈上分配的空间或者局部对象的地址会造成严重的运行时错误。
@@ -2312,8 +2312,8 @@ fun(
   
 保证一次内存分配对应一个构造函数可解决这种问题：
 ```
-auto a(shared_ptr<T>(new T));  // Compliant
-auto b(shared_ptr<T>(new T));  // Compliant
+auto a(shared_ptr<T>(new T));   // Compliant
+auto b(shared_ptr<T>(new T));   // Compliant
 fun(a, b);
 ```
 这样即使构造函数抛出异常也会自动回收已分配的内存。  
@@ -2405,8 +2405,8 @@ ID_unnecessaryAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource w
   
 示例：
 ```
-bool* pb = new bool;  // Non-compliant
-char* pc = new char;  // Non-compliant
+bool* pb = new bool;   // Non-compliant
+char* pc = new char;   // Non-compliant
 ```
 内存分配的开销远大于变量的直接使用，而且还涉及到回收问题，是得不偿失的。  
   
@@ -2417,13 +2417,13 @@ char c = 0;       // Compliant
 ```
 用 new 分配数组时方括号被误写成小括号，或使用 unique\_ptr 等智能指针时遗漏了数组括号也是常见笔误，如：
 ```
-int* pi = new int(32);             // Non-compliant
-auto ui = make_unique<int>(32);    // Non-compliant
+int* pi = new int(32);            // Non-compliant
+auto ui = make_unique<int>(32);   // Non-compliant
 ```
 应改为：
 ```
-int* pi = new int[32];             // Compliant
-auto ui = make_unique<int[]>(32);  // Compliant
+int* pi = new int[32];              // Compliant
+auto ui = make_unique<int[]>(32);   // Compliant
 ```
 有时可能需要用指针指向一个变量，而指针为空时表示这个变量“不存在”，对于这种情况不妨用变量的特殊值表示变量的状态。
 <br/>
@@ -2447,7 +2447,7 @@ ID_dynamicAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warni
 示例：
 ```
 void foo() {
-    std::vector<int> v;     // Non-compliant
+    std::vector<int> v;   // Non-compliant
     ....
 }
 ```
@@ -2482,12 +2482,10 @@ malloc 等函数在分配失败时返回空指针，如果不加判断直接使�
   
 示例：
 ```
-char* foo(size_t n) {
+void foo(size_t n) {
     char* p = (char*)malloc(n);
-    for (size_t i = 0; i < n; i++) {
-        p[i] = '\0';  // Non-compliant, check ‘p’ first
-    }
-    return p;
+    p[n - 1] = '\0';              // Non-compliant, check ‘p’ first
+    ....
 }
 ```
 示例代码未检查 p 的有效性便直接使用是不符合要求的，一旦内存分配失败就会崩溃。
@@ -2607,14 +2605,14 @@ ID_nonStandardCharInHeaderName&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompil
   
 示例：
 ```
-#include < >           // Non-compliant
-#include <"foo">       // Non-compliant
-#include <foo*>        // Non-compliant
-#include <?bar?>       // Non-compliant
+#include < >            // Non-compliant
+#include <"foo">        // Non-compliant
+#include <foo*>         // Non-compliant
+#include <?bar?>        // Non-compliant
 
-#include <foo>         // Compliant
-#include <foo.h>       // Compliant
-#include <foo_bar.h>   // Compliant
+#include <foo>          // Compliant
+#include <foo.h>        // Compliant
+#include <foo_bar.h>    // Compliant
 ```
 可以用 / 作为路径分隔符，但不应出现  // 或 /\*，  如：
 ```
@@ -2623,8 +2621,8 @@ ID_nonStandardCharInHeaderName&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompil
 ```
 名称中的单引号、反斜杠在 C 及 C\+\+03 标准中是未定义的，在 C\+\+11 标准中是由实现定义的。
 ```
-#include <foo'bar>     // Non-compliant
-#include <foo\bar>     // Non-compliant
+#include <foo'bar>      // Non-compliant
+#include <foo\bar>      // Non-compliant
 ```
 另外，由于某些平台的文件系统不区分路径大小写，建议头文件名称只使用小写字母以减少移植类问题。
 <br/>
@@ -3023,7 +3021,7 @@ ID_macro_stmtNotEnclosed&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 示例：
 ```
 #define SWAP(a, b)\
-    a ^= b; b ^= a; a ^= b      // Non-compliant
+    a ^= b; b ^= a; a ^= b   // Non-compliant
 ```
 如果按如下使用方式：
 ```
@@ -3067,11 +3065,11 @@ ID_macro_complexConcat&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
   
 示例：
 ```
-#define M0(a, b) # a ## b         // Non-compliant
-#define M1(a, b, c) a ## #b ## c  // Non-compliant
+#define M0(a, b) # a ## b          // Non-compliant
+#define M1(a, b, c) a ## #b ## c   // Non-compliant
 
-#define M2(a) #a             // Compliant
-#define M3(a, b) M1(a ## b)  // Compliant
+#define M2(a) #a                   // Compliant
+#define M3(a, b) M1(a ## b)        // Compliant
 ```
 <br/>
 <br/>
@@ -3205,11 +3203,11 @@ ID_macro_function&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
   
 示例：
 ```
-#define SUM(a, b) ((a) + (b))  // Non-compliant
-#define SUM(a, b, c) ((a) + (b) + (c))  // Non-compliant
+#define SUM(a, b) ((a) + (b))            // Non-compliant
+#define SUM(a, b, c) ((a) + (b) + (c))   // Non-compliant
 
 int foo(int a, int b) {
-    return SUM(a, b);  // Error
+    return SUM(a, b);     // Error
 }
 ```
 例中宏 SUM 意在获取参数的和，但宏无法被重载，最终只有一个宏被定义， foo 函数中的宏展开会造成错误。
@@ -3242,6 +3240,7 @@ ID_macro_misspelling&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 ```
 #define FRIST(p) p->first()  // Non-compliant, should be FIRST
 ```
+例中 FIRST 被误写成了 FRIST。
 <br/>
 <br/>
 
@@ -3267,11 +3266,11 @@ ID_macro_sideEffectArgs&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 #define M(a) ((a) + (a))
 
 int foo(int& a) {
-    return M(++a);  // Non-compliant, returns ‘((++a) + (++a))’
+    return M(++a);   // Non-compliant, returns ‘((++a) + (++a))’
 }
 
 void bar(int& a) {
-    I(a--);         // Non-compliant, does nothing
+    I(a--);          // Non-compliant, does nothing
 }
 ```
 例中 M 和 I 看起来像是函数调用，而展开后的结果却在意料之外。
@@ -4085,7 +4084,7 @@ using namespace ns;
 #include "b.h"
 
 void fun1() {
-    bar();     // ‘bar’ calls ‘foo(char)’
+    bar();      // ‘bar’ calls ‘foo(char)’
 }
 
 // In b.cpp
@@ -4093,7 +4092,7 @@ void fun1() {
 #include "a.h"
 
 void fun2() {
-    bar();     // ‘bar’ calls ‘foo(int)’
+    bar();      // ‘bar’ calls ‘foo(int)’
 }
 ```
 头文件 a.h 和 b.h 以不同的顺序被包含，使 bar 函数调用了不同的 foo 函数，导致这种混乱的正是 b.h 中的 using directive。
@@ -4181,7 +4180,7 @@ ID_anonymousNamespaceInHeader&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 示例：
 ```
 // In a header file
-namespace {  // Non-compliant
+namespace {       // Non-compliant
     void foo();
 }
 ```
@@ -4402,12 +4401,12 @@ ID_forbidUsingDirectives&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: global suggesti
 示例：
 ```
 // In global namespace
-using namespace std;          // Let it go
-using namespace myspace0;     // Non-compliant
-using namespace myspace1;     // Non-compliant
+using namespace std;           // Let it go
+using namespace myspace0;      // Non-compliant
+using namespace myspace1;      // Non-compliant
 
 namespace myspace1 {
-    using namespace myspace2  // Non-compliant
+    using namespace myspace2   // Non-compliant
 }
 ```
 建议在函数作用域内用 using declaration 代替 using directive：
@@ -4554,7 +4553,7 @@ ID_nonPrivateData&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestion
 示例：
 ```
 struct Fraction {
-    int n, d;  // Bad
+    int n, d;       // Bad
 
     double result() {
         return double(n) / d;
@@ -4580,7 +4579,7 @@ public:
     }
 
 private:
-    int n, d;  // Good
+    int n, d;   // Good
 };
 ```
 例外：  
@@ -5261,7 +5260,7 @@ struct A {
 };
 
 void foo(A& x, A& y) {
-    x = y;  // Incomplete assignment
+    x = y;                     // Incomplete assignment
 }
 ```
 例中 foo 函数的参数只能是 A 的派生类对象，派生类对象调用基类的赋值运算符会造成数据不一致等问题。  
@@ -5303,7 +5302,7 @@ class C
 union U
 {
     // ... 3000 members ...
-    // It's actually the hell...
+    // It's actually the hell ...
 };
 ```
 <br/>
@@ -5469,7 +5468,7 @@ enum Colour {
     red,
     blue,
     green,
-    yellow      // Compliant
+    yellow   // Compliant
 };
 ```
 <br/>
@@ -5522,7 +5521,7 @@ ID_forbidUnscopedEnum&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: type suggestion
   
 示例：
 ```
-enum E {     // Non-compliant
+enum E {      // Non-compliant
     e0 = 0,
     e1 = 1,
     e2 = -1
@@ -5531,7 +5530,7 @@ enum E {     // Non-compliant
 E foo();
 
 void bar() {
-    if (foo()) {  // ‘e1’ or ‘e2’??
+    if (foo()) {   // ‘e1’ or ‘e2’??
         ....
     }
 }
@@ -5540,17 +5539,17 @@ void bar() {
   
 应改为：
 ```
-enum class E {  // Compliant
+enum class E {   // Compliant
     e0 = 0,
     e1 = 1,
     e2 = -1
 };
 
 void bar() {
-    if (foo() == E::e1) {  // OK
+    if (foo() == E::e1) {   // OK
         ....
     }
-    if (foo()) {  // Compile error, cannot cast the enum class casually
+    if (foo()) {   // Compile error, cannot cast the enum class casually
         ....
     }
 }
@@ -5627,22 +5626,22 @@ ID_forbidNakedUnion&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: type suggestion
   
 示例：
 ```
-union U {   // Non-compliant, global union
+union U {      // Non-compliant, global union
     ....
 };
 
 class A {
 public:
-    union {   // Non-compliant, public union
+    union {    // Non-compliant, public union
         ....
     };
 };
 
 class B {
 public:
-    // ... Interfaces about the union
+    ....       // Interfaces about the union
 private:
-    union {   // Compliant, the union is under control
+    union {    // Compliant, the union is under control
         ....
     };
 };
@@ -5679,21 +5678,21 @@ ID_forbidUnion&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: type suggestion
   
 示例：
 ```
-union U {  // Non-compliant
+union U {    // Non-compliant
     int i;
     char c;
 };
 
 U u;
 u.i = 1000;
-cout << u.c << '\n';  // Equivalent to a cast without any restrictions
+cout << u.c << '\n';   // Equivalent to a cast without any restrictions
 ```
 对联合体的使用也相当于一种没有限制的强制类型转换，在 C\+\+ 中建议用 std::variant 或 std::any 取代联合体：
 ```
 std::variant<int, char> u;
 u = 123;
-cout << get<int>(u) << '\n';   // OK
-cout << get<char>(u) << '\n';  // Throw ‘std::bad_variant_access’
+cout << get<int>(u) << '\n';    // OK
+cout << get<char>(u) << '\n';   // Throw ‘std::bad_variant_access’
 ```
 std::variant 可以有效记录对象当前持有的类型，如果以不正确的类型访问对象会及时抛出异常。  
   
@@ -5733,11 +5732,11 @@ ID_badName&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
   
 示例：
 ```
-namespace xxx  // Bad, meaningless name
+namespace xxx   // Bad, meaningless name
 {
-    void fun(int);  // Bad, vague
+    void fun(int);   // Bad, vague
 
-    const int nVarietyisthespiceoflife = 123;  // Bad, hard to read
+    const int nVarietyisthespiceoflife = 123;   // Bad, hard to read
 }
 ```
 例中 xxx、fun 这种无意义或过于空泛的名称是不符合要求的，名称中各单词间应有下划线或大小写变化，否则是不便于读写的。本规则集合示例中出现的 foo、bar 等名称，意在代指一般的代码元素，仅作示例，实际代码中不应出现。  
@@ -5851,9 +5850,9 @@ ID_hideLocal&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 示例：
 ```
 int foo() {
-    int i = 0;  // Declares an object ‘i’
+    int i = 0;       // Declares an object ‘i’
     if (cond) {
-        int i = 1;  // Non-compliant, hides previous ‘i’
+        int i = 1;   // Non-compliant, hides previous ‘i’
         ....
     }
     return i;
@@ -5938,10 +5937,10 @@ struct A {
 };
 
 enum {
-    A, B, C    // Non-compliant
+    A, B, C   // Non-compliant
 };
 
-size_t x = sizeof(A);  // What is ‘A’?
+size_t x = sizeof(A);   // What is ‘A’?
 ```
 例中类名 A 与枚举项 A 重名，sizeof(A) 的意义是非常令人困惑的。
 <br/>
@@ -6278,19 +6277,19 @@ C 语言中的 restrict 指针要求其他指针不能再指向相同区域，�
 示例：
 ```
 void foo(int c[]) {
-    int *restrict a = &c[0];    // Non-compliant
-    int *restrict b = &c[1];    // Non-compliant
+    int *restrict a = &c[0];   // Non-compliant
+    int *restrict b = &c[1];   // Non-compliant
     ....
-    a = b;                      // Undefined behavior
+    a = b;                     // Undefined behavior
     ....
 }
 
-int bar(int *restrict x, int *restrict y) {  // Non-compliant
+int bar(int *restrict x, int *restrict y) {   // Non-compliant
     return *x + *y;
 }
 
 int baz(int* p) {
-    return bar(p, p);  // Undefined behavior
+    return bar(p, p);   // Undefined behavior
 }
 ```
 restrict 指针虽然有助于编译器优化，但应在效率的提高和存在的风险之间进行取舍，非系统库中的代码、改动频繁的代码不建议使用 restrict 指针，而且这种优化大部分情况下也难以真正解决效率的瓶颈问题。
@@ -6397,7 +6396,7 @@ vector<Type>::iterator i = v.begin();  // Verbose
 ```
 begin 函数返回迭代器是一种常识，且迭代器类型名称往往较长，这种情况应使用 auto：
 ```
-auto i = v.begin();   // OK
+auto i = v.begin();  // OK
 ```
 又如：
 ```
@@ -6443,9 +6442,9 @@ ID_deprecatedSpecifier&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
   
 示例：
 ```
-register int a;  // Non-compliant
-auto int b;      // Non-compliant
-int foo(register int x);  // Non-compliant
+register int a;            // Non-compliant
+auto int b;                // Non-compliant
+int foo(register int x);   // Non-compliant
 ```
 <br/>
 <br/>
@@ -6719,7 +6718,7 @@ for (auto e: container) {  // Is it necessary to copy elements?
     ....
 }
 ```
-例中 p 为指针，但看起来像是个对象，bar 返回引用，但 r 并不是引用，在遍历容器时，e 是容器元素的复本，这些问题可能会造成错误，需谨慎对待。
+例中 p 为指针，但看起来像是个对象，bar 返回引用，但 r 并不是引用，e 是容器元素的复本，这些问题可能与预期不符，需谨慎对待。
 <br/>
 <br/>
 <br/>
@@ -6909,7 +6908,7 @@ ID_forbidMemberVoidPtr&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration warni
 ```
 class A {
 public:
-    void* dat;  // Non-compliant
+    void* dat;   // Non-compliant
     ....
 };
 ```
@@ -6920,7 +6919,7 @@ class A {
 public:
     T* method_about_dat();
 private:
-    T* dat;     // Compliant
+    T* dat;   // Compliant
     ....
 };
 ```
@@ -6948,7 +6947,7 @@ ID_unsuitableArraySize&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 示例：
 ```
 void foo() {
-    int arr[1024 * 1024 * 1024];  // Non-compliant, too large
+    int arr[1024 * 1024 * 1024];   // Non-compliant, too large
     ....
 }
 ```
@@ -7018,15 +7017,15 @@ ID_mixedDeclarations&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
   
 示例：
 ```
-int* foo(int), bar(0), (*baz)(char);  // Non-compliant, very bad
+int* foo(int), bar(0), (*baz)(char);   // Non-compliant, very bad
 ```
 例中 foo 是函数，bar 是整数，baz 是函数指针，这种混在一起的声明是非常混乱的。  
   
 应分开声明：
 ```
-int* foo(int);    // Compliant
-int bar = 0;      // Compliant
-int (*baz)(char); // Compliant
+int* foo(int);      // Compliant
+int bar = 0;        // Compliant
+int (*baz)(char);   // Compliant
 ```
 <br/>
 <br/>
@@ -7083,7 +7082,7 @@ class A {
 
 public:
     A() {
-        A(0);  // Non-compliant, just created an inaccessible temporary object
+        A(0);   // Non-compliant, just created an inaccessible temporary object
     }
 
     A(int x): a(x) {
@@ -7106,7 +7105,7 @@ void fun() {
 应改为：
 ```
 void fun() {
-    LockGuard guard;  // Compliant
+    LockGuard guard;   // Compliant
     ....
 }
 ```
@@ -7192,13 +7191,13 @@ ID_plainNumericChar&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
   
 示例：
 ```
-bool foo(char c) {          // Non-compliant
-    return c < 180;         // May be always true
+bool foo(char c) {    // Non-compliant
+    return c < 180;   // May be always true
 }
 
 void bar() {
-    char c = 180;           // Non-compliant
-    printf("%d", 2 * c);    // What is output?
+    char c = 180;          // Non-compliant
+    printf("%d", 2 * c);   // What is output?
 }
 ```
 示例代码可移植性较差，foo 在某些环境中可能只会返回 true，而 bar 可能输出 \-152，也可能输出 360。  
@@ -7207,13 +7206,13 @@ char 类型在桌面、服务端等环境中可能是有符号的，在移动端
   
 应改为：
 ```
-bool foo(unsigned char c) { // Compliant
+bool foo(unsigned char c) {   // Compliant
     return c < 180;
 }
 
 void bar() {
-    unsigned char c = 180;  // Compliant
-    printf("%d", 2 * c);    // 360
+    unsigned char c = 180;    // Compliant
+    printf("%d", 2 * c);      // 360
 }
 ```
 <br/>
@@ -7240,14 +7239,14 @@ ID_plainBinaryChar&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
   
 示例：
 ```
-typedef char byte;  // Non-compliant
+typedef char byte;       // Non-compliant
 byte buf[100];
 FILE* fp = fopen("foo", "rb");
 fread(buf, 1, 100, fp);
-if (buf[0] == 0xff) {  // May be always false
+if (buf[0] == 0xff) {    // May be always false
     ....
 }
-if (buf[1] << 1) {     // May cause undefined behavior
+if (buf[1] << 1) {       // May cause undefined behavior
     ....
 }
 ```
@@ -7255,7 +7254,7 @@ char 类型的符号由实现定义，有符号的 char 变量在数值计算、
   
 应改为：
 ```
-typedef unsigned char byte;  // Compliant
+typedef unsigned char byte;   // Compliant
 ```
 这样做也可有效区分二进制数据与字符串，提高可读性。
 <br/>
@@ -7284,14 +7283,14 @@ ID_missingParamName&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
   
 示例：
 ```
-char* strstr(const char* haystack, const char* needle);  // Good
+char* strstr(const char* haystack, const char* needle);   // Good
 ```
 这是标准库函数 strstr 的原型声明，利用形象的比喻，表示在 haystack 中查找 needle。  
   
 如果将声明改为如下形式，就令人费解了：
 ```
-char* strstr(const char*, const char*);  // Bad
-char* strstr(const char* a, const char* b);  // Bad
+char* strstr(const char*, const char*);       // Bad
+char* strstr(const char* a, const char* b);   // Bad
 ```
 <br/>
 <br/>
@@ -7321,10 +7320,10 @@ int bar() {
 ```
 在 C\+\+ 语言中可改为数组的引用：
 ```
-void foo(int (&a)[100]);   // Compliant
+void foo(int (&a)[100]);     // Compliant
 
 template <size_t size>
-void foo(int (&a)[size]) {  // Compliant
+void foo(int (&a)[size]) {   // Compliant
     ....
 }
 ```
@@ -7440,15 +7439,15 @@ ID_deprecatedDefaultArgument&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration sug
 ```
 class A {
 public:
-    virtual int foo(int i = 0);  // Bad
+    virtual int foo(int i = 0);   // Bad
 };
 ```
 应尽量去掉默认参数值，或改用重载函数的方式：
 ```
 class A {
 public:
-    virtual int foo();  // OK
-    virtual int foo(int i);  // OK
+    virtual int foo();        // OK
+    virtual int foo(int i);   // OK
 };
 ```
 <br/>
@@ -7570,7 +7569,7 @@ C 语言规定数组作为形式参数时，可用 static 关键字修饰大小�
   
 示例：
 ```
-int foo(int a[static 5], int n) {  // Non-compliant
+int foo(int a[static 5], int n) {   // Non-compliant
     int i;
     int s = 0;
     for (i = 0; i < n; i++) {
@@ -7581,7 +7580,7 @@ int foo(int a[static 5], int n) {  // Non-compliant
 
 int bar() {
     int a[3] = {1, 2, 3};
-    return foo(a, 3);      // Undefined behavior
+    return foo(a, 3);       // Undefined behavior
 }
 ```
 这种机制虽然有助于编译器优化，但应在效率的提高和存在的风险之间进行取舍，非系统库中的代码、改动频繁的代码不建议使用这种机制，而且这种优化大部分情况下也难以真正解决效率的瓶颈问题。
@@ -7754,20 +7753,20 @@ ID_overloadAddressOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration sugge
   
 示例：
 ```
-struct X;  // Incomplete type
+struct X;   // Incomplete type
 
 X* foo(X& x) {
-    return &x;  // Undefined behaviour
+    return &x;   // Undefined behaviour
 }
 
 struct X {
-    X* operator &() {  // Non-compliant
+    X* operator &() {   // Non-compliant
         return nullptr;
     }
 };
 
 X* bar(X& x) {
-    return &x;  // Call ‘X::operator&’
+    return &x;   // Call ‘X::operator&’
 }
 ```
 例中 foo 会导致未定义的行为，可能会返回 x 对象的实际地址，而 bar 会调用重载了的取地址运算符，这是一种混乱的局面。
@@ -8071,13 +8070,13 @@ enum E {
 };
 
 struct X {
-    E e: 2;  // Non-compliant
+    E e: 2;   // Non-compliant
 };
 
 int main() {
     X x;
     x.e = D;
-    if (x.e == D) {   // What is output?
+    if (x.e == D) {    // What is output?
         cout << "OK";
     } else {
         cout << "Oops";
@@ -8190,8 +8189,8 @@ One Definition Rule，即任何翻译单元不得包含变量、函数、类型�
   
 示例：
 ```
-// In a.cpp 
-struct T {        // One Definition
+// In a.cpp
+struct T {    // One Definition
     int i;
 };
 
@@ -8199,8 +8198,8 @@ T* foo() {
     ....
 }
 
-// In b.cpp 
-struct T {        // Non-compliant, another definition
+// In b.cpp
+struct T {    // Non-compliant, another definition
     long i;
 };
 
@@ -8243,7 +8242,7 @@ ID_labelNotUsed&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 ```
 int foo() {
     int i = 0;
-lab:               // Non-compliant
+lab:                 // Non-compliant
     return bar(i);
 }
 ```
@@ -8251,7 +8250,7 @@ lab:               // Non-compliant
 ```
 int bar(int x) {
     int i = 0;
-strange_comment:   // Non-compliant
+strange_comment:     // Non-compliant
     return x + i;
 }
 ```
@@ -8571,9 +8570,9 @@ ID_throwNonExceptionType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 ```
 void foo() {
     if (cond) {
-        throw 1;          // Non-compliant
+        throw 1;       // Non-compliant
     }
-    throw "message";      // Non-compliant
+    throw "message";   // Non-compliant
 }
 ```
 整数或字符串无法区分异常的种类，如果不同的模块均将简单变量作为异常，很容易产生冲突。  
@@ -8585,9 +8584,9 @@ class E2: public std::exception { .... };
 
 void foo() {
     if (cond1) {
-        throw E1();       // Compliant
+        throw E1();        // Compliant
     }
-    throw E2("message");  // Compliant
+    throw E2("message");   // Compliant
 }
 ```
 注意，throw、try、catch 等关键字应专注于异常处理，不应使用这些关键字控制程序的业务流程，业务代码与异常处理代码应有明显区别，否则会使代码含混不明，效率也会降低，如：
@@ -8597,10 +8596,10 @@ void bar(const vector<string>& v, const string& s) {
     auto e = v.end();
     for (auto i = b; i != e; ++i) {
         if (*i == s) {
-            throw i - b;  // Non-compliant
+            throw i - b;   // Non-compliant
         }
     }
-    throw -1;  // Non-compliant
+    throw -1;   // Non-compliant
 }
 ```
 例中 bar 抛出字符串 s 在容器 v 中的位置，用异常机制实现与异常无关的功能，是不符合要求的。
@@ -8913,7 +8912,7 @@ struct std::hash<MyType> {
 
     size_t operator()(const MyType& x) const {
         if (!x.ptr) {
-            throw exception();  // Non-compliant
+            throw exception();   // Non-compliant
         }
         return hash<size_t>()((size_t)x.ptr);
     }
@@ -8990,9 +8989,9 @@ public:
 
 void foo() {
     try {
-        ....  // If objects derived from Exception may be thrown
+        ....   // If objects derived from Exception may be thrown
     }
-    catch (Exception e) {  // Non-compliant, use reference instead
+    catch (Exception e) {   // Non-compliant, use reference instead
         log(e.what());
     }
 }
@@ -9027,7 +9026,7 @@ void foo() {
         bar();
     }
     catch (...) {
-        throw;     // Non-compliant
+        throw;      // Non-compliant
     }
 }
 ```
@@ -9319,14 +9318,14 @@ main 函数的返回值可作为整个进程执行情况的总结，按惯例返
 应采用标准明确支持的方式：  
 
 ```
-int main(void) { .... }  // Compliant
-int main(int argc, char *argv[]) { .... }  // Compliant
+int main(void) { .... }                     // Compliant
+int main(int argc, char *argv[]) { .... }   // Compliant
 ```
 如果将返回值设为 void 或其他非 int 类型，均不合规。  
 
 ```
-void main() { .... }  // Non-compliant
-bool main() { .... }  // Non-compliant
+void main() { .... }   // Non-compliant
+bool main() { .... }   // Non-compliant
 ```
 <br/>
 <br/>
@@ -9821,23 +9820,30 @@ ID_virtualCallInConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-虚函数在构造函数中的多态性不生效，而且调用纯虚函数会导致标准未定义的行为。  
+虚函数的多态性在构造函数中不生效，而且在构造函数中调用纯虚函数会导致标准未定义的行为。  
+  
+派生类重写的虚函数与派生类对象紧密相关，但执行基类构造函数时，派生类对象尚未构造完毕，所以基类构造函数不能调用派生类重写的虚函数，标准规定构造函数只能调用当前类或基类的虚函数，而调用未实现的纯虚函数则会导致未定义的行为。  
   
 示例：
 ```
 class A {
-    int a;
-    virtual int foo() { return 0; }
+    int a, b;
+    virtual int foo() = 0;
+    virtual int bar() { return 0; }
 
 public:
-    A(): a(foo()) {}  // Non-compliant
+    A():
+     a(foo()),    // Non-compliant, undefined behavior
+     b(bar()) {   // Non-compliant, ‘b’ is always 0
+     }
 };
 
 class B: public A {
-    int foo() override { return 1; }
+    int foo() override { return 1; }   // Invalid
+    int bar() override { return 2; }   // Invalid
 };
 ```
-虽然 B 重写了 foo 函数，但在 A 的构造函数中不生效，成员 a 的值总为 0，这往往意味着错误，也会使维护者产生相当大的误解。
+派生类重写的虚函数在基类的构造函数中不生效，也会使维护者产生相当大的误解。
 <br/>
 <br/>
 
@@ -9853,7 +9859,9 @@ ID_virtualCallInDestuctor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-虚函数在析构函数中的多态性不生效，而且调用纯虚函数会导致标准未定义的行为。  
+虚函数的多态性在析构函数中不生效，而且在析构函数中调用纯虚函数会导致标准未定义的行为。  
+  
+派生类重写的虚函数与派生类对象紧密相关，但执行基类析构函数时，对象属于派生类的成员已被析构，所以基类析构函数不能调用派生类重写的虚函数，标准规定析构函数只能调用当前类或基类的虚函数，而调用未实现的纯虚函数则会导致未定义的行为。  
   
 示例：
 ```
@@ -9862,15 +9870,15 @@ class A {
 
 public:
     A() {}
-   ~A() { clear(); }  // Non-compliant
+   ~A() { clear(); }   // Non-compliant
 };
 
 class B: public A {
     int* p = new int[8];
-    void clear() override { delete[] p; }
+    void clear() override { delete[] p; }   // Invalid
 };
 ```
-虽然 B 重写了 clear 函数，但在 A 的析构函数中不生效，相关内存没有被正确释放。  
+虽然派生类 B 重写了 clear 函数，但在基类 A 的析构函数中不生效，相关内存没有被正确释放。  
   
 应将基类的析构函数设为虚函数，在派生类的析构函数中释放资源：
 ```
@@ -9881,7 +9889,7 @@ class A {
 
 class B: public A {
     ....
-   ~B() { delete[] p; }  // Compliant
+   ~B() { delete[] p; }   // Compliant
 };
 ```
 <br/>
@@ -9908,7 +9916,7 @@ class T {
 
 public:
    ~T() {
-        exit(1);    // Non-compliant
+        exit(1);  // Non-compliant
     }
 };
 ```
@@ -10027,8 +10035,10 @@ ID_invalidWrite&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 示例：
 ```
 void foo(int& a, int& b) {
+    ....
     a = 123;   // Non-compliant
     a = 456;
+    ....
 }
 ```
 例中参数 a 被赋值为 123 之后，又被无条件地赋值为 456，显然第一次赋值是没有意义的，很有可能是漏掉了什么。  
@@ -10036,8 +10046,8 @@ void foo(int& a, int& b) {
 又如：
 ```
 int bar() {
-    int i = baz();
-    return i++;      // Non-compliant
+    int i = ....;
+    return i++;     // Non-compliant
 }
 ```
 例中 bar 函数返回变量 i 自增前的值，自增运算是没有意义的。  
@@ -10045,7 +10055,7 @@ int bar() {
 对象的初始化可不受本规则限制，如：
 ```
 int baz() {
-    int n = 0;    // OK
+    int n = 0;      // OK
     if (cond) {
         n = 123;
     } else {
@@ -10149,9 +10159,9 @@ int fun() {
   
 另外，在正式代码中不应存在如下形式的代码：
 ```
-if (false) { .... }
-while (false) { .... }
-for (;false;) { .... }
+if (false) { .... }      // Non-compliant
+while (false) { .... }   // Non-compliant
+for (;false;) { .... }   // Non-compliant
 ```
 也不应该在 return 语句之后存在其他语句，这种代码如果不是被人恶意篡改，就是出于某种目的将本已无效的代码遗留了下来，可参见 ID\_constLogicExpression、ID\_invalidCondition 的进一步讨论。  
   
@@ -10261,7 +10271,7 @@ char* global;
 
 void fun() {
     char local[] = "....";
-    global = local;         // Non-compliant
+    global = local;          // Non-compliant
 }
 ```
 例中 local 是局部数组，函数返回后，全局指针会指向无效的内存区域。  
@@ -10599,23 +10609,23 @@ ID_functionSpecialization&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 示例：
 ```
 template <class T>
-int foo(T) {           // #1
+int foo(T) {         // #1
     return 0;
 }
 
 template <class T>
-int foo(T*) {          // #2
+int foo(T*) {        // #2
     return 1;
 }
 
 template <>
-int foo<int*>(int*) {  // #3, non-compliant, specialization of #1
+int foo<int*>(int*) {   // #3, non-compliant, specialization of #1
     return 2;
 }
 
 int main() {
     int* p = nullptr;
-    cout << foo(p) << '\n';  // What is output?
+    cout << foo(p) << '\n';   // What is output?
 }
 ```
 输出 1，特化的函数模板不参与重载函数的选取，所以只会在 `#1` 和 `#2` 中选取，foo(p) 与 `#2` 更贴近，而 `#3` 是 `#1` 的特化，所以不会选取 `#3`，这种情况下 `#3` 是无效的。  
@@ -11227,32 +11237,33 @@ ID_if_assignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
   
 示例：
 ```
-HRESULT r = URLDownloadToFile(....);
-if (r = S_OK) {  // Non-compliant
-    ....
+void foo(HRESULT r) {
+    if (r = S_OK) {     // Non-compliant
+        ....
+    }
 }
 ```
-设 S\_OK 为常量，在条件中用常量对变量赋值是没有逻辑意义的，如果条件中等号右侧为常量，基本可以判定是 == 被误写成了 =。  
+例中 S\_OK 为常量，在条件中用常量对变量赋值是没有逻辑意义的，如果条件中等号右侧为常量，基本可以判定是 == 被误写成了 =。  
   
 又如：
 ```
-if (r = fun()) {  // Non-compliant
+if (r = fun()) {   // Non-compliant
     ....
 }
 ```
-这也是一种公认的不良风格，应将赋值表达式拆分出来，或者在 C\+\+ 代码中改为：
+例中 fun 为函数，这也是一种公认的不良风格，应将赋值表达式拆分出来，或者在 C\+\+ 代码中改为：
 ```
-if (auto r = fun()) {  // Compliant
+if (auto r = fun()) {   // Compliant
     ....
 }
 ```
-将赋值表达式加上括号，表示有意为之，是一种惯用写法：
+将赋值表达式加上括号表示有意为之，是一种惯用写法：
 ```
-if ((r = fun())) {  // Let it go?
+if ((r = fun())) {   // Let it go?
     ....
 }
 ```
-这种情况可通过配置决定是否放过。
+审计工具不妨通过配置决定是否放过这种情况。
 <br/>
 <br/>
 
@@ -11277,7 +11288,7 @@ ID_if_emptyBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
   
 示例：
 ```
-if (a = foo());   // Non-compliant
+if (a = foo());      // Non-compliant
 if (a == bar()) {}   // Non-compliant
 ```
 <br/>
@@ -11302,7 +11313,7 @@ if (rabbit) {
 }
 else if (hamster) {
 }
-// ... 3000 branches...
+// ... 3000 branches ...
 // Computers have the courage to execute,
 // but do you have the courage to read?
 else {
@@ -11329,10 +11340,10 @@ ID_if_brace&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
   
 示例：
 ```
-if (cond1)         // Non-compliant
-    if (cond2)     // Non-compliant
+if (cond1)           // Non-compliant
+    if (cond2)       // Non-compliant
         action1();
-else               // Non-compliant
+else                 // Non-compliant
     action2();
 ```
 这段代码想表达的逻辑应是：
@@ -11359,9 +11370,9 @@ if (cond1) {
   
 又如：
 ```
-if (cond)    // Non-compliant
+if (cond)      // Non-compliant
     y = 2;
-else         // Non-compliant
+else           // Non-compliant
     x = 3;
     y = 1;
 ```
@@ -11511,8 +11522,7 @@ for (....)
     statement1;
     statement2;  // Non-compliant
 ```
-例中 statement2 不在 for 循环的作用域中，但看起来又和 for 循环相关，这种问题多数是由宏展开或无效的缩进造成的。  
-为了避免这种问题，for 语句应使用大括号括起来。
+例中 statement2 不在 for 循环的作用域中，但看起来又和 for 循环相关，这种问题多数是由宏展开或无效的缩进造成的。为了避免这种问题，for 语句应使用大括号括起来。
 <br/>
 <br/>
 
@@ -11563,21 +11573,21 @@ ID_for_emptyBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 ```
 void foo(int n, vector<int>& v) {
     int i = 0;
-    for (; i < n; i++);  // Non-compliant
-    bar(i);              // The indent is odd here
-    for (auto x: v);     // Non-compliant, meaningless
+    for (; i < n; i++);   // Non-compliant
+    bar(i);               // The indent is odd here
+    for (auto x: v);      // Non-compliant, meaningless
 }
 ```
 应改为：
 ```
 void foo(int n, vector<int>& v) {
     int i = 0;
-    for (; i < n; ) {     // Compliant, but a while-loop is better
+    for (; i < n; ) {   // Compliant, but a while-loop is better
         i++;
     }
     bar(i);
-    for (auto x: v) {     // Compliant
-        ....
+    for (auto x: v) {   // Compliant
+        use(x);
     }
 }
 ```
@@ -11642,13 +11652,11 @@ ID_for_counterChangedInBody&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 示例：
 ```
 for (int i = 0; i < 8; i++) {
-    ....         // Compliant, if no updates to ‘i’
-}
-
-for (int i = 0; i < 8; i++) {
+    ....
     if (cond) {
-        ++i;     // Non-compliant
+        ++i;      // Non-compliant
     }
+    ....
 }
 ```
 <br/>
@@ -11672,7 +11680,7 @@ ID_for_counterNested&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 示例：
 ```
 for (int i = 0; i < 100; i++) {
-    for (; i < 10; i++) {  // Non-compliant
+    for (; i < 10; i++) {         // Non-compliant
         ....
     }
 }
@@ -11856,14 +11864,14 @@ ID_while_emptyBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
 示例：
 ```
 void foo(char* d, const char* s) {
-    while (*d++ = *s++);  // Non-compliant
+    while (*d++ = *s++);             // Non-compliant
 }
 ```
 应将条件和运算分开，提高可读性：
 ```
 void foo(char* d, const char* s) {
     int i = 0;
-    while (s[i] != '\0') {  // Compliant
+    while (s[i] != '\0') {           // Compliant
         d[i] = s[i];
         i += 1;
     }
@@ -11890,13 +11898,15 @@ while 循环体应为复合语句，即使只包含一条语句。
   
 示例：
 ```
-while (condition)     // Non-compliant
+while (condition)   // Non-compliant
     statement;
 
-while (condition)     // Non-compliant
+while (condition)   // Non-compliant
     statement1;
     statement2;
-
+```
+应改为：
+```
 while (condition) {   // Compliant
     statement;
 }
@@ -11947,7 +11957,7 @@ int foo() {
         }
         ....
         if (cond2) {
-            continue;  // Rather suspicious
+            continue;   // Rather suspicious
         }
         ....
     } while (false);
@@ -11973,7 +11983,7 @@ ID_do_emptyBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
 示例：
 ```
 void foo(char* d, const char* s) {
-    do {} while (*d++ = *s++);      // Non-compliant
+    do {} while (*d++ = *s++);       // Non-compliant
 }
 ```
 <br/>
@@ -11999,7 +12009,7 @@ do\-while 循环体应为复合语句，即使只包含一条语句。如果没�
   
 示例：
 ```
-do    // Non-compliant
+do           // Non-compliant
     foo();
     while (cond1);
 while (cond2);
@@ -12007,7 +12017,7 @@ while (cond2);
 例中 while 关键字与 do 关键字产生了错误的对应关系，导致最后一个 while 形成了死循环，应改为：  
 
 ```
-do {  // Compliant
+do {         // Compliant
     foo();
     while (cond1) {
         ....
@@ -12652,8 +12662,8 @@ void foo() {
     try {
         ....
     }
-    catch (...)
-    {}  // Non-compliant, very bad
+    catch (...)   // Non-compliant, very bad
+    {}
 }
 ```
 这样做并不能真正提高程序的稳定性，相当于逃避了问题，而且掩盖没有被处理的异常也可能会影响到其他方面的正常运行。  
@@ -12664,8 +12674,8 @@ void foo() noexcept {
     try {
         ....
     }
-    catch (...) {  // Compliant
-        log_unexpected_and_exit(__FILE__, __LINE__, "some messages");
+    catch (...) {
+        log_unexpected_and_exit(__FILE__, __LINE__, "messages");   // Compliant
     }
 }
 ```
@@ -12863,9 +12873,9 @@ L:
     j += 1;
     i += j;
     if (j > 100) {
-        goto M;    // Compliant
+        goto M;      // Compliant
     }
-    goto L;        // Non-compliant
+    goto L;          // Non-compliant
 M:
     return i;
 }
@@ -12896,7 +12906,7 @@ ID_forbidGoto&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: control suggestion
 示例：
 ```
 if (cond0) {
-    goto L;   // Non-compliant
+    goto L;    // Non-compliant
 }
 ....
 if (cond1) {
@@ -13068,7 +13078,7 @@ char baz(bool cond) {
 例外：  
 重复的子表达式有一定副作用时可不受本规则限制。
 ```
-if (fin.get() == 'a' && fin.get() == 'a') {  // Let it go
+if (fin.get() == 'a' && fin.get() == 'a') {   // Let it go
     ....
 }
 ```
@@ -13310,25 +13320,25 @@ ID_simplifiableTernary&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: expression suggestion
 示例：
 ```
 void foo(int a) {
-    if (a > 123? true: false) {    // Non-compliant, too verbose
+    if (a > 123? true: false) {   // Non-compliant, too verbose
         ....
     }
 }
 
 bool bar(int a) {
-    return a > 123? fun(): false;  // Non-compliant, verbose
+    return a > 123? fun(): false;   // Non-compliant, verbose
 }
 ```
 应改为：
 ```
 void foo(int a) {
-    if (a > 123) {
+    if (a > 123) {   // Compliant
         ....
     }
 }
 
 bool bar(int a) {
-    return a > 123 && fun();
+    return a > 123 && fun();   // Compliant
 }
 ```
 <br/>
@@ -13595,7 +13605,7 @@ bool 值只能为真或假，不具有“大小”等数值意义，bool 值参�
 示例：
 ```
 bool foo(unsigned flags, unsigned flag) {
-    return flags & flag != 0;  // Non-compliant
+    return flags & flag != 0;               // Non-compliant
 }
 ```
 由于 != 的优先级高于 &，所以例中的 return 语句相当于先判断 flag 是否为 0，再将这个 bool 型的结果与 flags 按位与，这是没有意义的。  
@@ -13603,7 +13613,7 @@ bool foo(unsigned flags, unsigned flag) {
 应改为：
 ```
 bool foo(unsigned flags, unsigned flag) {
-    return (flags & flag) != 0;  // Compliant
+    return (flags & flag) != 0;             // Compliant
 }
 ```
 <br/>
@@ -13665,13 +13675,13 @@ a >>= a >> x;
   
 示例：
 ```
-a += a + x;  // Rather suspicious
+a += a + x;   // Rather suspicious
 ```
 应改为：
 ```
-a = a + x;  // OK
-a = 2 * a + x;  // OK
-a = a + (a + x);  // OK
+a = a + x;         // OK
+a = 2 * a + x;     // OK
+a = a + (a + x);   // OK
 ```
 <br/>
 <br/>
@@ -13834,16 +13844,11 @@ ID_selfSubtraction&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
   
 示例：
 ```
-ptrdiff_t distance(const int* p0, const int* p1) {
-    return p0 - p0;  // Non-compliant
-}
+int *p0, *p1;
+....
+ptrdiff_t d = p0 - p0;  // Non-compliant
 ```
-例中减法表达式是没有意义的，很可能是 p1 被误写成了 p0，应改为：
-```
-ptrdiff_t distance(const int* p0, const int* p1) {
-    return p0 - p1;  // Compliant
-}
-```
+例中减法表达式是没有意义的，很可能是 p1 被误写成了 p0。
 <br/>
 <br/>
 
@@ -13884,11 +13889,11 @@ ID_minusOnUnsigned&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 示例：
 ```
 unsigned int a = 1;
-long long b = -a;    // Non-compliant, b is 4294967295, confusing
+long long b = -a;    // Non-compliant, ‘b’ is 4294967295, confusing
 ```
 例外：  
-unsigned char、unsigned short 等可以“[类型提升](https://en.wikipedia.org/wiki/Type_conversion#Type_promotion)”为 int 的无符号类型可不受本规则约束。  
-\-1U、\-1UL、\-1ULL 作为 UINT\_MAX、ULONG\_MAX、ULLONG\_MAX 的惯用简写形式可不受本规则约束。
+ - unsigned char、unsigned short 等可以“[类型提升](https://en.wikipedia.org/wiki/Type_conversion#Type_promotion)”为 int 的无符号类型可不受本规则约束  
+ - \-1U、\-1UL、\-1ULL 作为 UINT\_MAX、ULONG\_MAX、ULLONG\_MAX 的惯用简写形式可不受本规则约束
 <br/>
 <br/>
 
@@ -14032,15 +14037,15 @@ ID_illShiftCount&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 示例：
 ```
 uint64_t foo(uint32_t u) {
-    return u << 32;  // Non-compliant, undefined behavior
+    return u << 32;          // Non-compliant, undefined behavior
 }
 ```
-例中 u 为 32 位整型变量，将其左移 32 位并不能得到 64 位整数，其行为是标准未定义的。  
+例中 u 为 32 位整型变量，将其左移 32 位并不能得到 64 位整数，反而会导致标准未定义的行为。  
   
 应改为：
 ```
 uint64_t foo(uint32_t u) {
-    return static_cast<uint64_t>(u) << 32;  // Compliant
+    return static_cast<uint64_t>(u) << 32;   // Compliant
 }
 ```
 <br/>
@@ -14068,7 +14073,7 @@ ID_invalidCommaSubExpression&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warn
 示例：
 ```
 void foo(int& a, int& b) {
-    a, b = 0, 1;   // Non-compliant
+    a, b = 0, 1;             // Non-compliant
 }
 ```
 例中逗号表达式有 3 个子表达式，只有第 2 个子表达式有效，第 1 和第 3 个没有意义。  
@@ -14076,7 +14081,7 @@ void foo(int& a, int& b) {
 应改为：
 ```
 void foo(int& a, int& b) {
-    a = 0, b = 1;  // Compliant, but bad
+    a = 0, b = 1;            // Compliant, but bad
 }
 ```
 本规则集合不建议使用逗号表达式，将逗号表达式拆分成合理的语句是更好的选择。  
@@ -14084,7 +14089,7 @@ void foo(int& a, int& b) {
 ```
 void foo(int& a, int& b) {
     a = 0;
-    b = 1;         // Compliant, good
+    b = 1;                   // Compliant, good
 }
 ```
 <br/>
@@ -14109,7 +14114,7 @@ ID_illComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 ```
 void foo(string& txt, string& sub) {
     size_t n = txt.find(sub);
-    if (n >= 0) {  // Non-compliant, always true
+    if (n >= 0) {               // Non-compliant, always true
         ....
     }
 }
@@ -14120,7 +14125,7 @@ void foo(string& txt, string& sub) {
 ```
 typedef unsigned short X;
 void fun(X x) {
-    if (x == -1) {  // Non-compliant, always false
+    if (x == -1) {   // Non-compliant, always false
         ....
     }
 }
@@ -14133,7 +14138,7 @@ CodePage encodingDetect(const char* src) {
     char b0 = src[0];
     char b1 = src[1];
     char b2 = src[2];
-    if (b0 == 0xef && b1 == 0xbb && b2 == 0xbf) {  // Non-compliant, always false
+    if (b0 == 0xef && b1 == 0xbb && b2 == 0xbf) {   // Non-compliant, always false
         return cpUtf8;
     }
     ....
@@ -14162,13 +14167,13 @@ ID_illFloatComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 一般来说，除了可以记作 a \* 2<sup>n</sup>（a、n 为整数）的浮点数值可以被精确存储之外，其他均为近似值。用 == 或 != 判断浮点数（float、double、long double）是否相等往往得不到预期的结果。  
   
-如 0、1、2、3、1.5、1.25、…可以被精确存储，而除此之外绝大部分数值如 0.1、0.2、0.3、…只能存储其近似值。  
+如 0、1、2、3、1.5、1.25、… 可以被精确存储，而除此之外绝大部分数值如 0.1、0.2、0.3、… 只能存储其近似值。  
   
 示例：
 ```
 float f = 1;
 f /= 10;
-if (f == 0.1) {   // Non-compliant, do not use ‘==’ or ‘!=’
+if (f == 0.1) {     // Non-compliant, do not use ‘==’ or ‘!=’
     cout << "OK";
 } else {
     cout << "Oops";
@@ -14185,7 +14190,7 @@ bool feq(float a, float b, float e = 0.0001f) {
 ```
 利用 feq 函数判断浮点数是否相等，如果两个浮点数的差值非常小则可以认为相等，其中 fabs 为计算浮点数差值绝对值的函数，如果差值绝对值小于 e 则认为相等，否则不等。
 ```
-if (feq(f, 0.1)) {  // Compliant
+if (feq(f, 0.1)) {   // Compliant
     cout << "OK";
 }
 ```
@@ -14210,7 +14215,7 @@ ID_illPtrStrComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 示例：
 ```
 bool is_name(const char* p) {
-    return p == "bar";  // Non-compliant
+    return p == "bar";          // Non-compliant
 }
 ```
 如果例中 is\_name 函数只接受常量字符串作为参数，该函数在某些环境中也可能正常工作，如：
@@ -14227,7 +14232,7 @@ if (is_name("bar")) {   // May be true
 应改为：
 ```
 bool is_name(const char* p) {
-    return !strcmp(p, "bar");  // Compliant
+    return !strcmp(p, "bar");   // Compliant
 }
 ```
 <br/>
@@ -14319,16 +14324,16 @@ ID_successiveComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 示例：
 ```
 bool foo(int a, int b, int c) {
-    return a >= b >= c;  // Non-compliant, logic error
+    return a >= b >= c;           // Non-compliant, logic error
 }
 ```
 例中 a >= b 的结果为 bool 型，bool 型数据是没有大小概念的，这个结果再与 c 比较大小是没有意义的。  
   
 如果是判断两个 bool 表达式是否相等，可以被本规则放过，如：
 ```
-a > b == true       // Compliant, but odd
-a != b != true      // Compliant, but odd
-(a > b) == (c > d)  // Compliant, but complex
+a > b == true        // Compliant, but odd
+a != b != true       // Compliant, but odd
+(a > b) == (c > d)   // Compliant, but complex
 ```
 这种表达式虽然没有逻辑错误，但其复杂的形式并不值得提倡。
 <br/>
@@ -14358,11 +14363,7 @@ ID_returnValueIgnored&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 示例：
 ```
 void foo(string& s) {
-    s.empty();     // Non-compliant
-}
-
-void bar(unique_ptr<int[]>& p) {
-    p.release();   // Non-compliant
+    s.empty();          // Non-compliant
 }
 ```
 另外，C\+\+ 中由用户添加的具有 \[\[nodiscard\]\] 属性的函数，返回值也不应被忽略，如：  
@@ -14394,7 +14395,7 @@ ID_wrongUseOfReturnValue&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 示例：
 ```
 void foo(const string& s) {
-    if (s.find("bar")) {     // Non-compliant
+    if (s.find("bar")) {      // Non-compliant
         ....
     }
 }
@@ -14404,7 +14405,7 @@ void foo(const string& s) {
 应改为：
 ```
 void foo(const string& s) {
-    if (s.find("bar") != string::npos) {    // Compliant
+    if (s.find("bar") != string::npos) {   // Compliant
         ....
     }
 }
@@ -14414,7 +14415,7 @@ void foo(const string& s) {
 又如：
 ```
 bool gt(const char* a, const char* b) {
-    return strcmp(a, b) == 1;  // Non-compliant
+    return strcmp(a, b) == 1;             // Non-compliant
 }
 ```
 strcmp 函数的返回值可以是等于、大于或小于 0 的任意整数，分别对应字符串的等于、大于或小于关系，认为其只能返回 0、1 或 \-1 是一种常见的误解。  
@@ -14422,7 +14423,7 @@ strcmp 函数的返回值可以是等于、大于或小于 0 的任意整数，�
 应改为：
 ```
 bool gt(const char* a, const char* b) {
-    return strcmp(a, b) > 0;   // Compliant
+    return strcmp(a, b) > 0;              // Compliant
 }
 ```
 strcmp、wcscmp 以及 memcmp 等函数不应与 0 之外的任何值比较。  
@@ -14464,10 +14465,11 @@ void foo(A);
 A a;
 B b;
 
-a = b;   // Slicing
-foo(b);  // Slicing
-vector<A> v{b};  // Slicing
-v.push_back(b);  // Slicing
+a = b;    // Slicing
+foo(b);   // Slicing
+
+vector<A> v{b};   // Slicing
+v.push_back(b);   // Slicing
 ```
 尤其是函数传参或容器收纳对象时发生切片，会引起相当大的困惑，明明传入的是派生类对象，但虚函数都不生效了，所以要求多态性的接口或容器均应使用指针或引用。  
   
@@ -14476,7 +14478,7 @@ v.push_back(b);  // Slicing
 A a;
 B b;
 
-a = b;   // Bad, implicit slicing
+a = b;                   // Bad, implicit slicing
 a = to_base_object(b);   // OK
 ```
 其中 to\_base\_object 是一个返回基类对象的函数，表示有意为之。
@@ -14514,7 +14516,7 @@ struct A {
 };
 
 void foo(const A& a) {
-    printf("%s\n", a);  // Non-compliant
+    printf("%s\n", a);   // Non-compliant
 }
 ```
 即使对象有转为 const char\* 的方法，在可变参数列表中也是无效的，printf 无法正确获取字符串地址，造成内存访问错误。  
@@ -14522,7 +14524,7 @@ void foo(const A& a) {
 应改为：
 ```
 void foo(const A& a) {
-    printf("%s\n", static_cast<const char*>(a));  // Compliant
+    printf("%s\n", static_cast<const char*>(a));   // Compliant
 }
 ```
 <br/>
@@ -14688,8 +14690,8 @@ public:
 
 void foo() {
     A a;
-    a.~A();  // Non-compliant, explicitly call the destructor
-}            // ~A() twice called, crash...
+    a.~A();   // Non-compliant, explicitly call the destructor
+}             // ~A() twice called, crash...
 ```
 例中对象 a 的析构函数被显式调用，foo 返回前会再次调用析构函数，造成内存被重复释放。应去掉显式调用，由类提供提前释放资源的方法，并保证资源不会被重复释放。  
   
@@ -14795,7 +14797,7 @@ void foo(const A&);  // #2
 void foo(A&&);       // #3
 
 template <class T>
-void bar(T&& x) {    // Forwarding reference
+void bar(T&& x) {        // Forwarding reference
     foo(forward<T>(x));  // Compliant
 }
 
@@ -14926,7 +14928,7 @@ void foo(int* p) {
 应改为：
 ```
 void foo(int* p, int n) {
-    memset(p, 0, n * sizeof(*p));  // OK
+    memset(p, 0, n * sizeof(*p));   // OK
 }
 ```
 其中参数 n 是数组元素的个数。
@@ -14983,13 +14985,13 @@ ID_sizeof_suspiciousAdd&emsp;&emsp;&emsp;&emsp;&nbsp;:question: expression suspi
 示例：
 ```
 int foo(int* p, int i) {
-    return *(p + i * sizeof(int));  // Rather suspicious
+    return *(p + i * sizeof(int));   // Rather suspicious
 }
 ```
 如果 foo 函数是为了获取指针 p 之后第 i 个整数的值，那么这种实现是错误的，应改为：
 ```
 int foo(int* p, int i) {
-    return *(p + i);      // Right
+    return *(p + i);       // Right
 }
 ```
 <br/>
@@ -15357,9 +15359,9 @@ C/C\+\+ 语言规定，数组下标可以在中括号的右侧也可以在左侧
 ```
 void fun() {
     int a[5] = {1, 2, 3, 4};
-    4[a] = 5;                      // Non-compliant, use a[4] instead
+    4[a] = 5;                       // Non-compliant, use a[4] instead
     for (int i = 0; i < 4; i++) {
-        cout << i + 1[a] << '\n';  // Non-compliant, may be a[i + 1]
+        cout << i + 1[a] << '\n';   // Non-compliant, may be a[i + 1]
     }
 }
 ```
@@ -15465,14 +15467,13 @@ ID_literal_suspiciousChar&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: literal warning
   
 由于 C/C\+\+ 语言允许在单引号内写入多个字符来表示一个整形常量，如：
 ```
-auto i = '/t';
-cout << typeid(i).name() << ' ' << i;  // What is output?
+auto i = '/t';   // Non-compliant
 ```
-例中 i 为 int 型变量，值为 12148，这种语言特性可以让一些笔误通过编译，造成不易察觉的问题。  
+例中 i 为 int 型变量，值可以为 12148，这种语言特性可以让一些笔误通过编译，造成不易察觉的问题。  
   
 又如：
 ```
-auto* tab = wcschr(str, L'/t');
+auto* tab = wcschr(str, L'/t');   // Non-compliant
 ```
 在某些环境中执行结果和下列代码一样：
 ```
@@ -15555,7 +15556,7 @@ ID_literal_nonStandardEsc&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: literal warning
   
 示例：
 ```
-string path("C:\Files\x.cpp");    // Non-compliant
+string path("C:\Files\x.cpp");   // Non-compliant
 ```
 例中 \\F 不是标准转义字符，\\x 也不符合 16 进制转义字符的格式，这显然是路径中的反斜杠忘了转义。  
   
@@ -15671,24 +15672,24 @@ ID_literal_confusingSuffix&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: literal warning
   
 示例：
 ```
-long long a = 100ll;  // Non-compliant, misread as 10011
+long long a = 100ll;    // Non-compliant, misread as 10011
 long double b = 100.l;  // Non-compliant, misread as 100.1
 ```
 应改为：
 ```
-long long a = 100LL;  // Compliant
+long long a = 100LL;    // Compliant
 long double b = 100.L;  // Compliant
 ```
 后缀大小写混用的情况会使人更加困惑：
 ```
-long long c = 100lL;  // Non-compliant, very bad
+long long c = 100lL;            // Non-compliant, very bad
 unsigned long long d = 100lLU;  // Non-compliant, very bad
 ```
 其中，小写的 l 和大写的 L 混在了一起。  
   
 应改为：
 ```
-long long c = 100LL;  // Compliant
+long long c = 100LL;            // Compliant
 unsigned long long d = 100LLU;  // Compliant
 ```
 <br/>
@@ -16432,7 +16433,7 @@ void foo(A* p, int n) {
 
 void bar() {
     B arr[100];
-    foo(arr, 100);    // Non-compliant
+    foo(arr, 100);   // Non-compliant
     ....
 }
 ```
@@ -16440,8 +16441,8 @@ void bar() {
   
 另外，在回收动态分配的数组时，如果指针的类型与实际元素的类型不一致，会导致标准未定义的行为：
 ```
-A* p = new B[100];    // Non-compliant
-delete[] p;           // Undefined behavior
+A* p = new B[100];   // Non-compliant
+delete[] p;          // Undefined behavior
 ```
 这是一个危险的问题，本规则针对所有数组相关的隐式和显式类型转换。
 <br/>
@@ -16587,7 +16588,7 @@ ID_redundantCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 示例：
 ```
 float foo(int a) {
-    return (int)a;    // Non-compliant
+    return (int)a;  // Non-compliant
 }
 ```
 应改为：
@@ -17207,9 +17208,9 @@ ID_invalidNullCheck&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
   
 示例：
 ```
-if (int* p = new int[100]) {  // Non-compliant
+if (int* p = new int[100]) {   // Non-compliant
     ....
-} else {  // Invalid
+} else {   // Invalid
     ....
 }
 ```
@@ -17217,15 +17218,15 @@ if (int* p = new int[100]) {  // Non-compliant
   
 应改为：
 ```
-if (int* p = new(std::nothrow) int[100]) {  // Compliant
+if (int* p = new(std::nothrow) int[100]) {   // Compliant
     ....
-} else {  // OK
+} else {   // OK
     ....
 }
 ```
 又如：
 ```
-if (p) {  // Meaningless
+if (p) {        // Meaningless
     delete p;
 }
 ```
@@ -17256,10 +17257,10 @@ void foo(int* p) {
     if (!p) {
         return;
     }
-    if (p) {      // Non-compliant, ‘p’ is not nullptr
+    if (p) {   // Non-compliant, ‘p’ is not nullptr
         ....
     } else {
-        ....      // Unreachable
+        ....   // Unreachable
     }
 }
 ```
@@ -17355,7 +17356,7 @@ ID_oddPtrBoolAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 示例：
 ```
 void set_false(bool* p) {
-    p = false;  // Non-compliant, should be ‘*p = false’
+    p = false;              // Non-compliant, should be ‘*p = false’
 }
 ```
 <br/>
@@ -17377,13 +17378,13 @@ ID_oddPtrCharAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 示例：
 ```
 void set_terminate(char* p) {
-    p = '\0';  // Non-compliant
+    p = '\0';                   // Non-compliant
 }
 ```
 应改为：
 ```
 void set_terminate(char* p) {
-    *p = '\0';  // Compliant
+    *p = '\0';                  // Compliant
 }
 ```
 <br/>
@@ -17553,15 +17554,15 @@ class A {
     ....
 public:
     void foo() {
-        delete this;  // Non-compliant
+        delete this;   // Non-compliant
     }
 };
 
 auto* p = new A;
-p->foo();         // Looks innocent
+p->foo();              // Looks innocent
 
 p = new A[10];
-p->foo();         // Memory is still leaking
+p->foo();              // Memory is still leaking
 ```
 如果一定要使用 delete this，类的析构函数应设为私有，这样可以阻止类的对象在栈上定义而引发更大的混乱，并且要确保执行 delete this 后 this 指针再也不会被解引用，而且不能用 new\[\] 创建，否则仍然存在内存泄漏问题。  
   
@@ -17770,7 +17771,7 @@ ID_sig_illReturn&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: interruption warning
 
 void handler(int signum) {
     ....
-    return;      // Non-compliant
+    return;   // Non-compliant
 }
 
 int main() {
@@ -18000,9 +18001,9 @@ ID_spuriouslyWakeUp&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: concurrency warning
   
 示例：
 ```
-mtx_t m;                    // Mutex
-cnd_t cv;                   // Condition variable
-bool cnd;                   // Represents the condition
+mtx_t m;    // Mutex
+cnd_t cv;   // Condition variable
+bool cnd;   // Represents the condition
 
 void thread() {
     mtx_lock(&m);           // Lock
@@ -18164,7 +18165,7 @@ ID_braceStyle&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style suggestion
   
 示例：
 ```
-void foo() {
+void foo() {     // Non-compliant, mssing a unified style
     if (cond)
     {
         ....
@@ -18174,7 +18175,7 @@ void foo() {
     }
 }
 
-void bar()
+void bar()       // Non-compliant, mssing a unified style
 {
     if (cond) {
         ....
