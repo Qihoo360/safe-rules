@@ -478,7 +478,7 @@
     - [R10.4.1 不应忽略重要的返回值](#ID_returnValueIgnored)
     - [R10.4.2 不可臆断返回值的意义](#ID_wrongUseOfReturnValue)
     - [R10.4.3 避免对象切片](#ID_objectSlicing)
-    - [R10.4.4 非基本类型的对象不应传入可变参数列表](#ID_userObjectAsVariadicArgument)
+    - [R10.4.4 非基本类型的对象不应传入可变参数列表](#ID_nonPODVariadicArgument)
     - [R10.4.5 C 格式化字符串与其参数的个数应一致](#ID_inconsistentFormatArgNum)
     - [R10.4.6 C 格式化字符串与其参数的类型应一致](#ID_inconsistentFormatArgType)
     - [R10.4.7 在 C\+\+ 代码中禁用 C 风格字符串格式化方法](#ID_forbidCStringFormat)
@@ -2605,24 +2605,18 @@ ID_nonStandardCharInHeaderName&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompil
   
 示例：
 ```
-#include < >            // Non-compliant
 #include <"foo">        // Non-compliant
 #include <foo*>         // Non-compliant
-#include <?bar?>        // Non-compliant
+#include <foo'bar>      // Non-compliant
 
 #include <foo>          // Compliant
 #include <foo.h>        // Compliant
-#include <foo_bar.h>    // Compliant
+#include <foo_bar>      // Compliant
 ```
 可以用 / 作为路径分隔符，但不应出现  // 或 /\*，  如：
 ```
-#include <foo//bar.h>   // Non-Compliant, undefined behavior
-#include <foo/*bar.h>   // Non-Compliant, undefined behavior
-```
-名称中的单引号、反斜杠在 C 及 C\+\+03 标准中是未定义的，在 C\+\+11 标准中是由实现定义的。
-```
-#include <foo'bar>      // Non-compliant
-#include <foo\bar>      // Non-compliant
+#include <foo//bar.h>   // Non-Compliant
+#include <foo/*bar.h>   // Non-Compliant
 ```
 另外，由于某些平台的文件系统不区分路径大小写，建议头文件名称只使用小写字母以减少移植类问题。
 <br/>
@@ -2648,17 +2642,16 @@ ID_forbidBackslashInHeaderName&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompil
 
 <hr/>
 
-在 include 指令中使用反斜杠不利于代码移植，而且可能会导致标准未定义的行为。  
+如果在 include 指令中使用反斜杠，程序的行为在 C 和 C\+\+03 标准中是未定义的，在 C\+\+11 标准中是由实现定义的。  
   
 示例：
 ```
-#include <\r\n.h>        // Non-compliant
-#include <foo\\bar.h>    // Non-compliant
+#include <foo\bar.h>     // Non-compliant
 #include "foo\\bar.h"    // Non-compliant
 
 #include <foo/bar.h>     // Compliant
 ```
-C\+\+11 之前的标准指明反斜杠出现在尖括号或引号之间会导致未定义的行为，C\+\+11 之后则由实现定义，所以对有高可移植性要求的代码应避免使用反斜杠。
+有高可移植性要求的代码应避免使用反斜杠。
 <br/>
 <br/>
 
@@ -2684,8 +2677,8 @@ ID_forbidAbsPathInHeaderName&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompile 
   
 示例：
 ```
-#include "C:\\foo\\bar.h"  // Non-compliant
-#include "/foo/bar.h"      // Non-compliant
+#include "C:\\foo\\bar.h"   // Non-compliant
+#include "/foo/bar.h"       // Non-compliant
 ```
 <br/>
 <br/>
@@ -2748,7 +2741,7 @@ ID_forbidCHeaderInCpp&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompile warning
 
 在 C\+\+ 代码中应使用 C\+\+ 标准头文件，stdio.h、stdlib.h 等 C 语言头文件不在 C\+\+ 标准之内，应改用 cstdio、cstdlib 等 C\+\+ 标准头文件。  
   
-C 标准头文件均有对应的 C\+\+ 版本，C\+\+ 版本提供了更适合 C\+\+ 语言的命名空间、模板以及函数重载等功能。另外，按 C\+\+ 惯例，语言相关的标准头文件无扩展名，自定义及平台相关的以 .h 为扩展名，遵循统一的命名规范也有必要的。  
+C 标准头文件均有对应的 C\+\+ 版本，C\+\+ 版本提供了更适合 C\+\+ 代码的命名空间、模板以及函数重载等功能。另外，按 C\+\+ 惯例，语言相关的标准头文件无扩展名，自定义及平台相关的以 .h 为扩展名，遵循统一的命名规范也有必要的。  
   
 示例：
 ```
@@ -3399,6 +3392,8 @@ short int、signed short int、unsigned short int
 ```
 这些类型的参数在传入可变参数列表时，会被提升为 int、unsigned int、double 等类型，va\_arg 如果再提升前的类型解析参数的值就会造成错误，参见“[默认参数提升（default argument promotion）](https://en.cppreference.com/w/cpp/language/variadic_arguments#Default_conversions)”机制。  
   
+另外，C\+\+ 代码中非 POD 类型也不可作为 va\_arg 的参数，参见 ID\_nonPODVariadicArgument。  
+  
 示例：
 ```
 void foo(int n, ...) {
@@ -3416,6 +3411,7 @@ void foo(int n, ...) {
 
 #### 相关
 ID_badParmN  
+ID_nonPODVariadicArgument  
 ID_forbidVariadicFunction  
 <br/>
 
@@ -3840,7 +3836,7 @@ ID_missingNewLineFileEnd&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggesti
 
 <hr/>
 
-非空源文件未以换行符结尾，或以换行符结尾但换行符之前是反斜杠，会导致 C\+\+03 标准未定义的行为。  
+非空源文件未以换行符结尾，或以换行符结尾但换行符之前是反斜杠，在 C\+\+03 标准中会导致未定义的行为。  
   
 一般情况下 IDE 或编辑器会保证源文件以空行结尾，而且 C\+\+11 规定编译器应补全所需的空行，但为了提高兼容性，尤其是自动生成的源文件，应以有效的换行符结尾。  
   
@@ -6177,7 +6173,7 @@ ID_missingConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 示例：
 ```
 char* p = "....";  // Non-compliant
-p[x] = '\0';       // Undefined behaivor
+p[x] = '\0';       // Undefined behavior
 ```
 例中 p 指向常量字符串，通过 p 修改相关内存区域会种程序产生未定义的行为。  
   
@@ -14505,17 +14501,30 @@ SEI CERT OOP51-CPP
 <br/>
 <br/>
 
-### <span id="ID_userObjectAsVariadicArgument">▌R10.4.4 非基本类型的对象不应传入可变参数列表</span>
+### <span id="ID_nonPODVariadicArgument">▌R10.4.4 非基本类型的对象不应传入可变参数列表</span>
 
-ID_userObjectAsVariadicArgument&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
+ID_nonPODVariadicArgument&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
 <hr/>
 
-非基本类型的对象与可变参数列表的机制很难相容，如果这种对象被传入可变参数列表，往往意味着错误。  
-  
-传入可变参数列表的只应是基本类型的常量、变量、枚举值或指针，否则如果传入的对象存在自定义拷贝构造函数、移动构造函数或析构函数时，相关标准的定义较为粗略，往往是“conditionally\-supported”或者“implementation\-defined”。  
+如果将非“[POD](https://en.cppreference.com/w/cpp/named_req/PODType)”对象传入可变参数列表，程序的行为在 C\+\+03 中是未定义的，在 C\+\+11 中是部分由实现定义的。  
   
 示例：
+```
+void foo(int n, ...) {
+    va_list vl;
+    ....
+    string x = va_arg(vl, string);   // Undefined behavior
+    ....
+}
+
+void bar(string& s) {
+    foo(1, s);          // Non-compliant, undefined behavior
+}
+```
+例中 string 类对象 s 不是 POD 对象，其拷贝构造和析构过程难以与可变参数列表机制兼容，通过 va\_arg 也难以获取正确的对象。  
+  
+又如：
 ```
 struct A {
     string s;
@@ -14539,6 +14548,10 @@ void foo(const A& a) {
 <br/>
 <br/>
 
+#### 相关
+ID_badVaArgType  
+<br/>
+
 #### 依据
 ISO/IEC 14882:2003 5.2.2(7)-undefined  
 ISO/IEC 14882:2011 5.2.2(7)-implementation  
@@ -14546,7 +14559,6 @@ ISO/IEC 14882:2011 5.2.2(7)-implementation
 
 #### 参考
 CWE-686  
-SEI CERT EXP47-C  
 <br/>
 <br/>
 
@@ -14612,7 +14624,7 @@ void foo(const string& msg) {
 <br/>
 
 #### 相关
-ID_userObjectAsVariadicArgument  
+ID_nonPODVariadicArgument  
 ID_inconsistentFormatArgNum  
 ID_forbidCStringFormat  
 <br/>

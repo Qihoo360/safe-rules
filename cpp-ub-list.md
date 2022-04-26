@@ -94,7 +94,7 @@
 | 82 | [声明或定义标准库保留名称](#_82) | [`11-17.6.4.3(2)`](#_82) |
 | 83 | [编译器未提供标准头文件，但编译时引入了非标准同名头文件](#_83) | [`11-17.6.4.4(1)`](#_83) |
 | 84 | [为标准库函数提供不符合要求的参数](#_84) | [`11-17.6.4.9(1)`](#_84) |
-| 85 | [多线程调用标准库函数造成 data race](#_85) | [`11-17.6.4.10(1)`](#_85) |
+| 85 | [多线程调用标准库函数造成数据竞争](#_85) | [`11-17.6.4.10(1)`](#_85) |
 | 86 | [违反标准库函数要求的前置条件，除非标准库函数声明了这种情况会抛出异常](#_86) | [`11-17.6.4.11(1)`](#_86) |
 | 87 | [offsetof 用于非 standard layout 类型，或用于计算静态成员以及成员函数的偏移量](#_87) | [`11-18.2(4)`](#_87) |
 | 88 | [可变参数列表中省略号的前一个形式参数为引用、数组、函数，或具有与默认参数提升后不兼容的类型](#_88) | [`11-18.10(3)`](#_88) |
@@ -117,9 +117,7 @@ auto s = "\u54\
 auto \u54\
 0D = 'a';          // Undefined behavior
 ```
-例中字符串和变量名与下一行连接后产生了通用字符名称。  
-  
-这种代码和预处理过程存在矛盾，可能不会通过编译，也可能不会造成实际问题，但一定不具备可移植性。
+这种代码可能不会通过编译，也可能不会造成实际问题，但一定不具备可移植性。
 <br/>
 <br/>
 
@@ -144,7 +142,7 @@ namespace NS {
     ....
 }\                 // Undefined behavior if this is the last line
 ```
-这种代码在 C\+\+03 中的行为是未定义的，C\+\+11 规定在这种情况下编译器应补全所需的空行。
+C\+\+03 声明了这种情况会导致未定义的行为，C\+\+11 规定在这种情况下编译器应补全所需的空行。
 <br/>
 <br/>
 
@@ -209,10 +207,10 @@ ISO/IEC 14882:2011 2.5(2)-undefined
 
 示例：
 ```
-#include <"foo">        // Undefined behavior in C++03
-#include "foo//bar"     // Undefined behavior in C++03
+#include <"foo">      // Undefined behavior in C++03
+#include "foo//bar"   // Undefined behavior in C++03
 ```
-C\+\+03 声明了这些情况会导致未定义的行为，在 C\+\+11 中则由实现定义。
+程序在这种情况下的行为在 C\+\+03 中是未定义的，在 C\+\+11 中是由实现定义的。
 <br/>
 <br/>
 
@@ -223,6 +221,7 @@ ISO/IEC 14882:2011 2.9(2)-implementation
 
 #### 规则
 [ID_nonStandardCharInHeaderName](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_nonStandardCharInHeaderName)  
+[ID_forbidBackslashInHeaderName](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_forbidBackslashInHeaderName)  
 <br/>
 
 <br/>
@@ -235,7 +234,7 @@ ISO/IEC 14882:2011 2.9(2)-implementation
 ```
 cout << 2147483648;   // Undefined behavior in C++03
 ```
-设 long int 为 32 位有符号整数类型，字面常量 2147483648 超出了范围，其行为在 C\+\+03 中是未定义的，在 C\+\+11 中则会将 2147483648 归为 unsigned long int 类型。
+如果 long int 为 32 位有符号整数类型，字面常量 2147483648 超出了范围，其行为在 C\+\+03 中是未定义的，在 C\+\+11 中则会将 2147483648 归为 unsigned long int 类型。
 <br/>
 <br/>
 
@@ -287,7 +286,7 @@ ISO/IEC 14882:2011 2.14.3(3)-implementation
 
 示例：
 ```
-*((char*)"oops") = 'O';   // Undefined behaivor, may crash
+*((char*)"oops") = 'O';   // Undefined behavior, may crash
 cout << "oops";           // If it doesn't crash, this might output ‘Oops’
 ```
 修改字面常量是一种逻辑错误。多数通用系统会在运行时保护常量数据，相关修改会造成崩溃，在没有这种保护机制的系统中，字符串常量可能会被修改，但也可能会影响到其他相同的字符串常量，因为相同的字符串常量可能共用相同的存储空间。
@@ -314,6 +313,7 @@ ISO/IEC 14882:2011 2.14.5(12)-undefined
 auto* x = L"123" "456";    // Undefined in C++03
 auto* y = L"123" "456";    // A wide string in C++11
 ```
+C\+\+03 规定宽字符串与窄字符串连接会导致未定义的行为。C\+\+11 规定一个字符串有前缀一个没有的话，结果以有前缀的为准，其他情况由实现定义。
 <br/>
 <br/>
 
@@ -412,7 +412,7 @@ public:
 
 U gObj;   // Problematic
 ```
-当例中全局对象 gObj 析构时会调用 foo 函数，如果这时 foo 函数中的局部静态对象 sObj 已析构，会导致未定义的行为，gObj 与 sObj 的析构顺序在标准中是不确定的。
+当例中全局对象 gObj 析构时会调用 foo 函数，如果这时 foo 函数中的静态对象 sObj 已析构，会导致未定义的行为，gObj 与 sObj 的析构顺序在标准中是不确定的。
 <br/>
 <br/>
 
@@ -545,7 +545,7 @@ delete p;      // Well-defined
 delete p;      // Undefined behavior
 cout << *p;    // Undefined behavior
 ```
-指针指向的对象被回收后，指针的值和指针曾指向的对象均失败，继续访问会导致未定义的行为。
+指针指向的对象被回收后，指针的值和指针曾指向的对象均失效，继续访问会导致未定义的行为。
 <br/>
 <br/>
 
@@ -573,15 +573,15 @@ struct U {
 };
 
 struct T {
-   ~T();    // If it has side effects
+   ~T();     // If it has side effects
     ....
 };
 
 void* p = malloc(max(sizeof(T), sizeof(U)));
 T* pT = new (p) T;
-U* pU = new (p) U;     // Undefined behavior
+U* pU = new (p) U;   // Undefined behavior
 ```
-例中第二个 new 表达式结束了 pT 所指对象的生命周期，但没有调用其析构函数，如果其析构函数存在副作用，则会导致未定义的行为，可能会造成资源泄露或逻辑错误。
+例中第二个 new 表达式结束了 pT 所指对象的生命周期，但没有调用其析构函数，如果其析构函数存在副作用，则会导致未定义的行为。
 <br/>
 <br/>
 
@@ -611,13 +611,13 @@ struct T {
 };
 
 T* p = (T*)malloc(sizeof(T));
-p->fun();   // Undefined behavior
+p->fun();   // Undefined behavior, the lifetime has not yet started
 
 new (p) T();
 p->fun();   // Well-defined
 
 p->~T();
-p->fun();   // Undefined behavior
+p->fun();   // Undefined behavior, the lifetime has ended
 
 free(p);
 ```
@@ -767,7 +767,7 @@ ISO/IEC 14882:2011 3.10(10)-undefined
 ### <span id="_24">24. 通过 glvalue 引用不相关类型的对象或未初始化的对象</span>
 <br/>
 
-glvalue 的类型与其引用的对象类型不同且没有继承关系，以及引用的对象未初始化，会导致未定义的行为。  
+glvalue 的类型与其引用的对象类型不同且没有继承关系，或引用的对象未初始化，会导致未定义的行为。  
   
 示例：
 ```
@@ -806,7 +806,7 @@ ISO/IEC 14882:2011 4.1(1)-undefined
 ```
 double d = FLT_MAX;
 d = d * 10;
-float f = d;   // Non-defined behaivor
+float f = d;   // Non-defined behavior
 ```
 例中 d 的值超过了 float 的取值范围，将 d 的值转为 float 会导致未定义的行为。
 <br/>
@@ -880,7 +880,7 @@ ISO/IEC 14882:2011 4.9(2)-undefined
 int a = 0;
 int b = a + a++;    // Undefined behavior
 ```
-例中加法运算符左右子表达式无明确的求值顺序，如果左子表达式先求值，b 的值是 0，如果右子表达式先求值，b 的值可能是 1 也可能是 0，因为 a\+\+ 的值是 0，但 a\+\+ 的副作用在表达式求值过程中何时生效，也是不确定的。  
+例中加法运算符左右子表达式无明确的求值顺序，如果左子表达式先求值，b 的值是 0，如果右子表达式先求值，b 的值可能是 1 也可能是 0，因为 a\+\+ 的值是 0，但 a\+\+ 的副作用在表达式求值过程中何时生效也是不确定的。  
   
 又如：
 ```
@@ -915,7 +915,7 @@ unsigned u = UINT_MAX + 1;  // Well-defined
 ```
 例中变量 u 的值一定是 0，而 s 的值是标准未定义的，往往由编译器和执行环境决定。  
   
-无符号整数运算在程序中的结果是数学上的结果与 (M \+ 1) 取模的结果，M 是其类型对应的最大值，在数学上有明确定义，而对于有符号整数，将符号位移出相关比特位，或将非符号位移入符号位，在数学上是没有意义的，故称无符号整数不存在溢出问题，有符号整数存在溢出问题，溢出会导致未定义的行为。
+设无符号整数的最大值为 M，无符号整数运算在程序中的结果是数学上的结果与 (M \+ 1) 取模的结果，这在数学上是有明确定义的，而对于有符号整数，将符号位移出相关比特位，或将非符号位移入符号位，在数学上是没有意义的，故称无符号整数不存在溢出问题，有符号整数存在溢出问题，溢出会导致未定义的行为。
 <br/>
 <br/>
 
@@ -925,6 +925,7 @@ ISO/IEC 14882:2011 5(4)-undefined
 <br/>
 
 #### 规则
+[ID_divideByZero](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_divideByZero)  
 [ID_evalOverflow](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_evalOverflow)  
 <br/>
 
@@ -962,16 +963,15 @@ ISO/IEC 14882:2011 5.2.2(1)-undefined
 ### <span id="_31">31. 将非 POD 对象传入可变参数列表</span>
 <br/>
 
-可变参数列表是 C 语言的概念，C\+\+ 中具有拷贝构造或析构函数的对象难以与其兼容，将非 POD 对象传入可变参数列表在 C\+\+03 中是未定义的，在 C\+\+11 中是部分由实现定义的。  
+可变参数列表是 C 语言的概念，C\+\+ 中具有拷贝构造或析构函数的对象难以与其兼容，如果将非 POD 对象传入可变参数列表，程序的行为在 C\+\+03 中是未定义的，在 C\+\+11 中是部分由实现定义的。  
   
 示例：
 ```
 string str;
 void foo(int, ...);
 
-foo(1, str);         // Undefined behavior
+foo(1, str);   // Undefined behavior
 ```
-例中 string 类对象 str 是非 POD 对象，由于其特殊的拷贝构造过程，在 foo 函数中通过 va\_arg 难以获取正确的对象。
 <br/>
 <br/>
 
@@ -981,7 +981,8 @@ ISO/IEC 14882:2011 5.2.2(7)-implementation
 <br/>
 
 #### 规则
-[ID_userObjectAsVariadicArgument](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_userObjectAsVariadicArgument)  
+[ID_nonPODVariadicArgument](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_nonPODVariadicArgument)  
+[ID_badVaArgType](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_badVaArgType)  
 [ID_forbidVariadicFunction](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_forbidVariadicFunction)  
 <br/>
 
@@ -1137,14 +1138,14 @@ ISO/IEC 14882:2011 5.2.11(7)-undefined
 
 示例：
 ```
-struct T;             // Incomplete type
+struct T;   // Incomplete type
 
 T* foo(T& obj) {
-    return &obj;      // Undefined behaviour
+    return &obj;   // Undefined behaviour
 }
 
 struct T {
-    T* operator &();  // Overload
+    T* operator &();   // Overload
 };
 ```
 <br/>
@@ -1171,7 +1172,7 @@ int* foo(int n) {
     return new int[n];   // Undefined in C++03 if ‘n’ is negtive
 }
 ```
-例中 n  如果为负数，其行为在 C\+\+03 中是未定义的，C\+\+11 去掉了这项未定义行为的声明。
+如果 n 为负数，程序的行为在 C\+\+03 中是未定义的，C\+\+11 去掉了这项未定义行为的声明。
 <br/>
 <br/>
 
@@ -1655,7 +1656,7 @@ p->foo();   // Undefined behavior
 p->bar();   // Undefined behavior
 p->baz();   // Well-defined, ‘baz’ is a static member
 ```
-例中通过空指针调用对象的非静态成员函数会导致未定义的行为，即使成员函数没有引用成员数据。通过空指针调用静态成员函数不属于访问对象，所以这种情况不属于逻辑错误。
+通过空指针调用对象的非静态成员函数会导致未定义的行为，即使成员函数没有引用成员数据。通过空指针调用静态成员函数不属于访问对象，所以这种情况不属于逻辑错误。
 <br/>
 <br/>
 
@@ -2243,7 +2244,7 @@ ISO/IEC 14882:2011 16.3.3(3)-undefined
 ### <span id="_74">74. \#line 指定的行号为 0 或大于规定值</span>
 <br/>
 
-C\+\+03 规定行号不可大于 32767，C\+\+11 规定不可大于 2147483647  
+C\+\+03 规定行号不可大于 32767，C\+\+11 规定不可大于 2147483647，否则导致未定义的行为。  
   
 示例：
 ```
@@ -2390,7 +2391,7 @@ namespace std
     >;
 }
 ```
-示例代码向标准库命名空间添加了声明，这种对特殊命名空间的修改是否会生效，以及是否会造成非预期的影响，均是未定义的。
+对特殊命名空间的修改是否会生效，以及是否会造成非预期的影响，均是未定义的。
 <br/>
 <br/>
 
@@ -2474,7 +2475,7 @@ ISO/IEC 14882:2011 17.6.4.3(2)-undefined
 ### <span id="_83">83. 编译器未提供标准头文件，但编译时引入了非标准同名头文件</span>
 <br/>
 
-应选用健全的编译器，并保证编译环境的安全。
+应选用健全的编译器，并保证编译环境的安全，否则程序的行为是未定义的。
 <br/>
 <br/>
 
@@ -2500,14 +2501,35 @@ ISO/IEC 14882:2011 17.6.4.9(1)-undefined
 <br/>
 <br/>
 
-### <span id="_85">85. 多线程调用标准库函数造成 data race</span>
+### <span id="_85">85. 多线程调用标准库函数造成数据竞争</span>
 <br/>
 
+某些库函数与共享数据相关，但并未提供安全的同步机制，在多线程环境中使用会导致未定义的行为。  
+  
+示例：
+```
+void foo() {
+    while (true) {
+        auto r = rand();   // Undefined behavior
+        ....
+    }
+}
+
+int main() {
+    thread t0(foo), t1(foo);
+    ....
+}
+```
+多线程并发调用 rand、srand 等函数会造成数据竞争，导致未定义的行为。
 <br/>
 <br/>
 
 #### 依据
 ISO/IEC 14882:2011 17.6.4.10(1)-undefined  
+<br/>
+
+#### 规则
+[ID_dataRaces](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_dataRaces)  
 <br/>
 
 <br/>
@@ -2549,6 +2571,7 @@ struct T {
 
 size_t s = offsetof(T, m);  // Undefined behavior
 ```
+例中 T 不是 standard layout 类型，用 offsetof 求成员 m 的偏移量会导致未定义的行为。
 <br/>
 <br/>
 

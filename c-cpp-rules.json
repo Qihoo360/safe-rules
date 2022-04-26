@@ -1052,7 +1052,7 @@
     "ID_forbidBackslashInHeaderName": {
         "checkPoint": "include 指令中不应使用反斜杠",
         "level": "warning",
-        "comment": "在 include 指令中使用反斜杠不利于代码移植，而且可能会导致标准未定义的问题。",
+        "comment": "如果在 include 指令中使用反斜杠，程序的行为在 C 和 C++03 标准中是未定义的，在 C++11 标准中是由实现定义的。",
         "tag": "precompile",
         "standard": "ISO/IEC 9899:1999 6.4.7(3)-undefined,ISO/IEC 9899:2011 6.4.7(3)-undefined,ISO/IEC 14882:2003 2.8(2)-undefined,ISO/IEC 14882:2011 2.9(2)-implementation",
         "reference": "MISRA C++ 2008 16-2-5"
@@ -1245,13 +1245,14 @@
         "related": "ID_paramMayBeSlicing",
         "reference": "C++ Core Guidelines ES.63,C++ Core Guidelines C.145,SEI CERT OOP51-CPP"
         },
-    "ID_userObjectAsVariadicArgument": {
+    "ID_nonPODVariadicArgument": {
         "checkPoint": "非基本类型的对象不应传入可变参数列表",
         "level": "error",
-        "comment": "非基本类型的对象与可变参数列表的机制很难相容，如果这种对象被传入可变参数列表，往往意味着错误。",
+        "comment": "非基本类型的对象与可变参数列表的机制很难相容，将这种对象传入可变参数列表往往意味着错误。",
         "tag": "expression",
+        "related": "ID_badVaArgType",
         "standard": "ISO/IEC 14882:2003 5.2.2(7)-undefined,ISO/IEC 14882:2011 5.2.2(7)-implementation",
-        "reference": "CWE-686,SEI CERT EXP47-C"
+        "reference": "CWE-686"
         },
     "ID_downCast": {
         "checkPoint": "避免向下类型转换",
@@ -2859,7 +2860,7 @@
         "level": "error",
         "comment": "格式化字符串与其对应参数的类型应严格一致，否则会引发严重的运行时堆栈错误。",
         "tag": "expression",
-        "related": "ID_userObjectAsVariadicArgument,ID_inconsistentFormatArgNum,ID_forbidCStringFormat",
+        "related": "ID_nonPODVariadicArgument,ID_inconsistentFormatArgNum,ID_forbidCStringFormat",
         "standard": "ISO/IEC 9899:2011 7.16.1.1(2)-undefined,ISO/IEC 9899:2011 7.21.6.1(2)-undefined",
         "reference": "CWE-686,SEI CERT FIO47-C"
         },
@@ -3303,7 +3304,7 @@
     "ID_missingNewLineFileEnd": {
         "checkPoint": "非空源文件应以换行符结尾",
         "level": "suggestion",
-        "comment": "非空源文件未以换行符结尾，或以换行符结尾但换行符之前是反斜杠，会导致 C++03 标准未定义的行为。",
+        "comment": "非空源文件未以换行符结尾，或以换行符结尾但换行符之前是反斜杠，在 C++03 标准中会导致未定义的行为。",
         "tag": "precompile",
         "standard": "ISO/IEC 14882:2003 2.1(2)-undefined"
         },
@@ -3337,7 +3338,7 @@
         "level": "error",
         "comment": "va_arg 的类型参数应符合要求。",
         "tag": "precompile",
-        "related": "ID_badParmN,ID_forbidVariadicFunction",
+        "related": "ID_badParmN,ID_nonPODVariadicArgument,ID_forbidVariadicFunction",
         "standard": "ISO/IEC 9899:2011 7.16.1.1(2)-undefined",
         "reference": "SEI CERT EXP47-C"
         },
