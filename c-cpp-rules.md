@@ -385,7 +385,7 @@
     - [R9.1.15 所有 if...else\-if 分枝都应以 else 子句结束](#ID_if_missingEndingElse)
   - [9.2 For](#control.for)
     - [R9.2.1 for 语句不应被分号隔断](#ID_for_semicolon)
-    - [R9.2.2 for 循环中不应存在无条件的跳转语句](#ID_for_uncondBroken)
+    - [R9.2.2 for 语句中不应存在无条件的跳转语句](#ID_for_uncondBroken)
     - [R9.2.3 for 语句作用域的范围不应有误](#ID_for_scope)
     - [R9.2.4 for 语句没有明显的循环变量时应改用 while 句语](#ID_for_simplification)
     - [R9.2.5 for 循环体不应为空](#ID_for_emptyBlock)
@@ -11472,7 +11472,7 @@ CWE-670
 <br/>
 <br/>
 
-### <span id="ID_for_uncondBroken">▌R9.2.2 for 循环中不应存在无条件的跳转语句</span>
+### <span id="ID_for_uncondBroken">▌R9.2.2 for 语句中不应存在无条件的跳转语句</span>
 
 ID_for_uncondBroken&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: control error
 

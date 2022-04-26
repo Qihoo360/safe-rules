@@ -2285,7 +2285,7 @@
         "reference": "CWE-670"
         },
     "ID_for_uncondBroken": {
-        "checkPoint": "for 循环中不应存在无条件的跳转语句",
+        "checkPoint": "for 语句中不应存在无条件的跳转语句",
         "level": "error",
         "comment": "无条件的 return、throw 或 break 语句会使循环失效，无条件的 continue 语句会使其后面的代码失效，如果其后没有代码时，该 continue 语句是没有意义的。",
         "tag": "control",
