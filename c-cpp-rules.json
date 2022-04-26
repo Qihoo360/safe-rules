@@ -3177,7 +3177,7 @@
     "ID_dataRaces": {
         "checkPoint": "访问共享数据应遵循合理的同步机制",
         "level": "warning",
-        "comment": "如果一份数据同时被多个线程、进程或中断处理过程读写，会产生不确定的结果，这种情况称为“数据竞争（data race）”，导致标准未定义的行为，应建立合理的同步机制来控制访问的先后顺序。",
+        "comment": "如果一份数据同时被多个线程、进程或中断处理过程读写，会产生不确定的结果，这种情况称为“数据竞争（data race）”，导致标准未定义的行为，应落实合理的同步机制来控制访问共享数据的先后顺序。",
         "tag": "security",
         "standard": "ISO/IEC 9899:2011 5.1.2.4(3)-undefined,ISO/IEC 9899:2011 5.1.2.4(20)-undefined,ISO/IEC 9899:2011 5.1.2.4(25)-undefined",
         "related": "ID_sig_dataRaces,ID_sig_nonAsyncSafeCall",

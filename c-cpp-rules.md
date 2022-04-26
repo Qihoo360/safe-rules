@@ -859,7 +859,7 @@ ID_dataRaces&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-如果一份数据同时被多个线程、进程或中断处理过程读写，会产生不确定的结果，这种情况称为“[数据竞争（data race）](https://en.cppreference.com/w/cpp/language/memory_model#Threads_and_data_races)”，导致标准未定义的行为，应建立合理的同步机制来控制访问的先后顺序。  
+如果一份数据同时被多个线程、进程或中断处理过程读写，会产生不确定的结果，这种情况称为“[数据竞争（data race）](https://en.cppreference.com/w/cpp/language/memory_model#Threads_and_data_races)”，导致标准未定义的行为，应落实合理的同步机制来控制访问共享数据的先后顺序。  
   
 示例：
 ```
@@ -879,24 +879,36 @@ int foo() {
 ```
 其中 atomic 是 C\+\+ 标准原子类，fetch\_add 将对象持有的整数增 1 并返回之前的值，这个过程不会被多个线程同时执行，只能依次执行，从而保证了返回值的唯一性和正确性。  
   
-又如：
+对共享数据访问次序的控制称为“[同步（synchronization）](https://en.wikipedia.org/wiki/Synchronization_(computer_science))”，可使用锁、条件变量、原子对象等方法实现对线程的同步。与共享数据相关，但未落实同步机制的函数不应在多线程环境中使用，如：
 ```
-void bar() {
-    int* p = baz();      // #0, ‘p’ points to shared data
-    if (*p == 0) {       // #1, ‘*p’ is unreliable
-        ....
-    }
-    else if (*p == 1) {  // #2, ‘*p’ is unreliable
-        ....
-    }
-    else {               // #3
-        ....
-    }
+asctime         // use asctime_r or asctime_s instead
+ctime           // use ctime_r or ctime_s instead
+localtime       // use localtime_r or localtime_s instead
+gmtime          // use gmtime_r or gmtime_s instead
+strtok          // use strtok_r or strtok_s instead
+strerror        // use strerror_r or strerror_s instead
+tmpnam          // use tmpnam_r or tmpnam_s instead
+setlocale       // use mutex to protect multithreaded access
+rand, srand     // use random, srandom or BCryptGenRandom instead
+```
+对中断处理过程的同步较为特殊，可参见 ID\_sig\_dataRaces 的进一步讨论。  
+  
+考虑比数据竞争更高层面的问题，如果程序的正确性依赖进线程处理数据的特定时序，一旦这种特定时序被打破，便会产生错误或漏洞，攻击者可以抢在某关键过程前后通过修改共享数据达到攻击目的，这种情况称为“[竞态条件（race conditon）](https://en.wikipedia.org/wiki/Race_condition)”，如：
+```
+int* p = get_shared();   // #0, ‘p’ points to shared data
+if (*p == 0) {           // #1, ‘*p’ is unreliable
+    ....
+}
+else if (*p == 1) {      // #2, ‘*p’ is unreliable
+    ....
+}
+else {                   // #3
+    ....
 }
 ```
 如果 p 指向共享数据，那么攻击者可以通过控制共享数据实现对程序流程的劫持，比如在 `#0` 处 \*p 的值本为 0，攻击者在 `#1` 之前改变 \*p 的值，迫使流程向 `#2` 或 `#3` 处跳转。  
   
-考虑比数据竞争更高层面的问题，如果程序的正确性依赖进线程处理数据的特定时序，一旦这种特定时序被打破，便会产生错误或漏洞，攻击者可以抢在某关键过程前后通过修改共享数据达到攻击目的，这种情况称为“[竞态条件（race conditon）](https://en.wikipedia.org/wiki/Race_condition)”，进一步讨论可参见 ID\_TOCTOU 和 ID\_forbidSignalFunction 等规则。
+可参见 ID\_TOCTOU 和 ID\_forbidSignalFunction 等规则对竞态条件的进一步讨论。
 <br/>
 <br/>
 
