@@ -1148,6 +1148,7 @@ struct T {
     T* operator &();   // Overload
 };
 ```
+在 foo 函数中参数 obj 的类型是不完整的，但其完整类型重载了 operator &，导致未定义的行为。
 <br/>
 <br/>
 

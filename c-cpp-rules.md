@@ -387,11 +387,11 @@
     - [R9.2.1 for 语句不应被分号隔断](#ID_for_semicolon)
     - [R9.2.2 for 循环中不应存在无条件的跳转语句](#ID_for_uncondBroken)
     - [R9.2.3 for 语句作用域的范围不应有误](#ID_for_scope)
-    - [R9.2.4 如果 for 语句没有明显的循环变量则应改为 while 循环](#ID_for_simplification)
+    - [R9.2.4 for 语句没有明显的循环变量时应改用 while 句语](#ID_for_simplification)
     - [R9.2.5 for 循环体不应为空](#ID_for_emptyBlock)
     - [R9.2.6 for 循环变量不应为浮点型](#ID_for_floatCounter)
     - [R9.2.7 for 循环变量不应在循环体内被改变](#ID_for_counterChangedInBody)
-    - [R9.2.8 嵌套的 for 循环不应使用相同的循环变量](#ID_for_counterNested)
+    - [R9.2.8 嵌套的 for 语句不应使用相同的循环变量](#ID_for_counterNested)
     - [R9.2.9 for 循环体应该用大括号括起来](#ID_for_brace)
   - [9.3 While](#control.while)
     - [R9.3.1 while 语句不应被分号隔断](#ID_while_semicolon)
@@ -478,7 +478,7 @@
     - [R10.4.1 不应忽略重要的返回值](#ID_returnValueIgnored)
     - [R10.4.2 不可臆断返回值的意义](#ID_wrongUseOfReturnValue)
     - [R10.4.3 避免对象切片](#ID_objectSlicing)
-    - [R10.4.4 非基本类型的对象不应传入可变参数列表](#ID_nonPODVariadicArgument)
+    - [R10.4.4 不应将非 POD 对象传入可变参数列表](#ID_nonPODVariadicArgument)
     - [R10.4.5 C 格式化字符串与其参数的个数应一致](#ID_inconsistentFormatArgNum)
     - [R10.4.6 C 格式化字符串与其参数的类型应一致](#ID_inconsistentFormatArgType)
     - [R10.4.7 在 C\+\+ 代码中禁用 C 风格字符串格式化方法](#ID_forbidCStringFormat)
@@ -11531,7 +11531,7 @@ CWE-483
 <br/>
 <br/>
 
-### <span id="ID_for_simplification">▌R9.2.4 如果 for 语句没有明显的循环变量则应改为 while 循环</span>
+### <span id="ID_for_simplification">▌R9.2.4 for 语句没有明显的循环变量时应改用 while 句语</span>
 
 ID_for_simplification&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
 
@@ -11670,7 +11670,7 @@ MISRA C++ 2008 6-5-3
 <br/>
 <br/>
 
-### <span id="ID_for_counterNested">▌R9.2.8 嵌套的 for 循环不应使用相同的循环变量</span>
+### <span id="ID_for_counterNested">▌R9.2.8 嵌套的 for 语句不应使用相同的循环变量</span>
 
 ID_for_counterNested&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
@@ -14501,7 +14501,7 @@ SEI CERT OOP51-CPP
 <br/>
 <br/>
 
-### <span id="ID_nonPODVariadicArgument">▌R10.4.4 非基本类型的对象不应传入可变参数列表</span>
+### <span id="ID_nonPODVariadicArgument">▌R10.4.4 不应将非 POD 对象传入可变参数列表</span>
 
 ID_nonPODVariadicArgument&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 

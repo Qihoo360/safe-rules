@@ -390,7 +390,7 @@
         "reference": "C++ Core Guidelines ES.86,MISRA C 2004 13.6,MISRA C++ 2008 6-5-3"
         },
     "ID_for_counterNested": {
-        "checkPoint": "嵌套的 for 循环不应使用相同的循环变量",
+        "checkPoint": "嵌套的 for 语句不应使用相同的循环变量",
         "level": "warning",
         "comment": "同一个循环变量在内外层 for 循环中均被修改，使循环次数难以控制，是过于复杂的循环逻辑，也可能是某种错误。",
         "tag": "control",
@@ -1246,9 +1246,9 @@
         "reference": "C++ Core Guidelines ES.63,C++ Core Guidelines C.145,SEI CERT OOP51-CPP"
         },
     "ID_nonPODVariadicArgument": {
-        "checkPoint": "非基本类型的对象不应传入可变参数列表",
+        "checkPoint": "不应将非 POD 对象传入可变参数列表",
         "level": "error",
-        "comment": "非基本类型的对象与可变参数列表的机制很难相容，将这种对象传入可变参数列表往往意味着错误。",
+        "comment": "如果将非“POD”对象传入可变参数列表，程序的行为在 C++03 中是未定义的，在 C++11 中是部分由实现定义的。",
         "tag": "expression",
         "related": "ID_badVaArgType",
         "standard": "ISO/IEC 14882:2003 5.2.2(7)-undefined,ISO/IEC 14882:2011 5.2.2(7)-implementation",
@@ -2301,7 +2301,7 @@
         "reference": "CWE-483"
         },
     "ID_for_simplification": {
-        "checkPoint": "如果 for 语句没有明显的循环变量则应改为 while 循环",
+        "checkPoint": "for 语句没有明显的循环变量时应改用 while 句语",
         "level": "suggestion",
         "comment": "如果for迭代声明中的第 1 个和第 3 个表达式为空，应改为 while 循环，使代码更简洁。",
         "tag": "control",
