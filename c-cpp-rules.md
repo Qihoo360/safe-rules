@@ -891,9 +891,9 @@ tmpnam          // use tmpnam_r or tmpnam_s instead
 setlocale       // use mutex to protect multithreaded access
 rand, srand     // use random, srandom or BCryptGenRandom instead
 ```
-对中断处理过程的同步较为特殊，可参见 ID\_sig\_dataRaces 的进一步讨论。  
+与线程同步不同，中断处理过程的同步较为特殊，可参见 ID\_sig\_dataRaces 的进一步讨论。  
   
-考虑比数据竞争更高层面的问题，如果程序的正确性依赖进线程处理数据的特定时序，一旦这种特定时序被打破，便会产生错误或漏洞，攻击者可以抢在某关键过程前后通过修改共享数据达到攻击目的，这种情况称为“[竞态条件（race conditon）](https://en.wikipedia.org/wiki/Race_condition)”，如：
+考虑比数据竞争更高层面的问题，如果程序的正确性依赖进线程处理数据的特定时序，一旦这种特定时序被打破便会产生错误或漏洞，攻击者可以抢在某关键过程前后通过修改共享数据达到攻击目的，这种情况称为“[竞态条件（race conditon）](https://en.wikipedia.org/wiki/Race_condition)”，如：
 ```
 int* p = get_shared();   // #0, ‘p’ points to shared data
 if (*p == 0) {           // #1, ‘*p’ is unreliable
@@ -906,9 +906,9 @@ else {                   // #3
     ....
 }
 ```
-如果 p 指向共享数据，那么攻击者可以通过控制共享数据实现对程序流程的劫持，比如在 `#0` 处 \*p 的值本为 0，攻击者在 `#1` 之前改变 \*p 的值，迫使流程向 `#2` 或 `#3` 处跳转。  
+如果 p 指向共享数据，那么攻击者可以通过修改共享数据实现对程序流程的劫持，比如在 `#0` 处 \*p 的值本为 0，攻击者在 `#1` 之前改变 \*p 的值，迫使流程向 `#2` 或 `#3` 处跳转。  
   
-可参见 ID\_TOCTOU 和 ID\_forbidSignalFunction 等规则对竞态条件的进一步讨论。
+关于竞态条件的进一步讨论可参见 ID\_TOCTOU、ID\_forbidSignalFunction 等规则。
 <br/>
 <br/>
 
