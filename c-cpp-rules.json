@@ -2421,9 +2421,9 @@
         "related": "ID_literal_hardCodeChar"
         },
     "ID_hardcodedIP": {
-        "checkPoint": "IP 地址不应写入代码",
+        "checkPoint": "与网络地址相关的信息不应写入代码",
         "level": "warning",
-        "comment": "在代码中记录 IP 地址不利于维护和移植，也容易暴露产品的网络结构，属于安全隐患。",
+        "comment": "在代码中记录网络地址不利于维护和移植，也容易暴露产品的网络结构，属于安全隐患。",
         "tag": "security",
         "related": "ID_addressExposure"
         },
@@ -3086,9 +3086,9 @@
         "reference": "CWE-170"
         },
     "ID_deprecatedErrno":  {
-        "checkPoint": "避免使用 errno",
+        "checkPoint": "选择安全的异常处理方式",
         "level": "warning",
-        "comment": "正确使用 errno 需要注意很多繁琐的细节，极易误用。",
+        "comment": "避免使用 errno 和与其相同的模式，应根据实际需求选择通过函数返回值或 C++ 异常机制来处理异常情况。",
         "tag": "security",
         "reference": "MISRA C 2004 20.5,MISRA C++ 2008 19-3-1,C++ Core Guidelines E.28"
     },
@@ -3105,7 +3105,7 @@
         "checkPoint": "禁用 atof、atoi、atol 以及 atoll 等函数",
         "level": "warning",
         "comment": "当字符串无法被正确转为数值时，stdlib.h 或 cstdlib 中的 atof、atoi、atol 以及 atoll 等函数存在标准未定义的行为。",
-        "tag": "security",
+        "tag": "expression",
         "standard": "ISO/IEC 9899:1999 7.20.1(1)-undefined,ISO/IEC 9899:2011 7.22.1(1)-undefined",
         "reference": "CWE-190,MISRA C 2004 20.10,MISRA C 2012 21.7,MISRA C++ 2008 18-0-2"
         },
@@ -3118,17 +3118,17 @@
         "reference": "MISRA C 2004 20.7,MISRA C 2012 21.4,MISRA C++ 2008 17-0-5,C++ Core Guidelines SL.C.1"
         },
     "ID_obsoleteFunction": {
-        "checkPoint": "不应调用已过时的函数",
+        "checkPoint": "不应使用已过时的函数",
         "level": "warning",
-        "comment": "某些库函数或系统 API 存在缺陷并已宣布过时，应使用更完善的替代方法。",
+        "comment": "某些函数存在缺陷或漏洞并已宣布过时，应使用更完善的替代方法。",
         "tag": "security",
         "config": { "//": "详见说明" },
         "reference": "CWE-477"
         },
     "ID_dangerousFunction": {
-        "checkPoint": "避免调用具有危险性的函数",
+        "checkPoint": "避免使用具有危险性的函数",
         "level": "warning",
-        "comment": "某些库函数或系统 API 本身就具有危险性，使用这种函数相当于直接引入了风险。",
+        "comment": "某些函数本身就具有危险性，使用这种函数相当于直接引入了风险。",
         "tag": "security",
         "config": { "//": "详见说明" },
         "reference": "CWE-242,CWE-474,CWE-676"
@@ -3137,7 +3137,7 @@
         "checkPoint": "避免使用由实现定义的库函数",
         "level": "warning",
         "comment": "由实现定义的（implementation-defined）库函数会增加移植或兼容等方面的成本。",
-        "tag": "security",
+        "tag": "expression",
         "standard": "ISO/IEC 9899:2011 7.22.4.1(2)-implementation,ISO/IEC 9899:2011 7.22.4.4(5)-implementation,ISO/IEC 9899:2011 7.22.4.6(2)-implementation,ISO/IEC 9899:2011 7.22.4.8(3)-implementation,ISO/IEC 9899:2011 7.27.2.1(3)-implementation,ISO/IEC 9899:2011 7.14.1.1(3)-implementation",
         "reference": "MISRA C 2004 20.8,MISRA C 2004 20.11,MISRA C 2004 20.12,MISRA C 2012 21.5,MISRA C 2012 21.8,MISRA C 2012 21.10,MISRA C++ 2008 18-0-3,MISRA C++ 2008 18-0-4,MISRA C++ 2008 18-7-1"
         },
@@ -3179,7 +3179,7 @@
         "checkPoint": "访问共享数据应遵循合理的同步机制",
         "level": "warning",
         "comment": "如果一份数据同时被多个线程、进程或中断处理过程读写，会产生不确定的结果，这种情况称为“数据竞争（data race）”，导致标准未定义的行为，应落实合理的同步机制来控制访问共享数据的先后顺序。",
-        "tag": "security",
+        "tag": "concurrency",
         "standard": "ISO/IEC 9899:2011 5.1.2.4(3)-undefined,ISO/IEC 9899:2011 5.1.2.4(20)-undefined,ISO/IEC 9899:2011 5.1.2.4(25)-undefined",
         "related": "ID_sig_dataRaces,ID_sig_nonAsyncSafeCall",
         "reference": "CWE-362,C++ Core Guidelines CP.2,SEI CERT CON43-C"
@@ -3188,7 +3188,7 @@
         "checkPoint": "避免在事务中通过路径多次访问同一文件",
         "level": "warning",
         "comment": "攻击者可以在两次通过路径访问文件的中途对文件做手脚，从而造成不良后果。",
-        "tag": "security",
+        "tag": "concurrency",
         "standard": "ISO/IEC 9899:2011 7.21.5.3(3)",
         "reference": "CWE-367"
         },

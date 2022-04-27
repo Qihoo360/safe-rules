@@ -83,22 +83,18 @@
   - [R1.3 敏感数据在使用后应被有效清理](#ID_unsafeCleanup)
   - [R1.4 公共成员或全局对象不应记录敏感数据](#ID_sensitiveName)
   - [R1.5 预判用户输入造成的不良后果](#ID_hijack)
-  - [R1.6 访问共享数据应遵循合理的同步机制](#ID_dataRaces)
-  - [R1.7 避免在事务中通过路径多次访问同一文件](#ID_TOCTOU)
-  - [R1.8 对文件设定合理的访问权限](#ID_unlimitedAuthority)
-  - [R1.9 落实对用户的权限管理](#ID_improperAuthorization)
-  - [R1.10 不应引用危险符号名称](#ID_dangerousName)
-  - [R1.11 避免调用具有危险性的函数](#ID_dangerousFunction)
-  - [R1.12 不应调用已过时的函数](#ID_obsoleteFunction)
-  - [R1.13 禁用不安全的字符串函数](#ID_unsafeStringFunction)
-  - [R1.14 确保字符串以空字符结尾](#ID_improperNullTermination)
-  - [R1.15 避免使用由实现定义的库函数](#ID_implementationDefinedFunction)
-  - [R1.16 避免除 0 等计算异常](#ID_divideByZero)
-  - [R1.17 禁用 atof、atoi、atol 以及 atoll 等函数](#ID_forbidAtox)
-  - [R1.18 格式化字符串应为常量](#ID_variableFormatString)
-  - [R1.19 与程序实现相关的信息不可被外界感知](#ID_addressExposure)
-  - [R1.20 IP 地址不应写入代码](#ID_hardcodedIP)
-  - [R1.21 避免使用 errno](#ID_deprecatedErrno)
+  - [R1.6 对文件设定合理的访问权限](#ID_unlimitedAuthority)
+  - [R1.7 落实对用户的权限管理](#ID_improperAuthorization)
+  - [R1.8 不应引用危险符号名称](#ID_dangerousName)
+  - [R1.9 避免使用具有危险性的函数](#ID_dangerousFunction)
+  - [R1.10 不应使用已过时的函数](#ID_obsoleteFunction)
+  - [R1.11 禁用不安全的字符串函数](#ID_unsafeStringFunction)
+  - [R1.12 确保字符串以空字符结尾](#ID_improperNullTermination)
+  - [R1.13 避免除 0 等计算异常](#ID_divideByZero)
+  - [R1.14 格式化字符串应为常量](#ID_variableFormatString)
+  - [R1.15 与程序实现相关的信息不可被外界感知](#ID_addressExposure)
+  - [R1.16 与网络地址相关的信息不应写入代码](#ID_hardcodedIP)
+  - [R1.17 选择安全的异常处理方式](#ID_deprecatedErrno)
 <br/>
 
 <span id="__Resource">**[2. Resource](#resource)**</span>
@@ -478,13 +474,15 @@
     - [R10.4.1 不应忽略重要的返回值](#ID_returnValueIgnored)
     - [R10.4.2 不可臆断返回值的意义](#ID_wrongUseOfReturnValue)
     - [R10.4.3 避免对象切片](#ID_objectSlicing)
-    - [R10.4.4 不应将非 POD 对象传入可变参数列表](#ID_nonPODVariadicArgument)
-    - [R10.4.5 C 格式化字符串与其参数的个数应一致](#ID_inconsistentFormatArgNum)
-    - [R10.4.6 C 格式化字符串与其参数的类型应一致](#ID_inconsistentFormatArgType)
-    - [R10.4.7 在 C\+\+ 代码中禁用 C 风格字符串格式化方法](#ID_forbidCStringFormat)
-    - [R10.4.8 避免显式调用析构函数](#ID_explicitDtorCall)
-    - [R10.4.9 合理使用 std::move](#ID_unsuitableMove)
-    - [R10.4.10 合理使用 std::forward](#ID_unsuitableForward)
+    - [R10.4.4 避免显式调用析构函数](#ID_explicitDtorCall)
+    - [R10.4.5 不应将非 POD 对象传入可变参数列表](#ID_nonPODVariadicArgument)
+    - [R10.4.6 C 格式化字符串与其参数的个数应一致](#ID_inconsistentFormatArgNum)
+    - [R10.4.7 C 格式化字符串与其参数的类型应一致](#ID_inconsistentFormatArgType)
+    - [R10.4.8 在 C\+\+ 代码中禁用 C 风格字符串格式化方法](#ID_forbidCStringFormat)
+    - [R10.4.9 禁用 atof、atoi、atol 以及 atoll 等函数](#ID_forbidAtox)
+    - [R10.4.10 避免使用由实现定义的库函数](#ID_implementationDefinedFunction)
+    - [R10.4.11 合理使用 std::move](#ID_unsuitableMove)
+    - [R10.4.12 合理使用 std::forward](#ID_unsuitableForward)
   - [10.5 Sizeof](#expression.sizeof)
     - [R10.5.1 sizeof 不应作用于数组参数](#ID_sizeof_arrayParameter)
     - [R10.5.2 sizeof 不应作用于逻辑表达式](#ID_sizeof_oddExpression)
@@ -583,12 +581,14 @@
 <br/>
 
 <span id="__Concurrency">**[16. Concurrency](#concurrency)**</span>
-  - [R16.1 避免死锁](#ID_deadlock)
-  - [R16.2 避免异步终止线程](#ID_asynchronousTermination)
-  - [R16.3 避免异步终止共享对象的生命周期](#ID_illLifetime)
-  - [R16.4 避免虚假唤醒造成同步错误](#ID_spuriouslyWakeUp)
-  - [R16.5 避免并发访问位域造成的数据竞争](#ID_bitfieldDataRaces)
-  - [R16.6 多线程环境中不可使用 signal 函数](#ID_signalInMultiThreading)
+  - [R16.1 访问共享数据应遵循合理的同步机制](#ID_dataRaces)
+  - [R16.2 避免在事务中通过路径多次访问同一文件](#ID_TOCTOU)
+  - [R16.3 避免死锁](#ID_deadlock)
+  - [R16.4 避免异步终止线程](#ID_asynchronousTermination)
+  - [R16.5 避免异步终止共享对象的生命周期](#ID_illLifetime)
+  - [R16.6 避免虚假唤醒造成同步错误](#ID_spuriouslyWakeUp)
+  - [R16.7 避免并发访问位域造成的数据竞争](#ID_bitfieldDataRaces)
+  - [R16.8 多线程环境中不可使用 signal 函数](#ID_signalInMultiThreading)
 <br/>
 
 <span id="__Style">**[17. Style](#style)**</span>
@@ -853,136 +853,7 @@ CWE-73
 <br/>
 <br/>
 
-### <span id="ID_dataRaces">▌R1.6 访问共享数据应遵循合理的同步机制</span>
-
-ID_dataRaces&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
-
-<hr/>
-
-如果一份数据同时被多个线程、进程或中断处理过程读写，会产生不确定的结果，这种情况称为“[数据竞争（data race）](https://en.cppreference.com/w/cpp/language/memory_model#Threads_and_data_races)”，导致标准未定义的行为，应落实合理的同步机制来控制访问共享数据的先后顺序。  
-  
-示例：
-```
-int foo() {
-    static int id = 0;
-    return id++;        // Data races in multithreading
-}
-```
-这个函数意在每次被调用都可以返回不同的整数，但如果多个线程同时执行 id\+\+，会使读取、计算、写入等步骤交织在一起，得到错误的结果，这是一种典型的数据竞争。  
-  
-应改为：
-```
-int foo() {
-    static atomic<int> id(0);
-    return id.fetch_add(1);    // OK
-}
-```
-其中 atomic 是 C\+\+ 标准原子类，fetch\_add 将对象持有的整数增 1 并返回之前的值，这个过程不会被多个线程同时执行，只能依次执行，从而保证了返回值的唯一性和正确性。  
-  
-对共享数据访问次序的控制称为“[同步（synchronization）](https://en.wikipedia.org/wiki/Synchronization_(computer_science))”，可使用锁、条件变量、原子操作等方法实现对线程的同步。与共享数据相关，但未落实同步机制的函数不应在多线程环境中使用，如：
-```
-asctime         // use asctime_r or asctime_s instead
-ctime           // use ctime_r or ctime_s instead
-localtime       // use localtime_r or localtime_s instead
-gmtime          // use gmtime_r or gmtime_s instead
-strtok          // use strtok_r or strtok_s instead
-strerror        // use strerror_r or strerror_s instead
-tmpnam          // use tmpnam_r or tmpnam_s instead
-setlocale       // use mutex to protect multithreaded access
-rand, srand     // use random, srandom or BCryptGenRandom instead
-```
-与线程同步不同，中断处理过程的同步较为特殊，可参见 ID\_sig\_dataRaces 的进一步讨论。  
-  
-考虑比数据竞争更高层面的问题，如果程序的正确性依赖进线程处理数据的特定时序，一旦这种特定时序被打破便会产生错误或漏洞，攻击者可以抢在某关键过程前后通过修改共享数据达到攻击目的，这种情况称为“[竞态条件（race conditon）](https://en.wikipedia.org/wiki/Race_condition)”，如：
-```
-int* p = get_shared();   // #0, ‘p’ points to shared data
-if (*p == 0) {           // #1, ‘*p’ is unreliable
-    ....
-}
-else if (*p == 1) {      // #2, ‘*p’ is unreliable
-    ....
-}
-else {                   // #3
-    ....
-}
-```
-如果 p 指向共享数据，那么攻击者可以通过修改共享数据实现对程序流程的劫持，比如在 `#0` 处 \*p 的值本为 0，攻击者在 `#1` 之前改变 \*p 的值，迫使流程向 `#2` 或 `#3` 处跳转。  
-  
-关于竞态条件的进一步讨论可参见 ID\_TOCTOU、ID\_forbidSignalFunction 等规则。
-<br/>
-<br/>
-
-#### 相关
-ID_sig_dataRaces  
-ID_sig_nonAsyncSafeCall  
-<br/>
-
-#### 依据
-ISO/IEC 9899:2011 5.1.2.4(3)-undefined  
-ISO/IEC 9899:2011 5.1.2.4(20)-undefined  
-ISO/IEC 9899:2011 5.1.2.4(25)-undefined  
-<br/>
-
-#### 参考
-CWE-362  
-C++ Core Guidelines CP.2  
-SEI CERT CON43-C  
-<br/>
-<br/>
-
-### <span id="ID_TOCTOU">▌R1.7 避免在事务中通过路径多次访问同一文件</span>
-
-ID_TOCTOU&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
-
-<hr/>
-
-攻击者可以在两次通过路径访问文件的中途对文件做手脚，从而造成不良后果。  
-  
-这种问题称为“[TOCTOU（Time\-of\-check to time\-of\-use）](https://en.wikipedia.org/wiki/Time-of-check_to_time-of-use)”。有时需要先检查文件的某种状态，如果状态满足条件的话，再使用该文件，如果“检查”和“使用”都是通过路径完成的，攻击者可以在中途将文件替换成不满足条件的文件，如将文件替换成指向另一个文件的链接，从而对系统造成破坏，这是一种典型的“[竞态条件](https://en.wikipedia.org/wiki/Race_condition)”。  
-  
-示例：
-```
-void create(const char* path) {
-    FILE* fp = fopen(path, "r");
-    if (fp != NULL) {              // #1, time-of-check
-        fclose(fp);
-        return;
-    }
-    fp = fopen(path, "w");         // #2, time-of-use, non-compliant
-    if (fp != NULL) {
-        fwrite("abc", 1, 3, fp);
-        fclose(fp);
-    }
-}
-```
-示例代码先通过路径判断文件是否存在，如果存在则不作处理，如果不存在则再次通过路径创建文件并写入数据。如果攻击者把握住时机，在程序执行到 `#1` 和 `#2` 之间时按 path 创建指向其他文件的链接，那么被指向的文件会遭到破坏，尤其是当被攻击的进程权限比较高时，破坏力是难以控制的。  
-  
-应只通过路径打开文件对象一次，只通过文件对象操作文件：
-```
-void create(const char* path) {
-    FILE* fp = fopen(path, "wx");   // Compliant, since C11
-    if (fp != NULL) {
-        fwrite("abc", 1, 3, fp);
-        fclose(fp);
-    }
-}
-```
-利用“wx”模式即可保证 fopen 在文件不存在时创建文件，文件存在时返回空。  
-  
-注意，目前 C\+\+ 的 fstream 尚无法完成与“wx”模式相同的功能，相同功能的代码要用 fopen 实现。
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 9899:2011 7.21.5.3(3)  
-<br/>
-
-#### 参考
-CWE-367  
-<br/>
-<br/>
-
-### <span id="ID_unlimitedAuthority">▌R1.8 对文件设定合理的访问权限</span>
+### <span id="ID_unlimitedAuthority">▌R1.6 对文件设定合理的访问权限</span>
 
 ID_unlimitedAuthority&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
@@ -1024,7 +895,7 @@ SEI CERT FIO06-C
 <br/>
 <br/>
 
-### <span id="ID_improperAuthorization">▌R1.9 落实对用户的权限管理</span>
+### <span id="ID_improperAuthorization">▌R1.7 落实对用户的权限管理</span>
 
 ID_improperAuthorization&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
@@ -1051,7 +922,7 @@ CWE-285
 <br/>
 <br/>
 
-### <span id="ID_dangerousName">▌R1.10 不应引用危险符号名称</span>
+### <span id="ID_dangerousName">▌R1.8 不应引用危险符号名称</span>
 
 ID_dangerousName&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
@@ -1110,13 +981,13 @@ CWE-327
 <br/>
 <br/>
 
-### <span id="ID_dangerousFunction">▌R1.11 避免调用具有危险性的函数</span>
+### <span id="ID_dangerousFunction">▌R1.9 避免使用具有危险性的函数</span>
 
 ID_dangerousFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-某些库函数或系统 API 本身就具有危险性，使用这种函数相当于直接引入了风险。  
+某些函数本身就具有危险性，使用这种函数相当于直接引入了风险。  
   
 示例：
 ```
@@ -1160,13 +1031,13 @@ CWE-676
 <br/>
 <br/>
 
-### <span id="ID_obsoleteFunction">▌R1.12 不应调用已过时的函数</span>
+### <span id="ID_obsoleteFunction">▌R1.10 不应使用已过时的函数</span>
 
 ID_obsoleteFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-某些库函数或系统 API 存在缺陷并已宣布过时，应使用更完善的替代方法。  
+某些函数存在缺陷或漏洞并已宣布过时，应使用更完善的替代方法。  
   
 示例：
 ```
@@ -1207,7 +1078,7 @@ CWE-477
 <br/>
 <br/>
 
-### <span id="ID_unsafeStringFunction">▌R1.13 禁用不安全的字符串函数</span>
+### <span id="ID_unsafeStringFunction">▌R1.11 禁用不安全的字符串函数</span>
 
 ID_unsafeStringFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: security warning
 
@@ -1270,7 +1141,7 @@ MISRA C++ 2008 18-0-5
 <br/>
 <br/>
 
-### <span id="ID_improperNullTermination">▌R1.14 确保字符串以空字符结尾</span>
+### <span id="ID_improperNullTermination">▌R1.12 确保字符串以空字符结尾</span>
 
 ID_improperNullTermination&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
@@ -1285,7 +1156,7 @@ ID_improperNullTermination&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warnin
 void foo(const char* p) {
     char a[4];
     strncpy(a, p, sizeof(a));
-    printf("%s\n", strupr(a));      // To upper case and print, dangerous
+    printf("%s\n", strupr(a));   // To upper case and print, dangerous
 }
 ```
 例示代码将字符串复制到数组中，转为大写并打印，然而如果 p 所指字符串的长度超过 3，strncpy 不会在数组的结尾安置空字符 '\\0'，会导致内存访问错误。  
@@ -1319,56 +1190,7 @@ CWE-170
 <br/>
 <br/>
 
-### <span id="ID_implementationDefinedFunction">▌R1.15 避免使用由实现定义的库函数</span>
-
-ID_implementationDefinedFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
-
-<hr/>
-
-由实现定义的（implementation\-defined）库函数会增加移植或兼容等方面的成本。  
-  
-如：  
- - cstdlib、stdlib.h 中的 abort、exit、getenv 或 system 等函数  
- - ctime、time.h 中的 clock 等函数  
- - csignal、signal.h 中的 signal 等函数  
-  
-这些函数的行为取决于编译器、库或环境的生产厂家，同一个函数不同的厂家会有不同的实现，故称这种函数的行为是“由实现定义”的。有高可靠性要求的软件系统应避免使用这种函数，否则需明确各种实现上的具体差异，提高了移植、发布以及兼容性等多方面的成本。  
-  
-示例：
-```
-#include <cstdlib>
-
-void foo() {
-    abort();   // Non-compliant
-}
-```
-标准规定调用 abort 后进程应被终止，但进程打开的流是否会被关闭，创建的临时文件是否会被清理等问题没明确定义。
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 9899:2011 7.22.4.1(2)-implementation  
-ISO/IEC 9899:2011 7.22.4.4(5)-implementation  
-ISO/IEC 9899:2011 7.22.4.6(2)-implementation  
-ISO/IEC 9899:2011 7.22.4.8(3)-implementation  
-ISO/IEC 9899:2011 7.27.2.1(3)-implementation  
-ISO/IEC 9899:2011 7.14.1.1(3)-implementation  
-<br/>
-
-#### 参考
-MISRA C 2004 20.8  
-MISRA C 2004 20.11  
-MISRA C 2004 20.12  
-MISRA C 2012 21.5  
-MISRA C 2012 21.8  
-MISRA C 2012 21.10  
-MISRA C++ 2008 18-0-3  
-MISRA C++ 2008 18-0-4  
-MISRA C++ 2008 18-7-1  
-<br/>
-<br/>
-
-### <span id="ID_divideByZero">▌R1.16 避免除 0 等计算异常</span>
+### <span id="ID_divideByZero">▌R1.13 避免除 0 等计算异常</span>
 
 ID_divideByZero&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security error
 
@@ -1408,55 +1230,7 @@ C++ Core Guidelines ES.105
 <br/>
 <br/>
 
-### <span id="ID_forbidAtox">▌R1.17 禁用 atof、atoi、atol 以及 atoll 等函数</span>
-
-ID_forbidAtox&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: security warning
-
-<hr/>
-
-当字符串无法被正确转为数值时，stdlib.h 或 cstdlib 中的 atof、atoi、atol 以及 atoll 等函数存在标准未定义的行为。  
-  
-对于 C 语言应改用 strtof、strtol 等函数，对于 C\+\+ 语言应改用标准流转换的方式。  
-  
-示例：
-```
-cout << atoi("abcdefg") << '\n';        // Non-compliant
-cout << atoi("100000000000") << '\n';   // Non-compliant
-```
-例中字符串“abcdefg”不表示数字，字符串“100000000000”超出了正常 int 型变量的范围，这些情况会导致标准未定义的行为。  
-  
-更严重的问题是无法通过这种函数判断转换是否成功，这种不确定性也意味着代码在实现上存在缺陷。  
-  
-C\+\+ 标准流转换示例：
-```
-int foo(const char* s) {
-    int v = 0;
-    stringstream ss(s);
-    ss >> v;
-    if (ss.fail()) {              // Or use ‘!ss.eof() || ss.fail()’
-        throw some_exception();
-    }
-    return v;
-}
-```
-本例通过 ss.fail() 判断字符串前面的字符是否可以转为 int 型变量，也可通过 !ss.eof() || ss.fail() 判断字符串整体是否可以转为 int 型变量。
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 9899:1999 7.20.1(1)-undefined  
-ISO/IEC 9899:2011 7.22.1(1)-undefined  
-<br/>
-
-#### 参考
-CWE-190  
-MISRA C 2004 20.10  
-MISRA C 2012 21.7  
-MISRA C++ 2008 18-0-2  
-<br/>
-<br/>
-
-### <span id="ID_variableFormatString">▌R1.18 格式化字符串应为常量</span>
+### <span id="ID_variableFormatString">▌R1.14 格式化字符串应为常量</span>
 
 ID_variableFormatString&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
@@ -1491,7 +1265,7 @@ CWE-134
 <br/>
 <br/>
 
-### <span id="ID_addressExposure">▌R1.19 与程序实现相关的信息不可被外界感知</span>
+### <span id="ID_addressExposure">▌R1.15 与程序实现相关的信息不可被外界感知</span>
 
 ID_addressExposure&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
@@ -1522,13 +1296,13 @@ CWE-200
 <br/>
 <br/>
 
-### <span id="ID_hardcodedIP">▌R1.20 IP 地址不应写入代码</span>
+### <span id="ID_hardcodedIP">▌R1.16 与网络地址相关的信息不应写入代码</span>
 
 ID_hardcodedIP&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-在代码中记录 IP 地址不利于维护和移植，也容易暴露产品的网络结构，属于安全隐患。  
+在代码中记录网络地址不利于维护和移植，也容易暴露产品的网络结构，属于安全隐患。  
   
 示例：
 ```
@@ -1536,7 +1310,7 @@ string host = "10.16.25.93";    // Non-compliant
 foo("172.16.10.36:8080");       // Non-compliant
 bar("https://192.168.73.90");   // Non-compliant
 ```
-应从配置文件中获取 IP 地址，并配以加密措施：
+应从配置文件中获取地址，并配以加密措施：
 ```
 MyConf cfg;
 string host = cfg.host();   // Compliant
@@ -1557,44 +1331,39 @@ ID_addressExposure
 <br/>
 <br/>
 
-### <span id="ID_deprecatedErrno">▌R1.21 避免使用 errno</span>
+### <span id="ID_deprecatedErrno">▌R1.17 选择安全的异常处理方式</span>
 
 ID_deprecatedErrno&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-正确使用 errno 需要注意很多繁琐的细节，极易误用。  
+避免使用 errno 和与其相同的模式，应根据实际需求选择通过函数返回值或 C\+\+ 异常机制来处理异常情况。  
   
-对异常情况的错误处理往往会成为业务漏洞，使攻击者轻易地实现其目的，不应使用 errno 和与其相同的模式，应通过返回值或 C\+\+ 异常机制来处理异常情况。  
+errno 被设定的位置和被读取的位置相距较远，不遵循固定的静态结构，极易误用，是不安全的异常处理方式，对异常情况的错误处理往往会成为业务漏洞，使攻击者轻易地实现其目的。  
   
 示例：
 ```
 void foo() {
     if (somecall() == FAILED) {
         printf("somecall() failed\n");
-        if (errno == SOME_VALUE) {       // ‘errno’ may have been changed by the printf
+        if (errno == SOME_VALUE) {       // Non-compliant
             .... 
         }
     }
 }
-
-void bar() {
-    somecall0();
-    somecall1();
-    somecall2();
-    if (errno) {       // ‘errno’ may come from any of the above functions
-        ....
-    }
-}
-
-void baz(const char* s) {
-    errno = 0;
+```
+例中 somecall 执行异常，通过 errno 获取异常信息，但 errno 的值会被 printf 修改，相应的异常处理也失去了意义。  
+  
+又如：
+```
+void bar(const char* s) {
     int i = atoi(s);
-    if (errno) {       // Invalid, ‘atoi’ has nothing to do with ‘errno’
+    if (errno) {       // Non-compliant
         ....
     }
 }
 ```
+errno 并不能反映所有异常情况，atoi 等函数与 errno 无关，例中 errno 的值来自函数外部，相应的异常处理也将是错误的。
 <br/>
 <br/>
 
@@ -14517,7 +14286,54 @@ SEI CERT OOP51-CPP
 <br/>
 <br/>
 
-### <span id="ID_nonPODVariadicArgument">▌R10.4.4 不应将非 POD 对象传入可变参数列表</span>
+### <span id="ID_explicitDtorCall">▌R10.4.4 避免显式调用析构函数</span>
+
+ID_explicitDtorCall&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: expression suggestion
+
+<hr/>
+
+显式调用析构函数会提前结束对象的生命周期，之后对该对象的任何访问都会导致标准未定义的行为，对于在栈上定义的对象，流程离开相关作用域时会再次自动调用其析构函数，对于动态创建的对象，用 delete 回收时也会调用其析构函数，使对象在生命周期之外被访问。  
+  
+示例：
+```
+class A {
+    int* p = new int[123];
+
+public:
+   ~A() {
+        delete[] p;
+    }
+};
+
+void foo() {
+    A a;
+    a.~A();   // Non-compliant, explicitly call the destructor
+}             // ~A() twice called, crash...
+```
+例中对象 a 的析构函数被显式调用，foo 返回前会再次调用析构函数，造成内存被重复释放。应去掉显式调用，由类提供提前释放资源的方法，并保证资源不会被重复释放。  
+  
+例外：
+```
+char* p = new char[sizeof(Type)];
+Type* q = new (p) Type;
+....
+q->~Type();   // Compliant, used with replacement new
+delete[] p;
+```
+与 replacement new 配合的显式析构是实现容器或内存池的常规手段，可不受本规则约束。
+<br/>
+<br/>
+
+#### 相关
+ID_missingResetNull  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2011 12.4(15)-undefined  
+<br/>
+<br/>
+
+### <span id="ID_nonPODVariadicArgument">▌R10.4.5 不应将非 POD 对象传入可变参数列表</span>
 
 ID_nonPODVariadicArgument&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
@@ -14578,7 +14394,7 @@ CWE-686
 <br/>
 <br/>
 
-### <span id="ID_inconsistentFormatArgNum">▌R10.4.5 C 格式化字符串与其参数的个数应一致</span>
+### <span id="ID_inconsistentFormatArgNum">▌R10.4.6 C 格式化字符串与其参数的个数应一致</span>
 
 ID_inconsistentFormatArgNum&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
@@ -14613,7 +14429,7 @@ SEI CERT FIO47-C
 <br/>
 <br/>
 
-### <span id="ID_inconsistentFormatArgType">▌R10.4.6 C 格式化字符串与其参数的类型应一致</span>
+### <span id="ID_inconsistentFormatArgType">▌R10.4.7 C 格式化字符串与其参数的类型应一致</span>
 
 ID_inconsistentFormatArgType&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
@@ -14656,7 +14472,7 @@ SEI CERT FIO47-C
 <br/>
 <br/>
 
-### <span id="ID_forbidCStringFormat">▌R10.4.7 在 C++ 代码中禁用 C 风格字符串格式化方法</span>
+### <span id="ID_forbidCStringFormat">▌R10.4.8 在 C++ 代码中禁用 C 风格字符串格式化方法</span>
 
 ID_forbidCStringFormat&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: expression suggestion
 
@@ -14706,54 +14522,104 @@ C++ Core Guidelines SL.io.3
 <br/>
 <br/>
 
-### <span id="ID_explicitDtorCall">▌R10.4.8 避免显式调用析构函数</span>
+### <span id="ID_forbidAtox">▌R10.4.9 禁用 atof、atoi、atol 以及 atoll 等函数</span>
 
-ID_explicitDtorCall&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: expression suggestion
+ID_forbidAtox&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: expression warning
 
 <hr/>
 
-显式调用析构函数会提前结束对象的生命周期，之后对该对象的任何访问都会导致标准未定义的行为，对于在栈上定义的对象，流程离开相关作用域时会再次自动调用其析构函数，对于动态创建的对象，用 delete 回收时也会调用其析构函数，使对象在生命周期之外被访问。  
+当字符串无法被正确转为数值时，stdlib.h 或 cstdlib 中的 atof、atoi、atol 以及 atoll 等函数存在标准未定义的行为。  
+  
+对于 C 语言应改用 strtof、strtol 等函数，对于 C\+\+ 语言应改用标准流转换的方式。  
   
 示例：
 ```
-class A {
-    int* p = new int[123];
-
-public:
-   ~A() {
-        delete[] p;
-    }
-};
-
-void foo() {
-    A a;
-    a.~A();   // Non-compliant, explicitly call the destructor
-}             // ~A() twice called, crash...
+cout << atoi("abcdefg") << '\n';        // Non-compliant
+cout << atoi("100000000000") << '\n';   // Non-compliant
 ```
-例中对象 a 的析构函数被显式调用，foo 返回前会再次调用析构函数，造成内存被重复释放。应去掉显式调用，由类提供提前释放资源的方法，并保证资源不会被重复释放。  
+例中字符串“abcdefg”不表示数字，字符串“100000000000”超出了正常 int 型变量的范围，这些情况会导致标准未定义的行为。  
   
-例外：
+更严重的问题是无法通过这种函数判断转换是否成功，这种不确定性也意味着代码在实现上存在缺陷。  
+  
+C\+\+ 标准流转换示例：
 ```
-char* p = new char[sizeof(Type)];
-Type* q = new (p) Type;
-....
-q->~Type();   // Compliant, used with replacement new
-delete[] p;
+int foo(const char* s) {
+    int v = 0;
+    stringstream ss(s);
+    ss >> v;
+    if (ss.fail()) {              // Or use ‘!ss.eof() || ss.fail()’
+        throw some_exception();
+    }
+    return v;
+}
 ```
-与 replacement new 配合的显式析构是实现容器或内存池的常规手段，可不受本规则约束。
+本例通过 ss.fail() 判断字符串前面的字符是否可以转为 int 型变量，也可通过 !ss.eof() || ss.fail() 判断字符串整体是否可以转为 int 型变量。
 <br/>
-<br/>
-
-#### 相关
-ID_missingResetNull  
 <br/>
 
 #### 依据
-ISO/IEC 14882:2011 12.4(15)-undefined  
+ISO/IEC 9899:1999 7.20.1(1)-undefined  
+ISO/IEC 9899:2011 7.22.1(1)-undefined  
+<br/>
+
+#### 参考
+CWE-190  
+MISRA C 2004 20.10  
+MISRA C 2012 21.7  
+MISRA C++ 2008 18-0-2  
 <br/>
 <br/>
 
-### <span id="ID_unsuitableMove">▌R10.4.9 合理使用 std::move</span>
+### <span id="ID_implementationDefinedFunction">▌R10.4.10 避免使用由实现定义的库函数</span>
+
+ID_implementationDefinedFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
+
+<hr/>
+
+由实现定义的（implementation\-defined）库函数会增加移植或兼容等方面的成本。  
+  
+如：  
+ - cstdlib、stdlib.h 中的 abort、exit、getenv 或 system 等函数  
+ - ctime、time.h 中的 clock 等函数  
+ - csignal、signal.h 中的 signal 等函数  
+  
+这些函数的行为取决于编译器、库或环境的生产厂家，同一个函数不同的厂家会有不同的实现，故称这种函数的行为是“由实现定义”的。有高可靠性要求的软件系统应避免使用这种函数，否则需明确各种实现上的具体差异，提高了移植、发布以及兼容性等多方面的成本。  
+  
+示例：
+```
+#include <cstdlib>
+
+void foo() {
+    abort();   // Non-compliant
+}
+```
+标准规定调用 abort 后进程应被终止，但进程打开的流是否会被关闭，创建的临时文件是否会被清理等问题没明确定义。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 7.22.4.1(2)-implementation  
+ISO/IEC 9899:2011 7.22.4.4(5)-implementation  
+ISO/IEC 9899:2011 7.22.4.6(2)-implementation  
+ISO/IEC 9899:2011 7.22.4.8(3)-implementation  
+ISO/IEC 9899:2011 7.27.2.1(3)-implementation  
+ISO/IEC 9899:2011 7.14.1.1(3)-implementation  
+<br/>
+
+#### 参考
+MISRA C 2004 20.8  
+MISRA C 2004 20.11  
+MISRA C 2004 20.12  
+MISRA C 2012 21.5  
+MISRA C 2012 21.8  
+MISRA C 2012 21.10  
+MISRA C++ 2008 18-0-3  
+MISRA C++ 2008 18-0-4  
+MISRA C++ 2008 18-7-1  
+<br/>
+<br/>
+
+### <span id="ID_unsuitableMove">▌R10.4.11 合理使用 std::move</span>
 
 ID_unsuitableMove&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -14813,7 +14679,7 @@ C++ Core Guidelines F.48
 <br/>
 <br/>
 
-### <span id="ID_unsuitableForward">▌R10.4.10 合理使用 std::forward</span>
+### <span id="ID_unsuitableForward">▌R10.4.12 合理使用 std::forward</span>
 
 ID_unsuitableForward&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -15971,7 +15837,7 @@ ID_narrowCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
 应检查类型转换的结果是否正确，避免数据丢失等问题。  
   
-各整型、浮点型对象的取值范围不同，大范围对象转小范围对象需考虑数据丢失问题，这种问题在浮点型转整型、整型转浮点型，以及浮点型转浮点型时会导致标准未定义的行为。  
+取值范围大的类型向取值范围小的类型转换需要考虑数据丢失问题，这种问题在浮点型转整型、整型转浮点型，以及浮点型转浮点型时会导致标准未定义的行为。  
   
 示例：
 ```
@@ -17899,7 +17765,136 @@ SEI CERT SIG34-C
 
 ## <span id="concurrency">16. Concurrency</span>
 
-### <span id="ID_deadlock">▌R16.1 避免死锁</span>
+### <span id="ID_dataRaces">▌R16.1 访问共享数据应遵循合理的同步机制</span>
+
+ID_dataRaces&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: concurrency warning
+
+<hr/>
+
+如果一份数据同时被多个线程、进程或中断处理过程读写，会产生不确定的结果，这种情况称为“[数据竞争（data race）](https://en.cppreference.com/w/cpp/language/memory_model#Threads_and_data_races)”，导致标准未定义的行为，应落实合理的同步机制来控制访问共享数据的先后顺序。  
+  
+示例：
+```
+int foo() {
+    static int id = 0;
+    return id++;        // Data races in multithreading
+}
+```
+这个函数意在每次被调用都可以返回不同的整数，但如果多个线程同时执行 id\+\+，会使读取、计算、写入等步骤交织在一起，得到错误的结果，这是一种典型的数据竞争。  
+  
+应改为：
+```
+int foo() {
+    static atomic<int> id(0);
+    return id.fetch_add(1);    // OK
+}
+```
+其中 atomic 是 C\+\+ 标准原子类，fetch\_add 将对象持有的整数增 1 并返回之前的值，这个过程不会被多个线程同时执行，只能依次执行，从而保证了返回值的唯一性和正确性。  
+  
+对共享数据访问次序的控制称为“[同步（synchronization）](https://en.wikipedia.org/wiki/Synchronization_(computer_science))”，可使用锁、条件变量、原子操作等方法实现对线程的同步。与共享数据相关，但未落实同步机制的函数不应在多线程环境中使用，如：
+```
+asctime         // use asctime_r or asctime_s instead
+ctime           // use ctime_r or ctime_s instead
+localtime       // use localtime_r or localtime_s instead
+gmtime          // use gmtime_r or gmtime_s instead
+strtok          // use strtok_r or strtok_s instead
+strerror        // use strerror_r or strerror_s instead
+tmpnam          // use tmpnam_r or tmpnam_s instead
+setlocale       // use mutex to protect multithreaded access
+rand, srand     // use random, srandom or BCryptGenRandom instead
+```
+与线程同步不同，中断处理过程的同步较为特殊，可参见 ID\_sig\_dataRaces 的进一步讨论。  
+  
+考虑比数据竞争更高层面的问题，如果程序的正确性依赖进线程处理数据的特定时序，一旦这种特定时序被打破便会产生错误或漏洞，攻击者可以抢在某关键过程前后通过修改共享数据达到攻击目的，这种情况称为“[竞态条件（race conditon）](https://en.wikipedia.org/wiki/Race_condition)”，如：
+```
+int* p = get_shared();   // #0, ‘p’ points to shared data
+if (*p == 0) {           // #1, ‘*p’ is unreliable
+    ....
+}
+else if (*p == 1) {      // #2, ‘*p’ is unreliable
+    ....
+}
+else {                   // #3
+    ....
+}
+```
+如果 p 指向共享数据，那么攻击者可以通过修改共享数据实现对程序流程的劫持，比如在 `#0` 处 \*p 的值本为 0，攻击者在 `#1` 之前改变 \*p 的值，迫使流程向 `#2` 或 `#3` 处跳转。  
+  
+关于竞态条件的进一步讨论可参见 ID\_TOCTOU、ID\_forbidSignalFunction 等规则。
+<br/>
+<br/>
+
+#### 相关
+ID_sig_dataRaces  
+ID_sig_nonAsyncSafeCall  
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 5.1.2.4(3)-undefined  
+ISO/IEC 9899:2011 5.1.2.4(20)-undefined  
+ISO/IEC 9899:2011 5.1.2.4(25)-undefined  
+<br/>
+
+#### 参考
+CWE-362  
+C++ Core Guidelines CP.2  
+SEI CERT CON43-C  
+<br/>
+<br/>
+
+### <span id="ID_TOCTOU">▌R16.2 避免在事务中通过路径多次访问同一文件</span>
+
+ID_TOCTOU&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: concurrency warning
+
+<hr/>
+
+攻击者可以在两次通过路径访问文件的中途对文件做手脚，从而造成不良后果。  
+  
+这种问题称为“[TOCTOU（Time\-of\-check to time\-of\-use）](https://en.wikipedia.org/wiki/Time-of-check_to_time-of-use)”。有时需要先检查文件的某种状态，如果状态满足条件的话，再使用该文件，如果“检查”和“使用”都是通过路径完成的，攻击者可以在中途将文件替换成不满足条件的文件，如将文件替换成指向另一个文件的链接，从而对系统造成破坏，这是一种典型的“[竞态条件](https://en.wikipedia.org/wiki/Race_condition)”。  
+  
+示例：
+```
+void create(const char* path) {
+    FILE* fp = fopen(path, "r");
+    if (fp != NULL) {              // #1, time-of-check
+        fclose(fp);
+        return;
+    }
+    fp = fopen(path, "w");         // #2, time-of-use, non-compliant
+    if (fp != NULL) {
+        fwrite("abc", 1, 3, fp);
+        fclose(fp);
+    }
+}
+```
+示例代码先通过路径判断文件是否存在，如果存在则不作处理，如果不存在则再次通过路径创建文件并写入数据。如果攻击者把握住时机，在程序执行到 `#1` 和 `#2` 之间时按 path 创建指向其他文件的链接，那么被指向的文件会遭到破坏，尤其是当被攻击的进程权限比较高时，破坏力是难以控制的。  
+  
+应只通过路径打开文件对象一次，只通过文件对象操作文件：
+```
+void create(const char* path) {
+    FILE* fp = fopen(path, "wx");   // Compliant, since C11
+    if (fp != NULL) {
+        fwrite("abc", 1, 3, fp);
+        fclose(fp);
+    }
+}
+```
+利用“wx”模式即可保证 fopen 在文件不存在时创建文件，文件存在时返回空。  
+  
+注意，目前 C\+\+ 的 fstream 尚无法完成与“wx”模式相同的功能，相同功能的代码要用 fopen 实现。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 7.21.5.3(3)  
+<br/>
+
+#### 参考
+CWE-367  
+<br/>
+<br/>
+
+### <span id="ID_deadlock">▌R16.3 避免死锁</span>
 
 ID_deadlock&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: concurrency warning
 
@@ -17976,7 +17971,7 @@ SEI CERT CON56-CPP
 <br/>
 <br/>
 
-### <span id="ID_asynchronousTermination">▌R16.2 避免异步终止线程</span>
+### <span id="ID_asynchronousTermination">▌R16.4 避免异步终止线程</span>
 
 ID_asynchronousTermination&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: concurrency warning
 
@@ -18015,7 +18010,7 @@ SEI CERT POS47-C
 <br/>
 <br/>
 
-### <span id="ID_illLifetime">▌R16.3 避免异步终止共享对象的生命周期</span>
+### <span id="ID_illLifetime">▌R16.5 避免异步终止共享对象的生命周期</span>
 
 ID_illLifetime&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: concurrency warning
 
@@ -18056,7 +18051,7 @@ SEI CERT CON50-CPP
 <br/>
 <br/>
 
-### <span id="ID_spuriouslyWakeUp">▌R16.4 避免虚假唤醒造成同步错误</span>
+### <span id="ID_spuriouslyWakeUp">▌R16.6 避免虚假唤醒造成同步错误</span>
 
 ID_spuriouslyWakeUp&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: concurrency warning
 
@@ -18102,7 +18097,7 @@ SEI CERT CON54-CPP
 <br/>
 <br/>
 
-### <span id="ID_bitfieldDataRaces">▌R16.5 避免并发访问位域造成的数据竞争</span>
+### <span id="ID_bitfieldDataRaces">▌R16.7 避免并发访问位域造成的数据竞争</span>
 
 ID_bitfieldDataRaces&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: concurrency warning
 
@@ -18145,7 +18140,7 @@ SEI CERT CON52-CPP
 <br/>
 <br/>
 
-### <span id="ID_signalInMultiThreading">▌R16.6 多线程环境中不可使用 signal 函数</span>
+### <span id="ID_signalInMultiThreading">▌R16.8 多线程环境中不可使用 signal 函数</span>
 
 ID_signalInMultiThreading&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: concurrency warning
 
