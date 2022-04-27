@@ -879,7 +879,7 @@ int foo() {
 ```
 其中 atomic 是 C\+\+ 标准原子类，fetch\_add 将对象持有的整数增 1 并返回之前的值，这个过程不会被多个线程同时执行，只能依次执行，从而保证了返回值的唯一性和正确性。  
   
-对共享数据访问次序的控制称为“[同步（synchronization）](https://en.wikipedia.org/wiki/Synchronization_(computer_science))”，可使用锁、条件变量、原子对象等方法实现对线程的同步。与共享数据相关，但未落实同步机制的函数不应在多线程环境中使用，如：
+对共享数据访问次序的控制称为“[同步（synchronization）](https://en.wikipedia.org/wiki/Synchronization_(computer_science))”，可使用锁、条件变量、原子操作等方法实现对线程的同步。与共享数据相关，但未落实同步机制的函数不应在多线程环境中使用，如：
 ```
 asctime         // use asctime_r or asctime_s instead
 ctime           // use ctime_r or ctime_s instead
@@ -1374,7 +1374,7 @@ ID_divideByZero&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security error
 
 <hr/>
 
-除 0 等计算异常会使程序产生标准未定义的行为。  
+除 0 等在数学上没有定义的运算、浮点异常、非法指令、段错误等问题称为“计算异常”，意味着程序发生了严重的底层运行时错误，而且这种异常无法用语言层面的常规方法捕获。  
   
 示例：
 ```
@@ -1385,10 +1385,14 @@ int foo(int n) {
     return 100 / n;   // Non-compliant, must determine whether ‘n’ is 0
 }
 ```
-当除数为 0 时，对于整形数据的除法，进程往往会崩溃，对于浮点型数据的除法，一般会产生“[NaN](https://en.wikipedia.org/wiki/NaN)”这种无效的结果。  
+当除数为 0 时，对于整形数据的除法，进程往往会崩溃，对于浮点型数据的除法，一般会产生“[INF](https://en.wikipedia.org/wiki/Infinity#Computing)”或“[NaN](https://en.wikipedia.org/wiki/NaN)”等无效结果，在特殊的设置下，也可以使进程异常终止。  
   
 崩溃会给用户不好的体验，而且要注意如果崩溃可由外部输入引起，会被攻击者利用从而迫使程序无法正常工作，具有高可靠性要求的服务类程序更应该注意这一点，可参见“[拒绝服务攻击](https://en.wikipedia.org/wiki/Denial-of-service_attack)”的进一步说明。对于客户端程序，也要防止攻击者对崩溃产生的“[core dump](https://en.wikipedia.org/wiki/Core_dump)”进行恶意调试，避免泄露敏感数据，总之程序的健壮性与安全性是紧密相关的。
 <br/>
+<br/>
+
+#### 相关
+ID_sig_illReturn  
 <br/>
 
 #### 依据
@@ -17691,12 +17695,12 @@ ID_sig_dataRaces&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: interruption warning
 
 <hr/>
 
-异步信号处理函数的调用会随时打断主程序的流程，当处理函数返回后，主程序在被打断的位置继续执行，故称“[中断（interrupt）](https://en.wikipedia.org/wiki/Interrupt)”，这一点与执行非并发的线程相似，但没有锁等同步机制，而且信号处理函数本身也可能被中断，所以在信号处理函数中访问共享数据应格外小心。  
+异步信号处理函数的调用会随时打断主程序的流程，当处理函数返回后，主程序在被打断的位置继续执行，这种方式称为“[中断（interrupt）](https://en.wikipedia.org/wiki/Interrupt)”，与执行非并发的线程相似，但没有锁等同步机制，而且信号处理函数本身也可能被中断，所以在信号处理函数中访问共享数据应格外小心。  
   
 异步信号处理函数的安全模式：  
  - 调用“[异步信号安全](https://man7.org/linux/man-pages/man7/signal-safety.7.html)”函数执行清理或结束进程，如 abort、\_Exit 等  
  - 对 volatile sig\_atomic\_t 等类型的共享对象赋值，主程序周期性地检查共享对象并执行相应动作  
- - 利用 sigsetjmp、siglongjmp 等函数将流程返回到主程序中的预定位置  
+ - 利用 sigsetjmp、siglongjmp 等函数使流程跳转到主程序中的预定位置  
  - 通过管道等方式与主程序通信，向管道写入一个字节，主程序监控该管道并执行相应动作  
   
 只应选择其中一种方式，且尽量避免访问共享数据，否则对共享数据的错误处理会使程序产生未定义的行为。  
@@ -17732,7 +17736,7 @@ int main() {
     printf("%s received\n", flag? "SIGINT": "No signal");
 }
 ```
-用 SIG\_ATOMIC\_MIN 和 SIG\_ATOMIC\_MAX 之间的值对 sig\_atomic\_t 类型的对象赋值可以保证原子性，从而避免数据竞争。
+用 SIG\_ATOMIC\_MIN 和 SIG\_ATOMIC\_MAX 之间的值对 sig\_atomic\_t 类型的对象赋值可以保证原子性，超出范围的赋值，或赋值之外的操作不能保证原子性，需要避免。
 <br/>
 <br/>
 
@@ -17764,7 +17768,7 @@ ID_sig_nonAsyncSafeCall&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: interruption warning
 #include <signal.h>
 
 void handler(int signum) {
-    printf("....");         // Non-compliant
+    printf("....");          // Non-compliant
 }
 
 int main() {
@@ -17796,7 +17800,7 @@ ID_sig_illReturn&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: interruption warning
 
 <hr/>
 
-与计算异常相关的信号由不可恢复的错误引起，程序接收到这种信号时应终止执行，否则导致标准未定义的行为。  
+与计算异常相关的信号由不可恢复的错误引起，相关信号处理函数应终止程序的执行，否则导致标准未定义的行为。  
   
 示例：
 ```
@@ -17812,7 +17816,35 @@ int main() {
     ....
 }
 ```
-当发生除 0 等计算异常时，程序会收到 SIGFPE 信号，这种信号对应的处理函数只应使用 abort、\_Exit 等函数终止程序的执行，不可正常返回，否则可能会造成更严重的损失。
+当发生除 0 等计算异常时，程序会收到 SIGFPE 信号，这种信号对应的处理函数应使用 abort、\_Exit 等函数终止程序的执行，不可正常返回，否则可能会造成更严重的损失。  
+  
+应改为：
+```
+void handler(int signum) {
+    ....
+    _Exit(1);   // Compliant
+}
+```
+或使用 sigsetjmp 和 siglongjmp 使流程跳转到主程序中的预定位置：
+```
+sigjmp_buf buf;
+
+void handler(int x) {
+    siglongjmp(buf, 1);   // Compliant
+}
+
+int main() {
+    signal(SIGFPE, handler);
+    if (sigsetjmp(buf, 1)) {
+        ....                   // #1, functions of the program
+        return 0;              // Normal exit
+    } else {
+        ....                   // #2, handle error
+        return 1;              // Abnormal exit
+    }
+}
+```
+在这种模式下，`#1` 实现程序的功能，如果收到了 SIGFPE 信号，流程就会跳转到 `#2`。
 <br/>
 <br/>
 
