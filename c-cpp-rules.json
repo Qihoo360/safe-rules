@@ -923,9 +923,9 @@
         "tag": "declaration"
         },
     "ID_exceptionUnsafe": {
-        "checkPoint": "确保异常的安全性",
+        "checkPoint": "保证异常安全",
         "level": "warning",
-        "comment": "确保异常的安全性。",
+        "comment": "保证异常安全。",
         "tag": "exception",
         "related": "ID_resourceLeak,ID_ownerlessResource,ID_throwInSwap",
         "reference": "Effective C++ item 29"
@@ -3250,7 +3250,7 @@
     "ID_unsuitableStructTag": {
         "checkPoint": "存在构造、析构或虚函数的类不应采用 struct 关键字",
         "level": "suggestion",
-        "comment": "为了便于区分简单结构体和具有封装或多态属性的类，建议 struct 关键字只用于结构体，其他情况均采用 class 关键字。",
+        "comment": "简单结构体应采用 struct 关键字，具有封装或多态等特性的类应采用 class 关键字，以便提高可读性。",
         "tag": "type",
         "reference": "C++ Core Guidelines C.2,C++ Core Guidelines C.8"
         },

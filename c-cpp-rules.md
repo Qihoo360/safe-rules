@@ -297,7 +297,7 @@
 <br/>
 
 <span id="__Exception">**[7. Exception](#exception)**</span>
-  - [R7.1 确保异常的安全性](#ID_exceptionUnsafe)
+  - [R7.1 保证异常安全](#ID_exceptionUnsafe)
   - [R7.2 不应抛出过于宽泛的异常](#ID_throwGenericException)
   - [R7.3 不应捕获过于宽泛的异常](#ID_catch_generic)
   - [R7.4 不应抛出非异常类型的对象](#ID_throwNonExceptionType)
@@ -1159,7 +1159,7 @@ void foo(const char* p) {
     printf("%s\n", strupr(a));   // To upper case and print, dangerous
 }
 ```
-例示代码将字符串复制到数组中，转为大写并打印，然而如果 p 所指字符串的长度超过 3，strncpy 不会在数组的结尾安置空字符 '\\0'，会导致内存访问错误。  
+例示代码将字符串复制到数组中，转为大写并打印，然而如果 p 所指字符串的长度超过 3，strncpy 不会在数组的结尾安置空字符 '\\0'，会导致内存访问错误，程序可能会崩溃，也可能打印出本该隐藏的敏感数据。  
   
 应改为：
 ```
@@ -1345,7 +1345,7 @@ errno 被设定的位置和被读取的位置相距较远，不遵循固定的�
 ```
 void foo() {
     if (somecall() == FAILED) {
-        printf("somecall() failed\n");
+        printf("somecall failed\n");
         if (errno == SOME_VALUE) {       // Non-compliant
             .... 
         }
@@ -3903,9 +3903,9 @@ ID_staticInHeader&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 示例：
 ```
 // In a header file
-static int i = 0;   // Non-compliant
+static int i = 0;    // Non-compliant
 
-static int foo() {  // Non-compliant
+static int foo() {   // Non-compliant
     return i;
 }
 ```
@@ -3915,31 +3915,29 @@ static int foo() {  // Non-compliant
 ```
 // In a header file
 inline void bar() {
-    static MyType obj;  // Non-compliant
+    static Type obj;   // Non-compliant
     ....
 }
 ```
 如果该头文件被不同的模块（so、dll、exe）包含，obj 对象会生成不同的副本，很可能造成逻辑错误。  
   
-另外， 由 const 或 constexpr 关键字修饰的常量也具有静态数据的特性，在头文件中定义常量也面对这种问题，基本类型的常量经过编译优化可以不占用存储空间（有取地址操作的除外），而对于非基本类型的常量对象或数组也不应在头文件中定义，建议采用单件模式，将其数据定义在 cpp 等源文件中，在头文件中定义访问这些数据的接口。  
-  
-如：
+另外， 由 const 或 constexpr 关键字修饰的常量也具有静态数据的特性，在头文件中定义常量也面对这种问题，基本类型的常量经过编译优化可以不占用存储空间（有取地址操作的除外），而对于非基本类型的常量对象或数组也不应在头文件中定义，建议采用单件模式，将其数据定义在 cpp 等源文件中，在头文件中定义访问这些数据的接口，如：
 ```
-// In myarr.h
-using MyArr = int[256];
-const MyArr& getMyArr();
+// In arr.h
+using Arr = int[256];
+const Arr& getArr();
 
-// In myarr.cpp
-#include "myarr.h"
+// In arr.cpp
+#include "arr.h"
 
-const MyArr& getMyArr() {
-    static MyArr arr = {
+const Arr& getArr() {
+    static Arr a = {
         1, 2, 3, ....
     };
-    return arr;
+    return a;
 }
 ```
-在需要用到 arr 的地方，调用 getMyArr 函数，即可获取对该数组的引用，没有任何多余的数据产生，而且可保证在使用之前被有效初始化。
+在需要用到常量数组的地方调用 getArr 函数，即可获取对该数组的引用，没有任何多余的数据产生，而且可保证在使用之前被有效初始化。
 <br/>
 <br/>
 
@@ -4069,9 +4067,9 @@ ID_nonConstNonStaticGlobalObject&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warn
 示例：
 ```
 // In global scope
-int i = 0;         // Non-compliant
-static int j = 0;  // Let it go
-const int k = 0;   // Compliant
+int i = 0;          // Non-compliant
+static int j = 0;   // Let it go
+const int k = 0;    // Compliant
 ```
 <br/>
 <br/>
@@ -5142,27 +5140,20 @@ ID_unsuitableStructTag&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestion
 
 <hr/>
 
-为了便于区分简单结构体和具有封装或多态属性的类，建议 struct 关键字只用于结构体，其他情况均采用 class 关键字。  
+简单结构体应采用 struct 关键字，具有封装或多态等特性的类应采用 class 关键字，以便提高可读性。  
   
 示例：
 ```
-struct A {     // Non-compliant
-    int x, y;
-
-    A();
-   ~A();
-};
-
-struct B {     // Compliant
+struct A {     // Compliant
     int x, y;
 };
 
-class C {      // Compliant
-    int x, y;
+struct B {     // Non-compliant
+    B();
+   ~B();
 
-public:
-    C();
-   ~C();
+private:
+    int x, y;
 };
 ```
 <br/>
@@ -6115,7 +6106,7 @@ void thread() {
     read_and_write(x);
 }
 ```
-设 thread 是线程函数，LockGuard 是自动锁，在已保证同步机制的情况下，不应再使用 volatile 限定共享对象。
+设 thread 是线程函数，LockGuard 是某种 RAII 锁，在已保证同步机制的情况下，不应再使用 volatile 限定共享对象。
 <br/>
 <br/>
 
@@ -6881,7 +6872,7 @@ void fun() {
     ....
 } 
 ```
-设 LockGuard 是某种锁，LockGuard(); 只生成了一个临时对象，该对象会立即析构，起不到作用，这也是一种常见的错误。  
+设 LockGuard 是某种 RAII 锁，LockGuard(); 只生成了一个临时对象，该对象会立即析构，起不到作用，这也是一种常见的错误。  
   
 应改为：
 ```
@@ -7935,8 +7926,8 @@ ID_complexDeclaration&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
   
 示例：
 ```
-int (*foo(int))(bool);  // Bad, returns a function pointer
-int (*foo(char))[123];  // Bad, returns an array pointer
+int (*foo(int))(bool);   // Bad, returns a function pointer
+int (*foo(char))[123];   // Bad, returns an array pointer
 ```
 例中声明的是两个函数，但看起来像是函数指针，而且参数列表也显得混乱。  
   
@@ -7945,13 +7936,13 @@ int (*foo(char))[123];  // Bad, returns an array pointer
 typedef int(*funptr)(bool);
 typedef int(*arrptr)[123];
 
-funptr foo(int);   // Good
-arrptr foo(char);  // Good
+funptr foo(int);    // Good
+arrptr foo(char);   // Good
 ```
 另外，指针的星号个数不宜超过两个，否则意味着指针的解引用逻辑过于复杂，如：
 ```
-T *** x;  // Bad
-T * const * * const * y;  // Horrible
+T *** x;   // Bad
+T * volatile * * const * y;   // Horrible
 ```
 其中 T 为任意类型，如果发现这种指针，意味着需要改进对相关数据的访问方式。
 <br/>
@@ -8150,7 +8141,7 @@ C++ Core Guidelines R.20
 
 ## <span id="exception">7. Exception</span>
 
-### <span id="ID_exceptionUnsafe">▌R7.1 确保异常的安全性</span>
+### <span id="ID_exceptionUnsafe">▌R7.1 保证异常安全</span>
 
 ID_exceptionUnsafe&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
@@ -15507,18 +15498,15 @@ L、U、u、u8 等字符串前缀表示不同的类型，不可连接在一起�
   
 示例：
 ```
-auto* a = L"123" U"456";  // Non-compliant
-auto* b = U"123" u"456";  // Non-compliant
+auto* a = L"123" U"456";   // Non-compliant
+auto* b = U"123" u"456";   // Non-compliant
 ```
 应保持一致：
 ```
-auto* a = L"123" L"456";  // Compliant
-auto* b = U"123" U"456";  // Compliant
+auto* a = L"123" L"456";   // Compliant
+auto* b = U"123" U"456";   // Compliant
 ```
-C\+\+03 规定宽字符串与窄字符串连接会导致未定义的行为。  
-C\+\+11 规定一个字符串有前缀一个没有的话，结果以有前缀的为准，其他情况由实现定义。  
-  
-如：
+C\+\+03 规定宽字符串与窄字符串连接会导致未定义的行为，C\+\+11 规定一个字符串有前缀一个没有的话，结果以有前缀的为准，其他情况由实现定义，如：
 ```
 auto* x = L"123" "456";    // Undefined in C++03
 auto* y = L"123" "456";    // A wide string in C++11
