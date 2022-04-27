@@ -1374,7 +1374,7 @@ ID_divideByZero&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security error
 
 <hr/>
 
-除 0 等在数学上没有定义的运算、浮点异常、非法指令、段错误等问题称为“计算异常”，意味着程序发生了严重的底层运行时错误，而且这种异常无法用语言层面的常规方法捕获。  
+除 0 等在数学上没有定义的运算、浮点异常、非法指令、段错误等问题称为“计算异常”，意味着严重的底层运行时错误，而且这种异常无法用语言层面的常规方法捕获。  
   
 示例：
 ```
@@ -1385,7 +1385,7 @@ int foo(int n) {
     return 100 / n;   // Non-compliant, must determine whether ‘n’ is 0
 }
 ```
-当除数为 0 时，对于整形数据的除法，进程往往会崩溃，对于浮点型数据的除法，一般会产生“[INF](https://en.wikipedia.org/wiki/Infinity#Computing)”或“[NaN](https://en.wikipedia.org/wiki/NaN)”等无效结果，在特殊的设置下，也可以使进程异常终止。  
+当除数为 0 时，对于整形数据的除法，进程往往会崩溃，对于浮点型数据的除法，一般会产生“[Inf](https://en.wikipedia.org/wiki/Infinity#Computing)”或“[NaN](https://en.wikipedia.org/wiki/NaN)”等无效结果，在特殊的设置下，也可以使进程异常终止。  
   
 崩溃会给用户不好的体验，而且要注意如果崩溃可由外部输入引起，会被攻击者利用从而迫使程序无法正常工作，具有高可靠性要求的服务类程序更应该注意这一点，可参见“[拒绝服务攻击](https://en.wikipedia.org/wiki/Denial-of-service_attack)”的进一步说明。对于客户端程序，也要防止攻击者对崩溃产生的“[core dump](https://en.wikipedia.org/wiki/Core_dump)”进行恶意调试，避免泄露敏感数据，总之程序的健壮性与安全性是紧密相关的。
 <br/>
