@@ -699,9 +699,9 @@ SecretBuf 的使用方法如下：
 void foo() {
     SecretBuf buf(256);
     if (buf.ptr()) {
-        // ... Do something secret using buf.ptr() ...
+        ....             // Do something secret using buf.ptr()
     } else {
-        // ... Handle memory error ...
+        ....             // Handle memory error
     }
 }
 ```
@@ -8185,7 +8185,7 @@ class X {
 public:
     void foo() {
         proc(a);
-        // ... If throw an exception ...
+        // ... if throw an exception ...
         proc(b);
     }
 };
@@ -10442,8 +10442,8 @@ void foo()
 L0:
     ....
 L1:
-    // ... lots of labels require lots of gotos ...
-    // ... lots of gotos make functions terrible ...
+    ....   // Lots of labels require lots of gotos
+    ....   // Lots of gotos make functions terrible
 L100:
     ....
 }
@@ -10541,14 +10541,14 @@ void foo(A a, B b, C c, D d, E e) {  // Bad
 假设 a 和 b 有直接逻辑关系，c、d、e 有直接逻辑关系，不妨将 a 和 b 封装成一个类，c、d、e 封装成一个类，在类的成员函数中实现相关功能，可更为清晰直观地保证逻辑关系的正确性。
 ```
 class X {
-    // ... Members and methods for ‘a’, ‘b’ ...
+    ....    // Members and methods for ‘a’, ‘b’ ...
 };
 
 class Y {
-    // ... Members and methods for ‘c’, ‘d’, ‘e’ ... 
+    ....    // Members and methods for ‘c’, ‘d’, ‘e’ ... 
 };
 
-void foo(X x, Y y) {  // Good
+void foo(X x, Y y) {   // Good
     x.methods();
     y.methods();
 }
@@ -12224,8 +12224,8 @@ switch (v)
 {
 case 1: .... break;
 case 2: .... break;
-    // ... Lots of cases ...
-case 1000: .... break;  // Non-compliant
+        ....             // Lots of cases
+case 1000: .... break;   // Non-compliant
 }
 ```
 建议 case 数量不超过 10 个。
@@ -12347,13 +12347,13 @@ switch 语句应为包含多条语句的复合语句，且用大括号括起来�
   
 示例：
 ```
-switch (v)  // Non-compliant
+switch (v)   // Non-compliant
     case 0:
         foo(v);
 ```
 应改为 if 语句：
 ```
-if (v == 0) {  // Compliant
+if (v == 0) {   // Compliant
     foo(v);
 }
 ```
