@@ -2673,7 +2673,7 @@
     "ID_nullDerefInExp": {
         "checkPoint": "注意逻辑表达式内的空指针解引用",
         "level": "error",
-        "comment": "在逻辑表达式中，需注意逻辑关系及运算符优先级，不可出现空指针解引用的问题。",
+        "comment": "在逻辑表达式中，需注意逻辑关系及运算符优先级，不可出现空指针解引用等问题。",
         "tag": "pointer",
         "standard": "ISO/IEC 9899:2011 6.5.3.2(4)-undefined,ISO/IEC 14882:2011 8.3.2(5)-undefined",
         "reference": "CWE-476,CWE-783,C++ Core Guidelines ES.65"
@@ -2681,7 +2681,7 @@
     "ID_nullDerefInScp": {
         "checkPoint": "避免空指针解引用",
         "level": "error",
-        "comment": "解引用空指针会使程序产生崩溃等标准未定义的行为。",
+        "comment": "通过指针的值访问相应地址中的数据称为“解引用（dereference）”，空指针是没有指向任何数据的指针，空指针解引用是一种逻辑错误，会导致标准未定义的行为。",
         "tag": "pointer",
         "standard": "ISO/IEC 9899:2011 6.5.3.2(4)-undefined,ISO/IEC 14882:2011 8.3.2(5)-undefined",
         "reference": "CWE-476,C++ Core Guidelines ES.65"

@@ -5945,19 +5945,19 @@ ID_missingConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-用常量字符串对非常量字符串指针赋值，相关内存被修改会导致标准未定义的行为。  
+用常量字符串对非常量字符串指针赋值，如果相关内存被修改会导致标准未定义的行为。  
   
 示例：
 ```
-char* p = "....";  // Non-compliant
-p[x] = '\0';       // Undefined behavior
+char* p = "....";   // Non-compliant
+p[x] = '\0';        // Undefined behavior
 ```
-例中 p 指向常量字符串，通过 p 修改相关内存区域会种程序产生未定义的行为。  
+例中 p 指向常量字符串，通过 p 修改常量数据一般会引发“[段错误](https://en.wikipedia.org/wiki/Segmentation_fault)”而导致崩溃。  
   
 应改为：
 ```
-const char* p = "....";  // Compliant
-p[x] = '\0';             // Compile-time protected
+const char* p = "....";   // Compliant
+p[x] = '\0';              // Compile-time protected
 ```
 改为常量字符串指针后，错误的操作无法通过编译。  
   
@@ -16928,7 +16928,7 @@ ID_nullDerefInScp&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: pointer error
 
 <hr/>
 
-解引用空指针会使程序产生崩溃等标准未定义的行为。  
+通过指针的值访问相应地址中的数据称为“解引用（dereference）”，空指针是没有指向任何数据的指针，空指针解引用是一种逻辑错误，会导致标准未定义的行为。  
   
 示例：
 ```
@@ -16940,19 +16940,9 @@ int foo(int i) {
     return *p;     // Non-compliant
 }
 ```
-例中指针 p 为空的状态可以到达解引用处，应避免这种问题。  
-
-```
-void bar(T* p) {
-    if (p) {
-        p->baz();  // Compliant
-    }
-    p->qux();      // Non-compliant
-}
-```
-例中对 qux 的调用超出了 p 的检查范围，这也是一种常见错误，应避免。  
+例中指针 p 为空的状态可以到达解引用处，往往会引发“[段错误](https://en.wikipedia.org/wiki/Segmentation_fault)”而导致崩溃。  
   
-解引用空指针一般会使进程崩溃，给用户不好的体验，而且要注意如果崩溃可由外部输入引起，会被攻击者利用从而迫使程序无法正常工作，具有高可靠性要求的服务类程序更应该注意这一点，可参见“[拒绝服务攻击](https://en.wikipedia.org/wiki/Denial-of-service_attack)”的进一步说明。对于客户端程序，也要防止攻击者对崩溃产生的“[core dump](https://en.wikipedia.org/wiki/Core_dump)”进行恶意调试，避免泄露敏感数据，总之程序的健壮性与安全性是紧密相关的。
+崩溃会给用户不好的体验，而且要注意如果崩溃可由外部输入引起，会被攻击者利用从而迫使程序无法正常工作，具有高可靠性要求的服务类程序更应该注意这一点，可参见“[拒绝服务攻击](https://en.wikipedia.org/wiki/Denial-of-service_attack)”的进一步说明。对于客户端程序，也要防止攻击者对崩溃产生的“[core dump](https://en.wikipedia.org/wiki/Core_dump)”进行恶意调试，避免泄露敏感数据，总之程序的健壮性与安全性是紧密相关的。
 <br/>
 <br/>
 
@@ -16973,31 +16963,25 @@ ID_nullDerefInExp&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: pointer error
 
 <hr/>
 
-在逻辑表达式中，需注意逻辑关系及运算符优先级，不可出现空指针解引用的问题。  
+在逻辑表达式中，需注意逻辑关系及运算符优先级，不可出现空指针解引用等问题。  
   
-示例：
+示例（设 foo、bar 是指针 p 所指对象的非静态成员函数）：
 ```
-bool fun0(T* p) {
-    return p || p->foo();  // Non-compliant
-}
+p || p->foo();  // Non-compliant
 ```
-当 p 为空时执行右子表达式，恰好产生空指针解引用问题。  
-
-```
-bool fun1(T* p) {
-    return p && p->foo() || p->bar();  // Non-compliant
-}
-```
-由左子表达式可知 p 可能为空，而右子表达式却没有限制，有可能产生空指针解引用问题。  
-
-```
-bool fun2(T* p) {
-    return p->foo() && p;  // Non-compliant
-}
-```
-这是颠倒了对 p 的判断和解引用次序，属于语言运用错误。  
+当 p 为空时执行“||”的右子表达式，恰好使空指针被解引用。  
   
-空指针解引用会导致标准未定义的行为，进程一般会崩溃，给用户不好的体验，而且要注意如果崩溃可由外部输入引起，会被攻击者利用从而迫使程序无法正常工作。
+又如：
+```
+p && p->foo() || p->bar();  // Non-compliant
+```
+“&&”的优先级高于“||”，由“||”的左子表达式可知 p 可能为空，而右子表达式却没有限制，导致空指针被解引用。  
+  
+又如：
+```
+p->foo() && p;  // Non-compliant
+```
+这是颠倒了对指针的判断和解引用次序，属于语言运用错误。
 <br/>
 <br/>
 
