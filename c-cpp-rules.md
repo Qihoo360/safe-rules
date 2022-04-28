@@ -17908,8 +17908,6 @@ void thd() {
     atomic_fetch_add(&i, 1);   // Compliant, or use ‘operator++’ in C++
 }
 ```
-atomic\_fetch\_add 函数保证原子对象的  
-  
 对于一些复杂的原子运算，如：
 ```
 i = (i + 1) % 5;   // Non-compliant
@@ -18108,24 +18106,24 @@ mtx_t m;    // Mutex
 cnd_t cv;   // Condition variable
 bool cnd;   // Represents the condition
 
-void thd() {
-    mtx_lock(&m);           // Lock
-    if (!cnd) {             // Non-compliant, use a while loop instead
-        cnd_wait(&cv, &m);  // Wait
+void thd() {                 // Thread function
+    mtx_lock(&m);            // Lock
+    if (!cnd) {              // Non-compliant, use a while loop instead
+        cnd_wait(&cv, &m);   // Wait
     }
     ....
 }
 ```
-设例中 cv 是条件变量，cnd 代表相关条件，thd 是线程函数，cnd\_wait 等待条件被其他异步过程满足，条件的判断与更改应是互斥的，cnd\_wait 会解锁并进入等待状态，当得到 cnd\_signal 或 cnd\_broadcast 的通知后会退出等待状态并再次加锁，但在条件不满足时也可能退出等待，原因主要有：  
+设例中 cv 是条件变量，cnd 代表相关条件，cnd\_wait 等待条件被其他异步过程满足，条件的判断与更改应是互斥的，cnd\_wait 会解锁并进入等待状态，当得到 cnd\_signal 或 cnd\_broadcast 的通知后会退出等待状态并再次加锁，但在条件不满足时也可能退出等待，原因主要有：  
  - 一个条件变量对应多个条件，与当前条件无关的条件被满足并通知了条件变量  
  - 在退出等待并加锁的过程中其他线程使条件不被满足  
  - 等待过程被信号打断  
   
 这些问题取决于程序和系统的具体实现，在循环中等待并判断条件可一并解决这些问题：
 ```
-void foo() {
+void thd() {
     mtx_lock(&m);
-    while (!cnd) {          // Compliant
+    while (!cnd) {           // Compliant
         cnd_wait(&cv, &m);
     }
     ....
