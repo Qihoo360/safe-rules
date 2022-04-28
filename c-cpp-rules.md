@@ -5952,16 +5952,14 @@ ID_missingConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 char* p = "....";   // Non-compliant
 p[x] = '\0';        // Undefined behavior
 ```
-例中 p 指向常量字符串，通过 p 修改常量数据一般会引发“[段错误](https://en.wikipedia.org/wiki/Segmentation_fault)”而导致崩溃。  
-  
-应改为：
+例中 p 指向常量字符串，通过 p 修改常量数据一般会引发“[段错误](https://en.wikipedia.org/wiki/Segmentation_fault)”而导致崩溃，应改为：
 ```
 const char* p = "....";   // Compliant
 p[x] = '\0';              // Compile-time protected
 ```
 改为常量字符串指针后，错误的操作无法通过编译。  
   
-常量字符串的参数传递同样受本规则约束：
+常量字符串的参数传递同样受本规则约束，如：
 ```
 void foo(char*);
 
@@ -16970,14 +16968,12 @@ ID_nullDerefInExp&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: pointer error
 p || p->foo();  // Non-compliant
 ```
 当 p 为空时执行“||”的右子表达式，恰好使空指针被解引用。  
-  
-又如：
+
 ```
 p && p->foo() || p->bar();  // Non-compliant
 ```
 “&&”的优先级高于“||”，由“||”的左子表达式可知 p 可能为空，而右子表达式却没有限制，导致空指针被解引用。  
-  
-又如：
+
 ```
 p->foo() && p;  // Non-compliant
 ```
