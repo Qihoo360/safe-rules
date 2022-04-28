@@ -10527,18 +10527,17 @@ ID_tooManyParams&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 函数参数过多，意味着：  
  - 缺少合理的抽象机制：应将多而零散的参数按其内在联系封装成对象，从而方便地处理其逻辑关系，而不是简单地线性罗列  
- - 违反“[单一职责原则](https://en.wikipedia.org/wiki/Single-responsibility_principle)”：参数越多，函数处理的事务自然越多，代码的可维护性自然越差  
+ - 违反单一职责原则：参数越多，函数处理的事务自然越多，代码的可维护性自然越差  
   
 建议可供外部使用的全局函数、public 或 protected 成员函数的参数不超过 4 个，内部使用的 static 函数、private 成员函数的参数不超过 8 个。  
   
 示例：
 ```
-void foo(A a, B b, C c, D d, E e) {  // Bad
+void foo(A a, B b, C c, D d, E e) {   // Bad
     ....
 }
 ```
-当函数参数过多时，应按参数的逻辑职责进行封装。  
-假设 a 和 b 有直接逻辑关系，c、d、e 有直接逻辑关系，不妨将 a 和 b 封装成一个类，c、d、e 封装成一个类，在类的成员函数中实现相关功能，可更为清晰直观地保证逻辑关系的正确性。
+当函数参数过多时，应按参数的逻辑职责进行封装。假设 a 和 b 有直接逻辑关系，c、d、e 有直接逻辑关系，不妨将 a 和 b 封装成一个类，c、d、e 封装成一个类，在类的成员函数中实现相关功能，可更为清晰直观地保证逻辑关系的正确性：
 ```
 class X {
     ....    // Members and methods for ‘a’, ‘b’ ...
@@ -12315,7 +12314,7 @@ switch (v)
 {
 case 1:
     do_something();
-    [[fallthrough]];  // Compliant, since C++17
+    [[fallthrough]];   // Compliant, since C++17
 default:
     do_something_default();
     break;
