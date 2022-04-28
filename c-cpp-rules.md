@@ -4,7 +4,7 @@
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对 C、C++ 语言，本文收录了 438 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对 C、C++ 语言，本文收录了 439 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
@@ -583,12 +583,13 @@
 <span id="__Concurrency">**[16. Concurrency](#concurrency)**</span>
   - [R16.1 访问共享数据应遵循合理的同步机制](#ID_dataRaces)
   - [R16.2 避免在事务中通过路径多次访问同一文件](#ID_TOCTOU)
-  - [R16.3 避免死锁](#ID_deadlock)
-  - [R16.4 避免异步终止线程](#ID_asynchronousTermination)
-  - [R16.5 避免异步终止共享对象的生命周期](#ID_illLifetime)
-  - [R16.6 避免虚假唤醒造成同步错误](#ID_spuriouslyWakeUp)
-  - [R16.7 避免并发访问位域造成的数据竞争](#ID_bitfieldDataRaces)
-  - [R16.8 多线程环境中不可使用 signal 函数](#ID_signalInMultiThreading)
+  - [R16.3 避免在事务中多次非同步地访问原子对象](#ID_atomicRaces)
+  - [R16.4 避免死锁](#ID_deadlock)
+  - [R16.5 避免异步终止线程](#ID_asynchronousTermination)
+  - [R16.6 避免异步终止共享对象的生命周期](#ID_illLifetime)
+  - [R16.7 避免虚假唤醒造成同步错误](#ID_spuriouslyWakeUp)
+  - [R16.8 避免并发访问位域造成的数据竞争](#ID_bitfieldDataRaces)
+  - [R16.9 多线程环境中不可使用 signal 函数](#ID_signalInMultiThreading)
 <br/>
 
 <span id="__Style">**[17. Style](#style)**</span>
@@ -6101,12 +6102,12 @@ ID_forbidVolatile&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration suggestion
 ```
 volatile int x;  // Non-compliant, ‘volatile’ is abused
 
-void thread() {
+void thd() {
     LockGuard g;
     read_and_write(x);
 }
 ```
-设 thread 是线程函数，LockGuard 是某种 RAII 锁，在已保证同步机制的情况下，不应再使用 volatile 限定共享对象。
+设 thd 是线程函数，LockGuard 是某种 RAII 锁，在已落实同步机制的情况下，不应再使用 volatile 限定共享对象。
 <br/>
 <br/>
 
@@ -17826,6 +17827,7 @@ ISO/IEC 9899:2011 5.1.2.4(25)-undefined
 #### 参考
 CWE-362  
 C++ Core Guidelines CP.2  
+SEI CERT CON33-C  
 SEI CERT CON43-C  
 <br/>
 <br/>
@@ -17882,7 +17884,60 @@ CWE-367
 <br/>
 <br/>
 
-### <span id="ID_deadlock">▌R16.3 避免死锁</span>
+### <span id="ID_atomicRaces">▌R16.3 避免在事务中多次非同步地访问原子对象</span>
+
+ID_atomicRaces&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: concurrency warning
+
+<hr/>
+
+原子对象可以保证某些特定操作的原子性，但特定操作的组合并不具备原子性，多次非同步地访问原子对象仍然存在数据竞争。  
+  
+示例：
+```
+atomic_int i = ATOMIC_VAR_INIT(0);
+
+void thd() {
+    i = i + 1;   // Non-compliant
+}
+```
+设 thd 为线程函数，原子对象 i 在表达式中出现了两次，其读取、计算、写入等过程在多线程中仍然是交织在一起的，造成数据竞争。  
+  
+应改为：
+```
+void thd() {
+    atomic_fetch_add(&i, 1);   // Compliant, or use ‘operator++’ in C++
+}
+```
+atomic\_fetch\_add 函数保证原子对象的  
+  
+对于一些复杂的原子运算，如：
+```
+i = (i + 1) % 5;   // Non-compliant
+```
+可采用 “[CAS（compare and swap）](https://en.wikipedia.org/wiki/Compare-and-swap)” 方法同步：
+```
+int old_i = atomic_load(&i);
+int new_i = 0;
+do {
+    new_i = (old_i + 1) % 5;
+} while (!compare_and_swap(&i, &old_i, new_i));   // Compliant
+```
+首先读取原子对象的值 old\_i，old\_i 经过运算得到新值 new\_i，再通过 compare\_and\_swap 更新原子对象的值。compare\_and\_swap 具有原子性，将 old\_i 和原子对象当前值比较，相等则说明在运算过程中原子对象没有被其他线程更新，将原子对象的值设为 new\_i，不相等则说明原子对象已被其他线程更新，将 old\_i 设为原子对象当前值，再重复这个过程，直到原子对象可用 new\_i 更新。  
+  
+compare\_and\_swap 是重要的原子对象同步手段，在实际代码中可与 atomic\_compare\_exchange\_weak、atomic\_compare\_exchange\_strong 等函数对应。
+<br/>
+<br/>
+
+#### 相关
+ID_dataRaces  
+<br/>
+
+#### 参考
+SEI CERT CON40-C  
+<br/>
+<br/>
+
+### <span id="ID_deadlock">▌R16.4 避免死锁</span>
 
 ID_deadlock&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: concurrency warning
 
@@ -17959,7 +18014,7 @@ SEI CERT CON56-CPP
 <br/>
 <br/>
 
-### <span id="ID_asynchronousTermination">▌R16.4 避免异步终止线程</span>
+### <span id="ID_asynchronousTermination">▌R16.5 避免异步终止线程</span>
 
 ID_asynchronousTermination&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: concurrency warning
 
@@ -17977,10 +18032,10 @@ void* foo(void* param) {
 }
 
 void bar() {
-    pthread_t thrd;
-    pthread_create(&thrd, NULL, foo, NULL);
+    pthread_t thd;
+    pthread_create(&thd, NULL, foo, NULL);
     ....
-    pthread_cancel(thrd);   // Non-compliant, leak or deadlock
+    pthread_cancel(thd);   // Non-compliant, leak or deadlock
 }
 ```
 以 pthread 线程库为例，foo 和 bar 是两个相关的异步过程，foo 通过 PTHREAD\_CANCEL\_ASYNCHRONOUS 指定其线程可以随时被终止，bar 调用 pthread\_cancel 终止 foo 线程，在一个过程中暴力终止另一个过程是非常危险的，会使锁、信号量或动态分配的资源无法释放。  
@@ -17998,7 +18053,7 @@ SEI CERT POS47-C
 <br/>
 <br/>
 
-### <span id="ID_illLifetime">▌R16.5 避免异步终止共享对象的生命周期</span>
+### <span id="ID_illLifetime">▌R16.6 避免异步终止共享对象的生命周期</span>
 
 ID_illLifetime&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: concurrency warning
 
@@ -18039,7 +18094,7 @@ SEI CERT CON50-CPP
 <br/>
 <br/>
 
-### <span id="ID_spuriouslyWakeUp">▌R16.6 避免虚假唤醒造成同步错误</span>
+### <span id="ID_spuriouslyWakeUp">▌R16.7 避免虚假唤醒造成同步错误</span>
 
 ID_spuriouslyWakeUp&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: concurrency warning
 
@@ -18053,7 +18108,7 @@ mtx_t m;    // Mutex
 cnd_t cv;   // Condition variable
 bool cnd;   // Represents the condition
 
-void thread() {
+void thd() {
     mtx_lock(&m);           // Lock
     if (!cnd) {             // Non-compliant, use a while loop instead
         cnd_wait(&cv, &m);  // Wait
@@ -18061,7 +18116,7 @@ void thread() {
     ....
 }
 ```
-设例中 cv 是条件变量，cnd 代表相关条件，cnd\_wait 等待条件被其他异步过程满足，条件的判断与更改应是互斥的，cnd\_wait 会解锁并进入等待状态，当得到 cnd\_signal 或 cnd\_broadcast 的通知后会退出等待状态并再次加锁，但在条件不满足时也可能退出等待，原因主要有：  
+设例中 cv 是条件变量，cnd 代表相关条件，thd 是线程函数，cnd\_wait 等待条件被其他异步过程满足，条件的判断与更改应是互斥的，cnd\_wait 会解锁并进入等待状态，当得到 cnd\_signal 或 cnd\_broadcast 的通知后会退出等待状态并再次加锁，但在条件不满足时也可能退出等待，原因主要有：  
  - 一个条件变量对应多个条件，与当前条件无关的条件被满足并通知了条件变量  
  - 在退出等待并加锁的过程中其他线程使条件不被满足  
  - 等待过程被信号打断  
@@ -18085,7 +18140,7 @@ SEI CERT CON54-CPP
 <br/>
 <br/>
 
-### <span id="ID_bitfieldDataRaces">▌R16.7 避免并发访问位域造成的数据竞争</span>
+### <span id="ID_bitfieldDataRaces">▌R16.8 避免并发访问位域造成的数据竞争</span>
 
 ID_bitfieldDataRaces&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: concurrency warning
 
@@ -18128,7 +18183,7 @@ SEI CERT CON52-CPP
 <br/>
 <br/>
 
-### <span id="ID_signalInMultiThreading">▌R16.8 多线程环境中不可使用 signal 函数</span>
+### <span id="ID_signalInMultiThreading">▌R16.9 多线程环境中不可使用 signal 函数</span>
 
 ID_signalInMultiThreading&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: concurrency warning
 
@@ -18369,7 +18424,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 438 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
+&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 439 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
 
 &emsp;&emsp;此致
 

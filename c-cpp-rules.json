@@ -3182,7 +3182,7 @@
         "tag": "concurrency",
         "standard": "ISO/IEC 9899:2011 5.1.2.4(3)-undefined,ISO/IEC 9899:2011 5.1.2.4(20)-undefined,ISO/IEC 9899:2011 5.1.2.4(25)-undefined",
         "related": "ID_sig_dataRaces,ID_sig_nonAsyncSafeCall",
-        "reference": "CWE-362,C++ Core Guidelines CP.2,SEI CERT CON43-C"
+        "reference": "CWE-362,C++ Core Guidelines CP.2,SEI CERT CON33-C,SEI CERT CON43-C"
         },
     "ID_TOCTOU": {
         "checkPoint": "避免在事务中通过路径多次访问同一文件",
@@ -3452,5 +3452,13 @@
         "tag": "type",
         "related": "ID_accessPaddingData",
         "standard": "ISO/IEC 9899:2011 6.2.8(1)-implementation,ISO/IEC 14882:2011 3.11(1)-implementation"
+        },
+    "ID_atomicRaces": {
+        "checkPoint": "避免在事务中多次非同步地访问原子对象",
+        "level": "warning",
+        "comment": "原子对象可以保证某些特定操作的原子性，但特定操作的组合并不具备原子性，多次非同步地访问原子对象仍然存在数据竞争。",
+        "tag": "concurrency",
+        "related": "ID_dataRaces",
+        "reference": "SEI CERT CON40-C"
         }
 }
