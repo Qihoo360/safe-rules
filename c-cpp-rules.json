@@ -3210,7 +3210,7 @@
     "ID_protectedData": {
         "checkPoint": "类的非常量数据成员不应定义为 protected",
         "level": "suggestion",
-        "comment": "protected 数据成员在派生类中仍可随意读写，破坏了封装理念。",
+        "comment": "protected 数据成员在派生类中仍可被随意读写，破坏了封装理念。",
         "tag": "type",
         "related": "ID_mixPublicPrivateData,ID_nonPrivateData",
         "reference": "C++ Core Guidelines C.9,C++ Core Guidelines C.133"
@@ -3456,7 +3456,7 @@
     "ID_atomicRaces": {
         "checkPoint": "避免在事务中多次非同步地访问原子对象",
         "level": "warning",
-        "comment": "原子对象可以保证某些特定操作的原子性，但特定操作的组合并不具备原子性，多次非同步地访问原子对象仍然存在数据竞争。",
+        "comment": "原子对象可以保证某些特定操作的原子性，但特定操作的组合并不具备原子性，非同步地访问原子对象仍然存在数据竞争。",
         "tag": "concurrency",
         "related": "ID_dataRaces",
         "reference": "SEI CERT CON40-C"

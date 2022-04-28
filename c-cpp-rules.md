@@ -735,7 +735,7 @@ ID_unsafeCleanup&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 及时清理不再使用的敏感数据是重要的安全措施，且应保证清理过程不会因为编译器的优化而失效。  
   
-清理敏感数据的应用场景可参见 ID\_secretLeak。  
+敏感数据可能会残留在未被初始化的对象或对象之间的填充数据中，如果被交换到外存甚至传输到网络就会造成泄露，可参见 ID\_secretLeak 和 ID\_ignorePaddingData 的进一步讨论。  
   
 示例：
 ```
@@ -4330,40 +4330,33 @@ ID_nonPrivateData&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestion
   
 将类的所有接口都实现为成员函数，由成员函数按指定逻辑读写数据，以便保证有效地改变对象状态。良好的接口设计会对代码的职责进行合理划分，显著提升可维护性。理想状态下，当有错误需要修正或有功能需要调整时，只改动相关接口的实现即可，调用接口的代码不需要改动，从而将改动降到最低。这种设计的基础便是将数据设为私有，只能由本类的成员函数访问，否则数据可被各个模块随意读写，当有一处需要改动时，很难控制其影响范围。  
   
+常量数据成员不可被改变，所以可不受本规则约束。  
+  
 示例：
 ```
-struct Fraction {
-    int n, d;       // Bad
+struct A {
+    int *p, n;   // Non-compliant
 
-    double result() {
-        return double(n) / d;
-    }
+    A(int n): p(new int[n]), n(n) {}
+   ~A() { delete[] p; }
 };
 ```
-例中成员 n 和 d 可被外部随意访问，如果 d 被设为 0 则无法进行除法运算，破坏了对象的有效性。  
-  
-对数据的限定以及数据之间的内在关系应由成员函数统一维护，不暴露给类的使用者，这便是面向对象的封装理念，也是 C\+\+ 语言的核心理念之一。  
+例中类的数据成员 p 指向动态分配的内存区域，n 记录区域大小，p 和 n 之间存在紧密的逻辑关系，这种内在关系应由成员函数统一维护，不暴露给类的使用者，这便是面向对象的封装理念，也是 C\+\+ 语言的核心理念之一。  
   
 应改为：
 ```
-class Fraction {
+class A {
+    int *p, n;   // Compliant
+
 public:
-    Fraction(int x, int y): n(x), d(y) {
-        if (!d) {
-            throw BadFraction();
-        }
-    }
+    A(int n): p(new int[n]), n(n) {}
+   ~A() { delete[] p; }
 
-    double result() noexcept {
-        return double(n) / d;
-    }
-
-private:
-    int n, d;   // Good
+    int* begin() { return p; }     // Interfaces for members
+    int* end() { return p + n; }
 };
 ```
-例外：  
-常量数据成员不可被改变，所以可不受本规则约束。
+这样数据成员不能被外界直接访问，成员之间的关系也不会被随意打破，显著提升可维护性。
 <br/>
 <br/>
 
@@ -4383,16 +4376,18 @@ ID_protectedData&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestion
 
 <hr/>
 
-protected 数据成员在派生类中仍可随意读写，破坏了封装理念。  
+protected 数据成员在派生类中仍可被随意读写，破坏了封装理念。  
   
 本规则是 ID\_nonPrivateData 的特化，关于封装的进一步讨论可参见 ID\_nonPrivateData。  
+  
+常量数据成员不可被改变，所以可不受本规则约束。  
   
 示例：
 ```
 class A {
     ....
 protected:
-    int member;  // Non-compliant
+    int data;   // Non-compliant
 };
 ```
 应改为由接口访问：
@@ -4400,11 +4395,11 @@ protected:
 class A {
     ....
 protected:
-    int access_member();  // Compliant
+    int access_data();   // Interfaces for data
+private:
+    int data;   // Compliant
 };
 ```
-例外：  
-常量数据成员不可被改变，所以可不受本规则约束。
 <br/>
 <br/>
 
@@ -4433,6 +4428,8 @@ ID_mixPublicPrivateData&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestion
   
 面向对象的封装理念更倾向于将所有数据成员都设为 private，由成员函数按指定逻辑控制每个成员的读写方法，以供外部访问，对代码的职责进行有效的划分，从而提高可维护性并降低风险，关于封装的进一步讨论可参见 ID\_nonPrivateData。  
   
+常量数据成员不可被改变，所以可不受本规则约束。  
+  
 示例：
 ```
 class A {  // Non-compliant
@@ -4453,8 +4450,6 @@ private:
     int n, d;
 };
 ```
-例外：  
-常量数据成员不可被改变，所以可不受本规则约束。
 <br/>
 <br/>
 
@@ -5082,7 +5077,7 @@ class C
 union U
 {
     // ... 3000 members ...
-    // It's actually the hell ...
+    // Here is hell!
 };
 ```
 <br/>
@@ -5121,6 +5116,13 @@ struct alignas(4) T {   // Or use _Alignas in C
     int8_t  a;
     int32_t b;
 };
+```
+注意，敏感数据可能会残留在填充数据中，所以当存储或传输对象前有必要清理填充数据的值，如：
+```
+T obj;
+memset(&obj, 0, sizeof(obj));   // Required
+....
+fwrite(&obj, sizeof(obj), 1, fp);
 ```
 <br/>
 <br/>
@@ -17870,17 +17872,17 @@ ID_atomicRaces&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: concurrency warning
 
 <hr/>
 
-原子对象可以保证某些特定操作的原子性，但特定操作的组合并不具备原子性，多次非同步地访问原子对象仍然存在数据竞争。  
+原子对象可以保证某些特定操作的原子性，但特定操作的组合并不具备原子性，非同步地访问原子对象仍然存在数据竞争。  
   
 示例：
 ```
 atomic_int i = ATOMIC_VAR_INIT(0);
 
 void thd() {
-    i = i + 1;   // Non-compliant
+    i = i + 1;   // Non-compliant, data races
 }
 ```
-设 thd 为线程函数，原子对象 i 在表达式中出现了两次，其读取、计算、写入等过程在多线程中仍然是交织在一起的，造成数据竞争。  
+设 thd 为线程函数，原子对象 i 在表达式中出现了多次，其读取、计算、写入等过程在多线程中仍然是交织在一起的，造成数据竞争。  
   
 应改为：
 ```
