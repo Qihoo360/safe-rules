@@ -735,7 +735,7 @@ ID_unsafeCleanup&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 及时清理不再使用的敏感数据是重要的安全措施，且应保证清理过程不会因为编译器的优化而失效。  
   
-敏感数据可能会残留在未被初始化的对象或对象之间的填充数据中，如果被交换到外存甚至传输到网络就会造成泄露，可参见 ID\_secretLeak 和 ID\_ignorePaddingData 的进一步讨论。  
+敏感数据可能会残留在未被初始化的对象或对象之间的填充数据中，如果被存储到磁盘或传输到网络就会造成泄露，可参见 ID\_secretLeak 和 ID\_ignorePaddingData 的进一步讨论。  
   
 示例：
 ```
@@ -764,7 +764,7 @@ void foo() {
 
 #### 相关
 ID_secretLeak  
-ID_forbidVolatile  
+ID_ignorePaddingData  
 <br/>
 
 #### 依据
@@ -5134,6 +5134,10 @@ ID_accessPaddingData
 #### 依据
 ISO/IEC 9899:2011 6.2.8(1)-implementation  
 ISO/IEC 14882:2011 3.11(1)-implementation  
+<br/>
+
+#### 参考
+SEI CERT DCL39-C  
 <br/>
 <br/>
 

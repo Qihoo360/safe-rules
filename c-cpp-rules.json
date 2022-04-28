@@ -3041,7 +3041,7 @@
         "comment": "及时清理不再使用的敏感数据是重要的安全措施，且应保证清理过程不会因为编译器的优化而失效。",
         "tag": "security",
         "standard": "ISO/IEC 9899:2011 5.1.2.3(4),ISO/IEC 9899:2011 K.3.7.4.1",
-        "related": "ID_secretLeak,ID_forbidVolatile",
+        "related": "ID_secretLeak,ID_ignorePaddingData",
         "reference": "CWE-14,CWE-733,SEI CERT MSC06-C"
         },
     "ID_nonConstNonStaticGlobalObject": {
@@ -3451,7 +3451,8 @@
         "comment": "成员之间存在填充数据，且没有声明对齐方式时，填充数据的长度是由实现定义的，这种数据不应在不同的环境之间传输，而且应注意成员的声明顺序，避免由填充数据造成的空间浪费。",
         "tag": "type",
         "related": "ID_accessPaddingData",
-        "standard": "ISO/IEC 9899:2011 6.2.8(1)-implementation,ISO/IEC 14882:2011 3.11(1)-implementation"
+        "standard": "ISO/IEC 9899:2011 6.2.8(1)-implementation,ISO/IEC 14882:2011 3.11(1)-implementation",
+        "reference": "SEI CERT DCL39-C"
         },
     "ID_atomicRaces": {
         "checkPoint": "避免在事务中多次非同步地访问原子对象",
