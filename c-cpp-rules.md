@@ -1,6 +1,6 @@
 <img src="logo.png" align="right"/>
 
-# C/C++ 安全规则集合 ![Version](https://img.shields.io/badge/version-1.1.1-brightgreen)
+# C/C++ 安全规则集合 ![Version](https://img.shields.io/badge/version-1.2.0-brightgreen)
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
@@ -3082,7 +3082,7 @@ const char* foo() {
     return M("x", "y");  // Non-compliant
 }
 ```
-在早期标准（ISO 9899:1990）对这种情况没有明确定义，后续标准对其进行了约束，但 MSVC 等编译器至今仍不把这种问题视作编译错误，需要特别注意。
+早期标准（ISO 9899:1990）对这种情况没有明确定义，后续标准对其进行了约束，但 MSVC 等编译器至今仍不把这种问题视作编译错误，需要特别注意。
 <br/>
 <br/>
 
