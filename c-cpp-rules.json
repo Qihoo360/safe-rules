@@ -1644,7 +1644,7 @@
     "ID_multiAllocation": {
         "checkPoint": "在一个表达式语句中最多使用一次 new",
         "level": "warning",
-        "comment": "如果表达式语句多次使用 new，一旦某个构造函数抛出异常，会造成内存泄漏。",
+        "comment": "如果表达式语句多次使用 new，一旦某个构造函数抛出异常就会造成内存泄漏。",
         "tag": "resource",
         "reference": "C++ Core Guidelines R.13"
         },
@@ -2054,14 +2054,14 @@
     "ID_staticInAnonymousNamespace": {
         "checkPoint": "匿名命名空间中不应使用静态声明",
         "level": "warning",
-        "comment": "匿名命名空间中的元素已具有静态属性（internal linkage），不应再用 static 关键字修饰。",
+        "comment": "匿名命名空间中的元素已具有静态链接性（internal linkage），不应再用 static 关键字修饰。",
         "tag": "global",
         "standard": "ISO/IEC 14882:2011 3.5(4)"
         },
     "ID_staticAndConst": {
         "checkPoint": "全局对象不应同时被 static 和 const 关键字修饰",
         "level": "warning",
-        "comment": "由 const 关键字修饰的全局对象已具有静态属性（internal linkage），不应再用 static 关键字修饰。",
+        "comment": "由 const 关键字修饰的全局对象已具有静态链接性（internal linkage），不应再用 static 关键字修饰。",
         "tag": "global",
         "related": "ID_staticInHeader",
         "standard": "ISO/IEC 14882:2003 7.1.1(6),ISO/IEC 14882:2011 7.1.1(7)"
@@ -2673,7 +2673,7 @@
     "ID_nullDerefInExp": {
         "checkPoint": "注意逻辑表达式内的空指针解引用",
         "level": "error",
-        "comment": "在逻辑表达式中，需注意逻辑关系及运算符优先级，不可出现空指针解引用等问题。",
+        "comment": "在逻辑表达式中，需注意逻辑关系以及运算符优先级，不可出现空指针解引用等问题。",
         "tag": "pointer",
         "standard": "ISO/IEC 9899:2011 6.5.3.2(4)-undefined,ISO/IEC 14882:2011 8.3.2(5)-undefined",
         "reference": "CWE-476,CWE-783,C++ Core Guidelines ES.65"

@@ -735,7 +735,7 @@ ID_unsafeCleanup&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 及时清理不再使用的敏感数据是重要的安全措施，且应保证清理过程不会因为编译器的优化而失效。  
   
-敏感数据可能会残留在未被初始化的对象或对象之间的填充数据中，如果被存储到磁盘或传输到网络就会造成泄露，可参见 ID\_secretLeak 和 ID\_ignorePaddingData 的进一步讨论。  
+程序会反复利用内存，敏感数据可能会残留在未初始化的对象或对象之间的填充数据中，如果被存储到磁盘或传输到网络就会造成泄露，可参见 ID\_secretLeak 和 ID\_ignorePaddingData 的进一步讨论。  
   
 示例：
 ```
@@ -1347,7 +1347,7 @@ errno 被设定的位置和被读取的位置相距较远，不遵循固定的�
 void foo() {
     if (somecall() == FAILED) {
         printf("somecall failed\n");
-        if (errno == SOME_VALUE) {       // Non-compliant
+        if (errno == SOME_VALUE) {     // Non-compliant
             .... 
         }
     }
@@ -1359,12 +1359,12 @@ void foo() {
 ```
 void bar(const char* s) {
     int i = atoi(s);
-    if (errno) {       // Non-compliant
+    if (errno) {        // Non-compliant
         ....
     }
 }
 ```
-errno 并不能反映所有异常情况，atoi 等函数与 errno 无关，例中 errno 的值来自函数外部，相应的异常处理也将是错误的。
+errno 并不能反映所有异常情况，atoi 等函数与 errno 无关，例中 errno 的值来自函数外部难以预料的位置，相应的异常处理也将是错误的。
 <br/>
 <br/>
 
@@ -2085,7 +2085,7 @@ ID_multiAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
 <hr/>
 
-如果表达式语句多次使用 new，一旦某个构造函数抛出异常，会造成内存泄漏。  
+如果表达式语句多次使用 new，一旦某个构造函数抛出异常就会造成内存泄漏。  
   
 示例：
 ```
@@ -3987,7 +3987,7 @@ ID_staticInAnonymousNamespace&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
 <hr/>
 
-匿名命名空间中的元素已具有静态属性（internal linkage），不应再用 static 关键字修饰。  
+匿名命名空间中的元素已具有静态链接性（internal linkage），不应再用 static 关键字修饰。  
   
 示例：
 ```
@@ -4145,7 +4145,7 @@ ID_staticAndConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
 <hr/>
 
-由 const 关键字修饰的全局对象已具有静态属性（internal linkage），不应再用 static 关键字修饰。  
+由 const 关键字修饰的全局对象已具有静态链接性（internal linkage），不应再用 static 关键字修饰。  
   
 示例：
 ```
@@ -4812,14 +4812,14 @@ ID_missingExplicitConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestio
 ```
 class String {
 public:
-    String(int capacity);   // Missing ‘explicit’
+    String(int capacity);   // Non-compliant, missing ‘explicit’
     ....
 };
 
 void foo(const String&);
 
 int bar() {
-    foo(100);  // Can be compiled, but very odd
+    foo(100);   // Can be compiled, but very odd
 }
 ```
 由于 String 类的构造函数接受一个 int 型参数，foo(100) 相当于将 100 隐式转为 String 类的对象，这种隐式转换是怪异的，也往往意味着意料之外的错误。  
@@ -4828,20 +4828,20 @@ int bar() {
 ```
 class String {
 public:
-    explicit String(int capacity);  // OK
+    explicit String(int capacity);   // Compliant
     ....
 };
 ```
 这样 foo(100) 这种写法便不会通过编译。  
   
 例外：  
-对于拷贝、移动构造函数不受本规则约束，如果将拷贝、移动构造函数声明为 explicit 则无法再按值传递参数或按值返回对象。  
+拷贝、移动构造函数可不受本规则约束，如果将拷贝、移动构造函数声明为 explicit 则无法再按值传递参数或按值返回对象。  
 
 ```
 class String {
 public:
-    String(const String&);  // Explicit or not depends on your design intent
-    String(String&&);       // ditto
+    String(const String&);   // Explicit or not depends on your design intent
+    String(String&&);        // ditto
     ....
 };
 ```
@@ -4871,13 +4871,13 @@ ID_missingExplicitConvertor&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestion
 ```
 struct A {
     ....
-    operator char*();  // Non-compliant
+    operator char*();   // Non-compliant
 };
 
 A foo();
 
 char* bar() {
-    return foo();  // Invalid address returned
+    return foo();   // Invalid address returned
 }
 ```
 例中 foo 返回临时对象，类型转换运算符被隐式调用，然而当 bar 返回后，临时对象被销毁，返回的指针是无效的。  
@@ -4886,7 +4886,7 @@ char* bar() {
 ```
 struct A {
     ....
-    explicit operator char*();  // Compliant
+    explicit operator char*();   // Compliant
 };
 ```
 在类的接口设计中，应尽量减少隐式转换以避免不易察觉的问题。
@@ -6731,9 +6731,9 @@ void foo() {
 局部数组在栈上分配空间，无法控制失败情况，大型数组应在堆上分配，或优化算法降低空间成本：
 ```
 void foo() {
-    int* arr = (int*)malloc(1024 * 1024 * 1024 * sizeof(int));  // Compliant
+    int* arr = (int*)malloc(1024 * 1024 * 1024 * sizeof(int));   // Compliant
     if (arr) {
-        ....     // Your business
+        ....     // Normal procedure
     } else {
         ....     // Handle allocation failures
     }
@@ -7386,21 +7386,24 @@ ID_nonVirtualOverride&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
   
 示例：
 ```
-class A {
-public:
+struct A {
     int foo() const { return 0; }
 };
 
-class B: public A {
-public:
+struct B: A {
     int foo() const { return 1; }  // Non-compliant
 };
 
 int bar(A* a) {
     return a->foo();
 }
+
+int main() {
+    B b;
+    return bar(&b);  // Problematic
+}
 ```
-如果将 B 类型的指针传入 bar 函数，将执行 A::foo，然而参数实际指向的是 B 类型的对象，但 B::foo 不会被执行，这就形成了逻辑上的矛盾，造成意料之外的问题。
+如果将 B 类型的指针传入 bar 函数，将执行 A::foo，然而参数实际指向的是 B 类型的对象，但 B::foo 不会被执行，这就形成了逻辑上的矛盾，极易造成意料之外的问题。
 <br/>
 <br/>
 
@@ -13915,7 +13918,7 @@ void fun(X x) {
 ```
 例中 x 为无符号短整型变量，其取值范围为 \[0, 65535\]，x == \-1 恒为假。由于“[类型提升](https://en.wikipedia.org/wiki/Type_conversion#Type_promotion)”，x 会被转为 int 型再与 \-1 比较，x 恒为正数，\-1 为负数，故不可能相等。  
   
-又如，对于有符号字符型变量，与其比较的数值不在 \[\-128, 127\] 范围内时，也是无效的：
+对于有符号字符型变量，与其比较的数值不在 \[\-128, 127\] 范围内时，也是无效的：
 ```
 CodePage encodingDetect(const char* src) {
     char b0 = src[0];
@@ -15283,20 +15286,21 @@ ID_forbidCommaExpression&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: expression sugg
   
 示例：
 ```
-a = b++, b + 1;       // Non-compliant
-a, b, c = 0, 1, 2;    // Non-compliant
-delete p, q;          // Non-compliant
-foo((a, b), c);       // Non-compliant
-return a, b, c;       // Non-compliant
+a = b++, b + 1;      // Non-compliant
+a, b, c = 0, 1, 2;   // Non-compliant
+delete p, q;         // Non-compliant
+foo((a, b), c);      // Non-compliant
+return a, b, c;      // Non-compliant
 ```
 逗号运算符和其他运算符组合在一起，易造成各种错误。  
   
-在 for 迭代声明中的第 1 个和第 3 个表达式中使用逗号表达式为惯用方式，但这种方式并不值得提倡，不妨根据配置项选择是否放过这种情况。
+例外：
 ```
-for (a = 0, b = 0; a < 100; a++, b++)  {  // let it go?
+for (a = 0, b = 0; a < 100; a++, b++)  {   // let it go?
     ....
 }
 ```
+在 for 迭代声明中的第 1 个和第 3 个表达式中使用逗号表达式为惯用方式，但这种方式并不值得提倡，不妨由配置项决定是否放过这种方式。
 <br/>
 <br/>
 
@@ -15510,7 +15514,7 @@ auto* b = U"123" u"456";   // Non-compliant
 auto* a = L"123" L"456";   // Compliant
 auto* b = U"123" U"456";   // Compliant
 ```
-C\+\+03 规定宽字符串与窄字符串连接会导致未定义的行为，C\+\+11 规定一个字符串有前缀一个没有的话，结果以有前缀的为准，其他情况由实现定义，如：
+C\+\+03 规定宽字符串与窄字符串连接会导致未定义的行为，C\+\+11 规定如果一个字符串有前缀另一个没有，结果以有前缀的为准，其他情况由实现定义，如：
 ```
 auto* x = L"123" "456";    // Undefined in C++03
 auto* y = L"123" "456";    // A wide string in C++11
@@ -16833,26 +16837,22 @@ ID_badLength&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: buffer error
 char buf[1024];
 memset(buf, 1024, 0);  // Non-compliant
 ```
-应改为：
+长度和填充值参数被写反是常见笔误，应改为：
 ```
 memset(buf, 0, 1024);  // Compliant
 ```
-长度和填充值参数被写反是常见的笔误。  
-  
 又如：
 ```
 int arr[1024];
 memset(buf, 0, 1024);  // Rather suspicious
 memset(buf, 1, 123);   // Non-compliant
 ```
-memset 等函数的长度单位为字节，不应与对象序列的逻辑长度有冲突，应改为：
+memset 等函数的长度单位为字节，不应遗漏 sizeof 因子，应改为：
 ```
 memset(buf, 0, 1024 * sizeof(int));  // Compliant
 memset(buf, 1, 123 * sizeof(int));   // Compliant
 ```
-要注意不应遗漏 sizeof 因子。  
-  
-又如，设 p 为对象的指针：
+又如（设 p 为对象指针）：
 ```
 memset(p, 0, sizeof(p));   // Non-compliant
 ```
@@ -16862,7 +16862,7 @@ memset(p, 0, sizeof(*p));  // Compliant
 ```
 sizeof 作用于指针并不能获取到对象的大小，可参见 ID\_sizeof\_pointer 的进一步讨论。  
   
-又如，设 a、b 是对象：
+又如（设 a、b 是对象）：
 ```
 memset(&a, 0, sizeof(&a));   // Non-compliant
 memcpy(&a, &b, sizeof(&a));  // Non-compliant
@@ -16940,12 +16940,27 @@ int foo(int i) {
     if (cond) {
         p = &i;
     }
-    return *p;     // Non-compliant
+    return *p;    // Non-compliant
 }
 ```
 例中指针 p 为空的状态可以到达解引用处，往往会引发“[段错误](https://en.wikipedia.org/wiki/Segmentation_fault)”而导致崩溃。  
   
-崩溃会给用户不好的体验，而且要注意如果崩溃可由外部输入引起，会被攻击者利用从而迫使程序无法正常工作，具有高可靠性要求的服务类程序更应该注意这一点，可参见“[拒绝服务攻击](https://en.wikipedia.org/wiki/Denial-of-service_attack)”的进一步说明。对于客户端程序，也要防止攻击者对崩溃产生的“[core dump](https://en.wikipedia.org/wiki/Core_dump)”进行恶意调试，避免泄露敏感数据，总之程序的健壮性与安全性是紧密相关的。
+崩溃会给用户不好的体验，而且要注意如果崩溃可由外部输入引起，会被攻击者利用从而迫使程序无法正常工作，具有高可靠性要求的服务类程序更应该注意这一点，可参见“[拒绝服务攻击](https://en.wikipedia.org/wiki/Denial-of-service_attack)”的进一步说明。对于客户端程序，也要防止攻击者对崩溃产生的“[core dump](https://en.wikipedia.org/wiki/Core_dump)”进行恶意调试，避免泄露敏感数据，总之程序的健壮性与安全性是紧密相关的。  
+  
+例外：
+```
+struct T {
+    int foo() { return 0; }
+    static int bar() { return 1; }
+};
+
+T* p = nullptr;
+auto b = p->bar();   // Compliant, but bad, use ‘T::bar()’ instead
+auto c = p->foo();   // Non-compliant, even if it may not crash
+```
+在 C\+\+ 语言中通过指针访问静态成员不算作解引用，可不受本规则约束，但这种风格易引起维护者的疑虑而增加维护成本。  
+  
+另外，调用非静态成员函数意在访问对象的数据，即使成员函数没有实际地访问成员数据，也不应通过空指针调用非静态成员函数，否则仍属于逻辑错误，而且如果调用的是虚函数或虚基类的成员函数仍会造成崩溃。
 <br/>
 <br/>
 
@@ -16966,7 +16981,7 @@ ID_nullDerefInExp&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: pointer error
 
 <hr/>
 
-在逻辑表达式中，需注意逻辑关系及运算符优先级，不可出现空指针解引用等问题。  
+在逻辑表达式中，需注意逻辑关系以及运算符优先级，不可出现空指针解引用等问题。  
   
 示例（设 foo、bar 是指针 p 所指对象的非静态成员函数）：
 ```
@@ -17033,7 +17048,7 @@ int foo(int i) {
 ```
 例中局部变量 j 的地址被传给了外层作域中的 p，j 的生命周期结束后，p 为野指针。  
   
-另外，在 C\+\+ 语言中，应避免持有可自动销毁的对象地址，如容器中对象的地址、智能指针所指对象的地址等。
+另外，在 C\+\+ 语言中，应避免持有可被自动销毁的对象地址，如容器中对象的地址、智能指针所指对象的地址等。
 ```
 int bar(vector<int>& v) {
     int* p = &v.front();         // Bad practice
@@ -17676,7 +17691,7 @@ void handler(int x) {
 int main() {
     signal(SIGFPE, handler);
     if (sigsetjmp(buf, 1)) {
-        ....                   // #1, functions of the program
+        ....                   // #1, Normal procedure
         return 0;              // Normal exit
     } else {
         ....                   // #2, handle error
