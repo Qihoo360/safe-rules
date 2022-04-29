@@ -2948,16 +2948,16 @@ ID_macro_typeid&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 示例：
 ```
 namespace U {
-    #define MyType int  // Non-compliant
+    #define Type int  // Non-compliant
 }
 
 namespace V {
-    #define MyType long  // Non-compliant
+    #define Type long  // Non-compliant
 }
 
-void foo(MyType);  // Unreliable
+void foo(Type);  // Unreliable
 ```
-例中 MyType 的最终定义是 long，第二个宏定义会覆盖第一个宏定义，这显然是不可靠的。 
+例中 Type 的最终定义是 long，第二个宏定义会覆盖第一个宏定义，这显然是不可靠的。 
 <br/>
 <br/>
 
@@ -3082,7 +3082,7 @@ const char* foo() {
     return M("x", "y");  // Non-compliant
 }
 ```
-在早期标准中（如 ISO 9899:1990）这种情况是未定义的，而后续标准对其进行了约束，但 MSVC 等编译器不把这种问题视作编译错误，需要特别注意。
+在早期标准（ISO 9899:1990）对这种情况没有明确定义，后续标准对其进行了约束，但 MSVC 等编译器至今仍不把这种问题视作编译错误，需要特别注意。
 <br/>
 <br/>
 
@@ -9037,13 +9037,12 @@ int foo() throw(Exception);  // Non-compliant
 应改为：
 ```
 int foo() noexcept(false);   // Compliant
-int bar() noexcept;          // Compliant
 ```
 例外：
 ```
 int bar() throw();           // Let it go?
 ```
-空的 throw 异常规格说明与 noexcept 等价，是一种惯用写法，可根据配置项放宽要求，本规则不建议使用 throw 关键字。
+空的 throw 异常规格说明与 noexcept 等价，是一种惯用写法，审计工具不妨通过配置决定是否放过这种方式。
 <br/>
 <br/>
 
@@ -10580,7 +10579,7 @@ ID_complexInlineFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
 <hr/>
 
-不适合将函数声明为内联的情况：  
+不适合将函数声明为内联函数的情况：  
  - 行数超过指定限制  
  - 存在循环或异常处理语句  
  - 存在 switch 分枝语句  
@@ -11325,7 +11324,7 @@ ID_for_simplification&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
 
 <hr/>
 
-如果 for 迭代声明中的第 1 个和第 3 个表达式为空，应改为 while 循环，使代码更简洁。  
+如果 for 语句的第 1 个和第 3 个表达式为空，应改为 while 循环，使代码更简洁。  
   
 示例：
 ```
@@ -11336,7 +11335,7 @@ for (;condition;)   // Non-compliant
 while (condition)   // Compliant
 ```
 例外：  
-for (;;) 被当作一种无限循环的惯用方法可被排除。
+for (;;) 被当作一种无限循环的惯用方法可不受本规则约束。
 <br/>
 <br/>
 
@@ -11394,7 +11393,7 @@ ID_for_floatCounter&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
 <hr/>
 
-用于控制循环次数的变量称为循环变量，这种变量不应采用浮点类型，否则循环的次数难以控制。  
+用于控制循环次数的变量称为“循环变量”，这种变量不应采用浮点类型，否则循环的次数难以控制。  
   
 由于浮点型变量的不精确性使浮点型变量不适用于控制循环次数，参见 ID\_illFloatComparison。  
   
@@ -11416,6 +11415,7 @@ for (size_t n = 0; n < 1000; n++) {  // Compliant
     ....
 }
 ```
+这样循环的次数便与预期相符。
 <br/>
 <br/>
 
@@ -11436,7 +11436,7 @@ ID_for_counterChangedInBody&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
 <hr/>
 
-用于控制循环次数的变量称为循环变量，这种变量只应在 for 迭代声明的第 3 个表达式中被改变，否则陡增逻辑复杂度，且可读性较差。  
+用于控制循环次数的变量称为“循环变量”，这种变量只应在 for 语句的第 3 个表达式中被改变，否则陡增逻辑复杂度，且可读性较差。  
   
 示例：
 ```
@@ -11492,21 +11492,15 @@ for 循环体应为复合语句，即使只包含一条语句。
   
 示例：
 ```
-int foo() {
-    int a = 0;
-    for (int i = 0; i < 10; i++)  // Non-compliant
-        a += i;
-    return a;
-}
+int a = 0;
+for (int i = 0; i < 10; i++)  // Non-compliant
+    a += i;
 ```
 应改为：
 ```
-int foo() {
-    int a = 0;
-    for (int i = 0; i < 10; i++) {  // Compliant
-        a += i;
-    }
-    return a;
+int a = 0;
+for (int i = 0; i < 10; i++) {  // Compliant
+    a += i;
 }
 ```
 <br/>
@@ -11735,7 +11729,7 @@ ID_do_suspiciousContinue&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
 continue 语句和 break 语句在语义上是不同的，但在 do\-while(false) 中它们的功效是一样的。  
   
-在 do\-while(false) 的循环体中如果既有 break 语句又有 continue 语句，那么 continue 语句被误用的可能性较大。  
+在 do\-while(false) 的循环体中如果既有 break 语句又有 continue 语句，continue 语句被误用的可能性较大。  
   
 示例：
 ```
@@ -15307,12 +15301,12 @@ for (a = 0, b = 0; a < 100; a++, b++)  {   // let it go?
     ....
 }
 ```
-在 for 迭代声明中的第 1 个和第 3 个表达式中使用逗号表达式为惯用方式，但这种方式并不值得提倡，审计工具不妨通过配置决定是否放过这种方式。
+在 for 语句的第 1 个和第 3 个表达式中使用逗号表达式为惯用方式，但这种方式并不值得提倡，审计工具不妨通过配置决定是否放过这种方式。
 <br/>
 <br/>
 
 #### 配置
-allowCommaExpressionInForIteration：为 true 时放过 for 迭代声明中的逗号表达式  
+allowCommaExpressionInForIteration：为 true 时放过 for 语句中的逗号表达式  
 <br/>
 
 #### 参考
