@@ -1383,7 +1383,7 @@ ID_missingHardening&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security suggestion
 
 <hr/>
 
-针对一些常见攻击，平台和编译器会提供一些防御机制，如：  
+针对一些常见攻击，平台和编译器会提供防御机制，如：  
  - [数据执行保护（NX、DEP）](https://en.wikipedia.org/wiki/Executable_space_protection)  
  - [栈溢出防护（CANARY、GS）](https://en.wikipedia.org/wiki/Buffer_overflow_protection)  
  - [地址空间布局随机化（ASLR、PIE）](https://en.wikipedia.org/wiki/Address_space_layout_randomization)  

@@ -3465,7 +3465,7 @@
     "ID_missingHardening": {
         "checkPoint": "启用平台和编译器提供的防御机制",
         "level": "suggestion",
-        "comment": "针对一些常见攻击，平台和编译器会提供一些防御机制，程序应利用这种机制加强自身的安全性。",
+        "comment": "针对一些常见攻击，平台和编译器会提供防御机制，程序应利用这种机制加强自身的安全性。",
         "tag": "security"
         },
     "ID_exitHandlerNoReturn": {
