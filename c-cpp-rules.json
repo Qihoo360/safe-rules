@@ -1,6 +1,6 @@
 {
     "name": "C/C++ 安全规则集合",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "encoding": "utf-8",
 
     "//": [
@@ -3461,5 +3461,19 @@
         "tag": "concurrency",
         "related": "ID_dataRaces",
         "reference": "SEI CERT CON40-C"
+        },
+    "ID_missingHardening": {
+        "checkPoint": "启用平台和编译器提供的防御机制",
+        "level": "suggestion",
+        "comment": "针对一些常见攻击，平台和编译器会提供一些防御机制，程序应利用这种机制加强自身的安全性。",
+        "tag": "security"
+        },
+    "ID_exitHandlerNoReturn": {
+        "checkPoint": "由 atexit、at_quick_exit 指定的处理函数应正常返回",
+        "level": "warning",
+        "comment": "如果 atexit、at_quick_exit 指定的处理函数未正常返回，会导致标准未定义的行为。",
+        "tag": "function",
+        "standard": "ISO/IEC 9899:2011 7.22.4.4(2 3)-undefined",
+        "reference": "SEI CERT ENV32-C"
         }
 }

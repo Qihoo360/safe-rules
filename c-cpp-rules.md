@@ -1,10 +1,10 @@
 <img src="logo.png" align="right"/>
 
-# C/C++ 安全规则集合 ![Version](https://img.shields.io/badge/version-1.2.0-brightgreen)
+# C/C++ 安全规则集合 ![Version](https://img.shields.io/badge/version-1.2.1-brightgreen)
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对 C、C++ 语言，本文收录了 439 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对 C、C++ 语言，本文收录了 441 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
@@ -95,6 +95,7 @@
   - [R1.15 与程序实现相关的信息不可被外界感知](#ID_addressExposure)
   - [R1.16 与网络地址相关的信息不应写入代码](#ID_hardcodedIP)
   - [R1.17 选择安全的异常处理方式](#ID_deprecatedErrno)
+  - [R1.18 启用平台和编译器提供的防御机制](#ID_missingHardening)
 <br/>
 
 <span id="__Resource">**[2. Resource](#resource)**</span>
@@ -352,14 +353,15 @@
   - [R8.29 被返回的表达式不应为相同的常量](#ID_returnSameConst)
   - [R8.30 属性为 noreturn 的函数中不应出现 return 语句](#ID_unsuitableReturn)
   - [R8.31 属性为 noreturn 的函数返回类型只应为 void](#ID_unsuitableReturnType)
-  - [R8.32 函数模板不应被特化](#ID_functionSpecialization)
-  - [R8.33 函数的标签数量应在规定范围之内](#ID_tooManyLabels)
-  - [R8.34 函数的行数应在规定范围之内](#ID_tooManyLines)
-  - [R8.35 lambda 表达式的行数应在规定范围之内](#ID_tooManyLambdaLines)
-  - [R8.36 函数参数的数量应在规定范围之内](#ID_tooManyParams)
-  - [R8.37 不应定义过于复杂的内联函数](#ID_complexInlineFunction)
-  - [R8.38 避免递归实现](#ID_recursion)
-  - [R8.39 避免重复的函数实现](#ID_functionRepetition)
+  - [R8.32 由 atexit、at\_quick\_exit 指定的处理函数应正常返回](#ID_exitHandlerNoReturn)
+  - [R8.33 函数模板不应被特化](#ID_functionSpecialization)
+  - [R8.34 函数的标签数量应在规定范围之内](#ID_tooManyLabels)
+  - [R8.35 函数的行数应在规定范围之内](#ID_tooManyLines)
+  - [R8.36 lambda 表达式的行数应在规定范围之内](#ID_tooManyLambdaLines)
+  - [R8.37 函数参数的数量应在规定范围之内](#ID_tooManyParams)
+  - [R8.38 不应定义过于复杂的内联函数](#ID_complexInlineFunction)
+  - [R8.39 避免递归实现](#ID_recursion)
+  - [R8.40 避免重复的函数实现](#ID_functionRepetition)
 <br/>
 
 <span id="__Control">**[9. Control](#control)**</span>
@@ -1372,6 +1374,51 @@ errno 并不能反映所有异常情况，atoi 等函数与 errno 无关，例�
 MISRA C 2004 20.5  
 MISRA C++ 2008 19-3-1  
 C++ Core Guidelines E.28  
+<br/>
+<br/>
+
+### <span id="ID_missingHardening">▌R1.18 启用平台和编译器提供的防御机制</span>
+
+ID_missingHardening&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security suggestion
+
+<hr/>
+
+针对一些常见攻击，平台和编译器会提供一些防御机制，如：  
+ - [数据执行保护（NX、DEP）](https://en.wikipedia.org/wiki/Executable_space_protection)  
+ - [栈溢出防护（CANARY、GS）](https://en.wikipedia.org/wiki/Buffer_overflow_protection)  
+ - [地址空间布局随机化（ASLR、PIE）](https://en.wikipedia.org/wiki/Address_space_layout_randomization)  
+  
+程序应利用这种机制加强自身的安全性，进一步可参见“[security hardening](https://en.wikipedia.org/wiki/Hardening_(computing))”。  
+  
+示例：
+```
+// In test.c
+#include <stdio.h>
+
+int main(void) {
+    printf("%p\n", main);
+}
+```
+如果在 Linux 等平台上按如下方式编译：
+```
+gcc test.c -o test
+```
+各函数的地址在虚拟内存中是固定的，易被攻击者猜中，进而施展攻击手段。  
+  
+当平台启用了“[ASLR](https://en.wikipedia.org/wiki/Address_space_layout_randomization)”机制，再按如下方式编译：
+```
+gcc test.c -o test -fPIE -pie
+```
+可使程序各结构的地址随机化，函数的地址在每次运行时均不相同， 有效提高了攻击难度。  
+  
+如无特殊原因，在编译程序时不应屏蔽这种防御机制，如：
+```
+gcc test.c -o test -z execstack           # Non-compliant, disable NX
+gcc test.c -o test -z norelro             # Non-compliant, disable RELRO
+gcc test.c -o test -fno-stack-protector   # Non-compliant, disable CANARY
+```
+如果必须屏蔽，应落实相关的评审与测试。
+<br/>
 <br/>
 <br/>
 
@@ -10382,7 +10429,56 @@ ISO/IEC 14882:2011 7.6.3(2)-undefined
 <br/>
 <br/>
 
-### <span id="ID_functionSpecialization">▌R8.32 函数模板不应被特化</span>
+### <span id="ID_exitHandlerNoReturn">▌R8.32 由 atexit、at_quick_exit 指定的处理函数应正常返回</span>
+
+ID_exitHandlerNoReturn&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
+
+<hr/>
+
+如果 atexit、at\_quick\_exit 指定的处理函数未正常返回，会导致标准未定义的行为。  
+  
+示例：
+```
+void handler() {
+    exit(1);      // Non-compliant
+}
+
+int main() {
+    atexit(handler);
+}
+```
+例中程序在调用 exit 时会执行 handler，而 handler 又调用 exit，在逻辑上形成无限递归，其后果在标准中是未定义的。  
+  
+又如：
+```
+jmp_buf buf;
+
+void handler() {
+    longjmp(buf, 1);   // Non-compliant
+}
+
+int main() {
+    atexit(handler);
+    if (setjmp(buf) == 0) {
+        return 0;
+    }
+    return 1;
+}
+```
+例中 main 返回后会调用 handler，而 handler 又调用 longjmp 跳回 main 函数，在逻辑上形成死循环。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 7.22.4.4(2 3)-undefined  
+<br/>
+
+#### 参考
+SEI CERT ENV32-C  
+<br/>
+<br/>
+
+### <span id="ID_functionSpecialization">▌R8.33 函数模板不应被特化</span>
 
 ID_functionSpecialization&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10432,7 +10528,7 @@ MISRA C++ 2008 14-8-1
 <br/>
 <br/>
 
-### <span id="ID_tooManyLabels">▌R8.33 函数的标签数量应在规定范围之内</span>
+### <span id="ID_tooManyLabels">▌R8.34 函数的标签数量应在规定范围之内</span>
 
 ID_tooManyLabels&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10463,7 +10559,7 @@ maxLabelCount：标签数量上限，超过则报出
 <br/>
 <br/>
 
-### <span id="ID_tooManyLines">▌R8.34 函数的行数应在规定范围之内</span>
+### <span id="ID_tooManyLines">▌R8.35 函数的行数应在规定范围之内</span>
 
 ID_tooManyLines&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10493,7 +10589,7 @@ C++ Core Guidelines F.3
 <br/>
 <br/>
 
-### <span id="ID_tooManyLambdaLines">▌R8.35 lambda 表达式的行数应在规定范围之内</span>
+### <span id="ID_tooManyLambdaLines">▌R8.36 lambda 表达式的行数应在规定范围之内</span>
 
 ID_tooManyLambdaLines&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10526,7 +10622,7 @@ maxLambdaLineCount：lambda 表达式行数上限，超过则报出
 <br/>
 <br/>
 
-### <span id="ID_tooManyParams">▌R8.36 函数参数的数量应在规定范围之内</span>
+### <span id="ID_tooManyParams">▌R8.37 函数参数的数量应在规定范围之内</span>
 
 ID_tooManyParams&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10573,7 +10669,7 @@ C++ Core Guidelines I.23
 <br/>
 <br/>
 
-### <span id="ID_complexInlineFunction">▌R8.37 不应定义过于复杂的内联函数</span>
+### <span id="ID_complexInlineFunction">▌R8.38 不应定义过于复杂的内联函数</span>
 
 ID_complexInlineFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
@@ -10598,7 +10694,7 @@ C++ Core Guidelines F.5
 <br/>
 <br/>
 
-### <span id="ID_recursion">▌R8.38 避免递归实现</span>
+### <span id="ID_recursion">▌R8.39 避免递归实现</span>
 
 ID_recursion&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10635,7 +10731,7 @@ MISRA C++ 2008 7-5-4
 <br/>
 <br/>
 
-### <span id="ID_functionRepetition">▌R8.39 避免重复的函数实现</span>
+### <span id="ID_functionRepetition">▌R8.40 避免重复的函数实现</span>
 
 ID_functionRepetition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
@@ -18423,7 +18519,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 439 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
+&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 441 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
 
 &emsp;&emsp;此致
 
