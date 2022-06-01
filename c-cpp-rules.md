@@ -1401,21 +1401,21 @@ int main(void) {
 ```
 如果在 Linux 等平台上按如下方式编译：
 ```
-gcc test.c -o test
+cc test.c -o test
 ```
 各函数的地址在虚拟内存中是固定的，易被攻击者猜中，进而施展攻击手段。  
   
 当平台启用了“[ASLR](https://en.wikipedia.org/wiki/Address_space_layout_randomization)”机制，再按如下方式编译：
 ```
-gcc test.c -o test -fPIE -pie
+cc test.c -o test -fPIE -pie
 ```
 可使程序各结构的地址随机化，函数的地址在每次运行时均不相同， 有效提高了攻击难度。  
   
 如无特殊原因，在编译程序时不应屏蔽这种防御机制，如：
 ```
-gcc test.c -o test -z execstack           # Non-compliant, disable NX
-gcc test.c -o test -z norelro             # Non-compliant, disable RELRO
-gcc test.c -o test -fno-stack-protector   # Non-compliant, disable CANARY
+cc test.c -o test -z execstack           # Non-compliant, disable NX
+cc test.c -o test -z norelro             # Non-compliant, disable RELRO
+cc test.c -o test -fno-stack-protector   # Non-compliant, disable CANARY
 ```
 如果必须屏蔽，应落实相关的评审与测试。
 <br/>
