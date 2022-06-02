@@ -2876,11 +2876,11 @@
         "reference": "CWE-134"
         },
     "ID_addressExposure": {
-        "checkPoint": "与程序实现相关的信息不可被外界感知",
+        "checkPoint": "与内存空间布局相关的信息不可被外界感知",
         "level": "warning",
-        "comment": "函数或对象的地址、缓冲区的地址和长度等信息不可被外界感知，否则会成为攻击者的线索。",
+        "comment": "函数、对象、缓冲区的地址以及相关内存区域的长度等信息不可被外界感知，否则会成为攻击者的线索。",
         "tag": "security",
-        "related": "ID_hardcodedIP",
+        "related": "ID_bufferOverflow",
         "reference": "CWE-200"
         },
     "ID_forbidCStringFormat": {
@@ -3202,7 +3202,7 @@
         "reference": "CWE-89,CWE-23,CWE-73"
         },
     "ID_bufferOverflow": {
-        "checkPoint": "对缓冲区的读写应在有效边界内进行",
+        "checkPoint": "避免缓冲区溢出",
         "level": "warning",
         "comment": "对缓冲区的读写应在有效边界内进行。",
         "tag": "buffer",

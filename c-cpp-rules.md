@@ -92,7 +92,7 @@
   - [R1.12 确保字符串以空字符结尾](#ID_improperNullTermination)
   - [R1.13 避免除 0 等计算异常](#ID_divideByZero)
   - [R1.14 格式化字符串应为常量](#ID_variableFormatString)
-  - [R1.15 与程序实现相关的信息不可被外界感知](#ID_addressExposure)
+  - [R1.15 与内存空间布局相关的信息不可被外界感知](#ID_addressExposure)
   - [R1.16 与网络地址相关的信息不应写入代码](#ID_hardcodedIP)
   - [R1.17 选择安全的异常处理方式](#ID_deprecatedErrno)
   - [R1.18 启用平台和编译器提供的防御机制](#ID_missingHardening)
@@ -547,7 +547,7 @@
 <br/>
 
 <span id="__Buffer">**[13. Buffer](#buffer)**</span>
-  - [R13.1 对缓冲区的读写应在有效边界内进行](#ID_bufferOverflow)
+  - [R13.1 避免缓冲区溢出](#ID_bufferOverflow)
   - [R13.2 数组下标不可越界](#ID_arrayIndexOverflow)
   - [R13.3 为缓冲区分配足够的空间](#ID_insufficientBuffer)
   - [R13.4 memset 等函数不应作用于非 POD 对象](#ID_nonPODFilling)
@@ -650,7 +650,7 @@ ID_secretLeak&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 示例：
 ```
 void foo(User* u) {
-    log("username: %s, password: %s", u->name, u->pw);  // Non-compliant
+    log("username: %s, password: %s", u->name, u->pw);   // Non-compliant
 }
 ```
 显然，将敏感数据直接输出到界面、日志或其他外界可感知的介质中是不安全的，需避免敏感数据的有意外传，除此之外，还需要落实具体的保护措施。  
@@ -1268,13 +1268,13 @@ CWE-134
 <br/>
 <br/>
 
-### <span id="ID_addressExposure">▌R1.15 与程序实现相关的信息不可被外界感知</span>
+### <span id="ID_addressExposure">▌R1.15 与内存空间布局相关的信息不可被外界感知</span>
 
 ID_addressExposure&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-函数或对象的地址、缓冲区的地址和长度等信息不可被外界感知，否则会成为攻击者的线索。  
+函数、对象、缓冲区的地址以及相关内存区域的长度等信息不可被外界感知，否则会成为攻击者的线索。  
   
 示例：
 ```
@@ -1284,14 +1284,12 @@ int foo(int* p, int n) {
     }
 }
 ```
-这种代码多以调试为目的，应合理控制这种代码，不应将其编译到产品的正式版本中。  
-  
-程序采用的协议、算法以及网络结构等信息也不应暴露，如果一定要存储非用户关注的信息，需要落实可靠的加密机制。
+示例代码将缓冲区的地址和长度输出到日志是不安全的，这种代码多以调试为目的，不应将其编译到产品的正式版本中。
 <br/>
 <br/>
 
 #### 相关
-ID_hardcodedIP  
+ID_bufferOverflow  
 <br/>
 
 #### 参考
@@ -1320,12 +1318,13 @@ string host = cfg.host();   // Compliant
 foo(cfg.port());            // Compliant
 bar(cfg.url());             // Compliant
 ```
-某些特殊的 IP 地址可以被排除：
+例外：
 ```
 0.0.0.0
 255.255.255.255
 127.0.0.1-127.255.255.255
 ```
+某些特殊的 IP 地址可，如
 <br/>
 <br/>
 
@@ -10393,7 +10392,7 @@ ID_unsuitableReturn&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
     if (condition) {
         abort();
     }
-}   // Non-compliant, the function returns if ‘condition’ is false
+}       // Non-compliant, the function returns if ‘condition’ is false
 ```
 noreturn 表示不会返回，编译器可能不会为 foo 函数生成跳转回调用处的指令，一旦 foo 函数返回就会造成严重错误。
 <br/>
@@ -16728,7 +16727,7 @@ C++ Core Guidelines ES.49
 
 ## <span id="buffer">13. Buffer</span>
 
-### <span id="ID_bufferOverflow">▌R13.1 对缓冲区的读写应在有效边界内进行</span>
+### <span id="ID_bufferOverflow">▌R13.1 避免缓冲区溢出</span>
 
 ID_bufferOverflow&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: buffer warning
 
@@ -16752,7 +16751,7 @@ int main() {
 ```
 例中 userInput 函数返回用户输入的字符串，其长度不确定，而缓冲区 buf 的长度为 100 字节，如果用户输入超过这个长度就会使程序遭到破坏，这种问题称为“[缓冲区溢出（buffer overflow）](https://en.wikipedia.org/wiki/Buffer_overflow)”，也是程序遭受攻击的常见原因。  
   
-利用缓冲区溢出可造成严重危害，如：  
+缓冲区溢出可造成严重危害，如：  
  - 破坏堆栈或段结构，扰乱程序执行  
  - 改写关键信息，篡改程序行为  
  - 注入并运行恶意代码  
