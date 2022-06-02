@@ -2521,8 +2521,7 @@
         "level": "suggestion",
         "comment": "编译器一般允许使用预编译指令屏蔽某些编译警告，但对于反映风险或安全问题的警告不应屏蔽。",
         "tag": "precompile",
-        "related": "ID_warningDefault",
-        "reference": "SEI CERT MSC00-C"
+        "related": "ID_warningDefault"
         },
     "ID_warningDefault": {
         "checkPoint": "在高级别的警告设置下编译",

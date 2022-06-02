@@ -1318,13 +1318,12 @@ string host = cfg.host();   // Compliant
 foo(cfg.port());            // Compliant
 bar(cfg.url());             // Compliant
 ```
-例外：
+特殊的 IP 地址可不受本规则限制，如：
 ```
 0.0.0.0
 255.255.255.255
 127.0.0.1-127.255.255.255
 ```
-某些特殊的 IP 地址可，如
 <br/>
 <br/>
 
@@ -3504,10 +3503,6 @@ ID_warningDisabled&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
 #### 相关
 ID_warningDefault  
-<br/>
-
-#### 参考
-SEI CERT MSC00-C  
 <br/>
 <br/>
 
