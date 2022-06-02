@@ -351,8 +351,8 @@
   - [R8.27 函数返回值不应为基本类型的常量](#ID_returnSuperfluousConst)
   - [R8.28 被返回的表达式应与函数的返回类型相符](#ID_returnOdd)
   - [R8.29 被返回的表达式不应为相同的常量](#ID_returnSameConst)
-  - [R8.30 属性为 noreturn 的函数中不应出现 return 语句](#ID_unsuitableReturn)
-  - [R8.31 属性为 noreturn 的函数返回类型只应为 void](#ID_unsuitableReturnType)
+  - [R8.30 具有 noreturn 属性的函数不应返回](#ID_unsuitableReturn)
+  - [R8.31 具有 noreturn 属性的函数返回类型只应为 void](#ID_unsuitableReturnType)
   - [R8.32 由 atexit、at\_quick\_exit 指定的处理函数应正常返回](#ID_exitHandlerNoReturn)
   - [R8.33 函数模板不应被特化](#ID_functionSpecialization)
   - [R8.34 函数的标签数量应在规定范围之内](#ID_tooManyLabels)
@@ -650,7 +650,7 @@ ID_secretLeak&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 示例：
 ```
 void foo(User* u) {
-    log("Messages for %s and %s", u->name, u->password);  // Non-compliant
+    log("username: %s, password: %s", u->name, u->pw);  // Non-compliant
 }
 ```
 显然，将敏感数据直接输出到界面、日志或其他外界可感知的介质中是不安全的，需避免敏感数据的有意外传，除此之外，还需要落实具体的保护措施。  
@@ -1280,7 +1280,7 @@ ID_addressExposure&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 ```
 int foo(int* p, int n) {
     if (n >= some_value) {
-        log("messages for %p and %d", p, n);  // Non-compliant
+        log("buffer address: %p, size: %d", p, n);   // Non-compliant
     }
 }
 ```
@@ -10379,25 +10379,28 @@ bool foo(int a) {
 <br/>
 <br/>
 
-### <span id="ID_unsuitableReturn">▌R8.30 属性为 noreturn 的函数中不应出现 return 语句</span>
+### <span id="ID_unsuitableReturn">▌R8.30 具有 noreturn 属性的函数不应返回</span>
 
 ID_unsuitableReturn&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-在属性为 noreturn 的函数中使用 return 语句会导致标准未定义的行为。  
+具有 noreturn 属性的函数返回会导致标准未定义的行为。  
   
 示例：
 ```
-[[noreturn]] void foo() {
-    if (cond) {
-        return;    // Non-compliant, undefined behavior
+[[noreturn]] void foo() {  // Use _Noreturn in C
+    if (condition) {
+        abort();
     }
-    abort();
-}
+}   // Non-compliant, the function returns if ‘condition’ is false
 ```
-\[\[noreturn\]\] 表示函数不会返回，与 return 语句矛盾，也会对调用者造成很大困扰。
+noreturn 表示不会返回，编译器可能不会为 foo 函数生成跳转回调用处的指令，一旦 foo 函数返回就会造成严重错误。
 <br/>
+<br/>
+
+#### 相关
+ID_unsuitableReturnType  
 <br/>
 
 #### 依据
@@ -10405,23 +10408,31 @@ ISO/IEC 14882:2011 7.6.3(2)-undefined
 <br/>
 <br/>
 
-### <span id="ID_unsuitableReturnType">▌R8.31 属性为 noreturn 的函数返回类型只应为 void</span>
+### <span id="ID_unsuitableReturnType">▌R8.31 具有 noreturn 属性的函数返回类型只应为 void</span>
 
 ID_unsuitableReturnType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-返回类型不是 void 说明函数是有返回值的，与 noreturn 属性矛盾。  
+返回类型不是 void 说明函数有返回值，与 noreturn 属性矛盾。  
   
 示例：
 ```
-[[noreturn]] int foo();   // Non-compliant
+_Noreturn    int foo();     // Non-compliant in C
+[[noreturn]] int bar();     // Non-compliant in C++
 ```
-例中 foo 的返回类型为 int，与 noreturn 属性矛盾，也会对调用者造成很大困扰，应改为：
+例中函数的返回类型为 int，与 noreturn 属性矛盾，也会对使用者造成困扰。  
+  
+应改为：
 ```
-[[noreturn]] void foo();  // Compliant
+_Noreturn    void foo();    // Compliant in C
+[[noreturn]] void bar();    // Compliant in C++
 ```
 <br/>
+<br/>
+
+#### 相关
+ID_unsuitableReturn  
 <br/>
 
 #### 依据

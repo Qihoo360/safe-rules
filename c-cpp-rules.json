@@ -1912,17 +1912,19 @@
         "reference": "Effective C++ item 36"
         },
     "ID_unsuitableReturn": {
-        "checkPoint": "属性为 noreturn 的函数中不应出现 return 语句",
+        "checkPoint": "具有 noreturn 属性的函数不应返回",
         "level": "warning",
-        "comment": "在属性为 noreturn 的函数中使用 return 语句会导致标准未定义的行为。",
+        "comment": "具有 noreturn 属性的函数返回会导致标准未定义的行为。",
         "tag": "function",
+        "related": "ID_unsuitableReturnType",
         "standard": "ISO/IEC 14882:2011 7.6.3(2)-undefined"
         },
     "ID_unsuitableReturnType": {
-        "checkPoint": "属性为 noreturn 的函数返回类型只应为 void",
+        "checkPoint": "具有 noreturn 属性的函数返回类型只应为 void",
         "level": "warning",
-        "comment": "返回类型不是 void 说明函数是有返回值的，与 noreturn 属性矛盾。",
+        "comment": "返回类型不是 void 说明函数有返回值，与 noreturn 属性矛盾。",
         "tag": "function",
+        "related": "ID_unsuitableReturn",
         "standard": "ISO/IEC 14882:2011 7.6.3(2)-undefined"
         },
     "ID_overloadLogicOperator": {
