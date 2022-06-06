@@ -6908,12 +6908,19 @@ public:
         A(0);   // Non-compliant, just created an inaccessible temporary object
     }
 
-    A(int x): a(x) {
-    }
+    A(int x): a(x) {}
 };
 ```
-例中 A(0); 只生成了一个无效的临时对象，成员并没有被正确初始化，应改为 this\->A::A(0); 等形式。  
-  
+示例代码意在调用重载的构造函数，但 A(0); 只生成了一个无效的临时对象，成员并没有被正确初始化，应改用 this\->A::A(0); 等形式，在遵循 C\+\+11 标准的代码中也可将 A(0) 移入初始化列表：
+```
+class A {
+    int a;
+
+public:
+    A(): A(0) {}        // Compliant
+    A(int x): a(x) {}
+};
+```
 又如：
 ```
 class LockGuard { .... };
