@@ -258,7 +258,7 @@
     - [R6.4.9 在一个语句中不应声明过多对象或函数](#ID_tooManyDeclarators)
   - [6.5 Object](#declaration.object)
     - [R6.5.1 不应产生无效的临时对象](#ID_inaccessibleTmpObject)
-    - [R6.5.2 不应出现不会被用到的局部声明](#ID_invalidLocalDeclaration)
+    - [R6.5.2 不应存在没有被用到的局部声明](#ID_invalidLocalDeclaration)
     - [R6.5.3 对象初始化不可依赖自身的值](#ID_selfDependentInitialization)
     - [R6.5.4 参与数值运算的 char 变量需显式声明 signed 或 unsigned](#ID_plainNumericChar)
     - [R6.5.5 字节的类型应为 unsigned char](#ID_plainBinaryChar)
@@ -291,9 +291,9 @@
     - [R6.9.1 不建议采用复杂的声明](#ID_complexDeclaration)
   - [6.10 Other](#declaration.other)
     - [R6.10.1 不应违反 One Definition Rule](#ID_violateODR)
-    - [R6.10.2 不应存在没有用到的标签](#ID_labelNotUsed)
-    - [R6.10.3 不应存在未被使用的本地 static 函数](#ID_staticNotUsed)
-    - [R6.10.4 不应存在未被使用的 private 成员](#ID_privateNotUsed)
+    - [R6.10.2 不应存在没有被用到的标签](#ID_labelNotUsed)
+    - [R6.10.3 不应存在没有被用到的静态声明](#ID_staticNotUsed)
+    - [R6.10.4 不应存在没有被用到的 private 成员](#ID_privateNotUsed)
     - [R6.10.5 避免使用 std::auto\_ptr](#ID_deprecatedAutoPtr)
 <br/>
 
@@ -6948,31 +6948,55 @@ C++ Core Guidelines ES.84
 <br/>
 <br/>
 
-### <span id="ID_invalidLocalDeclaration">▌R6.5.2 不应出现不会被用到的局部声明</span>
+### <span id="ID_invalidLocalDeclaration">▌R6.5.2 不应存在没有被用到的局部声明</span>
 
 ID_invalidLocalDeclaration&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-不会被用到的局部声明是没有意义的，往往意味着笔误或者代码功能不完整。  
+没有被用到的局部声明是没有意义的，往往意味着代码冗余或功能不完整，也可能导致严重的逻辑错误。  
   
 示例：
 ```
-int foo(int a, int b) {
-    if (a)
-        int b = a + 1;  // Non-compliant
-    return b;
+int foo(int n) {
+    int x = 0;
+    if (n) {
+        int x = 100 / n;   // Non-compliant
+    }
+    return x;
 }
 ```
-例中 if 作用域中的最后一个元素是对象的声明，是没有意义的，这种情况也是较为常见的笔误。  
+在 if 作用域中声明的 x 对象没有被使用，与其相关的计算过程是无效的。  
   
 应改为：
 ```
-int foo(int a, int b) {
-    if (a) {
-        b = a + 1;  // OK
+int foo(int n) {
+    int x = 0;
+    if (n) {
+        x = 100 / n;   // Compliant
     }
-    return b;
+    return x;
+}
+```
+具有特定构造或析构函数的 C\+\+ 对象可以做到“声明即使用”，但要注意如下情况：
+```
+class LockGuard {
+    LockGuard();
+   ~LockGuard();
+};
+
+void bar() {
+    LockGuard guard();   // Non-compliant, this is a function
+    do_something();
+}
+```
+例中 guard 意在实现某种 RAII 锁，但 LockGuard guard(); 声明的是函数而不是对象，构造和析构函数不会按预期执行，这也是一种常见笔误。  
+  
+应改为：
+```
+void bar() {
+    LockGuard guard;   // Compliant
+    do_something();
 }
 ```
 <br/>
@@ -8063,13 +8087,13 @@ MISRA C++ 2008 3-2-2
 <br/>
 <br/>
 
-### <span id="ID_labelNotUsed">▌R6.10.2 不应存在没有用到的标签</span>
+### <span id="ID_labelNotUsed">▌R6.10.2 不应存在没有被用到的标签</span>
 
 ID_labelNotUsed&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-没有用到的标签意味着 goto 语句的缺失，也可能是残留代码，应当去除。  
+没有被用到的标签意味着 goto 语句的缺失，也可能是残留代码，应当去除。  
   
 示例：
 ```
@@ -8096,17 +8120,19 @@ MISRA C 2012 2.6
 <br/>
 <br/>
 
-### <span id="ID_staticNotUsed">▌R6.10.3 不应存在未被使用的本地 static 函数</span>
+### <span id="ID_staticNotUsed">▌R6.10.3 不应存在没有被用到的静态声明</span>
 
 ID_staticNotUsed&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-未被使用的本地 static 函数得不到任何执行机会，应删除或修正调用关系。  
+没有被用到的静态声明没有意义，应删除或修正引用关系。  
+  
+类的静态成员可不受本规则限制。  
   
 示例：
 ```
-static int foo();   // Compliant
+static int foo();   // Compliant, used
 static int bar();   // Non-compliant, unused
 
 int main() {
@@ -8125,18 +8151,18 @@ MISRA C++ 2008 0-1-10
 <br/>
 <br/>
 
-### <span id="ID_privateNotUsed">▌R6.10.4 不应存在未被使用的 private 成员</span>
+### <span id="ID_privateNotUsed">▌R6.10.4 不应存在没有被用到的 private 成员</span>
 
 ID_privateNotUsed&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-未被使用的 private 成员没有意义，应删除或修正引用关系。  
+没有被用到的 private 成员没有意义，应删除或修正引用关系。  
   
 示例：
 ```
 struct A {
-    int foo() { return 1; }     // Compliant, public or protected
+    int foo() { return 1; }     // Compliant
 
 private:
     int bar;                    // Non-compliant, unused

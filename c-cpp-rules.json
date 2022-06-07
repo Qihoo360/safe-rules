@@ -696,17 +696,17 @@
         "tag": "declaration"
         },
     "ID_staticNotUsed": {
-        "checkPoint": "不应存在未被使用的本地 static 函数",
+        "checkPoint": "不应存在没有被用到的静态声明",
         "level": "warning",
-        "comment": "未被使用的本地 static 函数得不到任何执行机会，应删除或修正调用关系。",
+        "comment": "没有被用到的静态声明往往是没有意义的，应删除或修正引用关系。",
         "tag": "declaration",
         "related": "ID_unreachableCode",
         "reference": "MISRA C++ 2008 0-1-10"
         },
     "ID_privateNotUsed": {
-        "checkPoint": "不应存在未被使用的 private 成员",
+        "checkPoint": "不应存在没有被用到的 private 成员",
         "level": "warning",
-        "comment": "未被使用的 private 成员没有意义，应删除或修正引用关系。",
+        "comment": "没有被用到的 private 成员是没有意义的，应删除或修正引用关系。",
         "tag": "declaration",
         "related": "ID_unreachableCode",
         "reference": "MISRA C++ 2008 0-1-10"
@@ -980,9 +980,9 @@
         "related": "ID_exceededBitfield,ID_singleSignedBitfield,ID_bitfieldDataRaces,ID_forbidEnumBitfield"
         },
     "ID_labelNotUsed": {
-        "checkPoint": "不应存在没有用到的标签",
+        "checkPoint": "不应存在没有被用到的标签",
         "level": "warning",
-        "comment": "没有用到的标签意味着 goto 语句的缺失，也可能是残留代码，应当去除。",
+        "comment": "没有被用到的标签意味着 goto 语句的缺失，也可能是残留代码，应当去除。",
         "tag": "declaration",
         "reference": "MISRA C 2012 2.6"
         },
@@ -1857,9 +1857,9 @@
         "tag": "declaration"
         },
     "ID_invalidLocalDeclaration": {
-        "checkPoint": "不应出现不会被用到的局部声明",
+        "checkPoint": "不应存在没有被用到的局部声明",
         "level": "warning",
-        "comment": "不会被用到的局部声明是没有意义的，往往意味着笔误或者代码功能不完整。",
+        "comment": "没有被用到的局部声明是没有意义的，往往意味着代码冗余或功能不完整，也可能导致严重的逻辑错误。",
         "tag": "declaration"
         },
     "ID_tooManyParams": {
