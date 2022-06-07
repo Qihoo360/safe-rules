@@ -8126,7 +8126,7 @@ ID_staticNotUsed&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-没有被用到的静态声明没有意义，应删除或修正引用关系。  
+没有被用到的静态声明往往是没有意义的，应删除或修正引用关系。  
   
 类的静态成员可不受本规则限制。  
   
@@ -8157,7 +8157,7 @@ ID_privateNotUsed&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-没有被用到的 private 成员没有意义，应删除或修正引用关系。  
+没有被用到的 private 成员是没有意义的，应删除或修正引用关系。  
   
 示例：
 ```
