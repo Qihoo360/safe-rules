@@ -9793,9 +9793,7 @@ ID_sideEffectCopyConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warnin
 
 <hr/>
 
-拷贝构造函数可以被优化而不被执行，而且这种优化是由实现定义的。  
-  
-拷贝构造函数只应专注于复制对象，避免复制之外的功能，如修改静态成员或对环境产生影响。  
+拷贝构造函数的执行在某些情况下可被省略，其执行次数可能与预期不符，复制之外的功能也可能无法生效。  
   
 示例：
 ```
@@ -9810,23 +9808,26 @@ public:
         s++;           // Non-compliant
     }
 };
-
+```
+例中拷贝构造函数对静态成员有所读写，这种复制之外的功能是不符合要求的。  
+  
+如果按下列方式使用相关类：
+```
 A foo();
 
-void bar() {
-    A a = foo();       // Copy elision
+int main() {
+    A a = foo();   // Copy elision
     ....
 }
 ```
-用 foo 函数返回的临时对象构造对象 a，理论上应执行拷贝构造函数，但标准允许编译器将 foo 函数返回的临时对象直接作为对象 a，这种优化称为“[copy elision](https://en.wikipedia.org/wiki/Copy_elision)”，拷贝构造函数被执行的次数可能与预期不符，所以拷贝构造函数不应存在复制之外的副作用，例中静态成员 A::s 在拷贝构造函数中被修改是不符合要求的。  
-  
-进一步可参见“[RVO（Return Value Optimization）](https://en.wikipedia.org/wiki/Copy_elision#Return_value_optimization)”的相关介绍。
+用 foo 函数返回的临时对象构造对象 a，理论上应执行拷贝构造函数，但标准允许编译器将临时对象直接作为对象 a，省略拷贝构造函数的执行以提高效率，这种优化称为“[copy elision](https://en.wikipedia.org/wiki/Copy_elision)”，复制之外的功能会因此无法生效。在 C\+\+17 之前，是否执行这种优化由实现定义，从 C\+\+17 开始，在某些情况下必须执行这种优化，具体可参见“[mandatory copy elision](https://en.cppreference.com/w/cpp/language/copy_elision#Mandatory_elision_of_copy.2Fmove_operations)”。
 <br/>
 <br/>
 
 #### 依据
 ISO/IEC 14882:2003 12.8(15)-implementation  
 ISO/IEC 14882:2011 12.8(31)-implementation  
+ISO/IEC 14882:2017 15.8.3(1)-implementation  
 <br/>
 
 #### 参考

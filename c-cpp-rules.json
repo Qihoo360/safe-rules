@@ -1708,9 +1708,9 @@
     "ID_sideEffectCopyConstructor": {
         "checkPoint": "拷贝构造函数应避免实现复制之外的功能",
         "level": "warning",
-        "comment": "拷贝构造函数可以被优化而不被执行，而且这种优化是由实现定义的。",
+        "comment": "拷贝构造函数的执行在某些情况下可被省略，其执行次数可能与预期不符，复制之外的功能也可能无法生效。",
         "tag": "function",
-        "standard": "ISO/IEC 14882:2003 12.8(15)-implementation,ISO/IEC 14882:2011 12.8(31)-implementation",
+        "standard": "ISO/IEC 14882:2003 12.8(15)-implementation,ISO/IEC 14882:2011 12.8(31)-implementation,ISO/IEC 14882:2017 15.8.3(1)-implementation",
         "reference": "MISRA C++ 2008 12-8-1"
         },
     "ID_throwInConstructor":{
