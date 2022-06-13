@@ -725,7 +725,6 @@ ID_unsafeCleanup
 CWE-528  
 CWE-591  
 SEI CERT MEM06-C  
-SEI CERT MEM06-CPP  
 <br/>
 <br/>
 
@@ -10152,6 +10151,9 @@ ISO/IEC 9899:2011 6.2.4(2)-undefined
 #### 参考
 CWE-562  
 C++ Core Guidelines F.43  
+MISRA C 2012 18.6  
+MISRA C++ 2008 7-5-1  
+MISRA C++ 2008 7-5-2  
 <br/>
 <br/>
 

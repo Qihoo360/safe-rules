@@ -1768,7 +1768,7 @@
         "tag": "function",
         "related": "ID_danglingDeref,ID_illLifetime",
         "standard": "ISO/IEC 9899:1999 6.2.4(2)-undefined,ISO/IEC 9899:2011 6.2.4(2)-undefined",
-        "reference": "CWE-562,C++ Core Guidelines F.43"
+        "reference": "CWE-562,C++ Core Guidelines F.43,MISRA C 2012 18.6,MISRA C++ 2008 7-5-1,MISRA C++ 2008 7-5-2"
         },
     "ID_unreachableCode": {
         "checkPoint": "不应存在得不到执行机会的代码",
@@ -3034,7 +3034,7 @@
         "comment": "敏感数据出入软件系统时需采用有效的保护措施。",
         "tag": "security",
         "related": "ID_unsafeCleanup",
-        "reference": "CWE-528,CWE-591,SEI CERT MEM06-C,SEI CERT MEM06-CPP"
+        "reference": "CWE-528,CWE-591,SEI CERT MEM06-C"
         },
     "ID_unsafeCleanup": {
         "checkPoint": "敏感数据在使用后应被有效清理",
