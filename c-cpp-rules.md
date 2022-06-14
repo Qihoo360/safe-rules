@@ -844,7 +844,7 @@ string bar() {
 ```
 这段代码意在将用户输入的路径限制在 /myhome/mydata 目录下，然而这么做是不安全的，如果用户输入带有“../”这种相对路径，则仍可绕过限制，所以在读取文件之前应判断路径的可靠性。  
   
-注意，“用户输入”不单指人的输入，不受程序直接控制的数据，如源自外存、硬件或其他进程的输入均在此范围内。
+注意，“用户输入”不单指人的手工输入，源自环境变量、配置文件以及其他软硬件的输入均在此范围内。
 <br/>
 <br/>
 
@@ -865,23 +865,34 @@ ID_unlimitedAuthority&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
   
 示例：
 ```
-umask(000);                     // Non-compliant
-FILE* fp = fopen("bar", "w");   // Old method
-....
-fclose(fp);
+#include <stdio.h>
+
+int main() {
+    umask(000);                     // Non-compliant
+    FILE* fp = fopen("bar", "w");   // Old method
+    ....
+    fclose(fp);
+}
 ```
 例中 umask 函数开放了所有用户对文件的读写权限，这是很不安全的，进程之间不应直接通过文件通信，应实现安全的接口和交互机制。  
   
 由于历史原因，C 语言的 fopen 和 C\+\+ 语言的 fstream 都不能确保文件只能被当前用户访问，C11 提供了 fopen\_s，C\+\+17 提供了 std::filesystem::permissions 以填补这方面的需求。  
   
-fopen\_s 简例：
+C11 fopen\_s 简例：
 ```
-FILE* fp = NULL;
-errno_t e = fopen_s(&fp, "bar", "w");   // Good
-....
-fclose(fp);
+#define __STDC_WANT_LIB_EXT1__ 1
+#include <stdio.h>
+
+int main() {
+    FILE* fp = NULL;
+    errno_t e = fopen_s(&fp, "bar", "w");   // Good
+    ....
+    fclose(fp);
+}
 ```
-与 fopen 不同，fopen\_s 可以不受 umask 等函数的影响，直接将文件的权限设为当前用户私有，是一种更安全的方法。
+与 fopen 不同，fopen\_s 可以不受 umask 等函数的影响，直接将文件的权限设为当前用户私有，其他用户不可访问，降低了文件被窃取或篡改的风险，是一种更安全的方法。  
+  
+除此之外，如果需要对文件等资源进行更精细的权限管理，可参见“access\-control list (ACL)”。
 <br/>
 <br/>
 
@@ -10741,7 +10752,7 @@ ID_recursion&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-递归实现，如函数直接或间接地调用自身，易导致难以控制的堆栈溢出错误。  
+递归实现，如函数直接或间接地调用自身，易导致难以控制的堆栈溢出等错误。  
   
 示例：
 ```

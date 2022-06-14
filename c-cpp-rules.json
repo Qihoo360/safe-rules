@@ -1651,7 +1651,7 @@
     "ID_recursion": {
         "checkPoint": "避免递归实现",
         "level": "warning",
-        "comment": "递归实现，如函数直接或间接地调用自身，易导致难以控制的堆栈溢出错误。",
+        "comment": "递归实现，如函数直接或间接地调用自身，易导致难以控制的堆栈溢出等错误。",
         "tag": "function",
         "reference": "MISRA C 2012 17.2,MISRA C++ 2008 7-5-4"
         },
