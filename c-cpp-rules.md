@@ -892,7 +892,7 @@ int main() {
 ```
 与 fopen 不同，fopen\_s 可以不受 umask 等函数的影响，直接将文件的权限设为当前用户私有，其他用户不可访问，降低了文件被窃取或篡改的风险，是一种更安全的方法。  
   
-除此之外，如果需要对文件等资源进行更精细的权限管理，可参见“access\-control list (ACL)”。
+除此之外，如果需要对文件等资源进行更精细的权限管理，可参见“[access control list（ACL）](https://en.wikipedia.org/wiki/Access-control_list)”。
 <br/>
 <br/>
 
