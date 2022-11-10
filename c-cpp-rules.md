@@ -13685,7 +13685,7 @@ ID_stickyAssignmentOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warni
 
 <hr/>
 
-如果 = 与 \+、\-、\*、!、&、\~ 等一元运算符之间没有空格，而一元运算符与其子表达式之间有空格，是一种非常怪异的格式，也可能是 \+=、\-=、\*=、&=、\~= 等复合赋值运算符的笔误。  
+如果 = 与 \+、\-、\*、!、&、\~ 等一元运算符之间没有空格，而一元运算符与其子表达式之间有空格，是一种非常怪异的格式，也可能是 \+=、\-=、\*=、&= 等复合赋值运算符的笔误。  
   
 示例：
 ```
@@ -13696,7 +13696,7 @@ a =! b;    // Non-compliant
 
 a += b;    // Compliant
 a = -b;    // Compliant
-a ~= b;    // Compliant
+a = ~b;    // Compliant
 a = !b;    // Compliant
 ```
 <br/>
