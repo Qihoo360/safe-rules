@@ -2335,9 +2335,9 @@
         "reference": "C++ Core Guidelines ES.3"
     },
     "ID_switch_breakOmitted": {
-        "checkPoint": "switch 语句的每个非空分枝都应该用无条件的 break 语句终止",
+        "checkPoint": "switch 语句的每个非空分枝都应该用无条件的 break 或 return 语句终止",
         "level": "warning",
-        "comment": "每个非空分枝都应该用无条件的 break 语句终止，break 语句的缺失或误用是导致错误的常见原因。",
+        "comment": "在 switch 语句的分枝中，break 或 return 语句的缺失是导致错误的常见原因。",
         "tag": "control",
         "standard": "ISO/IEC 14882:2017 10.6.5",
         "reference": "CWE-484,C++ Core Guidelines ES.78,MISRA C 2004 15.2,MISRA C 2012 16.3,MISRA C++ 2008 6-4-5"

@@ -416,7 +416,7 @@
     - [R9.5.10 switch 语句不应只包含一个 case 标签](#ID_switch_onlyOneCase)
     - [R9.5.11 switch 语句分枝数量应在规定范围之内](#ID_switch_tooManyCases)
     - [R9.5.12 switch 语句应配有 default 分枝](#ID_switch_missingDefault)
-    - [R9.5.13 switch 语句的每个非空分枝都应该用无条件的 break 语句终止](#ID_switch_breakOmitted)
+    - [R9.5.13 switch 语句的每个非空分枝都应该用无条件的 break 或 return 语句终止](#ID_switch_breakOmitted)
     - [R9.5.14 switch 语句应该用大括号括起来](#ID_switch_brace)
     - [R9.5.15 switch 语句不应嵌套](#ID_switch_forbidNest)
   - [9.6 Try-catch](#control.try-catch)
@@ -12426,13 +12426,13 @@ MISRA C++ 2008 6-4-6
 <br/>
 <br/>
 
-### <span id="ID_switch_breakOmitted">▌R9.5.13 switch 语句的每个非空分枝都应该用无条件的 break 语句终止</span>
+### <span id="ID_switch_breakOmitted">▌R9.5.13 switch 语句的每个非空分枝都应该用无条件的 break 或 return 语句终止</span>
 
 ID_switch_breakOmitted&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
 <hr/>
 
-每个非空分枝都应该用无条件的 break 语句终止，break 语句的缺失或误用是导致错误的常见原因。  
+在 switch 语句的分枝中，break 或 return 语句的缺失是导致错误的常见原因。  
   
 示例：
 ```
@@ -12448,7 +12448,7 @@ default:
     break;  // Compliant
 }
 ```
-相连的 case 标签不受本规则约束：
+相连的 case 标签不受本规则约束，但最好配有注释：
 ```
 switch (c)
 {
@@ -12458,7 +12458,7 @@ case 1:
     break;
 }
 ```
-少数情况下，如果确实不能有 break 语句，应添加注释说明情况，或在 C\+\+ 语言中用 \[\[fallthrough\]\] 注明：
+少数情况下，如果确实不能有 break 或 return 语句，应添加注释说明情况，或在 C\+\+ 语言中用 \[\[fallthrough\]\] 注明：
 ```
 switch (v)
 {
