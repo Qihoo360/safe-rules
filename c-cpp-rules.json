@@ -2495,7 +2495,7 @@
     "ID_literal_multicharacter": {
         "checkPoint": "不应使用多字符常量",
         "level": "suggestion",
-        "comment": "多字符常量形式上与字符串常量相似，但类型为整型，易被误用，而且不同编译器对这种常量的处理方式也有所不同，故建议禁用。",
+        "comment": "“多字符常量（multi-character literal）”指单引号之间有多个字符或非基本字符的常量，这种常量的值是由实现定义的，而且在形式上与字符或字符串常量非常相似，易被误用，故建议禁用。",
         "tag": "literal",
         "standard": "ISO/IEC 14882:2011 2.13.2(1)-implementation,ISO/IEC 14882:2011 2.14.3(1)-implementation,ISO/IEC 14882:2017 5.13.3(2)-implementation",
         "related": "ID_literal_suspiciousChar"

@@ -15936,7 +15936,13 @@ ID_literal_multicharacter&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: literal suggestion
 
 <hr/>
 
-多字符常量形式上与字符串常量相似，但类型为整型，易被误用，而且不同编译器对这种常量的处理方式也有所不同，故建议禁用。  
+“多字符常量（multi\-character literal）”指单引号之间有多个字符或非基本字符的常量，如：
+```
+'abc'  // has type int and implementation-defined value
+'中'   // has type int and implementation-defined value
+L'文'  // has type wchar_t and implementation-defined value
+```
+这种常量的值是由实现定义的，而且在形式上与字符或字符串常量非常相似，易被误用，故建议禁用。  
   
 示例：
 ```
@@ -15949,9 +15955,7 @@ void foo(int x) {
     }
 }
 ```
-例中 'tcp'、'udp' 为多字符常量，应改用普通常量。  
-  
-本例在 C\+\+ 中也可使用 enum class 实现：
+例中 'tcp'、'udp' 为多字符常量，在 C 中应改用 enum，在 C\+\+ 中应改用 enum class 实现：
 ```
 enum class PROT { tcp, udp };
 
