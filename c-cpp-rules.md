@@ -4226,28 +4226,34 @@ ID_forbidUsingDirectives&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: global suggesti
 
 <hr/>
 
-将其他命名空间中的名称一并引入当前命名空间，是对命名空间机制的破坏。  
-  
-标准库命名空间作为基础设施可不受本规则约束。  
+通过 using directive 将其他命名空间中的名称一并引入当前命名空间，是对命名空间机制的破坏，会造成难以预料的冲突与混乱。  
   
 示例：
 ```
 // In global namespace
-using namespace std;           // Let it go
-using namespace myspace0;      // Non-compliant
-using namespace myspace1;      // Non-compliant
+using namespace std;           // Non-compliant
+using namespace myspace;       // Non-compliant
 
-namespace myspace1 {
-    using namespace myspace2   // Non-compliant
+namespace myspace {
+    using namespace hisspace   // Non-compliant
 }
 ```
-建议在函数作用域内用 using declaration 代替 using directive：
+在函数作用域内可适当放宽要求，如：
 ```
 void foo() {
-    using myspace2::Type;      // Compliant
-    using myspace2::some_fun;  // Compliant
+    using namespace myspace;   // Let it go
 
-    Type x;
+    type x;                    // Using myspace::type
+    some_fun(x);               // Using mysapce::some_fun
+}
+```
+建议用 using declaration 代替 using directive：
+```
+void foo() {
+    using myspace::type;       // Compliant
+    using myspace::some_fun;   // Compliant
+
+    type x;
     some_fun(x);
 }
 ```

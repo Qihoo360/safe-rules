@@ -2048,7 +2048,7 @@
     "ID_forbidUsingDirectives": {
         "checkPoint": "全局或命名空间作用域中禁用 using directive",
         "level": "suggestion",
-        "comment": "将其他命名空间中的名称一并引入当前命名空间，是对命名空间机制的破坏。",
+        "comment": "通过 using directive 将其他命名空间中的名称一并引入当前命名空间，是对命名空间机制的破坏，会造成难以预料的冲突与混乱。",
         "tag": "global",
         "related": "ID_usingNamespaceInHeader",
         "reference": "C++ Core Guidelines SF.6,MISRA C++ 2008 7-3-4"
