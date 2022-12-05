@@ -4115,7 +4115,7 @@ ID_nonConstNonStaticGlobalObject&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warn
 
 非常量全局对象破坏了面向对象的封装理念，如果必须使用全局对象，应将其限定在文件范围之内。  
   
-本规则放宽了 ID\_nonConstGlobalObj 的要求，对于 C\+\+ 代码不建议选取本规则，对于 C 代码可酌情选取。  
+本规则放宽了 ID\_nonConstGlobalObject 的要求，对于 C\+\+ 代码不建议选取本规则，对于 C 代码可酌情选取。  
   
 示例：
 ```
