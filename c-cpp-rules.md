@@ -385,7 +385,7 @@
     - [R9.2.1 for 语句不应被分号隔断](#ID_for_semicolon)
     - [R9.2.2 for 语句中不应存在无条件的跳转语句](#ID_for_uncondBroken)
     - [R9.2.3 for 语句作用域的范围不应有误](#ID_for_scope)
-    - [R9.2.4 for 语句没有明显的循环变量时应改用 while 句语](#ID_for_simplification)
+    - [R9.2.4 for 语句没有明确的循环变量时应改用 while 句语](#ID_for_simplification)
     - [R9.2.5 for 循环体不应为空](#ID_for_emptyBlock)
     - [R9.2.6 for 循环变量不应为浮点型](#ID_for_floatCounter)
     - [R9.2.7 for 循环变量不应在循环体内被改变](#ID_for_counterChangedInBody)
@@ -11486,24 +11486,51 @@ CWE-483
 <br/>
 <br/>
 
-### <span id="ID_for_simplification">▌R9.2.4 for 语句没有明显的循环变量时应改用 while 句语</span>
+### <span id="ID_for_simplification">▌R9.2.4 for 语句没有明确的循环变量时应改用 while 句语</span>
 
 ID_for_simplification&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
 
 <hr/>
 
-如果 for 语句的第 1 个和第 3 个表达式为空，应改为 while 循环，使代码更简洁。  
+for 语句一般用于实现具有明确循环次数和循环变量的迭代算法，循环变量即控制循环次数的变量。for 语句小括号内的三个表达式应分别专注于循环变量的初始化、循环条件的判断、循环变量的增减，这样可以使循环具有清晰的静态结构，便于阅读，利于维护。  
+  
+如果没有明确的循环变量，则应改用 while 循环，避免对代码的维护者造成误导。  
   
 示例：
 ```
-for (;condition;)   // Non-compliant
+int n = 0;
+for (; condition(); n++) {   // Non-compliant, ‘n’ is not a loop variable
+    ....
+}
 ```
-不妨化简为：
+例中 n 不是循环变量，它可以记录循环次数，但与循环条件无关，应改为 while 循环：
 ```
-while (condition)   // Compliant
+int n = 0;
+while (condition()) {   // Compliant
+    ....
+    n++;
+}
 ```
-例外：  
-for (;;) 被当作一种无限循环的惯用方法可不受本规则约束。
+如果 for 语句的第 1 个和第 3 个表达式为空，则更应改为 while 循环，使代码更简洁，如：
+```
+for (; condition(); ) {   // Non-compliant
+    ....
+}
+
+for (;;) {   // Non-compliant
+    ....
+}
+```
+应改为：
+```
+while (condition()) {   // Compliant
+    ....
+}
+
+while (true) {   // Compliant
+    ....
+}
+```
 <br/>
 <br/>
 
@@ -11522,13 +11549,13 @@ ID_for_emptyBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
   
 示例：
 ```
-int foo1(int n) {
+int foo(int n) {
     int s = 0;
     for (int i = 1; i <= n; s += i++);   // Non-compliant
     return s;
 }
 ```
-for 语句小括号内的三个表达式应专注于循环变量的初始化、循环条件的判断以及循环变量的增减，循环体应专注于迭代算法的实现，使程序具有清晰的静态结构，便于阅读，利于维护。  
+for 语句小括号内的三个表达式应分别专注于循环变量的初始化、循环条件的判断、循环变量的增减，循环体应专注于迭代算法的实现，使程序具有清晰的静态结构，便于阅读，利于维护。  
   
 应改为：
 ```

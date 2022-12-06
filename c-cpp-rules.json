@@ -2303,9 +2303,9 @@
         "reference": "CWE-483"
         },
     "ID_for_simplification": {
-        "checkPoint": "for 语句没有明显的循环变量时应改用 while 句语",
+        "checkPoint": "for 语句没有明确的循环变量时应改用 while 句语",
         "level": "suggestion",
-        "comment": "如果 for 语句的第 1 个和第 3 个表达式为空，应改为 while 循环，使代码更简洁。",
+        "comment": "如果没有明确的循环变量，则应改用 while 循环，避免对代码的维护者造成误导。",
         "tag": "control",
         "reference": "C++ Core Guidelines ES.73"
         },
