@@ -3243,7 +3243,7 @@
     "ID_nonPrivateData": {
         "checkPoint": "类的非常量数据成员均应为 private",
         "level": "suggestion",
-        "comment": "类的数据成员均应设为私有，对外统一由成员函数提供访问方法。",
+        "comment": "类的数据成员均应设为私有，对外统一由成员函数提供访问方法，且应避免返回私有成员的非常量引用或指针。",
         "tag": "type",
         "related": "ID_protectedData,ID_mixPublicPrivateData",
         "reference": "MISRA C++ 2008 11-0-1"
@@ -3256,11 +3256,11 @@
         "reference": "C++ Core Guidelines C.2,C++ Core Guidelines C.8"
         },
     "ID_improperAuthorization": {
-        "checkPoint": "落实对用户的权限管理",
+        "checkPoint": "落实有效的权限管理",
         "level": "warning",
-        "comment": "需落实对用户的权限管理，对无权限的请求予以拒绝。",
+        "comment": "权限管理与产品安全直接相关，应落实严格的评审、测试以及攻防演练。",
         "tag": "security",
-        "reference": "CWE-285"
+        "reference": "CWE-285,CWE-350"
         },
     "ID_redundantSemicolon": {
         "checkPoint": "不应存在多余的分号",

@@ -84,7 +84,7 @@
   - [R1.4 公共成员或全局对象不应记录敏感数据](#ID_sensitiveName)
   - [R1.5 预判用户输入造成的不良后果](#ID_hijack)
   - [R1.6 对文件设定合理的访问权限](#ID_unlimitedAuthority)
-  - [R1.7 落实对用户的权限管理](#ID_improperAuthorization)
+  - [R1.7 落实有效的权限管理](#ID_improperAuthorization)
   - [R1.8 不应引用危险符号名称](#ID_dangerousName)
   - [R1.9 避免使用具有危险性的函数](#ID_dangerousFunction)
   - [R1.10 不应使用已过时的函数](#ID_obsoleteFunction)
@@ -807,7 +807,7 @@ private:
     string password;      // Compliant
 };
 ```
-敏感数据最好对引用者完全隐藏，使数据与接口进一步分离，可参见“[Pimpl idiom](https://en.cppreference.com/w/cpp/language/pimpl)”等模式。
+敏感数据最好对引用者完全隐藏，避免被恶意分析、复制或序列化。使数据与接口进一步分离，可参见“[Pimpl idiom](https://en.cppreference.com/w/cpp/language/pimpl)”等模式。
 <br/>
 <br/>
 
@@ -908,13 +908,26 @@ SEI CERT FIO06-C
 <br/>
 <br/>
 
-### <span id="ID_improperAuthorization">▌R1.7 落实对用户的权限管理</span>
+### <span id="ID_improperAuthorization">▌R1.7 落实有效的权限管理</span>
 
 ID_improperAuthorization&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-需落实对用户的权限管理，对无权限的请求予以拒绝。  
+需落实有效的权限管理，相关措施包括但不限于：  
+ - 落实授权与认证机制  
+ - 提供多因素认证  
+ - 避免仅在客户端认证而非服务端认证  
+ - 遵循最小特权原则，对资源和相关算法设置合理的访问或执行权限  
+ - 检查请求是否符合用户的权限设定，拒绝无权限的请求  
+ - 用户放弃某项权限后，应确保相关权限不再生效  
+ - 保证信道完整性，对相关用户进行充分的身份认证，避免中间人攻击  
+ - 验证通信通道的源和目的地，拒绝非预期的请求和应答  
+ - 避免攻击者使用重放攻击等手段绕过身份认证或干扰正常运营  
+ - 避免不恰当地信任反向 DNS（关注 DNS Cache Poisoning）  
+ - 避免过于严格且易触发的账户锁定机制，使攻击者通过锁定账户干扰正常运营  
+  
+权限管理与安全直接相关，应落实严格的评审、测试以及攻防演练。  
   
 示例：
 ```
@@ -926,12 +939,13 @@ Result foo() {
     return res;
 }
 ```
-设 req 对应用户请求，sqlQuery 将请求中的 key 字段替换格式化占位符后执行查询，这个模式存在多种问题，应判断用户是否具有读取数据库相关字段的权限，而且还应判断 req\["key"\] 的值是否安全，详见 ID\_hijack。
+设例中 req 对应用户请求，sqlQuery 将请求中的 key 字段替换格式化占位符后执行查询，这个模式存在多种问题，应判断用户是否具有读取数据库相关字段的权限，而且还应判断 req\["key"\] 的值是否安全，详见 ID\_hijack。
 <br/>
 <br/>
 
 #### 参考
 CWE-285  
+CWE-350  
 <br/>
 <br/>
 
@@ -4384,7 +4398,7 @@ ID_nonPrivateData&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestion
 
 <hr/>
 
-类的数据成员均应设为私有，对外统一由成员函数提供访问方法。  
+类的数据成员均应设为私有，对外统一由成员函数提供访问方法，且应避免返回私有成员的非常量引用或指针。  
   
 将类的所有接口都实现为成员函数，由成员函数按指定逻辑读写数据，以便保证有效地改变对象状态。良好的接口设计会对代码的职责进行合理划分，显著提升可维护性。理想状态下，当有错误需要修正或有功能需要调整时，只改动相关接口的实现即可，调用接口的代码不需要改动，从而将改动降到最低。这种设计的基础便是将数据设为私有，只能由本类的成员函数访问，否则数据可被各个模块随意读写，当有一处需要改动时，很难控制其影响范围。  
   
@@ -15386,13 +15400,17 @@ new 表达式只应作为“=”的直接右子表达式，或直接作为参数
   
 示例：
 ```
-int& i = *new int(123);        // Non-compliant
+int i = *new int(10);         // Non-compliant, memory leak
 
-if (new int[123]) {            // Non-compliant
+int& j = *new int(10);        // Non-compliant
+delete &j;                    // Very odd
+
+char* p = new char[10] + 5;   // Non-compliant
+delete[] p – 5;               // Very odd
+
+if (new int[10]) {            // Non-compliant, memory leak
     ....
 }
-
-char* p = new char[123] + n;   // Non-compliant
 ```
 这种问题多数是由笔误或错误的宏展开造成的。
 <br/>
@@ -15522,7 +15540,7 @@ ID_literal_suspiciousChar&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: literal warning
 
 注意字符常量的错误书写，如正反斜杠的误用，'\\n' 误写为 '/n'、'\\\\' 误写为 '//' 等。  
   
-由于 C/C\+\+ 语言允许在单引号内写入多个字符来表示一个整形常量，如：
+由于 C/C\+\+ 语言允许在单引号内写入多个字符来表示一个整形常量（multi\-character literal），如：
 ```
 auto i = '/t';   // Non-compliant
 ```
