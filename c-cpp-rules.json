@@ -777,7 +777,7 @@
     "ID_hideLocal": {
         "checkPoint": "局部名称不应被覆盖",
         "level": "warning",
-        "comment": "嵌套的作用域中不应出现相同的名称，否则干扰阅读，极易产生误解。",
+        "comment": "不应在嵌套的作用域中声明相同的名称，否则干扰阅读，极易产生误解。",
         "tag": "declaration",
         "reference": "CWE-1109,C++ Core Guidelines ES.12,MISRA C 2004 5.2,MISRA C 2012 5.3,MISRA C++ 2008 2-10-2"
         },
@@ -785,6 +785,13 @@
         "checkPoint": "成员名称不应被覆盖",
         "level": "warning",
         "comment": "如果成员函数内的局部名称与成员名称相同，会干扰阅读，易产生误解。",
+        "tag": "declaration",
+        "reference": "CWE-1109,MISRA C 2004 5.2,MISRA C 2012 5.3,MISRA C++ 2008 2-10-2"
+        },
+    "ID_hideGlobal": {
+        "checkPoint": "全局及命名空间内的名称不应被覆盖",
+        "level": "warning",
+        "comment": "局部、成员名称不应与全局或命名空间内的名称相同，否则干扰阅读，易产生误解。",
         "tag": "declaration",
         "reference": "CWE-1109,MISRA C 2004 5.2,MISRA C 2012 5.3,MISRA C++ 2008 2-10-2"
         },
@@ -2673,6 +2680,12 @@
         "tag": "precompile",
         "related": "ID_macro_sideEffectArgs,ID_macro_const,ID_macro_typeid",
         "reference": "C++ Core Guidelines ES.31,MISRA C 2004 19.7,MISRA C 2012 Dir 4.9,MISRA C++ 2008 16-0-4"
+        },
+    "ID_nestedTooDeep": {
+        "checkPoint": "作用域及类型嵌套不应过深",
+        "level": "suggestion",
+        "comment": "作用域或类型嵌套层次过深是不利于维护的。建议函数作用域嵌套不超过7层，类、结构体嵌套不超过3层，命名空间嵌套不超过 4 层。",
+        "tag": "function"
         },
     "ID_functionRepetition": {
         "checkPoint": "避免重复的函数实现",

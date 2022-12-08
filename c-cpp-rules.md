@@ -4,7 +4,7 @@
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对 C、C++ 语言，本文收录了 443 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对 C、C++ 语言，本文收录了 445 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
@@ -223,8 +223,9 @@
     - [R6.1.2 不应定义具有保留意义的名称](#reservedname)
     - [R6.1.3 局部名称不应被覆盖](#hidelocal)
     - [R6.1.4 成员名称不应被覆盖](#hidemember)
-    - [R6.1.5 类型名称不应与对象或函数名称相同](#duplicatedname)
-    - [R6.1.6 不应存在拼写错误](#misspelling)
+    - [R6.1.5 全局及命名空间内的名称不应被覆盖](#hideglobal)
+    - [R6.1.6 类型名称不应与对象或函数名称相同](#duplicatedname)
+    - [R6.1.7 不应存在拼写错误](#misspelling)
   - [6.2 Qualifier](#declaration.qualifier)
     - [R6.2.1 const、volatile 不应重复](#qualifierrepeated)
     - [R6.2.2 const、volatile 修饰指针类型的别名是可疑的](#qualifierforptralias)
@@ -363,7 +364,8 @@
   - [R8.39 函数参数的数量应在规定范围之内](#toomanyparams)
   - [R8.40 不应定义过于复杂的内联函数](#complexinlinefunction)
   - [R8.41 避免递归实现](#recursion)
-  - [R8.42 避免重复的函数实现](#functionrepetition)
+  - [R8.42 作用域及类型嵌套不应过深](#nestedtoodeep)
+  - [R8.43 避免重复的函数实现](#functionrepetition)
 <br/>
 
 <span id="__control">**[9. Control](#control)**</span>
@@ -5696,7 +5698,7 @@ ID_hideLocal&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-嵌套的作用域中不应出现相同的名称，否则干扰阅读，极易产生误解。  
+不应在嵌套的作用域中声明相同的名称，否则干扰阅读，极易产生误解。  
   
 示例：
 ```
@@ -5746,7 +5748,7 @@ public:
     }
 };
 ```
-建议成员变量遵循统一的命名约定，如以“\_”结尾或以“m\_”开头，可有效规避这类问题：
+建议成员对象遵循统一的命名约定，如以“\_”结尾或以“m\_”开头，可有效规避这类问题：
 ```
 class A {
     int i_ = 0;         // Member object ‘i_’
@@ -5773,7 +5775,40 @@ MISRA C++ 2008 2-10-2
 <br/>
 <br/>
 
-### <span id="duplicatedname">▌R6.1.5 类型名称不应与对象或函数名称相同</span>
+### <span id="hideglobal">▌R6.1.5 全局及命名空间内的名称不应被覆盖</span>
+
+ID_hideGlobal&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
+
+<hr/>
+
+局部、成员名称不应与全局或命名空间内的名称相同，否则干扰阅读，易产生误解。  
+  
+示例：
+```
+static int i = 0;
+
+struct A {
+    int i;       // Non-compliant, hides the globel ‘i’
+};
+
+void foo() {
+    int i = 0;   // Non-compliant, hides the globel ‘i’
+    ....
+}
+```
+建议全局对象遵循统一的命名约定，如以“g\_”开头，且名称长度不宜过短，可有效规避这类问题。
+<br/>
+<br/>
+
+#### 参考
+CWE-1109  
+MISRA C 2004 5.2  
+MISRA C 2012 5.3  
+MISRA C++ 2008 2-10-2  
+<br/>
+<br/>
+
+### <span id="duplicatedname">▌R6.1.6 类型名称不应与对象或函数名称相同</span>
 
 ID_duplicatedName&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -5802,7 +5837,7 @@ MISRA C++ 2008 2-10-6
 <br/>
 <br/>
 
-### <span id="misspelling">▌R6.1.6 不应存在拼写错误</span>
+### <span id="misspelling">▌R6.1.7 不应存在拼写错误</span>
 
 ID_misspelling&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -10907,7 +10942,18 @@ MISRA C++ 2008 7-5-4
 <br/>
 <br/>
 
-### <span id="functionrepetition">▌R8.42 避免重复的函数实现</span>
+### <span id="nestedtoodeep">▌R8.42 作用域及类型嵌套不应过深</span>
+
+ID_nestedTooDeep&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
+
+<hr/>
+
+作用域或类型嵌套层次过深是不利于维护的。建议函数作用域嵌套不超过7层，类、结构体嵌套不超过3层，命名空间嵌套不超过 4 层。
+<br/>
+<br/>
+<br/>
+
+### <span id="functionrepetition">▌R8.43 避免重复的函数实现</span>
 
 ID_functionRepetition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
@@ -18730,7 +18776,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 443 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
+&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 445 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
 
 &emsp;&emsp;此致
 
