@@ -9886,7 +9886,7 @@ class A {
     static int cnt;
 
 public:
-A();
+    A();
    ~A();
     A(A&& a) {
         dat = a.dat;      // Compliant
