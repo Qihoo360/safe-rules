@@ -2215,7 +2215,7 @@
     "ID_if_emptyBlock": {
         "checkPoint": "if 语句不应为空",
         "level": "warning",
-        "comment": "如果 if 语句没有 else 分枝，且其分枝内容为空，这样的 if 语句无任何意义，即使其条件有副作用，也不应继续保留该if结构。",
+        "comment": "空的 if 语句或 else 子句往往是残留代码或功能未实现。",
         "tag": "control",
         "reference": "CWE-1071"
         },

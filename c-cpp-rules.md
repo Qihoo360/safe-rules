@@ -5798,6 +5798,7 @@ public:
     int bar() {
         return i;   // Which ‘i’?
     }
+    ....
 };
 ```
 建议全局对象遵循统一的命名约定，如以“g\_”开头，且名称长度不宜过短，可有效规避这类问题。
@@ -10962,7 +10963,7 @@ if (cond0)
                 if (cond10)  // Terrible
                     ....   
 ```
-建议函数作用域嵌套不超过7层。对类型、命名空间也有同样的要求，建议类、结构体嵌套不超过3层，命名空间嵌套不超过 4 层。
+建议函数作用域嵌套不超过 7 层。对类型、命名空间也有同样的要求，建议类、结构体嵌套不超过 3 层，命名空间嵌套不超过 4 层。
 <br/>
 <br/>
 <br/>
@@ -11399,12 +11400,35 @@ ID_if_emptyBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
 <hr/>
 
-如果 if 语句没有 else 分枝，且其分枝内容为空，这样的 if 语句无任何意义，即使其条件有副作用，也不应继续保留该 if 结构。  
+空的 if 语句或 else 子句往往是残留代码或功能未实现。  
   
 示例：
 ```
-if (a = foo());      // Non-compliant
-if (a == bar()) {}   // Non-compliant
+if (cond);     // Non-compliant
+if (cond) {}   // Non-compliant
+```
+如果 if 语句没有 else 分枝，且其分枝内容为空，这样的 if 语句无任何意义，即使其条件有副作用，也不应继续保留该 if 结构。  
+  
+又如：
+```
+if (cond) {    // Non-compliant, empty
+} else {
+    ....       // Nonempty statements
+}
+```
+应改为：
+```
+if (!cond) {   // Compliant
+    ....
+}
+```
+或者添加注释说明为何为空：
+```
+if (cond) {  
+    ;          // Compliant if reasonable comments are provided
+} else {
+    ....
+}
 ```
 <br/>
 <br/>
