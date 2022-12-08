@@ -4,7 +4,7 @@
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对 C、C++ 语言，本文收录了 441 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对 C、C++ 语言，本文收录了 443 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
@@ -339,29 +339,31 @@
   - [R8.15 在析构函数中不应调用虚函数](#ID_virtualCallInDestuctor)
   - [R8.16 在析构函数中避免调用 exit 函数](#ID_exitCallInDestructor)
   - [R8.17 拷贝构造函数应避免实现复制之外的功能](#ID_sideEffectCopyConstructor)
-  - [R8.18 拷贝赋值运算符应处理参数是自身对象时的情况](#ID_this_selfJudgement)
-  - [R8.19 不应存在无效的写入操作](#ID_invalidWrite)
-  - [R8.20 不应存在没有副作用的语句](#ID_missingSideEffect)
-  - [R8.21 不应存在得不到执行机会的代码](#ID_unreachableCode)
-  - [R8.22 有返回值的函数其所有分枝都应有明确的返回值](#ID_notAllBranchReturn)
-  - [R8.23 不可返回局部对象的地址或引用](#ID_localAddressFlowOut)
-  - [R8.24 合理设置 lambda 表达式的捕获方式](#ID_unsuitableCapture)
-  - [R8.25 函数返回值不应为右值引用](#ID_returnRValueReference)
-  - [R8.26 函数返回值不应为常量对象](#ID_returnConstObject)
-  - [R8.27 函数返回值不应为基本类型的常量](#ID_returnSuperfluousConst)
-  - [R8.28 被返回的表达式应与函数的返回类型相符](#ID_returnOdd)
-  - [R8.29 被返回的表达式不应为相同的常量](#ID_returnSameConst)
-  - [R8.30 具有 noreturn 属性的函数不应返回](#ID_unsuitableReturn)
-  - [R8.31 具有 noreturn 属性的函数返回类型只应为 void](#ID_unsuitableReturnType)
-  - [R8.32 由 atexit、at\_quick\_exit 指定的处理函数应正常返回](#ID_exitHandlerNoReturn)
-  - [R8.33 函数模板不应被特化](#ID_functionSpecialization)
-  - [R8.34 函数的标签数量应在规定范围之内](#ID_tooManyLabels)
-  - [R8.35 函数的行数应在规定范围之内](#ID_tooManyLines)
-  - [R8.36 lambda 表达式的行数应在规定范围之内](#ID_tooManyLambdaLines)
-  - [R8.37 函数参数的数量应在规定范围之内](#ID_tooManyParams)
-  - [R8.38 不应定义过于复杂的内联函数](#ID_complexInlineFunction)
-  - [R8.39 避免递归实现](#ID_recursion)
-  - [R8.40 避免重复的函数实现](#ID_functionRepetition)
+  - [R8.18 移动构造函数应避免实现数据移动之外的功能](#ID_sideEffectMoveConstructor)
+  - [R8.19 拷贝赋值运算符应处理参数是自身对象时的情况](#ID_this_selfJudgement)
+  - [R8.20 不应存在无效的写入操作](#ID_invalidWrite)
+  - [R8.21 不应存在没有副作用的语句](#ID_missingSideEffect)
+  - [R8.22 不应存在得不到执行机会的代码](#ID_unreachableCode)
+  - [R8.23 有返回值的函数其所有分枝都应有明确的返回值](#ID_notAllBranchReturn)
+  - [R8.24 不可返回局部对象的地址或引用](#ID_localAddressFlowOut)
+  - [R8.25 不可返回临时对象的地址或引用](#ID_tmpAddressFlowOut)
+  - [R8.26 合理设置 lambda 表达式的捕获方式](#ID_unsuitableCapture)
+  - [R8.27 函数返回值不应为右值引用](#ID_returnRValueReference)
+  - [R8.28 函数返回值不应为常量对象](#ID_returnConstObject)
+  - [R8.29 函数返回值不应为基本类型的常量](#ID_returnSuperfluousConst)
+  - [R8.30 被返回的表达式应与函数的返回类型相符](#ID_returnOdd)
+  - [R8.31 被返回的表达式不应为相同的常量](#ID_returnSameConst)
+  - [R8.32 具有 noreturn 属性的函数不应返回](#ID_unsuitableReturn)
+  - [R8.33 具有 noreturn 属性的函数返回类型只应为 void](#ID_unsuitableReturnType)
+  - [R8.34 由 atexit、at\_quick\_exit 指定的处理函数应正常返回](#ID_exitHandlerNoReturn)
+  - [R8.35 函数模板不应被特化](#ID_functionSpecialization)
+  - [R8.36 函数的标签数量应在规定范围之内](#ID_tooManyLabels)
+  - [R8.37 函数的行数应在规定范围之内](#ID_tooManyLines)
+  - [R8.38 lambda 表达式的行数应在规定范围之内](#ID_tooManyLambdaLines)
+  - [R8.39 函数参数的数量应在规定范围之内](#ID_tooManyParams)
+  - [R8.40 不应定义过于复杂的内联函数](#ID_complexInlineFunction)
+  - [R8.41 避免递归实现](#ID_recursion)
+  - [R8.42 避免重复的函数实现](#ID_functionRepetition)
 <br/>
 
 <span id="__Control">**[9. Control](#control)**</span>
@@ -9854,6 +9856,10 @@ int main() {
 <br/>
 <br/>
 
+#### 相关
+ID_sideEffectMoveConstructor  
+<br/>
+
 #### 依据
 ISO/IEC 14882:2003 12.8(15)-implementation  
 ISO/IEC 14882:2011 12.8(31)-implementation  
@@ -9865,7 +9871,56 @@ MISRA C++ 2008 12-8-1
 <br/>
 <br/>
 
-### <span id="ID_this_selfJudgement">▌R8.18 拷贝赋值运算符应处理参数是自身对象时的情况</span>
+### <span id="ID_sideEffectMoveConstructor">▌R8.18 移动构造函数应避免实现数据移动之外的功能</span>
+
+ID_sideEffectMoveConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
+
+<hr/>
+
+移动构造函数的执行在某些情况下可被省略，其执行次数可能与预期不符，数据移动之外的功能也可能无法生效。  
+  
+示例：
+```
+class A {
+    int* dat;
+    static int cnt;
+
+public:
+A();
+   ~A();
+    A(A&& a) {
+        dat = a.dat;      // Compliant
+        a.dat = nullptr;  // Compliant
+        cnt++;            // Non-compliant
+    }
+};
+```
+例中移动构造函数对静态成员有所读写，这种数据移动之外的功能是不符合要求的。  
+  
+如果按下列方式使用相关类：
+```
+A foo();
+
+int main() {
+    A a{foo()};   // Copy/move elision
+    ....
+}
+```
+用 foo 函数返回的临时对象构造对象 a，理论上应执行移动构造函数，但标准允许编译器将临时对象直接作为对象 a，移动和拷贝构造函数均可省略以提高效率，这种优化称为“[copy/move elision](https://en.wikipedia.org/wiki/Copy_elision)”，移动或复制之外的功能会因此无法生效。在 C\+\+17 之前，是否执行这种优化由实现定义，从 C\+\+17 开始，在某些情况下必须执行这种优化，具体可参见“[mandatory copy elision](https://en.cppreference.com/w/cpp/language/copy_elision#Mandatory_elision_of_copy.2Fmove_operations)”。
+<br/>
+<br/>
+
+#### 相关
+ID_sideEffectCopyConstructor  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2011 12.8(31)-implementation  
+ISO/IEC 14882:2017 15.8.3(1)-implementation  
+<br/>
+<br/>
+
+### <span id="ID_this_selfJudgement">▌R8.19 拷贝赋值运算符应处理参数是自身对象时的情况</span>
 
 ID_this_selfJudgement&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9907,7 +9962,7 @@ C++ Core Guidelines C.62
 <br/>
 <br/>
 
-### <span id="ID_invalidWrite">▌R8.19 不应存在无效的写入操作</span>
+### <span id="ID_invalidWrite">▌R8.20 不应存在无效的写入操作</span>
 
 ID_invalidWrite&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -9958,7 +10013,7 @@ int baz() {
 <br/>
 <br/>
 
-### <span id="ID_missingSideEffect">▌R8.20 不应存在没有副作用的语句</span>
+### <span id="ID_missingSideEffect">▌R8.21 不应存在没有副作用的语句</span>
 
 ID_missingSideEffect&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
@@ -10011,7 +10066,7 @@ MISRA C++ 2008 0-1-9
 <br/>
 <br/>
 
-### <span id="ID_unreachableCode">▌R8.21 不应存在得不到执行机会的代码</span>
+### <span id="ID_unreachableCode">▌R8.22 不应存在得不到执行机会的代码</span>
 
 ID_unreachableCode&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
@@ -10076,7 +10131,7 @@ MISRA C++ 2008 0-1-1
 <br/>
 <br/>
 
-### <span id="ID_notAllBranchReturn">▌R8.22 有返回值的函数其所有分枝都应有明确的返回值</span>
+### <span id="ID_notAllBranchReturn">▌R8.23 有返回值的函数其所有分枝都应有明确的返回值</span>
 
 ID_notAllBranchReturn&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
@@ -10124,13 +10179,13 @@ MISRA C++ 2008 8-4-3
 <br/>
 <br/>
 
-### <span id="ID_localAddressFlowOut">▌R8.23 不可返回局部对象的地址或引用</span>
+### <span id="ID_localAddressFlowOut">▌R8.24 不可返回局部对象的地址或引用</span>
 
 ID_localAddressFlowOut&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
 <hr/>
 
-对象的生命周期结束后，其地址或引用也会失效，如果继续访问会导致标准未定义的行为。  
+局部对象的生命周期结束后，其地址或引用也会失效，如果继续访问会导致标准未定义的行为。  
   
 示例：
 ```
@@ -10170,6 +10225,7 @@ void fun() {
 <br/>
 
 #### 相关
+ID_tmpAddressFlowOut  
 ID_danglingDeref  
 ID_illLifetime  
 <br/>
@@ -10188,7 +10244,55 @@ MISRA C++ 2008 7-5-2
 <br/>
 <br/>
 
-### <span id="ID_unsuitableCapture">▌R8.24 合理设置 lambda 表达式的捕获方式</span>
+### <span id="ID_tmpAddressFlowOut">▌R8.25 不可返回临时对象的地址或引用</span>
+
+ID_tmpAddressFlowOut&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
+
+<hr/>
+
+临时对象可以通过常量引用或右值引用等方式作为函数的参数，但生命周期结束后，其地址或引用就会失效，如果继续访问会导致标准未定义的行为，对引用型参数取地址应谨慎。  
+  
+示例：
+```
+using S = std::string;
+
+const S* foo(const S& s) {
+    return &s;    // Non-compliant
+}
+
+int main() {
+    auto* p = foo("abc");
+    cout << *p << '\n';   // Undefined behavior
+}
+```
+例中 foo 函数的参数是由字符串常量 "abc" 生成的 string 型临时对象，所在语句执行完毕后生命周期即结束，p 会成为野指针，继续访问会导致标准未定义的行为。  
+  
+同理，也应避免对于右值引用型的参数取地址，如：
+```
+S* bar(S&& s) {
+    return &s;   // Non-compliant
+}
+```
+<br/>
+<br/>
+
+#### 相关
+ID_localAddressFlowOut  
+ID_danglingDeref  
+ID_illLifetime  
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.2.4(2)-undefined  
+ISO/IEC 9899:2011 6.2.4(2)-undefined  
+<br/>
+
+#### 参考
+MISRA C++ 2008 7-5-3  
+<br/>
+<br/>
+
+### <span id="ID_unsuitableCapture">▌R8.26 合理设置 lambda 表达式的捕获方式</span>
 
 ID_unsuitableCapture&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10244,7 +10348,7 @@ C++ Core Guidelines F.54
 <br/>
 <br/>
 
-### <span id="ID_returnRValueReference">▌R8.25 函数返回值不应为右值引用</span>
+### <span id="ID_returnRValueReference">▌R8.27 函数返回值不应为右值引用</span>
 
 ID_returnRValueReference&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
@@ -10311,7 +10415,7 @@ C++ Core Guidelines F.45
 <br/>
 <br/>
 
-### <span id="ID_returnConstObject">▌R8.26 函数返回值不应为常量对象</span>
+### <span id="ID_returnConstObject">▌R8.28 函数返回值不应为常量对象</span>
 
 ID_returnConstObject&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
@@ -10352,7 +10456,7 @@ C++ Core Guidelines F.20
 <br/>
 <br/>
 
-### <span id="ID_returnSuperfluousConst">▌R8.27 函数返回值不应为基本类型的常量</span>
+### <span id="ID_returnSuperfluousConst">▌R8.29 函数返回值不应为基本类型的常量</span>
 
 ID_returnSuperfluousConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10390,7 +10494,7 @@ ISO/IEC 14882:2011 3.10(1)
 <br/>
 <br/>
 
-### <span id="ID_returnOdd">▌R8.28 被返回的表达式应与函数的返回类型相符</span>
+### <span id="ID_returnOdd">▌R8.30 被返回的表达式应与函数的返回类型相符</span>
 
 ID_returnOdd&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10416,7 +10520,7 @@ MISRA C++ 2008 4-10-1
 <br/>
 <br/>
 
-### <span id="ID_returnSameConst">▌R8.29 被返回的表达式不应为相同的常量</span>
+### <span id="ID_returnSameConst">▌R8.31 被返回的表达式不应为相同的常量</span>
 
 ID_returnSameConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10440,7 +10544,7 @@ bool foo(int a) {
 <br/>
 <br/>
 
-### <span id="ID_unsuitableReturn">▌R8.30 具有 noreturn 属性的函数不应返回</span>
+### <span id="ID_unsuitableReturn">▌R8.32 具有 noreturn 属性的函数不应返回</span>
 
 ID_unsuitableReturn&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10469,7 +10573,7 @@ ISO/IEC 14882:2011 7.6.3(2)-undefined
 <br/>
 <br/>
 
-### <span id="ID_unsuitableReturnType">▌R8.31 具有 noreturn 属性的函数返回类型只应为 void</span>
+### <span id="ID_unsuitableReturnType">▌R8.33 具有 noreturn 属性的函数返回类型只应为 void</span>
 
 ID_unsuitableReturnType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10501,7 +10605,7 @@ ISO/IEC 14882:2011 7.6.3(2)-undefined
 <br/>
 <br/>
 
-### <span id="ID_exitHandlerNoReturn">▌R8.32 由 atexit、at_quick_exit 指定的处理函数应正常返回</span>
+### <span id="ID_exitHandlerNoReturn">▌R8.34 由 atexit、at_quick_exit 指定的处理函数应正常返回</span>
 
 ID_exitHandlerNoReturn&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10550,7 +10654,7 @@ SEI CERT ENV32-C
 <br/>
 <br/>
 
-### <span id="ID_functionSpecialization">▌R8.33 函数模板不应被特化</span>
+### <span id="ID_functionSpecialization">▌R8.35 函数模板不应被特化</span>
 
 ID_functionSpecialization&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10600,7 +10704,7 @@ MISRA C++ 2008 14-8-1
 <br/>
 <br/>
 
-### <span id="ID_tooManyLabels">▌R8.34 函数的标签数量应在规定范围之内</span>
+### <span id="ID_tooManyLabels">▌R8.36 函数的标签数量应在规定范围之内</span>
 
 ID_tooManyLabels&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10631,7 +10735,7 @@ maxLabelCount：标签数量上限，超过则报出
 <br/>
 <br/>
 
-### <span id="ID_tooManyLines">▌R8.35 函数的行数应在规定范围之内</span>
+### <span id="ID_tooManyLines">▌R8.37 函数的行数应在规定范围之内</span>
 
 ID_tooManyLines&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10661,7 +10765,7 @@ C++ Core Guidelines F.3
 <br/>
 <br/>
 
-### <span id="ID_tooManyLambdaLines">▌R8.36 lambda 表达式的行数应在规定范围之内</span>
+### <span id="ID_tooManyLambdaLines">▌R8.38 lambda 表达式的行数应在规定范围之内</span>
 
 ID_tooManyLambdaLines&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10694,7 +10798,7 @@ maxLambdaLineCount：lambda 表达式行数上限，超过则报出
 <br/>
 <br/>
 
-### <span id="ID_tooManyParams">▌R8.37 函数参数的数量应在规定范围之内</span>
+### <span id="ID_tooManyParams">▌R8.39 函数参数的数量应在规定范围之内</span>
 
 ID_tooManyParams&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10741,7 +10845,7 @@ C++ Core Guidelines I.23
 <br/>
 <br/>
 
-### <span id="ID_complexInlineFunction">▌R8.38 不应定义过于复杂的内联函数</span>
+### <span id="ID_complexInlineFunction">▌R8.40 不应定义过于复杂的内联函数</span>
 
 ID_complexInlineFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
@@ -10766,7 +10870,7 @@ C++ Core Guidelines F.5
 <br/>
 <br/>
 
-### <span id="ID_recursion">▌R8.39 避免递归实现</span>
+### <span id="ID_recursion">▌R8.41 避免递归实现</span>
 
 ID_recursion&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -10803,7 +10907,7 @@ MISRA C++ 2008 7-5-4
 <br/>
 <br/>
 
-### <span id="ID_functionRepetition">▌R8.40 避免重复的函数实现</span>
+### <span id="ID_functionRepetition">▌R8.42 避免重复的函数实现</span>
 
 ID_functionRepetition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
@@ -18626,7 +18730,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 441 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
+&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 443 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
 
 &emsp;&emsp;此致
 

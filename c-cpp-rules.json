@@ -1710,10 +1710,19 @@
         "level": "warning",
         "comment": "拷贝构造函数的执行在某些情况下可被省略，其执行次数可能与预期不符，复制之外的功能也可能无法生效。",
         "tag": "function",
+        "related": "ID_sideEffectMoveConstructor",
         "standard": "ISO/IEC 14882:2003 12.8(15)-implementation,ISO/IEC 14882:2011 12.8(31)-implementation,ISO/IEC 14882:2017 15.8.3(1)-implementation",
         "reference": "MISRA C++ 2008 12-8-1"
         },
-    "ID_throwInConstructor":{
+    "ID_sideEffectMoveConstructor": {
+        "checkPoint": "移动构造函数应避免实现数据移动之外的功能",
+        "level": "warning",
+        "comment": "移动构造函数的执行在某些情况下可被省略，其执行次数可能与预期不符，数据移动之外的功能也可能无法生效。",
+        "tag": "function",
+        "related": "ID_sideEffectCopyConstructor",
+        "standard": "ISO/IEC 14882:2011 12.8(31)-implementation,ISO/IEC 14882:2017 15.8.3(1)-implementation"
+        },
+    "ID_throwInConstructor": {
         "checkPoint": "构造函数抛出异常需避免相关资源泄漏",
         "level": "warning",
         "comment": "构造函数抛出异常表示对象构造失败，不会再执行相关析构函数，需要保证已分配的资源被有效回收。",
@@ -1764,11 +1773,20 @@
     "ID_localAddressFlowOut": {
         "checkPoint": "不可返回局部对象的地址或引用",
         "level": "error",
-        "comment": "对象的生命周期结束后，其地址或引用也会失效，如果继续访问会导致标准未定义的行为。",
+        "comment": "局部对象的生命周期结束后，其地址或引用也会失效，如果继续访问会导致标准未定义的行为。",
         "tag": "function",
-        "related": "ID_danglingDeref,ID_illLifetime",
+        "related": "ID_tmpAddressFlowOut,ID_danglingDeref,ID_illLifetime",
         "standard": "ISO/IEC 9899:1999 6.2.4(2)-undefined,ISO/IEC 9899:2011 6.2.4(2)-undefined",
         "reference": "CWE-562,C++ Core Guidelines F.43,MISRA C 2012 18.6,MISRA C++ 2008 7-5-1,MISRA C++ 2008 7-5-2"
+        },
+    "ID_tmpAddressFlowOut": {
+        "checkPoint": "不可返回临时对象的地址或引用",
+        "level": "error",
+        "comment": "临时对象可以通过常量引用或右值引用等方式作为函数的参数，但生命周期结束后，其地址或引用就会失效，如果继续访问会导致标准未定义的行为，对引用型参数取地址应谨慎。",
+        "tag": "function",
+        "related": "ID_localAddressFlowOut,ID_danglingDeref,ID_illLifetime",
+        "standard": "ISO/IEC 9899:1999 6.2.4(2)-undefined,ISO/IEC 9899:2011 6.2.4(2)-undefined",
+        "reference": "MISRA C++ 2008 7-5-3"
         },
     "ID_unreachableCode": {
         "checkPoint": "不应存在得不到执行机会的代码",
