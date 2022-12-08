@@ -5785,16 +5785,20 @@ ID_hideGlobal&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
   
 示例：
 ```
-static int i = 0;
-
-struct A {
-    int i;       // Non-compliant, hides the globel ‘i’
-};
+extern int i;
 
 void foo() {
-    int i = 0;   // Non-compliant, hides the globel ‘i’
+    int i = 0;      // Non-compliant, hides the globel ‘i’
     ....
 }
+
+class A {
+    int i;          // Non-compliant, hides the globel ‘i’
+public:
+    int bar() {
+        return i;   // Which ‘i’?
+    }
+};
 ```
 建议全局对象遵循统一的命名约定，如以“g\_”开头，且名称长度不宜过短，可有效规避这类问题。
 <br/>
@@ -10948,7 +10952,17 @@ ID_nestedTooDeep&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
 <hr/>
 
-作用域或类型嵌套层次过深是不利于维护的。建议函数作用域嵌套不超过7层，类、结构体嵌套不超过3层，命名空间嵌套不超过 4 层。
+嵌套层次过深是不利于维护的。  
+  
+示例：
+```
+if (cond0)
+    if (cond1)
+        .... nested 10 layers ....
+                if (cond10)  // Terrible
+                    ....   
+```
+建议函数作用域嵌套不超过7层。对类型、命名空间也有同样的要求，建议类、结构体嵌套不超过3层，命名空间嵌套不超过 4 层。
 <br/>
 <br/>
 <br/>

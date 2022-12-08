@@ -2684,7 +2684,7 @@
     "ID_nestedTooDeep": {
         "checkPoint": "作用域及类型嵌套不应过深",
         "level": "suggestion",
-        "comment": "作用域或类型嵌套层次过深是不利于维护的。建议函数作用域嵌套不超过7层，类、结构体嵌套不超过3层，命名空间嵌套不超过 4 层。",
+        "comment": "嵌套层次过深是不利于维护的。建议函数作用域嵌套不超过7层，类、结构体嵌套不超过3层，命名空间嵌套不超过 4 层。",
         "tag": "function"
         },
     "ID_functionRepetition": {
