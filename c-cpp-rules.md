@@ -4,7 +4,7 @@
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对 C、C++ 语言，本文收录了 445 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对 C、C++ 语言，本文收录了 449 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
@@ -601,10 +601,14 @@
 <span id="__style">**[17. Style](#style)**</span>
   - [R17.1 空格应遵循统一风格](#spacestyle)
   - [R17.2 大括号应遵循统一风格](#bracestyle)
-  - [R17.3 NULL 和 nullptr 不应混用](#mixnullptrandnull)
-  - [R17.4 在 C\+\+ 代码中用 nullptr 代替 NULL](#deprecatednull)
-  - [R17.5 赋值表达式不应作为子表达式](#assignmentassubexpression)
-  - [R17.6 不应存在多余的分号](#redundantsemicolon)<br/><br/>
+  - [R17.3 自增、自减表达式不应作为子表达式](#incdecassubexpression)
+  - [R17.4 赋值表达式不应作为子表达式](#assignmentassubexpression)
+  - [R17.5 控制条件应为 bool 型表达式](#nonboolcondition)
+  - [R17.6 !、&&、|| 的子表达式应为 bool 型表达式](#nonboolsubcondition)
+  - [R17.7 &&、|| 的子表达式应为后缀表达式](#nonpostfixsubcondition)
+  - [R17.8 NULL 和 nullptr 不应混用](#mixnullptrandnull)
+  - [R17.9 在 C\+\+ 代码中用 nullptr 代替 NULL](#deprecatednull)
+  - [R17.10 不应存在多余的分号](#redundantsemicolon)<br/><br/>
 ## <span id="security">1. Security</span>
 
 ### <span id="plainsensitiveinfo">▌R1.1 敏感数据不可写入代码</span>
@@ -18689,7 +18693,223 @@ ID_if_mayBeElseIf
 <br/>
 <br/>
 
-### <span id="mixnullptrandnull">▌R17.3 NULL 和 nullptr 不应混用</span>
+### <span id="incdecassubexpression">▌R17.3 自增、自减表达式不应作为子表达式</span>
+
+ID_incDecAsSubExpression&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style suggestion
+
+<hr/>
+
+自增、自减表达式作为子表达式增加了复杂性，且容易产生求值顺序相关的问题。  
+  
+示例：
+```
+a = ++b + c--;   // Non-compliant
+```
+应改为：
+```
+++b;             // Compliant
+a = b + c;
+c--;             // Compliant
+```
+<br/>
+<br/>
+
+#### 相关
+ID_evaluationOrderReliance  
+<br/>
+
+#### 参考
+MISRA C 2012 13.3  
+MISRA C++ 2008 5-2-10  
+<br/>
+<br/>
+
+### <span id="assignmentassubexpression">▌R17.4 赋值表达式不应作为子表达式</span>
+
+ID_assignmentAsSubExpression&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style suggestion
+
+<hr/>
+
+赋值表达式作为子表达式增加了复杂性，且容易产生优先级相关的问题。  
+  
+普通赋值表达式、复合赋值表达式均受本规则约束。  
+  
+示例：
+```
+int a, b = foo();
+if (a = b != 0) {    // Non-compliant
+    ....
+}
+int c = bar();
+return a += b += c;  // Non-compliant
+```
+<br/>
+<br/>
+
+#### 参考
+CWE-481  
+MISRA C 2004 13.1  
+MISRA C 2012 13.4  
+MISRA C++ 2008 6-2-1  
+<br/>
+<br/>
+
+### <span id="nonboolcondition">▌R17.5 控制条件应为 bool 型表达式</span>
+
+ID_nonBoolCondition&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style suggestion
+
+<hr/>
+
+如果控制条件均为 bool 型表达式，可使逻辑结构更清晰，有效避免隐式类型转换造成的问题。  
+  
+示例：
+```
+void foo(int* p, size_t n, bool b)
+{
+    if (p) {     // Non-compliant
+        ....
+    }
+    if (n) {     // Non-compliant
+        ....
+    }
+    if (b) {     // Compliant
+        ....
+    }
+}
+```
+例中 p 和 n 不应直接作为条件，b 为 bool 型，可直接作为条件。  
+  
+应改为：
+```
+void foo(int* p, size_t n, bool b)
+{
+    if (p != NULL) {   // Compliant
+        ....
+    }
+    if (n != 0) {      // Compliant
+        ....
+    }
+    ....
+}
+```
+循环条件、三元表达式的条件等所有可作为控制条件的表达式均受本规则限制。  
+  
+例外：
+```
+if (int* p = bar()) {  // Let it go
+    ....
+}
+```
+C\+\+03 允许将声明作为条件，这种情况可不受本规则限制。
+<br/>
+<br/>
+
+#### 相关
+ID_nonBoolSubCondition  
+<br/>
+
+#### 参考
+MISRA C 2012 14.4  
+MISRA C++ 2008 5-0-13  
+MISRA C++ 2008 5-0-14  
+<br/>
+<br/>
+
+### <span id="nonboolsubcondition">▌R17.6 !、&&、|| 的子表达式应为 bool 型表达式</span>
+
+ID_nonBoolSubCondition&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style suggestion
+
+<hr/>
+
+如果 !、&&、|| 的子表达式均为 bool 型表达式，可使逻辑结构更清晰，有效避免隐式类型转换或运算符误用造成的问题。  
+  
+示例（设 p 为指针， a、b、c 为整型变量）：
+```
+if (!p) {}            // Non-compliant 
+if (a && b) {}        // Non-compliant
+if (a || (b + c)) {}  // Non-compliant
+```
+应改为：
+```
+if (p == NULL) {}                 // Compliant 
+if ((a != 0) && (b != 0)) {}      // Compliant 
+if ((a != 0) || (b + c != 0)) {}  // Compliant
+```
+<br/>
+<br/>
+
+#### 相关
+ID_nonBoolCondition  
+ID_illBoolOperation  
+<br/>
+
+#### 参考
+MISRA C++ 2008 5-3-1  
+<br/>
+<br/>
+
+### <span id="nonpostfixsubcondition">▌R17.7 &&、|| 的子表达式应为后缀表达式</span>
+
+ID_nonPostfixSubCondition&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style suggestion
+
+<hr/>
+
+如果 &&、|| 的子表达式均为后缀表达式，可使逻辑结构更清晰，有效避免各种优先级问题。  
+  
+后缀表达式（postfix\-expression）是 C/C\+\+ 语言的文法符号，也是一类表达式的总称：  
+ - 只包含标识符或常量的表达式  
+ - 用括号括起来的表达式  
+ - 数组取值表达式  
+ - 函数调用、函数式类型转换表达式  
+ - .、\-> 表达式  
+ - 后置 \+\+、\-\- 表达式  
+ - typeid 等表达式  
+  
+示例（设 a、b、c 为 bool 型变量，n 为整型变量）：
+```
+if (n == 0 && b) {   // Non-compliant 
+    ....
+}
+```
+例中 n == 0 不是后缀表达式，应使用括号括起来：
+```
+if ((n == 0) && b) {   // Compliant 
+    ....
+}
+```
+又如：
+```
+if (a || b && c) {   // Non-compliant
+    ....
+}
+```
+即使知道 && 的优先级高于 ||，也应使用括号将 || 的子表达式括起来，如：
+```
+if (a || (b && c)) {   // Compliant
+    ....
+}
+```
+例外：
+```
+if (a || b || c)) {   // Compliant
+    ....
+}
+```
+当 &&、|| 的子表达式运算符与其相同时，可不受本规则约束。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 6.5.2(1)  
+ISO/IEC 14882:2011 5.2(1)  
+<br/>
+
+#### 参考
+MISRA C++ 2008 5-2-1  
+<br/>
+<br/>
+
+### <span id="mixnullptrandnull">▌R17.8 NULL 和 nullptr 不应混用</span>
 
 ID_mixNullptrAndNULL&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style warning
 
@@ -18714,7 +18934,7 @@ C++ Core Guidelines ES.47
 <br/>
 <br/>
 
-### <span id="deprecatednull">▌R17.4 在 C++ 代码中用 nullptr 代替 NULL</span>
+### <span id="deprecatednull">▌R17.9 在 C++ 代码中用 nullptr 代替 NULL</span>
 
 ID_deprecatedNULL&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style suggestion
 
@@ -18754,37 +18974,7 @@ C++ Core Guidelines ES.47
 <br/>
 <br/>
 
-### <span id="assignmentassubexpression">▌R17.5 赋值表达式不应作为子表达式</span>
-
-ID_assignmentAsSubExpression&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style suggestion
-
-<hr/>
-
-赋值表达式作为子表达式增加了复杂性，且容易产生优先级相关的问题。  
-  
-普通赋值表达式、复合赋值表达式均受本规则约束。  
-  
-示例：
-```
-int a, b = foo();
-if (a = b != 0) {    // Non-compliant
-    ....
-}
-int c = bar();
-return a += b += c;  // Non-compliant
-```
-<br/>
-<br/>
-
-#### 参考
-CWE-481  
-MISRA C 2004 13.1  
-MISRA C 2012 13.4  
-MISRA C++ 2008 6-2-1  
-<br/>
-<br/>
-
-### <span id="redundantsemicolon">▌R17.6 不应存在多余的分号</span>
+### <span id="redundantsemicolon">▌R17.10 不应存在多余的分号</span>
 
 ID_redundantSemicolon&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style suggestion
 
@@ -18814,7 +19004,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 445 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
+&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 449 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
 
 &emsp;&emsp;此致
 
