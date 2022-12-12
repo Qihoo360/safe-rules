@@ -601,12 +601,12 @@
 <span id="__style">**[17. Style](#style)**</span>
   - [R17.1 空格应遵循统一风格](#spacestyle)
   - [R17.2 大括号应遵循统一风格](#bracestyle)
-  - [R17.3 自增、自减表达式不应作为子表达式](#incdecassubexpression)
-  - [R17.4 赋值表达式不应作为子表达式](#assignmentassubexpression)
+  - [R17.3 赋值表达式不应作为子表达式](#assignmentassubexpression)
+  - [R17.4 自增、自减表达式不应作为子表达式](#incdecassubexpression)
   - [R17.5 控制条件应为 bool 型表达式](#nonboolcondition)
   - [R17.6 !、&&、|| 的子表达式应为 bool 型表达式](#nonboolsubcondition)
   - [R17.7 &&、|| 的子表达式应为后缀表达式](#nonpostfixsubcondition)
-  - [R17.8 NULL 和 nullptr 不应混用](#mixnullptrandnull)
+  - [R17.8 在 C\+\+ 代码中 NULL 和 nullptr 不应混用](#mixnullptrandnull)
   - [R17.9 在 C\+\+ 代码中用 nullptr 代替 NULL](#deprecatednull)
   - [R17.10 不应存在多余的分号](#redundantsemicolon)<br/><br/>
 ## <span id="security">1. Security</span>
@@ -18693,13 +18693,43 @@ ID_if_mayBeElseIf
 <br/>
 <br/>
 
-### <span id="incdecassubexpression">▌R17.3 自增、自减表达式不应作为子表达式</span>
+### <span id="assignmentassubexpression">▌R17.3 赋值表达式不应作为子表达式</span>
+
+ID_assignmentAsSubExpression&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style suggestion
+
+<hr/>
+
+赋值表达式作为子表达式会使人费解，也易产生优先级相关的问题。  
+  
+赋值及复合赋值表达式均受本规则约束。  
+  
+示例：
+```
+int a, b = foo();
+if (a = b != 0) {   // Non-compliant
+    ....
+}
+int c = bar();
+return a += b += c;   // Non-compliant
+```
+<br/>
+<br/>
+
+#### 参考
+CWE-481  
+MISRA C 2004 13.1  
+MISRA C 2012 13.4  
+MISRA C++ 2008 6-2-1  
+<br/>
+<br/>
+
+### <span id="incdecassubexpression">▌R17.4 自增、自减表达式不应作为子表达式</span>
 
 ID_incDecAsSubExpression&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style suggestion
 
 <hr/>
 
-自增、自减表达式作为子表达式增加了复杂性，且容易产生求值顺序相关的问题。  
+自增、自减表达式作为子表达式使人费解，也易产生求值顺序相关的问题。  
   
 示例：
 ```
@@ -18721,36 +18751,6 @@ ID_evaluationOrderReliance
 #### 参考
 MISRA C 2012 13.3  
 MISRA C++ 2008 5-2-10  
-<br/>
-<br/>
-
-### <span id="assignmentassubexpression">▌R17.4 赋值表达式不应作为子表达式</span>
-
-ID_assignmentAsSubExpression&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style suggestion
-
-<hr/>
-
-赋值表达式作为子表达式增加了复杂性，且容易产生优先级相关的问题。  
-  
-普通赋值表达式、复合赋值表达式均受本规则约束。  
-  
-示例：
-```
-int a, b = foo();
-if (a = b != 0) {    // Non-compliant
-    ....
-}
-int c = bar();
-return a += b += c;  // Non-compliant
-```
-<br/>
-<br/>
-
-#### 参考
-CWE-481  
-MISRA C 2004 13.1  
-MISRA C 2012 13.4  
-MISRA C++ 2008 6-2-1  
 <br/>
 <br/>
 
@@ -18909,18 +18909,18 @@ MISRA C++ 2008 5-2-1
 <br/>
 <br/>
 
-### <span id="mixnullptrandnull">▌R17.8 NULL 和 nullptr 不应混用</span>
+### <span id="mixnullptrandnull">▌R17.8 在 C++ 代码中 NULL 和 nullptr 不应混用</span>
 
 ID_mixNullptrAndNULL&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style warning
 
 <hr/>
 
-NULL 和 nullptr 不应混用，应统一使用 nullptr。  
+在 C\+\+ 代码中 NULL 和 nullptr 不应混用，应统一使用 nullptr。  
   
 示例：
 ```
-void foo(int* a = NULL, int* b = nullptr);     // Non-compliant
-void bar(int* a = nullptr, int* b = nullptr);  // Compliant
+void foo(int* a = NULL, int* b = nullptr);    // Non-compliant
+void bar(int* a = nullptr, int* b = nullptr);    // Compliant
 ```
 <br/>
 <br/>

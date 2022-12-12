@@ -3005,9 +3005,9 @@
         "tag": "declaration"
         },
     "ID_mixNullptrAndNULL": {
-        "checkPoint": "NULL 和 nullptr 不应混用",
+        "checkPoint": "在 C++ 代码中 NULL 和 nullptr 不应混用",
         "level": "warning",
-        "comment": "NULL 和 nullptr 不应混用，应统一使用 nullptr。",
+        "comment": "在 C++ 代码中 NULL 和 nullptr 不应混用，应统一使用 nullptr。",
         "tag": "style",
         "related": "ID_deprecatedNULL",
         "reference": "C++ Core Guidelines ES.47"
@@ -3052,20 +3052,20 @@
         "related": "ID_bufferOverflow",
         "reference": "CWE-131,CWE-135"
         },
-    "ID_incDecAsSubExpression": {
-        "checkPoint": "自增、自减表达式不应作为子表达式",
-        "level": "suggestion",
-        "comment": "自增、自减表达式作为子表达式增加了复杂性，且容易产生求值顺序相关的问题。",
-        "tag": "style",
-        "related": "ID_evaluationOrderReliance",
-        "reference": "MISRA C 2012 13.3,MISRA C++ 2008 5-2-10"
-        },
     "ID_assignmentAsSubExpression": {
         "checkPoint": "赋值表达式不应作为子表达式",
         "level": "suggestion",
-        "comment": "赋值表达式作为子表达式增加了复杂性，且容易产生优先级相关的问题。",
+        "comment": "赋值表达式作为子表达式会使人费解，也易产生优先级相关的问题。",
         "tag": "style",
         "reference": "CWE-481,MISRA C 2004 13.1,MISRA C 2012 13.4,MISRA C++ 2008 6-2-1"
+        },
+    "ID_incDecAsSubExpression": {
+        "checkPoint": "自增、自减表达式不应作为子表达式",
+        "level": "suggestion",
+        "comment": "自增、自减表达式作为子表达式会使人费解，也易产生求值顺序相关的问题。",
+        "tag": "style",
+        "related": "ID_evaluationOrderReliance",
+        "reference": "MISRA C 2012 13.3,MISRA C++ 2008 5-2-10"
         },
     "ID_nonBoolCondition": {
         "checkPoint": "控制条件应为 bool 型表达式",
