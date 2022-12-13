@@ -257,7 +257,6 @@
     - [R6.4.6 局部数组的长度不应过大](#unsuitablearraysize)
     - [R6.4.7 不建议将类型定义和对象声明写在一个语句中](#mixedtypeobjdefinition)
     - [R6.4.8 不应将函数或函数指针和其他声明写在同一个语句中](#mixeddeclarations)
-    - [R6.4.9 在一个语句中不应声明过多对象或函数](#toomanydeclarators)
   - [6.5 Object](#declaration.object)
     - [R6.5.1 不应产生无效的临时对象](#inaccessibletmpobject)
     - [R6.5.2 不应存在没有被用到的局部声明](#invalidlocaldeclaration)
@@ -291,8 +290,9 @@
     - [R6.8.4 不应对枚举变量声明位域](#forbidenumbitfield)
     - [R6.8.5 禁用位域](#forbidbitfield)
   - [6.9 Complexity](#declaration.complexity)
-    - [R6.9.1 声明中不应包含过多的指针嵌套](#toomanyptrlevel)
-    - [R6.9.2 不建议采用复杂的声明](#complexdeclaration)
+    - [R6.9.1 不建议采用复杂的声明](#complexdeclaration)
+    - [R6.9.2 声明中不应包含过多的指针嵌套](#toomanyptrlevel)
+    - [R6.9.3 在一个语句中不应声明过多对象或函数](#toomanydeclarators)
   - [6.10 Other](#declaration.other)
     - [R6.10.1 不应违反 One Definition Rule](#violateodr)
     - [R6.10.2 不应存在没有被用到的标签](#labelnotused)
@@ -5826,7 +5826,7 @@ ID_duplicatedTypedef&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-用 typedef 或 C\+\+ 的 using 定义的类型别名如果有重复，极易引起误解，不利于维护。  
+如果类型别名有重复，极易引起误解，不利于维护。  
   
 示例：
 ```
@@ -6984,32 +6984,6 @@ C++ Core Guidelines ES.10
 <br/>
 <br/>
 
-### <span id="toomanydeclarators">▌R6.4.9 在一个语句中不应声明过多对象或函数</span>
-
-ID_tooManyDeclarators&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
-
-<hr/>
-
-在一个语句中不应声明过多对象或函数，建议在每个语句中只声明一个对象或函数，提高可读性也可减少笔误。  
-  
-示例：
-```
-int* a, b[8], c, d(int), e = 0;  // Bad
-```
-例中只有 a 是指针，也只有 e 被初始化，d 为函数，应分开声明。
-<br/>
-<br/>
-
-#### 配置
-maxDeclaratorCount：一个声明语句能包含的对象个数上限，超过则报出  
-<br/>
-
-#### 参考
-C++ Core Guidelines ES.10  
-MISRA C++ 2008 8-0-1  
-<br/>
-<br/>
-
 ### <span id="declaration.object">6.5 Object</span>
 
 ### <span id="inaccessibletmpobject">▌R6.5.1 不应产生无效的临时对象</span>
@@ -7975,10 +7949,12 @@ ID_improperBitfieldType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-位域的类型应具有明确符号和长度，只应采用如下类型：  
- - 显式声明 signed 或 unsigned 的整数类型  
+位域的类型应具有明确的符号和长度等属性，如：  
+ - 显式声明 signed 或 unsigned，且各种实现中长度均一致的整数类型  
  - stdint.h 中定义的整数类型  
  - bool 或 \_Bool   
+  
+否则会失去可移植性。  
   
 示例：
 ```
@@ -7989,9 +7965,9 @@ struct A
     uint32_t a: 2;      // Compliant
     unsigned int b: 2;  // Compliant
 
-    char c: 2;    // Non-compliant, missing signed or unsigned
-    int d: 2;     // Non-compliant, use int32_t or signed int instead
-    long e: 2;    // Non-compliant, use int64_t instead
+    char c: 4;     // Non-compliant, missing signed or unsigned
+    int d: 12;     // Non-compliant, use int32_t or signed int instead
+    long e: 36;    // Non-compliant, use int64_t instead
 };
 ```
 <br/>
@@ -8103,6 +8079,7 @@ int main() {
 
 #### 相关
 ID_singleSignedBitfield  
+ID_improperBitfieldType  
 <br/>
 
 #### 参考
@@ -8151,34 +8128,7 @@ ISO/IEC 14882:2017 12.2.4(3)
 
 ### <span id="declaration.complexity">6.9 Complexity</span>
 
-### <span id="toomanyptrlevel">▌R6.9.1 声明中不应包含过多的指针嵌套</span>
-
-ID_tooManyPtrLevel&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
-
-<hr/>
-
-指针嵌套层级过多意味着指针的解引用逻辑过于复杂，相关代码将难以理解，建议指针嵌套不超过 2 级。  
-  
-示例：
-```
-T *** x;   // Bad
-T * volatile * * const * y;   // Horrible
-```
-例中 T 为任意类型，如果发现这种指针，意味着需要改进对相关数据的访问方式。
-<br/>
-<br/>
-
-#### 配置
-maxPtrLevel：指针嵌套的最大层级，超过则报出  
-<br/>
-
-#### 参考
-MISRA C 2004 17.5  
-MISRA C 2012 18.5  
-<br/>
-<br/>
-
-### <span id="complexdeclaration">▌R6.9.2 不建议采用复杂的声明</span>
+### <span id="complexdeclaration">▌R6.9.1 不建议采用复杂的声明</span>
 
 ID_complexDeclaration&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -8209,6 +8159,59 @@ funptr foo(int);    // Good
 arrptr foo(char);   // Good
 ```
 <br/>
+<br/>
+<br/>
+
+### <span id="toomanyptrlevel">▌R6.9.2 声明中不应包含过多的指针嵌套</span>
+
+ID_tooManyPtrLevel&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
+
+<hr/>
+
+指针嵌套层级过多意味着指针的解引用逻辑过于复杂，相关代码将难以理解，建议指针嵌套不超过 2 级。  
+  
+示例：
+```
+T *** x;   // Bad
+T * volatile * * const * y;   // Horrible
+```
+例中 T 为任意类型，如果发现这种指针，意味着需要改进对相关数据的访问方式。
+<br/>
+<br/>
+
+#### 配置
+maxPtrLevel：指针嵌套的最大层级，超过则报出  
+<br/>
+
+#### 参考
+MISRA C 2004 17.5  
+MISRA C 2012 18.5  
+<br/>
+<br/>
+
+### <span id="toomanydeclarators">▌R6.9.3 在一个语句中不应声明过多对象或函数</span>
+
+ID_tooManyDeclarators&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
+
+<hr/>
+
+在一个语句中不应声明过多对象或函数，建议在每个语句中只声明一个对象或函数，提高可读性也可减少笔误。  
+  
+示例：
+```
+int* a, b[8], c, d(int), e = 0;  // Bad
+```
+例中只有 a 是指针，也只有 e 被初始化，d 为函数，应分开声明。
+<br/>
+<br/>
+
+#### 配置
+maxDeclaratorCount：一个声明语句能包含的对象个数上限，超过则报出  
+<br/>
+
+#### 参考
+C++ Core Guidelines ES.10  
+MISRA C++ 2008 8-0-1  
 <br/>
 <br/>
 
@@ -18805,14 +18808,15 @@ ID_assignmentAsSubExpression&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style sug
   
 赋值及复合赋值表达式均受本规则约束。  
   
-示例：
+示例（设 a、b、c 为整型变量）：
 ```
-int a, b = foo();
+a = b;              // Compliant
+a = b = c;          // Non-compliant
 if (a = b != 0) {   // Non-compliant
-    ....
+    //....
 }
-int c = bar();
-return a += b += c;   // Non-compliant
+a += b;             // Compliant
+a += b += c;        // Non-compliant
 ```
 <br/>
 <br/>
@@ -18961,7 +18965,7 @@ ID_nonPostfixSubCondition&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style sugges
 后缀表达式（postfix\-expression）是 C/C\+\+ 语言的文法符号，也是一类表达式的总称：  
  - 只包含标识符或常量的表达式  
  - 用小括号括起来的表达式  
- - 用于数组元素求值的 \[\] 表达式  
+ - 用于数组元素求值的 \[ \] 表达式  
  - 函数调用、函数式类型转换表达式  
  - .、\-> 表达式  
  - 后置 \+\+、\-\- 表达式  

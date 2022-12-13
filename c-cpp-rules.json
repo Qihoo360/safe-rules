@@ -890,7 +890,7 @@
         "level": "warning",
         "comment": "枚举变量的类型可以是有符号整数，符号位与位域结合易导致意料之外的错误，且不利于枚举类型的扩展。",
         "tag": "declaration",
-        "related": "ID_singleSignedBitfield",
+        "related": "ID_singleSignedBitfield,ID_improperBitfieldType",
         "reference": "MISRA C++ 2008 9-6-3"
         },
     "ID_forbidFlexibleArray": {
@@ -914,7 +914,7 @@
     "ID_improperBitfieldType": {
         "checkPoint": "对位域声明准确的类型",
         "level": "warning",
-        "comment": "位域的类型应具有明确符号和长度。",
+        "comment": "位域的类型应具有明确的符号和长度等属性，否则会失去可移植性。",
         "tag": "declaration",
         "reference": "MISRA C 2004 6.4,MISRA C 2012 6.1,MISRA C++ 2008 9-6-2"
         },
@@ -3011,7 +3011,7 @@
     "ID_duplicatedTypedef": {
         "checkPoint": "类型别名不应重复定义",
         "level": "suggestion",
-        "comment": "用 typedef 或 C++ 的 using 定义的类型别名如果有重复，极易引起误解，不利于维护。",
+        "comment": "如果类型别名有重复，极易引起误解，不利于维护。",
         "tag": "declaration",
         "reference": "MISRA C 2004 5.3,MISRA C 2012 5.6,MISRA C++ 2008 2-10-3"
         },
