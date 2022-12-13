@@ -4,7 +4,7 @@
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对 C、C++ 语言，本文收录了 449 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对 C、C++ 语言，本文收录了 452 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
@@ -224,8 +224,9 @@
     - [R6.1.3 局部名称不应被覆盖](#hidelocal)
     - [R6.1.4 成员名称不应被覆盖](#hidemember)
     - [R6.1.5 全局及命名空间内的名称不应被覆盖](#hideglobal)
-    - [R6.1.6 类型名称不应与对象或函数名称相同](#duplicatedname)
-    - [R6.1.7 不应存在拼写错误](#misspelling)
+    - [R6.1.6 类型别名不应重复定义](#duplicatedtypedef)
+    - [R6.1.7 类型名称不应与对象或函数名称相同](#duplicatedname)
+    - [R6.1.8 不应存在拼写错误](#misspelling)
   - [6.2 Qualifier](#declaration.qualifier)
     - [R6.2.1 const、volatile 不应重复](#qualifierrepeated)
     - [R6.2.2 const、volatile 修饰指针类型的别名是可疑的](#qualifierforptralias)
@@ -284,12 +285,14 @@
     - [R6.7.9 比较运算符不应为虚函数](#virtualcomparison)
     - [R6.7.10 final 类中不应声明虚函数](#virtualinfinal)
   - [6.8 Bitfield](#declaration.bitfield)
-    - [R6.8.1 位域长度不应超过类型约定的大小](#exceededbitfield)
-    - [R6.8.2 有符号变量的位域长度不应为 1](#singlesignedbitfield)
-    - [R6.8.3 不应对枚举变量声明位域](#forbidenumbitfield)
-    - [R6.8.4 禁用位域](#forbidbitfield)
+    - [R6.8.1 对位域声明准确的类型](#improperbitfieldtype)
+    - [R6.8.2 位域长度不应超过类型约定的大小](#exceededbitfield)
+    - [R6.8.3 有符号变量的位域长度不应为 1](#singlesignedbitfield)
+    - [R6.8.4 不应对枚举变量声明位域](#forbidenumbitfield)
+    - [R6.8.5 禁用位域](#forbidbitfield)
   - [6.9 Complexity](#declaration.complexity)
-    - [R6.9.1 不建议采用复杂的声明](#complexdeclaration)
+    - [R6.9.1 声明中不应包含过多的指针嵌套](#toomanyptrlevel)
+    - [R6.9.2 不建议采用复杂的声明](#complexdeclaration)
   - [6.10 Other](#declaration.other)
     - [R6.10.1 不应违反 One Definition Rule](#violateodr)
     - [R6.10.2 不应存在没有被用到的标签](#labelnotused)
@@ -5817,7 +5820,50 @@ MISRA C++ 2008 2-10-2
 <br/>
 <br/>
 
-### <span id="duplicatedname">▌R6.1.6 类型名称不应与对象或函数名称相同</span>
+### <span id="duplicatedtypedef">▌R6.1.6 类型别名不应重复定义</span>
+
+ID_duplicatedTypedef&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
+
+<hr/>
+
+用 typedef 或 C\+\+ 的 using 定义的类型别名如果有重复，极易引起误解，不利于维护。  
+  
+示例：
+```
+typedef double A;
+
+void foo() {
+    typedef float A;   // Non-compliant
+    typedef short B;
+    ....
+}
+
+void bar() {
+    typedef short B;   // Non-compliant, even if they are identical
+    ....
+}
+```
+例外：
+```
+namespace N {
+    typedef double A;
+}
+namespace M {
+    typedef float A;   // Compliant
+}
+```
+如果类型别名处于不同的命名空间，可不受本规则约束。
+<br/>
+<br/>
+
+#### 参考
+MISRA C 2004 5.3  
+MISRA C 2012 5.6  
+MISRA C++ 2008 2-10-3  
+<br/>
+<br/>
+
+### <span id="duplicatedname">▌R6.1.7 类型名称不应与对象或函数名称相同</span>
 
 ID_duplicatedName&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -5846,7 +5892,7 @@ MISRA C++ 2008 2-10-6
 <br/>
 <br/>
 
-### <span id="misspelling">▌R6.1.7 不应存在拼写错误</span>
+### <span id="misspelling">▌R6.1.8 不应存在拼写错误</span>
 
 ID_misspelling&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -7923,7 +7969,42 @@ ISO/IEC 9899:2011 9(3)
 
 ### <span id="declaration.bitfield">6.8 Bitfield</span>
 
-### <span id="exceededbitfield">▌R6.8.1 位域长度不应超过类型约定的大小</span>
+### <span id="improperbitfieldtype">▌R6.8.1 对位域声明准确的类型</span>
+
+ID_improperBitfieldType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
+
+<hr/>
+
+位域的类型应具有明确符号和长度，只应采用如下类型：  
+ - 显式声明 signed 或 unsigned 的整数类型  
+ - stdint.h 中定义的整数类型  
+ - bool 或 \_Bool   
+  
+示例：
+```
+#include <stdint.h>
+
+struct A
+{
+    uint32_t a: 2;      // Compliant
+    unsigned int b: 2;  // Compliant
+
+    char c: 2;    // Non-compliant, missing signed or unsigned
+    int d: 2;     // Non-compliant, use int32_t or signed int instead
+    long e: 2;    // Non-compliant, use int64_t instead
+};
+```
+<br/>
+<br/>
+
+#### 参考
+MISRA C 2004 6.4  
+MISRA C 2012 6.1  
+MISRA C++ 2008 9-6-2  
+<br/>
+<br/>
+
+### <span id="exceededbitfield">▌R6.8.2 位域长度不应超过类型约定的大小</span>
 
 ID_exceededBitfield&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
@@ -7954,7 +8035,7 @@ ISO/IEC 14882:2011 9.6(1)
 <br/>
 <br/>
 
-### <span id="singlesignedbitfield">▌R6.8.2 有符号变量的位域长度不应为 1</span>
+### <span id="singlesignedbitfield">▌R6.8.3 有符号变量的位域长度不应为 1</span>
 
 ID_singleSignedBitfield&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
@@ -7988,7 +8069,7 @@ MISRA C++ 2008 9-6-4
 <br/>
 <br/>
 
-### <span id="forbidenumbitfield">▌R6.8.3 不应对枚举变量声明位域</span>
+### <span id="forbidenumbitfield">▌R6.8.4 不应对枚举变量声明位域</span>
 
 ID_forbidEnumBitfield&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration warning
 
@@ -8029,7 +8110,7 @@ MISRA C++ 2008 9-6-3
 <br/>
 <br/>
 
-### <span id="forbidbitfield">▌R6.8.4 禁用位域</span>
+### <span id="forbidbitfield">▌R6.8.5 禁用位域</span>
 
 ID_forbidBitfield&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration suggestion
 
@@ -8070,7 +8151,34 @@ ISO/IEC 14882:2017 12.2.4(3)
 
 ### <span id="declaration.complexity">6.9 Complexity</span>
 
-### <span id="complexdeclaration">▌R6.9.1 不建议采用复杂的声明</span>
+### <span id="toomanyptrlevel">▌R6.9.1 声明中不应包含过多的指针嵌套</span>
+
+ID_tooManyPtrLevel&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
+
+<hr/>
+
+指针嵌套层级过多意味着指针的解引用逻辑过于复杂，相关代码将难以理解，建议指针嵌套不超过 2 级。  
+  
+示例：
+```
+T *** x;   // Bad
+T * volatile * * const * y;   // Horrible
+```
+例中 T 为任意类型，如果发现这种指针，意味着需要改进对相关数据的访问方式。
+<br/>
+<br/>
+
+#### 配置
+maxPtrLevel：指针嵌套的最大层级，超过则报出  
+<br/>
+
+#### 参考
+MISRA C 2004 17.5  
+MISRA C 2012 18.5  
+<br/>
+<br/>
+
+### <span id="complexdeclaration">▌R6.9.2 不建议采用复杂的声明</span>
 
 ID_complexDeclaration&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -8100,12 +8208,6 @@ typedef int(*arrptr)[123];
 funptr foo(int);    // Good
 arrptr foo(char);   // Good
 ```
-另外，指针的星号个数不宜超过两个，否则意味着指针的解引用逻辑过于复杂，如：
-```
-T *** x;   // Bad
-T * volatile * * const * y;   // Horrible
-```
-其中 T 为任意类型，如果发现这种指针，意味着需要改进对相关数据的访问方式。
 <br/>
 <br/>
 <br/>
@@ -18699,7 +18801,7 @@ ID_assignmentAsSubExpression&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style sug
 
 <hr/>
 
-赋值表达式作为子表达式会使人费解，也易产生优先级相关的问题。  
+赋值表达式作为子表达式易使人费解，也易产生优先级相关的问题。  
   
 赋值及复合赋值表达式均受本规则约束。  
   
@@ -18729,7 +18831,7 @@ ID_incDecAsSubExpression&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style suggest
 
 <hr/>
 
-自增、自减表达式作为子表达式使人费解，也易产生求值顺序相关的问题。  
+自增、自减表达式作为子表达式易使人费解，也易产生求值顺序相关的问题。  
   
 示例：
 ```
@@ -18858,8 +18960,8 @@ ID_nonPostfixSubCondition&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style sugges
   
 后缀表达式（postfix\-expression）是 C/C\+\+ 语言的文法符号，也是一类表达式的总称：  
  - 只包含标识符或常量的表达式  
- - 用括号括起来的表达式  
- - 数组取值表达式  
+ - 用小括号括起来的表达式  
+ - 用于数组元素求值的 \[\] 表达式  
  - 函数调用、函数式类型转换表达式  
  - .、\-> 表达式  
  - 后置 \+\+、\-\- 表达式  
@@ -19004,7 +19106,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 449 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
+&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 452 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
 
 &emsp;&emsp;此致
 

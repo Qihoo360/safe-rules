@@ -695,6 +695,16 @@
         "comment": "复杂的声明可读性较差，容易造成理解上的偏差。",
         "tag": "declaration"
         },
+    "ID_tooManyPtrLevel": {
+        "checkPoint": "声明中不应包含过多的指针嵌套",
+        "level": "suggestion",
+        "comment": "指针嵌套层级过多意味着指针的解引用逻辑过于复杂，相关代码将难以理解，建议指针嵌套不超过 2 级。",
+        "tag": "declaration",
+        "config": {
+            "maxPtrLevel": "指针嵌套的最大层级，超过则报出"
+            },
+        "reference": "MISRA C 2004 17.5,MISRA C 2012 18.5"
+        },
     "ID_staticNotUsed": {
         "checkPoint": "不应存在没有被用到的静态声明",
         "level": "warning",
@@ -900,6 +910,13 @@
             },
         "tag": "declaration",
         "reference": "CWE-770,SEI CERT MEM05-C"
+        },
+    "ID_improperBitfieldType": {
+        "checkPoint": "对位域声明准确的类型",
+        "level": "warning",
+        "comment": "位域的类型应具有明确符号和长度。",
+        "tag": "declaration",
+        "reference": "MISRA C 2004 6.4,MISRA C 2012 6.1,MISRA C++ 2008 9-6-2"
         },
     "ID_exceededBitfield": {
         "checkPoint": "位域长度不应超过类型约定的大小",
@@ -2991,6 +3008,13 @@
         "standard": "ISO/IEC 9899:2011 7.1.3(1)",
         "reference": "SEI CERT DCL37-C,SEI CERT DCL51-CPP,MISRA C 2012 21.2,MISRA C++ 2008 17-0-1,MISRA C++ 2008 17-0-2,MISRA C++ 2008 17-0-3"
         },
+    "ID_duplicatedTypedef": {
+        "checkPoint": "类型别名不应重复定义",
+        "level": "suggestion",
+        "comment": "用 typedef 或 C++ 的 using 定义的类型别名如果有重复，极易引起误解，不利于维护。",
+        "tag": "declaration",
+        "reference": "MISRA C 2004 5.3,MISRA C 2012 5.6,MISRA C++ 2008 2-10-3"
+        },
     "ID_duplicatedName": {
         "checkPoint": "类型名称不应与对象或函数名称相同",
         "level": "suggestion",
@@ -3055,14 +3079,14 @@
     "ID_assignmentAsSubExpression": {
         "checkPoint": "赋值表达式不应作为子表达式",
         "level": "suggestion",
-        "comment": "赋值表达式作为子表达式会使人费解，也易产生优先级相关的问题。",
+        "comment": "赋值表达式作为子表达式易使人费解，也易产生优先级相关的问题。",
         "tag": "style",
         "reference": "CWE-481,MISRA C 2004 13.1,MISRA C 2012 13.4,MISRA C++ 2008 6-2-1"
         },
     "ID_incDecAsSubExpression": {
         "checkPoint": "自增、自减表达式不应作为子表达式",
         "level": "suggestion",
-        "comment": "自增、自减表达式作为子表达式会使人费解，也易产生求值顺序相关的问题。",
+        "comment": "自增、自减表达式作为子表达式易使人费解，也易产生求值顺序相关的问题。",
         "tag": "style",
         "related": "ID_evaluationOrderReliance",
         "reference": "MISRA C 2012 13.3,MISRA C++ 2008 5-2-10"
