@@ -223,7 +223,7 @@
     - [R6.1.2 不应定义具有保留意义的名称](#reservedname)
     - [R6.1.3 局部名称不应被覆盖](#hidelocal)
     - [R6.1.4 成员名称不应被覆盖](#hidemember)
-    - [R6.1.5 全局及命名空间内的名称不应被覆盖](#hideglobal)
+    - [R6.1.5 全局名称不应被覆盖](#hideglobal)
     - [R6.1.6 类型别名不应重复定义](#duplicatedtypedef)
     - [R6.1.7 类型名称不应与对象或函数名称相同](#duplicatedname)
     - [R6.1.8 不应存在拼写错误](#misspelling)
@@ -5782,7 +5782,7 @@ MISRA C++ 2008 2-10-2
 <br/>
 <br/>
 
-### <span id="hideglobal">▌R6.1.5 全局及命名空间内的名称不应被覆盖</span>
+### <span id="hideglobal">▌R6.1.5 全局名称不应被覆盖</span>
 
 ID_hideGlobal&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
@@ -5808,7 +5808,15 @@ public:
     ....
 };
 ```
-建议全局对象遵循统一的命名约定，如以“g\_”开头，且名称长度不宜过短，可有效规避这类问题。
+建议全局对象遵循统一的命名约定，如以“g\_”开头，且名称长度不宜过短，可有效规避这类问题。  
+  
+例外：
+```
+struct S {
+    int i;   // Compliant
+};
+```
+无成员函数的结构体或联合体成员可不受本规则限制。
 <br/>
 <br/>
 
@@ -5881,7 +5889,7 @@ enum {
     A, B, C   // Non-compliant
 };
 
-size_t x = sizeof(A);   // What is ‘A’?
+size_t x = sizeof(A);   // Which ‘A’?
 ```
 例中类名 A 与枚举项 A 重名，sizeof(A) 的意义是非常令人困惑的。
 <br/>
@@ -8180,7 +8188,7 @@ T * volatile * * const * y;   // Horrible
 <br/>
 
 #### 配置
-maxPtrLevel：指针嵌套的最大层级，超过则报出  
+maxPtrLevel：指针嵌套的最大层数，超过则报出  
 <br/>
 
 #### 参考
@@ -8206,7 +8214,7 @@ int* a, b[8], c, d(int), e = 0;  // Bad
 <br/>
 
 #### 配置
-maxDeclaratorCount：一个声明语句能包含的对象个数上限，超过则报出  
+maxDeclaratorCount：一个声明语句能包含的对象或函数个数上限，超过则报出  
 <br/>
 
 #### 参考
@@ -13694,7 +13702,7 @@ int x = pop() - pop();  // Non-compliant
 ```
 int a = pop();
 int b = pop();
-x = a - b;      // Compliant, or ‘b – a’, depends on your needs
+x = a - b;      // Compliant, or ‘b - a’, depends on your needs
 ```
 这样便确定是栈项的第一个元素减第二个元素。  
   
@@ -15730,7 +15738,7 @@ int& j = *new int(10);        // Non-compliant
 delete &j;                    // Very odd
 
 char* p = new char[10] + 5;   // Non-compliant
-delete[] p – 5;               // Very odd
+delete[] p - 5;               // Very odd
 
 if (new int[10]) {            // Non-compliant, memory leak
     ....

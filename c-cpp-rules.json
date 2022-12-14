@@ -701,7 +701,7 @@
         "comment": "指针嵌套层级过多意味着指针的解引用逻辑过于复杂，相关代码将难以理解，建议指针嵌套不超过 2 级。",
         "tag": "declaration",
         "config": {
-            "maxPtrLevel": "指针嵌套的最大层级，超过则报出"
+            "maxPtrLevel": "指针嵌套的最大层数，超过则报出"
             },
         "reference": "MISRA C 2004 17.5,MISRA C 2012 18.5"
         },
@@ -756,7 +756,7 @@
         "level": "suggestion",
         "comment": "在一个语句中不应声明过多对象或函数，建议在每个语句中只声明一个对象或函数，提高可读性也可减少笔误。",
         "config": {
-            "maxDeclaratorCount": "一个声明语句能包含的对象个数上限，超过则报出"
+            "maxDeclaratorCount": "一个声明语句能包含的对象或函数个数上限，超过则报出"
             },
         "tag": "declaration",
         "reference": "C++ Core Guidelines ES.10,MISRA C++ 2008 8-0-1"
@@ -799,7 +799,7 @@
         "reference": "CWE-1109,MISRA C 2004 5.2,MISRA C 2012 5.3,MISRA C++ 2008 2-10-2"
         },
     "ID_hideGlobal": {
-        "checkPoint": "全局及命名空间内的名称不应被覆盖",
+        "checkPoint": "全局名称不应被覆盖",
         "level": "warning",
         "comment": "局部、成员名称不应与全局或命名空间内的名称相同，否则干扰阅读，易产生误解。",
         "tag": "declaration",
