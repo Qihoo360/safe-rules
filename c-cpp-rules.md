@@ -256,7 +256,7 @@
     - [R6.4.3 禁用柔性数组](#forbidflexiblearray)
     - [R6.4.4 接口的参数或返回值不应被声明为 void\*](#forbidfunctionvoidptr)
     - [R6.4.5 类成员不应被声明为 void\*](#forbidmembervoidptr)
-    - [R6.4.6 数组大小应被显式声明，或由初始化列表定义](#missingarraysize)
+    - [R6.4.6 数组大小应被显式声明](#missingarraysize)
     - [R6.4.7 局部数组的长度不应过大](#unsuitablearraysize)
     - [R6.4.8 不建议将类型定义和对象声明写在一个语句中](#mixedtypeobjdefinition)
     - [R6.4.9 不应将函数或函数指针和其他声明写在同一个语句中](#mixeddeclarations)
@@ -301,7 +301,7 @@
     - [R6.10.2 不应存在没有被用到的标签](#labelnotused)
     - [R6.10.3 不应存在没有被用到的静态声明](#staticnotused)
     - [R6.10.4 不应存在没有被用到的 private 成员](#privatenotused)
-    - [R6.10.5 应显式声明对象或函数的类型](#missingtype)
+    - [R6.10.5 不应省略声明对象或函数的类型](#missingtype)
     - [R6.10.6 用 stdint.h 中的类型代替 short、long 等类型](#unportabletype)
     - [R6.10.7 避免使用 std::auto\_ptr](#deprecatedautoptr)
 <br/>
@@ -6984,14 +6984,38 @@ C++ Core Guidelines I.4
 <br/>
 <br/>
 
-### <span id="missingarraysize">▌R6.4.6 数组大小应被显式声明，或由初始化列表定义</span>
+### <span id="missingarraysize">▌R6.4.6 数组大小应被显式声明</span>
 
 ID_missingArraySize&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-数组大小应被显式声明，或由初始化列表定义。
+显式声明数组大小可明显提高可读性。  
+  
+示例：
+```
+int a[100];   // Compliant
+extern int a[];   // Non-compliant
+extern int b[100];   // Compliant
+```
+由初始化列表定义数组大小是一种惯用方式，但列表较为复杂时不便于读出数组大小，如：
+```
+int a[] = {
+    1, 2, 3, ....   // Many items, let it go?
+};
+```
+审计工具不妨通过配置决定这种方式是否合规。  
+  
+例外：
+```
+void foo(int a[], int n);   // Let it go
+```
+数组参数可不受本规则限制。
 <br/>
+<br/>
+
+#### 配置
+allowArrayWithInitList：为 true 时可以放过带有初始化列表的数组  
 <br/>
 
 #### 参考
@@ -8482,7 +8506,7 @@ MISRA C++ 2008 0-1-10
 <br/>
 <br/>
 
-### <span id="missingtype">▌R6.10.5 应显式声明对象或函数的类型</span>
+### <span id="missingtype">▌R6.10.5 不应省略声明对象或函数的类型</span>
 
 ID_missingType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
@@ -8490,19 +8514,21 @@ ID_missingType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 C90 允许省略对象或函数的类型声明，但实践表明这并不是一种好的编程方式，可读性较差。  
   
-本规则仅对 C 代码有效，C\+\+ 代码不必考虑本规则。  
+本规则仅对 C 代码有效。  
   
 示例：
 ```
-extern a;       // Non-compliant
-const b;        // Non-compliant
-fun(void);      // Non-compliant
+extern a;        // Non-compliant
+const b;         // Non-compliant
+fun(void);       // Non-compliant
+typedef tp;      // Non-compliant
 ```
-例中 a、b、fun 的类型被省略，默认为 int 型，应改为：
+例中 a、b、fun、tp 的类型被省略，默认为 int 型，应改为：
 ```
-extern int a;   // Compliant
-const int b;    // Compliant
-int fun(void);  // Compliant
+extern int a;    // Compliant
+const int b;     // Compliant
+int fun(void);   // Compliant
+typedef int tp;  // Compliant
 ```
 <br/>
 <br/>
@@ -8520,7 +8546,24 @@ ID_unportableType&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 <hr/>
 
 short、long 等类型的具体长度和符号等属性由实现定义，可移植性较差。  
-C/C\+\+ 的基本类型均有此问题，有高可移植性要求的代码应禁止直接使用基本类型。
+  
+示例：
+```
+struct T {
+    long x;        // Non-compliant
+    long long y;   // Non-compliant
+    short z;       // Non-compliant
+};
+```
+应改为：
+```
+struct T {
+    int32_t x;   // Compliant
+    int64_t y;   // Compliant
+    int16_t z;   // Compliant
+};
+```
+另外，int、char、wchar\_t 等基本类型均有此问题，在有高可移植性要求的代码中应避免直接使用基本类型。
 <br/>
 <br/>
 

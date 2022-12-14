@@ -3579,17 +3579,20 @@
         "standard": "ISO/IEC 14882:2003 16.3(2 3),ISO/IEC 9899:2011 6.10.3(2)"
         },
     "ID_missingType": {
-        "checkPoint": "应显式声明对象或函数的类型",
+        "checkPoint": "不应省略声明对象或函数的类型",
         "level": "warning",
         "comment": "C90 允许省略对象或函数的类型声明，但实践表明这并不是一种好的编程方式，可读性较差。",
         "tag": "declaration",
         "reference": "MISRA C 2004 8.2,MISRA C 2012 8.1"
         },
     "ID_missingArraySize": {
-        "checkPoint": "数组大小应被显式声明，或由初始化列表定义",
+        "checkPoint": "数组大小应被显式声明",
         "level": "suggestion",
-        "comment": "数组大小应被显式声明，或由初始化列表定义。",
+        "comment": "显式声明数组大小可明显提高可读性。",
         "tag": "declaration",
+        "config": {
+            "allowArrayWithInitList": "为 true 时可以放过带有初始化列表的数组"
+            },
         "reference": "MISRA C 2004 8.12,MISRA C 2012 8.11,MISRA C++ 2008 3-1-3"
         },
     "ID_unportableType": {
