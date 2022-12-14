@@ -287,7 +287,7 @@
     - [R6.7.9 比较运算符不应为虚函数](#virtualcomparison)
     - [R6.7.10 final 类中不应声明虚函数](#virtualinfinal)
   - [6.8 Bitfield](#declaration.bitfield)
-    - [R6.8.1 对位域声明准确的类型](#improperbitfieldtype)
+    - [R6.8.1 对位域声明合理的类型](#improperbitfieldtype)
     - [R6.8.2 位域长度不应超过类型约定的大小](#exceededbitfield)
     - [R6.8.3 有符号变量的位域长度不应为 1](#singlesignedbitfield)
     - [R6.8.4 不应对枚举变量声明位域](#forbidenumbitfield)
@@ -302,7 +302,7 @@
     - [R6.10.3 不应存在没有被用到的静态声明](#staticnotused)
     - [R6.10.4 不应存在没有被用到的 private 成员](#privatenotused)
     - [R6.10.5 不应省略声明对象或函数的类型](#missingtype)
-    - [R6.10.6 用 stdint.h 中的类型代替 short、long 等类型](#unportabletype)
+    - [R6.10.6 用 stdint.h 中的类型代替 short、int、long 等类型](#unportabletype)
     - [R6.10.7 避免使用 std::auto\_ptr](#deprecatedautoptr)
 <br/>
 
@@ -5631,12 +5631,16 @@ ID_badName&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 ```
 namespace xxx   // Bad, meaningless name
 {
+    int l, I, O, l0, Il;   // Bad, like numbers
+
+    int YE5, N0;   // Bad, like a word but not
+
     void fun(int);   // Bad, vague
 
     const int nVarietyisthespiceoflife = 123;   // Bad, hard to read
 }
 ```
-例中 xxx、fun 这种无意义或过于空泛的名称是不符合要求的，名称中各单词间应有下划线或大小写变化，否则是不便于读写的。本规则集合示例中出现的 foo、bar 等名称，意在代指一般的代码元素，仅作示例，实际代码中不应出现。  
+例中 l、I、lI 这种易与数字混淆的名称是不符合要求的，xxx、fun 这种无意义或过于空泛的名称也是不符合要求的，而且名称中各单词间应有下划线或大小写变化，否则是不便于读写的。本规则集合示例中出现的 foo、bar 等名称，意在代指一般的代码元素，仅作示例，实际代码中不应出现。  
   
 不良命名方式甚至会导致标准未定义的行为，如：
 ```
@@ -5678,6 +5682,10 @@ C++ Core Guidelines NL.19
 C++ Core Guidelines ES.8  
 MISRA C 2004 5.1  
 MISRA C 2012 5.1  
+MISRA C 2012 5.2  
+MISRA C 2012 5.4  
+MISRA C 2012 5.5  
+MISRA C++ 2008 2-10-1  
 <br/>
 <br/>
 
@@ -6990,13 +6998,12 @@ ID_missingArraySize&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-显式声明数组大小可明显提高可读性。  
+显式声明数组大小可明显提高可读性，有利于规避错误。  
   
 示例：
 ```
-int a[100];   // Compliant
-extern int a[];   // Non-compliant
-extern int b[100];   // Compliant
+extern int a[];     // Non-compliant
+extern int b[10];   // Compliant
 ```
 由初始化列表定义数组大小是一种惯用方式，但列表较为复杂时不便于读出数组大小，如：
 ```
@@ -8087,18 +8094,16 @@ ISO/IEC 9899:2011 9(3)
 
 ### <span id="declaration.bitfield">6.8 Bitfield</span>
 
-### <span id="improperbitfieldtype">▌R6.8.1 对位域声明准确的类型</span>
+### <span id="improperbitfieldtype">▌R6.8.1 对位域声明合理的类型</span>
 
 ID_improperBitfieldType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-位域的类型应具有明确的符号和长度等属性，如：  
- - 显式声明 signed 或 unsigned，且各种实现中长度均一致的整数类型  
+位域的类型应具备可移植性，如：  
+ - 各种实现中取值范围均一致的整数类型  
  - stdint.h 中定义的整数类型  
- - bool 或 \_Bool   
-  
-否则会失去可移植性。  
+ - bool 或 \_Bool  
   
 示例：
 ```
@@ -8106,12 +8111,11 @@ ID_improperBitfieldType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 struct A
 {
-    uint32_t a: 2;      // Compliant
-    unsigned int b: 2;  // Compliant
+    uint32_t a: 2;       // Compliant
+    unsigned int b: 2;   // Compliant
 
-    char c: 4;     // Non-compliant, missing signed or unsigned
-    int d: 12;     // Non-compliant, use int32_t or signed int instead
-    long e: 36;    // Non-compliant, use int64_t instead
+    char c: 4;    // Non-compliant, missing signed or unsigned
+    long e: 36;   // Non-compliant, use int64_t instead
 };
 ```
 <br/>
@@ -8514,7 +8518,7 @@ ID_missingType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 C90 允许省略对象或函数的类型声明，但实践表明这并不是一种好的编程方式，可读性较差。  
   
-本规则仅对 C 代码有效。  
+本规则仅针对 C 语言，C\+\+ 语言不存在这种问题。  
   
 示例：
 ```
@@ -8539,36 +8543,40 @@ MISRA C 2012 8.1
 <br/>
 <br/>
 
-### <span id="unportabletype">▌R6.10.6 用 stdint.h 中的类型代替 short、long 等类型</span>
+### <span id="unportabletype">▌R6.10.6 用 stdint.h 中的类型代替 short、int、long 等类型</span>
 
 ID_unportableType&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-short、long 等类型的具体长度和符号等属性由实现定义，可移植性较差。  
+short、int、long 等类型的取值范围由执行环境的架构决定，可移植性较差。  
   
 示例：
 ```
 struct T {
-    long x;        // Non-compliant
+    long int x;    // Non-compliant
     long long y;   // Non-compliant
     short z;       // Non-compliant
 };
 ```
 应改为：
 ```
+#include <stdint.h>   // Or <cstdint> in C++
+
 struct T {
     int32_t x;   // Compliant
     int64_t y;   // Compliant
     int16_t z;   // Compliant
 };
 ```
-另外，int、char、wchar\_t 等基本类型均有此问题，在有高可移植性要求的代码中应避免直接使用基本类型。
+另外，char、wchar\_t 等基本类型均有此问题，在有高可移植性要求的代码中应避免直接使用基本类型。
 <br/>
 <br/>
 
 #### 依据
+ISO/IEC 9899:2011 6.2.5(5)  
 ISO/IEC 9899:2011 7.20  
+ISO/IEC 14882:2011 3.9.1(2)  
 <br/>
 
 #### 参考

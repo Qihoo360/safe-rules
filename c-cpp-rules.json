@@ -912,9 +912,9 @@
         "reference": "CWE-770,SEI CERT MEM05-C"
         },
     "ID_improperBitfieldType": {
-        "checkPoint": "对位域声明准确的类型",
+        "checkPoint": "对位域声明合理的类型",
         "level": "warning",
-        "comment": "位域的类型应具有明确的符号和长度等属性，否则会失去可移植性。",
+        "comment": "位域的类型应具备可移植性。",
         "tag": "declaration",
         "reference": "MISRA C 2004 6.4,MISRA C 2012 6.1,MISRA C++ 2008 9-6-2"
         },
@@ -2997,7 +2997,7 @@
             },
         "tag": "declaration",
         "standard": "ISO/IEC 9899:1999 5.2.4.1(1),ISO/IEC 9899:1999 6.4.2.1(6)-undefined,ISO/IEC 9899:2011 5.2.4.1(1),ISO/IEC 9899:2011 6.4.2.1(6)-undefined",
-        "reference": "C++ Core Guidelines NL.19,C++ Core Guidelines ES.8,MISRA C 2004 5.1,MISRA C 2012 5.1"
+        "reference": "C++ Core Guidelines NL.19,C++ Core Guidelines ES.8,MISRA C 2004 5.1,MISRA C 2012 5.1,MISRA C 2012 5.2,MISRA C 2012 5.4,MISRA C 2012 5.5,MISRA C++ 2008 2-10-1"
         },
     "ID_reservedName": {
         "checkPoint": "不应定义具有保留意义的名称",
@@ -3588,7 +3588,7 @@
     "ID_missingArraySize": {
         "checkPoint": "数组大小应被显式声明",
         "level": "suggestion",
-        "comment": "显式声明数组大小可明显提高可读性。",
+        "comment": "显式声明数组大小可明显提高可读性，有利于规避错误。",
         "tag": "declaration",
         "config": {
             "allowArrayWithInitList": "为 true 时可以放过带有初始化列表的数组"
@@ -3596,11 +3596,11 @@
         "reference": "MISRA C 2004 8.12,MISRA C 2012 8.11,MISRA C++ 2008 3-1-3"
         },
     "ID_unportableType": {
-        "checkPoint": "用 stdint.h 中的类型代替 short、long 等类型",
+        "checkPoint": "用 stdint.h 中的类型代替 short、int、long 等类型",
         "level": "suggestion",
-        "comment": "用 stdint.h 中的类型代替 short、long 等类型。",
+        "comment": "short、int、long 等类型的取值范围由执行环境的架构决定，可移植性较差。",
         "tag": "declaration",
-        "standard": "ISO/IEC 9899:2011 7.20",
+        "standard": "ISO/IEC 9899:2011 6.2.5(5),ISO/IEC 9899:2011 7.20,ISO/IEC 14882:2011 3.9.1(2)",
         "reference": "MISRA C 2004 6.3,MISRA C 2012 Dir 4.6"
         }
 }
