@@ -4,7 +4,7 @@
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对 C、C++ 语言，本文收录了 452 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对 C、C++ 语言，本文收录了 457 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
@@ -143,7 +143,8 @@
     - [R3.2.9 不应使用宏定义常量](#macro_const)
     - [R3.2.10 不应使用宏定义类型](#macro_typeid)
     - [R3.2.11 可由函数实现的功能不应使用宏实现](#macro_function)
-    - [R3.2.12 宏名称中不应存在拼写错误](#macro_misspelling)
+    - [R3.2.12 宏不应被重定义](#macro_redefined)
+    - [R3.2.13 宏名称中不应存在拼写错误](#macro_misspelling)
   - [3.3 Macro-usage](#precompile.macro-usage)
     - [R3.3.1 宏参数不应有副作用](#macro_sideeffectargs)
     - [R3.3.2 宏的实参个数不可小于形参个数](#macro_insufficientargs)
@@ -238,6 +239,7 @@
     - [R6.2.8 对常量的定义不应为引用](#constliteralreference)
     - [R6.2.9 禁用 restrict 指针](#forbidrestrictptr)
     - [R6.2.10 非适当场景禁用 volatile](#forbidvolatile)
+    - [R6.2.11 相关对象未被修改时应使用 const 声明](#nonconstunmodified)
   - [6.3 Specifier](#declaration.specifier)
     - [R6.3.1 使用 auto 关键字需注意可读性](#abusedauto)
     - [R6.3.2 不应使用已过时的关键字](#deprecatedspecifier)
@@ -254,9 +256,10 @@
     - [R6.4.3 禁用柔性数组](#forbidflexiblearray)
     - [R6.4.4 接口的参数或返回值不应被声明为 void\*](#forbidfunctionvoidptr)
     - [R6.4.5 类成员不应被声明为 void\*](#forbidmembervoidptr)
-    - [R6.4.6 局部数组的长度不应过大](#unsuitablearraysize)
-    - [R6.4.7 不建议将类型定义和对象声明写在一个语句中](#mixedtypeobjdefinition)
-    - [R6.4.8 不应将函数或函数指针和其他声明写在同一个语句中](#mixeddeclarations)
+    - [R6.4.6 数组大小应被显式声明，或由初始化列表定义](#missingarraysize)
+    - [R6.4.7 局部数组的长度不应过大](#unsuitablearraysize)
+    - [R6.4.8 不建议将类型定义和对象声明写在一个语句中](#mixedtypeobjdefinition)
+    - [R6.4.9 不应将函数或函数指针和其他声明写在同一个语句中](#mixeddeclarations)
   - [6.5 Object](#declaration.object)
     - [R6.5.1 不应产生无效的临时对象](#inaccessibletmpobject)
     - [R6.5.2 不应存在没有被用到的局部声明](#invalidlocaldeclaration)
@@ -298,7 +301,9 @@
     - [R6.10.2 不应存在没有被用到的标签](#labelnotused)
     - [R6.10.3 不应存在没有被用到的静态声明](#staticnotused)
     - [R6.10.4 不应存在没有被用到的 private 成员](#privatenotused)
-    - [R6.10.5 避免使用 std::auto\_ptr](#deprecatedautoptr)
+    - [R6.10.5 应显式声明对象或函数的类型](#missingtype)
+    - [R6.10.6 用 stdint.h 中的类型代替 short、long 等类型](#unportabletype)
+    - [R6.10.7 避免使用 std::auto\_ptr](#deprecatedautoptr)
 <br/>
 
 <span id="__exception">**[7. Exception](#exception)**</span>
@@ -3087,7 +3092,39 @@ MISRA C++ 2008 16-0-4
 <br/>
 <br/>
 
-### <span id="macro_misspelling">▌R3.2.12 宏名称中不应存在拼写错误</span>
+### <span id="macro_redefined">▌R3.2.12 宏不应被重定义</span>
+
+ID_macro_redefined&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
+
+<hr/>
+
+宏不受作用域限制，重定义后无法恢复，往往意味着错误。  
+  
+示例：
+```
+#define M 1;
+
+int foo() {
+    #define M 0   // Non-compliant
+    ....
+    return M;
+}
+
+int bar() {
+    return M;     // Probably wrong
+}
+```
+例中宏 M 被重定义，但影响范围是难以估计的。如果一定要重定义，应在定义之前用 \#undef 取消定义，但不建议这么做，宏的名称应该是唯一的，否则不利于维护。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 16.3(2 3)  
+ISO/IEC 9899:2011 6.10.3(2)  
+<br/>
+<br/>
+
+### <span id="macro_misspelling">▌R3.2.13 宏名称中不应存在拼写错误</span>
 
 ID_macro_misspelling&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
@@ -6296,6 +6333,64 @@ C++ Core Guidelines CP.200
 <br/>
 <br/>
 
+### <span id="nonconstunmodified">▌R6.2.11 相关对象未被修改时应使用 const 声明</span>
+
+ID_nonConstUnmodified&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
+
+<hr/>
+
+相关对象未被修改时应使用 const 声明：  
+ - 未被修改过的对象应声明为常量对象  
+ - 未通过指针或引用修改对象时，应声明常量指针或引用  
+ - 未通过成员函数修改成员对象时，应声明常量成员函数  
+  
+示例：
+```
+double pi = 3.14;   // Non-compliant
+
+struct Circle {
+    Circle(double);
+    Circle(Circle&) = default;     // Non-compliant
+
+    double area() {                // Non-compliant
+        return pi * r * r;
+    }
+
+private:
+    double r;
+};
+```
+例中 pi 未被修改，应作为常量。拷贝构造函数的参数未被修改，应声明为常量引用。成员函数 area 未修改成员对象，应声明为常量成员函数。  
+  
+应改为：
+```
+const double pi = 3.14;   // Compliant
+
+struct Circle {
+    Circle(double);
+    Circle(const Circle&) = default;   // Compliant
+
+    double area() const {              // Compliant
+        return pi * r * r;
+    }
+
+private:
+    double r;
+};
+```
+<br/>
+<br/>
+
+#### 参考
+C++ Core Guidelines Con.1  
+C++ Core Guidelines Con.2  
+C++ Core Guidelines Con.3  
+C++ Core Guidelines Con.4  
+MISRA C++ 2008 7-1-1  
+MISRA C++ 2008 7-1-2  
+<br/>
+<br/>
+
 ### <span id="declaration.specifier">6.3 Specifier</span>
 
 ### <span id="abusedauto">▌R6.3.1 使用 auto 关键字需注意可读性</span>
@@ -6889,7 +6984,24 @@ C++ Core Guidelines I.4
 <br/>
 <br/>
 
-### <span id="unsuitablearraysize">▌R6.4.6 局部数组的长度不应过大</span>
+### <span id="missingarraysize">▌R6.4.6 数组大小应被显式声明，或由初始化列表定义</span>
+
+ID_missingArraySize&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
+
+<hr/>
+
+数组大小应被显式声明，或由初始化列表定义。
+<br/>
+<br/>
+
+#### 参考
+MISRA C 2004 8.12  
+MISRA C 2012 8.11  
+MISRA C++ 2008 3-1-3  
+<br/>
+<br/>
+
+### <span id="unsuitablearraysize">▌R6.4.7 局部数组的长度不应过大</span>
 
 ID_unsuitableArraySize&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
@@ -6929,7 +7041,7 @@ SEI CERT MEM05-C
 <br/>
 <br/>
 
-### <span id="mixedtypeobjdefinition">▌R6.4.7 不建议将类型定义和对象声明写在一个语句中</span>
+### <span id="mixedtypeobjdefinition">▌R6.4.8 不建议将类型定义和对象声明写在一个语句中</span>
 
 ID_mixedTypeObjDefinition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -6960,7 +7072,7 @@ C++ Core Guidelines C.7
 <br/>
 <br/>
 
-### <span id="mixeddeclarations">▌R6.4.8 不应将函数或函数指针和其他声明写在同一个语句中</span>
+### <span id="mixeddeclarations">▌R6.4.9 不应将函数或函数指针和其他声明写在同一个语句中</span>
 
 ID_mixedDeclarations&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -8370,7 +8482,59 @@ MISRA C++ 2008 0-1-10
 <br/>
 <br/>
 
-### <span id="deprecatedautoptr">▌R6.10.5 避免使用 std::auto_ptr</span>
+### <span id="missingtype">▌R6.10.5 应显式声明对象或函数的类型</span>
+
+ID_missingType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
+
+<hr/>
+
+C90 允许省略对象或函数的类型声明，但实践表明这并不是一种好的编程方式，可读性较差。  
+  
+本规则仅对 C 代码有效，C\+\+ 代码不必考虑本规则。  
+  
+示例：
+```
+extern a;       // Non-compliant
+const b;        // Non-compliant
+fun(void);      // Non-compliant
+```
+例中 a、b、fun 的类型被省略，默认为 int 型，应改为：
+```
+extern int a;   // Compliant
+const int b;    // Compliant
+int fun(void);  // Compliant
+```
+<br/>
+<br/>
+
+#### 参考
+MISRA C 2004 8.2  
+MISRA C 2012 8.1  
+<br/>
+<br/>
+
+### <span id="unportabletype">▌R6.10.6 用 stdint.h 中的类型代替 short、long 等类型</span>
+
+ID_unportableType&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
+
+<hr/>
+
+short、long 等类型的具体长度和符号等属性由实现定义，可移植性较差。  
+C/C\+\+ 的基本类型均有此问题，有高可移植性要求的代码应禁止直接使用基本类型。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 7.20  
+<br/>
+
+#### 参考
+MISRA C 2004 6.3  
+MISRA C 2012 Dir 4.6  
+<br/>
+<br/>
+
+### <span id="deprecatedautoptr">▌R6.10.7 避免使用 std::auto_ptr</span>
 
 ID_deprecatedAutoPtr&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
@@ -19118,7 +19282,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 452 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
+&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 457 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
 
 &emsp;&emsp;此致
 

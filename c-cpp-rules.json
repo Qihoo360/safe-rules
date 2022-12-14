@@ -3563,5 +3563,41 @@
         "tag": "function",
         "standard": "ISO/IEC 9899:2011 7.22.4.4(2 3)-undefined",
         "reference": "SEI CERT ENV32-C"
+        },
+    "ID_nonConstUnmodified": {
+        "checkPoint": "相关对象未被修改时应使用 const 声明",
+        "level": "suggestion",
+        "comment": "相关对象未被修改时应使用 const 声明。",
+        "tag": "declaration",
+        "reference": "C++ Core Guidelines Con.1,C++ Core Guidelines Con.2,C++ Core Guidelines Con.3,C++ Core Guidelines Con.4,MISRA C++ 2008 7-1-1,MISRA C++ 2008 7-1-2"
+        },
+    "ID_macro_redefined": {
+        "checkPoint": "宏不应被重定义",
+        "level": "warning",
+        "comment": "宏不受作用域限制，重定义后无法恢复，往往意味着错误。",
+        "tag": "precompile",
+        "standard": "ISO/IEC 14882:2003 16.3(2 3),ISO/IEC 9899:2011 6.10.3(2)"
+        },
+    "ID_missingType": {
+        "checkPoint": "应显式声明对象或函数的类型",
+        "level": "warning",
+        "comment": "C90 允许省略对象或函数的类型声明，但实践表明这并不是一种好的编程方式，可读性较差。",
+        "tag": "declaration",
+        "reference": "MISRA C 2004 8.2,MISRA C 2012 8.1"
+        },
+    "ID_missingArraySize": {
+        "checkPoint": "数组大小应被显式声明，或由初始化列表定义",
+        "level": "suggestion",
+        "comment": "数组大小应被显式声明，或由初始化列表定义。",
+        "tag": "declaration",
+        "reference": "MISRA C 2004 8.12,MISRA C 2012 8.11,MISRA C++ 2008 3-1-3"
+        },
+    "ID_unportableType": {
+        "checkPoint": "用 stdint.h 中的类型代替 short、long 等类型",
+        "level": "suggestion",
+        "comment": "用 stdint.h 中的类型代替 short、long 等类型。",
+        "tag": "declaration",
+        "standard": "ISO/IEC 9899:2011 7.20",
+        "reference": "MISRA C 2004 6.3,MISRA C 2012 Dir 4.6"
         }
 }
