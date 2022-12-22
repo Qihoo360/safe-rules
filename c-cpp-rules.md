@@ -4,7 +4,7 @@
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对 C、C++ 语言，本文收录了 457 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对 C、C++ 语言，本文收录了 463 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
@@ -225,7 +225,7 @@
     - [R6.1.3 局部名称不应被覆盖](#hidelocal)
     - [R6.1.4 成员名称不应被覆盖](#hidemember)
     - [R6.1.5 全局名称不应被覆盖](#hideglobal)
-    - [R6.1.6 类型别名不应重复定义](#duplicatedtypedef)
+    - [R6.1.6 类型名称不应重复定义](#duplicatedtypename)
     - [R6.1.7 类型名称不应与对象或函数名称相同](#duplicatedname)
     - [R6.1.8 不应存在拼写错误](#misspelling)
   - [6.2 Qualifier](#declaration.qualifier)
@@ -241,7 +241,7 @@
     - [R6.2.10 非适当场景禁用 volatile](#forbidvolatile)
     - [R6.2.11 相关对象未被修改时应使用 const 声明](#nonconstunmodified)
   - [6.3 Specifier](#declaration.specifier)
-    - [R6.3.1 使用 auto 关键字需注意可读性](#abusedauto)
+    - [R6.3.1 合理使用 auto 关键字](#abusedauto)
     - [R6.3.2 不应使用已过时的关键字](#deprecatedspecifier)
     - [R6.3.3 不应使用多余的 inline 关键字](#inlineredundant)
     - [R6.3.4 extern 关键字不应作用于类成员的声明或定义](#invalidexternspecifier)
@@ -249,7 +249,9 @@
     - [R6.3.6 override 和 final 关键字不应同时出现](#redundantoverride)
     - [R6.3.7 有 override 或 final 关键字时，不应再出现 virtual 关键字](#redundantvirtual)
     - [R6.3.8 不应将 union 设为 final](#invalidfinal)
-    - [R6.3.9 inline、virtual、static、typedef 等关键字应出现在类型名的左侧](#badspecifierposition)
+    - [R6.3.9 内部链接的对象和函数在声明和定义处均应使用 static 关键字](#missingstatic)
+    - [R6.3.10 未访问非静态数据成员的成员函数应使用 static 声明](#this_notused)
+    - [R6.3.11 inline、virtual、static、typedef 等关键字应出现在类型名的左侧](#badspecifierposition)
   - [6.4 Declarator](#declaration.declarator)
     - [R6.4.1 用 auto 声明指针或引用时应显式标明 \*、& 等符号](#roughauto)
     - [R6.4.2 禁用可变参数列表](#forbidvariadicfunction)
@@ -298,12 +300,14 @@
     - [R6.9.3 在一个语句中不应声明过多对象或函数](#toomanydeclarators)
   - [6.10 Other](#declaration.other)
     - [R6.10.1 不应违反 One Definition Rule](#violateodr)
-    - [R6.10.2 不应存在没有被用到的标签](#labelnotused)
-    - [R6.10.3 不应存在没有被用到的静态声明](#staticnotused)
-    - [R6.10.4 不应存在没有被用到的 private 成员](#privatenotused)
-    - [R6.10.5 不应省略声明对象或函数的类型](#missingtype)
-    - [R6.10.6 用 stdint.h 中的类型代替 short、int、long 等类型](#unportabletype)
-    - [R6.10.7 避免使用 std::auto\_ptr](#deprecatedautoptr)
+    - [R6.10.2 声明与实现应一致](#inconsistentdeclaration)
+    - [R6.10.3 在合理的位置声明](#unsuitabledeclaration)
+    - [R6.10.4 不应存在没有被用到的标签](#labelnotused)
+    - [R6.10.5 不应存在没有被用到的静态声明](#staticnotused)
+    - [R6.10.6 不应存在没有被用到的 private 成员](#privatenotused)
+    - [R6.10.7 不应省略声明对象或函数的类型](#missingtype)
+    - [R6.10.8 用 stdint.h 中的类型代替 short、int、long 等类型](#unportabletype)
+    - [R6.10.9 避免使用 std::auto\_ptr](#deprecatedautoptr)
 <br/>
 
 <span id="__exception">**[7. Exception](#exception)**</span>
@@ -366,14 +370,15 @@
   - [R8.33 具有 noreturn 属性的函数返回类型只应为 void](#unsuitablereturntype)
   - [R8.34 由 atexit、at\_quick\_exit 指定的处理函数应正常返回](#exithandlernoreturn)
   - [R8.35 函数模板不应被特化](#functionspecialization)
-  - [R8.36 函数的标签数量应在规定范围之内](#toomanylabels)
-  - [R8.37 函数的行数应在规定范围之内](#toomanylines)
-  - [R8.38 lambda 表达式的行数应在规定范围之内](#toomanylambdalines)
-  - [R8.39 函数参数的数量应在规定范围之内](#toomanyparams)
-  - [R8.40 不应定义过于复杂的内联函数](#complexinlinefunction)
-  - [R8.41 避免递归实现](#recursion)
-  - [R8.42 作用域及类型嵌套不应过深](#nestedtoodeep)
-  - [R8.43 避免重复的函数实现](#functionrepetition)
+  - [R8.36 函数的退出点数量应在规定范围之内](#toomanyexit)
+  - [R8.37 函数的标签数量应在规定范围之内](#toomanylabels)
+  - [R8.38 函数的行数应在规定范围之内](#toomanylines)
+  - [R8.39 lambda 表达式的行数应在规定范围之内](#toomanylambdalines)
+  - [R8.40 函数参数的数量应在规定范围之内](#toomanyparams)
+  - [R8.41 不应定义过于复杂的内联函数](#complexinlinefunction)
+  - [R8.42 避免递归实现](#recursion)
+  - [R8.43 作用域及类型嵌套不应过深](#nestedtoodeep)
+  - [R8.44 避免重复的函数实现](#functionrepetition)
 <br/>
 
 <span id="__control">**[9. Control](#control)**</span>
@@ -443,6 +448,7 @@
     - [R9.7.3 禁用 goto 语句](#forbidgoto)
     - [R9.7.4 禁用 setjmp、longjmp](#forbidlongjmp)
     - [R9.7.5 不应出现多余的跳转语句](#redundantjump)
+    - [R9.7.6 避免使用跳转语句退出循环](#jumpoutloop)
 <br/>
 
 <span id="__expression">**[10. Expression](#expression)**</span>
@@ -5873,13 +5879,18 @@ MISRA C++ 2008 2-10-2
 <br/>
 <br/>
 
-### <span id="duplicatedtypedef">▌R6.1.6 类型别名不应重复定义</span>
+### <span id="duplicatedtypename">▌R6.1.6 类型名称不应重复定义</span>
 
-ID_duplicatedTypedef&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
+ID_duplicatedTypeName&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-如果类型别名有重复，极易引起误解，不利于维护。  
+如果类型相关的名称有重复，极易引起误解，不利于维护，如：  
+ - C\+\+ 类名  
+ - C 结构体、联合体、枚举类型的标签名称  
+ - 用 typedef 或 using 定义的类型别名  
+  
+均不应重复定义。  
   
 示例：
 ```
@@ -5911,8 +5922,11 @@ namespace M {
 
 #### 参考
 MISRA C 2004 5.3  
+MISRA C 2004 5.4  
 MISRA C 2012 5.6  
+MISRA C 2012 5.7  
 MISRA C++ 2008 2-10-3  
+MISRA C++ 2008 2-10-4  
 <br/>
 <br/>
 
@@ -5936,7 +5950,7 @@ enum {
 
 size_t x = sizeof(A);   // Which ‘A’?
 ```
-例中类名 A 与枚举项 A 重名，sizeof(A) 的意义是非常令人困惑的。
+例中结构体名称 A 与枚举项 A 重名，sizeof(A) 的意义是非常令人困惑的。
 <br/>
 <br/>
 
@@ -6401,7 +6415,7 @@ MISRA C++ 2008 7-1-2
 
 ### <span id="declaration.specifier">6.3 Specifier</span>
 
-### <span id="abusedauto">▌R6.3.1 使用 auto 关键字需注意可读性</span>
+### <span id="abusedauto">▌R6.3.1 合理使用 auto 关键字</span>
 
 ID_abusedAuto&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -6702,7 +6716,83 @@ ISO/IEC 9899:2011 9.5(2)
 <br/>
 <br/>
 
-### <span id="badspecifierposition">▌R6.3.9 inline、virtual、static、typedef 等关键字应出现在类型名的左侧</span>
+### <span id="missingstatic">▌R6.3.9 内部链接的对象和函数在声明和定义处均应使用 static 关键字</span>
+
+ID_missingStatic&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
+
+<hr/>
+
+声明和定义内部链接的对象和函数时不可使用 extern 关键字，否则极易引起误解。  
+  
+示例：
+```
+extern int a;   // Non-compliant
+....
+static int a;   // ‘a’ is a static object
+static int b;   // ‘b’ is a static object
+....
+extern int b;   // Non-compliant
+```
+例中 a、b 是内部链接的静态对象，在定义的前后不可再用 extern 声明，否则极易与全域对象混淆。  
+  
+又如：
+```
+int foo(int);          // Bad, missing ‘static’
+
+static int foo(int) {
+    ....
+}
+
+static int bar(int);
+
+int bar(int) {         // Bad, missing ‘static’
+    ....
+}
+```
+在声明和定义内部链接的函数时，均应使用 static 关键字，否则也易引起误解。
+<br/>
+<br/>
+
+#### 参考
+MISRA C 2004 8.11  
+MISRA C 2012 8.8  
+MISRA C++ 2008 3-3-2  
+<br/>
+<br/>
+
+### <span id="this_notused">▌R6.3.10 未访问非静态数据成员的成员函数应使用 static 声明</span>
+
+ID_this_notUsed&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
+
+<hr/>
+
+未访问非静态数据成员的成员函数应使用 static 声明，使语义更为明确，否则可能意味着错误或功能不完整。  
+  
+示例：
+```
+class A {
+    static int s;
+
+public:
+    static int bar() {   // Compliant
+        return s--;
+    }
+    int foo() {          // Non-compliant, missing ‘static’
+        return s++;
+    }
+    ....
+};
+```
+例中 foo 函数只访问了静态数据成员，但在调用时仍会将 this 指针作为参数，这在逻辑上是矛盾的，所以应使用 static 关键字明确声明。
+<br/>
+<br/>
+
+#### 参考
+MISRA C++ 2008 9-3-3  
+<br/>
+<br/>
+
+### <span id="badspecifierposition">▌R6.3.11 inline、virtual、static、typedef 等关键字应出现在类型名的左侧</span>
 
 ID_badSpecifierPosition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -8416,7 +8506,83 @@ MISRA C++ 2008 3-2-2
 <br/>
 <br/>
 
-### <span id="labelnotused">▌R6.10.2 不应存在没有被用到的标签</span>
+### <span id="inconsistentdeclaration">▌R6.10.2 声明与实现应一致</span>
+
+ID_inconsistentDeclaration&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
+
+<hr/>
+
+声明与实现在书写上应完全一致，否则极易引起误解，而且对同一对象或函数进行类型不兼容的声明，也会导致标准未定义的行为。  
+  
+示例：
+```
+int foo(int x);   // Declaration
+
+typedef int type;
+type foo(type x) {   // Implementation, non-compliant
+    ....
+}
+```
+例中在实现处为参数类型定义别名是不符合要求的，在允许重载的 C\+\+ 语言中会引起更大的误解。  
+  
+应改为：
+```
+typedef int type;
+type foo(type x);   // Declaration
+
+type foo(type x) {   // Implementation, compliant
+    ....
+}
+```
+<br/>
+<br/>
+
+#### 相关
+ID_inconsistentParamName  
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.2.7(2)-undefined  
+ISO/IEC 9899:2011 6.2.7(2)-undefined  
+<br/>
+
+#### 参考
+MISRA C 2004 8.4  
+MISRA C 2012 8.3  
+MISRA C++ 2008 3-9-1  
+<br/>
+<br/>
+
+### <span id="unsuitabledeclaration">▌R6.10.3 在合理的位置声明</span>
+
+ID_unsuitableDeclaration&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
+
+<hr/>
+
+声明的位置应遵循如下原则：  
+ - 外部链接的对象或函数应在头文件中声明  
+ - 内部链接的对象或函数应在源文件中声明  
+ - 不应在函数作用域内进行外部声明  
+ - 命名空间内不应进行 extern "C" 声明  
+  
+示例：
+```
+int bar()
+{
+    extern int fun();   // Non-compliant
+    ....
+}
+```
+<br/>
+<br/>
+
+#### 参考
+MISRA C++ 2008 3-1-2  
+MISRA C++ 2008 3-3-1  
+<br/>
+<br/>
+
+### <span id="labelnotused">▌R6.10.4 不应存在没有被用到的标签</span>
 
 ID_labelNotUsed&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
@@ -8449,7 +8615,7 @@ MISRA C 2012 2.6
 <br/>
 <br/>
 
-### <span id="staticnotused">▌R6.10.3 不应存在没有被用到的静态声明</span>
+### <span id="staticnotused">▌R6.10.5 不应存在没有被用到的静态声明</span>
 
 ID_staticNotUsed&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
@@ -8480,7 +8646,7 @@ MISRA C++ 2008 0-1-10
 <br/>
 <br/>
 
-### <span id="privatenotused">▌R6.10.4 不应存在没有被用到的 private 成员</span>
+### <span id="privatenotused">▌R6.10.6 不应存在没有被用到的 private 成员</span>
 
 ID_privateNotUsed&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
@@ -8510,7 +8676,7 @@ MISRA C++ 2008 0-1-10
 <br/>
 <br/>
 
-### <span id="missingtype">▌R6.10.5 不应省略声明对象或函数的类型</span>
+### <span id="missingtype">▌R6.10.7 不应省略声明对象或函数的类型</span>
 
 ID_missingType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
@@ -8543,7 +8709,7 @@ MISRA C 2012 8.1
 <br/>
 <br/>
 
-### <span id="unportabletype">▌R6.10.6 用 stdint.h 中的类型代替 short、int、long 等类型</span>
+### <span id="unportabletype">▌R6.10.8 用 stdint.h 中的类型代替 short、int、long 等类型</span>
 
 ID_unportableType&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -8585,7 +8751,7 @@ MISRA C 2012 Dir 4.6
 <br/>
 <br/>
 
-### <span id="deprecatedautoptr">▌R6.10.7 避免使用 std::auto_ptr</span>
+### <span id="deprecatedautoptr">▌R6.10.9 避免使用 std::auto_ptr</span>
 
 ID_deprecatedAutoPtr&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
@@ -9698,6 +9864,10 @@ int foo(int b, int a) {   // Non-compliant, which is which??
 }
 ```
 <br/>
+<br/>
+
+#### 相关
+ID_inconsistentDeclaration  
 <br/>
 
 #### 参考
@@ -11076,7 +11246,60 @@ MISRA C++ 2008 14-8-1
 <br/>
 <br/>
 
-### <span id="toomanylabels">▌R8.36 函数的标签数量应在规定范围之内</span>
+### <span id="toomanyexit">▌R8.36 函数的退出点数量应在规定范围之内</span>
+
+ID_tooManyExit&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
+
+<hr/>
+
+理想情况下应在函数的结尾设置统一的退出点，使代码具有清晰的静态结构，否则可读性较差，尤其在多个嵌套的作用域中使用 return 等语句，会使代码难以理解。  
+  
+示例：
+```
+void foo()
+{
+    if (a) {
+        if (b) {
+            return;   // Bad
+        }
+        ....
+    } else {
+        ....
+        return;  // Bad
+    }
+}
+```
+例中函数的主体逻辑被 return 语句“割裂”，这显然是不利于阅读和维护的。  
+  
+然而，严格地要求每个函数只能有一个退出点又是死板且不现实的，对于 if...else\-if、switch\-case、catch\-handlers 等并列的分枝结构，其末尾的退出点可以算作一个退出点，如：
+```
+try {
+    ....
+} catch (A&) {
+    return 0;   // Let it go
+} catch (B&) {
+    return 1;   // Let it go
+}
+```
+<br/>
+<br/>
+
+#### 配置
+maxExitCount：退出点数量上限，超过则报出  
+<br/>
+
+#### 相关
+ID_jumpOutLoop  
+<br/>
+
+#### 参考
+MISRA C 2004 14.7  
+MISRA C 2012 15.5  
+MISRA C++ 2008 6-6-5  
+<br/>
+<br/>
+
+### <span id="toomanylabels">▌R8.37 函数的标签数量应在规定范围之内</span>
 
 ID_tooManyLabels&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -11107,7 +11330,7 @@ maxLabelCount：标签数量上限，超过则报出
 <br/>
 <br/>
 
-### <span id="toomanylines">▌R8.37 函数的行数应在规定范围之内</span>
+### <span id="toomanylines">▌R8.38 函数的行数应在规定范围之内</span>
 
 ID_tooManyLines&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -11137,7 +11360,7 @@ C++ Core Guidelines F.3
 <br/>
 <br/>
 
-### <span id="toomanylambdalines">▌R8.38 lambda 表达式的行数应在规定范围之内</span>
+### <span id="toomanylambdalines">▌R8.39 lambda 表达式的行数应在规定范围之内</span>
 
 ID_tooManyLambdaLines&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -11170,7 +11393,7 @@ maxLambdaLineCount：lambda 表达式行数上限，超过则报出
 <br/>
 <br/>
 
-### <span id="toomanyparams">▌R8.39 函数参数的数量应在规定范围之内</span>
+### <span id="toomanyparams">▌R8.40 函数参数的数量应在规定范围之内</span>
 
 ID_tooManyParams&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -11217,7 +11440,7 @@ C++ Core Guidelines I.23
 <br/>
 <br/>
 
-### <span id="complexinlinefunction">▌R8.40 不应定义过于复杂的内联函数</span>
+### <span id="complexinlinefunction">▌R8.41 不应定义过于复杂的内联函数</span>
 
 ID_complexInlineFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
@@ -11242,7 +11465,7 @@ C++ Core Guidelines F.5
 <br/>
 <br/>
 
-### <span id="recursion">▌R8.41 避免递归实现</span>
+### <span id="recursion">▌R8.42 避免递归实现</span>
 
 ID_recursion&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -11279,7 +11502,7 @@ MISRA C++ 2008 7-5-4
 <br/>
 <br/>
 
-### <span id="nestedtoodeep">▌R8.42 作用域及类型嵌套不应过深</span>
+### <span id="nestedtoodeep">▌R8.43 作用域及类型嵌套不应过深</span>
 
 ID_nestedTooDeep&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
@@ -11300,7 +11523,7 @@ if (cond0)
 <br/>
 <br/>
 
-### <span id="functionrepetition">▌R8.43 避免重复的函数实现</span>
+### <span id="functionrepetition">▌R8.44 避免重复的函数实现</span>
 
 ID_functionRepetition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
@@ -13542,6 +13765,42 @@ L:
 }
 ```
 <br/>
+<br/>
+<br/>
+
+### <span id="jumpoutloop">▌R9.7.6 避免使用跳转语句退出循环</span>
+
+ID_jumpOutLoop&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
+
+<hr/>
+
+循环的退出条件应与其控制表达式一致，使代码具有清晰的静态结构，否则可读性较差，尤其在多个嵌套的作用域中使用 break、goto 或 return 等跳转语句，会使代码难以理解。  
+  
+示例：
+```
+while (loop_cond) {
+    if (x) {
+        if (y) {
+            break;   // Bad
+        }
+        ....
+    } else {
+        break;   // Bad
+    }
+    ....
+}
+```
+<br/>
+<br/>
+
+#### 相关
+ID_tooManyExit  
+<br/>
+
+#### 参考
+MISRA C 2004 14.6  
+MISRA C 2012 15.4  
+MISRA C++ 2008 6-6-4  
 <br/>
 <br/>
 
@@ -19333,7 +19592,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 457 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
+&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 463 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
 
 &emsp;&emsp;此致
 

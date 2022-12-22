@@ -1879,7 +1879,7 @@
         "reference": "C++ Core Guidelines I.22"
         },
     "ID_abusedAuto": {
-        "checkPoint": "使用 auto 关键字需注意可读性",
+        "checkPoint": "合理使用 auto 关键字",
         "level": "suggestion",
         "comment": "auto 关键字隐藏了类型名称，在使用时需注意不应降低可读性。",
         "tag": "declaration",
@@ -1927,6 +1927,7 @@
         "level": "warning",
         "comment": "函数的参数名称在声明和实现处不一致甚至顺序也不相同，会对函数的调用者造成误导，而且不能排除是实现上的错误。",
         "tag": "function",
+        "related": "ID_inconsistentDeclaration",
         "reference": "MISRA C++ 2008 8-4-2"
         },
     "ID_definedInHeader": {
@@ -3008,12 +3009,12 @@
         "standard": "ISO/IEC 9899:2011 7.1.3(1)",
         "reference": "SEI CERT DCL37-C,SEI CERT DCL51-CPP,MISRA C 2012 21.2,MISRA C++ 2008 17-0-1,MISRA C++ 2008 17-0-2,MISRA C++ 2008 17-0-3"
         },
-    "ID_duplicatedTypedef": {
-        "checkPoint": "类型别名不应重复定义",
+    "ID_duplicatedTypeName": {
+        "checkPoint": "类型名称不应重复定义",
         "level": "suggestion",
-        "comment": "如果类型别名有重复，极易引起误解，不利于维护。",
+        "comment": "如果类型相关的名称有重复，极易引起误解，不利于维护。",
         "tag": "declaration",
-        "reference": "MISRA C 2004 5.3,MISRA C 2012 5.6,MISRA C++ 2008 2-10-3"
+        "reference": "MISRA C 2004 5.3,MISRA C 2004 5.4,MISRA C 2012 5.6,MISRA C 2012 5.7,MISRA C++ 2008 2-10-3,MISRA C++ 2008 2-10-4"
         },
     "ID_duplicatedName": {
         "checkPoint": "类型名称不应与对象或函数名称相同",
@@ -3602,5 +3603,54 @@
         "tag": "declaration",
         "standard": "ISO/IEC 9899:2011 6.2.5(5),ISO/IEC 9899:2011 7.20,ISO/IEC 14882:2011 3.9.1(2)",
         "reference": "MISRA C 2004 6.3,MISRA C 2012 Dir 4.6"
+        },
+    "ID_jumpOutLoop": {
+        "checkPoint": "避免使用跳转语句退出循环",
+        "level": "suggestion",
+        "comment": "循环的退出条件应与其控制表达式一致，使代码具有清晰的静态结构，否则可读性较差，尤其在多个嵌套的作用域中使用 break、goto 或 return 等跳转语句，会使代码难以理解。",
+        "tag": "control",
+        "related": "ID_tooManyExit",
+        "reference": "MISRA C 2004 14.6,MISRA C 2012 15.4,MISRA C++ 2008 6-6-4"
+        },
+    "ID_tooManyExit": {
+        "checkPoint": "函数的退出点数量应在规定范围之内",
+        "level": "suggestion",
+        "comment": "理想情况下应在函数的结尾设置统一的退出点，使代码具有清晰的静态结构，否则可读性较差，尤其在多个嵌套的作用域中使用 return 等语句，会使代码难以理解。",
+        "tag": "function",
+        "config": {
+            "maxExitCount": "退出点数量上限，超过则报出"
+            },
+        "related": "ID_jumpOutLoop",
+        "reference": "MISRA C 2004 14.7,MISRA C 2012 15.5,MISRA C++ 2008 6-6-5"
+        },
+    "ID_inconsistentDeclaration": {
+        "checkPoint": "声明与实现应一致",
+        "level": "suggestion",
+        "comment": "声明与实现在书写上应完全一致，否则极易引起误解，而且对同一对象或函数进行类型不兼容的声明，也会导致标准未定义的行为。",
+        "tag": "declaration",
+        "related": "ID_inconsistentParamName",
+        "standard": "ISO/IEC 9899:1999 6.2.7(2)-undefined,ISO/IEC 9899:2011 6.2.7(2)-undefined",
+        "reference": "MISRA C 2004 8.4,MISRA C 2012 8.3,MISRA C++ 2008 3-9-1"
+        },
+    "ID_unsuitableDeclaration": {
+        "checkPoint": "在合理的位置声明",
+        "level": "suggestion",
+        "comment": "在合理的位置声明。",
+        "tag": "declaration",
+        "reference": "MISRA C++ 2008 3-1-2,MISRA C++ 2008 3-3-1"
+        },
+    "ID_missingStatic": {
+        "checkPoint": "内部链接的对象和函数在声明和定义处均应使用 static 关键字",
+        "level": "suggestion",
+        "comment": "声明和定义内部链接的对象和函数时不可使用 extern 关键字，否则极易引起误解。",
+        "tag": "declaration",
+        "reference": "MISRA C 2004 8.11,MISRA C 2012 8.8,MISRA C++ 2008 3-3-2"
+        },
+    "ID_this_notUsed": {
+        "checkPoint": "未访问非静态数据成员的成员函数应使用 static 声明",
+        "level": "suggestion",
+        "comment": "未访问非静态数据成员的成员函数应使用 static 声明。",
+        "tag": "declaration",
+        "reference": "MISRA C++ 2008 9-3-3"
         }
 }
