@@ -2702,7 +2702,12 @@
     "ID_nestedTooDeep": {
         "checkPoint": "作用域及类型嵌套不应过深",
         "level": "suggestion",
-        "comment": "嵌套层次过深是不利于维护的。建议函数作用域嵌套不超过7层，类、结构体嵌套不超过3层，命名空间嵌套不超过 4 层。",
+        "comment": "嵌套层次过深会造成阅读和维护困难。",
+        "config": {
+            "maxTypeNestedDepth": "类型最大嵌套层数，超过则报出",
+            "maxFunctionNestedDepth": "函数作用域最大嵌套层数，超过则报出",
+            "maxNamespaceNestedDepth": "命名空间最大嵌套层数，超过则报出"
+            },
         "tag": "function"
         },
     "ID_functionRepetition": {
@@ -3640,16 +3645,16 @@
         "reference": "MISRA C++ 2008 3-1-2,MISRA C++ 2008 3-3-1"
         },
     "ID_missingStatic": {
-        "checkPoint": "内部链接的对象和函数在声明和定义处均应使用 static 关键字",
+        "checkPoint": "声明和定义内部链接的对象和函数时均应使用 static 关键字",
         "level": "suggestion",
-        "comment": "声明和定义内部链接的对象和函数时不可使用 extern 关键字，否则极易引起误解。",
+        "comment": "声明和定义内部链接的对象和函数时均应使用 static 关键字，不可使用 extern 关键字，否则极易引起误解。",
         "tag": "declaration",
         "reference": "MISRA C 2004 8.11,MISRA C 2012 8.8,MISRA C++ 2008 3-3-2"
         },
     "ID_this_notUsed": {
-        "checkPoint": "未访问非静态数据成员的成员函数应使用 static 声明",
+        "checkPoint": "未访问 this 指针的成员函数应使用 static 声明",
         "level": "suggestion",
-        "comment": "未访问非静态数据成员的成员函数应使用 static 声明。",
+        "comment": "未访问 this 指针的成员函数应使用 static 声明，使语义更为明确，否则可能意味着错误或功能不完整。",
         "tag": "declaration",
         "reference": "MISRA C++ 2008 9-3-3"
         }

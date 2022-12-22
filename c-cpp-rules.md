@@ -249,8 +249,8 @@
     - [R6.3.6 override 和 final 关键字不应同时出现](#redundantoverride)
     - [R6.3.7 有 override 或 final 关键字时，不应再出现 virtual 关键字](#redundantvirtual)
     - [R6.3.8 不应将 union 设为 final](#invalidfinal)
-    - [R6.3.9 内部链接的对象和函数在声明和定义处均应使用 static 关键字](#missingstatic)
-    - [R6.3.10 未访问非静态数据成员的成员函数应使用 static 声明](#this_notused)
+    - [R6.3.9 未访问 this 指针的成员函数应使用 static 声明](#this_notused)
+    - [R6.3.10 声明和定义内部链接的对象和函数时均应使用 static 关键字](#missingstatic)
     - [R6.3.11 inline、virtual、static、typedef 等关键字应出现在类型名的左侧](#badspecifierposition)
   - [6.4 Declarator](#declaration.declarator)
     - [R6.4.1 用 auto 声明指针或引用时应显式标明 \*、& 等符号](#roughauto)
@@ -3108,10 +3108,10 @@ ID_macro_redefined&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
   
 示例：
 ```
-#define M 1;
+#define M 1
 
 int foo() {
-    #define M 0   // Non-compliant
+    #define M 0   // Non-compliant, redefine
     ....
     return M;
 }
@@ -3120,7 +3120,7 @@ int bar() {
     return M;     // Probably wrong
 }
 ```
-例中宏 M 被重定义，但影响范围是难以估计的。如果一定要重定义，应在定义之前用 \#undef 取消定义，但不建议这么做，宏的名称应该是唯一的，否则不利于维护。
+例中宏 M 被重定义，其影响范围是难以估计的。如果一定要重定义，应在定义之前用 \#undef 取消定义，但不建议这么做，宏的名称应该是唯一的，否则不利于维护。
 <br/>
 <br/>
 
@@ -6716,13 +6716,45 @@ ISO/IEC 9899:2011 9.5(2)
 <br/>
 <br/>
 
-### <span id="missingstatic">▌R6.3.9 内部链接的对象和函数在声明和定义处均应使用 static 关键字</span>
+### <span id="this_notused">▌R6.3.9 未访问 this 指针的成员函数应使用 static 声明</span>
+
+ID_this_notUsed&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
+
+<hr/>
+
+未访问 this 指针的成员函数应使用 static 声明，使语义更为明确，否则可能意味着错误或功能不完整。  
+  
+示例：
+```
+class A {
+    static int s;
+
+public:
+    static int bar() {   // Compliant
+        return s--;
+    }
+    int foo() {          // Non-compliant, missing ‘static’
+        return s++;
+    }
+    ....
+};
+```
+例中 foo 函数只访问了静态数据成员，但在调用时仍会将 this 指针作为参数，这在逻辑上是矛盾的，所以应使用 static 关键字明确声明。
+<br/>
+<br/>
+
+#### 参考
+MISRA C++ 2008 9-3-3  
+<br/>
+<br/>
+
+### <span id="missingstatic">▌R6.3.10 声明和定义内部链接的对象和函数时均应使用 static 关键字</span>
 
 ID_missingStatic&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-声明和定义内部链接的对象和函数时不可使用 extern 关键字，否则极易引起误解。  
+声明和定义内部链接的对象和函数时均应使用 static 关键字，不可使用 extern 关键字，否则极易引起误解。  
   
 示例：
 ```
@@ -6757,38 +6789,6 @@ int bar(int) {         // Bad, missing ‘static’
 MISRA C 2004 8.11  
 MISRA C 2012 8.8  
 MISRA C++ 2008 3-3-2  
-<br/>
-<br/>
-
-### <span id="this_notused">▌R6.3.10 未访问非静态数据成员的成员函数应使用 static 声明</span>
-
-ID_this_notUsed&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
-
-<hr/>
-
-未访问非静态数据成员的成员函数应使用 static 声明，使语义更为明确，否则可能意味着错误或功能不完整。  
-  
-示例：
-```
-class A {
-    static int s;
-
-public:
-    static int bar() {   // Compliant
-        return s--;
-    }
-    int foo() {          // Non-compliant, missing ‘static’
-        return s++;
-    }
-    ....
-};
-```
-例中 foo 函数只访问了静态数据成员，但在调用时仍会将 this 指针作为参数，这在逻辑上是矛盾的，所以应使用 static 关键字明确声明。
-<br/>
-<br/>
-
-#### 参考
-MISRA C++ 2008 9-3-3  
 <br/>
 <br/>
 
@@ -11265,7 +11265,7 @@ void foo()
         ....
     } else {
         ....
-        return;  // Bad
+        return;   // Bad
     }
 }
 ```
@@ -11276,9 +11276,9 @@ void foo()
 try {
     ....
 } catch (A&) {
-    return 0;   // Let it go
+    return 0;    // Let it go
 } catch (B&) {
-    return 1;   // Let it go
+    return 1;    // Let it go
 }
 ```
 <br/>
@@ -11508,7 +11508,7 @@ ID_nestedTooDeep&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
 <hr/>
 
-嵌套层次过深是不利于维护的。  
+嵌套层次过深会造成阅读和维护困难。  
   
 示例：
 ```
@@ -11518,8 +11518,16 @@ if (cond0)
                 if (cond10)  // Terrible
                     ....   
 ```
-建议函数作用域嵌套不超过 7 层。对类型、命名空间也有同样的要求，建议类、结构体嵌套不超过 3 层，命名空间嵌套不超过 4 层。
+建议函数作用域嵌套不超过 7 层。对类型、命名空间也有同样的要求，建议类、结构体嵌套不超过 3 层，命名空间嵌套不超过 4 层。  
+  
+审计工具不妨通过配置决定嵌套层次是否合规。
 <br/>
+<br/>
+
+#### 配置
+maxFunctionNestedDepth：函数作用域最大嵌套层数，超过则报出  
+maxNamespaceNestedDepth：命名空间最大嵌套层数，超过则报出  
+maxTypeNestedDepth：类型最大嵌套层数，超过则报出  
 <br/>
 <br/>
 
@@ -13785,11 +13793,12 @@ while (loop_cond) {
         }
         ....
     } else {
+        ....
         break;   // Bad
     }
-    ....
 }
 ```
+例中循环条件散落在循环体内，而且循环的主体逻辑被各种跳转语句“割裂”，是不利于阅读和维护的。
 <br/>
 <br/>
 
