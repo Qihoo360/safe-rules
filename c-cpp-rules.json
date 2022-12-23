@@ -699,10 +699,11 @@
         "checkPoint": "声明中不应包含过多的指针嵌套",
         "level": "suggestion",
         "comment": "指针嵌套层级过多意味着指针的解引用逻辑过于复杂，相关代码将难以理解，建议指针嵌套不超过 2 级。",
-        "tag": "declaration",
         "config": {
             "maxPtrLevel": "指针嵌套的最大层数，超过则报出"
             },
+        "tag": "declaration",
+        "related": "ID_complexDeclaration",
         "reference": "MISRA C 2004 17.5,MISRA C 2012 18.5"
         },
     "ID_staticNotUsed": {
@@ -811,6 +812,7 @@
         "comment": "用常量字符串对非常量字符串指针赋值，相关内存被修改会导致标准未定义的行为。",
         "tag": "declaration",
         "standard": "ISO/IEC 14882:2003 2.13.4(2)-undefined,ISO/IEC 14882:2011 2.14.5(12)-undefined,ISO/IEC 14882:2011 5.13.5(16)-undefined",
+        "related": "ID_nonConstUnmodified",
         "reference": "MISRA C 2012 7.4"
         },
     "ID_virtualComparison": {
@@ -3573,8 +3575,9 @@
     "ID_nonConstUnmodified": {
         "checkPoint": "相关对象未被修改时应使用 const 声明",
         "level": "suggestion",
-        "comment": "相关对象未被修改时应使用 const 声明。",
+        "comment": "有 const 限定的数据是只读的，没有 const 限定的数据是可写的，细化数据的访问方式可显著提升代码的可读性，保护数据不被错误修改，有助于编译器优化。",
         "tag": "declaration",
+        "related": "ID_missingConst",
         "reference": "C++ Core Guidelines Con.1,C++ Core Guidelines Con.2,C++ Core Guidelines Con.3,C++ Core Guidelines Con.4,MISRA C++ 2008 7-1-1,MISRA C++ 2008 7-1-2"
         },
     "ID_macro_redefined": {

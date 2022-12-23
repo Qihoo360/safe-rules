@@ -3120,7 +3120,7 @@ int bar() {
     return M;     // Probably wrong
 }
 ```
-例中宏 M 被重定义，其影响范围是难以估计的。如果一定要重定义，应在定义之前用 \#undef 取消定义，但不建议这么做，宏的名称应该是唯一的，否则不利于维护。
+例中宏 M 被重定义，其实际影响范围是难以估计的，这在语言标准中也是非良构的（ill\-formed）。如果一定要重定义，应在定义之前用 \#undef 取消定义，但不建议这么做，宏的名称不应被复用，否则不利于维护。
 <br/>
 <br/>
 
@@ -6206,6 +6206,10 @@ void bar() {
 <br/>
 <br/>
 
+#### 相关
+ID_nonConstUnmodified  
+<br/>
+
 #### 依据
 ISO/IEC 14882:2003 2.13.4(2)-undefined  
 ISO/IEC 14882:2011 2.14.5(12)-undefined  
@@ -6361,46 +6365,49 @@ ID_nonConstUnmodified&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-相关对象未被修改时应使用 const 声明：  
- - 未被修改过的对象应声明为常量对象  
- - 未通过指针或引用修改对象时，应声明常量指针或引用  
- - 未通过成员函数修改成员对象时，应声明常量成员函数  
+有 const 限定的数据是只读的，没有 const 限定的数据是可写的，细化数据的访问方式可显著提升代码的可读性，保护数据不被错误修改，有助于编译器优化。  
+  
+下列情况应使用 const 声明：  
+ - 从未被修改过的对象应声明为常量对象  
+ - 通过指针或引用访问对象但不修改对象时，应声明为常量指针或引用  
+ - 成员函数访问非静态成员对象但不修改相关对象时，应声明为常量成员函数  
   
 示例：
 ```
 double pi = 3.14;   // Non-compliant
 
-struct Circle {
-    Circle(double);
-    Circle(Circle&) = default;     // Non-compliant
+class Circle {
+    double r;
 
-    double area() {                // Non-compliant
+public:
+    Circle(double);
+    Circle(Circle&) = default;   // Non-compliant
+
+    double area() {              // Non-compliant
         return pi * r * r;
     }
-
-private:
-    double r;
 };
 ```
-例中 pi 未被修改，应作为常量。拷贝构造函数的参数未被修改，应声明为常量引用。成员函数 area 未修改成员对象，应声明为常量成员函数。  
+例中 pi 未被修改，应作为常量；拷贝构造函数的参数未被修改，应声明为常量引用；成员函数 area 未修改成员对象，应声明为常量成员函数。  
   
 应改为：
 ```
 const double pi = 3.14;   // Compliant
 
-struct Circle {
-    Circle(double);
+class Circle {
+    ....
     Circle(const Circle&) = default;   // Compliant
 
     double area() const {              // Compliant
         return pi * r * r;
     }
-
-private:
-    double r;
 };
 ```
 <br/>
+<br/>
+
+#### 相关
+ID_missingConst  
 <br/>
 
 #### 参考
@@ -8411,14 +8418,25 @@ ID_tooManyPtrLevel&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 示例：
 ```
 T *** x;   // Bad
-T * volatile * * const * y;   // Horrible
+T * volatile * * const * y;   // Terrible
 ```
-例中 T 为任意类型，如果发现这种指针，意味着需要改进对相关数据的访问方式。
+例中 T 为任意类型，如果发现这种指针，意味着需要改进对相关数据的访问方式。  
+  
+出于灵活性的考虑，非连续的指针嵌套可不受本规则约束，如：
+```
+int** (*pa)[100];   // Let it go
+int** (*pf)(int);   // Let it go
+```
+例中 pa 是指向数组的指针，数组元素为 2 级指针，pf 是函数指针，函数返回 2 级指针，这种情况是可接受的。
 <br/>
 <br/>
 
 #### 配置
 maxPtrLevel：指针嵌套的最大层数，超过则报出  
+<br/>
+
+#### 相关
+ID_complexDeclaration  
 <br/>
 
 #### 参考
@@ -8563,16 +8581,18 @@ ID_unsuitableDeclaration&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggest
  - 外部链接的对象或函数应在头文件中声明  
  - 内部链接的对象或函数应在源文件中声明  
  - 不应在函数作用域内进行外部声明  
- - 命名空间内不应进行 extern "C" 声明  
+ - 避免在头文件外手工书写外部声明  
   
 示例：
 ```
 int bar()
 {
+    extern int g;       // Non-compliant
     extern int fun();   // Non-compliant
     ....
 }
 ```
+外部链接的对象或函数应通过头文件引入，如果分散在函数中声明是不便于统一管理和维护的。
 <br/>
 <br/>
 
@@ -8725,6 +8745,8 @@ struct T {
     short z;       // Non-compliant
 };
 ```
+例中成员变量在不同的平台会有不同的取值范围，C99 引入 stdint.h 解决了这一问题。  
+  
 应改为：
 ```
 #include <stdint.h>   // Or <cstdint> in C++
@@ -11271,13 +11293,15 @@ void foo()
 ```
 例中函数的主体逻辑被 return 语句“割裂”，这显然是不利于阅读和维护的。  
   
-然而，严格地要求每个函数只能有一个退出点又是死板且不现实的，对于 if...else\-if、switch\-case、catch\-handlers 等并列的分枝结构，其末尾的退出点可以算作一个退出点，如：
+然而，严格地要求每个函数只能有一个退出点是不够灵活的，对于 if...else\-if、switch\-case、catch\-handlers 等并列的分枝结构，其末尾的退出点可以算作一个退出点，如：
 ```
 try {
     ....
 } catch (A&) {
+    ....
     return 0;    // Let it go
 } catch (B&) {
+    ....
     return 1;    // Let it go
 }
 ```
