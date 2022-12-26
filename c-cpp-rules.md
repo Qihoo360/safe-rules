@@ -146,7 +146,7 @@
     - [R3.2.12 宏不应被重定义](#macro_redefined)
     - [R3.2.13 宏名称中不应存在拼写错误](#macro_misspelling)
   - [3.3 Macro-usage](#precompile.macro-usage)
-    - [R3.3.1 宏参数不应有副作用](#macro_sideeffectargs)
+    - [R3.3.1 宏的实参不应有副作用](#macro_sideeffectargs)
     - [R3.3.2 宏的实参个数不可小于形参个数](#macro_insufficientargs)
     - [R3.3.3 宏的实参个数不可大于形参个数](#macro_redundantargs)
     - [R3.3.4 va\_start 或 va\_copy 应配合 va\_end 使用](#incompletevamacros)
@@ -3154,7 +3154,7 @@ ID_literal_misspelling
 
 ### <span id="precompile.macro-usage">3.3 Macro-usage</span>
 
-### <span id="macro_sideeffectargs">▌R3.3.1 宏参数不应有副作用</span>
+### <span id="macro_sideeffectargs">▌R3.3.1 宏的实参不应有副作用</span>
 
 ID_macro_sideEffectArgs&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
@@ -3191,7 +3191,7 @@ SEI CERT PRE31-C
 
 ### <span id="macro_insufficientargs">▌R3.3.2 宏的实参个数不可小于形参个数</span>
 
-ID_macro_insufficientArgs&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
+ID_macro_insufficientArgs&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: precompile error
 
 <hr/>
 
@@ -3235,6 +3235,15 @@ const char* foo() {
     return M("a", "b", "c", "d");  // Non-compliant
 }
 ```
+例外：
+```
+#define MSG(fmt, ...) printf(fmt, __VA_ARGS__)
+
+int main() {
+    MSG("%d %d\n", 1, 2);  // Compliant
+}
+```
+可变宏参数列表可不受本规则约束。
 <br/>
 <br/>
 
@@ -3284,12 +3293,10 @@ ID_badVaArgType&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: precompile error
 
 <hr/>
 
-对于 va\_arg 的类型参数，如果：  
+对于 va\_arg 的类型参数，下列情况会导致标准未定义的行为：  
  - 名称后加 \* 号不能表示指针类型  
  - 与默认参数提升后的类型不兼容  
  - 与下一个参数的类型不兼容，或没有实际的下一个参数  
-  
-会导致标准未定义的行为。  
   
 以下类型不可作为 av\_arg 的参数：
 ```
@@ -3299,7 +3306,7 @@ float、
 short、unsigned short、signed short、
 short int、signed short int、unsigned short int
 ```
-这些类型的参数在传入可变参数列表时，会被提升为 int、unsigned int、double 等类型，va\_arg 如果再提升前的类型解析参数的值就会造成错误，参见“[默认参数提升（default argument promotion）](https://en.cppreference.com/w/cpp/language/variadic_arguments#Default_conversions)”机制。  
+这些类型的参数在传入可变参数列表时，会被提升为 int、unsigned int、double 等类型，va\_arg 如果再按提升前的类型解析参数的值就会产生错误，参见“[默认参数提升（default argument promotion）](https://en.cppreference.com/w/cpp/language/variadic_arguments#Default_conversions)”机制。  
   
 另外，C\+\+ 代码中非 POD 类型也不可作为 va\_arg 的参数，参见 ID\_nonPODVariadicArgument。  
   
@@ -3380,6 +3387,7 @@ ISO/IEC 14882:2011 18.2(4)-undefined
 
 #### 参考
 SEI CERT EXP59-CPP  
+MISRA C++ 2008 18-2-1  
 <br/>
 <br/>
 

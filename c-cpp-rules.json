@@ -2606,7 +2606,7 @@
         },
     "ID_macro_insufficientArgs": {
         "checkPoint": "宏的实参个数不可小于形参个数",
-        "level": "warning",
+        "level": "error",
         "comment": "宏的实参个数小于形参个数是不符合 C/C++ 标准的，参数个数不一致必然意味着某种错误，然而在某些编译环境下却可以通过编译。",
         "tag": "precompile",
         "related": "ID_macro_redundantArgs",
@@ -2621,7 +2621,7 @@
         "reference": "CWE-628"
         },
     "ID_macro_sideEffectArgs": {
-        "checkPoint": "宏参数不应有副作用",
+        "checkPoint": "宏的实参不应有副作用",
         "level": "warning",
         "comment": "当宏参数有“副作用（side effect）”时，如果宏定义中没有或多次引用到该参数，会导致意料之外的错误。",
         "tag": "precompile",
@@ -3058,7 +3058,7 @@
         "comment": "宏 offsetof 很难适用于具有 C++ 特性的类，在 C++ 代码中不应使用。",
         "tag": "precompile",
         "standard": "ISO/IEC 14882:2011 18.2(4)-undefined",
-        "reference": "SEI CERT EXP59-CPP"
+        "reference": "SEI CERT EXP59-CPP,MISRA C++ 2008 18-2-1"
         },
     "ID_forbidReinterpretCast": {
         "checkPoint": "合理使用 reinterpret_cast",
@@ -3433,7 +3433,7 @@
     "ID_badVaArgType": {
         "checkPoint": "va_arg 的类型参数应符合要求",
         "level": "error",
-        "comment": "va_arg 的类型参数应符合要求。",
+        "comment": "如果 va_arg 的类型参数不符合要求，会导致标准未定义的行为。",
         "tag": "precompile",
         "related": "ID_badParmN,ID_nonPODVariadicArgument,ID_forbidVariadicFunction",
         "standard": "ISO/IEC 9899:2011 7.16.1.1(2)-undefined",
