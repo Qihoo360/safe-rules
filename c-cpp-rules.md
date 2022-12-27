@@ -1,6 +1,6 @@
 <img src="logo.png" align="right"/>
 
-# C/C++ 安全规则集合 ![Version](https://img.shields.io/badge/version-1.2.1-brightgreen)
+# C/C++ 安全规则集合 ![Version](https://img.shields.io/badge/version-1.3.0-brightgreen)
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
@@ -2670,7 +2670,7 @@ ID_macro_badName&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
   
 宏用于文本处理，不受语言规则限制，易被误用，在命名方式上将其与普通代码分开可引起使用者或维护者的注意，有助于规避错误。  
   
-本规则是 ID\_badName 的特化。  
+本规则是 ID\_badName 的特化，宏名称同样受 ID\_badName 的约束。  
   
 示例：
 ```
@@ -2678,10 +2678,6 @@ ID_macro_badName&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 #define WORD_SIZE 8   // Compliant
 ```
 <br/>
-<br/>
-
-#### 配置
-maxWordLength：连续无大小写变化的字符个数上限，超过则报出  
 <br/>
 
 #### 相关
@@ -11715,7 +11711,7 @@ ID_mixedAsm&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
 汇编代码的格式由实现定义，不具备可移植性，且可读性较差，故不应与普通代码混合。  
   
-如果条件允许，最好用汇编语言实现独立的库，再由 C/C\+\+ 代码调用。  
+如果条件允许，应使用汇编语言实现独立的库，再由 C/C\+\+ 代码调用。  
   
 示例：
 ```
@@ -16759,8 +16755,8 @@ ID_literal_misspelling&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: literal warning
   
 示例：
 ```
-void showMessage(int errCode) {
-    if (errCode) {
+void showMessage(int err) {
+    if (err) {
         cout << "Error\n";
     } else {
         cout << "Successfull\n";  // Non-compliant

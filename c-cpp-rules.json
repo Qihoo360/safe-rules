@@ -1,6 +1,6 @@
 {
     "name": "C/C++ 安全规则集合",
-    "version": "1.2.1",
+    "version": "1.3.0",
     "encoding": "utf-8",
 
     "//": [
@@ -2580,9 +2580,6 @@
         "checkPoint": "宏应遵循合理的命名方式",
         "level": "suggestion",
         "comment": "宏的名称应采用全大写字母的形式，非宏名称则应包含小写字母。",
-        "config": {
-            "maxWordLength": "连续无大小写变化的字符个数上限，超过则报出"
-            },
         "tag": "precompile",
         "related": "ID_badName",
         "reference": "C++ Core Guidelines ES.32,C++ Core Guidelines ES.9"

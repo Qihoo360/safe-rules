@@ -4,7 +4,7 @@
   
 # 360 安全规则集合
 
-[![Version](https://img.shields.io/badge/v-1.2-blue)](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md)
+[![Version](https://img.shields.io/badge/v-1.3-blue)](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md)
 [![License](https://img.shields.io/badge/license-Apache--2.0-brightgreen)](https://github.com/Qihoo360/safe-rules/blob/main/LICENSE)
 
 </div>
