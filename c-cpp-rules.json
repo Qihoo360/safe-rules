@@ -2443,7 +2443,7 @@
         "level": "warning",
         "comment": "如果含有拼写错误的常量字符串对用户可见，也可以认为是产品的一种 bug，会对用户造成困扰，故应认真对待。",
         "tag": "literal",
-        "related": "ID_misspelling,ID_macro_misspelling"
+        "related": "ID_misspelling"
         },
     "ID_literal_suspiciousChar": {
         "checkPoint": "注意可疑的字符常量",
@@ -2586,23 +2586,6 @@
         "tag": "precompile",
         "related": "ID_badName",
         "reference": "C++ Core Guidelines ES.32,C++ Core Guidelines ES.9"
-        },
-    "ID_macro_misspelling": {
-        "checkPoint": "宏名称中不应存在拼写错误",
-        "level": "suggestion",
-        "comment": "宏的名称不应存在拼写错误，尤其是供他人调用的宏，错误拼写会使代码的使用者对代码的质量产生疑虑，应认真对待。",
-        "tag": "precompile",
-        "related": "ID_misspelling,ID_literal_misspelling"
-        },
-    "ID_macro_tooManyParams": {
-        "checkPoint": "宏参数数量应在规定范围之内",
-        "level": "warning",
-        "comment": "宏参数数量过多意味着宏功能过于复杂，不利于调试，应改为函数。",
-        "config": {
-            "maxParamCount": "参数个数上限，超过则报出"
-            },
-        "related": "ID_tooManyParams",
-        "tag": "precompile"
         },
     "ID_macro_insufficientArgs": {
         "checkPoint": "宏的实参个数不可小于形参个数",
@@ -3660,5 +3643,50 @@
         "comment": "未访问 this 指针的成员函数应使用 static 声明，使语义更为明确，否则可能意味着错误或功能不完整。",
         "tag": "declaration",
         "reference": "MISRA C++ 2008 9-3-3"
-        }
+        },
+    "ID_mixedAsm": {
+        "checkPoint": "汇编代码不应与普通代码混合",
+        "level": "suggestion",
+        "comment": "汇编代码的格式由实现定义，不具备可移植性，且可读性较差，故不应与普通代码混合。",
+        "tag": "function",
+        "standard": "ISO/IEC 14882:2003 7.4(1)-implementation",
+        "reference": "MISRA C 2004 2.1,MISRA C 2012 Dir 4.3,MISRA C++ 2008 7-4-3"
+        },
+    "ID_macro_inBlock": {
+        "checkPoint": "只应在全局作用域中定义宏",
+        "level": "suggestion",
+        "comment": "宏不受作用域限制，在非全局作用域中定义宏易引起误解。",
+        "tag": "precompile",
+        "related": "ID_macro_undef",
+        "reference": "MISRA C 2004 19.5,MISRA C++ 2008 16-0-2"
+        },
+    "ID_macro_undef": {
+        "checkPoint": "合理使用 #undef",
+        "level": "suggestion",
+        "comment": "内部宏在使用完毕后可用 #undef 取消定义，以免被外部非法使用，除此之外不应使用 #undef。",
+        "tag": "precompile",
+        "related": "ID_macro_undefReserved",
+        "reference": "MISRA C 2004 19.6,MISRA C 2012 20.5,MISRA C++ 2008 16-0-3"
+        },
+    "ID_incompleteDirective": {
+        "checkPoint": "条件编译代码块应在同一文件中",
+        "level": "warning",
+        "comment": "#if、#ifdef 与对应的 #else、#elif、#endif 应在同一文件中。",
+        "tag": "precompile",
+        "reference": "MISRA C 2004 19.17,MISRA C 2012 20.14,MISRA C++ 2008 16-1-2"
+        },
+    "ID_accessSpecifierDisorder": {
+        "checkPoint": "类成员应按 public、protected、private 的顺序声明",
+        "level": "suggestion",
+        "comment": "类成员统一按指定顺序声明，可提高代码可读性，也可提高团队协作效率。",
+        "tag": "type"
+        },
+    "ID_returnNonConstData": {
+        "checkPoint": "常量成员函数不应返回数据成员的非常量指针或引用",
+        "level": "warning",
+        "comment": "如果常量成员函数返回数据成员的非常量指针或引用，既打破了常量限定，又违反了封装理念，属于不良实现方式。",
+        "tag": "type",
+        "related": "ID_nonPrivateData,ID_qualifierCastedAway",
+        "reference": "MISRA C++ 2008 9-3-1"
+        }    
 }

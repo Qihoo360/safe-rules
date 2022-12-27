@@ -4,7 +4,7 @@
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对 C、C++ 语言，本文收录了 463 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对 C、C++ 语言，本文收录了 467 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
@@ -139,12 +139,12 @@
     - [R3.2.5 与运算符相关的宏参数应该用括号括起来](#macro_paramnotenclosed)
     - [R3.2.6 由多个语句组成的宏定义应该用 do\-while(0) 括起来](#macro_stmtnotenclosed)
     - [R3.2.7 在宏定义中由 \# 修饰的参数后不应出现 \#\#](#macro_complexconcat)
-    - [R3.2.8 宏参数数量应在规定范围之内](#macro_toomanyparams)
-    - [R3.2.9 不应使用宏定义常量](#macro_const)
-    - [R3.2.10 不应使用宏定义类型](#macro_typeid)
-    - [R3.2.11 可由函数实现的功能不应使用宏实现](#macro_function)
-    - [R3.2.12 宏不应被重定义](#macro_redefined)
-    - [R3.2.13 宏名称中不应存在拼写错误](#macro_misspelling)
+    - [R3.2.8 不应使用宏定义常量](#macro_const)
+    - [R3.2.9 不应使用宏定义类型](#macro_typeid)
+    - [R3.2.10 可由函数实现的功能不应使用宏实现](#macro_function)
+    - [R3.2.11 宏不应被重定义](#macro_redefined)
+    - [R3.2.12 只应在全局作用域中定义宏](#macro_inblock)
+    - [R3.2.13 合理使用 \#undef](#macro_undef)
   - [3.3 Macro-usage](#precompile.macro-usage)
     - [R3.3.1 宏的实参不应有副作用](#macro_sideeffectargs)
     - [R3.3.2 宏的实参个数不可小于形参个数](#macro_insufficientargs)
@@ -157,8 +157,9 @@
     - [R3.4.2 不应出现非标准格式的预编译指令](#illformeddirective)
     - [R3.4.3 不应使用非标准预编译指令](#nonstddirective)
     - [R3.4.4 宏的参数列表中不应出现预编译指令](#directiveinmacroargument)
-    - [R3.4.5 对编译警告的屏蔽应慎重](#warningdisabled)
-    - [R3.4.6 在高级别的警告设置下编译](#warningdefault)
+    - [R3.4.5 条件编译代码块应在同一文件中](#incompletedirective)
+    - [R3.4.6 对编译警告的屏蔽应慎重](#warningdisabled)
+    - [R3.4.7 在高级别的警告设置下编译](#warningdefault)
   - [3.5 Comment](#precompile.comment)
     - [R3.5.1 关注 TODO、FIXME、XXX、BUG 等特殊注释](#specialcomment)
     - [R3.5.2 注释不可嵌套](#nestedcomment)
@@ -206,7 +207,9 @@
     - [R5.1.16 抽象类禁用拷贝赋值运算符](#unsuitablecopyassignoperator)
     - [R5.1.17 数据成员的数量应在规定范围之内](#toomanyfields)
     - [R5.1.18 数据成员之间的填充数据不应被忽视](#ignorepaddingdata)
-    - [R5.1.19 存在构造、析构或虚函数的类不应采用 struct 关键字](#unsuitablestructtag)
+    - [R5.1.19 常量成员函数不应返回数据成员的非常量指针或引用](#returnnonconstdata)
+    - [R5.1.20 类成员应按 public、protected、private 的顺序声明](#accessspecifierdisorder)
+    - [R5.1.21 存在构造、析构或虚函数的类不应采用 struct 关键字](#unsuitablestructtag)
   - [5.2 Enum](#type.enum)
     - [R5.2.1 同类枚举项的值不应相同](#duplicateenumerator)
     - [R5.2.2 合理初始化各枚举项](#casualinitialization)
@@ -378,7 +381,8 @@
   - [R8.41 不应定义过于复杂的内联函数](#complexinlinefunction)
   - [R8.42 避免递归实现](#recursion)
   - [R8.43 作用域及类型嵌套不应过深](#nestedtoodeep)
-  - [R8.44 避免重复的函数实现](#functionrepetition)
+  - [R8.44 汇编代码不应与普通代码混合](#mixedasm)
+  - [R8.45 避免重复的函数实现](#functionrepetition)
 <br/>
 
 <span id="__control">**[9. Control](#control)**</span>
@@ -2960,26 +2964,7 @@ MISRA C++ 2008 16-3-1
 <br/>
 <br/>
 
-### <span id="macro_toomanyparams">▌R3.2.8 宏参数数量应在规定范围之内</span>
-
-ID_macro_tooManyParams&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
-
-<hr/>
-
-宏参数数量过多意味着宏功能过于复杂，不利于调试，应改为函数。
-<br/>
-<br/>
-
-#### 配置
-maxParamCount：参数个数上限，超过则报出  
-<br/>
-
-#### 相关
-ID_tooManyParams  
-<br/>
-<br/>
-
-### <span id="macro_const">▌R3.2.9 不应使用宏定义常量</span>
+### <span id="macro_const">▌R3.2.8 不应使用宏定义常量</span>
 
 ID_macro_const&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
@@ -3028,7 +3013,7 @@ C++ Core Guidelines Enum.1
 <br/>
 <br/>
 
-### <span id="macro_typeid">▌R3.2.10 不应使用宏定义类型</span>
+### <span id="macro_typeid">▌R3.2.9 不应使用宏定义类型</span>
 
 ID_macro_typeid&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
@@ -3063,7 +3048,7 @@ C++ Core Guidelines ES.30
 <br/>
 <br/>
 
-### <span id="macro_function">▌R3.2.11 可由函数实现的功能不应使用宏实现</span>
+### <span id="macro_function">▌R3.2.10 可由函数实现的功能不应使用宏实现</span>
 
 ID_macro_function&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
@@ -3098,7 +3083,7 @@ MISRA C++ 2008 16-0-4
 <br/>
 <br/>
 
-### <span id="macro_redefined">▌R3.2.12 宏不应被重定义</span>
+### <span id="macro_redefined">▌R3.2.11 宏不应被重定义</span>
 
 ID_macro_redefined&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
@@ -3130,25 +3115,74 @@ ISO/IEC 9899:2011 6.10.3(2)
 <br/>
 <br/>
 
-### <span id="macro_misspelling">▌R3.2.13 宏名称中不应存在拼写错误</span>
+### <span id="macro_inblock">▌R3.2.12 只应在全局作用域中定义宏</span>
 
-ID_macro_misspelling&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
+ID_macro_inBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
 <hr/>
 
-宏的名称不应存在拼写错误，尤其是供他人调用的宏，错误拼写会使代码的使用者对代码的质量产生疑虑，应认真对待。  
+宏不受作用域限制，在非全局作用域中定义宏易引起误解。  
   
 示例：
 ```
-#define FRIST(p) p->first()  // Non-compliant, should be FIRST
+void foo(void) {
+    #define M 123   // Non-compliant, define in function scope
+    ....
+}
 ```
-例中 FIRST 被误写成了 FRIST。
+例中在函数作用域内定义宏是不符合要求的。  
+  
+例外：
+```
+void foo(void) {
+    #define M 123   // Let it go
+    ....
+    #undef M
+}
+```
+如果宏与某作用域密切相关，也可以在该作用域内定义宏，但在作用域结尾应使用 \#undef 取消定义。
 <br/>
 <br/>
 
 #### 相关
-ID_misspelling  
-ID_literal_misspelling  
+ID_macro_undef  
+<br/>
+
+#### 参考
+MISRA C 2004 19.5  
+MISRA C++ 2008 16-0-2  
+<br/>
+<br/>
+
+### <span id="macro_undef">▌R3.2.13 合理使用 #undef</span>
+
+ID_macro_undef&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
+
+<hr/>
+
+内部宏在使用完毕后可用 \#undef 取消定义，以免被外部非法使用，除此之外不应使用 \#undef。  
+  
+示例：
+```
+#ifndef HEADER_GUARD
+#define HEADER_GUARD 
+....
+#undef HEADER_GUARD   // Non-compliant
+....
+#endif
+```
+对其他模块的宏、系统宏以及头文件守卫等宏均不应使用 \#undef。
+<br/>
+<br/>
+
+#### 相关
+ID_macro_undefReserved  
+<br/>
+
+#### 参考
+MISRA C 2004 19.6  
+MISRA C 2012 20.5  
+MISRA C++ 2008 16-0-3  
 <br/>
 <br/>
 
@@ -3565,7 +3599,41 @@ MISRA C++ 2008 16-0-5
 <br/>
 <br/>
 
-### <span id="warningdisabled">▌R3.4.5 对编译警告的屏蔽应慎重</span>
+### <span id="incompletedirective">▌R3.4.5 条件编译代码块应在同一文件中</span>
+
+ID_incompleteDirective&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
+
+<hr/>
+
+\#if、\#ifdef 与对应的 \#else、\#elif、\#endif 应在同一文件中，否则会显著增加代码的维护成本。  
+  
+示例：
+```
+// a.h
+#ifdef M      // Non-compliant
+....
+
+// b.h
+#else         // Non-compliant
+....
+
+// c.h
+#include "a.h"
+#include "b.h"
+#endif           // Non-compliant
+```
+示例代码将 \#ifdef、\#else、\#endif 分成了三个文件，使这些文件的依赖关系变得复杂，也使单个文件失去可读性。
+<br/>
+<br/>
+
+#### 参考
+MISRA C 2004 19.17  
+MISRA C 2012 20.14  
+MISRA C++ 2008 16-1-2  
+<br/>
+<br/>
+
+### <span id="warningdisabled">▌R3.4.6 对编译警告的屏蔽应慎重</span>
 
 ID_warningDisabled&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
@@ -3592,7 +3660,7 @@ ID_warningDefault
 <br/>
 <br/>
 
-### <span id="warningdefault">▌R3.4.6 在高级别的警告设置下编译</span>
+### <span id="warningdefault">▌R3.4.7 在高级别的警告设置下编译</span>
 
 ID_warningDefault&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
@@ -5273,7 +5341,83 @@ SEI CERT DCL39-C
 <br/>
 <br/>
 
-### <span id="unsuitablestructtag">▌R5.1.19 存在构造、析构或虚函数的类不应采用 struct 关键字</span>
+### <span id="returnnonconstdata">▌R5.1.19 常量成员函数不应返回数据成员的非常量指针或引用</span>
+
+ID_returnNonConstData&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
+
+<hr/>
+
+如果常量成员函数返回数据成员的非常量指针或引用，既打破了常量限定，又违反了封装理念，属于不良实现方式。  
+  
+本规则是 ID\_qualifierCastedAway 的特化。  
+  
+示例：
+```
+class A
+{
+    int i;
+
+public:
+    int& foo() const {
+        return (int&)i;   // Non-compliant
+    }
+    ....
+};
+```
+<br/>
+<br/>
+
+#### 相关
+ID_nonPrivateData  
+ID_qualifierCastedAway  
+<br/>
+
+#### 参考
+MISRA C++ 2008 9-3-1  
+<br/>
+<br/>
+
+### <span id="accessspecifierdisorder">▌R5.1.20 类成员应按 public、protected、private 的顺序声明</span>
+
+ID_accessSpecifierDisorder&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestion
+
+<hr/>
+
+类成员统一按指定顺序声明，可提高代码可读性，也可提高团队协作效率。  
+  
+示例：
+```
+class A   // Bad
+{
+private:
+    int baz();
+
+public:
+    int foo();
+
+protected:
+    int bar();
+};
+```
+供外部使用的 public 成员应作为重点写在前面，其次是 protected 成员，私有的内部成员应写在最后：
+```
+class A   // Good
+{
+public:
+    int foo();
+
+protected:
+    int bar();
+
+private:
+    int baz();
+};
+```
+<br/>
+<br/>
+<br/>
+
+### <span id="unsuitablestructtag">▌R5.1.21 存在构造、析构或虚函数的类不应采用 struct 关键字</span>
 
 ID_unsuitableStructTag&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestion
 
@@ -11563,7 +11707,59 @@ maxTypeNestedDepth：类型最大嵌套层数，超过则报出
 <br/>
 <br/>
 
-### <span id="functionrepetition">▌R8.44 避免重复的函数实现</span>
+### <span id="mixedasm">▌R8.44 汇编代码不应与普通代码混合</span>
+
+ID_mixedAsm&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
+
+<hr/>
+
+汇编代码的格式由实现定义，不具备可移植性，且可读性较差，故不应与普通代码混合。  
+  
+如果条件允许，最好用汇编语言实现独立的库，再由 C/C\+\+ 代码调用。  
+  
+示例：
+```
+int avg(int a, int b) {
+    int sum;               
+    __asm {                // Non-compliant
+        mov eax, a
+        mov ebx, b
+        lea eax, [eax + ebx]
+        mov sum, eax
+    }
+    return sum / 2;        // Non-compliant
+}
+```
+例中 avg 函数同时含有汇编代码和 C 代码是不符合要求的，至少应将汇编代码单独隔离成一个函数，如：
+```
+int add(int a, int b) {
+    __asm {                // Compliant
+        mov eax, a
+        mov ebx, b
+        lea eax, [eax + ebx]
+    }
+}
+
+int avg(int a, int b) {
+    int sum = add(a, b);   // Compliant
+    return sum / 2;
+}
+```
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 7.4(1)-implementation  
+<br/>
+
+#### 参考
+MISRA C 2004 2.1  
+MISRA C 2012 Dir 4.3  
+MISRA C++ 2008 7-4-3  
+<br/>
+<br/>
+
+### <span id="functionrepetition">▌R8.45 避免重复的函数实现</span>
 
 ID_functionRepetition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
@@ -16577,7 +16773,6 @@ void showMessage(int errCode) {
 
 #### 相关
 ID_misspelling  
-ID_macro_misspelling  
 <br/>
 <br/>
 
@@ -19633,7 +19828,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 463 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
+&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 467 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
 
 &emsp;&emsp;此致
 
