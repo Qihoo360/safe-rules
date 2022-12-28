@@ -528,7 +528,6 @@
     - [R10.8.2 new 表达式只可用于赋值或当作参数](#oddnew)
     - [R10.8.3 数组下标应为整形表达式](#oddsubscripting)
     - [R10.8.4 禁用逗号表达式](#forbidcommaexpression)
-    - [R10.8.5 合理使用括号](#redundantparentheses)
 <br/>
 
 <span id="__literal">**[11. Literal](#literal)**</span>
@@ -626,7 +625,8 @@
   - [R17.7 &&、|| 的子表达式应为后缀表达式](#nonpostfixsubcondition)
   - [R17.8 在 C\+\+ 代码中 NULL 和 nullptr 不应混用](#mixnullptrandnull)
   - [R17.9 在 C\+\+ 代码中用 nullptr 代替 NULL](#deprecatednull)
-  - [R17.10 不应存在多余的分号](#redundantsemicolon)<br/><br/>
+  - [R17.10 避免多余的括号](#redundantparentheses)
+  - [R17.11 避免多余的分号](#redundantsemicolon)<br/><br/>
 ## <span id="security">1. Security</span>
 
 ### <span id="plainsensitiveinfo">▌R1.1 敏感数据不可写入代码</span>
@@ -16527,48 +16527,6 @@ MISRA C++ 2008 5-18-1
 <br/>
 <br/>
 
-### <span id="redundantparentheses">▌R10.8.5 合理使用括号</span>
-
-ID_redundantParentheses&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: expression suggestion
-
-<hr/>
-
-重复的、作用于单个对象或一元运算符的括号使代码显得繁琐，应去掉。  
-  
-宏定义中的括号不受本规则限制。  
-  
-示例：
-```
-a = 1 + (p[0]);      // Non-compliant
-a = 2 + (p->n);      // Non-compliant
-a = (sizeof(b));     // Non-compliant
-a = (fun(b));        // Non-compliant
-a = ((a + b)) * b;   // Non-compliant
-```
-应去掉多余的括号：
-```
-a = 1 + p[0];        // Compliant
-a = 2 + p->n;        // Compliant
-a = sizeof(b);       // Compliant
-a = fun(b);          // Compliant
-a = (a + b) * b;     // Compliant
-```
-但如果可以更好的表达逻辑意义，或不确定运算符优先级时，应及时使用括号，如：
-```
-if (a == b && b == c || x == y && y == z) {  // Bad
-    ....
-}
-```
-设例中两个 && 表达式对应两个逻辑步骤，虽然有无括号不影响计算结果，但建议加入括号提高可读性：
-```
-if ((a == b && b == c) || (x == y && y == z)) {  // Good
-    ....
-}
-```
-<br/>
-<br/>
-<br/>
-
 ## <span id="literal">11. Literal</span>
 
 ### <span id="literal_suspiciouschar">▌R11.1 注意可疑的字符常量</span>
@@ -19796,13 +19754,44 @@ C++ Core Guidelines ES.47
 <br/>
 <br/>
 
-### <span id="redundantsemicolon">▌R17.10 不应存在多余的分号</span>
+### <span id="redundantparentheses">▌R17.10 避免多余的括号</span>
+
+ID_redundantParentheses&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style suggestion
+
+<hr/>
+
+重复的或与优先级无关的括号使代码显得繁琐，应去掉。  
+  
+宏定义中的括号不受本规则限制。  
+  
+示例：
+```
+a = 1 + (p[0]);      // Non-compliant
+a = 2 + (p->n);      // Non-compliant
+a = (fun(x));        // Non-compliant
+a = ((u + v)) * w;   // Non-compliant
+```
+例中括号均作用于“后缀表达式”，与优先级无关。可参见 ID\_nonPostfixSubCondition 对“后缀表达式”的说明。  
+  
+应去掉多余的括号：
+```
+a = 1 + p[0];        // Compliant
+a = 2 + p->n;        // Compliant
+a = fun(x);          // Compliant
+a = (u + v) * w;     // Compliant
+```
+注意，设立本规则并不是为了提倡省略括号，如果可以更好的表达逻辑意义，或不确定运算符优先级时，应及时使用括号。
+<br/>
+<br/>
+<br/>
+
+### <span id="redundantsemicolon">▌R17.11 避免多余的分号</span>
 
 ID_redundantSemicolon&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style suggestion
 
 <hr/>
 
-多余的分号使代码显得繁琐，也可能包含某种错误，应该去掉。  
+多余的分号使代码显得繁琐，也可能意味着某种错误，应该去掉。  
   
 示例：
 ```

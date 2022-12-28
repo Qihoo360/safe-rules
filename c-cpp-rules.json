@@ -108,10 +108,10 @@
         "reference": "CWE-480"
         },
     "ID_redundantParentheses": {
-        "checkPoint": "合理使用括号",
+        "checkPoint": "避免多余的括号",
         "level": "suggestion",
-        "comment": "重复的、作用于单个对象或一元运算符的括号使代码显得繁琐，应去掉，但如果可以更好的表达逻辑意义，或不确定运算符优先级时，应使用括号。",
-        "tag": "expression"
+        "comment": "重复的或与优先级无关的括号使代码显得繁琐，应去掉。",
+        "tag": "style"
         },
     "ID_throwNULL": {
         "checkPoint": "不应抛出 NULL",
@@ -3338,9 +3338,9 @@
         "reference": "CWE-285,CWE-350"
         },
     "ID_redundantSemicolon": {
-        "checkPoint": "不应存在多余的分号",
+        "checkPoint": "避免多余的分号",
         "level": "suggestion",
-        "comment": "多余的分号使代码显得繁琐，也可能包含某种错误，应该去掉。",
+        "comment": "多余的分号使代码显得繁琐，也可能意味着某种错误，应该去掉。",
         "tag": "style"
         },
     "ID_specialComment": {
