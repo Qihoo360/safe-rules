@@ -522,7 +522,7 @@
     - [R10.6.2 断言中的表达式不应有副作用](#sideeffectassertion)
     - [R10.6.3 断言中的表达式不应过于复杂](#complexassertion)
   - [10.7 Complexity](#expression.complexity)
-    - [R10.7.1 运算符不应超过规定数量](#complexexpression)
+    - [R10.7.1 表达式不应过于复杂](#complexexpression)
   - [10.8 Other](#expression.other)
     - [R10.8.1 不应访问填充数据](#accesspaddingdata)
     - [R10.8.2 new 表达式只可用于赋值或当作参数](#oddnew)
@@ -16361,19 +16361,42 @@ names：断言函数或宏的名称，如 assert、_ASSERT_EXPR 等，用“|”
 
 ### <span id="expression.complexity">10.7 Complexity</span>
 
-### <span id="complexexpression">▌R10.7.1 运算符不应超过规定数量</span>
+### <span id="complexexpression">▌R10.7.1 表达式不应过于复杂</span>
 
 ID_complexExpression&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: expression suggestion
 
 <hr/>
 
-运算符超过一定数量意味着表达式过于复杂，易包含潜在的错误，更不利于调试与维护，应进行适当拆分。
+复杂的表达式不利于阅读与调试，易包含潜在的错误，应适当拆分。  
+  
+下列情况可判定为复杂表达式：  
+ - 运算符过多  
+ - 有副作用的子表达式过多  
+ - 优先级括号嵌套层次过深  
+ - 函数调用或数组索引嵌套层次过深  
+ - 三元表达式嵌套层次过深  
+  
+审计工具不妨通过配置判断表达式是否合规。  
+  
+示例：
+```
+f(g(h(i(....)));           // Non-compliant
+    
+a || b || c || .... || z;  // Non-compliant
+
+++++++n;                   // Non-compliant
+
+x ? y ? z ? .... : ....;   // Non-compliant
+```
 <br/>
 <br/>
 
 #### 配置
-maxLogicOperatorCount：逻辑运算符最大数量，超过则报出  
 maxOperatorCount：运算符最大数量，超过则报出  
+maxParenthesesLevel：优先级括号嵌套最大层数，超过则报出  
+maxPostfixLevel：函数调用、数组索引嵌套最大层数，超过则报出  
+maxSideEffectPoints：具有副作用的子表达式最大数量，超过则报出  
+maxTernaryLevel：三元表达式嵌套最大层数，超过则报出  
 <br/>
 
 #### 参考
@@ -19791,7 +19814,7 @@ ID_redundantSemicolon&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style suggestion
 
 <hr/>
 
-多余的分号使代码显得繁琐，也可能意味着某种错误，应该去掉。  
+多余的分号使代码显得繁琐，也可能意味着某种错误，应去掉。  
   
 示例：
 ```

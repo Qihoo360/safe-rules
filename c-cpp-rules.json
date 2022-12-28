@@ -1537,12 +1537,15 @@
         "reference": "CWE-758,C++ Core Guidelines ES.43,C++ Core Guidelines ES.44"
         },
     "ID_complexExpression": {
-        "checkPoint": "运算符不应超过规定数量",
+        "checkPoint": "表达式不应过于复杂",
         "level": "suggestion",
-        "comment": "运算符超过一定数量意味着表达式过于复杂，易包含潜在的错误，更不利于调试与维护，应进行适当拆分。",
+        "comment": "复杂的表达式不利于阅读与调试，易包含潜在的错误，应适当拆分。",
         "config": {
             "maxOperatorCount": "运算符最大数量，超过则报出",
-            "maxLogicOperatorCount": "逻辑运算符最大数量，超过则报出"
+            "maxSideEffectPoints": "具有副作用的子表达式最大数量，超过则报出",
+            "maxParenthesesLevel": "优先级括号嵌套最大层数，超过则报出",
+            "maxPostfixLevel": "函数调用、数组索引嵌套最大层数，超过则报出",
+            "maxTernaryLevel": "三元表达式嵌套最大层数，超过则报出"
             },
         "tag": "expression",
         "reference": "C++ Core Guidelines ES.40"
@@ -3340,7 +3343,7 @@
     "ID_redundantSemicolon": {
         "checkPoint": "避免多余的分号",
         "level": "suggestion",
-        "comment": "多余的分号使代码显得繁琐，也可能意味着某种错误，应该去掉。",
+        "comment": "多余的分号使代码显得繁琐，也可能意味着某种错误，应去掉。",
         "tag": "style"
         },
     "ID_specialComment": {
