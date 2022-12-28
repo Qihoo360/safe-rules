@@ -2033,7 +2033,7 @@
     "ID_missingExplicitOverride": {
         "checkPoint": "重写的虚函数应声明为 override 或 final",
         "level": "suggestion",
-        "comment": "将重写的虚函数都声明为 override 或 final 可明显提升可读性，并可确保虚函数被有效重写。",
+        "comment": "将重写的虚函数都声明为 override 或 final 有利于提高可读性，并可确保虚函数被有效重写。",
         "tag": "declaration",
         "standard": "ISO/IEC 14882:2011 10.3(4 5)",
         "reference": "C++ Core Guidelines C.128"
@@ -3555,7 +3555,7 @@
     "ID_nonConstUnmodified": {
         "checkPoint": "相关对象未被修改时应使用 const 声明",
         "level": "suggestion",
-        "comment": "有 const 限定的数据是只读的，没有 const 限定的数据是可写的，细化数据的访问方式可显著提升代码的可读性，保护数据不被错误修改，有助于编译器优化。",
+        "comment": "用 const 显式区分数据是只读的还是可写的，细化数据的访问方式可显著提高代码可读性，并保护数据不被错误修改，有助于编译器优化。",
         "tag": "declaration",
         "related": "ID_missingConst",
         "reference": "C++ Core Guidelines Con.1,C++ Core Guidelines Con.2,C++ Core Guidelines Con.3,C++ Core Guidelines Con.4,MISRA C++ 2008 7-1-1,MISRA C++ 2008 7-1-2"
@@ -3577,7 +3577,7 @@
     "ID_missingArraySize": {
         "checkPoint": "数组大小应被显式声明",
         "level": "suggestion",
-        "comment": "显式声明数组大小可明显提高可读性，有利于规避错误。",
+        "comment": "显式声明数组大小有利于提高可读性。",
         "tag": "declaration",
         "config": {
             "allowArrayWithInitList": "为 true 时可以放过带有初始化列表的数组"
@@ -3675,7 +3675,7 @@
     "ID_accessSpecifierDisorder": {
         "checkPoint": "类成员应按 public、protected、private 的顺序声明",
         "level": "suggestion",
-        "comment": "类成员统一按指定顺序声明，可提高代码可读性，也可提高团队协作效率。",
+        "comment": "类成员统一按指定顺序声明，有利于提高代码可读性以及协作效率。",
         "tag": "type"
         },
     "ID_returnNonConstData": {
