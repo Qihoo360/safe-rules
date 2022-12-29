@@ -2306,7 +2306,7 @@ auto ui = make_unique<int>(32);   // Non-compliant
 int* pi = new int[32];              // Compliant
 auto ui = make_unique<int[]>(32);   // Compliant
 ```
-有时可能需要用指针指向一个变量，而指针为空时表示这个变量“不存在”，对于这种情况不妨用变量的特殊值表示变量的状态。
+有时可能需要用指针指向一个变量，而指针为空时表示这个变量“不存在”，对于这种情况不妨改用变量的特殊值表示变量的状态，在 C\+\+ 中也可使用 std::optinal 实现相关功能。
 <br/>
 <br/>
 
@@ -5738,10 +5738,12 @@ U u;
 u.i = 1000;
 cout << u.c << '\n';   // Equivalent to a cast without any restrictions
 ```
-对联合体的使用也相当于一种没有限制的强制类型转换，在 C\+\+ 中建议用 std::variant 或 std::any 取代联合体：
+例中对 u.c 的访问也相当于一种没有任何限制的类型转换。  
+  
+在 C\+\+ 中建议用 std::variant 或 std::any 取代联合体：
 ```
 std::variant<int, char> u;
-u = 123;
+u = 1000;
 cout << get<int>(u) << '\n';    // OK
 cout << get<char>(u) << '\n';   // Throw ‘std::bad_variant_access’
 ```
@@ -11761,8 +11763,65 @@ ID_functionRepetition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
 <hr/>
 
-不同的函数代码却完全相同或过于相似是不利于维护的。
+重复的或过于相似的代码是不利于维护的。  
+  
+示例：
+```
+struct A {
+    int a[10];
+    ....
+    int* foo() {     // Non-compliant, almost identical to ‘foo() const’
+        int* p = a;
+        for (int i = 1; i != 10; i++) {
+            if (a[i] > *p) {
+                p = &a[i];
+            }
+        }
+        return p;
+    }
+    const int* foo() const {     // Non-compliant, almost identical to ‘foo()’
+        const int* p = a;
+        for (int i = 1; i != 10; i++) {
+            if (a[i] > *p) {
+                p = &a[i];
+            }
+        }
+        return p;
+    }
+};
+```
+例中 foo() 返回数组中最大元素的地址，代码与 foo() const 几乎完全相同，当需求有变化时，需要同时修改两个函数，极易造成意料之外的差异，显然是不利于维护的。  
+  
+本例可通过模板和自动类型推理将公有代码抽取出来：
+```
+template <class T>
+auto* foo_impl(T* t) {   // The common function extracted
+    auto* p = t->a;
+    for (auto i = 1; i != 10; i++) {
+        if (t->a[i] > *p) {
+            p = &t->a[i];
+        }
+    }
+    return p;
+}
+
+struct A {
+    ....
+    int* foo() {
+        return foo_impl(this);   // Compliant
+    }
+    const int* foo() const {
+        return foo_impl(this);   // Compliant
+    }
+};
+```
+这样，foo() 与 foo() const 的代码便得到了简化，虽然简化后仍然是相同的，但仅为接口调用，可以接受。
 <br/>
+<br/>
+
+#### 配置
+repetitionRateThreshold：重复率阈值，超过则报出  
+tokenCountThreshold：符号数量小于此阈值的函数不参与比较  
 <br/>
 
 #### 参考
@@ -15352,7 +15411,7 @@ ID_returnValueIgnored&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-与资源分配、信息获取、状态判断有关的返回值不应被忽略。  
+与状态判断、信息获取、资源分配有关的返回值不应被忽略。  
   
 示例：
 ```
@@ -15360,17 +15419,25 @@ void foo(string& s) {
     s.empty();          // Non-compliant
 }
 ```
-例中 empty 返回字符串是否为空，如果忽略返回值会使函数调用失去意义。示例代码很可能是误将 std::string 的 empty 函数当成了 MFC CString 的 Empty 函数，这两个函数有不同的功能，需区别对待。  
+例中 empty 返回字符串是否为空，如果忽略返回值会使函数调用失去意义。  
   
-又如：
+C\+\+ 中由用户添加的具有 \[\[nodiscard\]\] 属性的函数，返回值也不应被忽略，如：
+```
+[[nodiscard]] int getStatus();
+
+void bar() {
+    getStatus();   // Non-compliant
+}
+```
+例外：
 ```
 [[nodiscard]] int getStatus();
 
 void baz() {
-    getStatus();   // Non-compliant
+    (void)getStatus();   // Let it go
 }
 ```
-C\+\+ 中由用户添加的具有 \[\[nodiscard\]\] 属性的函数，返回值也不应被忽略。
+经 (void) 转换的函数调用可以认为是有意放弃返回值，这种情况可不受本规则限制，但最好配以注释说明。
 <br/>
 <br/>
 
@@ -16339,6 +16406,7 @@ ID_complexAssertion&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: expression suggestion
 ```
 void foo(int a, int b, int c) {
     assert(a != 0 && b > 10 && c == b + 1);  // Bad
+    ....
 }
 ```
 应改为：
@@ -16347,6 +16415,7 @@ void foo(int a, int b, int c) {
     assert(a != 0);
     assert(b > 10);
     assert(c == b + 1);  // Good
+    ....
 }
 ```
 本着使代码便于调试的理念展开工作，可有效降低测试及维护成本。

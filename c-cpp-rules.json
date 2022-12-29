@@ -1396,7 +1396,7 @@
     "ID_returnValueIgnored": {
         "checkPoint": "不应忽略重要的返回值",
         "level": "warning",
-        "comment": "与资源分配、信息获取、状态判断有关的返回值不应被忽略。",
+        "comment": "与状态判断、信息获取、资源分配有关的返回值不应被忽略。",
         "tag": "expression",
         "reference": "MISRA C 2012 17.7,MISRA C++ 2008 0-1-7"
         },
@@ -2698,8 +2698,12 @@
     "ID_functionRepetition": {
         "checkPoint": "避免重复的函数实现",
         "level": "suggestion",
-        "comment": "不同的函数代码却完全相同或过于相似是不利于维护的。",
+        "comment": "重复的或过于相似的代码是不利于维护的。",
         "tag": "function",
+        "config": {
+            "tokenCountThreshold": "符号数量小于此阈值的函数不参与比较",
+            "repetitionRateThreshold": "重复率阈值，超过则报出"
+            },
         "reference": "CWE-1041,C++ Core Guidelines ES.3"
         },
     "ID_invalidCondition": {
