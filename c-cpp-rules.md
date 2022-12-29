@@ -2306,7 +2306,7 @@ auto ui = make_unique<int>(32);   // Non-compliant
 int* pi = new int[32];              // Compliant
 auto ui = make_unique<int[]>(32);   // Compliant
 ```
-有时可能需要用指针指向一个变量，而指针为空时表示这个变量“不存在”，对于这种情况不妨改用变量的特殊值表示变量的状态，在 C\+\+ 中也可使用 std::optinal 实现相关功能。
+有时可能需要区分变量是否存在，用空指针表示不存在，并通过资源分配创建变量的方式属于低效实现，不妨改用变量的特殊值表示变量的状态，在 C\+\+ 中也可使用 std::optinal 实现相关功能。
 <br/>
 <br/>
 
@@ -15758,26 +15758,40 @@ printf、sprintf 等 C 风格字符串格式化方法，即由可变参数列表
   
 示例：
 ```
-size_t a = -1;
-ptrdiff_t b = -2;
+struct T {
+    size_t a;
+    ptrdiff_t b;
+};
+
+void foo(const T* p) {
+    printf("%u %d", p->a, p->b);   // Non-compliant, #1
+    printf("%lu %ld", p->a, p->b);   // Non-compliant, #2
+    printf("%llu %lld", p->a, p->b);   // Non-compliant, #3
+}
 ```
-如果要按 16 进制打印 a，10 进制打印 b：
-```
-printf("%x %d", a, b);  // Non-compliant, #1
-printf("%lx %ld", a, b);  // Non-compliant, #2
-printf("%llx %lld", a, b);  // Non-compliant, #3
-```
-size\_t、ptrdiff\_t 等类型是由实现定义的，标准没有规定其是否一定对应 unsigned int、long 或 long long 类型，而 %d、%lx、%llx 只对应 int、long、long long 类型，所以示例代码都是不合理的。`#1` 在 64 位环境中会丢失数据，`#3` 在 32 位环境中会造成参数栈读取错误，`#2` 只在某些环境下可以正常工作不具备可移值性。  
+size\_t、ptrdiff\_t 等类型是由实现定义的，标准没有规定其是否一定对应 unsigned int、long 或 long long 类型，而 %d、%ld、%lld 只对应 int、long、long long 类型，所以示例代码都是不合理的。`#1` 在 64 位环境中会丢失数据，`#3` 在 32 位环境中会造成参数栈读取错误，`#2` 只在某些环境下可以正常工作不具备可移值性。  
   
-在 C 语言中正确的做法是 a 对应 %zx，b 对应 %zd，如：
+在 C 语言中应使 a 对应 %zu，b 对应 %zd，如：
 ```
-printf("%zx %zd", a, b);  // Non-compliant in C++, even if the result is correct
+printf("%zu %zd", p->a, p->b);   // Compliant in C, but non-compliant in C++
 ```
-参数的类型与个数和占位符必须严格对应，否则就会导致未定义的行为，当参数较多时极易出错，利用 C\+\+ iostream 可规避这类问题：
+参数的类型与个数必须和占位符严格对应，否则就会导致未定义的行为，当参数较多时极易出错，单纯地要求代码编写者小心谨慎是不可靠的，改用更安全的方法才是明智的选择。  
+  
+在 C\+\+ 中利用 iostream 可规避这类问题：
 ```
-std::cout << std::hex << a << ' ' << std::dec << b;  // Compliant
+std::cout << p->a << ' ' << p->b;   // Compliant
 ```
-然而当参数较多时，iostream 的方式在形态上可能较为“松散”，可读性可能不如 printf 等函数，这个问题可参见 ID\_forbidVariadicFunction 的示例，用“[模板参数包](https://en.cppreference.com/w/cpp/language/parameter_pack)”等更安全的方法实现 printf 函数的功能。另外，C\+\+20 的“[std::format](https://en.cppreference.com/w/cpp/utility/format/format)”也提供了更多的格式化方法。
+另外，iostream 具备可扩展性，可通过运算符重载实现对象化 IO，如：
+```
+std::ostream& operator << (std::ostream& os, const T& t) {
+    return os << t.a << ' ' << t.b;
+}
+
+void foo(const T* p) {
+    std::cout << *p;     // Safe and brief
+}
+```
+当参数较多时，iostream 的方式在形态上可能较为“松散”，在可读性等方面可能不如 printf 函数，对此 C\+\+20 的“[std::format](https://en.cppreference.com/w/cpp/utility/format/format)”提供了更多的格式化方法。也可参见 ID\_forbidVariadicFunction 的示例，用“[模板参数包](https://en.cppreference.com/w/cpp/language/parameter_pack)”等更安全的方法实现 printf 函数的功能。
 <br/>
 <br/>
 
