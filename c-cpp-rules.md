@@ -15735,10 +15735,10 @@ uint64_t u;
 printf("%d", i);    // Unportable
 printf("%lu", u);   // Unportable
 
-printf(" PRId32, i);   // OK
-printf(" PRIu64, u);   // OK
+printf("%" PRId32, i);   // OK
+printf("%" PRIu64, u);   // OK
 ```
-int32\_t、uint64\_t 并不一定对应 int、unsigned long，不应硬编码 %d、%lu 等占位符，PRId32 和 PRIu64 是 inttypes.h 中定义的宏，可解决移植性问题。  
+int32\_t、uint64\_t 并不一定对应 int、unsigned long，不应将 %d、%lu 等占位符在代码中写死，PRId32 和 PRIu64 是 inttypes.h 中定义的宏，可解决移植性问题。  
   
 又如：
 ```
