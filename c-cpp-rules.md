@@ -501,8 +501,8 @@
     - [R10.4.4 避免显式调用析构函数](#explicitdtorcall)
     - [R10.4.5 不应将非 POD 对象传入可变参数列表](#nonpodvariadicargument)
     - [R10.4.6 C 格式化字符串与其参数的个数应一致](#inconsistentformatargnum)
-    - [R10.4.7 C 格式化字符串与其参数的类型应一致](#inconsistentformatargtype)
-    - [R10.4.8 在 C\+\+ 代码中禁用 C 风格字符串格式化方法](#forbidcstringformat)
+    - [R10.4.7 C 格式化占位符与其对应参数的类型应一致](#inconsistentformatargtype)
+    - [R10.4.8 在 C\+\+ 代码中禁用 C 字符串格式化方法](#forbidcstringformat)
     - [R10.4.9 禁用 atof、atoi、atol 以及 atoll 等函数](#forbidatox)
     - [R10.4.10 避免使用由实现定义的库函数](#implementationdefinedfunction)
     - [R10.4.11 合理使用 std::move](#unsuitablemove)
@@ -15673,12 +15673,12 @@ ID_inconsistentFormatArgNum&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
 <hr/>
 
-格式化字符串与其对应参数的个数应严格一致，否则会引发严重的运行时堆栈错误。  
+C 格式化字符串与其对应参数的个数应严格一致，否则会引发严重的运行时堆栈错误。  
   
 示例：
 ```
 void foo(int type, const char* msg) {
-    printf("Error (type %d): %s\n", type);  // Non-compliant
+    printf("Error (type %d): %s\n", type);   // Non-compliant
 }
 ```
 示例代码的格式化参数需要两个，但只传入一个，参数 msg 之外的不相关栈信息也会被读入。  
@@ -15702,26 +15702,54 @@ SEI CERT FIO47-C
 <br/>
 <br/>
 
-### <span id="inconsistentformatargtype">▌R10.4.7 C 格式化字符串与其参数的类型应一致</span>
+### <span id="inconsistentformatargtype">▌R10.4.7 C 格式化占位符与其对应参数的类型应一致</span>
 
 ID_inconsistentFormatArgType&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
 <hr/>
 
-格式化字符串与其对应参数的类型应严格一致，否则会引发严重的运行时堆栈错误。  
+C 格式化占位符与其对应参数的类型应一致，否则导致标准未定义的行为。  
   
 示例：
 ```
+size_t n;
+ptrdiff_t d;
+....
+printf("%u", n);    // Non-compliant
+printf("%d", d);    // Non-compliant
+printf("%lu", n);   // Non-compliant
+printf("%lld", d);  // Non-compliant
+```
+size\_t、ptrdiff\_t 等类型是由实现定义的，标准没有规定其是否一定对应 unsigned、long 或 long long 等类型，而 %u、%d、%lu、%lld 只对应 unsigned、int、unsigned long、long long 等类型，所以示例代码都是不合理的。  
+  
+应使 n 对应 %zu，d 对应 %zd： 
+```
+printf("%zu", n);   // Compliant
+printf("%zd", d);   // Compliant
+```
+对于 stdint.h 中定义的类型，应使用 inttypes.h 中定义的占位符：
+```
+int32_t i;
+uint64_t u;
+....
+printf("%d", i);    // Unportable
+printf("%lu", u);   // Unportable
+
+printf(" PRId32, i);   // OK
+printf(" PRIu64, u);   // OK
+```
+int32\_t、uint64\_t 并不一定对应 int、unsigned long，不应硬编码 %d、%lu 等占位符，PRId32 和 PRIu64 是 inttypes.h 中定义的宏，可解决移植性问题。  
+  
+又如：
+```
 void foo(const string& msg) {
-    printf("Message: %s\n", msg);  // Non-compliant
+    printf("%s\n", msg);        // Non-compliant
 }
 ```
-例中 %s 要求对应 char\* 型参数，则 msg 实际上是 string 类型，造成栈读取错误。  
-  
-应改为：
+例中 %s 要求对应 char\* 型指针，但 msg 是 string 型对象，造成栈读取错误，应改为：
 ```
 void foo(const string& msg) {
-    cout << "Message: " << msg << '\n';  // Compliant
+    printf("%s\n", msg.c_str());   // Compliant
 }
 ```
 由于可变参数列表自身的局限，很难在编译时发现这种问题，有些编译器会检查 printf、sprintf 等标准函数，但无法检查自定义函数，建议在 C\+\+ 代码中禁用可变参数列表和 C 风格的格式化函数。
@@ -15745,53 +15773,42 @@ SEI CERT FIO47-C
 <br/>
 <br/>
 
-### <span id="forbidcstringformat">▌R10.4.8 在 C++ 代码中禁用 C 风格字符串格式化方法</span>
+### <span id="forbidcstringformat">▌R10.4.8 在 C++ 代码中禁用 C 字符串格式化方法</span>
 
 ID_forbidCStringFormat&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: expression suggestion
 
 <hr/>
 
-printf、sprintf 等 C 风格字符串格式化方法，即由可变参数列表实现的格式化方法，主要问题有：  
+printf、sprintf 等 C 字符串格式化方法，即由可变参数列表实现的格式化方法，主要问题有：  
  - 在编译期无法保证安全性，易出错或造成可移植性问题，提高了测试成本  
  - 与 C\+\+ 的强类型理念不符，也不在 C\+\+ 标准之内  
  - 只接受基本类型的参数，不利于数据的对象化管理  
   
 示例：
 ```
+typedef int32_t mytype;
+
 struct T {
-    size_t a;
-    ptrdiff_t b;
+    mytype a;
 };
 
 void foo(const T* p) {
-    printf("%u %d", p->a, p->b);   // Non-compliant, #1
-    printf("%lu %ld", p->a, p->b);   // Non-compliant, #2
-    printf("%llu %lld", p->a, p->b);   // Non-compliant, #3
+    printf("%d", p->a);   // Non-compliant, unportable
 }
 ```
-size\_t、ptrdiff\_t 等类型是由实现定义的，标准没有规定其是否一定对应 unsigned int、long 或 long long 类型，而 %d、%ld、%lld 只对应 int、long、long long 类型，所以示例代码都是不合理的。`#1` 在 64 位环境中会丢失数据，`#3` 在 32 位环境中会造成参数栈读取错误，`#2` 只在某些环境下可以正常工作不具备可移值性。  
+C 字符串格式化方法依赖特定的格式化占位符，参数的类型与个数必须和占位符严格对应，否则就会导致未定义的行为，当参数较多时极易出错，单纯地要求代码编写者小心谨慎是不可靠的，改用更安全的方法才是明智的选择。  
   
-在 C 语言中应使 a 对应 %zu，b 对应 %zd，如：
-```
-printf("%zu %zd", p->a, p->b);   // Compliant in C, but non-compliant in C++
-```
-参数的类型与个数必须和占位符严格对应，否则就会导致未定义的行为，当参数较多时极易出错，单纯地要求代码编写者小心谨慎是不可靠的，改用更安全的方法才是明智的选择。  
-  
-在 C\+\+ 中利用 iostream 可规避这类问题：
-```
-std::cout << p->a << ' ' << p->b;   // Compliant
-```
-另外，iostream 具备可扩展性，可通过运算符重载实现对象化 IO，如：
+在 C\+\+ 中利用标准流可规避这类问题，而且 C\+\+ 标准流具备可扩展性，符合面向对象的编程理念：
 ```
 std::ostream& operator << (std::ostream& os, const T& t) {
-    return os << t.a << ' ' << t.b;
+    return os << t.a;
 }
 
 void foo(const T* p) {
-    std::cout << *p;     // Safe and brief
+    std::cout << *p;     // Compliant, safe and brief
 }
 ```
-当参数较多时，iostream 的方式在形态上可能较为“松散”，在可读性等方面可能不如 printf 函数，对此 C\+\+20 的“[std::format](https://en.cppreference.com/w/cpp/utility/format/format)”提供了更多的格式化方法。也可参见 ID\_forbidVariadicFunction 的示例，用“[模板参数包](https://en.cppreference.com/w/cpp/language/parameter_pack)”等更安全的方法实现 printf 函数的功能。
+当参数较多时，标准流的方式在形态上可能较为“松散”，在可读性上可能不如 printf 函数，而且重载 <<、>> 运算符的方式也会产生同步问题和额外的性能开销，对此 C\+\+20 的“[std::format](https://en.cppreference.com/w/cpp/utility/format/format)”提供了更多的格式化方法。也可参见 ID\_forbidVariadicFunction 的示例，用“[模板参数包](https://en.cppreference.com/w/cpp/language/parameter_pack)”等更安全的方法实现 printf 函数的功能。
 <br/>
 <br/>
 

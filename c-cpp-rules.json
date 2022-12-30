@@ -2894,16 +2894,16 @@
     "ID_inconsistentFormatArgNum": {
         "checkPoint": "C 格式化字符串与其参数的个数应一致",
         "level": "error",
-        "comment": "格式化字符串与其对应参数的个数应严格一致，否则会引发严重的运行时堆栈错误。",
+        "comment": "C 格式化字符串与其对应参数的个数应严格一致，否则会引发严重的运行时堆栈错误。",
         "tag": "expression",
         "related": "ID_inconsistentFormatArgType,ID_forbidCStringFormat",
         "standard": "ISO/IEC 9899:2011 7.16.1.1(2)-undefined,ISO/IEC 9899:2011 7.21.6.1(2)-undefined",
         "reference": "SEI CERT FIO47-C"
         },
     "ID_inconsistentFormatArgType": {
-        "checkPoint": "C 格式化字符串与其参数的类型应一致",
+        "checkPoint": "C 格式化占位符与其对应参数的类型应一致",
         "level": "error",
-        "comment": "格式化字符串与其对应参数的类型应严格一致，否则会引发严重的运行时堆栈错误。",
+        "comment": "C 格式化占位符与其对应参数的类型应一致，否则导致标准未定义的行为。",
         "tag": "expression",
         "related": "ID_nonPODVariadicArgument,ID_inconsistentFormatArgNum,ID_forbidCStringFormat",
         "standard": "ISO/IEC 9899:2011 7.16.1.1(2)-undefined,ISO/IEC 9899:2011 7.21.6.1(2)-undefined",
@@ -2926,9 +2926,9 @@
         "reference": "CWE-200"
         },
     "ID_forbidCStringFormat": {
-        "checkPoint": "在 C++ 代码中禁用 C 风格字符串格式化方法",
+        "checkPoint": "在 C++ 代码中禁用 C 字符串格式化方法",
         "level": "suggestion",
-        "comment": "C 风格字符串格式化方法（如 printf、sprintf 等），即由可变参数列表实现的格式化方法是不安全的，在编译期无法限定参数的类型和数量，极易产生各种错误。",
+        "comment": "C 字符串格式化方法（如 printf、sprintf 等），即由可变参数列表实现的格式化方法是不安全的，在编译期无法限定参数的类型和数量，极易产生各种错误。",
         "tag": "expression",
         "related": "ID_forbidVariadicFunction",
         "standard": "ISO/IEC 9899:2011 7.16.1.1(2)-undefined,ISO/IEC 9899:2011 7.21.6.1(2)-undefined",
