@@ -172,7 +172,7 @@
     "ID_invalidExternSpecifier": {
         "checkPoint": "extern 关键字不应作用于类成员的声明或定义",
         "level": "warning",
-        "comment": "extern 关键字作用于类成员的声明或定义是没有意义的，为语言运用错误。",
+        "comment": "extern 关键字作用于类成员的声明或定义是没有意义的，属于语言运用错误。",
         "tag": "declaration",
         "standard": "ISO/IEC 14882:2003 9.2(6),ISO/IEC 14882:2011 9.2(6),ISO/IEC 14882:2017 12.2(9)"
         },
@@ -614,7 +614,7 @@
     "ID_uselessQualifier": {
         "checkPoint": "枚举类型的底层类型不应为 const 或 volatile",
         "level": "warning",
-        "comment": "将 enum 或 enum class 的底层类型（underlying type）设为 const 或 volatile 是没有意义的，会被编译器忽略，为语言运用错误。",
+        "comment": "将 enum 或 enum class 的底层类型（underlying type）设为 const 或 volatile 是没有意义的，会被编译器忽略，属于语言运用错误。",
         "tag": "declaration",
         "standard": "ISO/IEC 14882:2011 7.2(2),ISO/IEC 14882:2011 10.2(2)"
         },
@@ -1475,7 +1475,7 @@
     "ID_oddPtrCharAssignment": {
         "checkPoint": "不应使用 '\\0' 等字符常量对指针赋值",
         "level": "warning",
-        "comment": "用 '\\0'、L'\\0'、u'\\0'、U'\\0' 等字符常量对指针赋值是非常怪异的，往往意味错误。",
+        "comment": "用 '\\0'、L'\\0'、u'\\0'、U'\\0' 等字符常量对指针赋值是非常怪异的，往往意味着错误。",
         "tag": "pointer",
         "reference": "CWE-351"
         },
@@ -2614,14 +2614,14 @@
     "ID_macro_paramNotEnclosed": {
         "checkPoint": "与运算符相关的宏参数应该用括号括起来",
         "level": "warning",
-        "comment": "由于宏只做文本处理，不考虑运算符优先级等问题，故应将宏参数用括号括起来，否则很可容易产生意料之外的错误。",
+        "comment": "由于宏只做文本处理，不考虑运算符优先级等问题，故应将宏参数用括号括起来，否则易产生意料之外的错误。",
         "tag": "precompile",
         "reference": "CWE-783,MISRA C++ 2008 16-0-6"
         },
     "ID_macro_expNotEnclosed": {
         "checkPoint": "可作为子表达式的宏定义应该用括号括起来",
         "level": "warning",
-        "comment": "由于宏只做文本处理，不考虑运算符优先级等问题，可作为子表达式的宏定义应该用括号括起来，否则很可容易产生意料之外的错误。",
+        "comment": "由于宏只做文本处理，不考虑运算符优先级等问题，可作为子表达式的宏定义应该用括号括起来，否则易产生意料之外的错误。",
         "tag": "precompile",
         "reference": "CWE-783,MISRA C 2004 19.10,MISRA C 2012 20.7"
         },
@@ -2844,7 +2844,7 @@
     "ID_sizeof_sizeof": {
         "checkPoint": "sizeof 不应再作用于 sizeof 表达式",
         "level": "error",
-        "comment": "sizeof(sizeof(....)) 等价于 sizeof(size_t)，在实际应用中没有任何必要写成连续 sizeof 的形式，属于常见笔误，多数由复制粘贴或错误的宏展开导致。",
+        "comment": "sizeof(sizeof(...)) 等价于 sizeof(size_t)，在实际应用中没有任何必要写成连续 sizeof 的形式，属于常见笔误，多数由复制粘贴或错误的宏展开导致。",
         "tag": "expression",
         "standard": "ISO/IEC 14882:2003 5.3.3(6),ISO/IEC 14882:2011 5.3.3(6),ISO/IEC 14882:2017 8.3.3(6)",
         "reference": "CWE-682"
@@ -3245,7 +3245,7 @@
     "ID_missingResetNull": {
         "checkPoint": "指针在释放后应置空",
         "level": "suggestion",
-        "comment": "指针指向的内存空间被回收后指针不再有效，这时应将指针设为空指针，可避免重复释放等问题，如果后续对指针仍有错误的读写，也可使问题立即显现出来，不至于造成难以排查的问题。",
+        "comment": "内存空间被回收后相关指针不再有效，这时应将指针设为空指针，可避免重复释放等问题，如果后续对指针有错误访问，也可使问题立即显现出来，便于修正。",
         "tag": "pointer",
         "related": "ID_danglingDeref,ID_explicitDtorCall",
         "reference": "SEI CERT MEM01-C"

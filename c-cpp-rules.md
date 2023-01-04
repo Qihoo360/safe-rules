@@ -858,7 +858,7 @@ Result foo() {
     );
 }
 ```
-设 userInput 返回用户输入的字符串，sqlQuery 将用户输入替换格式化占位符后执行 SQL 语句，如果用户输入“xxx' or 'x'='x”一类的字符串则相当于执行的是“select \* from db where key='xxx' or 'x'='x'”，一个恒为真的条件使 where 限制失效，造成所有数据被返回，这是一种常见的攻击方式，称为“SQL 注入（SQL Injection）”，对于 XPath、XQuery、LDAP 等脚本均需考虑这种问题，应在执行前判断用户输入的安全性。  
+设 userInput 返回用户输入的字符串，sqlQuery 将用户输入替换格式化占位符后执行 SQL 语句，如果用户输入“xxx' or 'x'='x”一类的字符串则相当于执行的是“select \* from db where key='xxx' or 'x'='x'”，一个恒为真的条件使 where 限制失效，造成所有数据被返回，这是一种常见的攻击方式，称为“[SQL 注入（SQL injection）](https://en.wikipedia.org/wiki/SQL_injection)”，对于 XPath、XQuery、LDAP 等脚本均需考虑这种问题，应在执行前判断用户输入的安全性。  
   
 又如：
 ```
@@ -984,7 +984,7 @@ void bar(User* user) {
     }
 }
 ```
-设例中 read\_large\_file 读取大型文件，is\_admin 进行身份认证，在身份认证之前访问资源使得攻击者不必获取有效账号即可消耗系统资源，从而对系统造成干扰，所以应改在访问资源之前进行身份认证。
+设例中 read\_large\_file 读取大型文件，is\_admin 进行身份认证，在身份认证之前访问资源使得攻击者不必获取有效账号即可消耗系统资源，从而对系统造成干扰，所以应该在访问资源之前进行身份认证。
 <br/>
 <br/>
 
@@ -2167,15 +2167,16 @@ ID_illDealloc&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
   
 示例：
 ```
-void foo(size_t size) {
-    int* p = (int*)alloca(size);
+void foo(size_t n) {
+    int* p = (int*)alloca(n);
     ....
     free(p);    // Non-compliant, ‘p’ should not be freed
 }
 
 void bar() {
     int i;
-    free(&i);   // Non-compliant, naughty behaviour
+    ....
+    free(&i);   // Non-compliant, naughty behavior
 }
 ```
 释放在栈上分配的空间或者局部对象的地址会造成严重的运行时错误。
@@ -2607,10 +2608,10 @@ stdio.h、signal.h、time.h、fenv.h 等头文件对于有高可靠性要求的�
 审计工具不妨通过配置设定不合规头文件的名称：
 ```
 [ID_forbiddenHeader]
-tgmath.h|ctgmath=May result in undefined behaviour
+tgmath.h|ctgmath=May result in undefined behavior
 setjmp.h|csetjmp=Forbidden header
 ```
-表示将 tgmath.h、ctgmath、setjmp.h、csetjmp 设为不合规头文件，如发现代码中有 tgmath.h，则报告“May result in undefined behaviour”，如发现代码中有 setjmp.h 或 csetjmp ，则报告“Forbidden header”。
+表示将 tgmath.h、ctgmath、setjmp.h、csetjmp 设为不合规头文件，如发现代码中有 tgmath.h，则报告“May result in undefined behavior”，如发现代码中有 setjmp.h 或 csetjmp ，则报告“Forbidden header”。
 <br/>
 <br/>
 
@@ -2760,7 +2761,7 @@ __STDC_ISO_10646__、__STDCPP_STRICT_POINTER_SAFETY__
 keywordAsReserved=true
 NULL|NDEBUG|EOF=Reserved name should not be defined or undefined
 ```
-表示将 NULL、NDEBUG、EOF 为设为保留名称，当在代码中发现定义了相同名称的宏时则提示“Reserved name should not be redefined or undefined”。  
+表示将 NULL、NDEBUG、EOF 设为保留名称，当在代码中发现定义了相同名称的宏时则提示“Reserved name should not be redefined or undefined”。  
 配置项 keywordAsReserved 为 true 表示关键字也作为保留名称，否则只认为用户设置的名称为保留名称。
 <br/>
 <br/>
@@ -2817,7 +2818,7 @@ __STDC_ISO_10646__、__STDCPP_STRICT_POINTER_SAFETY__
 keywordAsReserved=true
 NULL|NDEBUG|EOF=Reserved name should not be defined or undefined
 ```
-表示将 NULL、NDEBUG、EOF 为设为保留名称，当在代码中发现 undef 相同名称的宏时则提示“Reserved name should not be redefined or undefined”。  
+表示将 NULL、NDEBUG、EOF 设为保留名称，当在代码中发现 undef 相同名称的宏时则提示“Reserved name should not be redefined or undefined”。  
 配置项 keywordAsReserved 为 true 表示关键字也作为保留名称，否则只认为用户设置的名称为保留名称。
 <br/>
 <br/>
@@ -2846,7 +2847,7 @@ ID_macro_expNotEnclosed&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 <hr/>
 
-由于宏只做文本处理，不考虑运算符优先级等问题，可作为子表达式的宏定义应该用括号括起来，否则很可容易产生意料之外的错误。  
+由于宏只做文本处理，不考虑运算符优先级等问题，可作为子表达式的宏定义应该用括号括起来，否则易产生意料之外的错误。  
   
 示例：
 ```
@@ -2880,7 +2881,7 @@ ID_macro_paramNotEnclosed&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 <hr/>
 
-由于宏只做文本处理，不考虑运算符优先级等问题，故应将宏参数用括号括起来，否则很可容易产生意料之外的错误。  
+由于宏只做文本处理，不考虑运算符优先级等问题，故应将宏参数用括号括起来，否则易产生意料之外的错误。  
   
 示例：
 ```
@@ -3508,10 +3509,10 @@ ID_illFormedDirective&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 ```
 #if defined M            // Compliant
 #if defined(M)           // Compliant
-#if defined(M == 0)      // Non-compliant, undefined behaviour
+#if defined(M == 0)      // Non-compliant, undefined behavior
 
 #define DEFINED defined  // Non-compliant
-#if DEFINED M            // Undefined behaviour
+#if DEFINED M            // Undefined behavior
 
 #line 0                  // Non-compliant, invalid line number
 #line 4294967295         // Non-compliant, line number too large
@@ -4011,7 +4012,7 @@ main 函数作为程序的入口，链接器需对其特殊处理，不应受命
   
 示例：
 ```
-int main() {       // Compliant
+int main() {   // Compliant
     ....
 }
 
@@ -4643,7 +4644,7 @@ ID_mixPublicPrivateData&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestion
   
 否则应对类进行改造或拆分。  
   
-面向对象的封装理念更倾向于将所有数据成员都设为 private，由成员函数按指定逻辑控制每个成员的读写方法，以供外部访问，对代码的职责进行有效的划分，从而提高可维护性并降低风险，关于封装的进一步讨论可参见 ID\_nonPrivateData。  
+面向对象的封装理念更倾向于将所有数据成员都设为 private，由成员函数按指定逻辑控制每个成员的读写方法，以供外部访问，对代码的职责进行有效地划分，从而提高可维护性并降低风险，关于封装的进一步讨论可参见 ID\_nonPrivateData。  
   
 常量数据成员不可被改变，所以可不受本规则约束。  
   
@@ -4844,7 +4845,7 @@ public:
     }
 };
 ```
-例中 B 只涉及字符串对象的组合，复制和析构可交由成员对象完成，其拷贝构造、赋值运算符及析构函数是不必要的，应该去掉，编译器会进行更好的处理。  
+例中 B 只涉及字符串对象的组合，复制和析构可交由成员对象完成，其拷贝构造、赋值运算符及析构函数是不必要的，应该去掉，编译器会进行更好地处理。  
   
 同理，在遵循 C\+\+11 及之后标准的代码中，对于：  
  1. 拷贝构造函数  
@@ -5097,7 +5098,7 @@ char* bar() {
 ```
 例中 foo 返回临时对象，类型转换运算符被隐式调用，然而当 bar 返回后，临时对象被销毁，返回的指针是无效的。  
   
-将类型转换运算符用 explicit 关键字限定，有问题的代码例便不会通过编译：
+将类型转换运算符用 explicit 关键字限定，有问题的代码便不会通过编译：
 ```
 struct A {
     ....
@@ -6398,7 +6399,7 @@ ID_uselessQualifier&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-将 enum 或 enum class 的底层类型（underlying type）设为 const 或 volatile 是没有意义的，会被编译器忽略，为语言运用错误。  
+将 enum 或 enum class 的底层类型（underlying type）设为 const 或 volatile 是没有意义的，会被编译器忽略，属于语言运用错误。  
   
 示例：
 ```
@@ -6744,7 +6745,7 @@ ID_invalidExternSpecifier&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warnin
 
 <hr/>
 
-extern 关键字作用于类成员的声明或定义是没有意义的，为语言运用错误。  
+extern 关键字作用于类成员的声明或定义是没有意义的，属于语言运用错误。  
   
 示例：
 ```
@@ -7685,13 +7686,7 @@ int bar() {
     return foo(a);     // It can be compiled
 }
 ```
-例外：
-```
-int foo(int a[], int n);   // Let it go
-```
-用空的方括号声明数组，并用另一个参数表示数组大小的情况可不受本规则限制。  
-  
-建议在 C\+\+ 语言中采用数组的引用或模板的方式：
+建议在 C\+\+ 语言中采用数组引用或模板的方式：
 ```
 void foo(int (&a)[100]);     // Compliant
 
@@ -7700,6 +7695,11 @@ void foo(int (&a)[size]) {   // Compliant
     ....
 }
 ```
+例外：
+```
+int foo(int a[], int n);   // Let it go
+```
+用空的方括号声明数组，并用另一个参数表示数组大小的情况可不受本规则限制。
 <br/>
 <br/>
 
@@ -8132,7 +8132,7 @@ ID_overloadAddressOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration sugge
 struct X;   // Incomplete type
 
 X* foo(X& x) {
-    return &x;   // Undefined behaviour
+    return &x;   // Undefined behavior
 }
 
 struct X {
@@ -8709,10 +8709,22 @@ ID_inconsistentDeclaration&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration sugge
   
 示例：
 ```
-int foo(int x);   // Declaration
+extern long n;   // Non-compliant, undefined behavior
+
+int foo() {
+    return n++;   // Undefined behavior
+}
+
+short n;
+```
+例中变量 n 有多处声明，但类型不一致，会导致标准未定义的行为。  
+  
+又如：
+```
+int foo(int x);
 
 typedef int type;
-type foo(type x) {   // Implementation, non-compliant
+type foo(type x) {   // Non-compliant, confusing
     ....
 }
 ```
@@ -8721,9 +8733,9 @@ type foo(type x) {   // Implementation, non-compliant
 应改为：
 ```
 typedef int type;
-type foo(type x);   // Declaration
+type foo(type x);
 
-type foo(type x) {   // Implementation, compliant
+type foo(type x) {   // Compliant
     ....
 }
 ```
@@ -16284,7 +16296,7 @@ ID_sizeof_sizeof&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
 <hr/>
 
-sizeof(sizeof(....)) 等价于 sizeof(size\_t)，在实际应用中没有任何必要写成连续 sizeof 的形式，往往意味着逻辑错误，多数由复制粘贴或错误的宏展开导致。  
+sizeof(sizeof(...)) 等价于 sizeof(size\_t)，在实际应用中没有任何必要写成连续 sizeof 的形式，往往意味着逻辑错误，多数由复制粘贴或错误的宏展开导致。  
   
 示例：
 ```
@@ -18587,7 +18599,7 @@ ID_oddPtrCharAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 
 <hr/>
 
-用 '\\0'、L'\\0'、u'\\0'、U'\\0' 等字符常量对指针赋值是非常怪异的，往往意味错误。  
+用 '\\0'、L'\\0'、u'\\0'、U'\\0' 等字符常量对指针赋值是非常怪异的，往往意味着错误。  
   
 示例：
 ```
@@ -18831,7 +18843,7 @@ ID_missingResetNull&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: pointer suggestion
 
 <hr/>
 
-内存空间被回收后相关指针不再有效，这时应将指针设为空指针，可避免重复释放等问题，如果后续对指针有错误的访问，也可使问题立即显现出来，便于修正。  
+内存空间被回收后相关指针不再有效，这时应将指针设为空指针，可避免重复释放等问题，如果后续对指针有错误访问，也可使问题立即显现出来，便于修正。  
   
 示例：
 ```
@@ -19634,7 +19646,7 @@ ID_assignmentAsSubExpression&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style sug
 a = b;              // Compliant
 a = b = c;          // Non-compliant
 if (a = b != 0) {   // Non-compliant
-    //....
+    ....
 }
 a += b;             // Compliant
 a += b += c;        // Non-compliant
@@ -19929,7 +19941,7 @@ a = 2 + p->n;        // Compliant
 a = fun(x);          // Compliant
 a = (u + v) * w;     // Compliant
 ```
-注意，设立本规则并不是为了提倡省略括号，如果可以更好的表达逻辑意义，或不确定运算符优先级时，应及时使用括号。
+注意，设立本规则并不是为了提倡省略括号，如果可以更好地表达逻辑意义，或不确定运算符优先级时，应及时使用括号。
 <br/>
 <br/>
 <br/>
