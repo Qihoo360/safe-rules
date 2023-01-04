@@ -83,9 +83,9 @@
   - [R1.3 敏感数据在使用后应被有效清理](#unsafecleanup)
   - [R1.4 公共成员或全局对象不应记录敏感数据](#sensitivename)
   - [R1.5 预判用户输入造成的不良后果](#hijack)
-  - [R1.6 对文件设定合理的访问权限](#unlimitedauthority)
-  - [R1.7 落实有效的权限管理](#improperauthorization)
-  - [R1.8 不应引用危险符号名称](#dangerousname)
+  - [R1.6 对资源设定合理的访问权限](#unlimitedauthority)
+  - [R1.7 对用户落实有效的权限管理](#improperauthorization)
+  - [R1.8 避免引用危险符号名称](#dangerousname)
   - [R1.9 避免使用具有危险性的函数](#dangerousfunction)
   - [R1.10 不应使用已过时的函数](#obsoletefunction)
   - [R1.11 禁用不安全的字符串函数](#unsafestringfunction)
@@ -772,9 +772,7 @@ void foo() {
     memset(password, 0, sizeof(password));  // Non-compliant
 }
 ```
-示例代码调用 memset 覆盖敏感数据以达到清理目的，然而保存敏感信息的 password 为局部数组且 memset 之后没有再被引用，根据相关标准，编译器可将 memset 过程去掉，使敏感数据没有得到有效清理。  
-  
-C11 提供了 memset\_s 函数以避免这种问题，某些平台和库也提供了相关支持，如 SecureZeroMemory、explicit\_bzero、OPENSSL\_cleanse 等不会被优化掉的函数。  
+示例代码调用 memset 覆盖敏感数据以达到清理目的，然而保存敏感信息的 password 为局部数组且 memset 之后没有再被引用，根据相关标准，编译器可将 memset 过程去掉，使敏感数据没有得到有效清理。C11 提供了 memset\_s 函数以避免这种问题，某些平台和库也提供了相关支持，如 SecureZeroMemory、explicit\_bzero、OPENSSL\_cleanse 等不会被优化掉的函数。  
   
 在 C\+\+ 语言中，可用 volatile 限定相关数据以避免编译器的优化，再用 std::fill\_n 等方法清理，如：
 ```
@@ -801,6 +799,8 @@ ISO/IEC 9899:2011 K.3.7.4.1
 
 #### 参考
 CWE-14  
+CWE-226  
+CWE-244  
 CWE-733  
 SEI CERT MSC06-C  
 <br/>
@@ -858,7 +858,7 @@ Result foo() {
     );
 }
 ```
-设 userInput 返回用户输入的字符串，sqlQuery 将用户输入替换格式化占位符后执行 SQL 语句，如果用户输入“xxx' or 'x'='x”一类的字符串则相当于执行的是“select \* from db where key='xxx' or 'x'='x'”，一个恒为真的条件使 where 限制失效，造成所有数据被返回，所以在执行 SQL 语句之前应判断用户输入的安全性。  
+设 userInput 返回用户输入的字符串，sqlQuery 将用户输入替换格式化占位符后执行 SQL 语句，如果用户输入“xxx' or 'x'='x”一类的字符串则相当于执行的是“select \* from db where key='xxx' or 'x'='x'”，一个恒为真的条件使 where 限制失效，造成所有数据被返回，这是一种常见的攻击方式，称为“SQL 注入（SQL Injection）”，对于 XPath、XQuery、LDAP 等脚本均需考虑这种问题，应在执行前判断用户输入的安全性。  
   
 又如：
 ```
@@ -868,7 +868,7 @@ string bar() {
     );
 }
 ```
-这段代码意在将用户输入的路径限制在 /myhome/mydata 目录下，然而这么做是不安全的，如果用户输入带有“../”这种相对路径，则仍可绕过限制，所以在读取文件之前应判断路径的可靠性。  
+这段代码意在将用户输入的路径限制在 /myhome/mydata 目录下，然而这么做是不安全的，如果用户输入带有“../”这种相对路径，则仍可绕过限制，这也是一种常见的攻击方式，称为“[路径遍历（directory traversal）](https://en.wikipedia.org/wiki/Directory_traversal_attack)”，应在读取文件之前判断路径的安全性。  
   
 注意，“用户输入”不单指人的手工输入，源自环境变量、配置文件以及其他软硬件的输入均在此范围内。
 <br/>
@@ -878,16 +878,24 @@ string bar() {
 CWE-89  
 CWE-23  
 CWE-73  
+CWE-943  
 <br/>
 <br/>
 
-### <span id="unlimitedauthority">▌R1.6 对文件设定合理的访问权限</span>
+### <span id="unlimitedauthority">▌R1.6 对资源设定合理的访问权限</span>
 
 ID_unlimitedAuthority&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-文件的访问权限不可过于宽松，否则很容易遭到窃取或篡改。  
+对资源设定合理的访问权限，避免为攻击者提供不应拥有的权限或能力。  
+  
+权限的分类包括但不限于：  
+ - 文件、数据库等资源的读写权限  
+ - 计算、IO 过程的执行权限  
+ - 软硬件资源的占用权限  
+  
+权限设定是产品设计与实现的重要环节，需落实相关的评审与测试。  
   
 示例：
 ```
@@ -918,7 +926,7 @@ int main() {
 ```
 与 fopen 不同，fopen\_s 可以不受 umask 等函数的影响，直接将文件的权限设为当前用户私有，其他用户不可访问，降低了文件被窃取或篡改的风险，是一种更安全的方法。  
   
-除此之外，如果需要对文件等资源进行更精细的权限管理，可参见“[access control list（ACL）](https://en.wikipedia.org/wiki/Access-control_list)”。
+除此之外，如果需要对资源进行更精细的权限管理，可参见“[access control list（ACL）](https://en.wikipedia.org/wiki/Access-control_list)”。
 <br/>
 <br/>
 
@@ -934,19 +942,19 @@ SEI CERT FIO06-C
 <br/>
 <br/>
 
-### <span id="improperauthorization">▌R1.7 落实有效的权限管理</span>
+### <span id="improperauthorization">▌R1.7 对用户落实有效的权限管理</span>
 
 ID_improperAuthorization&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
 需落实有效的权限管理，相关措施包括但不限于：  
- - 落实授权与认证机制  
- - 提供多因素认证  
- - 避免仅在客户端认证而非服务端认证  
+ - 落实授权与认证机制，提供多因素认证  
  - 遵循最小特权原则，对资源和相关算法设置合理的访问或执行权限  
+ - 避免仅在客户端认证而非服务端认证  
  - 检查请求是否符合用户的权限设定，拒绝无权限的请求  
  - 用户放弃某项权限后，应确保相关权限不再生效  
+ - 遵循合理的“认证 \- 执行”顺序，避免复杂度攻击或早期放大攻击  
  - 保证信道完整性，对相关用户进行充分的身份认证，避免中间人攻击  
  - 验证通信通道的源和目的地，拒绝非预期的请求和应答  
  - 避免攻击者使用重放攻击等手段绕过身份认证或干扰正常运营  
@@ -960,12 +968,23 @@ ID_improperAuthorization&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 Result foo() {
     auto req = getRequest();
     auto res = sqlQuery(
-        "select * from db where key='%s'", req["key"]
+        "select * from db where key='%s'", req["key"]   // Non-compliant
     );
     return res;
 }
 ```
-设例中 req 对应用户请求，sqlQuery 将请求中的 key 字段替换格式化占位符后执行查询，这个模式存在多种问题，应判断用户是否具有读取数据库相关字段的权限，而且还应判断 req\["key"\] 的值是否安全，详见 ID\_hijack。
+设例中 req 对应用户请求，sqlQuery 将请求中的 key 字段替换格式化占位符后执行查询，这个模式存在多种问题，应先判断用户是否具有读取数据库相关字段的权限，而且还应判断 req\["key"\] 的值是否安全，详见 ID\_hijack。  
+  
+又如：
+```
+void bar(User* user) {
+    auto buf = read_large_file();
+    if (is_admin(user)) {           // Non-compliant
+        do_something(buf);
+    }
+}
+```
+设例中 read\_large\_file 读取大型文件，is\_admin 进行身份认证，在身份认证之前访问资源使得攻击者不必获取有效账号即可消耗系统资源，从而对系统造成干扰，所以应改在访问资源之前进行身份认证。
 <br/>
 <br/>
 
@@ -975,7 +994,7 @@ CWE-350
 <br/>
 <br/>
 
-### <span id="dangerousname">▌R1.8 不应引用危险符号名称</span>
+### <span id="dangerousname">▌R1.8 避免引用危险符号名称</span>
 
 ID_dangerousName&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
@@ -7655,18 +7674,24 @@ ID_invalidParamArraySize&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-在形式参数中对数组大小的声明起不到实际的限制作用。  
+数组作为形式参数时，其大小声明起不到实际的限制作用。  
   
 示例：
 ```
-int foo(int a[100]);  // Non-compliant
+int foo(int a[100]);   // Non-compliant
 
 int bar() {
     int a[50] = {};
-    return foo(a);    // It can be compiled
+    return foo(a);     // It can be compiled
 }
 ```
-在 C\+\+ 语言中可改为数组的引用：
+例外：
+```
+int foo(int a[], int n);   // Let it go
+```
+用空的方括号声明数组，并用另一个参数表示数组大小的情况可不受本规则限制。  
+  
+建议在 C\+\+ 语言中采用数组的引用或模板的方式：
 ```
 void foo(int (&a)[100]);     // Compliant
 
@@ -8715,6 +8740,7 @@ ISO/IEC 9899:2011 6.2.7(2)-undefined
 <br/>
 
 #### 参考
+SEI CERT DCL40-C  
 MISRA C 2004 8.4  
 MISRA C 2012 8.3  
 MISRA C++ 2008 3-9-1  

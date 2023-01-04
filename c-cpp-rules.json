@@ -179,7 +179,7 @@
     "ID_invalidParamArraySize": {
         "checkPoint": "不应将数组作为函数的形式参数",
         "level": "warning",
-        "comment": "在形式参数中对数组大小的声明起不到实际的限制作用。",
+        "comment": "数组作为形式参数时，其大小声明起不到实际的限制作用。",
         "tag": "declaration",
         "standard": "ISO/IEC 9899:1999 6.7.5.3(7),ISO/IEC 9899:2011 6.7.6.3(7)",
         "reference": "C++ Core Guidelines I.13,C++ Core Guidelines R.14,MISRA C++ 2008 5-2-12"
@@ -2773,7 +2773,7 @@
         "reference": "CWE-766"
         },
     "ID_dangerousName": {
-        "checkPoint": "不应引用危险符号名称",
+        "checkPoint": "避免引用危险符号名称",
         "level": "warning",
         "comment": "弱加密、弱哈希、弱随机、不安全的协议等相关库、函数、类、宏、常量等名称不应出现在代码中。",
         "tag": "security",
@@ -3125,7 +3125,7 @@
         "tag": "security",
         "standard": "ISO/IEC 9899:2011 5.1.2.3(4),ISO/IEC 9899:2011 K.3.7.4.1",
         "related": "ID_secretLeak,ID_ignorePaddingData",
-        "reference": "CWE-14,CWE-733,SEI CERT MSC06-C"
+        "reference": "CWE-14,CWE-226,CWE-244,CWE-733,SEI CERT MSC06-C"
         },
     "ID_nonConstNonStaticGlobalObject": {
         "checkPoint": "全局对象只应为常量或静态对象",
@@ -3251,9 +3251,9 @@
         "reference": "SEI CERT MEM01-C"
         },
     "ID_unlimitedAuthority": {
-        "checkPoint": "对文件设定合理的访问权限",
+        "checkPoint": "对资源设定合理的访问权限",
         "level": "warning",
-        "comment": "文件的访问权限不可过于宽松，否则很容易遭到窃取或篡改。",
+        "comment": "对资源设定合理的访问权限，避免为攻击者提供不应拥有的权限或能力。",
         "tag": "security",
         "standard": "ISO/IEC 9899:2011 K.3.5.2.1(7),ISO/IEC 14882:2017 30.10.15.26",
         "reference": "CWE-266,CWE-732,SEI CERT FIO06-C"
@@ -3280,7 +3280,7 @@
         "level": "warning",
         "comment": "须对用户输入的脚本、路径、资源请求等信息进行预判，对产生不良后果的输入予以拒绝。",
         "tag": "security",
-        "reference": "CWE-89,CWE-23,CWE-73"
+        "reference": "CWE-89,CWE-23,CWE-73,CWE-943"
         },
     "ID_bufferOverflow": {
         "checkPoint": "避免缓冲区溢出",
@@ -3338,7 +3338,7 @@
         "reference": "C++ Core Guidelines C.2,C++ Core Guidelines C.8"
         },
     "ID_improperAuthorization": {
-        "checkPoint": "落实有效的权限管理",
+        "checkPoint": "对用户落实有效的权限管理",
         "level": "warning",
         "comment": "权限管理与产品安全直接相关，应落实严格的评审、测试以及攻防演练。",
         "tag": "security",
@@ -3625,7 +3625,7 @@
         "tag": "declaration",
         "related": "ID_inconsistentParamName",
         "standard": "ISO/IEC 9899:1999 6.2.7(2)-undefined,ISO/IEC 9899:2011 6.2.7(2)-undefined",
-        "reference": "MISRA C 2004 8.4,MISRA C 2012 8.3,MISRA C++ 2008 3-9-1"
+        "reference": "SEI CERT DCL40-C,MISRA C 2004 8.4,MISRA C 2012 8.3,MISRA C++ 2008 3-9-1"
         },
     "ID_unsuitableDeclaration": {
         "checkPoint": "在合理的位置声明",
