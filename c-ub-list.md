@@ -178,7 +178,7 @@
 | 166 | 格式化输入占位符 c、s、\[ 对应的参数没有足够的空间容纳输入的数据<sup> [\[注\]](#comment_166) </sup> | 7.21.6.2 |
 | 167 | 由 l 修饰的格式化输入占位符 c、s、\[ 对应的输入不是符合要求的多字符序列<sup> [\[注\]](#comment_167) </sup> | 7.21.6.2 |
 | 168 | 格式化输入占位符 %p 对应的参数不是同一个进程中的指针<sup> [\[注\]](#comment_168) </sup> | 7.21.6.2 |
-| 169 | 未正确初始化的 va\_last 作为 vfprintf、vscanf 等函数的参数，或者在函数返回后继续使用该参数<sup> [\[注\]](#comment_169) </sup> | 7.21.6.8 |
+| 169 | 未正确初始化的 va\_list 作为 vfprintf、vscanf 等函数的参数，或者在函数返回后继续使用该参数<sup> [\[注\]](#comment_169) </sup> | 7.21.6.8 |
 | 170 | 在 fgets 或 fgetws 失败后继续使用传入的数组<sup> [\[注\]](#comment_170) </sup> | 7.21.7.2 |
 | 171 | 在调用 ungetc 函数后使用二进制流的 file position indicator，而在调用之前其值为 0 | 7.21.7.10 |
 | 172 | 在 fread 或 fwrite 失败后使用 file position indicator<sup> [\[注\]](#comment_172) </sup> | 7.21.8.1 |
@@ -400,7 +400,7 @@
 <br/>
 <br/>
 
-### <span id="comment_169"> 169. 未正确初始化的 va\_last 作为 vfprintf、vscanf 等函数的参数，或者在函数返回后继续使用该参数 </span>
+### <span id="comment_169"> 169. 未正确初始化的 va\_list 作为 vfprintf、vscanf 等函数的参数，或者在函数返回后继续使用该参数 </span>
 
 vfprintf、vfscanf、vprintf、vscanf、vsnprintf、vsprintf、vsscanf、vfwprintf、vfwscanf、vswprintf、vswscanf、vwprintf、vwscanf 等函数均面对同样的问题。  
   
