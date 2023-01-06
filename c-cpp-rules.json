@@ -2075,7 +2075,7 @@
         "level": "warning",
         "comment": "头文件中定义了匿名命名空间，即相当于在头文件中定义了静态数据，头文件被多个源文件包含时便会造成数据冗余。",
         "tag": "global",
-        "related": "ID_staticInHeader",
+        "related": "ID_staticInHeader,ID_unsuitableDeclaration",
         "standard": "ISO/IEC 14882:2011 7.3.1.1",
         "reference": "C++ Core Guidelines SF.21,MISRA C++ 2008 7-3-3"
         },
@@ -2121,6 +2121,7 @@
         "level": "warning",
         "comment": "头文件中由 static 关键字声明的对象、数组或函数，会在每个包含该头文件的翻译单元或模块中生成副本造成数据冗余，如果将静态数据误用作全局数据也会造成逻辑错误。",
         "tag": "global",
+        "related": "ID_unsuitableDeclaration",
         "standard": "ISO/IEC 14882:2011 3.5(3)"
         },
     "ID_nameTooShort": {
@@ -3630,8 +3631,10 @@
     "ID_unsuitableDeclaration": {
         "checkPoint": "在合理的位置声明",
         "level": "suggestion",
-        "comment": "在合理的位置声明。",
+        "comment": "如果声明的位置不合理会降低代码的可维护性，甚至会导致标准未定义的行为。",
         "tag": "declaration",
+        "related": "ID_staticInHeader,ID_anonymousNamespaceInHeader",
+        "standard": "ISO/IEC 9899:1999 6.7.1(5)-undefined,ISO/IEC 9899:2011 6.7.1(7)-undefined",
         "reference": "MISRA C++ 2008 3-1-2,MISRA C++ 2008 3-3-1"
         },
     "ID_missingStatic": {

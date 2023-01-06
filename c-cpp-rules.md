@@ -4154,6 +4154,10 @@ const Arr& getArr() {
 <br/>
 <br/>
 
+#### 相关
+ID_unsuitableDeclaration  
+<br/>
+
 #### 依据
 ISO/IEC 14882:2011 3.5(3)  
 <br/>
@@ -4181,6 +4185,7 @@ namespace {       // Non-compliant
 
 #### 相关
 ID_staticInHeader  
+ID_unsuitableDeclaration  
 <br/>
 
 #### 依据
@@ -8765,23 +8770,36 @@ ID_unsuitableDeclaration&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggest
 
 <hr/>
 
-声明时应遵循如下原则：  
+如果声明的位置不合理会降低代码的可维护性，甚至会导致标准未定义的行为。  
+  
+应遵循如下原则：  
  - 外部链接的对象或函数应在头文件中声明  
- - 内部链接的对象或函数应在源文件中声明  
- - 不应在函数作用域内进行外部声明  
+ - 内部链接的对象或函数应在源文件中声明，不应在头文件中声明  
  - 避免在头文件外手工书写外部声明  
+ - 避免在局部作用域内声明函数或全局对象  
   
 示例：
 ```
-int bar()
+int fun()
 {
-    extern int g;       // Non-compliant
-    extern int fun();   // Non-compliant
+    extern int g;       // Non-compliant, bad practice
+    extern int foo();   // Non-compliant, bad practice
+    static int bar();   // Non-compliant, undefined behavior
     ....
 }
 ```
-外部链接的对象或函数应通过头文件引入，如果分散在函数中声明是不便于统一管理和维护的。
+外部链接的对象或函数应通过头文件引入，如果分散在函数中声明是不便于统一管理和维护的。另外，在局部作用域中使用除 extern 之外的存储类说明符声明函数会导致标准未定义的行为。
 <br/>
+<br/>
+
+#### 相关
+ID_staticInHeader  
+ID_anonymousNamespaceInHeader  
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.7.1(5)-undefined  
+ISO/IEC 9899:2011 6.7.1(7)-undefined  
 <br/>
 
 #### 参考
