@@ -2133,7 +2133,7 @@ ID_insufficientDelete&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource erro
 示例：
 ```
 void foo(int n) {
-    auto* p = new X[n];  // n default constructed Xs
+    auto* p = new X[n];  // n default-constructed X objects
     ....
     delete p;            // Non-compliant, use ‘delete[] p;’ instead
 }
@@ -2326,7 +2326,7 @@ auto ui = make_unique<int>(32);   // Non-compliant
 int* pi = new int[32];              // Compliant
 auto ui = make_unique<int[]>(32);   // Compliant
 ```
-有时可能需要区分变量是否存在，用空指针表示不存在，并通过资源分配创建变量的方式属于低效实现，不妨改用变量的特殊值表示变量的状态，在 C\+\+ 中也可使用 std::optinal 实现相关功能。
+有时可能需要区分变量是否存在，用空指针表示不存在，并通过资源分配创建变量的方式属于低效实现，不妨改用变量的特殊值表示变量的状态，在 C\+\+ 中也可使用 std::optional 实现相关功能。
 <br/>
 <br/>
 
@@ -5495,10 +5495,10 @@ enum Fruit {
     apple,
     pear,
     grape,
-    favourite = grape,  // Non-compliant
+    favorite = grape,  // Non-compliant
 };
 ```
-例中 Fruit 定义了三种水果，而 favourite 表示最喜欢的水果，与其他枚举项不是同一层面的概念，不应聚为一类。  
+例中 Fruit 定义了三种水果，而 favorite 表示最喜欢的水果，与其他枚举项不是同一层面的概念，不应聚为一类。  
   
 应采用更结构化的方式：
 ```
@@ -5506,7 +5506,7 @@ enum Fruit {
     apple, pear, grape
 };
 
-Fruit favourite() {
+Fruit favorite () {
     return grape;
 }
 ```
@@ -5531,7 +5531,7 @@ ID_casualInitialization&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestion
   
 示例：
 ```
-enum Colour {
+enum Color {
     red,
     blue,
     green,
@@ -5540,7 +5540,7 @@ enum Colour {
 ```
 应改为：
 ```
-enum Colour {
+enum Color {
     red,
     blue,
     green,
