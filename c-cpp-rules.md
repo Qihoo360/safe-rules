@@ -6021,12 +6021,12 @@ ID_hideGlobal&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 extern int i;
 
 void foo() {
-    int i = 0;      // Non-compliant, hides the globel ‘i’
+    int i = 0;      // Non-compliant, hides the global ‘i’
     ....
 }
 
 class A {
-    int i;          // Non-compliant, hides the globel ‘i’
+    int i;          // Non-compliant, hides the global ‘i’
 public:
     int bar() {
         return i;   // Which ‘i’?
@@ -7034,7 +7034,7 @@ int& bar();
 auto p = foo();   // Bad
 auto* q = foo();  // Good
 
-auto r = bar();   // Becareful, ‘r’ is not a reference
+auto r = bar();   // Be careful, ‘r’ is not a reference
 
 for (auto e: container) {  // Is it necessary to copy elements?
     ....
@@ -8348,7 +8348,7 @@ final 类不再产生派生类，其中的虚函数也不会再被重写，故�
 ```
 class A final {
 public:
-    virtual int foo();  // Non-compliant, a new virutal function in final class
+    virtual int foo();  // Non-compliant, a new virtual function in a final class
 };
 
 class B {
@@ -19146,7 +19146,7 @@ rand, srand     // use random, srandom or BCryptGenRandom instead
 ```
 与线程同步不同，中断处理过程的同步较为特殊，可参见 ID\_sig\_dataRaces 的进一步讨论。  
   
-考虑比数据竞争更高层面的问题，如果程序的正确性依赖进线程处理数据的特定时序，一旦这种特定时序被打破便会产生错误或漏洞，攻击者可以抢在某关键过程前后通过修改共享数据达到攻击目的，这种情况称为“[竞态条件（race conditon）](https://en.wikipedia.org/wiki/Race_condition)”，如：
+考虑比数据竞争更高层面的问题，如果程序的正确性依赖进线程处理数据的特定时序，一旦这种特定时序被打破便会产生错误或漏洞，攻击者可以抢在某关键过程前后通过修改共享数据达到攻击目的，这种情况称为“[竞态条件（race condition）](https://en.wikipedia.org/wiki/Race_condition)”，如：
 ```
 int* p = get_shared();   // #0, ‘p’ points to shared data
 if (*p == 0) {           // #1, ‘*p’ is unreliable
@@ -19618,7 +19618,7 @@ ID_braceStyle&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style suggestion
   
 示例：
 ```
-void foo() {     // Non-compliant, mssing a unified style
+void foo() {     // Non-compliant, missing a unified style
     if (cond)
     {
         ....
@@ -19628,7 +19628,7 @@ void foo() {     // Non-compliant, mssing a unified style
     }
 }
 
-void bar()       // Non-compliant, mssing a unified style
+void bar()       // Non-compliant, missing a unified style
 {
     if (cond) {
         ....
