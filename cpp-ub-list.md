@@ -1,6 +1,6 @@
 <img src="logo.png" align="right"/>
 
-# 附录：C++ 未定义行为成因列表 ![Version](https://img.shields.io/badge/version-1.3.0-brightgreen)
+# 附录：C++ 未定义行为成因列表 ![Version](https://img.shields.io/badge/version-1.3.1-brightgreen)
 
 &emsp;&emsp;未定义的行为（Undefined Behavior），指程序不可预测的执行效果，一般由错误的代码实现引起。出于效率、兼容性等多方面原因，语言标准不便于定义错误程序的明确行为，而是将其统称为“未定义”的行为，可以是崩溃，也可以是非预期的任意表现，有些问题在编译器和执行环境的特殊处理下也可能不会造成实质性的危害，但不具备可移植性。代码质量管理的一个重要目标就是消除会导致未定义行为的代码。
 
@@ -344,7 +344,7 @@ struct T {
 
 // In b.cpp 
 struct T {
-    long i;    // Undefined behavior, volates One Definition Rule
+    long i;    // Undefined behavior, violates One Definition Rule
 };
 ```
 <br/>
@@ -1142,7 +1142,7 @@ ISO/IEC 14882:2011 5.2.11(7)-undefined
 struct T;   // Incomplete type
 
 T* foo(T& obj) {
-    return &obj;   // Undefined behaviour
+    return &obj;   // Undefined behavior
 }
 
 struct T {
@@ -1171,7 +1171,7 @@ ISO/IEC 14882:2011 5.3.1(5)-undefined
 示例：
 ```
 int* foo(int n) {
-    return new int[n];   // Undefined in C++03 if ‘n’ is negtive
+    return new int[n];   // Undefined in C++03 if ‘n’ is negative
 }
 ```
 如果 n 为负数，程序的行为在 C\+\+03 中是未定义的，C\+\+11 去掉了这项未定义行为的声明。
@@ -2051,7 +2051,7 @@ int main()
 namespace N
 {
     template <class T>
-    void foo(T&, int) { .... }   // Undefined behaivor, a better match for ‘foo(a, 1)’
+    void foo(T&, int) { .... }   // Undefined behavior, a better match for ‘foo(a, 1)’
 }
 ```
 <br/>

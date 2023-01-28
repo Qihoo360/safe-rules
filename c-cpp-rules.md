@@ -1,6 +1,6 @@
 <img src="logo.png" align="right"/>
 
-# C/C++ 安全规则集合 ![Version](https://img.shields.io/badge/version-1.3.0-brightgreen)
+# C/C++ 安全规则集合 ![Version](https://img.shields.io/badge/version-1.3.1-brightgreen)
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
@@ -3565,7 +3565,7 @@ ID_nonStdDirective&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 ```
 #import "foo"          // Non-compliant
 #include_next "bar.h"  // Non-compliant
-#unknwon               // Non-compliant
+#unknown               // Non-compliant
 ```
 <br/>
 <br/>
@@ -4756,7 +4756,7 @@ class C: public A {};
 class D: public B, public C {};
 
 void foo(D& d) {
-    d.i = 1;       // Complie error
+    d.i = 1;       // Compile error
     d.B::i = 1;    // Odd
     d.C::i = 1;    // Odd
 }
@@ -9009,7 +9009,7 @@ unique_ptr<T> a = make_unique<T>();
 unique_ptr<T> b;
 ....
 b = move(a);   // OK, explicit moving
-foo(b);        // Complie error
+foo(b);        // Compile error
 ```
 unique\_ptr 对象必须通过 move 显式转移资源所有权，否则无法通过编译。
 <br/>
