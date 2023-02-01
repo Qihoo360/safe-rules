@@ -406,7 +406,7 @@
     - [R9.2.1 for 语句不应被分号隔断](#for_semicolon)
     - [R9.2.2 for 语句中不应存在无条件的跳转语句](#for_uncondbroken)
     - [R9.2.3 for 语句作用域的范围不应有误](#for_scope)
-    - [R9.2.4 for 语句没有明确的循环变量时应改用 while 句语](#for_simplification)
+    - [R9.2.4 for 语句没有明确的循环变量时应改用 while 语句](#for_simplification)
     - [R9.2.5 for 循环体不应为空](#for_emptyblock)
     - [R9.2.6 for 循环变量不应为浮点型](#for_floatcounter)
     - [R9.2.7 for 循环变量不应在循环体内被改变](#for_counterchangedinbody)
@@ -12576,7 +12576,7 @@ CWE-483
 <br/>
 <br/>
 
-### <span id="for_simplification">▌R9.2.4 for 语句没有明确的循环变量时应改用 while 句语</span>
+### <span id="for_simplification">▌R9.2.4 for 语句没有明确的循环变量时应改用 while 语句</span>
 
 ID_for_simplification&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
 
