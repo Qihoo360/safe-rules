@@ -20,7 +20,7 @@
     "ID_sizeof_oddExpression": {
         "checkPoint": "sizeof 不应作用于逻辑表达式",
         "level": "warning",
-        "comment": "sizeof作用于 <、>、<=、>=、==、!=、&&、|| 等逻辑表达式为常见笔误，逻辑运算符往往应该移出 sizeof 表达式。",
+        "comment": "sizeof 作用于 <、>、<=、>=、==、!=、&&、|| 等逻辑表达式为常见笔误，逻辑运算符往往应该移出 sizeof 表达式。",
         "tag": "expression"
         },
     "ID_sizeof_pointerDivision": {
@@ -636,7 +636,7 @@
     "ID_forbidUnscopedEnum": {
         "checkPoint": "用 enum class 取代 enum",
         "level": "suggestion",
-        "comment": "传统C枚举没有有效的类型和作用域控制，极易造成类型混淆和名称冲突，在 C++ 语言中建议改用 enum class。",
+        "comment": "传统 C 枚举没有有效的类型和作用域控制，极易造成类型混淆和名称冲突，在 C++ 语言中建议改用 enum class。",
         "tag": "type",
         "standard": "ISO/IEC 14882:2011 7.2(2)",
         "reference": "C++ Core Guidelines Enum.3"
@@ -1575,7 +1575,7 @@
     "ID_complexAssertion": {
         "checkPoint": "断言中的表达式不应过于复杂",
         "level": "suggestion",
-        "comment": "断言中的表达式不应过于复杂， 否则不易定位具体是哪一项不符合断言，不利于调试。",
+        "comment": "断言中的表达式不应过于复杂，否则不易定位具体是哪一项不符合断言，不利于调试。",
         "config": {
             "names": "断言函数或宏的名称，如 assert、_ASSERT_EXPR 等，用“|”分隔",
             "maxLogicOperatorCount": "断言表达式中“逻辑与”运算符的最大数量，超过则报出"
@@ -2452,7 +2452,7 @@
     "ID_literal_suspiciousChar": {
         "checkPoint": "注意可疑的字符常量",
         "level": "warning",
-        "comment": "注意字符常量的错误书写，如正反斜杠的误用，'\\n' 误写为 '/n'、'\\\\' 误写为 '//'等。",
+        "comment": "注意字符常量的错误书写，如正反斜杠的误用，'\\n' 误写为 '/n'、'\\\\' 误写为 '//' 等。",
         "tag": "literal",
         "related": "ID_literal_multicharacter",
         "standard": "ISO/IEC 14882:2011 2.13.2(1)-implementation,ISO/IEC 14882:2011 2.14.3(1)-implementation,ISO/IEC 14882:2017 5.13.3(2)-implementation"
@@ -2629,7 +2629,7 @@
     "ID_macro_stmtNotEnclosed": {
         "checkPoint": "由多个语句组成的宏定义应该用 do-while(0) 括起来",
         "level": "warning",
-        "comment": "可以作为一条语句使用的宏，且宏包含多个并列子句时，应该用“do {”和 “} while(0)”括起来，否则易造成作用域的混乱。",
+        "comment": "可以作为一条语句使用的宏，且宏包含多个并列子句时，应该用“do {”和“} while(0)”括起来，否则易造成作用域的混乱。",
         "tag": "precompile",
         "related": "ID_if_scope,ID_while_scope,ID_for_scope",
         "reference": "CWE-483"
@@ -2799,14 +2799,14 @@
     "ID_qualifierInvalid": {
         "checkPoint": "const、volatile 不可修饰引用",
         "level": "error",
-        "comment": "C++标准规定，const 或 volatile 可修饰指针，但不可修饰引用，否则起不到任何作用。",
+        "comment": "C++ 标准规定，const 或 volatile 可修饰指针，但不可修饰引用，否则起不到任何作用。",
         "tag": "declaration",
         "standard": "ISO/IEC 14882:2003 8.3.2(1),ISO/IEC 14882:2011 8.3.2(1),ISO/IEC 14882:2017 11.3.2(1)"
         },
     "ID_qualifierForPtrAlias": {
         "checkPoint": "const、volatile 修饰指针类型的别名是可疑的",
         "level": "suspicious",
-        "comment": "如果const、volatile 修饰指针类型的别名，很可能会造成意料之外的问题。",
+        "comment": "如果 const、volatile 修饰指针类型的别名，很可能会造成意料之外的问题。",
         "tag": "declaration",
         "related": "ID_qualifierInvalid",
         "reference": "SEI CERT DCL05-C"

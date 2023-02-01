@@ -1476,7 +1476,7 @@ cc test.c -o test
 ```
 cc test.c -o test -fPIE -pie
 ```
-可使程序各结构的地址随机化，函数的地址在每次运行时均不相同， 有效提高了攻击难度。  
+可使程序各结构的地址随机化，函数的地址在每次运行时均不相同，有效提高了攻击难度。  
   
 如无特殊原因，在编译程序时不应屏蔽这种防御机制，如：
 ```
@@ -2611,7 +2611,7 @@ stdio.h、signal.h、time.h、fenv.h 等头文件对于有高可靠性要求的�
 tgmath.h|ctgmath=May result in undefined behavior
 setjmp.h|csetjmp=Forbidden header
 ```
-表示将 tgmath.h、ctgmath、setjmp.h、csetjmp 设为不合规头文件，如发现代码中有 tgmath.h，则报告“May result in undefined behavior”，如发现代码中有 setjmp.h 或 csetjmp ，则报告“Forbidden header”。
+表示将 tgmath.h、ctgmath、setjmp.h、csetjmp 设为不合规头文件，如发现代码中有 tgmath.h，则报告“May result in undefined behavior”，如发现代码中有 setjmp.h 或 csetjmp，则报告“Forbidden header”。
 <br/>
 <br/>
 
@@ -2906,7 +2906,7 @@ ID_macro_stmtNotEnclosed&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 <hr/>
 
-可以作为一条语句使用的宏，且宏包含多个并列子句时，应该用“do {”和 “} while(0)”括起来，否则易造成作用域的混乱。  
+可以作为一条语句使用的宏，且宏包含多个并列子句时，应该用“do {”和“} while(0)”括起来，否则易造成作用域的混乱。  
   
 示例：
 ```
@@ -3049,7 +3049,7 @@ namespace V {
 
 void foo(Type);  // Unreliable
 ```
-例中 Type 的最终定义是 long，第二个宏定义会覆盖第一个宏定义，这显然是不可靠的。 
+例中 Type 的最终定义是 long，第二个宏定义会覆盖第一个宏定义，这显然是不可靠的。
 <br/>
 <br/>
 
@@ -3081,7 +3081,7 @@ int foo(int a, int b) {
     return SUM(a, b);     // Error
 }
 ```
-例中宏 SUM 意在获取参数的和，但宏无法被重载，最终只有一个宏被定义， foo 函数中的宏展开会造成错误。
+例中宏 SUM 意在获取参数的和，但宏无法被重载，最终只有一个宏被定义，foo 函数中的宏展开会造成错误。
 <br/>
 <br/>
 
@@ -4134,7 +4134,7 @@ inline void bar() {
 ```
 如果该头文件被不同的模块（so、dll、exe）包含，obj 对象会生成不同的副本，很可能造成逻辑错误。  
   
-另外， 由 const 或 constexpr 关键字修饰的常量也具有静态数据的特性，在头文件中定义常量也面对这种问题，基本类型的常量经过编译优化可以不占用存储空间（有取地址操作的除外），而对于非基本类型的常量对象或数组也不应在头文件中定义，建议采用单件模式，将其数据定义在 cpp 等源文件中，在头文件中定义访问这些数据的接口，如：
+另外，由 const 或 constexpr 关键字修饰的常量也具有静态数据的特性，在头文件中定义常量也面对这种问题，基本类型的常量经过编译优化可以不占用存储空间（有取地址操作的除外），而对于非基本类型的常量对象或数组也不应在头文件中定义，建议采用单件模式，将其数据定义在 cpp 等源文件中，在头文件中定义访问这些数据的接口，如：
 ```
 // In arr.h
 using Arr = int[256];
@@ -8312,7 +8312,7 @@ ID_virtualComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 重载的比较运算符很难正确触发 C\+\+ 的多态机制，将其设为虚函数很可能引发意料之外的错误。  
   
-运算符 ==、!=、<、>、 <=、>= 均受本规则限制。  
+运算符 ==、!=、<、>、<=、>= 均受本规则限制。  
   
 示例：
 ```
@@ -10458,7 +10458,7 @@ struct A {
     A(int): a(b), b(c), c(d) {}
 };
 ```
-a 为引用， b 的地址在初始化之前就确定了，所以“a(b)”没问题  
+a 为引用，b 的地址在初始化之前就确定了，所以“a(b)”没问题  
 b 为指针，用 c 的值初始化 b 的值是不对的  
 d 为数组，也是一个地址，所以“c(d)”没有问题
 <br/>
@@ -11610,7 +11610,7 @@ void foo()
     auto f100 = []() {
         // ...
     };
-    // Tut tut, this is a function, not a namespace,
+    // Tut, tut, this is a function, not a namespace,
     // use common functions instead
 }
 ```
@@ -14607,7 +14607,7 @@ a = a + 1;      // Compliant
 int tmp = a;
 a = tmp + 1;    // Compliant
 ```
-对于逻辑与、逻辑或、三元以及逗号表达式，标准明确规定了子表达式从左至右求值，左子表达式的副作用也会在右子表达式求值前生效，故可不受本规则限制，但其子表达式仍需受本规则限制，进一步可参见 “[序列点（sequence point）](https://en.wikipedia.org/wiki/Sequence_point)”以及“[求值顺序](https://en.cppreference.com/w/cpp/language/eval_order)”等概念。
+对于逻辑与、逻辑或、三元以及逗号表达式，标准明确规定了子表达式从左至右求值，左子表达式的副作用也会在右子表达式求值前生效，故可不受本规则限制，但其子表达式仍需受本规则限制，进一步可参见“[序列点（sequence point）](https://en.wikipedia.org/wiki/Sequence_point)”以及“[求值顺序](https://en.cppreference.com/w/cpp/language/eval_order)”等概念。
 <br/>
 <br/>
 
@@ -16485,7 +16485,7 @@ ID_complexAssertion&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: expression suggestion
 
 <hr/>
 
-断言中的表达式不应过于复杂， 否则不易定位具体是哪一项不符合断言，不利于调试。  
+断言中的表达式不应过于复杂，否则不易定位具体是哪一项不符合断言，不利于调试。  
   
 对于“逻辑与”表达式应将各子表达式分成多个断言。  
   
@@ -18384,7 +18384,7 @@ int foo() {
     return p[0];  // Non-compliant, ‘p’ may be deallocated
 }
 ```
-本来指针 p 指向有效的内存空间，但由于某种原因相关内存被释放，p 的值不变但已无效，这种情况被形象地称为“指针悬挂”， 未经初始化的指针和这种“被悬挂”的指针统称“野指针”，均指向无效地址不可被解引用。  
+本来指针 p 指向有效的内存空间，但由于某种原因相关内存被释放，p 的值不变但已无效，这种情况被形象地称为“指针悬挂”，未经初始化的指针和这种“被悬挂”的指针统称“野指针”，均指向无效地址不可被解引用。  
   
 应避免内层作用域中的地址向外层传递，如：
 ```
@@ -19264,7 +19264,7 @@ void thd() {
 ```
 i = (i + 1) % 5;   // Non-compliant
 ```
-可采用 “[CAS（compare and swap）](https://en.wikipedia.org/wiki/Compare-and-swap)” 方法同步：
+可采用“[CAS（compare and swap）](https://en.wikipedia.org/wiki/Compare-and-swap)” 方法同步：
 ```
 int old_i = atomic_load(&i);
 int new_i = 0;
@@ -19780,7 +19780,7 @@ ID_nonBoolSubCondition&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style suggestio
 
 如果 !、&&、|| 的子表达式均为 bool 型表达式，可使逻辑结构更清晰，有效避免隐式类型转换或运算符误用造成的问题。  
   
-示例（设 p 为指针， a、b、c 为整型变量）：
+示例（设 p 为指针，a、b、c 为整型变量）：
 ```
 if (!p)             // Non-compliant 
 if (a && b)         // Non-compliant
