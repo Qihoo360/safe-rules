@@ -319,7 +319,7 @@
   - [R7.3 不应捕获过于宽泛的异常](#catch_generic)
   - [R7.4 不应抛出非异常类型的对象](#thrownonexceptiontype)
   - [R7.5 不应捕获非异常类型的对象](#catch_nonexceptiontype)
-  - [R7.6 析构函数不可抛出异常](#throwindestuctor)
+  - [R7.6 析构函数不可抛出异常](#throwindestructor)
   - [R7.7 内存回收函数不可抛出异常](#throwindelete)
   - [R7.8 对象的 swap 过程不可抛出异常](#throwinswap)
   - [R7.9 移动构造函数和移动赋值运算符不可抛出异常](#throwinmove)
@@ -352,7 +352,7 @@
   - [R8.12 在面向构造或析构函数体的 catch handler 中不可访问非静态成员](#illmemberaccess)
   - [R8.13 成员初始化应遵循声明的顺序](#disorderedinitialization)
   - [R8.14 在构造函数中不应调用虚函数](#virtualcallinconstructor)
-  - [R8.15 在析构函数中不应调用虚函数](#virtualcallindestuctor)
+  - [R8.15 在析构函数中不应调用虚函数](#virtualcallindestructor)
   - [R8.16 在析构函数中避免调用 exit 函数](#exitcallindestructor)
   - [R8.17 拷贝构造函数应避免实现复制之外的功能](#sideeffectcopyconstructor)
   - [R8.18 移动构造函数应避免实现数据移动之外的功能](#sideeffectmoveconstructor)
@@ -9314,9 +9314,9 @@ C++ Core Guidelines E.14
 <br/>
 <br/>
 
-### <span id="throwindestuctor">▌R7.6 析构函数不可抛出异常</span>
+### <span id="throwindestructor">▌R7.6 析构函数不可抛出异常</span>
 
-ID_throwInDestuctor&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: exception error
+ID_throwInDestructor&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: exception error
 
 <hr/>
 
@@ -9399,7 +9399,7 @@ public:
 <br/>
 
 #### 相关
-ID_throwInDestuctor  
+ID_throwInDestructor  
 ID_throwInHash  
 ID_throwInSwap  
 ID_throwInMove  
@@ -10512,9 +10512,9 @@ Effective C++ item 9
 <br/>
 <br/>
 
-### <span id="virtualcallindestuctor">▌R8.15 在析构函数中不应调用虚函数</span>
+### <span id="virtualcallindestructor">▌R8.15 在析构函数中不应调用虚函数</span>
 
-ID_virtualCallInDestuctor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
+ID_virtualCallInDestructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 

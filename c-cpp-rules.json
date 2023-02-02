@@ -1727,7 +1727,7 @@
         "tag": "function",
         "reference": "C++ Core Guidelines C.82,Effective C++ item 9"
         },
-    "ID_virtualCallInDestuctor": {
+    "ID_virtualCallInDestructor": {
         "checkPoint": "在析构函数中不应调用虚函数",
         "level": "warning",
         "comment": "虚函数的多态性在析构函数中不生效，而且在析构函数中调用纯虚函数会导致标准未定义的行为。",
@@ -1765,7 +1765,7 @@
         "tag": "resource",
         "related": "ID_ownerlessResource,ID_multiAllocation,ID_memoryLeak"
         },
-    "ID_throwInDestuctor": {
+    "ID_throwInDestructor": {
         "checkPoint": "析构函数不可抛出异常",
         "level": "error",
         "comment": "析构函数抛出异常是违反异常处理机制的。",
@@ -1779,7 +1779,7 @@
         "level": "error",
         "comment": "内存回收函数抛出异常会导致标准未定义的行为。",
         "tag": "exception",
-        "related": "ID_throwInDestuctor,ID_throwInHash,ID_throwInSwap,ID_throwInMove",
+        "related": "ID_throwInDestructor,ID_throwInHash,ID_throwInSwap,ID_throwInMove",
         "standard": "ISO/IEC 14882:2003 15.2(3),ISO/IEC 14882:2011 15.2(3),ISO/IEC 14882:2011 3.7.4.2(3)-undefined",
         "reference": "C++ Core Guidelines E.16"
         },

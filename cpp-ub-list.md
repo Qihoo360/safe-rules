@@ -1733,7 +1733,7 @@ ISO/IEC 14882:2011 10.4(6)-undefined
 
 #### 规则
 [ID_virtualCallInConstructor](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_virtualCallInConstructor)  
-[ID_virtualCallInDestuctor](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_virtualCallInDestuctor)  
+[ID_virtualCallInDestructor](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_virtualCallInDestructor)  
 <br/>
 
 <br/>
