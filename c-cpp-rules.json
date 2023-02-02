@@ -1,20 +1,27 @@
 {
-    "name": "C/C++ 安全规则集合",
+    "name": "360 安全规则集合",
     "version": "1.3.1",
     "encoding": "utf-8",
+    "language": "C,C++",
 
     "//": [
-        "checkPoint 是规则的描述",
-        "comment 是规则针对问题的简要说明",
-        "config 是相关配置项的名称及含义",
-        "standard 是相关 ISO/IEC 标准",
-        "reference 是规则的参考条目，由逗号分隔",
-        "level 是严重性等级，分为 error、warning、suggestion、suspicious",
-            "error：错误代码",
-            "warning：有严重错误倾向的代码",
-            "suggestion：优化建议",
-            "suspicious：可疑的代码，不一定有实际错误",
-        "tags 是进一步细化的分类"
+        "下面以 ID_ 开头的键为规则标识符，对应的值为规则内容。",
+
+        "规则内容包括：",
+        "   checkPoint：规则的定义",
+        "   comment：对规则的简要说明",
+        "   standard：相关的 ISO/IEC 标准条款",
+        "   reference：参考条目",
+        "   tag：规则的类别",
+        "   level：违反规则的后果严重程度",
+        "   related：有相关性的其他规则",
+        "   config：相关配置项的名称及含义",
+
+        "level 分为：",
+        "   error：直接导致错误或形成安全漏洞",
+        "   warning：可导致错误或形成安全隐患",
+        "   suspicious：可疑的代码，需进一步排查",
+        "   suggestion：代码质量降低，应依照建议改进"
     ],
 
     "ID_sizeof_oddExpression": {
@@ -2552,7 +2559,7 @@
     "ID_nonStdDirective": {
         "checkPoint": "不应使用非标准预编译指令",
         "level": "warning",
-        "comment": "使用非标准预编译指令并非是问题的正规解决方法，且易造成代码移植方面的隐患。",
+        "comment": "非标准预编译指令往往属于某种编译器独有，在有可移植性要求的代码中应避免使用。",
         "tag": "precompile",
         "standard": "ISO/IEC 9899:1999 6.10(1),ISO/IEC 9899:2011 6.10(1)",
         "reference": "MISRA C 2004 19.16,MISRA C 2012 20.13"

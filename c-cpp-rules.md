@@ -35,14 +35,14 @@
  - 编号：规则在本文中的章节编号，以“R”开头，称为 Section-ID
  - 名称：用简练的短语描述违反规则的状况，以“ID_”开头，称为 Fault-ID
  - 标题：规则的定义
- - 说明：规则设立的原因、示例、违反规则的后果、改进建议、参照依据、参考资料等内容
+ - 说明：规则设立的原因、违反规则的后果、示例、改进建议、参照依据、参考资料等内容
 
-当代码出现违反规则的情况时，可分为：
+如果违反规则，后果的严重程度分为：
 
- - Error：可直接导致错误的问题
- - Warning：可导致错误或存在隐患的问题
- - Suspicious：代码的可疑形式
- - Suggestion：对提高代码质量的建议
+ - Error：直接导致错误或形成安全漏洞
+ - Warning：可导致错误或形成安全隐患
+ - Suspicious：可疑的代码，需进一步排查
+ - Suggestion：代码质量降低，应依照建议改进
 
 规则的说明包含：
 
@@ -50,7 +50,7 @@
  - 相关：与当前规则有相关性的规则，可作为扩展阅读的线索
  - 依据：规则依照的 ISO/IEC 标准，C 规则以 ISO/IEC 9899:2011 为主，C++ 规则以 ISO/IEC 14882:2011 为主
  - 配置：某些规则的对象可由用户指定，审计工具可以此为参照实现定制化功能
- - 参考：规则参考的其他规范条款，如 C++ Core Guidelines、MISRA、CWE、SEI CERT 等，也可作为扩展阅读的线索
+ - 参考：规则参考的其他规范条款，如 C++ Core Guidelines、MISRA、SEI CERT Coding Standards 等，也可作为扩展阅读的线索
 
 规则的相关性分为：
 
@@ -2552,7 +2552,7 @@ ID_forbidBackslashInHeaderName&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompil
 
 #include <foo/bar.h>     // Compliant
 ```
-有高可移植性要求的代码应避免使用反斜杠。
+在有可移植性要求的代码中应避免使用反斜杠。
 <br/>
 <br/>
 
@@ -3559,13 +3559,12 @@ ID_nonStdDirective&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 <hr/>
 
-使用非标准预编译指令并非是问题的正规解决方法，且易造成代码移植方面的隐患。  
+非标准预编译指令往往属于某种编译器独有，在有可移植性要求的代码中应避免使用。  
   
 示例：
 ```
 #import "foo"          // Non-compliant
 #include_next "bar.h"  // Non-compliant
-#unknown               // Non-compliant
 ```
 <br/>
 <br/>
@@ -3601,7 +3600,7 @@ PRINT(
 #endif          // Non-compliant
 );
 ```
-结果可能是打印出 hamster，也可能是 \#ifdef MAC rabbit \#else hamster \#endif 这种怪异的结果。
+可能会打印出 hamster，也可能是 \#ifdef MAC rabbit \#else hamster \#endif 这种怪异的结果。
 <br/>
 <br/>
 
@@ -11750,7 +11749,7 @@ if (cond0)
 ```
 建议函数作用域嵌套不超过 7 层。对类型、命名空间也有同样的要求，建议类、结构体嵌套不超过 3 层，命名空间嵌套不超过 4 层。  
   
-审计工具不妨通过配置决定嵌套层次是否合规。
+审计工具不妨通过配置决定嵌套层数是否合规。
 <br/>
 <br/>
 
