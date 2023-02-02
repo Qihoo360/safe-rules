@@ -128,7 +128,7 @@ ISO/IEC 14882:2011 2.2(2)-undefined
 <br/>
 
 #### 规则
-[ID_badBackslash](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_badBackslash)  
+[ID_badBackslash](./c-cpp-rules.md#badbackslash)  
 <br/>
 
 <br/>
@@ -152,8 +152,8 @@ ISO/IEC 14882:2003 2.1(2)-undefined
 <br/>
 
 #### 规则
-[ID_missingNewLineFileEnd](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_missingNewLineFileEnd)  
-[ID_badBackslash](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_badBackslash)  
+[ID_missingNewLineFileEnd](./c-cpp-rules.md#missingnewlinefileend)  
+[ID_badBackslash](./c-cpp-rules.md#badbackslash)  
 <br/>
 
 <br/>
@@ -221,8 +221,8 @@ ISO/IEC 14882:2011 2.9(2)-implementation
 <br/>
 
 #### 规则
-[ID_nonStandardCharInHeaderName](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_nonStandardCharInHeaderName)  
-[ID_forbidBackslashInHeaderName](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_forbidBackslashInHeaderName)  
+[ID_nonStandardCharInHeaderName](./c-cpp-rules.md#nonstandardcharinheadername)  
+[ID_forbidBackslashInHeaderName](./c-cpp-rules.md#forbidbackslashinheadername)  
 <br/>
 
 <br/>
@@ -276,7 +276,7 @@ ISO/IEC 14882:2011 2.14.3(3)-implementation
 <br/>
 
 #### 规则
-[ID_literal_nonStandardEsc](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_literal_nonStandardEsc)  
+[ID_literal_nonStandardEsc](./c-cpp-rules.md#literal_nonstandardesc)  
 <br/>
 
 <br/>
@@ -300,7 +300,7 @@ ISO/IEC 14882:2011 2.14.5(12)-undefined
 <br/>
 
 #### 规则
-[ID_missingConst](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_missingConst)  
+[ID_missingConst](./c-cpp-rules.md#missingconst)  
 <br/>
 
 <br/>
@@ -324,7 +324,7 @@ ISO/IEC 14882:2011 2.14.5(13)-implementation
 <br/>
 
 #### 规则
-[ID_literal_hybridConcat](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_literal_hybridConcat)  
+[ID_literal_hybridConcat](./c-cpp-rules.md#literal_hybridconcat)  
 <br/>
 
 <br/>
@@ -385,7 +385,7 @@ ISO/IEC 14882:2011 3.6.1(4)-undefined
 <br/>
 
 #### 规则
-[ID_exitCallInDestructor](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_exitCallInDestructor)  
+[ID_exitCallInDestructor](./c-cpp-rules.md#exitcallindestructor)  
 <br/>
 
 <br/>
@@ -445,7 +445,7 @@ ISO/IEC 14882:2011 3.6.3(4)-undefined
 <br/>
 
 #### 规则
-[ID_danglingDeref](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_danglingDeref)  
+[ID_danglingDeref](./c-cpp-rules.md#danglingderef)  
 <br/>
 
 <br/>
@@ -474,7 +474,7 @@ ISO/IEC 14882:2011 3.7.4.1(2)-undefined
 <br/>
 
 #### 规则
-[ID_arrayIndexOverflow](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_arrayIndexOverflow)  
+[ID_arrayIndexOverflow](./c-cpp-rules.md#arrayindexoverflow)  
 <br/>
 
 <br/>
@@ -505,7 +505,7 @@ ISO/IEC 14882:2011 3.7.4.2(3)-undefined
 <br/>
 
 #### 规则
-[ID_throwInDelete](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_throwInDelete)  
+[ID_throwInDelete](./c-cpp-rules.md#throwindelete)  
 <br/>
 
 <br/>
@@ -529,7 +529,7 @@ ISO/IEC 14882:2011 3.7.4.2(3)-undefined
 <br/>
 
 #### 规则
-[ID_incompatibleDealloc](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_incompatibleDealloc)  
+[ID_incompatibleDealloc](./c-cpp-rules.md#incompatibledealloc)  
 <br/>
 
 <br/>
@@ -556,9 +556,9 @@ ISO/IEC 14882:2011 3.7.4.2(4)-undefined
 <br/>
 
 #### 规则
-[ID_illAccess](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_illAccess)  
-[ID_doubleFree](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_doubleFree)  
-[ID_danglingDeref](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_danglingDeref)  
+[ID_illAccess](./c-cpp-rules.md#illaccess)  
+[ID_doubleFree](./c-cpp-rules.md#doublefree)  
+[ID_danglingDeref](./c-cpp-rules.md#danglingderef)  
 <br/>
 
 <br/>
@@ -759,7 +759,7 @@ ISO/IEC 14882:2011 3.10(10)-undefined
 <br/>
 
 #### 规则
-[ID_castNoInheritance](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_castNoInheritance)  
+[ID_castNoInheritance](./c-cpp-rules.md#castnoinheritance)  
 <br/>
 
 <br/>
@@ -793,8 +793,8 @@ ISO/IEC 14882:2011 4.1(1)-undefined
 <br/>
 
 #### 规则
-[ID_castNoInheritance](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_castNoInheritance)  
-[ID_localInitialization](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_localInitialization)  
+[ID_castNoInheritance](./c-cpp-rules.md#castnoinheritance)  
+[ID_localInitialization](./c-cpp-rules.md#localinitialization)  
 <br/>
 
 <br/>
@@ -819,7 +819,7 @@ ISO/IEC 14882:2011 4.8(1)-undefined
 <br/>
 
 #### 规则
-[ID_narrowCast](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_narrowCast)  
+[ID_narrowCast](./c-cpp-rules.md#narrowcast)  
 <br/>
 
 <br/>
@@ -843,7 +843,7 @@ ISO/IEC 14882:2011 4.9(1)-undefined
 <br/>
 
 #### 规则
-[ID_narrowCast](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_narrowCast)  
+[ID_narrowCast](./c-cpp-rules.md#narrowcast)  
 <br/>
 
 <br/>
@@ -867,7 +867,7 @@ ISO/IEC 14882:2011 4.9(2)-undefined
 <br/>
 
 #### 规则
-[ID_narrowCast](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_narrowCast)  
+[ID_narrowCast](./c-cpp-rules.md#narrowcast)  
 <br/>
 
 <br/>
@@ -897,8 +897,8 @@ ISO/IEC 14882:2003 5(4)-undefined
 <br/>
 
 #### 规则
-[ID_evaluationOrderReliance](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_evaluationOrderReliance)  
-[ID_confusingAssignment](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_confusingAssignment)  
+[ID_evaluationOrderReliance](./c-cpp-rules.md#evaluationorderreliance)  
+[ID_confusingAssignment](./c-cpp-rules.md#confusingassignment)  
 <br/>
 
 <br/>
@@ -926,8 +926,8 @@ ISO/IEC 14882:2011 5(4)-undefined
 <br/>
 
 #### 规则
-[ID_divideByZero](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_divideByZero)  
-[ID_evalOverflow](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_evalOverflow)  
+[ID_divideByZero](./c-cpp-rules.md#dividebyzero)  
+[ID_evalOverflow](./c-cpp-rules.md#evaloverflow)  
 <br/>
 
 <br/>
@@ -982,9 +982,9 @@ ISO/IEC 14882:2011 5.2.2(7)-implementation
 <br/>
 
 #### 规则
-[ID_nonPODVariadicArgument](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_nonPODVariadicArgument)  
-[ID_badVaArgType](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_badVaArgType)  
-[ID_forbidVariadicFunction](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_forbidVariadicFunction)  
+[ID_nonPODVariadicArgument](./c-cpp-rules.md#nonpodvariadicargument)  
+[ID_badVaArgType](./c-cpp-rules.md#badvaargtype)  
+[ID_forbidVariadicFunction](./c-cpp-rules.md#forbidvariadicfunction)  
 <br/>
 
 <br/>
@@ -1017,7 +1017,7 @@ ISO/IEC 14882:2011 5.2.9(2)-undefined
 <br/>
 
 #### 规则
-[ID_downCast](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_downCast)  
+[ID_downCast](./c-cpp-rules.md#downcast)  
 <br/>
 
 <br/>
@@ -1050,7 +1050,7 @@ ISO/IEC 14882:2011 5.2.9(11)-undefined
 <br/>
 
 #### 规则
-[ID_downCast](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_downCast)  
+[ID_downCast](./c-cpp-rules.md#downcast)  
 <br/>
 
 <br/>
@@ -1080,7 +1080,7 @@ ISO/IEC 14882:2011 5.2.9(12)-undefined
 <br/>
 
 #### 规则
-[ID_downCast](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_downCast)  
+[ID_downCast](./c-cpp-rules.md#downcast)  
 <br/>
 
 <br/>
@@ -1105,7 +1105,7 @@ ISO/IEC 14882:2011 5.2.10(6)-undefined
 <br/>
 
 #### 规则
-[ID_functionPointerCast](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_functionPointerCast)  
+[ID_functionPointerCast](./c-cpp-rules.md#functionpointercast)  
 <br/>
 
 <br/>
@@ -1128,7 +1128,7 @@ ISO/IEC 14882:2011 5.2.11(7)-undefined
 <br/>
 
 #### 规则
-[ID_qualifierCastedAway](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_qualifierCastedAway)  
+[ID_qualifierCastedAway](./c-cpp-rules.md#qualifiercastedaway)  
 <br/>
 
 <br/>
@@ -1159,7 +1159,7 @@ ISO/IEC 14882:2011 5.3.1(5)-undefined
 <br/>
 
 #### 规则
-[ID_overloadAddressOperator](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_overloadAddressOperator)  
+[ID_overloadAddressOperator](./c-cpp-rules.md#overloadaddressoperator)  
 <br/>
 
 <br/>
@@ -1206,10 +1206,10 @@ ISO/IEC 14882:2011 5.3.5(2)-undefined
 <br/>
 
 #### 规则
-[ID_excessiveDelete](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_excessiveDelete)  
-[ID_insufficientDelete](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_insufficientDelete)  
-[ID_incompatibleDealloc](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_incompatibleDealloc)  
-[ID_illDealloc](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_illDealloc)  
+[ID_excessiveDelete](./c-cpp-rules.md#excessivedelete)  
+[ID_insufficientDelete](./c-cpp-rules.md#insufficientdelete)  
+[ID_incompatibleDealloc](./c-cpp-rules.md#incompatibledealloc)  
+[ID_illDealloc](./c-cpp-rules.md#illdealloc)  
 <br/>
 
 <br/>
@@ -1241,8 +1241,8 @@ ISO/IEC 14882:2011 5.3.5(3)-undefined
 <br/>
 
 #### 规则
-[ID_missingVirtualDestructor](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_missingVirtualDestructor)  
-[ID_arrayPointerCast](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_arrayPointerCast)  
+[ID_missingVirtualDestructor](./c-cpp-rules.md#missingvirtualdestructor)  
+[ID_arrayPointerCast](./c-cpp-rules.md#arraypointercast)  
 <br/>
 
 <br/>
@@ -1273,7 +1273,7 @@ ISO/IEC 14882:2011 5.3.5(5)-undefined
 <br/>
 
 #### 规则
-[ID_deleteIncompleteType](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_deleteIncompleteType)  
+[ID_deleteIncompleteType](./c-cpp-rules.md#deleteincompletetype)  
 <br/>
 
 <br/>
@@ -1351,7 +1351,7 @@ ISO/IEC 14882:2011 5.6(4)-undefined
 <br/>
 
 #### 规则
-[ID_divideByZero](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_divideByZero)  
+[ID_divideByZero](./c-cpp-rules.md#dividebyzero)  
 <br/>
 
 <br/>
@@ -1379,8 +1379,8 @@ ISO/IEC 14882:2011 5.7(5)-undefined
 <br/>
 
 #### 规则
-[ID_bufferOverflow](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_bufferOverflow)  
-[ID_arrayIndexOverflow](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_arrayIndexOverflow)  
+[ID_bufferOverflow](./c-cpp-rules.md#bufferoverflow)  
+[ID_arrayIndexOverflow](./c-cpp-rules.md#arrayindexoverflow)  
 <br/>
 
 <br/>
@@ -1404,7 +1404,7 @@ ISO/IEC 14882:2011 5.7(5)-undefined
 <br/>
 
 #### 规则
-[ID_illPtrDiff](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_illPtrDiff)  
+[ID_illPtrDiff](./c-cpp-rules.md#illptrdiff)  
 <br/>
 
 <br/>
@@ -1427,7 +1427,7 @@ ISO/IEC 14882:2011 5.8(1)-undefined
 <br/>
 
 #### 规则
-[ID_illShiftCount](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_illShiftCount)  
+[ID_illShiftCount](./c-cpp-rules.md#illshiftcount)  
 <br/>
 
 <br/>
@@ -1451,7 +1451,7 @@ ISO/IEC 14882:2011 5.8(2)-undefined
 <br/>
 
 #### 规则
-[ID_bitwiseOperOnSigned](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_bitwiseOperOnSigned)  
+[ID_bitwiseOperOnSigned](./c-cpp-rules.md#bitwiseoperonsigned)  
 <br/>
 
 <br/>
@@ -1513,7 +1513,7 @@ ISO/IEC 14882:2011 6.6.3(2)-undefined
 <br/>
 
 #### 规则
-[ID_notAllBranchReturn](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_notAllBranchReturn)  
+[ID_notAllBranchReturn](./c-cpp-rules.md#notallbranchreturn)  
 <br/>
 
 <br/>
@@ -1571,7 +1571,7 @@ ISO/IEC 14882:2011 7.1.6.1(4)-undefined
 <br/>
 
 #### 规则
-[ID_qualifierCastedAway](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_qualifierCastedAway)  
+[ID_qualifierCastedAway](./c-cpp-rules.md#qualifiercastedaway)  
 <br/>
 
 <br/>
@@ -1596,7 +1596,7 @@ ISO/IEC 14882:2011 7.1.6.1(6)-undefined
 <br/>
 
 #### 规则
-[ID_qualifierCastedAway](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_qualifierCastedAway)  
+[ID_qualifierCastedAway](./c-cpp-rules.md#qualifiercastedaway)  
 <br/>
 
 <br/>
@@ -1630,7 +1630,7 @@ ISO/IEC 14882:2011 7.6.3(2)-undefined
 <br/>
 
 #### 规则
-[ID_unsuitableReturn](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_unsuitableReturn)  
+[ID_unsuitableReturn](./c-cpp-rules.md#unsuitablereturn)  
 <br/>
 
 <br/>
@@ -1668,8 +1668,8 @@ ISO/IEC 14882:2011 8.3.2(5)-undefined
 <br/>
 
 #### 规则
-[ID_nullDerefInScp](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_nullDerefInScp)  
-[ID_nullDerefInExp](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_nullDerefInExp)  
+[ID_nullDerefInScp](./c-cpp-rules.md#nullderefinscp)  
+[ID_nullDerefInExp](./c-cpp-rules.md#nullderefinexp)  
 <br/>
 
 <br/>
@@ -1702,9 +1702,9 @@ ISO/IEC 14882:2011 9.3.1(2)-undefined
 <br/>
 
 #### 规则
-[ID_castNoInheritance](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_castNoInheritance)  
-[ID_forbidMemberVoidPtr](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_forbidMemberVoidPtr)  
-[ID_forbidFunctionVoidPtr](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_forbidFunctionVoidPtr)  
+[ID_castNoInheritance](./c-cpp-rules.md#castnoinheritance)  
+[ID_forbidMemberVoidPtr](./c-cpp-rules.md#forbidmembervoidptr)  
+[ID_forbidFunctionVoidPtr](./c-cpp-rules.md#forbidfunctionvoidptr)  
 <br/>
 
 <br/>
@@ -1732,8 +1732,8 @@ ISO/IEC 14882:2011 10.4(6)-undefined
 <br/>
 
 #### 规则
-[ID_virtualCallInConstructor](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_virtualCallInConstructor)  
-[ID_virtualCallInDestructor](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_virtualCallInDestructor)  
+[ID_virtualCallInConstructor](./c-cpp-rules.md#virtualcallinconstructor)  
+[ID_virtualCallInDestructor](./c-cpp-rules.md#virtualcallindestructor)  
 <br/>
 
 <br/>
@@ -1758,9 +1758,9 @@ ISO/IEC 14882:2011 12.4(13)-undefined
 <br/>
 
 #### 规则
-[ID_forbidFunctionVoidPtr](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_forbidFunctionVoidPtr)  
-[ID_forbidMemberVoidPtr](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_forbidMemberVoidPtr)  
-[ID_castNoInheritance](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_castNoInheritance)  
+[ID_forbidFunctionVoidPtr](./c-cpp-rules.md#forbidfunctionvoidptr)  
+[ID_forbidMemberVoidPtr](./c-cpp-rules.md#forbidmembervoidptr)  
+[ID_castNoInheritance](./c-cpp-rules.md#castnoinheritance)  
 <br/>
 
 <br/>
@@ -1799,7 +1799,7 @@ ISO/IEC 14882:2011 12.4(15)-undefined
 <br/>
 
 #### 规则
-[ID_explicitDtorCall](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_explicitDtorCall)  
+[ID_explicitDtorCall](./c-cpp-rules.md#explicitdtorcall)  
 <br/>
 
 <br/>
@@ -1833,7 +1833,7 @@ ISO/IEC 14882:2011 12.6.2(13)-undefined
 <br/>
 
 #### 规则
-[ID_illMemberCall](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_illMemberCall)  
+[ID_illMemberCall](./c-cpp-rules.md#illmembercall)  
 <br/>
 
 <br/>
@@ -2112,7 +2112,7 @@ ISO/IEC 14882:2011 15.2(10)-undefined
 <br/>
 
 #### 规则
-[ID_illMemberAccess](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_illMemberAccess)  
+[ID_illMemberAccess](./c-cpp-rules.md#illmemberaccess)  
 <br/>
 
 <br/>
@@ -2139,7 +2139,7 @@ ISO/IEC 14882:2011 15.3(15)-undefined
 <br/>
 
 #### 规则
-[ID_notAllBranchReturn](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_notAllBranchReturn)  
+[ID_notAllBranchReturn](./c-cpp-rules.md#notallbranchreturn)  
 <br/>
 
 <br/>
@@ -2165,8 +2165,8 @@ ISO/IEC 14882:2011 16.1(4)-undefined
 <br/>
 
 #### 规则
-[ID_macro_defineReserved](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_macro_defineReserved)  
-[ID_illFormedDirective](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_illFormedDirective)  
+[ID_macro_defineReserved](./c-cpp-rules.md#macro_definereserved)  
+[ID_illFormedDirective](./c-cpp-rules.md#illformeddirective)  
 <br/>
 
 <br/>
@@ -2192,7 +2192,7 @@ ISO/IEC 14882:2011 16.2(4)-undefined
 <br/>
 
 #### 规则
-[ID_illFormedDirective](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_illFormedDirective)  
+[ID_illFormedDirective](./c-cpp-rules.md#illformeddirective)  
 <br/>
 
 <br/>
@@ -2222,8 +2222,8 @@ ISO/IEC 14882:2011 16.3(11)-undefined
 <br/>
 
 #### 规则
-[ID_directiveInMacroArgument](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_directiveInMacroArgument)  
-[ID_macro_function](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_macro_function)  
+[ID_directiveInMacroArgument](./c-cpp-rules.md#directiveinmacroargument)  
+[ID_macro_function](./c-cpp-rules.md#macro_function)  
 <br/>
 
 <br/>
@@ -2248,7 +2248,7 @@ ISO/IEC 14882:2011 16.3.2(2)-undefined
 <br/>
 
 #### 规则
-[ID_macro_complexConcat](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_macro_complexConcat)  
+[ID_macro_complexConcat](./c-cpp-rules.md#macro_complexconcat)  
 <br/>
 
 <br/>
@@ -2273,7 +2273,7 @@ ISO/IEC 14882:2011 16.3.3(3)-undefined
 <br/>
 
 #### 规则
-[ID_macro_complexConcat](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_macro_complexConcat)  
+[ID_macro_complexConcat](./c-cpp-rules.md#macro_complexconcat)  
 <br/>
 
 <br/>
@@ -2298,7 +2298,7 @@ ISO/IEC 14882:2011 16.4(3)-undefined
 <br/>
 
 #### 规则
-[ID_illFormedDirective](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_illFormedDirective)  
+[ID_illFormedDirective](./c-cpp-rules.md#illformeddirective)  
 <br/>
 
 <br/>
@@ -2323,7 +2323,7 @@ ISO/IEC 14882:2011 16.4(5)-undefined
 <br/>
 
 #### 规则
-[ID_illFormedDirective](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_illFormedDirective)  
+[ID_illFormedDirective](./c-cpp-rules.md#illformeddirective)  
 <br/>
 
 <br/>
@@ -2348,8 +2348,8 @@ ISO/IEC 14882:2011 16.8(4)-undefined
 <br/>
 
 #### 规则
-[ID_macro_defineReserved](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_macro_defineReserved)  
-[ID_macro_undefReserved](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_macro_undefReserved)  
+[ID_macro_defineReserved](./c-cpp-rules.md#macro_definereserved)  
+[ID_macro_undefReserved](./c-cpp-rules.md#macro_undefreserved)  
 <br/>
 
 <br/>
@@ -2438,7 +2438,7 @@ ISO/IEC 14882:2011 17.6.4.2.1(1)-undefined
 <br/>
 
 #### 规则
-[ID_stdNamespaceModified](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_stdNamespaceModified)  
+[ID_stdNamespaceModified](./c-cpp-rules.md#stdnamespacemodified)  
 <br/>
 
 <br/>
@@ -2503,8 +2503,8 @@ ISO/IEC 14882:2011 17.6.4.3(2)-undefined
 <br/>
 
 #### 规则
-[ID_reservedName](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_reservedName)  
-[ID_macro_defineReserved](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_macro_defineReserved)  
+[ID_reservedName](./c-cpp-rules.md#reservedname)  
+[ID_macro_defineReserved](./c-cpp-rules.md#macro_definereserved)  
 <br/>
 
 <br/>
@@ -2567,7 +2567,7 @@ ISO/IEC 14882:2011 17.6.4.10(1)-undefined
 <br/>
 
 #### 规则
-[ID_dataRaces](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_dataRaces)  
+[ID_dataRaces](./c-cpp-rules.md#dataraces)  
 <br/>
 
 <br/>
@@ -2619,7 +2619,7 @@ ISO/IEC 14882:2011 18.2(4)-undefined
 <br/>
 
 #### 规则
-[ID_deprecatedOffsetof](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_deprecatedOffsetof)  
+[ID_deprecatedOffsetof](./c-cpp-rules.md#deprecatedoffsetof)  
 <br/>
 
 <br/>
@@ -2645,8 +2645,8 @@ ISO/IEC 14882:2011 18.10(3)-undefined
 <br/>
 
 #### 规则
-[ID_badParmN](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_badParmN)  
-[ID_forbidVariadicFunction](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_forbidVariadicFunction)  
+[ID_badParmN](./c-cpp-rules.md#badparmn)  
+[ID_forbidVariadicFunction](./c-cpp-rules.md#forbidvariadicfunction)  
 <br/>
 
 <br/>
@@ -2673,7 +2673,7 @@ ISO/IEC 14882:2011 18.10(4)-undefined
 <br/>
 
 #### 规则
-[ID_forbidLongjmp](https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md#ID_forbidLongjmp)  
+[ID_forbidLongjmp](./c-cpp-rules.md#forbidlongjmp)  
 <br/>
 
 <br/>
