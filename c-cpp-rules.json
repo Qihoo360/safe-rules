@@ -1318,7 +1318,7 @@
     "ID_redundantCast": {
         "checkPoint": "不应存在多余的类型转换",
         "level": "warning",
-        "comment": "转换前后的类型完全相同是没有意义的，很可能意味着某种笔误。",
+        "comment": "多余的类型转换是没有意义的，往往意味着某种错误。",
         "tag": "cast",
         "reference": "CWE-704"
         },

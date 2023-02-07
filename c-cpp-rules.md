@@ -10143,7 +10143,7 @@ ID_paramNotUsed&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
 如果函数的某个参数在函数内没有被用到，意味着函数的功能与设计之间存在差距。  
   
-如果某个参数确实不需要被用到，应尽量从参数列表中将其删除，如果需要遵循某种约定而必须保留参数的话（如虚函数或回调函数），在 C\+\+ 语言中不妨将参数的名称删掉，在 C 语言中可用 (void) 转换说明未使用的参数在预期之内，并用注释说明参数未被使用的原因。  
+如果某个参数确实不需要被用到，应尽量从参数列表中将其删除，如果需要遵循某种约定而必须保留参数（如虚函数或回调函数），在 C\+\+ 代码中不妨将参数的名称删掉，在 C 代码中可用 void 转换指明未使用的参数在预期之内，并用注释说明参数未被使用的原因。  
   
 示例：
 ```
@@ -15492,7 +15492,7 @@ void baz() {
     (void)getStatus();   // Let it go
 }
 ```
-经 (void) 转换的函数调用可以认为是有意放弃返回值，这种情况可不受本规则限制，但最好配以注释说明。
+经 void 转换的函数调用可以认为是有意放弃返回值，这种情况可不受本规则限制，但最好配以注释说明。
 <br/>
 <br/>
 
@@ -17733,7 +17733,7 @@ fnp_t p = NULL;            // Compliant
 (void)p;                   // Let it go
 p = (fnp_t)dlsym(h, "f");  // Let it go
 ```
-对函数指针进行 (void) 转换，或 dlsym、GetProcAddress 等动态导入函数的系统接口可不受本规则约束。
+对函数指针进行 void 转换，或 dlsym、GetProcAddress 等动态导入函数的系统接口可不受本规则约束。
 <br/>
 <br/>
 
@@ -17833,18 +17833,43 @@ ID_redundantCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
 <hr/>
 
-转换前后的类型完全相同是没有意义的，很可能意味着某种笔误。  
+多余的类型转换是没有意义的，往往意味着某种错误。  
+  
+不应出现下列情况：  
+ - 原类型与转换后的类型完全相同  
+ - 非 void 转换的结果没有被读取  
   
 示例：
 ```
-float foo(int a) {
-    return (int)a;  // Non-compliant
+float foo(int x) {
+    return (int)x;   // Non-compliant
+}
+
+float bar(int y) {
+    (float)y;        // Non-compliant
 }
 ```
+例中参数 x 转换后的类型与转换前完全相同，参数 y 转换后没有被读取，均不符合要求。  
+  
 应改为：
 ```
-float foo(int a) {
-    return (float)a;  // Compliant
+float foo(int x) {
+    return (float)x;   // Compliant
+}
+
+float bar(int y) {
+    return (float)y;   // Compliant
+}
+```
+可用 void 转换表示有意放弃读取，但对无返回值的函数不应再使用 void 转换，如：
+```
+char foo();
+void bar();
+
+void baz(int x) {
+    (void)x;        // Compliant
+    (void)foo();    // Compliant
+    (void)bar();    // Non-compliant, ‘(void)’ is redundant
 }
 ```
 <br/>
