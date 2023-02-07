@@ -15777,10 +15777,10 @@ printf("%lld", d);  // Non-compliant
 ```
 size\_t、ptrdiff\_t 等类型是由实现定义的，标准没有规定其是否一定对应 unsigned、long 或 long long 等类型，而 %u、%d、%lu、%lld 只对应 unsigned、int、unsigned long、long long 等类型，所以示例代码都是不合理的。  
   
-应使 n 对应 %zu，d 对应 %zd： 
+应使 n 对应 %zu，d 对应 %td： 
 ```
 printf("%zu", n);   // Compliant
-printf("%zd", d);   // Compliant
+printf("%td", d);   // Compliant
 ```
 对于 stdint.h 中定义的类型，应使用 inttypes.h 中定义的占位符：
 ```
