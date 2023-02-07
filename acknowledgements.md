@@ -15,6 +15,7 @@
  - [Ohto-Ai](https://github.com/Ohto-Ai)
  - [happycoderat](https://github.com/happycoderat)
  - [Zaoly](https://github.com/Zaoly)
+ - [lhmouse](https://github.com/lhmouse)
 
 感谢下列组织和媒体的推广：
  - [360 技术](https://blog.csdn.net/qihoo_tech)
