@@ -9129,11 +9129,11 @@ void baz(int a) {
     }
 }
 ```
-foo 函数在参数不符合要求时抛出 std::exception 类的异常，过于宽泛，如果 bar 函数抛出其他异常，也会被当作“参数不符合要求”处理，这显然是错误的。  
+foo 函数在参数不符合要求时抛出 std::exception 类的异常，过于宽泛，如果 bar 函数也抛出从 std::exception 派生的异常，也会被当作“参数不符合要求”处理，这显然是错误的。  
   
-正确的做法是为每种异常定义明确的子类：
+正确的做法是为各种异常定义具体的类：
 ```
-class WrongArg: public std::exception {
+class WrongArg {
 public:
     WrongArg() {}
 };
@@ -9233,16 +9233,16 @@ void foo() {
 ```
 整数或字符串无法区分异常的种类，如果不同的模块均将简单变量作为异常，很容易产生冲突。  
   
-应明确定义异常类：
+应为各种异常定义具体的类：
 ```
-class E1: public std::exception { .... };
-class E2: public std::exception { .... };
+class Error { .... };
+class Exception { .... };
 
 void foo() {
-    if (cond1) {
-        throw E1();        // Compliant
+    if (cond) {
+        throw Error(1);           // Compliant
     }
-    throw E2("message");   // Compliant
+    throw Exception("message");   // Compliant
 }
 ```
 注意，throw、try、catch 等关键字应专注于异常处理，不应使用这些关键字控制程序的业务流程，业务代码与异常处理代码应有明显区别，否则会使代码含混不明，效率也会降低，如：
@@ -9508,12 +9508,12 @@ ID_exceptionInException&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
 <hr/>
 
-构造异常对象或获取异常信息时，如果再抛出其他异常不利于异常的定位与处理。  
+创建、复制异常对象以及获取异常信息时不应再抛出异常，否则不利于异常的定位与处理。  
   
 示例：
 ```
 class Exception {
-    string msg;
+    std::string msg;
 
 public:
     Exception(const char* s) {
@@ -9531,18 +9531,18 @@ public:
     }
 };
 ```
-例中在构造函数和 what 函数中抛出异常是不符合要求的，而且要注意 string 类型的构造函数需要动态内存分配，当分配失败时也会抛出异常，有高可靠性要求的软件系统需要规避。  
+例中在构造函数和 what 函数中抛出异常是不符合要求的，而且要注意 string 的构造及拷贝构造函数需要动态内存分配，当分配失败时也会抛出异常，有高可靠性要求的软件系统需要规避。  
   
-自定义的异常类应从标准异常类派生，成员也应尽量简单，如：
+自定义的异常类可从标准异常类派生，成员也应尽量简单，如：
 ```
-class Exception: public std::exception {
+class Exception: public logic_error {
 public:
-    const char* what() const noexcept override {
-        return "message";
-    }
+    explicit Exception(const string& msg):
+        logic_error(msg)
+    {}
 };
 ```
-由标准异常类的定义，Exception 的构造函数可以保证不会抛出异常。
+其中 logic\_error 是标准异常类，在实际代码中也可以选择 runtime\_error 等其他标准异常类作为基类。
 <br/>
 <br/>
 

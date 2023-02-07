@@ -966,7 +966,7 @@
     "ID_exceptionInException": {
         "checkPoint": "异常类的构造函数和异常信息相关的函数不应抛出异常",
         "level": "warning",
-        "comment": "构造异常对象或获取异常信息时，如果再抛出其他异常不利于异常的定位与处理。",
+        "comment": "创建、复制异常对象以及获取异常信息时不应再抛出异常，否则不利于异常的定位与处理。",
         "tag": "exception",
         "standard": "ISO/IEC 14882:2011 18.8.1"
         },
