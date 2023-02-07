@@ -1654,9 +1654,9 @@
         "reference": "C++ Core Guidelines ES.56,C++ Core Guidelines F.18,C++ Core Guidelines F.48"
         },
     "ID_useAfterMove": {
-        "checkPoint": "对象被移动后不应再被使用",
+        "checkPoint": "不应直接使用已被移动的对象",
         "level": "warning",
-        "comment": "std::move 宣告对象的数据即将被转移到其他对象，转移之后对象在逻辑上不再有效，不应再被使用。",
+        "comment": "std::move 宣告对象的数据将被移动到其他对象，移动后对象在逻辑上不再有效，如果对象的状态没有被重新设定，不应再被使用。",
         "tag": "resource",
         "related": "ID_unsuitableMove",
         "reference": "SEI CERT EXP63-CPP,C++ Core Guidelines ES.56"

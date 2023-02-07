@@ -107,7 +107,7 @@
   - [R2.6 资源的分配与回收方法应配套使用](#incompatibledealloc)
   - [R2.7 模块之间不应传递容器等对象](#crossmoduletransfer)
   - [R2.8 对象申请的资源应在析构函数中释放](#memberdeallocation)
-  - [R2.9 对象被移动后不应再被使用](#useaftermove)
+  - [R2.9 不应直接使用已被移动的对象](#useaftermove)
   - [R2.10 构造函数抛出异常需避免相关资源泄漏](#throwinconstructor)
   - [R2.11 资源不可被重复释放](#doublefree)
   - [R2.12 用 delete 释放对象需保证其类型完整](#deleteincompletetype)
@@ -1898,13 +1898,13 @@ C++ Core Guidelines E.6
 <br/>
 <br/>
 
-### <span id="useaftermove">▌R2.9 对象被移动后不应再被使用</span>
+### <span id="useaftermove">▌R2.9 不应直接使用已被移动的对象</span>
 
 ID_useAfterMove&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
 <hr/>
 
-std::move 宣告对象的数据即将被转移到其他对象，转移之后对象在逻辑上不再有效，不应再被使用。  
+std::move 宣告对象的数据将被移动到其他对象，移动后对象在逻辑上不再有效，如果对象的状态没有被重新设定，不应再被使用。  
   
 示例：
 ```
@@ -1913,7 +1913,7 @@ string foo(string a) {
     return a + b;              // Non-compliant
 }
 ```
-例中 a 对象的数据被转移到 b 对象，之后 a 对象不再有效，对 a 重新赋值之前访问 a 属于逻辑错误。
+例中 a 对象的数据被转移到 b 对象，之后 a 不再有效，如果要继续使用 a，应清空其数据或对其重新赋值。
 <br/>
 <br/>
 
