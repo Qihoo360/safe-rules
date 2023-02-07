@@ -9513,7 +9513,7 @@ ID_exceptionInException&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 示例：
 ```
 class Exception {
-    std::string msg;
+    string msg;
 
 public:
     Exception(const char* s) {
