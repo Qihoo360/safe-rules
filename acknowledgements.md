@@ -16,6 +16,7 @@
  - [happycoderat](https://github.com/happycoderat)
  - [Zaoly](https://github.com/Zaoly)
  - [lhmouse](https://github.com/lhmouse)
+ - [Timothy-Liuxf](https://github.com/Timothy-Liuxf)
 
 感谢下列组织和媒体的推广：
  - [360 技术](https://blog.csdn.net/qihoo_tech)
