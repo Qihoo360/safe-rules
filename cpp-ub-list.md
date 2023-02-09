@@ -1582,11 +1582,18 @@ ISO/IEC 14882:2011 7.1.6.1(4)-undefined
 
 示例：
 ```
-int foo(int&);
-volatile int* bar();
+volatile int v;   // Changed by other devices
 
-foo((int&)*bar());   // Undefined behavior
+void wait(int& r) {
+    r = 0;
+    while (r != 100);
+}
+
+int main() {
+    wait((int&)v);   // Undefined behavior
+}
 ```
+例中变量 v 在定义处由 volatile 限定，但通过无 volatile 限定的引用访问，导致未定义的行为。
 <br/>
 <br/>
 
