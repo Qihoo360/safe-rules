@@ -6501,15 +6501,16 @@ ID_forbidVolatile&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration suggestion
 
 应在适当的场景中合理使用 volatile，否则会导致优化或同步相关的多种问题。  
   
-只应在以下场景使用 volatile：  
- - 与汇编等语言混合处理同一对象  
- - 信号或中断处理函数处理共享对象  
- - 对象地址对应外设地址  
- - 出于安全目的清理内存中的对象  
+下列场景可使用 volatile：  
+ - 对象读写对应外设 IO  
+ - 与信号等中断处理过程共享对象  
+ - 局部对象在 setjmp、longjmp 之间被修改  
+ - 出于安全目的清理内存中的数据  
+ - 在 C/C\+\+ 之外，通过与编译优化不兼容的方式访问对象  
   
-在这些场景中，如果相关对象没有用 volatile 限定，会导致程序和预期不符，volatile 关键字可以保证对象具有稳定的内存地址，任何读取或写入都可以来源于或作用于内存中的实际数据。  
+在这些场景中，如果相关对象没有用 volatile 限定会导致程序和预期不符，volatile 关键字可以保证对象具有稳定的内存地址，任何读取或写入都可以来源于或作用于内存中的实际数据。  
   
-除此之外不应使用 volatile，而且要注意 volatile 和 C/C\+\+ 的并发或同步机制是没有关系的，也无法保证相关操作的原子性。  
+除此之外不应使用 volatile，而且要注意 volatile 和 C/C\+\+ 的并发或同步机制没有直接关系，也无法保证相关操作的原子性。  
   
 示例：
 ```
@@ -6520,7 +6521,7 @@ void thd() {
     read_and_write(x);
 }
 ```
-设 thd 是线程函数，LockGuard 是某种 RAII 锁，在已落实同步机制的情况下，不应再使用 volatile 限定共享对象。
+例中 x 是不涉及外设的共享对象，thd 是线程函数，LockGuard 是某种 RAII 锁，在已落实同步机制的情况下，不应再使用 volatile。
 <br/>
 <br/>
 
@@ -14044,13 +14045,15 @@ ID_forbidLongjmp&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: control warning
 
 setjmp、longjmp 可以在函数间跳转，进一步破坏了结构化编程理念，非框架代码不应使用。  
   
+setjmp 与 longjmp 由类型为 jmp\_buf 的参数关联，只能在同一线程中使用，如果调用 longjmp 时没有对应的 setjmp，或 setjmp 所在函数已经结束执行，会导致标准未定义的行为，而且要注意 setjmp、longjmp 无法与 C\+\+ 对象自动析构等机制兼容，极易造成意料之外的错误。  
+  
 示例：
 ```
 jmp_buf buf;
 
 float div(int a, int b) {
     if (b == 0) {
-        longjmp(buf, 1);            // Non-compliant
+        longjmp(buf, 1);     // Non-compliant
     }
     return (float)a / b;
 }
@@ -14065,7 +14068,23 @@ int main() {
 ```
 setjmp 返回 0 表示设置跳转位置成功，之后如果调用 longjmp 会跳回 setjmp 的位置，这时 setjmp 返回非 0 值，这种机制在 C 语言中可以用作异常处理，也可以实现“协程”等概念，但会使代码的可维护性显著降低，在普通的业务逻辑或算法实现中不应使用。  
   
-setjmp 与 longjmp 由 jmp\_buf 参数关联，应在同一线程中使用，如果调用 longjmp 时没有对应的 setjmp，或 setjmp 所在函数已经结束执行，会导致标准未定义的行为，而且要注意 setjmp、longjmp 无法与 C\+\+ 对象自动析构等机制兼容，极易造成意料之外的错误。
+另外，函数间跳转与编译器的优化机制有冲突，如：
+```
+jmp_buf buf;
+
+void foo() { longjmp(buf, 1); }
+
+void bar() {
+    int i = 1;            // Missing ‘volatile’
+    if (!setjmp(buf)) {
+        i++;
+        foo();
+    } else {
+        printf("%d\n", i);
+    }
+}
+```
+在启用优化时和关闭优化时可能会有不同的输出，启用优化时局部变量 i 可能直接存于寄存器，当通过 longjmp 跳转回 bar 函数时，i\+\+ 的结果会丢失。将局部变量用 volatile 限定可解决这种问题，但很容易遗漏或产生无必要的限定。
 <br/>
 <br/>
 
