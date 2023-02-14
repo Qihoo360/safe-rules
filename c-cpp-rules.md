@@ -17947,7 +17947,7 @@ ID_forbidReinterpretCast&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: cast suggestion
 
 <hr/>
 
-语言对 reinterpret\_cast 的定位不是为了安全性，而是为了灵活性，可以用其他方式实现的功能不应使用 reinterpret\_cast，如果必须使用需提供明确的文档说明。  
+reinterpret\_cast 是一种不安全的类型转换，如果必须使用需提供合理的注释说明。  
   
 示例：
 ```
@@ -17963,19 +17963,20 @@ void foo(const char* path) {
   
 又如：
 ```
-void* external_interface();  // If it's out of control ...
+ext_type* ext_interface();   // External interface
 
 void foo() {
-    auto* data = external_interface();
-    auto* mydata = reinterpret_cast<MyData*>(data);  // Attention
+    auto* raw = ext_interface();
+    auto* dat = reinterpret_cast<MyType*>(raw);   // OK
     ....
 }
 ```
-例中 external\_interface 是项目外部的一个接口，它的实现方式完全不受控制，返回类型也不可见，甚至需要某种“hacking”才能使用这个接口，这已经不属于正常的开发范围了，可以用 reinterpret\_cast 强调这是一种非正常的转换，但需注明这种情况产生的原因，以及是否有改进的余地等信息。
+例中 ext\_interface 是不受控制的外部接口，它的返回类型不完整或不可用，甚至返回的地址也不遵循 C\+\+ 内存模型，需要将其“重解释”为另一种类型才能探究其结构和数据，MyType 是为了解决这个问题而自定义的类型，这种情况可以使用 reinterpret\_cast，但需注明这种情况产生的原因。
 <br/>
 <br/>
 
 #### 相关
+ID_forbidCStyleCast  
 ID_stricterAlignedCast  
 <br/>
 
@@ -17991,7 +17992,7 @@ ID_forbidCStyleCast&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: cast suggestion
 
 <hr/>
 
-C 语言的类型观念弱于 C\+\+，易造成逻辑错误或数据丢失，应尽量避免类型转换，或使用 static\_cast、dynamic\_cast 等方法。  
+C 风格类型转换易造成数据丢失或逻辑错误，在 C\+\+ 代码中应使用 static\_cast、dynamic\_cast 等方法代替 C 风格类型转换。  
   
 示例：
 ```

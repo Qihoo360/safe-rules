@@ -1389,7 +1389,7 @@
     "ID_forbidCStyleCast": {
         "checkPoint": "在 C++ 代码中禁用 C 风格类型转换",
         "level": "suggestion",
-        "comment": "C 语言的类型观念弱于 C++，易造成逻辑错误或数据丢失，应尽量避免类型转换，或使用 static_cast、dynamic_cast 等方法。",
+        "comment": "C 风格类型转换易造成数据丢失或逻辑错误，在 C++ 代码中应使用 static_cast、dynamic_cast 等方法代替 C 风格类型转换。",
         "tag": "cast",
         "reference": "MISRA C++ 2008 5-2-4,C++ Core Guidelines ES.49"
         },
@@ -3058,9 +3058,9 @@
     "ID_forbidReinterpretCast": {
         "checkPoint": "合理使用 reinterpret_cast",
         "level": "suggestion",
-        "comment": "语言对 reinterpret_cast 的定位不是为了安全性，而是为了灵活性，可以用其他方式实现的功能不应使用 reinterpret_cast，如果必须使用需提供明确的文档说明。",
+        "comment": "reinterpret_cast 是一种不安全的类型转换，如果必须使用需提供合理的注释说明。",
         "tag": "cast",
-        "related": "ID_stricterAlignedCast",
+        "related": "ID_forbidCStyleCast,ID_stricterAlignedCast",
         "reference": "CWE-843,C++ Core Guidelines Pro.safety"
         },
     "ID_sizeof_suspiciousAdd": {
