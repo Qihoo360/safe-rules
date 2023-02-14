@@ -611,9 +611,9 @@
         "reference": "MISRA C++ 2008 5-0-11,SEI CERT INT07-C"
         },
     "ID_plainBinaryChar": {
-        "checkPoint": "字节的类型应为 unsigned char",
+        "checkPoint": "字节的类型应为 std::byte 或 unsigned char",
         "level": "warning",
-        "comment": "字节等二进制概念不应受符号位干扰，应声明为 unsigned char。",
+        "comment": "字节等二进制概念不应受对齐方式或符号位的干扰，字节的类型应为 std::byte 或 unsigned char。",
         "tag": "declaration",
         "related": "ID_plainNumericChar,ID_bitwiseOperOnSigned",
         "standard": "ISO/IEC 14882:2003 3.9.1(1)-implementation,ISO/IEC 14882:2011 3.9.1(1)-implementation"

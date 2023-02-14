@@ -270,7 +270,7 @@
     - [R6.5.2 不应存在没有被用到的局部声明](#invalidlocaldeclaration)
     - [R6.5.3 对象初始化不可依赖自身的值](#selfdependentinitialization)
     - [R6.5.4 参与数值运算的 char 变量需显式声明 signed 或 unsigned](#plainnumericchar)
-    - [R6.5.5 字节的类型应为 unsigned char](#plainbinarychar)
+    - [R6.5.5 字节的类型应为 std::byte 或 unsigned char](#plainbinarychar)
   - [6.6 Parameter](#declaration.parameter)
     - [R6.6.1 函数原型声明中的参数应具有合理的名称](#missingparamname)
     - [R6.6.2 不应将数组作为函数的形式参数](#invalidparamarraysize)
@@ -7602,13 +7602,15 @@ SEI CERT INT07-C
 <br/>
 <br/>
 
-### <span id="plainbinarychar">▌R6.5.5 字节的类型应为 unsigned char</span>
+### <span id="plainbinarychar">▌R6.5.5 字节的类型应为 std::byte 或 unsigned char</span>
 
 ID_plainBinaryChar&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-字节等二进制概念不应受符号位干扰，应声明为 unsigned char。  
+字节等二进制概念不应受对齐方式或符号位的干扰，字节的类型应为 std::byte 或 unsigned char。  
+  
+std::byte  是 C\+\+17 的标准字节类型，对字节相关的运算和操作提供了更安全的限定。在 C 代码或不便于遵循新标准的 C\+\+ 代码中，应将字节类型声明为 unsigned char。  
   
 示例：
 ```
