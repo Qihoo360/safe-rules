@@ -4321,7 +4321,7 @@ void fun() {
     do_something(foo, bar);
 }
 ```
-改进方法（将全局变量和与其相关的函数封装成类）：
+改进方法（将全局对象和相关函数封装成类）：
 ```
 class A {
 public:
@@ -17428,22 +17428,46 @@ ID_qualifierCastedAway&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
   
 示例：
 ```
-const int N = 123;
+const int c = 1;
+volatile int v = 2;
 
-void foo(const int& n) {
-    const_cast<int&>(n) = 456;   // Non-compliant
-}
-
-void bar() {
-    foo(N);   // Undefined behavior, modifies a const object
-}
+*(int*)&c = 3;   // Non-compliant, undefined behavior
+*(int*)&v = 4;   // Non-compliant, undefined behavior
+```
+通过去掉 const 或 volatile 的转换修改相关对象会导致标准未定义的行为。  
+  
+又如：
+```
+struct A {
+    void foo() const {
+        const_cast<A*>(this)->n++;   // Non-compliant
+        ....
+    }
+private:
+    int n = 0;
+};
+```
+例中 foo 为常量成员函数，用 const\_cast 去掉 this 指针的 const 限定是不符合要求的。  
+  
+如果成员的改变只起辅助作用而不影响对象状态，可将成员设为 mutable，否则应重新设计类，如： 
+```
+struct A {
+    void foo() const {
+        n++;             // OK
+        ....
+    }
+private:
+    mutable int n = 0;   // Can be modified by const member functions
+};
 ```
 <br/>
 <br/>
 
 #### 依据
-ISO/IEC 14882:2003 7.1.5.1(4 5)-undefined  
-ISO/IEC 14882:2011 7.1.6.1(4)-undefined  
+ISO/IEC 9899:1999 6.7.3(5)-undefined  
+ISO/IEC 9899:2011 6.7.3(6)-undefined  
+ISO/IEC 14882:2003 7.1.5.1(4 7)-undefined  
+ISO/IEC 14882:2011 7.1.6.1(4 6)-undefined  
 <br/>
 
 #### 参考
@@ -17451,6 +17475,8 @@ C++ Core Guidelines Type.3
 MISRA C 2004 11.5  
 MISRA C 2012 11.8  
 MISRA C++ 2008 5-2-5  
+SEI CERT EXP32-C  
+SEI CERT EXP55-CPP  
 <br/>
 <br/>
 

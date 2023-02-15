@@ -1267,8 +1267,8 @@
         "level": "warning",
         "comment": "去掉 const、volatile 等属性会使相关机制失去意义，往往意味着设计上的缺陷，也会导致标准未定义的行为。",
         "tag": "cast",
-        "standard": "ISO/IEC 14882:2003 7.1.5.1(4 5)-undefined,ISO/IEC 14882:2011 7.1.6.1(4)-undefined",
-        "reference": "C++ Core Guidelines Type.3,MISRA C 2004 11.5,MISRA C 2012 11.8,MISRA C++ 2008 5-2-5"
+        "standard": "ISO/IEC 9899:1999 6.7.3(5)-undefined,ISO/IEC 9899:2011 6.7.3(6)-undefined,ISO/IEC 14882:2003 7.1.5.1(4 7)-undefined,ISO/IEC 14882:2011 7.1.6.1(4 6)-undefined",
+        "reference": "C++ Core Guidelines Type.3,MISRA C 2004 11.5,MISRA C 2012 11.8,MISRA C++ 2008 5-2-5,SEI CERT EXP32-C,SEI CERT EXP55-CPP"
         },
     "ID_objectSlicing": {
         "checkPoint": "避免对象切片",
