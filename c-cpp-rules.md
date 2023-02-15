@@ -774,7 +774,7 @@ void foo() {
 ```
 示例代码调用 memset 覆盖敏感数据以达到清理目的，然而保存敏感信息的 password 为局部数组且 memset 之后没有再被引用，根据相关标准，编译器可将 memset 过程去掉，使敏感数据没有得到有效清理。C11 提供了 memset\_s 函数以避免这种问题，某些平台和库也提供了相关支持，如 SecureZeroMemory、explicit\_bzero、OPENSSL\_cleanse 等不会被优化掉的函数。  
   
-在 C\+\+ 语言中，可用 volatile 限定相关数据以避免编译器的优化，再用 std::fill\_n 等方法清理，如：
+在 C\+\+ 代码中，可用 volatile 限定相关数据以避免编译器的优化，再用 std::fill\_n 等方法清理，如：
 ```
 void foo() {
     char password[8] = {};
@@ -5592,7 +5592,7 @@ ID_forbidUnscopedEnum&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: type suggestion
 
 <hr/>
 
-传统 C 枚举没有有效的类型和作用域控制，极易造成类型混淆和名称冲突，在 C\+\+ 语言中建议改用 enum class。  
+传统 C 枚举没有有效的类型和作用域控制，极易造成类型混淆和名称冲突，在 C\+\+ 代码中建议改用 enum class。  
   
 示例：
 ```
@@ -7156,7 +7156,7 @@ A* cpy(const A* p) {
     return a;
 }
 ```
-例中 \*a = \*p 这种拷贝赋值运算会漏掉数组的内容，而且数组不会计入 sizeof 的结果，易引起意料之外的错误，所以在 C 语言中也不建议使用这种柔性数组。
+例中 \*a = \*p 这种拷贝赋值运算会漏掉数组的内容，而且数组不会计入 sizeof 的结果，易引起意料之外的错误，所以在 C 代码中也不建议使用这种柔性数组。
 <br/>
 <br/>
 
@@ -7177,7 +7177,7 @@ ID_forbidFunctionVoidPtr&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration war
 
 与接口相关的数据类型应保持精确，不应将参数或返回值声明为 void\*。  
   
-在 C\+\+ 语言中，如果参数或返回值需要面对多种不同类型的数据，应合理使用重载或模板机制。  
+在 C\+\+ 代码中，如果参数或返回值需要面对多种不同类型的数据，应合理使用重载或模板机制。  
   
 示例：
 ```
@@ -7189,7 +7189,7 @@ public:
 ```
 例中 foo 和 bar 函数的返回值以及参数是不符合要求的。  
   
-C 语言中存在大量的库函数不符合本规则要求，在 C\+\+ 语言中应避免使用，如：
+C 语言中存在大量的库函数不符合本规则要求，在 C\+\+ 代码中应避免使用，如：
 ```
 int buf[123];
 memset(buf, 0, 123);  // Logic error, should be ‘123 * sizeof(int)’
@@ -7230,7 +7230,7 @@ ID_forbidMemberVoidPtr&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration warni
 
 与接口相关的数据类型应保持精确，不应将类成员声明为 void\*，尤其是非 private 成员，更不应声明为 void\*。  
   
-在 C\+\+ 语言中，如果成员需要面对多种不同类型的数据，应合理使用模板机制。  
+在 C\+\+ 代码中，如果成员需要面对多种不同类型的数据，应合理使用模板机制。  
   
 示例：
 ```
@@ -7693,7 +7693,7 @@ int bar() {
     return foo(a);     // It can be compiled
 }
 ```
-建议在 C\+\+ 语言中采用数组引用或模板的方式：
+建议在 C\+\+ 代码中采用数组引用或模板的方式：
 ```
 void foo(int (&a)[100]);     // Compliant
 
@@ -7729,8 +7729,8 @@ ID_badParmN&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: declaration error
 <hr/>
 
 可变参数列表中省略号的前一个参数称为 parmN，如果：  
- - 在 C 语言中，parmN 为数组、函数，或具有寄存器存储期，以及与默认参数提升后不兼容的类型  
- - 在 C\+\+ 语言中，parmN 为引用、数组、函数，或具有与默认参数提升后不兼容的类型  
+ - 在 C 代码中，parmN 为数组、函数，或具有寄存器存储期，以及与默认参数提升后不兼容的类型  
+ - 在 C\+\+ 代码中，parmN 为引用、数组、函数，或具有与默认参数提升后不兼容的类型  
   
 会导致标准未定义的行为。  
   
@@ -8735,7 +8735,7 @@ type foo(type x) {   // Non-compliant, confusing
     ....
 }
 ```
-例中在实现处为参数类型定义别名是不符合要求的，在允许重载的 C\+\+ 语言中会引起更大的误解。  
+例中在实现处为参数类型定义别名是不符合要求的，在允许重载的 C\+\+ 代码中会引起更大的误解。  
   
 应改为：
 ```
@@ -9182,19 +9182,11 @@ ID_catch_generic&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 ```
 try {
     ....
-} catch (std::exception&) {  // Non-compliant
+} catch (std::logic_error&) {   // Non-compliant
     ....
-}
-
-try {
+} catch (std::runtime_error&) {   // Non-compliant
     ....
-} catch (std::runtime_error&) {  // Non-compliant
-    ....
-}
-
-try {
-    ....
-} catch (std::logic_error&) {  // Non-compliant
+} catch (std::exception&) {   // Non-compliant
     ....
 }
 ```
@@ -9281,7 +9273,7 @@ ID_catch_nonExceptionType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
 <hr/>
 
-字符串或变量以及非异常相关的对象不应被当作异常捕获，否则意味着异常相关的设计是不健全的。  
+整数、字符串等非异常相关的对象不应被当作异常捕获，否则意味着异常相关的设计是不健全的。  
   
 相关讨论详见  ID\_throwNonExceptionType。  
   
@@ -9289,19 +9281,11 @@ ID_catch_nonExceptionType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 ```
 try {
     ....
-} catch (int) {  // Non-compliant
+} catch (int) {   // Non-compliant
     ....
-}
-
-try {
+} catch (char*) {   // Non-compliant
     ....
-} catch (char*) {  // Non-compliant
-    ....
-}
-
-try {
-    ....
-} catch (string&) {  // Non-compliant
+} catch (string&) {   // Non-compliant
     ....
 }
 ```
@@ -10021,7 +10005,7 @@ int main()
     main(L"abc");  // Non-compliant
 }
 ```
-那么在 C\+\+ 语言中可以用 noexcept 修饰 main 函数吗？标准没有明确规定，本规则也不建议这样做，不论是否使用 noexcept，在 main 函数中抛出异常都会引起 std::terminate 的执行，而且这样做也不符合惯例。
+那么在 C\+\+ 代码中可以用 noexcept 修饰 main 函数吗？标准没有明确规定，本规则也不建议这样做，不论是否使用 noexcept，在 main 函数中抛出异常都会引起 std::terminate 的执行，而且这样做也不符合惯例。
 <br/>
 <br/>
 
@@ -12662,7 +12646,7 @@ int foo(int n) {
     return s;
 }
 ```
-另外，在 C\+\+ 语言中，如果只通过 for 语句遍历容器，而不对元素进行操作是没有意义的，如：
+另外，在 C\+\+ 代码中，如果只通过 for 语句遍历容器，而不对元素进行操作是没有意义的，如：
 ```
 void bar(vector<int>& v) {
     for (auto i: v);         // Non-compliant
@@ -13600,7 +13584,7 @@ case 1:
     break;
 }
 ```
-少数情况下，如果确实不能有 break 或 return 语句，应添加注释说明情况，或在 C\+\+ 语言中用 \[\[fallthrough\]\] 注明：
+少数情况下，如果确实不能有 break 或 return 语句，应添加注释说明情况，或在 C\+\+ 代码中用 \[\[fallthrough\]\] 注明：
 ```
 switch (v)
 {
@@ -16156,7 +16140,7 @@ void fun(char arr[32]) {
 ```
 例中参数 arr 是一个指针，而不是一个真实的数组。  
   
-在 C\+\+ 语言中，如果有必要将参数设为数组，建议使用引用的方式，如：
+在 C\+\+ 代码中，如果有必要将参数设为数组，建议使用引用的方式，如：
 ```
 void fun(char (&arr)[32]) {
     memset(arr, 0, sizeof(arr));  // Compliant
@@ -16438,7 +16422,7 @@ void foo(int a[]) {
     assert("some comments");  // Non-compliant
 }
 ```
-也不建议使用恒为假的断言表示异常，在 C\+\+ 语言中应改用异常处理的方式。
+也不建议使用恒为假的断言表示异常，在 C\+\+ 代码中应改用异常处理的方式。
 ```
 void bar(int x) {
     if (x < 0) {
@@ -18035,7 +18019,7 @@ void bar(A* a) {
     ....
 }
 ```
-例中 A 和 B 是两种不相关的类型，用 C 语言的转换方式是可以转换成功的，但并没有逻辑意义，在 C\+\+ 语言中应使用 static\_cast 或 dynamic\_cast 等方法在编译时或运行时保障转换的有效性。
+例中 A 和 B 是两种不相关的类型，用 C 语言的转换方式是可以转换成功的，但并没有逻辑意义，在 C\+\+ 代码中应使用 static\_cast 或 dynamic\_cast 等方法在编译时或运行时保障转换的有效性。
 <br/>
 <br/>
 
@@ -18385,7 +18369,7 @@ T* p = nullptr;
 auto b = p->bar();   // Compliant, but bad, use ‘T::bar()’ instead
 auto c = p->foo();   // Non-compliant, even if it may not crash
 ```
-在 C\+\+ 语言中通过指针访问静态成员不算作解引用，可不受本规则约束，但这种风格易引起维护者的疑虑而增加维护成本。  
+在 C\+\+ 代码中通过指针访问静态成员不算作解引用，可不受本规则约束，但这种风格易引起维护者的疑虑而增加维护成本。  
   
 另外，调用非静态成员函数意味着访问对象的数据，即使成员函数没有实际地访问成员数据，也不应通过空指针调用非静态成员函数，否则仍属于逻辑错误，而且如果调用的是虚函数或虚基类的成员函数仍会造成崩溃。
 <br/>
@@ -18475,7 +18459,7 @@ int foo(int i) {
 ```
 例中局部变量 j 的地址被传给了外层作域中的 p，j 的生命周期结束后，p 为野指针。  
   
-另外，在 C\+\+ 语言中，应避免持有可被自动销毁的对象地址，如容器中对象的地址、智能指针所指对象的地址等。
+另外，在 C\+\+ 代码中，应避免持有可被自动销毁的对象地址，如容器中对象的地址、智能指针所指对象的地址等。
 ```
 int bar(vector<int>& v) {
     int* p = &v.front();         // Bad practice

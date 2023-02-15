@@ -511,7 +511,7 @@
     "ID_catch_nonExceptionType": {
         "checkPoint": "不应捕获非异常类型的对象",
         "level": "warning",
-        "comment": "字符串或变量以及非异常相关的对象不应被当作异常捕获，否则意味着异常相关的设计是不健全的。",
+        "comment": "整数、字符串等非异常相关的对象不应被当作异常捕获，否则意味着异常相关的设计是不健全的。",
         "tag": "exception",
         "related": "ID_throwNonExceptionType",
         "reference": "C++ Core Guidelines E.14"
