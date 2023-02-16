@@ -293,7 +293,7 @@
     - [R6.7.10 final 类中不应声明虚函数](#virtualinfinal)
   - [6.8 Bitfield](#declaration.bitfield)
     - [R6.8.1 对位域声明合理的类型](#improperbitfieldtype)
-    - [R6.8.2 位域长度不应超过类型约定的大小](#exceededbitfield)
+    - [R6.8.2 位域长度不应超过类型长度](#exceededbitfield)
     - [R6.8.3 有符号变量的位域长度不应为 1](#singlesignedbitfield)
     - [R6.8.4 不应对枚举变量声明位域](#forbidenumbitfield)
     - [R6.8.5 禁用位域](#forbidbitfield)
@@ -8379,25 +8379,46 @@ ID_improperBitfieldType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-位域的类型应具备可移植性，如：  
+为了提高可移植性和可维护性，应对位域声明合理的类型，如：  
  - 各种实现中取值范围均一致的整数类型  
- - stdint.h 中定义的整数类型  
  - bool 或 \_Bool  
   
 示例：
 ```
-#include <stdint.h>
-
-struct A
-{
-    uint32_t a: 2;       // Compliant
-    unsigned int b: 2;   // Compliant
-
-    char c: 4;    // Non-compliant, missing signed or unsigned
-    long e: 36;   // Non-compliant, use int64_t instead
+struct A {
+    char c: 2;   // Non-compliant
 };
 ```
+char 是否有符号是由实现定义的，c 的取值范围可能是 \[\-2, 1\] 也可能是 \[0, 3\]，故应明确声明位域的符号属性：
+```
+struct A {
+    signed char c: 2;   // Compliant, or use int8_t
+};
+```
+又如：
+```
+struct B {
+    long a: 4;    // Non-compliant
+    long b: 32;   // Non-compliant
+    long c: 24;   // Non-compliant
+};
+```
+例中结构体 B 只涉及 60 个比特位，但由于 long 的取值范围是由实现定义的，B 的内存布局在不同的平台上会有较大差异。  
+  
+应改为：
+```
+struct B {
+    int64_t a: 4;    // Compliant
+    int64_t b: 32;   // Compliant
+    int64_t c: 24;   // Compliant
+};
+```
+严格地说，int 等常用整数类型的符号属性在 C11 之前均是由实现定义的，只是大多数编译环境均将其实现为有符号整型，为变通起见，审计工具不妨通过配置决定其合规性。
 <br/>
+<br/>
+
+#### 配置
+improperBitfieldType：违规位域类型，如 char、short、long 等  
 <br/>
 
 #### 参考
@@ -8407,28 +8428,34 @@ MISRA C++ 2008 9-6-2
 <br/>
 <br/>
 
-### <span id="exceededbitfield">▌R6.8.2 位域长度不应超过类型约定的大小</span>
+### <span id="exceededbitfield">▌R6.8.2 位域长度不应超过类型长度</span>
 
 ID_exceededBitfield&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-位域长度不应超过类型约定的大小，否则没有意义且会造成不必要的空间浪费。  
+如果位域长度超过类型长度，易对维护者造成误导，也可能是笔误。  
   
-C 标准规定位域长度不可超过类型约定的大小，但 C\+\+ 标准规定可以超过，超过的部分作为“padding bits”不参与数据的存储。  
+C 标准不允许位域长度超过类型长度，但 C\+\+ 标准允许，超过的部分作为“padding bits”不参与数据的存储。  
   
 示例：
 ```
 struct A {
-    int x: 50;  // Non-compliant
-};
+    uint32_t x: 64;    // Non-compliant
+} a;
 
-int main() {
-    A a;
-    cout << sizeof(a) << '\n';  // What is output?
-}
+a.x = UINT64_MAX;      // Truncated 
 ```
-输出 8，例中成员 x 自身的位域长度仍为 32，而多出来的大小会形成一个不可访问的填充值。
+例中 x 的位域长度超过了类型长度，但有效位域长度仍为 32，有效位域和声明位域不一致易误导维护者，造成截断或溢出等错误。  
+  
+如果是为了特殊的对齐，可改用成员占位的方式：
+```
+struct A {
+    int32_t x;         // Compliant
+    int32_t padding;   // Compliant
+};
+```
+成员 padding 特殊的名称表明它是用于占位的特殊成员，这种方式比位域方式更利于维护。
 <br/>
 <br/>
 
@@ -8451,19 +8478,22 @@ ID_singleSignedBitfield&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 示例：
 ```
 struct X {
-    int a: 1;           // Non-compliant
-    unsigned int b: 1;  // Compliant
-    int c: 2;           // Compliant
+    signed a: 1;     // Non-compliant
+
+    signed  : 0;     // Compliant
+    signed  : 1;     // Compliant
+    signed b: 2;     // Compliant
+
+    unsigned c: 1;   // Compliant
 };
 
 int main() {
     X x;
-    x.a = 1; cout << x.a << '\n';  // What is output?
-    x.b = 1; cout << x.b << '\n';
-    x.c = 1; cout << x.c << '\n';
+    x.a = 1, x.b = 1, x.c = 1;
+    printf("%d %d %u\n", x.a, x.b, x.c);   // What is output?
 }
 ```
-按常规思维，x.b 和 x.c 为 1 与预期相符，x.a 预期是 1，但实际是 \-1。
+输出 \-1 1 1，按常规思维，x.b 和 x.c 为 1 与预期相符，x.a 预期是 1，但实际是 \-1。
 <br/>
 <br/>
 
@@ -8478,7 +8508,7 @@ ID_forbidEnumBitfield&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration warnin
 
 <hr/>
 
-枚举变量的类型可以是有符号整数，符号位与位域结合易导致意料之外的错误，且不利于枚举类型的扩展。  
+枚举变量的底层类型可以是有符号整型，符号位与位域结合易导致意料之外的错误，且不利于枚举项的扩展。  
   
 示例：
 ```
@@ -8520,18 +8550,17 @@ ID_forbidBitfield&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration suggestion
 
 <hr/>
 
-引入位域的本意是为了节省空间，然而位域改变了变量约定俗成的取值范围和存储方式，易造成理解上的偏差，也会提高维护成本。  
+位域改变了类型约定俗成的取值范围和存储方式，易造成理解上的偏差，也会提高维护成本。  
   
-位域与“引用”等 C\+\+ 概念有冲突，而且 C\+\+ 标准在位域的内存分配和数据对齐等方面定义的不够充分，存在很多由实现定义的内容，所以应改用某种更有效的算法达到节省空间或时间的目的。  
-  
-多线程访问位域还可能造成数据竞争，参见 ID\_bitfieldDataRaces。  
+位域与“引用”等 C\+\+ 概念有冲突，而且标准在位域的内存布局等方面定义的不够充分，存在很多由实现定义的内容，要特别注意的是多线程访问位域还会造成数据竞争，参见 ID\_bitfieldDataRaces。  
   
 示例：
 ```
 struct A {
-    int a: 3;   // Non-compliant
-    int b;      // Compliant
-};
+    int x: 3;   // Non-compliant
+} a;
+
+int& x = a.x;   // Error
 ```
 <br/>
 <br/>

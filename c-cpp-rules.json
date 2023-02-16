@@ -897,7 +897,7 @@
     "ID_forbidEnumBitfield": {
         "checkPoint": "不应对枚举变量声明位域",
         "level": "warning",
-        "comment": "枚举变量的类型可以是有符号整数，符号位与位域结合易导致意料之外的错误，且不利于枚举类型的扩展。",
+        "comment": "枚举变量的底层类型可以是有符号整型，符号位与位域结合易导致意料之外的错误，且不利于枚举项的扩展。",
         "tag": "declaration",
         "related": "ID_singleSignedBitfield,ID_improperBitfieldType",
         "reference": "MISRA C++ 2008 9-6-3"
@@ -923,14 +923,17 @@
     "ID_improperBitfieldType": {
         "checkPoint": "对位域声明合理的类型",
         "level": "warning",
-        "comment": "位域的类型应具备可移植性。",
+        "comment": "为了提高可移植性和可维护性，应对位域声明合理的类型。",
+        "config": {
+            "improperBitfieldType": "违规位域类型，如 char、short、long 等"
+            },
         "tag": "declaration",
         "reference": "MISRA C 2004 6.4,MISRA C 2012 6.1,MISRA C++ 2008 9-6-2"
         },
     "ID_exceededBitfield": {
-        "checkPoint": "位域长度不应超过类型约定的大小",
+        "checkPoint": "位域长度不应超过类型长度",
         "level": "warning",
-        "comment": "位域长度不应超过类型约定的大小，否则没有意义且会造成不必要的空间浪费。",
+        "comment": "如果位域长度超过类型长度，易对维护者造成误导，也可能是笔误。",
         "tag": "declaration",
         "standard": "ISO/IEC 9899:2011 6.7.2.1(4),ISO/IEC 14882:2011 9.6(1)"
         },
@@ -1007,7 +1010,7 @@
     "ID_forbidBitfield": {
         "checkPoint": "禁用位域",
         "level": "suggestion",
-        "comment": "引入位域的本意是为了节省空间，然而位域改变了变量约定俗成的取值范围和存储方式，易造成理解上的偏差，也会提高维护成本。",
+        "comment": "位域改变了类型约定俗成的取值范围和存储方式，易造成理解上的偏差，也会提高维护成本。",
         "tag": "declaration",
         "standard": "ISO/IEC 14882:2003 9.6(1)-implementation,ISO/IEC 14882:2003 9.6(3),ISO/IEC 14882:2011 9.6(1)-implementation,ISO/IEC 14882:2011 9.6(3),ISO/IEC 14882:2017 12.2.4(1)-implementation,ISO/IEC 14882:2017 12.2.4(3)",
         "related": "ID_exceededBitfield,ID_singleSignedBitfield,ID_bitfieldDataRaces,ID_forbidEnumBitfield"
