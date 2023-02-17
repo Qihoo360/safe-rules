@@ -249,8 +249,8 @@
     - [R6.3.3 不应使用多余的 inline 关键字](#inlineredundant)
     - [R6.3.4 extern 关键字不应作用于类成员的声明或定义](#invalidexternspecifier)
     - [R6.3.5 重写的虚函数应声明为 override 或 final](#missingexplicitoverride)
-    - [R6.3.6 override 和 final 关键字不应同时出现](#redundantoverride)
-    - [R6.3.7 有 override 或 final 关键字时，不应再出现 virtual 关键字](#redundantvirtual)
+    - [R6.3.6 override 和 final 关键字不应同时出现在声明中](#redundantoverride)
+    - [R6.3.7 override 或 final 关键字不应与 virtual 关键字同时出现在声明中](#redundantvirtual)
     - [R6.3.8 不应将 union 设为 final](#invalidfinal)
     - [R6.3.9 未访问 this 指针的成员函数应使用 static 声明](#this_notused)
     - [R6.3.10 声明和定义内部链接的对象和函数时均应使用 static 关键字](#missingstatic)
@@ -269,7 +269,7 @@
     - [R6.5.1 不应产生无效的临时对象](#inaccessibletmpobject)
     - [R6.5.2 不应存在没有被用到的局部声明](#invalidlocaldeclaration)
     - [R6.5.3 对象初始化不可依赖自身的值](#selfdependentinitialization)
-    - [R6.5.4 参与数值运算的 char 变量需显式声明 signed 或 unsigned](#plainnumericchar)
+    - [R6.5.4 参与数值运算的 char 对象应显式声明 signed 或 unsigned](#plainnumericchar)
     - [R6.5.5 字节的类型应为 std::byte 或 unsigned char](#plainbinarychar)
   - [6.6 Parameter](#declaration.parameter)
     - [R6.6.1 函数原型声明中的参数应具有合理的名称](#missingparamname)
@@ -341,7 +341,7 @@
   - [R8.1 main 函数的返回类型只应为 int](#mainreturnsnonint)
   - [R8.2 main 函数不应被重载，也不应声明为 inline、static 或 constexpr](#illformedmain)
   - [R8.3 函数不应在头文件中实现](#definedinheader)
-  - [R8.4 函数的参数名称在声明和实现处应保持一致](#inconsistentparamname)
+  - [R8.4 函数的参数名称在声明处和实现处应保持一致](#inconsistentparamname)
   - [R8.5 多态类的对象作为参数时不应采用值传递的方式](#parammaybeslicing)
   - [R8.6 不应存在未被使用的具名形式参数](#paramnotused)
   - [R8.7 由 const 修饰的参数应为引用或指针](#parampassedbyvalue)
@@ -470,7 +470,7 @@
     - [R10.2.2 避免依赖特定的子表达式求值顺序](#evaluationorderreliance)
     - [R10.2.3 在表达式中不应多次读写同一对象](#confusingassignment)
     - [R10.2.4 注意运算符优先级，避免非预期的结果](#unexpectedprecedence)
-    - [R10.2.5 不在同一数组中的指针不可比较或相减](#illptrdiff)
+    - [R10.2.5 未指向同一数组或对象的指针不可相减或比较大小](#illptrdiff)
     - [R10.2.6 bool 值不应参与位运算、大小比较、数值增减](#illbooloperation)
     - [R10.2.7 不应出现复合赋值的错误形式](#illformedcompoundassignment)
     - [R10.2.8 避免出现复合赋值的可疑形式](#suspiciouscompoundassignment)
@@ -588,7 +588,7 @@
   - [R14.9 不应使用 '\\0' 等字符常量对指针赋值](#oddptrcharassignment)
   - [R14.10 指针不应与 false 比较大小](#oddptrboolcomparison)
   - [R14.11 指针不应与 '\\0' 等字符常量比较大小](#oddptrcharcomparison)
-  - [R14.12 不应判断指针大于、大于等于、小于、小于等于 0](#oddptrzerocomparison)
+  - [R14.12 不应判断指针大于、大于等于、小于、小于等于 0 或空指针](#oddptrzerocomparison)
   - [R14.13 不应判断 this 指针是否为空](#this_zerocomparison)
   - [R14.14 析构函数中不可使用 delete this](#this_deleteindestructor)
   - [R14.15 禁用 delete this](#this_forbiddeletethis)
@@ -1193,7 +1193,7 @@ scanf("%s", buf);  // Non-compliant
 char buf[100];
 scanf("%99s", buf);  // Let it go, but ‘fgets’ is better
 ```
-scanf、sprintf、strcpy 等函数无视缓冲区大小，需要在外部另行实现防止缓冲区溢出的代码，完全依赖于编写者的小心谨慎。历史表明，对人的单方面依赖是不可靠的，改用更安全的方法才是明智的选择。
+scanf、sprintf、strcpy 等函数无视缓冲区大小，需要在外部另行实现防止缓冲区溢出的代码，完全依赖于开发者的小心谨慎。历史表明，对人的单方面依赖是不可靠的，改用更安全的方法才是明智的选择。
 <br/>
 <br/>
 
@@ -1572,7 +1572,7 @@ ID_illAccess&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
 
 <hr/>
 
-访问未初始化或已释放的资源属于逻辑错误，也会导致标准未定义的行为。  
+访问未初始化或已释放的资源属于逻辑错误，导致标准未定义的行为。  
   
 示例：
 ```
@@ -2410,7 +2410,7 @@ ID_forbidMallocAndFree&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: resource warning
 
 <hr/>
 
-在 C\+\+ 代码中不应使用 malloc、free 等 C 内存管理函数，应使用对象化管理方法。  
+在 C\+\+ 代码中不应使用 malloc、free 等 C 内存管理函数，应使用 C\+\+ 内存管理方法。  
   
 示例：
 ```
@@ -3787,7 +3787,7 @@ ID_badCommentPosition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
 <hr/>
 
-注释应出现在段落的前后或行尾，不应出现在行首或中间，否则对阅读产生较大干扰，也可能导致标准未定义的行为。  
+注释应出现在段落的前后或行尾，不应出现在行首或中间，否则干扰阅读，甚至会导致标准未定义的行为。  
   
 示例：
 ```
@@ -4041,7 +4041,7 @@ ID_usingNamespaceInHeader&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
 <hr/>
 
-在头文件的全局作用域中使用 using directive，极易造成命名冲突，且影响范围难以控制。  
+在头文件的全局作用域中使用 using directive 极易造成命名冲突，且影响范围难以控制。  
   
 如果代码涉及多个命名空间，而这些命名空间中又有名称相同且功能相似的代码元素时，将造成难以排查的混乱。对于库的头文件，更应该严禁使用全局的 using directive，否则造成对用户命名空间的干扰。  
   
@@ -4168,7 +4168,7 @@ ID_anonymousNamespaceInHeader&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
 <hr/>
 
-头文件中定义了匿名命名空间，即相当于在头文件中定义了静态数据，头文件被多个源文件包含时便会造成数据冗余。  
+在头文件中定义匿名命名空间相当于在头文件中定义静态数据，头文件被多个源文件包含时会造成数据冗余。  
   
 可参见 ID\_staticInHeader 的进一步讨论。  
   
@@ -4692,7 +4692,7 @@ ID_missingVirtualDestructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
 
 <hr/>
 
-为了避免意料之外的资源泄漏，有虚函数的基类，都应该具有虚析构函数。  
+为了避免意料之外的资源泄漏，有虚函数的基类都应该具有虚析构函数。  
   
 通过基类指针析构派生类对象时，如果基类没有虚析构函数会导致标准未定义的行为，无法正确执行派生类的析构函数。  
   
@@ -5403,7 +5403,7 @@ ID_accessSpecifierDisorder&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestion
 
 <hr/>
 
-类成员统一按指定顺序声明，有利于提高代码可读性以及协作效率。  
+类成员统一按 public、protected、private 的顺序声明，有利于提高代码可读性。  
   
 示例：
 ```
@@ -5875,7 +5875,7 @@ ID_reservedName&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-自定义的名称不应与关键字、标准库或系统中的名称重复，否则极易造成阅读和维护上的困扰。  
+自定义的名称不应与关键字、标准库或系统中的名称重复，否则不利于阅读和维护。  
   
 对于宏，本规则特化为 ID\_macro\_defineReserved、ID\_macro\_undefReserved，如果宏名称出现这种问题，会导致标准未定义的行为。  
   
@@ -5893,7 +5893,7 @@ private:
     int errno;  // Non-compliant
 };
 ```
-例中成员变量 errno 与标准库中的 errno 名称相同，不便于区分是自定义的还是系统定义的，造成不必要的困扰。  
+例中成员变量 errno 与标准库中的 errno 名称相同，不便于区分是自定义的还是系统定义的。  
   
 为避免冲突和误解，以下命名方式可供参考：  
  - 避免名称以下划线开头  
@@ -5901,7 +5901,7 @@ private:
  - 从名称上体现作用域，如全局对象名以 g\_ 开头，成员对象名以 m\_ 开头或以 \_ 结尾  
  - 从名称上体现类别，如宏名采用全大写字母，类型名以大写字母开头，函数或对象名以小写字母开头  
   
-本规则集合对具体的命名方式暂不作量化要求，但代码编写者应具备相关意识。
+本规则集合对具体的命名方式暂不作量化要求，但读者应具备相关意识。
 <br/>
 <br/>
 
@@ -5930,7 +5930,7 @@ ID_hideLocal&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-不应在嵌套的作用域中声明相同的名称，否则干扰阅读，极易产生误解。  
+不应在嵌套的作用域中声明相同的名称，否则干扰阅读，极易引起误解。  
   
 示例：
 ```
@@ -5962,7 +5962,7 @@ ID_hideMember&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-如果成员函数内的局部名称与成员名称相同，会干扰阅读，易产生误解。  
+成员函数内的局部名称与成员名称相同会干扰阅读，易引起误解。  
   
 示例：
 ```
@@ -6013,7 +6013,7 @@ ID_hideGlobal&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-局部、成员名称不应与全局或命名空间内的名称相同，否则干扰阅读，易产生误解。  
+局部、成员名称不应与全局或命名空间内的名称相同，否则干扰阅读，易引起误解。  
   
 示例：
 ```
@@ -6112,7 +6112,7 @@ ID_duplicatedName&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-如果不同的代码元素使用相同的名称，极易造成困扰。  
+不同的代码元素使用相同的名称不利于阅读和维护。  
   
 示例：
 ```
@@ -6143,7 +6143,7 @@ ID_misspelling&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 代码中不应存在拼写错误，尤其是供他人调用的代码，如命名空间名称、公共接口名称等，更不应存在拼写错误。  
   
-拼写错误会使代码的使用者对代码的质量产生疑虑，而且相关代码被大量引用后也不便于改正。  
+拼写错误会使用户对代码的质量产生疑虑，而且相关代码被大量引用后也不便于改正。  
   
 示例：
 ```
@@ -6291,9 +6291,9 @@ long double const volatile b = 0;  // Non-compliant
 const unsigned int a = 0;          // Compliant
 const volatile long double b = 0;  // Compliant
 ```
-const、volatile 出现在类型名右侧时，易与 \* 号造成误解，如：
+const、volatile 出现在类型名右侧时，易和 \* 号一起使人产生误解，如：
 ```
-const char const* p = "....";      // Non-compliant
+const char const * p = "....";     // Non-compliant
 ```
 应改为：
 ```
@@ -6356,7 +6356,7 @@ ID_missingConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-用常量字符串对非常量字符串指针赋值，如果相关内存被修改会导致标准未定义的行为。  
+用常量字符串对非常量字符串指针赋值是不安全的，一旦相关内存被修改会导致标准未定义的行为。  
   
 示例：
 ```
@@ -6814,13 +6814,13 @@ C++ Core Guidelines C.128
 <br/>
 <br/>
 
-### <span id="redundantoverride">▌R6.3.6 override 和 final 关键字不应同时出现</span>
+### <span id="redundantoverride">▌R6.3.6 override 和 final 关键字不应同时出现在声明中</span>
 
 ID_redundantOverride&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-final 表示不可重写的重写，override 表示可再次重写的重写，这两个关键字不应同时出现。  
+final 表示不可重写的重写，override 表示可再次重写的重写，这两个关键字不应同时出现在声明中。  
   
 示例：
 ```
@@ -6837,7 +6837,7 @@ C++ Core Guidelines C.128
 <br/>
 <br/>
 
-### <span id="redundantvirtual">▌R6.3.7 有 override 或 final 关键字时，不应再出现 virtual 关键字</span>
+### <span id="redundantvirtual">▌R6.3.7 override 或 final 关键字不应与 virtual 关键字同时出现在声明中</span>
 
 ID_redundantVirtual&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -6904,7 +6904,7 @@ ID_this_notUsed&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-未访问 this 指针的成员函数应使用 static 声明，使语义更为明确，否则可能意味着错误或功能不完整。  
+如果未访问 this 指针的成员函数没有被设计为静态成员函数，很可能意味着错误或功能不完整。  
   
 示例：
 ```
@@ -7078,7 +7078,7 @@ string format(const char* fmt, ...) {
     return res;
 }
 ```
-例中 va\_start、va\_arg、va\_end 是可变参数列表的标准支持，这种方法只能在运行时以 fmt 为依据获取后续参数，当实际参数与 fmt 不符时会造成严重问题，单纯地要求代码编写者小心谨慎是不可靠的，改用更安全的方法才是明智的选择。  
+例中 va\_start、va\_arg、va\_end 是可变参数列表的标准支持，这种方法只能在运行时以 fmt 为依据获取后续参数，当实际参数与 fmt 不符时会造成严重问题，单纯地要求开发者小心谨慎是不可靠的，改用更安全的方法才是明智的选择。  
   
 在 C\+\+ 代码中可采用“[模板参数包](https://en.cppreference.com/w/cpp/language/parameter_pack)”来实现这种功能：
 ```
@@ -7554,13 +7554,13 @@ void foo(int i) {
 <br/>
 <br/>
 
-### <span id="plainnumericchar">▌R6.5.4 参与数值运算的 char 变量需显式声明 signed 或 unsigned</span>
+### <span id="plainnumericchar">▌R6.5.4 参与数值运算的 char 对象应显式声明 signed 或 unsigned</span>
 
 ID_plainNumericChar&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-没有 signed 或 unsigned 限制的 char 类型，是否有符号由具体的编译器决定。  
+没有 signed 或 unsigned 限制的 char 类型，是否有符号由实现定义。  
   
 示例：
 ```
@@ -7813,7 +7813,7 @@ ID_deprecatedDefaultArgument&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration sug
 
 <hr/>
 
-虚函数参数的默认值不受多态规则控制，通过基类指针或引用调用派生类重写的虚函数时，默认值仍采用基类中的定义，易造成混淆，建议虚函数参数不使用默认值。  
+虚函数参数的默认值不受多态规则控制，通过基类指针或引用调用派生类重写的虚函数时，默认值仍采用基类中的定义，易造成混淆，故不建议虚函数的参数有默认值。  
   
 示例：
 ```
@@ -8055,7 +8055,7 @@ ID_nonStdCopyAssignmentParam&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration war
 
 <hr/>
 
-拷贝赋值运算符的参数不应按值传递，否则会造成不必要的复制，以及“[对象切片](https://en.wikipedia.org/wiki/Object_slicing)”等问题。  
+拷贝赋值运算符的参数不应按值传递，否则会产生不必要的复制开销以及“[对象切片](https://en.wikipedia.org/wiki/Object_slicing)”等问题。  
   
 示例：
 ```
@@ -8434,7 +8434,7 @@ ID_exceededBitfield&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-如果位域长度超过类型长度，易对维护者造成误导，也可能是笔误。  
+位域长度超过类型长度易误导维护者，而且也可能是笔误。  
   
 C 标准不允许位域长度超过类型长度，但 C\+\+ 标准允许，超过的部分作为“padding bits”不参与数据的存储。  
   
@@ -8662,7 +8662,7 @@ ID_tooManyDeclarators&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-在一个语句中不应声明过多对象或函数，建议在每个语句中只声明一个对象或函数，提高可读性也可减少笔误。  
+在一个语句中声明多个对象或函数不利于阅读和维护，建议在每个语句中只声明一个对象或函数。  
   
 示例：
 ```
@@ -9483,7 +9483,7 @@ ID_throwInMove&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
 <hr/>
 
-移动构造函数和移动赋值运算符在本质上相当于将当前对象与临时对象“交换”，交换过程不可抛出异常，可参见 ID\_throwInSwap。  
+在移动过程中，对象的状态是不完整的，如果在中途抛出异常，对象将处于错误的状态。  
   
 示例：
 ```
@@ -9713,7 +9713,7 @@ ID_improperRethrow&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
 <hr/>
 
-重新抛出异常时应使用空 throw 表达式，避免异常对象的精度损失或不必要的复制。  
+重新抛出异常时应使用空 throw 表达式，避免异常对象的精度损失和不必要的复制开销。  
   
 示例：
 ```
@@ -10051,7 +10051,7 @@ ID_definedInHeader&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-在头文件中实现的函数，如果不是内联、静态或模板函数，则可能被引入不同的翻译单元（translate\-unit）造成编译冲突。  
+在头文件中实现的函数如果不是内联、静态或模板函数，则可能被引入不同的翻译单元（translate\-unit）造成编译冲突。  
   
 头文件也是项目文档的重要组成部分，头文件的主要内容应是类型或接口的声明，有必要保持头文件简洁清晰。除非函数很简短，否则不建议在头文件中内联实现，大段的函数实现会影响头文件的可读性。  
   
@@ -10090,22 +10090,23 @@ C++ Core Guidelines SF.2
 <br/>
 <br/>
 
-### <span id="inconsistentparamname">▌R8.4 函数的参数名称在声明和实现处应保持一致</span>
+### <span id="inconsistentparamname">▌R8.4 函数的参数名称在声明处和实现处应保持一致</span>
 
 ID_inconsistentParamName&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-函数的参数名称在声明和实现处不一致甚至顺序也不相同，会对函数的调用者造成误导，而且不能排除是实现上的错误。  
+参数名称在声明处和实现处不一致会误导函数的使用者，而且很可能是实现错误。  
   
 示例：
 ```
-int foo(int a, int b);    // Prototype
+int foo(int a, int b);    // Declaration
 
 int foo(int b, int a) {   // Non-compliant, which is which??
-    return a? b + 1: 0;
+    return a > b? 1: -1;
 }
 ```
+例中参数 a 和 b 在声明处和实现处的顺序是颠倒的，令人非常困惑。
 <br/>
 <br/>
 
@@ -11142,7 +11143,7 @@ ID_returnRValueReference&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
 <hr/>
 
-函数返回右值引用的实际价值有限，而且很容易产生错误。  
+函数返回右值引用的实际价值有限，且易产生错误。  
   
 示例：
 ```
@@ -11299,7 +11300,7 @@ bool foo() { return NULL; }   // Non-compliant
 long bar() { return false; }  // Non-compliant
 int* baz() { return '\0'; }   // Non-compliant
 ```
-这种问题可能是在维护过程中产生的，也可能意味着逻辑错误，而且很容易造成误导，需谨慎对待。
+这种问题可能是在维护过程中产生的，也可能意味着逻辑错误，需谨慎对待。
 <br/>
 <br/>
 
@@ -11374,7 +11375,7 @@ ID_unsuitableReturnType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 _Noreturn    int foo();     // Non-compliant in C
 [[noreturn]] int bar();     // Non-compliant in C++
 ```
-例中函数的返回类型为 int，与 noreturn 属性矛盾，也会对使用者造成困扰。  
+例中函数的返回类型为 int，与 noreturn 属性矛盾，也会对函数的使用者造成困扰。  
   
 应改为：
 ```
@@ -11584,7 +11585,7 @@ ID_tooManyLines&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-函数体过大违反模块化编程理念，使人难以阅读，更不便于维护，很有可能隐藏着各种错误，应适当重构。  
+函数体过大违反模块化编程理念，使人难以阅读，更不便于维护，应适当重构。  
   
 示例：
 ```
@@ -11614,7 +11615,7 @@ ID_tooManyLambdaLines&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-复杂的 lambda 表达式与其调用者的代码混在一起时，是难以阅读的，引入 lambda 表达式的目的应该是“化简”，否则应使用普通函数。  
+复杂的 lambda 表达式与调用者的代码混在一起是难以阅读的，引入 lambda 表达式的目的应该是“化简”，否则应使用普通函数。  
   
 示例：
 ```
@@ -12165,7 +12166,7 @@ ID_if_commonStatements&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
 
 <hr/>
 
-if 分枝和 else 分枝的起止语句如果相同，则应将其从分枝结构中提取出来，否则重复的代码不利于阅读和维护。  
+如果 if 分枝和 else 分枝的起止语句相同，应将其从分枝结构中提取出来，否则重复的代码不利于阅读和维护。  
   
 示例：
 ```
@@ -12602,7 +12603,7 @@ ID_for_simplification&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
 
 for 语句一般用于实现具有明确循环次数和循环变量的迭代算法，循环变量即控制循环次数的变量。for 语句小括号内的三个表达式应分别专注于循环变量的初始化、循环条件的判断、循环变量的增减，这样可以使循环具有清晰的静态结构，便于阅读，利于维护。  
   
-如果没有明确的循环变量，则应改用 while 循环，避免对代码的维护者造成误导。  
+如果没有明确的循环变量，则应改用 while 循环，避免误导维护者。  
   
 示例：
 ```
@@ -13050,7 +13051,7 @@ int foo() {
     } while (false);
 }
 ```
-为了减少误解，建议在 do\-while(false) 中只使用 break 语句，不使用 continue 语句。
+建议在 do\-while(false) 中只使用 break 语句，不使用 continue 语句。
 <br/>
 <br/>
 
@@ -13716,7 +13717,7 @@ ID_try_emptyBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
 <hr/>
 
-空的 try 块是毫无意义的，有可能是残留代码或功能未实现。  
+空的 try 块是没有意义的，可能是残留代码或功能未实现。  
   
 示例：
 ```
@@ -14457,7 +14458,7 @@ ID_simplifiableTernary&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: expression suggestion
 
 <hr/>
 
-当三元表达式的分枝是 true 或 false 时可化简为逻辑表达式，应化简代码。  
+当三元表达式的分枝是常量 true 或 false 时应化简为逻辑表达式。  
   
 示例：
 ```
@@ -14698,13 +14699,13 @@ CWE-783
 <br/>
 <br/>
 
-### <span id="illptrdiff">▌R10.2.5 不在同一数组中的指针不可比较或相减</span>
+### <span id="illptrdiff">▌R10.2.5 未指向同一数组或对象的指针不可相减或比较大小</span>
 
 ID_illPtrDiff&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-不在同一数组中的指针比较或相减属于逻辑错误，会导致标准未定义的行为。  
+未指向同一数组或对象的指针相减或比较大小属于逻辑错误，会导致标准未定义的行为。  
   
 示例：
 ```
@@ -14723,6 +14724,8 @@ ptrdiff_t foo() {
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.5.8(5)-undefined  
+ISO/IEC 9899:2011 6.5.8(5)-undefined  
 ISO/IEC 14882:2003 5.7(6)-undefined  
 ISO/IEC 14882:2011 5.7(6)-undefined  
 ISO/IEC 14882:2011 8.7(5)-undefined  
@@ -14821,9 +14824,9 @@ a += a + x;   // Rather suspicious
 ```
 应改为：
 ```
-a = a + x;         // OK
-a = 2 * a + x;     // OK
-a = a + (a + x);   // OK
+a = a + x;
+a = 2 * a + x;
+a = a + (a + x);
 ```
 <br/>
 <br/>
@@ -14867,7 +14870,7 @@ ID_oddNullAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-标识符 NULL 只应该用来表示空指针，否则会对代码阅读造成误导，而且也可能是书写错误。  
+标识符 NULL 只应该用来表示空指针，否则会误导维护者。  
   
 示例：
 ```
@@ -15005,13 +15008,14 @@ ID_selfExclusiveOr&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-与自身异或，结果总为 0，而且可能意味着某种错误。  
+与自身异或，结果总为 0，而且也可能意味着某种错误。  
   
 对变量的清零，有一种惯用写法：
 ```
+a ^= a;      // Non-compliant
 a = a ^ a;   // Non-compliant
 ```
-这种复杂的写法在 C/C\+\+ 等高级语言中已不再提倡，a ^= a 也不再提倡，应将变量直接赋值为 0，编译器会作更好的优化。
+这种复杂的写法在 C/C\+\+ 等高级语言中已不再提倡，应将变量直接赋值为 0，编译器会作更好的优化。
 <br/>
 <br/>
 
@@ -15545,7 +15549,7 @@ ID_wrongUseOfReturnValue&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
 <hr/>
 
-对接口的使用应遵循接口文档，不可臆断返回值的意义，否则造成逻辑错误。  
+应遵循接口文档使用接口，不可臆断返回值的意义，否则造成逻辑错误。  
   
 示例：
 ```
@@ -15657,7 +15661,9 @@ ID_explicitDtorCall&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: expression suggestion
 
 <hr/>
 
-显式调用析构函数会提前结束对象的生命周期，之后对该对象的任何访问都会导致标准未定义的行为，对于在栈上定义的对象，流程离开相关作用域时会再次自动调用其析构函数，对于动态创建的对象，用 delete 回收时也会调用其析构函数，使对象在生命周期之外被访问。  
+显式调用析构函数会提前结束对象的生命周期，之后对该对象的任何访问都会导致标准未定义的行为。  
+  
+对于在栈上定义的对象，流程离开相关作用域时会再次自动调用其析构函数；对于动态创建的对象，用 delete 回收时也会调用其析构函数，使对象在生命周期之外被访问，导致标准未定义的行为。   
   
 示例：
 ```
@@ -15888,7 +15894,7 @@ void foo(const T* p) {
     printf("%d", p->a);   // Non-compliant, unportable
 }
 ```
-C 字符串格式化方法依赖特定的格式化占位符，参数的类型与个数必须和占位符严格对应，否则就会导致未定义的行为，当参数较多时极易出错，单纯地要求代码编写者小心谨慎是不可靠的，改用更安全的方法才是明智的选择。  
+C 字符串格式化方法依赖特定的格式化占位符，参数的类型与个数必须和占位符严格对应，否则就会导致未定义的行为，当参数较多时极易出错，单纯地要求开发者小心谨慎是不可靠的，改用更安全的方法才是明智的选择。  
   
 在 C\+\+ 中利用标准流可规避这类问题，而且 C\+\+ 标准流具备可扩展性，符合面向对象的编程理念：
 ```
@@ -15924,7 +15930,7 @@ ID_forbidAtox&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: expression warning
 
 <hr/>
 
-当字符串无法被正确转为数值时，stdlib.h 或 cstdlib 中的 atof、atoi、atol 以及 atoll 等函数存在标准未定义的行为。  
+当字符串无法被正确转为数值时，stdlib.h 或 cstdlib 中的 atof、atoi、atol 以及 atoll 等函数会导致标准未定义的行为。  
   
 对于 C 语言应改用 strtof、strtol 等函数，对于 C\+\+ 语言应改用标准流转换的方式。  
   
@@ -16681,7 +16687,7 @@ ID_oddSubscripting&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-C/C\+\+ 语言规定，数组下标可以在中括号的右侧也可以在左侧，然而这只是一种理论上的设计，在实际代码中，应采用约定俗成的方式，即数组的名称在中括号的左侧，下标在中括号的右侧。  
+C/C\+\+ 语言规定，数组下标可以在中括号的右侧也可以在左侧，然而这只是一种理论上的设计，在实际代码中应采用约定俗成的方式，即数组的名称在中括号的左侧，下标在中括号的右侧。  
   
 示例：
 ```
@@ -16709,7 +16715,7 @@ ID_forbidCommaExpression&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: expression sugg
 
 <hr/>
 
-逗号表达式将多个语句合成一个表达式，易形成笔误并造成阅读困难。  
+逗号表达式将多个语句合成一个表达式，不利于阅读且易形成笔误。  
   
 示例：
 ```
@@ -16793,7 +16799,7 @@ ID_literal_hardCodeChar&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: literal warning
 ```
 char c = '	';  // Non-compliant
 ```
-例中空白符为 tab，由于 tab 可以按不同的宽度被展示，往往会被代码的阅读者误解为空格，而且经过复制粘贴后有可能会变成数目不确定的空格，使代码难以维护。  
+例中空白符为 tab，易被人误解为空格，经过复制粘贴后也可能会变成数目不确定的空格，产生意外的错误。  
   
 应使用转义字符：
 ```
@@ -16819,7 +16825,7 @@ ID_literal_hardCodeString&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: literal warning
 ```
 const char* s = "a	b";  // Non-compliant
 ```
-例中空白符为 tab，由于 tab 可以按不同的宽度被展示，往往会被代码的阅读者误解为空格，而且经过复制粘贴后有可能会变成数目不确定的空格，使代码难以维护。  
+例中空白符为 tab，易被人误解为空格，经过复制粘贴后也可能会变成数目不确定的空格，产生意外的错误。  
   
 应使用转义字符：
 ```
@@ -17309,7 +17315,7 @@ void foo(void* v) {
     ....
 }
 ```
-例中参数 v 可以随意地接受非 A 对象的指针，进而导致标准未定义的行为，这种代码的正确性单方面依赖编写者，是不可靠的。
+例中参数 v 可以随意接受非 A 对象的指针，进而导致标准未定义的行为，代码的正确性单方面依赖开发者是不可靠的。
 <br/>
 <br/>
 
@@ -18342,14 +18348,14 @@ ID_valueOverflow&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: buffer error
 
 <hr/>
 
-memset、memset\_s 等函数的填充值参数会被转为 unsigned char 型，所以其值不应超出一个字节的范围。  
+memset、memset\_s 等函数的填充值参数会被转为 unsigned char 型，所以填充值不应超出 unsigned char 的取值范围。  
   
 示例：
 ```
 char buf[32];
 memset(buf, 1024, 32);  // Non-compliant
 ```
-例中填充值为 1024，超出了一个字节的范围，在实际代码中也可能是长度参数与填充值参数被写反了。
+例中填充值为 1024，超出了 unsigned char 的范围，在实际代码中也可能是长度参数与填充值参数被写反了。
 <br/>
 <br/>
 
@@ -18459,7 +18465,7 @@ ID_danglingDeref&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: pointer error
 
 <hr/>
 
-已被释放的指针指向无效的内存空间，再次对其解引用会造成严重错误，导致标准未定义的行为。  
+已被释放的指针指向失效的内存空间，再次对其解引用会导致标准未定义的行为，往往会造成严重错误。  
   
 示例：
 ```
@@ -18691,12 +18697,18 @@ ID_oddPtrBoolAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 
 <hr/>
 
-用 false 对指针赋值是非常怪异的，会对代码阅读造成误导，而且也可能是书写错误。  
+用 false 对指针赋值是非常怪异的，会误导维护者，而且也很可能是书写错误。  
   
 示例：
 ```
-void set_false(bool* p) {
-    p = false;              // Non-compliant, should be ‘*p = false’
+void fun(bool* p) {
+    p = false;        // Non-compliant
+}
+```
+应改为：
+```
+void fun(bool* p) {
+    *p = false;       // Compliant
 }
 ```
 <br/>
@@ -18786,22 +18798,22 @@ CWE-1025
 <br/>
 <br/>
 
-### <span id="oddptrzerocomparison">▌R14.12 不应判断指针大于、大于等于、小于、小于等于 0</span>
+### <span id="oddptrzerocomparison">▌R14.12 不应判断指针大于、大于等于、小于、小于等于 0 或空指针</span>
 
 ID_oddPtrZeroComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 
 <hr/>
 
-指针的值是地址的编号，并没有大小的语义，指针可以与指针比较从而确定某种前后关系，但指针与整数比较大小则是没有意义的，尤其是与 0 的比较，往往意味着错误。  
+只有指向同一数组或对象的指针才能比较大小，否则会导致标准未定义的行为，0 或空指针不指向任何数组，故不应比较指针与 0 或空指针的大小。  
   
 示例（设 p 为指针）：
 ```
-p < 0    // Non-compliant, always false
-p >= 0   // Non-compliant, always true
+p < 0    // Non-compliant, may be always false
+p >= 0   // Non-compliant, may be always true
 p > 0    // Non-compliant, use p != nullptr instead
 p <= 0   // Non-compliant, use p == nullptr instead
 ```
-另外，指针与 NULL 或 nullptr 只应使用 == 或 != 进行比较，其他比较运算符均不合规：
+指针与 NULL 或 nullptr 只应使用 == 或 != 进行比较，其他比较运算符均不符合要求：
 ```
 p <= NULL      // Non-compliant
 p > nullptr    // Non-compliant
@@ -18812,6 +18824,11 @@ p == NULL      // Compliant
 p != nullptr   // Compliant
 ```
 <br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.5.8(5)-undefined  
+ISO/IEC 9899:2011 6.5.8(5)-undefined  
 <br/>
 
 #### 参考
@@ -18881,12 +18898,12 @@ ID_this_forbidDeleteThis&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: pointer suggest
 
 <hr/>
 
-因为正确使用 delete this 限制条件太多，稍不留意就会为 bug 埋下伏笔，所以禁用这种方式是明智的选择。  
-  
-要想正确使用 delete this，必须保证：  
- - 对象是用 new 创建的，但不能是 new\[\] 或 replacement new  
- - 使用 delete this 之后不能再访问相关非静态成员及成员函数  
+使用 delete this 须保证：  
+ - 对象是用 new 创建的，但不能用 new\[\] 或 replacement new  
+ - 使用 delete this 之后不能再访问相关非静态成员  
  - 不能在析构函数中使用 delete this  
+  
+由于限制条件易被打破，对框架以及语言工具之外的业务类或算法类代码建议禁用 delete this。  
   
 示例：
 ```
@@ -18904,9 +18921,7 @@ p->foo();              // Looks innocent
 p = new A[10];
 p->foo();              // Memory is still leaking
 ```
-如果一定要使用 delete this，类的析构函数应设为私有，这样可以阻止类的对象在栈上定义而引发更大的混乱，并且要确保执行 delete this 后 this 指针再也不会被解引用，而且不能用 new\[\] 创建，否则仍然存在内存泄漏问题。  
-  
-所以对框架以及语言工具之外的业务类或算法类代码建议禁用 delete this。
+如果使用 delete this，类的析构函数应设为私有，可以阻止类的对象在栈上定义而引发更大的混乱，并且要确保执行 delete this 后 this 指针再也不会被解引用，而且不能用 new\[\] 创建，否则仍然存在内存泄漏问题。
 <br/>
 <br/>
 <br/>
@@ -19208,7 +19223,7 @@ ID_dataRaces&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: concurrency warning
 
 <hr/>
 
-如果一份数据同时被多个线程、进程或中断处理过程读写，会产生不确定的结果，这种情况称为“[数据竞争（data race）](https://en.cppreference.com/w/cpp/language/memory_model#Threads_and_data_races)”，导致标准未定义的行为，应落实合理的同步机制来控制访问共享数据的先后顺序。  
+如果一份数据同时被多个线程、进程或中断处理过程读写，会产生不确定的结果，这种情况称为“[数据竞争（data race）](https://en.cppreference.com/w/cpp/language/memory_model#Threads_and_data_races)”，会导致标准未定义的行为，应落实合理的同步机制来控制访问共享数据的先后顺序。  
   
 示例：
 ```
@@ -19708,7 +19723,7 @@ ID_braceStyle&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style suggestion
 
 <hr/>
 
-大括号应遵循统一的换行和缩进风格，否则会干扰阅读，甚至形成笔误。  
+大括号应遵循统一的换行和缩进风格，否则不利于阅读和维护，甚至形成笔误。  
   
 命名空间、类、函数体、复合语句等不同类别的大括号，换行方式可以不同，但同类大括号的换行方式应该是一致的，本规则暂不限定具体风格，但强调一致性。  
   
