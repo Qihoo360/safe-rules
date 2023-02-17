@@ -588,7 +588,7 @@
   - [R14.9 不应使用 '\\0' 等字符常量对指针赋值](#oddptrcharassignment)
   - [R14.10 指针不应与 false 比较大小](#oddptrboolcomparison)
   - [R14.11 指针不应与 '\\0' 等字符常量比较大小](#oddptrcharcomparison)
-  - [R14.12 不应判断指针大于、大于等于、小于、小于等于 0 或空指针](#oddptrzerocomparison)
+  - [R14.12 指针与空指针不应比较大小](#oddptrzerocomparison)
   - [R14.13 不应判断 this 指针是否为空](#this_zerocomparison)
   - [R14.14 析构函数中不可使用 delete this](#this_deleteindestructor)
   - [R14.15 禁用 delete this](#this_forbiddeletethis)
@@ -9992,7 +9992,7 @@ main 函数的返回值可作为整个进程执行情况的总结，按惯例返
 int main(void) { .... }                     // Compliant
 int main(int argc, char *argv[]) { .... }   // Compliant
 ```
-如果将返回值设为 void 或其他非 int 类型，均不合规。  
+如果将返回值设为 void 或其他非 int 类型，均不符合要求。  
 
 ```
 void main() { .... }   // Non-compliant
@@ -14709,16 +14709,20 @@ ID_illPtrDiff&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
   
 示例：
 ```
-ptrdiff_t foo() {
-    int a = 0, b = 0;
-    int arr0[10] = {};
-    int arr1[10] = {};
+ptrdiff_t d;
 
-    if (&a < &b) {  // Non-compliant
-        ....
-    }
-    return &arr1[5] - arr0;  // Non-compliant
-}
+int i, j;
+d = &j - &i;   // Non-compliant, undefined behavior
+
+struct A {
+    int i, j;
+} a;
+d = &a.j - &a.i;   // Compliant, ‘d’ is 1
+
+int x[8];
+int y[8];
+d = &y[1] - &x[0];   // Non-compliant, undefined behavior
+d = &x[1] - &x[0];   // Compliant, ‘d’ is 1
 ```
 <br/>
 <br/>
@@ -18760,7 +18764,7 @@ ID_oddPtrBoolComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 p == false  // Non-compliant
 p != false  // Non-compliant
 ```
-如果判断指针是否为空，只应将指针与 NULL 或 nullptr 比较，其他常量均不合规。
+如果判断指针是否为空，只应将指针与 NULL 或 nullptr 比较，其他常量均不符合要求。
 <br/>
 <br/>
 
@@ -18779,7 +18783,7 @@ ID_oddPtrCharComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
   
 示例（设 p 为指针）：
 ```
-if (p == '\0') {    // Non-compliant
+if (p == '\0') {   // Non-compliant
     ....
 }
 ```
@@ -18798,28 +18802,23 @@ CWE-1025
 <br/>
 <br/>
 
-### <span id="oddptrzerocomparison">▌R14.12 不应判断指针大于、大于等于、小于、小于等于 0 或空指针</span>
+### <span id="oddptrzerocomparison">▌R14.12 指针与空指针不应比较大小</span>
 
 ID_oddPtrZeroComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 
 <hr/>
 
-只有指向同一数组或对象的指针才能比较大小，否则会导致标准未定义的行为，0 或空指针不指向任何数组，故不应比较指针与 0 或空指针的大小。  
+指针与空指针比较大小往往意味着逻辑错误，而且只有指向同一数组或对象的指针才能比较大小，否则会导致标准未定义的行为，空指针不指向任何数组或对象，故不应比较指针与空指针的大小。  
+  
+指针与空指针之间只应使用 == 或 != 比较，其他比较运算符均不符合要求：  
   
 示例（设 p 为指针）：
 ```
-p < 0    // Non-compliant, may be always false
-p >= 0   // Non-compliant, may be always true
-p > 0    // Non-compliant, use p != nullptr instead
-p <= 0   // Non-compliant, use p == nullptr instead
-```
-指针与 NULL 或 nullptr 只应使用 == 或 != 进行比较，其他比较运算符均不符合要求：
-```
-p <= NULL      // Non-compliant
-p > nullptr    // Non-compliant
-```
-应改为：
-```
+p < NULL       // Non-compliant, may be always false
+p >= 0         // Non-compliant, may be always true
+p > nullptr    // Non-compliant, use p != nullptr instead
+p <= 0         // Non-compliant, use p == 0 instead
+
 p == NULL      // Compliant
 p != nullptr   // Compliant
 ```

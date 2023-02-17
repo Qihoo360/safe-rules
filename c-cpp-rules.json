@@ -1425,9 +1425,9 @@
         "reference": "CWE-1025"
         },
     "ID_oddPtrZeroComparison": {
-        "checkPoint": "不应判断指针大于、大于等于、小于、小于等于 0 或空指针",
+        "checkPoint": "指针与空指针不应比较大小",
         "level": "warning",
-        "comment": "只有指向同一数组或对象的指针才能比较大小，否则会导致标准未定义的行为，0 或空指针不指向任何数组，故不应比较指针与 0 或空指针的大小。",
+        "comment": "比较指针与空指针的大小往往意味着逻辑错误。",
         "tag": "pointer",
         "standard": "ISO/IEC 9899:1999 6.5.8(5)-undefined,ISO/IEC 9899:2011 6.5.8(5)-undefined",
         "reference": "CWE-1025"
