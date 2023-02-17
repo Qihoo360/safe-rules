@@ -14705,7 +14705,7 @@ ID_illPtrDiff&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-未指向同一数组或对象的指针相减或比较大小属于逻辑错误，会导致标准未定义的行为。  
+同一数组或对象内部的内存布局是确定的，但不同数组或对象的地址之间没有明确地数学关系，如果未指向同一数组或对象的指针相减或比较大小，会导致标准未定义的行为。  
   
 示例：
 ```
@@ -14724,7 +14724,18 @@ int y[8];
 d = &y[1] - &x[0];   // Non-compliant, undefined behavior
 d = &x[1] - &x[0];   // Compliant, ‘d’ is 1
 ```
+指针与空指针之间也不应相减或比较大小：
+```
+int* p = ....;
+bool b = p < NULL;              // Non-compliant
+ptrdiff_t d = p - (int*)NULL;   // Non-compliant
+```
+指针与空指针比较大小是一种常见笔误，相关规则特化为 ID\_oddPtrZeroComparison。
 <br/>
+<br/>
+
+#### 相关
+ID_oddPtrZeroComparison  
 <br/>
 
 #### 依据
@@ -18810,7 +18821,9 @@ ID_oddPtrZeroComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 
 指针与空指针比较大小往往意味着逻辑错误，而且只有指向同一数组或对象的指针才能比较大小，否则会导致标准未定义的行为，空指针不指向任何数组或对象，故不应比较指针与空指针的大小。  
   
-指针与空指针之间只应使用 == 或 != 比较，其他比较运算符均不符合要求：  
+指针与空指针之间只应使用 == 或 != 比较，其他比较运算符均不符合要求。  
+  
+本规则是 ID\_illPtrDiff 的特化。  
   
 示例（设 p 为指针）：
 ```
@@ -18823,6 +18836,10 @@ p == NULL      // Compliant
 p != nullptr   // Compliant
 ```
 <br/>
+<br/>
+
+#### 相关
+ID_illPtrDiff  
 <br/>
 
 #### 依据

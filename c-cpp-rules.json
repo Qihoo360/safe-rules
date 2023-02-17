@@ -1245,8 +1245,9 @@
     "ID_illPtrDiff": {
         "checkPoint": "未指向同一数组或对象的指针不可相减或比较大小",
         "level": "warning",
-        "comment": "未指向同一数组或对象的指针相减或比较大小属于逻辑错误，会导致标准未定义的行为。",
+        "comment": "同一数组或对象内部的内存布局是确定的，但不同数组或对象的地址之间没有明确地数学关系，如果未指向同一数组或对象的指针相减或比较大小，会导致标准未定义的行为。",
         "tag": "expression",
+        "related": "ID_oddPtrZeroComparison",
         "standard": "ISO/IEC 9899:1999 6.5.8(5)-undefined,ISO/IEC 9899:2011 6.5.8(5)-undefined,ISO/IEC 14882:2003 5.7(6)-undefined,ISO/IEC 14882:2011 5.7(6)-undefined,ISO/IEC 14882:2011 8.7(5)-undefined",
         "reference": "MISRA C 2004 17.3,MISRA C++ 2008 5-0-17,MISRA C++ 2008 5-0-18,C++ Core Guidelines ES.62"
         },
@@ -1429,6 +1430,7 @@
         "level": "warning",
         "comment": "比较指针与空指针的大小往往意味着逻辑错误。",
         "tag": "pointer",
+        "related": "ID_illPtrDiff",
         "standard": "ISO/IEC 9899:1999 6.5.8(5)-undefined,ISO/IEC 9899:2011 6.5.8(5)-undefined",
         "reference": "CWE-1025"
         },
