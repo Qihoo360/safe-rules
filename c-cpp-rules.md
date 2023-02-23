@@ -136,7 +136,7 @@
     - [R3.2.2 不可定义具有保留意义的宏名称](#macro_definereserved)
     - [R3.2.3 不可取消定义具有保留意义的宏名称](#macro_undefreserved)
     - [R3.2.4 可作为子表达式的宏定义应该用括号括起来](#macro_expnotenclosed)
-    - [R3.2.5 与运算符相关的宏参数应该用括号括起来](#macro_paramnotenclosed)
+    - [R3.2.5 表达式中的宏参数应该用括号括起来](#macro_paramnotenclosed)
     - [R3.2.6 由多个语句组成的宏定义应该用 do\-while(0) 括起来](#macro_stmtnotenclosed)
     - [R3.2.7 在宏定义中由 \# 修饰的参数后不应出现 \#\#](#macro_complexconcat)
     - [R3.2.8 不应使用宏定义常量](#macro_const)
@@ -282,13 +282,13 @@
     - [R6.6.8 声明数组参数的大小时禁用 static 关键字](#forbidstaticarrsize)
   - [6.7 Function](#declaration.function)
     - [R6.7.1 派生类不应重新定义与基类相同的非虚函数](#nonvirtualoverride)
-    - [R6.7.2 拷贝赋值、移动赋值运算符应返回所属类的非 const 引用](#nonstdassignmentrettype)
+    - [R6.7.2 拷贝和移动赋值运算符应返回所属类的非 const 引用](#nonstdassignmentrettype)
     - [R6.7.3 拷贝赋值运算符的参数应为同类对象的 const 左值引用](#nonstdcopyassignmentparam)
     - [R6.7.4 移动赋值运算符的参数应为同类对象的非 const 右值引用](#nonstdmoveassignmentparam)
     - [R6.7.5 不应重载取地址运算符](#overloadaddressoperator)
     - [R6.7.6 不应重载逗号运算符](#overloadcomma)
     - [R6.7.7 不应重载“逻辑与”和“逻辑或”运算符](#overloadlogicoperator)
-    - [R6.7.8 拷贝赋值、移动赋值运算符不应为虚函数](#virtualassignment)
+    - [R6.7.8 拷贝和移动赋值运算符不应为虚函数](#virtualassignment)
     - [R6.7.9 比较运算符不应为虚函数](#virtualcomparison)
     - [R6.7.10 final 类中不应声明虚函数](#virtualinfinal)
   - [6.8 Bitfield](#declaration.bitfield)
@@ -302,7 +302,7 @@
     - [R6.9.2 声明中不应包含过多的指针嵌套](#toomanyptrlevel)
     - [R6.9.3 在一个语句中不应声明过多对象或函数](#toomanydeclarators)
   - [6.10 Other](#declaration.other)
-    - [R6.10.1 不应违反 One Definition Rule](#violateodr)
+    - [R6.10.1 遵循 One Definition Rule](#violateodr)
     - [R6.10.2 声明与实现应一致](#inconsistentdeclaration)
     - [R6.10.3 在合理的位置声明](#unsuitabledeclaration)
     - [R6.10.4 不应存在没有被用到的标签](#labelnotused)
@@ -321,7 +321,7 @@
   - [R7.5 不应捕获非异常类型的对象](#catch_nonexceptiontype)
   - [R7.6 析构函数不可抛出异常](#throwindestructor)
   - [R7.7 内存回收函数不可抛出异常](#throwindelete)
-  - [R7.8 对象的 swap 过程不可抛出异常](#throwinswap)
+  - [R7.8 对象交换过程不可抛出异常](#throwinswap)
   - [R7.9 移动构造函数和移动赋值运算符不可抛出异常](#throwinmove)
   - [R7.10 异常类的构造函数和异常信息相关的函数不应抛出异常](#exceptioninexception)
   - [R7.11 与标准库相关的 hash 过程不应抛出异常](#throwinhash)
@@ -553,7 +553,7 @@
   - [R12.4 指针与整数不应相互转换](#ptrintcast)
   - [R12.5 类型转换不应去掉 const、volatile 等属性](#qualifiercastedaway)
   - [R12.6 不应强制转换无继承关系的指针或引用](#castnoinheritance)
-  - [R12.7 不应强制转换非公有继承关系的指针或引用](#castnonpublicinheritance)
+  - [R12.7 不应强制转换非 public 继承关系的指针或引用](#castnonpublicinheritance)
   - [R12.8 非 POD 类的指针与基本类型的指针不应相互转换](#nonpodbinarycast)
   - [R12.9 不同的字符串类型之间不可直接转换](#charwcharcast)
   - [R12.10 避免向对齐要求更严格的指针转换](#stricteralignedcast)
@@ -823,7 +823,7 @@ struct A {
     string password;      // Non-compliant
 };
 ```
-至少应将相关成员改为私有：
+至少应将相关成员改为 private：
 ```
 class A {
 public:
@@ -2875,7 +2875,7 @@ MISRA C 2012 20.7
 <br/>
 <br/>
 
-### <span id="macro_paramnotenclosed">▌R3.2.5 与运算符相关的宏参数应该用括号括起来</span>
+### <span id="macro_paramnotenclosed">▌R3.2.5 表达式中的宏参数应该用括号括起来</span>
 
 ID_macro_paramNotEnclosed&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
@@ -4308,7 +4308,7 @@ ID_nonConstGlobalObject&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
 <hr/>
 
-非常量全局对象与类的公有数据成员一样对外部的读写没有限制，破坏了面向对象的封装理念。  
+非常量全局对象与类的 public 数据成员一样对外部的读写没有限制，破坏了面向对象的封装理念。  
   
 关于封装的讨论可参见 ID\_nonPrivateData。  
   
@@ -4548,9 +4548,9 @@ ID_nonPrivateData&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestion
 
 <hr/>
 
-类的数据成员均应设为私有，对外统一由成员函数提供访问方法，且应避免返回私有成员的非常量引用或指针。  
+类的数据成员均应设为 private，对外统一由成员函数提供访问方法，且应避免返回 private 成员的非常量引用或指针。  
   
-将类的所有接口都实现为成员函数，由成员函数按指定逻辑读写数据，以便保证有效地改变对象状态。良好的接口设计会对代码的职责进行合理划分，显著提升可维护性。理想状态下，当有错误需要修正或有功能需要调整时，只改动相关接口的实现即可，调用接口的代码不需要改动，从而将改动降到最低。这种设计的基础便是将数据设为私有，只能由本类的成员函数访问，否则数据可被各个模块随意读写，当有一处需要改动时，很难控制其影响范围。  
+将类的所有接口都实现为成员函数，由成员函数按指定逻辑读写数据，以便保证有效地改变对象状态。良好的接口设计会对代码的职责进行合理划分，显著提升可维护性。理想状态下，当有错误需要修正或有功能需要调整时，只改动相关接口的实现即可，调用接口的代码不需要改动，从而将改动降到最低。这种设计的基础便是将数据设为 private，只能由本类的成员函数访问，否则数据可被各个模块随意读写，当有一处需要改动时，很难控制其影响范围。  
   
 常量数据成员不可被改变，所以可不受本规则约束。  
   
@@ -5419,7 +5419,7 @@ protected:
     int bar();
 };
 ```
-供外部使用的 public 成员应作为重点写在前面，其次是 protected 成员，私有的内部成员应写在最后：
+供外部使用的 public 成员应作为重点写在前面，其次是 protected 成员，private 成员应写在最后：
 ```
 class A   // Good
 {
@@ -5721,7 +5721,7 @@ private:
     };
 };
 ```
-类的公有数据成员本来就违反了封装原则，如果这种公有数据成员又在联合体中，就进一步加大了风险。
+类的 public 数据成员本来就违反了封装原则，如果这种数据成员又处于联合体中，会进一步增加风险。
 <br/>
 <br/>
 
@@ -7520,6 +7520,10 @@ void bar() {
 ```
 <br/>
 <br/>
+
+#### 参考
+MISRA C++ 2008 0-1-3  
+<br/>
 <br/>
 
 ### <span id="selfdependentinitialization">▌R6.5.3 对象初始化不可依赖自身的值</span>
@@ -8015,15 +8019,15 @@ Effective C++ item 36
 <br/>
 <br/>
 
-### <span id="nonstdassignmentrettype">▌R6.7.2 拷贝赋值、移动赋值运算符应返回所属类的非 const 引用</span>
+### <span id="nonstdassignmentrettype">▌R6.7.2 拷贝和移动赋值运算符应返回所属类的非 const 引用</span>
 
 ID_nonStdAssignmentRetType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-拷贝赋值、移动赋值运算符应返回所属类的非 const 引用，便于调用者使用并满足泛型编程的要求。  
+拷贝和移动赋值运算符应返回所属类的非 const 引用，便于调用者使用并满足泛型编程的要求。  
   
-对赋值运算符的合理重载，可以使对象的赋值表达式作为子表达式灵活地出现在各种语句中，这也是“泛型程序设计”的必要条件，使算法的代码实现既可以适应普通变量，也可以适应自定义对象。如果类的对象与标准模板库相关，其赋值运算符应满足本规则的要求，否则无法满足连续赋值等语法要求，在标准模板库的使用上会受到限制。  
+对赋值运算符的合理重载，可以使对象的赋值表达式作为子表达式灵活地出现在各种语句中，这也是“泛型程序设计”的必要条件，使算法的代码实现既可以适应普通变量，也可以适应类对象。如果类对象与标准模板库相关，其赋值运算符应满足本规则的要求，否则无法满足连续赋值等语法要求，在标准模板库的使用上会受到限制。  
   
 本规则对 \+=、\-= 等复合赋值运算符也有相同的要求。  
   
@@ -8272,13 +8276,13 @@ MISRA C++ 2008 5-2-11
 <br/>
 <br/>
 
-### <span id="virtualassignment">▌R6.7.8 拷贝赋值、移动赋值运算符不应为虚函数</span>
+### <span id="virtualassignment">▌R6.7.8 拷贝和移动赋值运算符不应为虚函数</span>
 
 ID_virtualAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-拷贝或移动赋值运算符的返回类型应为所属类的非 const 引用，这类运算符即使是虚函数也不便于被重写。  
+拷贝和移动赋值运算符的返回类型应为所属类的非 const 引用，这类运算符即使是虚函数也不便于被重写。  
   
 示例：
 ```
@@ -8684,13 +8688,13 @@ MISRA C++ 2008 8-0-1
 
 ### <span id="declaration.other">6.10 Other</span>
 
-### <span id="violateodr">▌R6.10.1 不应违反 One Definition Rule</span>
+### <span id="violateodr">▌R6.10.1 遵循 One Definition Rule</span>
 
 ID_violateODR&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-One Definition Rule，即任何翻译单元不得包含变量、函数、类型、枚举或模板的多个定义，否则会导致标准未定义的行为。  
+One Definition Rule 即任何翻译单元不得包含对象、函数、类型或模板的多个定义，否则会导致标准未定义的行为。  
   
 示例：
 ```
@@ -8721,7 +8725,7 @@ void baz() {
     bar(foo());   // Problems
 }
 ```
-例中 T 类型在两个翻译单元中有不同的定义，违反了 One Definition Rule，易造成难以排查的错误，应将类型声明移入头文件。
+例中 T 类型在两个翻译单元中有不同的定义，违反了 One Definition Rule，易造成难以排查的错误，应在头文件中统一定义类型。
 <br/>
 <br/>
 
@@ -9432,13 +9436,13 @@ C++ Core Guidelines E.16
 <br/>
 <br/>
 
-### <span id="throwinswap">▌R7.8 对象的 swap 过程不可抛出异常</span>
+### <span id="throwinswap">▌R7.8 对象交换过程不可抛出异常</span>
 
 ID_throwInSwap&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
 <hr/>
 
-两个对象在 swap（交换）过程中，每个对象的状态都是不完整的，如果在交换中途抛出异常，对象将处于错误的状态。  
+两个对象在交换（swap）过程中，每个对象的状态都是不完整的，如果在交换中途抛出异常，对象将处于错误的状态。  
   
 标准库中存在大量与 swap 相关的接口和算法，如果 swap 抛出异常，也会使标准库无法按约定工作，所有 swap 函数均应标记为 noexcept。  
   
@@ -9564,6 +9568,10 @@ public:
 
 #### 依据
 ISO/IEC 14882:2011 18.8.1  
+<br/>
+
+#### 参考
+MISRA C++ 2008 15-1-1  
 <br/>
 <br/>
 
@@ -9725,7 +9733,7 @@ void foo() {
         throw EDerive();
     }
     catch (EBase& e) {
-        throw e;            // Non-compliant, use ‘throw;’ instead
+        throw e;         // Non-compliant, use ‘throw;’ instead
     }
 }
 
@@ -9734,7 +9742,7 @@ void bar() {
         foo();
     }
     catch (EDerive& e) {
-        ....                // Cannot catch EDerive
+        ....               // Cannot catch EDerive
     }
 }
 ```
@@ -10327,7 +10335,7 @@ struct A {
     }
 };
 ```
-例中构造函数没有对 z 初始化是不符合要求的，尤其是公有成员出现这种问题时会造成更大的风险。  
+例中构造函数没有对 z 初始化是不符合要求的，尤其是 public 成员出现这种问题时会造成更大的风险。  
   
 建议所有成员都在声明处初始化：
 ```
@@ -10525,6 +10533,7 @@ class B: public A {
 
 #### 参考
 C++ Core Guidelines C.82  
+MISRA C++ 2008 12-1-1  
 Effective C++ item 9  
 <br/>
 <br/>
@@ -10573,6 +10582,7 @@ class B: public A {
 
 #### 参考
 C++ Core Guidelines C.82  
+MISRA C++ 2008 12-1-1  
 Effective C++ item 9  
 <br/>
 <br/>
@@ -13126,7 +13136,7 @@ ID_while_brace
 #### 参考
 MISRA C 2004 14.9  
 MISRA C 2012 15.6  
-MISRA C++ 2008 6-4-1  
+MISRA C++ 2008 6-3-1  
 <br/>
 <br/>
 
@@ -13272,6 +13282,8 @@ default:
 
 #### 参考
 CWE-561  
+MISRA C 2012 16.1  
+MISRA C++ 2008 6-4-3  
 <br/>
 <br/>
 
@@ -13897,6 +13909,7 @@ ISO/IEC 14882:2011 18.3
 #### 参考
 CWE-561  
 C++ Core Guidelines E.31  
+MISRA C++ 2008 15-3-6  
 <br/>
 <br/>
 
@@ -14300,6 +14313,7 @@ CWE-570
 CWE-571  
 MISRA C 2004 13.7  
 MISRA C 2012 14.3  
+MISRA C++ 2008 0-1-2  
 <br/>
 <br/>
 
@@ -14393,6 +14407,7 @@ CWE-570
 CWE-571  
 MISRA C 2004 13.7  
 MISRA C 2012 14.3  
+MISRA C++ 2008 0-1-2  
 <br/>
 <br/>
 
@@ -14748,6 +14763,7 @@ ISO/IEC 14882:2011 8.7(5)-undefined
 
 #### 参考
 MISRA C 2004 17.3  
+MISRA C++ 2008 5-0-16  
 MISRA C++ 2008 5-0-17  
 MISRA C++ 2008 5-0-18  
 C++ Core Guidelines ES.62  
@@ -17591,13 +17607,13 @@ SEI CERT EXP39-C
 <br/>
 <br/>
 
-### <span id="castnonpublicinheritance">▌R12.7 不应强制转换非公有继承关系的指针或引用</span>
+### <span id="castnonpublicinheritance">▌R12.7 不应强制转换非 public 继承关系的指针或引用</span>
 
 ID_castNonPublicInheritance&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
 <hr/>
 
-公有继承表示派生类是基类的某种扩展，而非公有继承往往表示派生类是基类的某种“例外”，基类的方法不再适用于派生类的对象。  
+public 继承表示派生类是基类的某种扩展，而非 public 继承往往表示派生类是基类的某种“例外”，基类的方法不再适用于派生类的对象。  
   
 示例：
 ```
@@ -18937,7 +18953,7 @@ p->foo();              // Looks innocent
 p = new A[10];
 p->foo();              // Memory is still leaking
 ```
-如果使用 delete this，类的析构函数应设为私有，可以阻止类的对象在栈上定义而引发更大的混乱，并且要确保执行 delete this 后 this 指针再也不会被解引用，而且不能用 new\[\] 创建，否则仍然存在内存泄漏问题。
+如果有必要使用 delete this，应将类的析构函数设为非 public，使对象只能通过 new 创建，并确保执行 delete this 后 this 指针再也不会被访问，而且不能用 new\[\] 创建数组，否则仍然存在内存泄漏等问题。
 <br/>
 <br/>
 <br/>
@@ -20088,6 +20104,10 @@ a = (u + v) * w;     // Compliant
 ```
 注意，设立本规则并不是为了提倡省略括号，如果可以更好地表达逻辑意义，或不确定运算符优先级时，应及时使用括号。
 <br/>
+<br/>
+
+#### 参考
+MISRA C++ 2008 5-0-2  
 <br/>
 <br/>
 

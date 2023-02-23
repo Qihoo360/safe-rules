@@ -118,7 +118,8 @@
         "checkPoint": "避免多余的括号",
         "level": "suggestion",
         "comment": "重复的或与优先级无关的括号使代码显得繁琐，应去掉。",
-        "tag": "style"
+        "tag": "style",
+        "reference": "MISRA C++ 2008 5-0-2"
         },
     "ID_throwNULL": {
         "checkPoint": "不应抛出 NULL",
@@ -467,7 +468,7 @@
         "comment": "如果违反这个顺序，派生类的 catch handler 将失去作用。",
         "tag": "control",
         "standard": "ISO/IEC 14882:2003 15.3,ISO/IEC 14882:2011 15.3,ISO/IEC 14882:2011 18.3",
-        "reference": "CWE-561,C++ Core Guidelines E.31"
+        "reference": "CWE-561,C++ Core Guidelines E.31,MISRA C++ 2008 15-3-6"
         },
     "ID_try_disorderedEllipsis": {
         "checkPoint": "捕获所有异常的 catch-all handler 应位于最后",
@@ -830,9 +831,9 @@
         "reference": "C++ Core Guidelines C.87"
         },
     "ID_virtualAssignment": {
-        "checkPoint": "拷贝赋值、移动赋值运算符不应为虚函数",
+        "checkPoint": "拷贝和移动赋值运算符不应为虚函数",
         "level": "warning",
-        "comment": "拷贝或移动赋值运算符的返回类型应为所属类的非 const 引用，这类运算符即使是虚函数也不便于被重写。",
+        "comment": "拷贝和移动赋值运算符的返回类型应为所属类的非 const 引用，这类运算符即使是虚函数也不便于被重写。",
         "tag": "declaration",
         "related": "ID_nonStdAssignmentRetType",
         "reference": "C++ Core Guidelines C.60,C++ Core Guidelines C.63"
@@ -852,9 +853,9 @@
         "reference": "C++ Core Guidelines C.63"
     },
     "ID_nonStdAssignmentRetType": {
-        "checkPoint": "拷贝赋值、移动赋值运算符应返回所属类的非 const 引用",
+        "checkPoint": "拷贝和移动赋值运算符应返回所属类的非 const 引用",
         "level": "warning",
-        "comment": "拷贝赋值、移动赋值运算符应返回所属类的非 const 引用，便于调用者使用并满足泛型编程的要求。",
+        "comment": "拷贝和移动赋值运算符应返回所属类的非 const 引用，便于调用者使用并满足泛型编程的要求。",
         "tag": "declaration",
         "reference": "C++ Core Guidelines F.47,C++ Core Guidelines C.60,C++ Core Guidelines C.63"
     },
@@ -971,7 +972,8 @@
         "level": "warning",
         "comment": "创建、复制异常对象以及获取异常信息时不应再抛出异常，否则不利于异常的定位与处理。",
         "tag": "exception",
-        "standard": "ISO/IEC 14882:2011 18.8.1"
+        "standard": "ISO/IEC 14882:2011 18.8.1",
+        "reference": "MISRA C++ 2008 15-1-1"
         },
     "ID_forbidThrowSpecification": {
         "checkPoint": "禁用含 throw 关键字的异常规格说明",
@@ -1163,7 +1165,7 @@
         "level": "warning",
         "comment": "逻辑表达式及其子表达式的结果不应为常量，否则使逻辑判断失去意义。",
         "tag": "expression",
-        "reference": "CWE-570,CWE-571,MISRA C 2004 13.7,MISRA C 2012 14.3"
+        "reference": "CWE-570,CWE-571,MISRA C 2004 13.7,MISRA C 2012 14.3,MISRA C++ 2008 0-1-2"
         },
     "ID_invalidCommaSubExpression": {
         "checkPoint": "逗号表达式的子表达式应具有必要的副作用",
@@ -1249,7 +1251,7 @@
         "tag": "expression",
         "related": "ID_oddPtrZeroComparison",
         "standard": "ISO/IEC 9899:1999 6.5.8(5)-undefined,ISO/IEC 9899:2011 6.5.8(5)-undefined,ISO/IEC 14882:2003 5.7(6)-undefined,ISO/IEC 14882:2011 5.7(6)-undefined,ISO/IEC 14882:2011 8.7(5)-undefined",
-        "reference": "MISRA C 2004 17.3,MISRA C++ 2008 5-0-17,MISRA C++ 2008 5-0-18,C++ Core Guidelines ES.62"
+        "reference": "MISRA C 2004 17.3,MISRA C++ 2008 5-0-16,MISRA C++ 2008 5-0-17,MISRA C++ 2008 5-0-18,C++ Core Guidelines ES.62"
         },
     "ID_illBoolOperation": {
         "checkPoint": "bool 值不应参与位运算、大小比较、数值增减",
@@ -1312,9 +1314,9 @@
         "reference": "MISRA C 2012 11.3,MISRA C++ 2008 5-2-7,SEI CERT EXP39-C"
         },
     "ID_castNonPublicInheritance": {
-        "checkPoint": "不应强制转换非公有继承关系的指针或引用",
+        "checkPoint": "不应强制转换非 public 继承关系的指针或引用",
         "level": "warning",
-        "comment": "公有继承表示派生类是基类的某种扩展，而非公有继承往往表示派生类是基类的某种“例外”，基类的方法不再适用于派生类的对象。",
+        "comment": "public 继承表示派生类是基类的某种扩展，而非 public 继承往往表示派生类是基类的某种“例外”，基类的方法不再适用于派生类的对象。",
         "tag": "cast",
         "related": "ID_castNoInheritance",
         "standard": "ISO/IEC 14882:2011 4.10(3)"
@@ -1731,14 +1733,14 @@
         "level": "warning",
         "comment": "虚函数的多态性在构造函数中不生效，而且在构造函数中调用纯虚函数会导致标准未定义的行为。",
         "tag": "function",
-        "reference": "C++ Core Guidelines C.82,Effective C++ item 9"
+        "reference": "C++ Core Guidelines C.82,MISRA C++ 2008 12-1-1,Effective C++ item 9"
         },
     "ID_virtualCallInDestructor": {
         "checkPoint": "在析构函数中不应调用虚函数",
         "level": "warning",
         "comment": "虚函数的多态性在析构函数中不生效，而且在析构函数中调用纯虚函数会导致标准未定义的行为。",
         "tag": "function",
-        "reference": "C++ Core Guidelines C.82,Effective C++ item 9"
+        "reference": "C++ Core Guidelines C.82,MISRA C++ 2008 12-1-1,Effective C++ item 9"
         },
     "ID_exitCallInDestructor": {
         "checkPoint": "在析构函数中避免调用 exit 函数",
@@ -1797,9 +1799,9 @@
         "reference": "C++ Core Guidelines C.89"
         },
     "ID_throwInSwap": {
-        "checkPoint": "对象的 swap 过程不可抛出异常",
+        "checkPoint": "对象交换过程不可抛出异常",
         "level": "warning",
-        "comment": "两个对象在 swap（交换）过程中，每个对象的状态都是不完整的，如果在交换中途抛出异常，对象将处于错误的状态。",
+        "comment": "两个对象在交换（swap）过程中，每个对象的状态都是不完整的，如果在交换中途抛出异常，对象将处于错误的状态。",
         "tag": "exception",
         "related": "ID_exceptionUnsafe,ID_throwInMove",
         "reference": "C++ Core Guidelines C.84,C++ Core Guidelines C.85"
@@ -1920,7 +1922,8 @@
         "checkPoint": "不应存在没有被用到的局部声明",
         "level": "warning",
         "comment": "没有被用到的局部声明是没有意义的，往往意味着代码冗余或功能不完整，也可能导致严重的逻辑错误。",
-        "tag": "declaration"
+        "tag": "declaration",
+        "reference": "MISRA C++ 2008 0-1-3"
         },
     "ID_tooManyParams": {
         "checkPoint": "函数参数的数量应在规定范围之内",
@@ -2331,7 +2334,7 @@
         "comment": "do-while 循环体应为复合语句，即使只包含一条语句。如果没有合理的大括号，可能会与内嵌的 while 语句形成难以发觉的错误。",
         "tag": "control",
         "related": "ID_for_brace,ID_if_brace,ID_switch_brace,ID_while_brace",
-        "reference": "MISRA C 2004 14.9,MISRA C 2012 15.6,MISRA C++ 2008 6-4-1"
+        "reference": "MISRA C 2004 14.9,MISRA C 2012 15.6,MISRA C++ 2008 6-3-1"
         },
     "ID_do_deprecated": {
         "checkPoint": "不建议使用 do 语句",
@@ -2383,7 +2386,7 @@
         "level": "error",
         "comment": "switch 语句中任何子句都应从属于某个 case 或 default 分枝，否则不会被执行。",
         "tag": "control",
-        "reference": "CWE-561"
+        "reference": "CWE-561,MISRA C 2012 16.1,MISRA C++ 2008 6-4-3"
     },
     "ID_switch_identicalBranch": {
         "checkPoint": "不应存在内容完全相同的 case 分枝",
@@ -2626,7 +2629,7 @@
         "reference": "SEI CERT PRE31-C"
         },
     "ID_macro_paramNotEnclosed": {
-        "checkPoint": "与运算符相关的宏参数应该用括号括起来",
+        "checkPoint": "表达式中的宏参数应该用括号括起来",
         "level": "warning",
         "comment": "由于宏只做文本处理，不考虑运算符优先级等问题，故应将宏参数用括号括起来，否则易产生意料之外的错误。",
         "tag": "precompile",
@@ -2726,7 +2729,7 @@
         "comment": "变量初始化后不经修改即作为条件往往意味着某种逻辑错误。",
         "tag": "expression",
         "related": "ID_constLogicExpression",
-        "reference": "CWE-570,CWE-571,MISRA C 2004 13.7,MISRA C 2012 14.3"
+        "reference": "CWE-570,CWE-571,MISRA C 2004 13.7,MISRA C 2012 14.3,MISRA C++ 2008 0-1-2"
         },
     "ID_nullDerefInExp": {
         "checkPoint": "注意逻辑表达式内的空指针解引用",
@@ -3152,7 +3155,7 @@
     "ID_nonConstGlobalObject": {
         "checkPoint": "全局对象只应为常量",
         "level": "warning",
-        "comment": "非常量全局对象与类的公有数据成员一样对外部的读写没有限制，破坏了面向对象的封装理念。",
+        "comment": "非常量全局对象与类的 public 数据成员一样对外部的读写没有限制，破坏了面向对象的封装理念。",
         "tag": "global",
         "related": "ID_nonPrivateData",
         "reference": "C++ Core Guidelines I.2,C++ Core Guidelines CP.3,C++ Core Guidelines R.6"
@@ -3339,7 +3342,7 @@
     "ID_nonPrivateData": {
         "checkPoint": "类的非常量数据成员均应为 private",
         "level": "suggestion",
-        "comment": "类的数据成员均应设为私有，对外统一由成员函数提供访问方法，且应避免返回私有成员的非常量引用或指针。",
+        "comment": "类的数据成员均应设为 private，对外统一由成员函数提供访问方法，且应避免返回 private 成员的非常量引用或指针。",
         "tag": "type",
         "related": "ID_protectedData,ID_mixPublicPrivateData",
         "reference": "MISRA C++ 2008 11-0-1"
@@ -3415,9 +3418,9 @@
         "reference": "MISRA C++ 2008 16-0-5"
         },
     "ID_violateODR": {
-        "checkPoint": "不应违反 One Definition Rule",
+        "checkPoint": "遵循 One Definition Rule",
         "level": "warning",
-        "comment": "One Definition Rule，即任何翻译单元不得包含变量、函数、类型、枚举或模板的多个定义，否则会导致标准未定义的行为。",
+        "comment": "One Definition Rule 即任何翻译单元不得包含对象、函数、类型或模板的多个定义，否则会导致标准未定义的行为。",
         "tag": "declaration",
         "standard": "ISO/IEC 9899:2011 7.16.1.4(4)-undefined,ISO/IEC 14882:2011 18.10(3)-undefined",
         "reference": "MISRA C++ 2008 3-2-2"
