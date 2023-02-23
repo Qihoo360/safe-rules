@@ -204,7 +204,7 @@
     - [R5.1.13 不应过度使用 explicit 关键字](#excessiveexplicit)
     - [R5.1.14 带模板的赋值运算符不应覆盖拷贝或移动赋值运算符](#roughtemplateassignoperator)
     - [R5.1.15 带模板的构造函数不应覆盖拷贝或移动构造函数](#roughtemplateconstructor)
-    - [R5.1.16 抽象类禁用拷贝赋值运算符](#unsuitablecopyassignoperator)
+    - [R5.1.16 抽象类禁用拷贝和移动赋值运算符](#unsuitablecopyassignoperator)
     - [R5.1.17 数据成员的数量应在规定范围之内](#toomanyfields)
     - [R5.1.18 数据成员之间的填充数据不应被忽视](#ignorepaddingdata)
     - [R5.1.19 常量成员函数不应返回数据成员的非常量指针或引用](#returnnonconstdata)
@@ -553,7 +553,7 @@
   - [R12.4 指针与整数不应相互转换](#ptrintcast)
   - [R12.5 类型转换不应去掉 const、volatile 等属性](#qualifiercastedaway)
   - [R12.6 不应强制转换无继承关系的指针或引用](#castnoinheritance)
-  - [R12.7 不应强制转换非 public 继承关系的指针或引用](#castnonpublicinheritance)
+  - [R12.7 不应强制转换无 public 继承关系的指针或引用](#castnonpublicinheritance)
   - [R12.8 非 POD 类的指针与基本类型的指针不应相互转换](#nonpodbinarycast)
   - [R12.9 不同的字符串类型之间不可直接转换](#charwcharcast)
   - [R12.10 避免向对齐要求更严格的指针转换](#stricteralignedcast)
@@ -4718,7 +4718,17 @@ A* p = new B(10);
 ....
 delete p;                   // Undefined behavior, may leak
 ```
-由于基类 A 的析构函数不是虚函数，delete p 只调用了基类析构函数，派生类对象的资源没有得到释放。
+由于基类 A 的析构函数不是虚函数，delete p 只调用了基类析构函数，派生类对象的资源没有得到释放。  
+  
+例外：
+```
+class C {
+    ....
+protected:
+   ~C();     // Compliant
+};
+```
+如果有意阻止外界通过基类指针析构对象，如析构函数是 protected，可不受本规则限制。
 <br/>
 <br/>
 
@@ -5238,19 +5248,20 @@ MISRA C++ 2008 14-5-2
 <br/>
 <br/>
 
-### <span id="unsuitablecopyassignoperator">▌R5.1.16 抽象类禁用拷贝赋值运算符</span>
+### <span id="unsuitablecopyassignoperator">▌R5.1.16 抽象类禁用拷贝和移动赋值运算符</span>
 
 ID_unsuitableCopyAssignOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: type warning
 
 <hr/>
 
-抽象类只能作为基类，没有独立的对象，不应调用拷贝赋值运算符。  
+抽象类只能作为基类，没有独立的对象，调用拷贝或移动赋值运算符会造成数据不完整。  
   
 示例：
 ```
 struct A {
     virtual ~A() = 0;
     A& operator = (const A&);   // Non-compliant
+    A& operator = (A&&);        // Non-compliant
     ....
 };
 
@@ -5265,10 +5276,11 @@ void foo(A& x, A& y) {
 struct A {
     virtual ~A() = 0;
     A& operator = (const A&) = delete;   // Compliant
+    A& operator = (A&&) = delete;        // Compliant
     ....
 };
 ```
-将虚基类的拷贝赋值运算符设为 =delete 或 private，可在编译期阻止不完整的复制。
+将抽象类的拷贝和移动赋值运算符设为 =delete 或 private，可在编译期阻止不完整的复制和移动。
 <br/>
 <br/>
 
@@ -9444,9 +9456,7 @@ ID_throwInSwap&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
 两个对象在交换（swap）过程中，每个对象的状态都是不完整的，如果在交换中途抛出异常，对象将处于错误的状态。  
   
-标准库中存在大量与 swap 相关的接口和算法，如果 swap 抛出异常，也会使标准库无法按约定工作，所有 swap 函数均应标记为 noexcept。  
-  
-注意，swap 是保证异常安全的重要手段，不抛出异常是基本要求，详见 ID\_exceptionUnsafe。  
+注意，交换是保证异常安全的重要手段，不抛出异常是基本要求，详见 ID\_exceptionUnsafe。标准库中存在大量与交换相关的接口和算法，如果抛出异常也会使标准库无法按约定工作，所有交换相关的函数均应标记为 noexcept。  
   
 示例：
 ```
@@ -17607,7 +17617,7 @@ SEI CERT EXP39-C
 <br/>
 <br/>
 
-### <span id="castnonpublicinheritance">▌R12.7 不应强制转换非 public 继承关系的指针或引用</span>
+### <span id="castnonpublicinheritance">▌R12.7 不应强制转换无 public 继承关系的指针或引用</span>
 
 ID_castNonPublicInheritance&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
@@ -18437,7 +18447,7 @@ auto c = p->foo();   // Non-compliant, even if it may not crash
 ```
 在 C\+\+ 代码中通过指针访问静态成员不算作解引用，可不受本规则约束，但这种风格易引起维护者的疑虑而增加维护成本。  
   
-另外，调用非静态成员函数意味着访问对象的数据，即使成员函数没有实际地访问成员数据，也不应通过空指针调用非静态成员函数，否则仍属于逻辑错误，而且如果调用的是虚函数或虚基类的成员函数仍会造成崩溃。
+注意，非静态成员函数是对象数据的访问方法，即使非静态成员函数没有实际地访问对象数据，也不应通过空指针调用非静态成员函数，否则仍属于逻辑错误，而且如果调用的是虚函数或虚基类的成员函数也会造成崩溃。
 <br/>
 <br/>
 

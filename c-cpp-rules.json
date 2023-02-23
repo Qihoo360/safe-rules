@@ -580,9 +580,9 @@
         "reference": "C++ Core Guidelines C.164"
         },
     "ID_unsuitableCopyAssignOperator": {
-        "checkPoint": "抽象类禁用拷贝赋值运算符",
+        "checkPoint": "抽象类禁用拷贝和移动赋值运算符",
         "level": "warning",
-        "comment": "抽象类只能作为基类，没有独立的对象，不应调用拷贝赋值运算符。",
+        "comment": "抽象类只能作为基类，没有独立的对象，调用拷贝或移动赋值运算符会造成数据不完整。",
         "tag": "type",
         "reference": "MISRA C++ 2008 12-8-2,C++ Core Guidelines C.67"
         },
@@ -1314,7 +1314,7 @@
         "reference": "MISRA C 2012 11.3,MISRA C++ 2008 5-2-7,SEI CERT EXP39-C"
         },
     "ID_castNonPublicInheritance": {
-        "checkPoint": "不应强制转换非 public 继承关系的指针或引用",
+        "checkPoint": "不应强制转换无 public 继承关系的指针或引用",
         "level": "warning",
         "comment": "public 继承表示派生类是基类的某种扩展，而非 public 继承往往表示派生类是基类的某种“例外”，基类的方法不再适用于派生类的对象。",
         "tag": "cast",
