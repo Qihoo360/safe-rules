@@ -524,27 +524,27 @@
         "tag": "exception"
         },
     "ID_missingDestructor": {
-        "checkPoint": "存在拷贝构造函数或赋值运算符时，不应缺少析构函数",
+        "checkPoint": "存在拷贝构造函数或拷贝赋值运算符时，不应缺少析构函数",
         "level": "warning",
-        "comment": "存在拷贝构造函数或赋值运算符时，不应缺少析构函数。",
+        "comment": "存在拷贝构造函数或拷贝赋值运算符时，不应缺少析构函数。",
         "tag": "type",
-        "related": "ID_missingCopyConstructor,ID_missingCopyAssignOperator",
+        "related": "ID_missingCopyConstructor,ID_missingCopyAssignOperator,ID_violateRuleOfFive",
         "reference": "C++ Core Guidelines C.21,C++ Core Guidelines C.30,C++ Core Guidelines C.33"
         },
     "ID_missingCopyConstructor": {
-        "checkPoint": "存在赋值运算符或析构函数时，不应缺少拷贝构造函数",
+        "checkPoint": "存在析构函数或拷贝赋值运算符时，不应缺少拷贝构造函数",
         "level": "warning",
-        "comment": "存在赋值运算符或析构函数时，不应缺少拷贝构造函数。",
+        "comment": "存在析构函数或拷贝赋值运算符时，不应缺少拷贝构造函数。",
         "tag": "type",
-        "related": "ID_missingDestructor,ID_missingCopyAssignOperator",
+        "related": "ID_missingDestructor,ID_missingCopyAssignOperator,ID_violateRuleOfFive",
         "reference": "C++ Core Guidelines C.21"
         },
-    "ID_missingMoveConstructor": {
-        "checkPoint": "存在移动赋值运算符时，不应缺少移动构造函数",
+    "ID_violateRuleOfZero": {
+        "checkPoint": "避免重复实现由默认拷贝、移动、析构函数完成的功能",
         "level": "warning",
-        "comment": "存在移动赋值运算符，不应缺少移动构造函数，详见“Rule of five”。",
+        "comment": "当类只负责成员对象的组合而没有特殊的复制、移动、析构需求时，不应定义相关函数。",
         "tag": "type",
-        "related": "ID_missingCopyConstructor",
+        "related": "ID_violateRuleOfFive",
         "reference": "C++ Core Guidelines C.21"
         },
     "ID_missingCopyAssignOperator": {
@@ -552,15 +552,15 @@
         "level": "warning",
         "comment": "存在拷贝构造函数或析构函数时，不应缺少拷贝赋值运算符。",
         "tag": "type",
-        "related": "ID_missingDestructor,ID_missingCopyConstructor",
+        "related": "ID_missingDestructor,ID_missingCopyConstructor,ID_violateRuleOfFive",
         "reference": "C++ Core Guidelines C.21"
         },
-    "ID_missingMoveAssignOperator": {
-        "checkPoint": "存在移动构造函数时，不应缺少移动赋值运算符",
+    "ID_violateRuleOfFive": {
+        "checkPoint": "存在任一拷贝、移动、析构相关的函数时，应定义所有相关函数",
         "level": "warning",
-        "comment": "存在移动构造函数时，不应缺少移动赋值运算符，详见“Rule of five”。",
+        "comment": "存在任一拷贝、移动、析构相关的函数时，应定义所有相关函数。",
         "tag": "type",
-        "related": "ID_missingCopyAssignOperator",
+        "related": "ID_missingCopyConstructor,ID_missingCopyAssignOperator,ID_missingDestructor,ID_violateRuleOfZero",
         "reference": "C++ Core Guidelines C.21"
         },
     "ID_missingExplicitConstructor": {
@@ -579,7 +579,7 @@
         "related": "ID_missingExplicitConstructor",
         "reference": "C++ Core Guidelines C.164"
         },
-    "ID_unsuitableCopyAssignOperator": {
+    "ID_unsuitableAssignOperator": {
         "checkPoint": "抽象类禁用拷贝和移动赋值运算符",
         "level": "warning",
         "comment": "抽象类只能作为基类，没有独立的对象，调用拷贝或移动赋值运算符会造成数据不完整。",

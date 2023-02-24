@@ -194,17 +194,17 @@
     - [R5.1.3 类不应既有 public 数据成员又有 private 数据成员](#mixpublicprivatedata)
     - [R5.1.4 有虚函数的基类应具有虚析构函数](#missingvirtualdestructor)
     - [R5.1.5 用虚基类避免冗余的基类实例](#diamondinheritance)
-    - [R5.1.6 存在赋值运算符或析构函数时，不应缺少拷贝构造函数](#missingcopyconstructor)
+    - [R5.1.6 存在析构函数或拷贝赋值运算符时，不应缺少拷贝构造函数](#missingcopyconstructor)
     - [R5.1.7 存在拷贝构造函数或析构函数时，不应缺少拷贝赋值运算符](#missingcopyassignoperator)
-    - [R5.1.8 存在拷贝构造函数或赋值运算符时，不应缺少析构函数](#missingdestructor)
-    - [R5.1.9 存在移动构造函数时，不应缺少移动赋值运算符](#missingmoveassignoperator)
-    - [R5.1.10 存在移动赋值运算符时，不应缺少移动构造函数](#missingmoveconstructor)
+    - [R5.1.8 存在拷贝构造函数或拷贝赋值运算符时，不应缺少析构函数](#missingdestructor)
+    - [R5.1.9 存在任一拷贝、移动、析构相关的函数时，应定义所有相关函数](#violateruleoffive)
+    - [R5.1.10 避免重复实现由默认拷贝、移动、析构函数完成的功能](#violateruleofzero)
     - [R5.1.11 可接受一个参数的构造函数需用 explicit 关键字限定](#missingexplicitconstructor)
     - [R5.1.12 重载的类型转换运算符需用 explicit 关键字限定](#missingexplicitconvertor)
     - [R5.1.13 不应过度使用 explicit 关键字](#excessiveexplicit)
     - [R5.1.14 带模板的赋值运算符不应覆盖拷贝或移动赋值运算符](#roughtemplateassignoperator)
     - [R5.1.15 带模板的构造函数不应覆盖拷贝或移动构造函数](#roughtemplateconstructor)
-    - [R5.1.16 抽象类禁用拷贝和移动赋值运算符](#unsuitablecopyassignoperator)
+    - [R5.1.16 抽象类禁用拷贝和移动赋值运算符](#unsuitableassignoperator)
     - [R5.1.17 数据成员的数量应在规定范围之内](#toomanyfields)
     - [R5.1.18 数据成员之间的填充数据不应被忽视](#ignorepaddingdata)
     - [R5.1.19 常量成员函数不应返回数据成员的非常量指针或引用](#returnnonconstdata)
@@ -4810,7 +4810,7 @@ C++ Core Guidelines C.137
 <br/>
 <br/>
 
-### <span id="missingcopyconstructor">▌R5.1.6 存在赋值运算符或析构函数时，不应缺少拷贝构造函数</span>
+### <span id="missingcopyconstructor">▌R5.1.6 存在析构函数或拷贝赋值运算符时，不应缺少拷贝构造函数</span>
 
 ID_missingCopyConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
 
@@ -4818,65 +4818,51 @@ ID_missingCopyConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
 
 三个紧密相关的函数：  
  1. 拷贝构造函数  
- 2. 析构函数  
- 3. 赋值运算符  
+ 2. 拷贝赋值运算符  
+ 3. 析构函数  
   
-当这三个函数中的任何一个函数被定义时，说明对象在复制和资源管理方面有特定的行为，所以其他两个函数也需要被定义，这种规则称为“[Rule of three](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming))”。如果缺少某个函数，编译器会生成相关函数，但其特定需求不会被实现。  
+当这三个函数中的任何一个函数被定义时，说明对象在资源管理等方面有特定的需求，其他两个函数也需要被定义，否则以适应各种应用场景，易产生意料之外的错误，这种规则称为“[Rule of three](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming))”。如果缺少某个函数，编译器会生成相关默认函数，但其特定需求不会被实现。  
   
 示例：
 ```
-class A {    // Non-compliant
-    int* p;
-
+class A   // Non-compliant
+{
+    int* p = new int[8];
 public:
-    A(): p(new int[123]) {
-    }
-
    ~A() {
         delete[] p;
     }
-};
-```
-例中 A 有析构函数，但没有拷贝构造函数和赋值运算符，编译器会生成相关默认函数，但只进行变量值的复制，使多个对象的成员 p 指向同一块内存区域，导致析构时内存被重复释放，所以应定义拷贝构造函数和赋值运算符重新分配内存并复制数据。  
-  
-注意，当类只负责成员的组合而没有特殊的复制或析构需求时，这三个函数就都不要定义，这种规则称为“[Rule of zero](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-zero)”。  
-  
-示例：
-```
-class B {
-    string a, b;
+};      // Missing copy constructor and assignment operator
 
-public:
-    B(const B& rhs): a(rhs.a), b(rhs.b) {  // Unnecessary
-    }
+void foo()
+{
+    A a;
+    A b(a);   // Shallow copy
+    ....
+}             // Double free
 
-    B& operator = (const B& rhs) {  // Unnecessary
-        a = rhs.a;
-        b = rhs.b;
-    }
-
-   ~B() {  // Unnecessary
-    }
-};
+void bar(A& a, A& b)
+{
+    a = b;    // Memory leak
+}
 ```
-例中 B 只涉及字符串对象的组合，复制和析构可交由成员对象完成，其拷贝构造、赋值运算符及析构函数是不必要的，应该去掉，编译器会进行更好地处理。  
+例中 A 有析构函数，但没有拷贝构造函数和赋值运算符，编译器会生成相关默认函数，但只进行变量值的复制，使多个对象的成员 p 指向同一块内存区域，导致重复释放和内存泄漏，所以应定义拷贝构造函数和赋值运算符重新分配内存并复制数据。  
   
-同理，在遵循 C\+\+11 及之后标准的代码中，对于：  
+同理，在遵循 C\+\+11 及之后标准的代码中：  
  1. 拷贝构造函数  
- 2. 析构函数  
- 3. 赋值运算符  
+ 2. 拷贝赋值运算符  
+ 3. 析构函数  
  4. 移动拷贝构造函数  
  5. 移动赋值运算符  
   
-当定义了这五个函数中的任何一个函数时，其他四个函数也需要定义，这种规则称为“[Rule of five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming)#Rule_of_Five)”。  
-  
-如果确实不需要某个函数，也需要用“=delete”指明，以明确约束对象的行为。
+当定义了这五个函数中的任何一个函数时，其他四个函数也需要定义，详见 ID\_violateRuleOfFive。
 <br/>
 <br/>
 
 #### 相关
 ID_missingDestructor  
 ID_missingCopyAssignOperator  
+ID_violateRuleOfFive  
 <br/>
 
 #### 参考
@@ -4892,16 +4878,14 @@ ID_missingCopyAssignOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
 
 三个紧密相关的函数：  
  1. 拷贝构造函数  
- 2. 析构函数  
- 3. 赋值运算符  
+ 2. 拷贝赋值运算符  
+ 3. 析构函数  
   
 当这三个函数中的任何一个函数被定义时，其他两个函数也需要被定义，详见“[Rule of three](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming))”。  
   
-值得强调的是，如果确实不需要赋值运算符，需明确将其声明为“=delete”，如果确实只需要浅拷贝，需将其声明为“=default”，这样明确了复制对象时的行为，规避意料之外的错误。  
-  
 示例：
 ```
-class A {  // Non-compliant, missing assignment operator
+class A {  // Non-compliant, missing copy assignment operator
 public:
     A();
     A(const A&);
@@ -4916,7 +4900,7 @@ public:
     A(const A&);
    ~A();
 
-    A& operator = (const A&);  // Assignment operator
+    A& operator = (const A&);  // Copy assignment operator
 };
 ```
 <br/>
@@ -4925,6 +4909,7 @@ public:
 #### 相关
 ID_missingDestructor  
 ID_missingCopyConstructor  
+ID_violateRuleOfFive  
 <br/>
 
 #### 参考
@@ -4932,7 +4917,7 @@ C++ Core Guidelines C.21
 <br/>
 <br/>
 
-### <span id="missingdestructor">▌R5.1.8 存在拷贝构造函数或赋值运算符时，不应缺少析构函数</span>
+### <span id="missingdestructor">▌R5.1.8 存在拷贝构造函数或拷贝赋值运算符时，不应缺少析构函数</span>
 
 ID_missingDestructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
 
@@ -4940,8 +4925,8 @@ ID_missingDestructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
 
 三个紧密相关的函数：  
  1. 拷贝构造函数  
- 2. 析构函数  
- 3. 赋值运算符  
+ 2. 拷贝赋值运算符  
+ 3. 析构函数  
   
 当这三个函数中的任何一个函数被定义时，其他两个函数也需要被定义，详见“[Rule of three](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming))”。  
   
@@ -4971,6 +4956,7 @@ public:
 #### 相关
 ID_missingCopyConstructor  
 ID_missingCopyAssignOperator  
+ID_violateRuleOfFive  
 <br/>
 
 #### 参考
@@ -4980,25 +4966,34 @@ C++ Core Guidelines C.33
 <br/>
 <br/>
 
-### <span id="missingmoveassignoperator">▌R5.1.9 存在移动构造函数时，不应缺少移动赋值运算符</span>
+### <span id="violateruleoffive">▌R5.1.9 存在任一拷贝、移动、析构相关的函数时，应定义所有相关函数</span>
 
-ID_missingMoveAssignOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
+ID_violateRuleOfFive&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
 
 <hr/>
 
 五个紧密相关的函数：  
  1. 拷贝构造函数  
- 2. 析构函数  
- 3. 赋值运算符  
+ 2. 拷贝赋值运算符  
+ 3. 析构函数  
  4. 移动拷贝构造函数  
  5. 移动赋值运算符  
   
-当这五个函数中的任何一个函数被定义时，其他四个函数也需要被定义，详见“[Rule of five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming)#Rule_of_Five)”，尤其是存在移动构造函数时，不应缺少移动赋值运算符。
+当这五个函数中的任何一个函数被定义时，说明对象在资源管理等方面有特定的需求，所以其他四个函数也需要被定义，否则以适应各种应用场景，易产生意料之外的错误，这种规则称为“[Rule of five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming)#Rule_of_Five)”。如果缺少某个函数，编译器会生成相关默认函数，但其特定需求不会被实现。  
+  
+如果确实不需要某个函数，也应将其明确地设定为 private 或 =delete，如果确实只需要默认处理，应将其声明为 =default，这样可明确对象的行为，规避意料之外的错误。  
+  
+本规则适用于遵循 C\+\+11 及之后标准的代码，对于遵循 C\+\+03 及之前标准的代码，本规则特化为 ID\_missingCopyConstructor、ID\_missingCopyAssignOperator、ID\_missingDestructor。  
+  
+另外，如果类只负责成员对象的组合而没有特殊的复制、移动、析构需求时，则不应定义相关函数，参见 ID\_violateRuleOfZero。
 <br/>
 <br/>
 
 #### 相关
+ID_missingCopyConstructor  
 ID_missingCopyAssignOperator  
+ID_missingDestructor  
+ID_violateRuleOfZero  
 <br/>
 
 #### 参考
@@ -5006,25 +5001,44 @@ C++ Core Guidelines C.21
 <br/>
 <br/>
 
-### <span id="missingmoveconstructor">▌R5.1.10 存在移动赋值运算符时，不应缺少移动构造函数</span>
+### <span id="violateruleofzero">▌R5.1.10 避免重复实现由默认拷贝、移动、析构函数完成的功能</span>
 
-ID_missingMoveConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
+ID_violateRuleOfZero&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
 
 <hr/>
 
-五个紧密相关的函数：  
+当类只负责成员对象的组合而没有特殊的复制、移动、析构需求时，不应定义下列函数：  
  1. 拷贝构造函数  
  2. 析构函数  
  3. 赋值运算符  
  4. 移动拷贝构造函数  
  5. 移动赋值运算符  
   
-当这五个函数中的任何一个函数被定义时，其他四个函数也需要被定义，详见“[Rule of five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming)#Rule_of_Five)”，尤其是存在移动赋值运算符时，不应缺少移动构造函数。
+应由编译器生成相关默认函数，否则会产生多余的代码，增加维护成本，这种规则称为“[Rule of zero](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-zero)”。  
+  
+示例：
+```
+class A {
+    string a, b;
+
+public:
+    A(const A& rhs): a(rhs.a), b(rhs.b) {  // Redundant
+    }
+    A& operator = (const A& rhs) {  // Redundant
+        a = rhs.a;
+        b = rhs.b;
+        return *this;
+    }
+   ~A() {  // Redundant
+    }
+};
+```
+例中的类只涉及字符串对象的组合，复制、移动和析构可交由成员对象完成，其拷贝构造函数、赋值运算符以及析构函数是多余的，应该去掉，编译器会进行更好地处理。
 <br/>
 <br/>
 
 #### 相关
-ID_missingCopyConstructor  
+ID_violateRuleOfFive  
 <br/>
 
 #### 参考
@@ -5248,9 +5262,9 @@ MISRA C++ 2008 14-5-2
 <br/>
 <br/>
 
-### <span id="unsuitablecopyassignoperator">▌R5.1.16 抽象类禁用拷贝和移动赋值运算符</span>
+### <span id="unsuitableassignoperator">▌R5.1.16 抽象类禁用拷贝和移动赋值运算符</span>
 
-ID_unsuitableCopyAssignOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: type warning
+ID_unsuitableAssignOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: type warning
 
 <hr/>
 
