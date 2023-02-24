@@ -1012,7 +1012,7 @@
     "ID_forbidBitfield": {
         "checkPoint": "禁用位域",
         "level": "suggestion",
-        "comment": "位域改变了类型约定俗成的取值范围和存储方式，易造成理解上的偏差，也会提高维护成本。",
+        "comment": "位域改变了类型约定俗成的取值范围和存储方式，易造成理解上的偏差，增加维护成本。",
         "tag": "declaration",
         "standard": "ISO/IEC 14882:2003 9.6(1)-implementation,ISO/IEC 14882:2003 9.6(3),ISO/IEC 14882:2011 9.6(1)-implementation,ISO/IEC 14882:2011 9.6(3),ISO/IEC 14882:2017 12.2.4(1)-implementation,ISO/IEC 14882:2017 12.2.4(3)",
         "related": "ID_exceededBitfield,ID_singleSignedBitfield,ID_bitfieldDataRaces,ID_forbidEnumBitfield"
@@ -1027,7 +1027,7 @@
     "ID_forbidRestrictPtr": {
         "checkPoint": "禁用 restrict 指针",
         "level": "warning",
-        "comment": "C 语言中的 restrict 指针要求其他指针不能再指向相同区域，有助于编译器优化，但不符合这种限制时会导致标准未定义的行为，相当于增加了误用的风险，也提高了测试成本。",
+        "comment": "C 语言中的 restrict 指针要求其他指针不能再指向相同区域，有助于编译器优化，但不符合这种限制时会导致标准未定义的行为，相当于增加了误用风险，也增加了测试成本。",
         "tag": "declaration",
         "standard": "ISO/IEC 9899:1999 6.7.3.1(4 9 11)-undefined,ISO/IEC 9899:2011 6.7.3.1(4 9 11)-undefined",
         "reference": "MISRA C 2012 8.14,SEI CERT EXP43-C"
@@ -1035,7 +1035,7 @@
     "ID_forbidStaticArrSize": {
         "checkPoint": "声明数组参数的大小时禁用 static 关键字",
         "level": "warning",
-        "comment": "C 语言规定数组作为形式参数时，可用 static 关键字修饰大小，要求传入数组的大小不能小于由 static  关键字修饰的值，有助于编译器优化，但不符合这种限制时会导致标准未定义的行为，相当于增加了误用的风险，也提高了测试成本。",
+        "comment": "C 语言规定数组作为形式参数时，可用 static 关键字修饰大小，要求传入数组的大小不能小于由 static  关键字修饰的值，有助于编译器优化，但不符合这种限制时会导致标准未定义的行为，相当于增加了误用风险，也提高了测试成本。",
         "tag": "declaration",
         "standard": "ISO/IEC 9899:1999 6.7.6.3(7),ISO/IEC 9899:2011 6.7.6.3(7)",
         "reference": "MISRA C 2012 17.6"
@@ -1909,7 +1909,7 @@
     "ID_roughAuto": {
         "checkPoint": "用 auto 声明指针或引用时应显式标明 *、& 等符号",
         "level": "suggestion",
-        "comment": "用 auto 声明指针时显式标明 * 号有利于提高代码可读性，否则会使人误以为是某种非指针的对象。在声明引用时必须显式标明 & 或 && 号，否则成为对象声明，导致逻辑错误或造成不必要的复制开销。",
+        "comment": "用 auto 声明指针时显式标明 * 号有利于提高可读性，否则会使人误以为是某种非指针的对象。在声明引用时必须显式标明 & 或 && 号，否则成为对象声明，导致逻辑错误或造成不必要的复制开销。",
         "tag": "declaration"
         },
     "ID_selfDependentInitialization": {
@@ -2339,7 +2339,7 @@
     "ID_do_deprecated": {
         "checkPoint": "不建议使用 do 语句",
         "level": "suggestion",
-        "comment": "do 语句的终止条件在末尾，且第一次执行时不检查终止条件，可读性较低，不利于维护。",
+        "comment": "do 语句的终止条件在末尾，且第一次执行时不检查终止条件，易被误用。",
         "tag": "control",
         "reference": "C++ Core Guidelines ES.75"
         },
@@ -3579,7 +3579,7 @@
     "ID_nonConstUnmodified": {
         "checkPoint": "相关对象未被修改时应使用 const 声明",
         "level": "suggestion",
-        "comment": "用 const 显式区分数据是只读的还是可写的，细化数据的访问方式可显著提高代码可读性，并保护数据不被错误修改，有助于编译器优化。",
+        "comment": "用 const 显式区分数据是只读的还是可写的，细化数据的访问方式可显著提高可读性，并保护数据不被错误修改，有助于编译器优化。",
         "tag": "declaration",
         "related": "ID_missingConst",
         "reference": "C++ Core Guidelines Con.1,C++ Core Guidelines Con.2,C++ Core Guidelines Con.3,C++ Core Guidelines Con.4,MISRA C++ 2008 7-1-1,MISRA C++ 2008 7-1-2"
@@ -3701,7 +3701,7 @@
     "ID_accessSpecifierDisorder": {
         "checkPoint": "类成员应按 public、protected、private 的顺序声明",
         "level": "suggestion",
-        "comment": "类成员统一按 public、protected、private 的顺序声明，有利于提高代码可读性。",
+        "comment": "类成员统一按 public、protected、private 的顺序声明，有利于提高可读性。",
         "tag": "type"
         },
     "ID_returnNonConstData": {
