@@ -294,8 +294,8 @@
   - [6.8 Bitfield](#declaration.bitfield)
     - [R6.8.1 对位域声明合理的类型](#improperbitfieldtype)
     - [R6.8.2 位域长度不应超过类型长度](#exceededbitfield)
-    - [R6.8.3 有符号变量的位域长度不应为 1](#singlesignedbitfield)
-    - [R6.8.4 不应对枚举变量声明位域](#forbidenumbitfield)
+    - [R6.8.3 有符号整型对象的位域长度不应为 1](#singlesignedbitfield)
+    - [R6.8.4 不应对枚举对象声明位域](#forbidenumbitfield)
     - [R6.8.5 禁用位域](#forbidbitfield)
   - [6.9 Complexity](#declaration.complexity)
     - [R6.9.1 不建议采用复杂的声明](#complexdeclaration)
@@ -427,7 +427,7 @@
   - [9.5 Switch](#control.switch)
     - [R9.5.1 switch 语句不应被分号隔断](#switch_semicolon)
     - [R9.5.2 switch 语句不应为空](#switch_emptyblock)
-    - [R9.5.3 case 常量的范围不可超出 switch 变量的范围](#switch_caseoutofrange)
+    - [R9.5.3 case 标签的值不可超出 switch 条件的范围](#switch_caseoutofrange)
     - [R9.5.4 switch 语句中任何子句都应从属于某个 case 或 default 分枝](#switch_invalidstatement)
     - [R9.5.5 case 和 default 标签应直接从属于 switch 语句](#switch_badformedcase)
     - [R9.5.6 不应存在紧邻 default 标签的空 case 标签](#switch_uselessfallthrough)
@@ -475,7 +475,7 @@
     - [R10.2.7 不应出现复合赋值的错误形式](#illformedcompoundassignment)
     - [R10.2.8 避免出现复合赋值的可疑形式](#suspiciouscompoundassignment)
     - [R10.2.9 &=、|=、\-=、/=、%= 左右子表达式不应相同](#illselfcompoundassignment)
-    - [R10.2.10 不应使用 NULL 对非指针变量赋值](#oddnullassignment)
+    - [R10.2.10 不应将 NULL 当作整数使用](#oddnullassignment)
     - [R10.2.11 注意赋值运算符与一元运算符的空格方式](#stickyassignmentoperator)
     - [R10.2.12 赋值运算符左右子表达式不应相同](#selfassignment)
     - [R10.2.13 除法和求余运算符左右子表达式不应相同](#selfdivision)
@@ -4987,7 +4987,7 @@ ID_violateRuleOfFive&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
   
 本规则适用于遵循 C\+\+11 及之后标准的代码，对于遵循 C\+\+03 及之前标准的代码，本规则特化为 ID\_missingCopyConstructor、ID\_missingCopyAssignOperator、ID\_missingDestructor。  
   
-另外，如果类只负责成员对象的组合而没有特殊的复制、移动、析构需求时，这些函数就都不要定义，参见 ID\_violateRuleOfZero。
+另外，如果类只负责成员对象的包装或组合而没有特殊的复制、移动、析构需求时，这些函数就都不要定义，参见 ID\_violateRuleOfZero。
 <br/>
 <br/>
 
@@ -5009,7 +5009,7 @@ ID_violateRuleOfZero&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
 
 <hr/>
 
-当类只负责成员对象的组合而没有特殊的复制、移动、析构需求时，不应定义下列函数：  
+当类只负责成员对象的包装或组合而没有特殊的复制、移动、析构需求时，不应定义下列函数：  
  1. 拷贝构造函数  
  2. 拷贝赋值运算符  
  3. 析构函数  
@@ -8497,13 +8497,13 @@ ISO/IEC 14882:2011 9.6(1)
 <br/>
 <br/>
 
-### <span id="singlesignedbitfield">▌R6.8.3 有符号变量的位域长度不应为 1</span>
+### <span id="singlesignedbitfield">▌R6.8.3 有符号整型对象的位域长度不应为 1</span>
 
 ID_singleSignedBitfield&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-有符号变量的位域长度如果为 1 表示只有一个比特位，而该比特位是符号位，极易造成意料之外的错误。  
+有符号整型对象的位域长度如果为 1 表示只有一个比特位，而该比特位是符号位，极易造成意料之外的错误。  
   
 本规则不针对匿名成员。  
   
@@ -8534,13 +8534,13 @@ MISRA C++ 2008 9-6-4
 <br/>
 <br/>
 
-### <span id="forbidenumbitfield">▌R6.8.4 不应对枚举变量声明位域</span>
+### <span id="forbidenumbitfield">▌R6.8.4 不应对枚举对象声明位域</span>
 
 ID_forbidEnumBitfield&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration warning
 
 <hr/>
 
-枚举变量的底层类型可以是有符号整型，符号位与位域结合易导致意料之外的错误，且不利于枚举项的扩展。  
+枚举对象的底层类型可以是有符号整型，符号位与位域结合易导致意料之外的错误，且不利于枚举项的扩展。  
   
 示例：
 ```
@@ -13244,13 +13244,13 @@ CWE-1071
 <br/>
 <br/>
 
-### <span id="switch_caseoutofrange">▌R9.5.3 case 常量的范围不可超出 switch 变量的范围</span>
+### <span id="switch_caseoutofrange">▌R9.5.3 case 标签的值不可超出 switch 条件的范围</span>
 
 ID_switch_caseOutOfRange&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
 <hr/>
 
-如果 case 常量的范围超出了 switch 变量的范围，会导致相应分枝永远不会被执行。  
+如果 case 标签的值超出了 switch 条件的范围，会导致相应分枝永远不会被执行。  
   
 示例：
 ```
@@ -13258,10 +13258,10 @@ void foo(char c)
 {
     switch (c)
     {
-    case 100:  // Compliant
+    case 100:    // Compliant
         ....
         break;
-    case 256:  // Non-compliant, unreachable branch
+    case 256:    // Non-compliant, unreachable branch
         ....
         break;
     }
@@ -13606,7 +13606,7 @@ default:
 }
 ```
 例外：  
-当 switch 变量为枚举类型，且 case 标签已对应所有枚举项时，不再要求有 default 分枝。
+当 switch 条件为枚举类型，且 case 标签已对应所有枚举项时，不再要求有 default 分枝。
 <br/>
 <br/>
 
@@ -14315,18 +14315,20 @@ ID_invalidCondition&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-变量初始化后不经修改即作为条件往往意味着某种逻辑错误。  
+以恒为真或恒为假的表达式作为条件是没有意义的，属于逻辑错误。  
   
 示例：
 ```
 void foo() {
-    int i = 0;
-    if (i > 0) {  // Non-compliant
-        ....
+    int i = 1;
+    if (i > 0) {   // Non-compliant, always true
+        ....       
+    } else {
+        ....       // Infeasible path
     }
 }
 ```
-例中变量 i 初始化为 0 后在没有被修改过的情况下，仍对其进行判断是没有意义的，这显然是逻辑错误。
+例中变量 i 初始化为 1 后在没有被修改过的情况下，仍对其进行判断是没有意义的，else 分枝的代码得不到执行机会，显然是逻辑错误。
 <br/>
 <br/>
 
@@ -14921,13 +14923,15 @@ CWE-682
 <br/>
 <br/>
 
-### <span id="oddnullassignment">▌R10.2.10 不应使用 NULL 对非指针变量赋值</span>
+### <span id="oddnullassignment">▌R10.2.10 不应将 NULL 当作整数使用</span>
 
 ID_oddNullAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
 标识符 NULL 只应该用来表示空指针，否则会误导维护者。  
+  
+被当作整数使用的 NULL 也很有可能是某种误用，会导致逻辑错误。  
   
 示例：
 ```
@@ -15934,11 +15938,19 @@ ID_forbidCStringFormat&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: expression sugges
 
 <hr/>
 
-printf、sprintf 等 C 字符串格式化方法，即由可变参数列表实现的格式化方法，主要问题有：  
- - 在编译期无法保证安全性，易出错或造成可移植性问题，增加测试成本  
- - 与 C\+\+ 的强类型理念不符，也不在 C\+\+ 标准之内  
+C 字符串格式化方法的主要问题有：  
+ - 需要手工维护参数与格式化占位符的对应关系  
+ - 在编译期难以保证安全性，增加测试成本  
+ - 与 C\+\+ 的强类型理念不符，不在 C\+\+ 标准之内  
  - 只接受基本类型的参数，不利于数据的对象化管理  
   
+故在 C\+\+ 代码中禁用下列函数：
+```
+printf、fprintf、sprintf、snprintf、
+wprintf、fwprintf、swprintf、
+vprintf、vfprintf、vsprintf、vsnprintf、
+vwprintf、vfwprintf、vswprintf
+```
 示例：
 ```
 typedef int32_t mytype;
@@ -15951,9 +15963,9 @@ void foo(const T* p) {
     printf("%d", p->a);   // Non-compliant, unportable
 }
 ```
-C 字符串格式化方法依赖特定的格式化占位符，参数的类型与个数必须和占位符严格对应，否则就会导致未定义的行为，当参数较多时极易出错，单纯地要求开发者小心谨慎是不可靠的，改用更安全的方法才是明智的选择。  
+在 C 字符串格式化方法中，不同类型的参数依赖不同的格式化占位符，参数的类型与个数必须和占位符严格对应，否则就会导致未定义的行为，当参数较多时极易出错，单纯地要求开发者小心谨慎是不可靠的，改用更安全的方法才是明智的选择。  
   
-在 C\+\+ 中利用标准流可规避这类问题，而且 C\+\+ 标准流具备可扩展性，符合面向对象的编程理念：
+在 C\+\+ 代码中利用标准流可避免这些问题，而且 C\+\+ 标准流具备可扩展性，符合面向对象的编程理念：
 ```
 std::ostream& operator << (std::ostream& os, const T& t) {
     return os << t.a;
@@ -16279,7 +16291,7 @@ ID_sizeof_pointer&emsp;&emsp;&emsp;&emsp;&nbsp;:question: expression suspicious
 
 <hr/>
 
-sizeof 作用于指针获取到的是指针变量的大小，而不是指针指向内容的大小，sizeof 作用于指针很容易造成错误。  
+sizeof 作用于指针的结果是指针的大小，而不是指针指向内容的大小，sizeof 作用于指针很容易造成错误。  
   
 示例：
 ```
@@ -16312,7 +16324,7 @@ ID_sizeof_pointerDivision&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-形如 sizeof(p)/n 的表达式往往是为了获取数组元素的个数，如果 p 是指针，sizeof(p) 只是指针变量的大小，并不是数组的大小，所以这种表达式往往意味着逻辑错误。  
+形如 sizeof(p) / n 的表达式往往是为了获取数组元素的个数，如果 p 是指针，sizeof(p) 是指针大小，不是数组大小，这种表达式很可能有逻辑错误。  
   
 示例：
 ```
@@ -16443,17 +16455,17 @@ ID_sizeof_NULL&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-在 C\+\+ 语言中，标识符 NULL 并不能有效区分整型常量 0 和空指针，sizeof(NULL) 一类的表达式预期是获取指针变量的大小，而实际结果可能是整型变量的大小。  
+在 C\+\+ 语言中，NULL 并不能有效区分整数 0 和空指针，sizeof(NULL) 的预期是获取指针大小，而实际结果可能是整数大小。  
   
 示例：
 ```
-size_t n = sizeof(NULL);     // Non-compliant
+size_t n = sizeof(NULL);   // Non-compliant
 ```
 不同的编译器对示例代码有不同的处理，有些会把 NULL 当作指针，有些会当作常量 0。  
   
 应改为：
 ```
-size_t n = sizeof(nullptr);  // Compliant
+size_t n = sizeof(nullptr);   // Compliant
 ```
 <br/>
 <br/>

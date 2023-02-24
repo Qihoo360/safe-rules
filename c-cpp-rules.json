@@ -33,7 +33,7 @@
     "ID_sizeof_pointerDivision": {
         "checkPoint": "被除数不应是作用于指针的 sizeof 表达式",
         "level": "warning",
-        "comment": "形如 sizeof(p)/n 的表达式往往是为了获取数组元素的个数，如果 p 是指针，sizeof(p) 只是指针变量的大小，并不是数组的大小，所以这种表达式往往意味着逻辑错误。",
+        "comment": "形如 sizeof(p)/n 的表达式往往是为了获取数组元素的个数，如果 p 是指针，sizeof(p) 是指针的大小，不是数组的大小，所以这种表达式往往意味着逻辑错误。",
         "tag": "expression",
         "related": "ID_sizeof_pointer",
         "reference": "CWE-467"
@@ -412,9 +412,9 @@
         "reference": "C++ Core Guidelines ES.85"
         },
     "ID_switch_caseOutOfRange": {
-        "checkPoint": "case 常量的范围不可超出 switch 变量的范围",
+        "checkPoint": "case 标签的值不可超出 switch 条件的范围",
         "level": "warning",
-        "comment": "如果 case 常量的范围超出了 switch 变量的范围，会导致相应分枝永远不会被执行。",
+        "comment": "如果 case 标签的值超出了 switch 条件的范围，会导致相应分枝永远不会被执行。",
         "tag": "control",
         "related": "ID_illComparison",
         "reference": "CWE-561"
@@ -896,9 +896,9 @@
         "tag": "declaration"
         },
     "ID_forbidEnumBitfield": {
-        "checkPoint": "不应对枚举变量声明位域",
+        "checkPoint": "不应对枚举对象声明位域",
         "level": "warning",
-        "comment": "枚举变量的底层类型可以是有符号整型，符号位与位域结合易导致意料之外的错误，且不利于枚举项的扩展。",
+        "comment": "枚举对象的底层类型可以是有符号整型，符号位与位域结合易导致意料之外的错误，且不利于枚举项的扩展。",
         "tag": "declaration",
         "related": "ID_singleSignedBitfield,ID_improperBitfieldType",
         "reference": "MISRA C++ 2008 9-6-3"
@@ -939,9 +939,9 @@
         "standard": "ISO/IEC 9899:2011 6.7.2.1(4),ISO/IEC 14882:2011 9.6(1)"
         },
     "ID_singleSignedBitfield": {
-        "checkPoint": "有符号变量的位域长度不应为 1",
+        "checkPoint": "有符号整型对象的位域长度不应为 1",
         "level": "warning",
-        "comment": "有符号变量的位域长度如果为 1 表示只有一个比特位，而该比特位是符号位，极易造成意料之外的错误。",
+        "comment": "有符号整型对象的位域长度如果为 1 表示只有一个比特位，而该比特位是符号位，极易造成意料之外的错误。",
         "tag": "declaration",
         "reference": "MISRA C++ 2008 9-6-4"
         },
@@ -1502,7 +1502,7 @@
         "reference": "CWE-351"
         },
     "ID_oddNullAssignment": {
-        "checkPoint": "不应使用 NULL 对非指针变量赋值",
+        "checkPoint": "不应将 NULL 当作整数使用",
         "level": "warning",
         "comment": "标识符 NULL 只应该用来表示空指针，否则会误导维护者。",
         "tag": "expression",
@@ -2726,7 +2726,7 @@
     "ID_invalidCondition": {
         "checkPoint": "条件表达式不应恒为真或恒为假",
         "level": "warning",
-        "comment": "变量初始化后不经修改即作为条件往往意味着某种逻辑错误。",
+        "comment": "以恒为真或恒为假的表达式作为条件是没有意义的，属于逻辑错误。",
         "tag": "expression",
         "related": "ID_constLogicExpression",
         "reference": "CWE-570,CWE-571,MISRA C 2004 13.7,MISRA C 2012 14.3,MISRA C++ 2008 0-1-2"
@@ -2878,7 +2878,7 @@
     "ID_sizeof_NULL": {
         "checkPoint": "C++ 代码中 sizeof 不应作用于 NULL",
         "level": "warning",
-        "comment": "在 C++ 语言中，标识符 NULL 并不能有效区分整型常量 0 和空指针，sizeof(NULL) 一类的表达式预期是获取指针变量的大小，而实际结果可能是整型变量的大小。",
+        "comment": "在 C++ 语言中，NULL 并不能有效区分整数 0 和空指针，sizeof(NULL) 的预期是获取指针大小，而实际结果可能是整数大小。",
         "tag": "expression",
         "related": "ID_deprecatedNULL",
         "standard": "ISO/IEC 9899:1999 7.17(3)-implementation,ISO/IEC 9899:2011 7.19(3)-implementation,ISO/IEC 14882:2003 C.2.2.3(1)-implementation,ISO/IEC 14882:2011 C.3.2.4(1)-implementation,ISO/IEC 14882:2017 C.5.2.7(1)-implementation",
@@ -2887,7 +2887,7 @@
     "ID_sizeof_pointer": {
         "checkPoint": "sizeof 作用于指针是可疑的",
         "level": "suspicious",
-        "comment": "sizeof 作用于指针获取到的是指针变量的大小，而不是指针指向内容的大小，sizeof 作用于指针很容易造成错误。",
+        "comment": "sizeof 作用于指针的结果是指针的大小，而不是指针指向内容的大小，sizeof 作用于指针很容易造成错误。",
         "tag": "expression",
         "related": "ID_sizeof_pointerDivision",
         "reference": "CWE-467"
@@ -2945,7 +2945,7 @@
     "ID_forbidCStringFormat": {
         "checkPoint": "在 C++ 代码中禁用 C 字符串格式化方法",
         "level": "suggestion",
-        "comment": "C 字符串格式化方法（如 printf、sprintf 等），即由可变参数列表实现的格式化方法是不安全的，在编译期无法限定参数的类型和数量，极易产生各种错误。",
+        "comment": "C 字符串格式化方法是不安全的，在编译期无法限定参数的类型和数量，极易产生各种错误。",
         "tag": "expression",
         "related": "ID_forbidVariadicFunction",
         "standard": "ISO/IEC 9899:2011 7.16.1.1(2)-undefined,ISO/IEC 9899:2011 7.21.6.1(2)-undefined",
