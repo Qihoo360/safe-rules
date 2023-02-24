@@ -33,7 +33,7 @@
     "ID_sizeof_pointerDivision": {
         "checkPoint": "被除数不应是作用于指针的 sizeof 表达式",
         "level": "warning",
-        "comment": "形如 sizeof(p)/n 的表达式往往是为了获取数组元素的个数，如果 p 是指针，sizeof(p) 是指针的大小，不是数组的大小，所以这种表达式往往意味着逻辑错误。",
+        "comment": "形如 sizeof(p) / n 的表达式往往意在获取数组元素的个数，如果 p 是指针，sizeof(p) 是指针大小而不是数组大小，结果很可能是错误的。",
         "tag": "expression",
         "related": "ID_sizeof_pointer",
         "reference": "CWE-467"

@@ -16324,7 +16324,7 @@ ID_sizeof_pointerDivision&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-形如 sizeof(p) / n 的表达式往往是为了获取数组元素的个数，如果 p 是指针，sizeof(p) 是指针大小，不是数组大小，这种表达式很可能有逻辑错误。  
+形如 sizeof(p) / n 的表达式往往意在获取数组元素的个数，如果 p 是指针，sizeof(p) 是指针大小而不是数组大小，结果很可能是错误的。  
   
 示例：
 ```
@@ -16335,7 +16335,7 @@ void foo(T* p) {
 ```
 例中 sizeof(p) / n 并不能获取 p 所指数组中元素的个数。  
   
-本规则是 ID\_sizeof\_pointer 的特化，sizeof 作用于指针是可疑的，如果这种表达式又作为被除数，就更加可疑了。
+本规则是 ID\_sizeof\_pointer 的特化，sizeof 作用于指针是可疑的，再作为被除数就更加可疑了。
 <br/>
 <br/>
 
