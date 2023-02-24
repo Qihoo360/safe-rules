@@ -4821,7 +4821,9 @@ ID_missingCopyConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
  2. 拷贝赋值运算符  
  3. 析构函数  
   
-当这三个函数中的任何一个函数被定义时，说明对象在资源管理等方面有特定的需求，其他两个函数也需要被定义，否则以适应各种应用场景，易产生意料之外的错误，这种规则称为“[Rule of three](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming))”。如果缺少某个函数，编译器会生成相关默认函数，但其特定需求不会被实现。  
+当这三个函数中的任何一个函数被定义时，说明对象在资源管理等方面有特定的需求，其他两个函数也需要被定义，否则难以适应各种应用场景，易产生意料之外的错误，这种规则称为“[Rule of three](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming))”。  
+  
+如果缺少某个函数，编译器会生成相关默认函数，但其特定需求不会被实现。  
   
 示例：
 ```
@@ -4846,7 +4848,7 @@ void bar(A& a, A& b)
     a = b;    // Memory leak
 }
 ```
-例中 A 有析构函数，但没有拷贝构造函数和赋值运算符，编译器会生成相关默认函数，但只进行变量值的复制，使多个对象的成员 p 指向同一块内存区域，导致重复释放和内存泄漏，所以应定义拷贝构造函数和赋值运算符重新分配内存并复制数据。  
+例中的类有析构函数，但没有拷贝构造函数和拷贝赋值运算符，只能进行变量值的复制，使多个对象的资源指针指向同一块内存区域，导致重复释放和内存泄漏，所以应定义拷贝构造函数和拷贝赋值运算符重新分配内存并复制数据。  
   
 同理，在遵循 C\+\+11 及之后标准的代码中：  
  1. 拷贝构造函数  
@@ -4979,13 +4981,13 @@ ID_violateRuleOfFive&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
  4. 移动拷贝构造函数  
  5. 移动赋值运算符  
   
-当这五个函数中的任何一个函数被定义时，说明对象在资源管理等方面有特定的需求，所以其他四个函数也需要被定义，否则以适应各种应用场景，易产生意料之外的错误，这种规则称为“[Rule of five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming)#Rule_of_Five)”。如果缺少某个函数，编译器会生成相关默认函数，但其特定需求不会被实现。  
+当这五个函数中的任何一个函数被定义时，说明对象在资源管理等方面有特定的需求，其他四个函数也需要被定义，否则难以适应各种应用场景，易产生意料之外的错误，这种规则称为“[Rule of five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming)#Rule_of_Five)”。如果缺少某个函数，编译器会生成相关默认函数，但其特定需求不会被实现。  
   
 如果确实不需要某个函数，也应将其明确地设定为 private 或 =delete，如果确实只需要默认处理，应将其声明为 =default，这样可明确对象的行为，规避意料之外的错误。  
   
 本规则适用于遵循 C\+\+11 及之后标准的代码，对于遵循 C\+\+03 及之前标准的代码，本规则特化为 ID\_missingCopyConstructor、ID\_missingCopyAssignOperator、ID\_missingDestructor。  
   
-另外，如果类只负责成员对象的组合而没有特殊的复制、移动、析构需求时，则不应定义相关函数，参见 ID\_violateRuleOfZero。
+另外，如果类只负责成员对象的组合而没有特殊的复制、移动、析构需求时，这些函数就都不要定义，参见 ID\_violateRuleOfZero。
 <br/>
 <br/>
 
