@@ -1706,7 +1706,7 @@ ID_incompleteNewDeletePair&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource
 
 资源的分配方法和相应的回收方法应在同一模块中提供。  
   
-如果一个模块分配的资源需要另一个模块回收，会打破模块之间的独立性，使维护成本显著增加，而且 so、dll、exe 等模块一般都有独立的堆栈，跨模块的分配与回收往往会造成严重错误。  
+如果一个模块分配的资源需要另一个模块回收，会打破模块之间的独立性，增加维护成本，而且 so、dll、exe 等模块一般都有独立的堆栈，跨模块的分配与回收往往会造成严重错误。  
   
 示例：
 ```
@@ -2326,7 +2326,7 @@ auto ui = make_unique<int>(32);   // Non-compliant
 int* pi = new int[32];              // Compliant
 auto ui = make_unique<int[]>(32);   // Compliant
 ```
-有时可能需要区分变量是否存在，用空指针表示不存在，并通过资源分配创建变量的方式属于低效实现，不妨改用变量的特殊值表示变量的状态，在 C\+\+ 中也可使用 std::optional 实现相关功能。
+有时可能需要区分变量是否存在，用空指针表示不存在，并通过资源分配创建变量的方式属于低效实现，不妨改用变量的特殊值表示变量的状态，在 C\+\+ 代码中也可使用 std::optional 实现相关功能。
 <br/>
 <br/>
 
@@ -3620,7 +3620,7 @@ ID_incompleteDirective&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 <hr/>
 
-\#if、\#ifdef 与对应的 \#else、\#elif、\#endif 应在同一文件中，否则会显著增加代码的维护成本。  
+\#if、\#ifdef 与对应的 \#else、\#elif、\#endif 应在同一文件中，否则会增加代码的维护成本。  
   
 示例：
 ```
@@ -5792,7 +5792,7 @@ cout << u.c << '\n';   // Equivalent to a cast without any restrictions
 ```
 例中对 u.c 的访问也相当于一种没有任何限制的类型转换。  
   
-在 C\+\+ 中建议用 std::variant 或 std::any 取代联合体：
+在 C\+\+ 代码中建议用 std::variant 或 std::any 取代联合体：
 ```
 std::variant<int, char> u;
 u = 1000;
@@ -7592,32 +7592,24 @@ ID_plainNumericChar&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-没有 signed 或 unsigned 限制的 char 类型，是否有符号由实现定义。  
+char 类型是否有符号由实现定义，为了提高可移植性并规避意料之外的错误，参与数值运算的 char 对象应显式声明符号属性。  
   
 示例：
 ```
-bool foo(char c) {    // Non-compliant
-    return c < 180;   // May be always true
+int foo(char c) {     // Compliant
+    return c == 'a';
 }
 
-void bar() {
-    char c = 180;          // Non-compliant
-    printf("%d", 2 * c);   // What is output?
+int bar(char c) {     // Non-compliant
+    return c >= 0;    // May be always true
 }
 ```
-示例代码可移植性较差，foo 在某些环境中可能只会返回 true，而 bar 可能输出 \-152，也可能输出 360。  
-  
-char 类型在桌面、服务端等环境中可能是有符号的，在移动端或嵌入式系统中可能是无符号的，需明确其具体编译环境。  
+例中 foo 函数的 char 型参数只与字符有关，可不必声明符号属性；而 bar 函数的参数被当作整数参与了数值运算，应显式声明为 signed，否则在 char 为无符号整型的环境中会得到错误的结果。  
   
 应改为：
 ```
-bool foo(unsigned char c) {   // Compliant
-    return c < 180;
-}
-
-void bar() {
-    unsigned char c = 180;    // Compliant
-    printf("%d", 2 * c);      // 360
+int bar(signed char c) {   // Compliant
+    return c >= 0;
 }
 ```
 <br/>
@@ -7944,7 +7936,7 @@ ID_superfluousVoid&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-与 C 语言不同，在 C\+\+ 中空括号和“(void)”均表示没有参数，所以应采用更简洁的方式。  
+与 C 语言不同，在 C\+\+ 语言中空括号和“(void)”均表示没有参数，所以应采用更简洁的方式。  
   
 示例：
 ```
@@ -8487,7 +8479,7 @@ struct A {
     int32_t padding;   // Compliant
 };
 ```
-成员 padding 特殊的名称表明它是用于占位的特殊成员，这种方式比位域方式更利于维护。
+成员 padding 特殊的名称表明它是用于占位的特殊成员，这种方式比位域更有利于维护。
 <br/>
 <br/>
 
@@ -9865,7 +9857,7 @@ ID_throwNULL&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
 <hr/>
 
-在 C\+\+ 语言中，虽然 NULL 表示空指针，然而在多数环境中 throw NULL 相当于 throw 0，类型的不明确会造成对异常的错误捕捉。  
+虽然 NULL 用来表示空指针，但在多数环境中 throw NULL 相当于 throw 0，类型的不明确会造成对异常的错误捕捉。  
   
 示例：
 ```
@@ -14042,7 +14034,7 @@ L:
     ....
 }
 ```
-语句的排列和作用域的嵌套描述了程序的静态结构，清晰的静态结构使人易于理解程序的行为，而 goto 语句会打破这种结构，无规律的跳转会显著降低代码的可读性，例中 goto L 会绕过第二个 if 语句的条件约束，可读性很差，应被禁止。  
+语句的排列和作用域的嵌套描述了程序的静态结构，清晰的静态结构使人易于理解程序的行为，而 goto 语句会打破这种结构，无规律的跳转会严重地降低代码可读性，例中 goto L 会绕过第二个 if 语句的条件约束，可读性很差，应被禁止。  
   
 C 语言的流程管理较为简单，goto 语句可提供一定的灵活性，但不应作为常规实现手段，也应受一定的限制，在 C 代码中使用 goto 语句应遵循 ID\_forbidGotoBlocks 和 ID\_forbidGotoBack 等规则。  
   
@@ -14124,7 +14116,7 @@ int main() {
     }
 }
 ```
-setjmp 返回 0 表示设置跳转位置成功，之后如果调用 longjmp 会跳回 setjmp 的位置，这时 setjmp 返回非 0 值，这种机制在 C 语言中可以用作异常处理，也可以实现“协程”等概念，但会使代码的可维护性显著降低，在普通的业务逻辑或算法实现中不应使用。  
+setjmp 返回 0 表示设置跳转位置成功，之后如果调用 longjmp 会跳回 setjmp 的位置，这时 setjmp 返回非 0 值，这种机制在 C 语言中可以用作异常处理，也可以实现“协程”等概念，但会严重地降低代码可读性，在普通的业务逻辑或算法实现中不应使用。  
   
 另外，函数间跳转与编译器的优化机制有冲突，如：
 ```
@@ -14445,7 +14437,7 @@ ID_shortCircuitSideEffect&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: expression suggest
 
 <hr/>
 
-逻辑表达式的右子表达式有副作用会使代码复杂度显著增加，易产生错误，且不利于维护。  
+逻辑表达式的右子表达式有副作用会使代码变得复杂易错，不利于阅读和维护。  
   
 对于逻辑表达式的求值，标准规定从左至右计算各子表达式的值，当可以确定整个表达式的值时，即使还有未计算的子表达式，也会立即结束求值，这种方法可提高效率，称为“短路规则（short\-circuit evaluation）”。  
   
@@ -14457,7 +14449,7 @@ if (a == foo || b == bar++) {  // Non-compliant
     do_something(bar);         // Consider that ‘bar++’ may not be evaluated
 }
 ```
-如果 a == foo 为真，不论 b 是否等于 bar\+\+，整个条件表达式的值一定为真，所以 b == bar\+\+ 不一定会被执行，if 语句要同时考虑 bar\+\+ 执行与未执行的两种状态，复杂度较高。
+如果 a == foo 为真，不论 b 是否等于 bar\+\+，整个条件表达式的值一定为真，所以 b == bar\+\+ 不一定会被执行，需要同时考虑 bar\+\+ 执行与未执行的两种状态，很容易产生错误，也不利于阅读和维护。
 <br/>
 <br/>
 
@@ -14929,9 +14921,9 @@ ID_oddNullAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-标识符 NULL 只应该用来表示空指针，否则会误导维护者。  
+标识符 NULL 由实现定义，在 C\+\+ 语言中往往等同于常量 0，但 NULL 只应该用来表示空指针，否则不利于阅读和维护。  
   
-被当作整数使用的 NULL 也很有可能是某种误用，会导致逻辑错误。  
+被当作整数使用的 NULL 也很可能意味着某种错误。  
   
 示例：
 ```
@@ -14946,6 +14938,12 @@ const char c = '\0';       // Compliant
 void foo(bool x = false);  // Compliant
 ```
 <br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 C.2.2.3(1)-implementation  
+ISO/IEC 14882:2011 C.3.2.4(1)-implementation  
+ISO/IEC 14882:2017 C.5.2.7(1)-implementation  
 <br/>
 
 #### 参考
@@ -15578,7 +15576,7 @@ void foo(string& s) {
 ```
 例中 empty 返回字符串是否为空，如果忽略返回值会使函数调用失去意义。  
   
-C\+\+ 中由用户添加的具有 \[\[nodiscard\]\] 属性的函数，返回值也不应被忽略，如：
+C\+\+ 代码中由用户添加的具有 \[\[nodiscard\]\] 属性的函数，返回值也不应被忽略，如：
 ```
 [[nodiscard]] int getStatus();
 
@@ -16455,7 +16453,7 @@ ID_sizeof_NULL&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-在 C\+\+ 语言中，NULL 并不能有效区分整数 0 和空指针，sizeof(NULL) 的预期是获取指针大小，而实际结果可能是整数大小。  
+标识符 NULL 由实现定义，在 C\+\+ 语言中往往等同于常量 0，sizeof(NULL) 的结果很可能与预期不符。  
   
 示例：
 ```
@@ -16475,8 +16473,6 @@ ID_deprecatedNULL
 <br/>
 
 #### 依据
-ISO/IEC 9899:1999 7.17(3)-implementation  
-ISO/IEC 9899:2011 7.19(3)-implementation  
 ISO/IEC 14882:2003 C.2.2.3(1)-implementation  
 ISO/IEC 14882:2011 C.3.2.4(1)-implementation  
 ISO/IEC 14882:2017 C.5.2.7(1)-implementation  
@@ -17066,7 +17062,7 @@ ID_literal_forbidOct&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: literal suggestion
 
 <hr/>
 
-8 进制不像 10 进制那样符合人们的常规思维，也不像 2 进制或 16 进制那样便于展示数据的存储格式，而且 C/C\+\+ 中 8 进制表示法只是在数字前置 0，与十进制过于相似，易被误用。  
+8 进制不像 10 进制那样符合人们的常规思维，也不像 2 进制或 16 进制那样便于展示数据的存储格式，而且 C/C\+\+ 语言中 8 进制表示法只是在数字前置 0，与十进制过于相似，易被误用。  
   
 示例：
 ```
@@ -17160,29 +17156,38 @@ ID_literal_magicNumber&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: literal suggestion
 
 <hr/>
 
-对于直接出现在代码中的字面数值（magic number），建议改用具有适当名称的常量或枚举项表示。  
+直接出现在代码中的字面数值称为 magic number，使人难以理解其含义，不利于阅读和维护，应改用具有适当名称的常量或枚举项。  
   
 示例：
 ```
-for (int i = 0; i < 12345; i++) {  // Non-compliant, 12345 is a magic number
-    ....
+double foo(double b) {
+    double a = b * 1.618034;   // Non-compliant, 1.618034 is a magic number
+    return a * (a + b);
+}
+
+double bar(double a) {
+    double b = a * 0.618034;   // Non-compliant, 0.618034 is a magic number
+    return a * (a + b);
 }
 ```
-例中 12345 不能表示其具体的含义，而且当这种 magic number 散落在代码的各个角落时，不便于统一管理，造成维护上的困难。  
+例中 1.618034 不能表示其含义，而且当这种 magic number 散落在代码的各个角落时，不便于统一管理，造成维护上的困难。  
   
 应改为具有名称的常量：
 ```
-const int maxId = 12345;
+const double goldenRatio = 1.618034;   // Compliant
 
-for (int i = 0; i < maxId; i++) {  // Compliant
-    ....
+double foo(double b) {
+    double a = b * goldenRatio;   // Compliant
+    return a * (a + b);
+}
+
+double bar(double a) {
+    double b = a * (goldenRatio - 1);   // Compliant
+    return a * (a + b);
 }
 ```
+常量初始化表达式中的字面数值，以及表示序号起始或简单状态的 0、1 等小字面数值可不受本规则约束。
 <br/>
-<br/>
-
-#### 配置
-magicNumberDigitThreshold：数字常量的位数上限，超过则报出  
 <br/>
 
 #### 相关
@@ -17200,13 +17205,14 @@ ID_literal_magicString&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: literal suggestion
 
 <hr/>
 
-对于直接出现在代码中的字符串常量（magic string），建议改用具有适当名称的常量表示。  
+直接出现在代码中的字面常量字符串称为 magic string，不利于阅读和维护，应改用具有适当名称的常量。  
   
 示例：
 ```
-void foo(const string& s) {
-    if (s == "https://foo.net/bar") {  // Non-compliant
-        bar("https://foo.net/bar");    // Non-compliant
+void foo(const string& url)
+{
+    if (url == "https://foo.net") {  // Non-compliant
+        bar("https://foo.net");      // Non-compliant
     }
 }
 ```
@@ -17214,14 +17220,16 @@ void foo(const string& s) {
   
 应改为：
 ```
-const char url[] = "https://foo.net/bar";  // Compliant
+const char myUrl[] = "https://foo.net";  // Compliant
 
-void foo(const string& s) {
-    if (s == url) {
-        bar(url);
+void foo(const string& url)
+{
+    if (url == myUrl) {  // Compliant
+        bar(myUrl);      // Compliant
     }
 }
 ```
+常量初始化表达式中的常量字符串可不受本规则约束。
 <br/>
 <br/>
 
@@ -17259,7 +17267,7 @@ void foo(int x) {
     }
 }
 ```
-例中 'tcp'、'udp' 为多字符常量，在 C 中应改用 enum，在 C\+\+ 中应改用 enum class 实现：
+例中 'tcp'、'udp' 为多字符常量，在 C 代码中应改用 enum，在 C\+\+ 代码中应改用 enum class 实现：
 ```
 enum class PROT { tcp, udp };
 
@@ -18736,7 +18744,7 @@ ID_zeroAsPtrValue&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: pointer suggestion
 
 在 C 代码中应使用 NULL 表示空指针，在 C\+\+ 代码中应使用 nullptr 表示空指针。  
   
-标准允许使用 0、'\\0'、false、1 \- 1 等值为 0 的常量表达式表示空指针，但易出现类型相关的错误，且不利于阅读。  
+标准允许 0、'\\0'、false、1 \- 1 等值为 0 的常量表达式作为空指针常量，但易与非指针混淆，不利于阅读和维护。  
   
 示例：
 ```
@@ -18746,7 +18754,19 @@ void foo(int*);
 p = 0;   // Non-compliant
 foo(0);  // Non-compliant
 ```
+应改为：
+```
+p = NULL;      // Compliant in C
+foo(nullptr);  // Compliant in C++
+```
 <br/>
+<br/>
+
+#### 相关
+ID_oddPtrBoolAssignment  
+ID_oddPtrCharAssignment  
+ID_oddPtrBoolComparison  
+ID_oddPtrCharComparison  
 <br/>
 
 #### 依据
@@ -18766,21 +18786,27 @@ ID_oddPtrBoolAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 
 <hr/>
 
-用 false 对指针赋值是非常怪异的，会误导维护者，而且也很可能是书写错误。  
+用 false 对指针赋值是非常怪异的，会误导维护者，而且也很可能是逻辑错误。  
+  
+本规则是 ID\_zeroAsPtrValue 的特化。  
   
 示例：
 ```
-void fun(bool* p) {
+void foo(bool* p) {
     p = false;        // Non-compliant
 }
 ```
 应改为：
 ```
-void fun(bool* p) {
+void foo(bool* p) {
     *p = false;       // Compliant
 }
 ```
 <br/>
+<br/>
+
+#### 相关
+ID_zeroAsPtrValue  
 <br/>
 
 #### 参考
@@ -18794,7 +18820,9 @@ ID_oddPtrCharAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 
 <hr/>
 
-用 '\\0'、L'\\0'、u'\\0'、U'\\0' 等字符常量对指针赋值是非常怪异的，往往意味着错误。  
+用 '\\0'、L'\\0'、u'\\0'、U'\\0' 等字符常量对指针赋值是非常怪异的，往往意味着逻辑错误。  
+  
+本规则是 ID\_zeroAsPtrValue 的特化。  
   
 示例：
 ```
@@ -18811,6 +18839,10 @@ void set_terminate(char* p) {
 <br/>
 <br/>
 
+#### 相关
+ID_zeroAsPtrValue  
+<br/>
+
 #### 参考
 CWE-351  
 <br/>
@@ -18824,6 +18856,8 @@ ID_oddPtrBoolComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 
 指针与 false 比较大小是非常怪异的，往往是某种笔误。  
   
+本规则是 ID\_zeroAsPtrValue 的特化。  
+  
 示例（设 p 为指针）：
 ```
 p == false  // Non-compliant
@@ -18831,6 +18865,10 @@ p != false  // Non-compliant
 ```
 如果判断指针是否为空，只应将指针与 NULL 或 nullptr 比较，其他常量均不符合要求。
 <br/>
+<br/>
+
+#### 相关
+ID_zeroAsPtrValue  
 <br/>
 
 #### 参考
@@ -18846,6 +18884,8 @@ ID_oddPtrCharComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 
 指针与 '\\0'、L'\\0'、u'\\0'、U'\\0' 等字符常量比较大小是非常怪异的，往往是某种笔误。  
   
+本规则是 ID\_zeroAsPtrValue 的特化。  
+  
 示例（设 p 为指针）：
 ```
 if (p == '\0') {   // Non-compliant
@@ -18860,6 +18900,10 @@ if (*p == '\0') {   // Non-compliant
 ```
 否则只应将指针与 NULL 或 nullptr 比较。
 <br/>
+<br/>
+
+#### 相关
+ID_zeroAsPtrValue  
 <br/>
 
 #### 参考
@@ -20080,7 +20124,7 @@ ID_deprecatedNULL&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style suggestion
 
 <hr/>
 
-在 C\+\+ 中，NULL 虽然可以表示空指针，但容易与整型常量 0 混淆，应使用 nullptr 表示空指针。  
+标识符 NULL 由实现定义，在 C\+\+ 语言中往往等同于常量 0，无法有效区分整数与指针，用 nullptr 可避免这种问题。  
   
 示例：
 ```
@@ -20096,13 +20140,11 @@ int main() {
     foo(NULL);  // Non-compliant, what is output?
 }
 ```
-NULL 表示指针，所以应该调用参数为指针的重载函数，但不同的编译器对这段代码有不同的处理，有的无法通过编译，有的编译执行后会输出 foo\-1，用 nullptr 代替 NULL 可解决这种问题。
+NULL 表示空指针，所以应该调用参数为指针的重载函数，但不同的编译器对这段代码有不同的处理，有的无法通过编译，有的编译执行后会输出 foo\-1，用 nullptr 代替 NULL 可解决这种问题。
 <br/>
 <br/>
 
 #### 依据
-ISO/IEC 9899:1999 7.17(3)-implementation  
-ISO/IEC 9899:2011 7.19(3)-implementation  
 ISO/IEC 14882:2003 C.2.2.3(1)-implementation  
 ISO/IEC 14882:2011 C.3.2.4(1)-implementation  
 ISO/IEC 14882:2017 C.5.2.7(1)-implementation  

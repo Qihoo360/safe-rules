@@ -66,8 +66,9 @@
     "ID_zeroAsPtrValue": {
         "checkPoint": "不应使用常量 0 表示空指针",
         "level": "suggestion",
-        "comment": "对于空指针，在 C 代码中应使用 NULL，在 C++ 代码中应使用 nullptr。",
+        "comment": "在 C 代码中应使用 NULL 表示空指针，在 C++ 代码中应使用 nullptr 表示空指针。",
         "tag": "pointer",
+        "related": "ID_oddPtrBoolAssignment,ID_oddPtrCharAssignment,ID_oddPtrBoolComparison,ID_oddPtrCharComparison",
         "standard": "ISO/IEC 9899:2011 6.3.2.3(3),ISO/IEC 14882:2011 4.10(1)",
         "reference": "MISRA C++ 2008 4-10-2,C++ Core Guidelines ES.47"
         },
@@ -124,7 +125,7 @@
     "ID_throwNULL": {
         "checkPoint": "不应抛出 NULL",
         "level": "warning",
-        "comment": "在 C++ 语言中，虽然 NULL 表示空指针，然而在多数环境中 throw NULL 相当于 throw 0，类型的不明确会造成对异常的错误捕捉。",
+        "comment": "虽然 NULL 用来表示空指针，但在多数环境中 throw NULL 相当于 throw 0，类型的不明确会造成对异常的错误捕捉。",
         "tag": "exception",
         "related": "ID_deprecatedNULL,ID_throwNonExceptionType,ID_throwPointer",
         "standard": "ISO/IEC 14882:2003 C.2.2.3(1)-implementation,ISO/IEC 14882:2011 C.3.2.4(1)-implementation,ISO/IEC 14882:2017 C.5.2.7(1)-implementation",
@@ -606,7 +607,7 @@
     "ID_plainNumericChar": {
         "checkPoint": "参与数值运算的 char 对象应显式声明 signed 或 unsigned",
         "level": "warning",
-        "comment": "没有 signed 或 unsigned 限制的 char 类型，是否有符号由实现定义。",
+        "comment": "char 类型是否有符号由实现定义，为了提高可移植性并规避意料之外的错误，参与数值运算的 char 对象应显式声明符号属性。",
         "tag": "declaration",
         "standard": "ISO/IEC 9899:2011 6.2.5(15)-implementation,ISO/IEC 14882:2011 3.9.1(1)-implementation",
         "reference": "MISRA C++ 2008 5-0-11,SEI CERT INT07-C"
@@ -1402,7 +1403,7 @@
     "ID_missingSideEffect": {
         "checkPoint": "不应存在没有副作用的语句",
         "level": "error",
-        "comment": "不能对程序状态产生影响的语句称为无“副作用（side effect）”的语句，也可以说是没有效果的语句，往往属于笔误或调试痕迹，应当修正或去除。",
+        "comment": "不能对程序状态产生影响的语句称为无“副作用（side effect）”的语句，往往属于笔误或调试痕迹，应当修正或去除。",
         "tag": "function",
         "reference": "CWE-1164,CWE-482,MISRA C 2004 14.2,MISRA C 2012 2.2,MISRA C++ 2008 0-1-9"
         },
@@ -1418,6 +1419,7 @@
         "level": "warning",
         "comment": "指针与 '\\0'、L'\\0'、u'\\0'、U'\\0' 等字符常量比较大小是非常怪异的，往往是某种笔误。",
         "tag": "pointer",
+        "related": "ID_zeroAsPtrValue",
         "reference": "CWE-1025"
         },
     "ID_oddPtrBoolComparison": {
@@ -1425,6 +1427,7 @@
         "level": "warning",
         "comment": "指针与 false 比较大小是非常怪异的，往往是某种笔误。",
         "tag": "pointer",
+        "related": "ID_zeroAsPtrValue",
         "reference": "CWE-1025"
         },
     "ID_oddPtrZeroComparison": {
@@ -1490,22 +1493,25 @@
     "ID_oddPtrCharAssignment": {
         "checkPoint": "不应使用 '\\0' 等字符常量对指针赋值",
         "level": "warning",
-        "comment": "用 '\\0'、L'\\0'、u'\\0'、U'\\0' 等字符常量对指针赋值是非常怪异的，往往意味着错误。",
+        "comment": "用 '\\0'、L'\\0'、u'\\0'、U'\\0' 等字符常量对指针赋值是非常怪异的，往往意味着逻辑错误。",
         "tag": "pointer",
+        "related": "ID_zeroAsPtrValue",
         "reference": "CWE-351"
         },
     "ID_oddPtrBoolAssignment": {
         "checkPoint": "不应使用 false 对指针赋值",
         "level": "warning",
-        "comment": "用 false 对指针赋值是非常怪异的，会误导维护者，而且也很可能是书写错误。",
+        "comment": "用 false 对指针赋值是非常怪异的，会误导维护者，而且也很可能是逻辑错误。",
         "tag": "pointer",
+        "related": "ID_zeroAsPtrValue",
         "reference": "CWE-351"
         },
     "ID_oddNullAssignment": {
         "checkPoint": "不应将 NULL 当作整数使用",
         "level": "warning",
-        "comment": "标识符 NULL 只应该用来表示空指针，否则会误导维护者。",
+        "comment": "标识符 NULL 由实现定义，在 C++ 语言中往往等同于常量 0，但 NULL 只应该用来表示空指针，否则不利于阅读和维护。",
         "tag": "expression",
+        "standard": "ISO/IEC 14882:2003 C.2.2.3(1)-implementation,ISO/IEC 14882:2011 C.3.2.4(1)-implementation,ISO/IEC 14882:2017 C.5.2.7(1)-implementation",
         "reference": "MISRA C++ 2008 4-10-1"
         },
     "ID_illFormedCompoundAssignment": {
@@ -1537,7 +1543,7 @@
     "ID_shortCircuitSideEffect": {
         "checkPoint": "逻辑表达式的右子表达式不应有副作用",
         "level": "suggestion",
-        "comment": "逻辑表达式的右子表达式有副作用会使代码复杂度显著增加，易产生错误，且不利于维护。",
+        "comment": "逻辑表达式的右子表达式有副作用会使代码变得复杂易错，不利于阅读和维护。",
         "tag": "expression",
         "standard": "ISO/IEC 9899:1999 6.5.13(4) 6.5.14(4),ISO/IEC 9899:2011 6.5.13(4) 6.5.14(4)",
         "reference": "MISRA C 2004 12.4,MISRA C 2012 13.5,MISRA C++ 2008 5-14-1"
@@ -2519,7 +2525,7 @@
     "ID_literal_forbidOct": {
         "checkPoint": "禁用 8 进制常量",
         "level": "suggestion",
-        "comment": "8 进制不像 10 进制那样符合人们的常规思维，也不像 2 进制或 16 进制那样便于展示数据的存储格式，而且 C/C++ 中 8 进制表示法只是在数字前置 0，与十进制过于相似，易被误用。",
+        "comment": "8 进制不像 10 进制那样符合人们的常规思维，也不像 2 进制或 16 进制那样便于展示数据的存储格式，而且 C/C++ 语言中 8 进制表示法只是在数字前置 0，与十进制过于相似，易被误用。",
         "tag": "literal",
         "reference": "MISRA C 2004 7.1,MISRA C 2012 7.1,MISRA C++ 2008 2-13-2"
         },
@@ -2541,10 +2547,7 @@
     "ID_literal_magicNumber": {
         "checkPoint": "不应存在 magic number",
         "level": "suggestion",
-        "comment": "对于直接出现在代码中的字面数值（magic number），建议改用具有适当名称的常量或枚举项表示。",
-        "config": {
-            "magicNumberDigitThreshold": "数字常量的位数上限，超过则报出"
-            },
+        "comment": "直接出现在代码中的字面数值称为 magic number，使人难以理解其含义，不利于阅读和维护，应改用具有适当名称的常量或枚举项。",
         "tag": "literal",
         "related": "ID_literal_magicString",
         "reference": "C++ Core Guidelines ES.45"
@@ -2552,7 +2555,7 @@
     "ID_literal_magicString": {
         "checkPoint": "不应存在 magic string",
         "level": "suggestion",
-        "comment": "对于直接出现在代码中的字符串常量（magic string），建议改用具有适当名称的常量表示。",
+        "comment": "直接出现在代码中的字面常量字符串称为 magic string，不利于阅读和维护，应改用具有适当名称的常量。",
         "tag": "literal",
         "related": "ID_literal_magicNumber",
         "reference": "C++ Core Guidelines ES.45"
@@ -2878,10 +2881,10 @@
     "ID_sizeof_NULL": {
         "checkPoint": "C++ 代码中 sizeof 不应作用于 NULL",
         "level": "warning",
-        "comment": "在 C++ 语言中，NULL 并不能有效区分整数 0 和空指针，sizeof(NULL) 的预期是获取指针大小，而实际结果可能是整数大小。",
+        "comment": "标识符 NULL 由实现定义，在 C++ 语言中往往等同于常量 0，sizeof(NULL) 的结果很可能与预期不符。",
         "tag": "expression",
         "related": "ID_deprecatedNULL",
-        "standard": "ISO/IEC 9899:1999 7.17(3)-implementation,ISO/IEC 9899:2011 7.19(3)-implementation,ISO/IEC 14882:2003 C.2.2.3(1)-implementation,ISO/IEC 14882:2011 C.3.2.4(1)-implementation,ISO/IEC 14882:2017 C.5.2.7(1)-implementation",
+        "standard": "ISO/IEC 14882:2003 C.2.2.3(1)-implementation,ISO/IEC 14882:2011 C.3.2.4(1)-implementation,ISO/IEC 14882:2017 C.5.2.7(1)-implementation",
         "reference": "CWE-351"
         },
     "ID_sizeof_pointer": {
@@ -3051,9 +3054,9 @@
     "ID_deprecatedNULL": {
         "checkPoint": "在 C++ 代码中用 nullptr 代替 NULL",
         "level": "suggestion",
-        "comment": "在 C++ 中，NULL 虽然可以表示空指针，但容易与整型常量 0 混淆，应使用 nullptr 表示空指针。",
+        "comment": "标识符 NULL 由实现定义，在 C++ 语言中往往等同于常量 0，无法有效区分整数与指针，用 nullptr 可避免这种问题。",
         "tag": "style",
-        "standard": "ISO/IEC 9899:1999 7.17(3)-implementation,ISO/IEC 9899:2011 7.19(3)-implementation,ISO/IEC 14882:2003 C.2.2.3(1)-implementation,ISO/IEC 14882:2011 C.3.2.4(1)-implementation,ISO/IEC 14882:2017 C.5.2.7(1)-implementation,ISO/IEC 14882:2011 2.14.7(1)",
+        "standard": "ISO/IEC 14882:2003 C.2.2.3(1)-implementation,ISO/IEC 14882:2011 C.3.2.4(1)-implementation,ISO/IEC 14882:2017 C.5.2.7(1)-implementation,ISO/IEC 14882:2011 2.14.7(1)",
         "reference": "C++ Core Guidelines ES.47"
         },
     "ID_deprecatedOffsetof": {
@@ -3253,7 +3256,7 @@
     "ID_superfluousVoid": {
         "checkPoint": "C++ 代码中参数列表如果为空不应声明为“(void)”",
         "level": "suggestion",
-        "comment": "与 C 语言不同，在 C++ 中空括号和“(void)”均表示没有参数，所以应采用更简洁的方式。",
+        "comment": "与 C 语言不同，在 C++ 语言中空括号和“(void)”均表示没有参数，所以应采用更简洁的方式。",
         "tag": "declaration",
         "related": "ID_missingVoid",
         "standard": "ISO/IEC 14882:2003 C.1.6 Clause 8,ISO/IEC 14882:2011 C.1.7 Clause 8,ISO/IEC 14882:2017 C.1.7 Clause 11",
@@ -3694,7 +3697,7 @@
     "ID_incompleteDirective": {
         "checkPoint": "条件编译代码块应在同一文件中",
         "level": "warning",
-        "comment": "#if、#ifdef 与对应的 #else、#elif、#endif 应在同一文件中。",
+        "comment": "#if、#ifdef 与对应的 #else、#elif、#endif 应在同一文件中，否则会增加代码的维护成本。",
         "tag": "precompile",
         "reference": "MISRA C 2004 19.17,MISRA C 2012 20.14,MISRA C++ 2008 16-1-2"
         },
