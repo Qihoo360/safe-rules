@@ -394,7 +394,7 @@
     "ID_for_counterChangedInBody": {
         "checkPoint": "for 循环变量不应在循环体内被改变",
         "level": "warning",
-        "comment": "用于控制循环次数的变量称为“循环变量”，这种变量只应在 for 语句的第 3 个表达式中被改变，否则陡增逻辑复杂度，且可读性较差。",
+        "comment": "用于控制循环次数的变量称为“循环变量”，这种变量只应在 for 语句的第 3 个表达式中被改变，否则使代码复杂易错，不利于维护。",
         "tag": "control",
         "reference": "C++ Core Guidelines ES.86,MISRA C 2004 13.6,MISRA C++ 2008 6-5-3"
         },
@@ -899,9 +899,10 @@
     "ID_forbidEnumBitfield": {
         "checkPoint": "不应对枚举对象声明位域",
         "level": "warning",
-        "comment": "枚举对象的底层类型可以是有符号整型，符号位与位域结合易导致意料之外的错误，且不利于枚举项的扩展。",
+        "comment": "枚举类型是否有符号由实现定义，而且符号位与位域结合易导致意料之外的错误。",
         "tag": "declaration",
-        "related": "ID_singleSignedBitfield,ID_improperBitfieldType",
+        "related": "ID_improperBitfieldType,ID_singleSignedBitfield",
+        "standard": "ISO/IEC 9899:1999 6.7.2.2(4)-implementation,ISO/IEC 9899:2011 6.7.2.2(4)-implementation,ISO/IEC 14882:2011 7.2(6)-implementation,ISO/IEC 14882:2017 10.2(7)-implementation",
         "reference": "MISRA C++ 2008 9-6-3"
         },
     "ID_forbidFlexibleArray": {
@@ -926,10 +927,8 @@
         "checkPoint": "对位域声明合理的类型",
         "level": "warning",
         "comment": "为了提高可移植性和可维护性，应对位域声明合理的类型。",
-        "config": {
-            "improperBitfieldType": "违规位域类型，如 char、short、long 等"
-            },
         "tag": "declaration",
+        "standard": "ISO/IEC 9899:1999 J.3.9(1)-implementation,ISO/IEC 9899:2011 J.3.9(1)-implementation,ISO/IEC 14882:2003 9.6(3)-implementation,ISO/IEC 14882:2011 9.6(3)-implementation",
         "reference": "MISRA C 2004 6.4,MISRA C 2012 6.1,MISRA C++ 2008 9-6-2"
         },
     "ID_exceededBitfield": {
@@ -1013,7 +1012,7 @@
     "ID_forbidBitfield": {
         "checkPoint": "禁用位域",
         "level": "suggestion",
-        "comment": "位域改变了类型约定俗成的取值范围和存储方式，易造成理解上的偏差，增加维护成本。",
+        "comment": "位域改变了类型约定俗成的取值范围和存储方式，易造成理解上的偏差，增加维护成本，在不受特定协议限制的代码中不应使用位域。",
         "tag": "declaration",
         "standard": "ISO/IEC 14882:2003 9.6(1)-implementation,ISO/IEC 14882:2003 9.6(3),ISO/IEC 14882:2011 9.6(1)-implementation,ISO/IEC 14882:2011 9.6(3),ISO/IEC 14882:2017 12.2.4(1)-implementation,ISO/IEC 14882:2017 12.2.4(3)",
         "related": "ID_exceededBitfield,ID_singleSignedBitfield,ID_bitfieldDataRaces,ID_forbidEnumBitfield"
@@ -1360,7 +1359,7 @@
         "comment": "reinterpret_cast 将地址强行按另一种类型解释，不考虑转换需要的逻辑，可用 static_cast、dynamic_cast 完成的转换不应使用 reinterpret_cast。",
         "tag": "cast",
         "related": "ID_voidCast",
-        "standard": "ISO/IEC 14882:2011 5.2.10(7)-unspecified",
+        "standard": "ISO/IEC 14882:2003 5.2.10(7)-unspecified,ISO/IEC 14882:2011 5.2.10(7)-unspecified",
         "reference": "C++ Core Guidelines Type.1"
         },
     "ID_nonPODBinaryCast": {
@@ -2328,9 +2327,9 @@
         "reference": "CWE-1071,C++ Core Guidelines ES.85"
         },
     "ID_do_suspiciousContinue": {
-        "checkPoint": "注意 do-while(false) 中可疑的 continue 语句",
+        "checkPoint": "注意 do-while(0) 中可疑的 continue 语句",
         "level": "warning",
-        "comment": "continue 语句和 break 语句在语义上是不同的，但在 do-while(false) 中它们的功效是一样的。",
+        "comment": "continue 语句和 break 语句在语义上是不同的，但在 do-while(0) 中的功效是一样的。",
         "tag": "control",
         "reference": "CWE-670"
         },
@@ -3452,6 +3451,7 @@
         "comment": "与 void* 相互转换会打破类型限制，是不安全的类型转换。",
         "tag": "cast",
         "related": "ID_forbidMemberVoidPtr,ID_forbidFunctionVoidPtr",
+        "standard": "ISO/IEC 14882:2003 5.2.10(7)-unspecified,ISO/IEC 14882:2011 5.2.10(7)-unspecified",
         "reference": "MISRA C 2012 11.5,MISRA C++ 2008 5-2-8"
         },
     "ID_sig_dataRaces": {

@@ -420,7 +420,7 @@
     - [R9.3.5 while 循环体不应为空](#while_emptyblock)
     - [R9.3.6 while 循环体应该用大括号括起来](#while_brace)
   - [9.4 Do](#control.do)
-    - [R9.4.1 注意 do\-while(false) 中可疑的 continue 语句](#do_suspiciouscontinue)
+    - [R9.4.1 注意 do\-while(0) 中可疑的 continue 语句](#do_suspiciouscontinue)
     - [R9.4.2 do\-while 循环体不应为空](#do_emptyblock)
     - [R9.4.3 do\-while 循环体应该用大括号括起来](#do_brace)
     - [R9.4.4 不建议使用 do 语句](#do_deprecated)
@@ -6538,7 +6538,7 @@ ID_forbidVolatile&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration suggestion
   
 在这些场景中，如果相关对象没有用 volatile 限定会导致程序和预期不符，volatile 关键字可以保证对象具有稳定的内存地址，任何读取或写入都可以来源于或作用于内存中的实际数据。  
   
-除此之外不应使用 volatile，而且要注意 volatile 和 C/C\+\+ 的并发或同步机制没有直接关系，也无法保证相关操作的原子性。  
+除此之外不应使用 volatile，不参与过程间跳转的局部 volatile 对象往往意味着 volatile 的滥用，审计工具不妨重点关注这种对象，而且要注意 volatile 和 C/C\+\+ 的并发或同步机制没有直接关系，也无法保证相关操作的原子性。  
   
 示例：
 ```
@@ -7184,7 +7184,7 @@ A* cpy(const A* p) {
     return a;
 }
 ```
-例中 \*a = \*p 这种拷贝赋值运算会漏掉数组的内容，而且数组不会计入 sizeof 的结果，易引起意料之外的错误，所以在 C 代码中也不建议使用这种柔性数组。
+例中 \*a = \*p 这种拷贝赋值运算会漏掉数组的内容，而且数组不会计入 sizeof 的结果，易引起意料之外的错误，所以在 C 代码中也不建议使用柔性数组。
 <br/>
 <br/>
 
@@ -8404,8 +8404,13 @@ ID_improperBitfieldType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 <hr/>
 
 为了提高可移植性和可维护性，应对位域声明合理的类型，如：  
+ - 显式声明 signed 或 unsigned 的整数类型  
+ - C\+\+ 语言的 bool 或 C 语言的 \_Bool 类型  
  - 各种实现中取值范围均一致的整数类型  
- - bool 或 \_Bool  
+  
+C90 标准只允许 signed int 或 unsigned int 作为位域类型，在之后的 C 标准以及 C\+\+14 之前的 C\+\+ 标准中，用于位域的 char、short、int、long 或 long long 等整数类型是否有符号由实现定义。  
+  
+为了避免意料之外的符号扩展、溢出等问题，建议统一使用无符号整型作为位域类型。  
   
 示例：
 ```
@@ -8413,36 +8418,40 @@ struct A {
     char c: 2;   // Non-compliant
 };
 ```
-char 是否有符号是由实现定义的，c 的取值范围可能是 \[\-2, 1\] 也可能是 \[0, 3\]，故应明确声明位域的符号属性：
+char 是否有符号由实现定义，位域 c 的取值范围可能是 \[\-2, 1\] 也可能是 \[0, 3\]，故应明确声明位域的符号属性：
 ```
 struct A {
-    signed char c: 2;   // Compliant, or use int8_t
+    unsigned char c: 2;   // Compliant, or use uint8_t
 };
 ```
 又如：
 ```
 struct B {
-    long a: 4;    // Non-compliant
-    long b: 32;   // Non-compliant
-    long c: 24;   // Non-compliant
+    unsigned long a: 4;    // Bad
+    unsigned long b: 32;   // Bad
+    unsigned long c: 24;   // Bad
 };
 ```
-例中结构体 B 只涉及 60 个比特位，但由于 long 的取值范围是由实现定义的，B 的内存布局在不同的平台上会有较大差异。  
+例中结构体只涉及 60 个比特位，但由于 long 的取值范围是由实现定义的，结构体的内存布局在不同的平台上会有较大差异，可能会产生意料之外的填充数据，造成对接口或协议的解析错误。  
   
 应改为：
 ```
+#include <stdint.h>   // Or <cstdint> in C++
+
 struct B {
-    int64_t a: 4;    // Compliant
-    int64_t b: 32;   // Compliant
-    int64_t c: 24;   // Compliant
+    uint64_t a: 4;    // OK
+    uint64_t b: 32;   // OK
+    uint64_t c: 24;   // OK
 };
 ```
-严格地说，int 等常用整数类型的符号属性在 C11 之前均是由实现定义的，只是大多数编译环境均将其实现为有符号整型，为变通起见，审计工具不妨通过配置决定其合规性。
 <br/>
 <br/>
 
-#### 配置
-improperBitfieldType：违规位域类型，如 char、short、long 等  
+#### 依据
+ISO/IEC 9899:1999 J.3.9(1)-implementation  
+ISO/IEC 9899:2011 J.3.9(1)-implementation  
+ISO/IEC 14882:2003 9.6(3)-implementation  
+ISO/IEC 14882:2011 9.6(3)-implementation  
 <br/>
 
 #### 参考
@@ -8532,7 +8541,7 @@ ID_forbidEnumBitfield&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration warnin
 
 <hr/>
 
-枚举对象的底层类型可以是有符号整型，符号位与位域结合易导致意料之外的错误，且不利于枚举项的扩展。  
+枚举类型是否有符号由实现定义，而且符号位与位域结合易导致意料之外的错误。  
   
 示例：
 ```
@@ -8554,13 +8563,32 @@ int main() {
     }
 }
 ```
-输出 Oops，例中 E 各枚举项的取值范围是 \[0,3\]，按常规思维，位域长度为 2 即可满足这个范围，然而符号位的存在否定了这一点，导致 x.e 用 D 赋值后再与 D 比较竟然得到不相等的结果（因为 D 的值为 3 而 x.e 的值为 \-1）。
+可能输出 Oops。例中枚举项的取值范围是 \[0, 3\]，位域长度为 2 即可满足这个范围，但如果位域有符号位，会导致意料之外的问题，如用 D 对 x.e 赋值，但 x.e == D 的结果却是 false （因为 D 的值为 3 而 x.e 的值为 \-1）。  
+  
+例外：
+```
+enum E: unsigned {   // Explicit underlying type
+    A, B, C, D
+};
+
+struct X {
+    E e: 2;   // Compliant
+};
+```
+在遵循 C\+\+11 及之后标准的代码中，如果显式指定了枚举类型的的底层类型，可不受本规则限制。
 <br/>
 <br/>
 
 #### 相关
-ID_singleSignedBitfield  
 ID_improperBitfieldType  
+ID_singleSignedBitfield  
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.7.2.2(4)-implementation  
+ISO/IEC 9899:2011 6.7.2.2(4)-implementation  
+ISO/IEC 14882:2011 7.2(6)-implementation  
+ISO/IEC 14882:2017 10.2(7)-implementation  
 <br/>
 
 #### 参考
@@ -8574,7 +8602,7 @@ ID_forbidBitfield&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration suggestion
 
 <hr/>
 
-位域改变了类型约定俗成的取值范围和存储方式，易造成理解上的偏差，增加维护成本。  
+位域改变了类型约定俗成的取值范围和存储方式，易造成理解上的偏差，增加维护成本，在不受特定协议限制的代码中不应使用位域。  
   
 位域与“引用”等 C\+\+ 概念有冲突，而且标准在位域的内存布局等方面定义的不够充分，存在很多由实现定义的内容，要特别注意的是多线程访问位域还会造成数据竞争，参见 ID\_bitfieldDataRaces。  
   
@@ -12768,7 +12796,7 @@ ID_for_counterChangedInBody&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
 <hr/>
 
-用于控制循环次数的变量称为“循环变量”，这种变量只应在 for 语句的第 3 个表达式中被改变，否则陡增逻辑复杂度，且可读性较差。  
+用于控制循环次数的变量称为“循环变量”，这种变量只应在 for 语句的第 3 个表达式中被改变，否则使代码复杂易错，不利于维护。  
   
 示例：
 ```
@@ -13053,15 +13081,15 @@ MISRA C++ 2008 6-3-1
 
 ### <span id="control.do">9.4 Do</span>
 
-### <span id="do_suspiciouscontinue">▌R9.4.1 注意 do-while(false) 中可疑的 continue 语句</span>
+### <span id="do_suspiciouscontinue">▌R9.4.1 注意 do-while(0) 中可疑的 continue 语句</span>
 
 ID_do_suspiciousContinue&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
 <hr/>
 
-continue 语句和 break 语句在语义上是不同的，但在 do\-while(false) 中它们的功效是一样的。  
+continue 语句和 break 语句在语义上是不同的，但在 do\-while(0) 中的功效是一样的。  
   
-在 do\-while(false) 的循环体中如果既有 break 语句又有 continue 语句，continue 语句被误用的可能性较大。  
+在 do\-while(0) 的循环体中如果既有 break 语句又有 continue 语句，continue 语句被误用的可能性较大。  
   
 示例：
 ```
@@ -13076,10 +13104,10 @@ int foo() {
             continue;   // Rather suspicious
         }
         ....
-    } while (false);
+    } while (0);
 }
 ```
-建议在 do\-while(false) 中只使用 break 语句，不使用 continue 语句。
+建议在 do\-while(0) 中只使用 break 语句，不使用 continue 语句。
 <br/>
 <br/>
 
@@ -13166,9 +13194,13 @@ ID_do_deprecated&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
 
 do 语句的终止条件在末尾，且第一次执行时不检查终止条件，易被误用。  
   
+do 语句可用于循环，也可用于定义由 break 等语句跳出的作用域，糅合了循环和流程跳转，使代码变得复杂，不利于阅读和维护，建议将复杂的 do 语句抽取成函数，使代码的静态结构更加清晰。  
+  
+宏定义中的 do\-while(0) 可不受本规则限制。  
+  
 示例：
 ```
-int foo(int n) {
+void foo(int n) {
     do {
         if (n < 0) {
             break;
@@ -13178,12 +13210,10 @@ int foo(int n) {
             continue;
         }
         ....
-    } while (cond);  // Too complex
+    } while (condition);   // Too complex
     ....
-    return n;
 }
 ```
-do 语句糅合循环和流程跳转，使代码过于复杂，建议将复杂的 do 语句抽取成函数，使代码的结构更清晰。
 <br/>
 <br/>
 
@@ -17381,7 +17411,7 @@ ID_voidCast&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: cast suggestion
 
 与 void\* 相互转换会打破类型限制，是不安全的类型转换。  
   
-C 语言的某些传统接口会使用 void\*，可不受本规则限制，但在 C\+\+ 代码中应避免使用。  
+C 语言的某些传统接口会使用 void\*，可不受本规则限制，但在 C\+\+ 代码中应避与 void\* 相互转换。  
   
 示例：
 ```
@@ -17399,6 +17429,11 @@ void foo(void* v) {
 #### 相关
 ID_forbidMemberVoidPtr  
 ID_forbidFunctionVoidPtr  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 5.2.10(7)-unspecified  
+ISO/IEC 14882:2011 5.2.10(7)-unspecified  
 <br/>
 
 #### 参考
@@ -18055,6 +18090,7 @@ ID_voidCast
 <br/>
 
 #### 依据
+ISO/IEC 14882:2003 5.2.10(7)-unspecified  
 ISO/IEC 14882:2011 5.2.10(7)-unspecified  
 <br/>
 
