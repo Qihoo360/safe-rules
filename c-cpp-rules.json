@@ -1098,9 +1098,9 @@
     "ID_forbidCHeaderInCpp": {
         "checkPoint": "C++ 代码不应引用 C 头文件",
         "level": "warning",
-        "comment": "在 C++ 代码中应使用 C++ 标准头文件，stdio.h、stdlib.h 等 C 语言头文件不在 C++ 标准之内，应改用 cstdio、cstdlib 等 C++ 标准头文件。",
+        "comment": "为了与 C 语言兼容，C++ 标准库也会提供 C 头文件，但在这种 C 头文件在 C++ 标准中是已过时的。",
         "tag": "precompile",
-        "standard": "ISO/IEC 14882:2003 D.5,ISO/IEC 14882:2011 D.5,ISO/IEC 14882:2017 D.5",
+        "standard": "ISO/IEC 14882:1998 D.5-deprecated,ISO/IEC 14882:2003 D.5-deprecated,ISO/IEC 14882:2011 D.5-deprecated,ISO/IEC 14882:2017 D.5-deprecated",
         "reference": "MISRA C++ 2008 18-0-1"
         },
     "ID_forbiddenHeader": {
