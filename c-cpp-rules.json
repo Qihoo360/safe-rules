@@ -394,7 +394,7 @@
     "ID_for_counterChangedInBody": {
         "checkPoint": "for 循环变量不应在循环体内被改变",
         "level": "warning",
-        "comment": "用于控制循环次数的变量称为“循环变量”，这种变量只应在 for 语句的第 3 个表达式中被改变，否则使代码复杂易错，不利于维护。",
+        "comment": "用于控制循环次数的变量称为“循环变量”，为了使代码具有清晰的静态结构，循环变量只应在 for 语句的第 3 个表达式中被改变。",
         "tag": "control",
         "reference": "C++ Core Guidelines ES.86,MISRA C 2004 13.6,MISRA C++ 2008 6-5-3"
         },
@@ -816,11 +816,11 @@
         "reference": "CWE-1109,MISRA C 2004 5.2,MISRA C 2012 5.3,MISRA C++ 2008 2-10-2"
         },
     "ID_missingConst": {
-        "checkPoint": "避免用常量字符串对非常量字符串指针赋值",
+        "checkPoint": "指向常量字符串的指针应使用 const 声明",
         "level": "warning",
-        "comment": "用常量字符串对非常量字符串指针赋值是不安全的，一旦相关内存被修改会导致标准未定义的行为。",
+        "comment": "常量字符串与非常量字符串指针的隐式转换是不安全的，一旦相关内存被修改会导致标准未定义的行为。",
         "tag": "declaration",
-        "standard": "ISO/IEC 14882:2003 2.13.4(2)-undefined,ISO/IEC 14882:2011 2.14.5(12)-undefined,ISO/IEC 14882:2011 5.13.5(16)-undefined",
+        "standard": "ISO/IEC 14882:1998 D.4(1)-deprecated,ISO/IEC 14882:2003 D.4(1)-deprecated,ISO/IEC 14882:2003 2.13.4(2)-undefined,ISO/IEC 14882:2011 2.14.5(12)-undefined,ISO/IEC 14882:2011 5.13.5(16)-undefined",
         "related": "ID_nonConstUnmodified",
         "reference": "MISRA C 2012 7.4"
         },
@@ -1106,10 +1106,13 @@
     "ID_forbiddenHeader": {
         "checkPoint": "禁用不合规的头文件",
         "level": "warning",
-        "comment": "无意义的，行为不明确的或有不良副作用的头文件应禁用。",
-        "config": { "//": "详见说明" },
+        "comment": "已过时的、无意义的或有不良副作用的头文件应禁用。",
+        "config": {
+            "inC": "C 代码中不合规头文件名称",
+            "inCpp": "C++ 代码中不合规头文件名称"
+            },
         "tag": "precompile",
-        "standard": "ISO/IEC 14882:2017 C.5.1(4)",
+        "standard": "ISO/IEC 14882:2017 C.5.1(4),ISO/IEC 14882:2017 D.4(1)-deprecated",
         "reference": "MISRA C 2012 21.5,MISRA C 2012 21.10,MISRA C 2012 21.11,MISRA C 2012 21.12,MISRA C++ 2008 18-7-1,MISRA C++ 2008 18-0-4,MISRA C++ 2008 27-0-1"
         },
     "ID_spaceStyle": {
@@ -1667,7 +1670,7 @@
         "reference": "C++ Core Guidelines ES.56,C++ Core Guidelines F.18,C++ Core Guidelines F.48"
         },
     "ID_useAfterMove": {
-        "checkPoint": "不应直接使用已被移动的对象",
+        "checkPoint": "对象被移动后应重置状态再使用",
         "level": "warning",
         "comment": "std::move 宣告对象的数据将被移动到其他对象，移动后对象在逻辑上不再有效，如果对象的状态没有被重新设定，不应再被使用。",
         "tag": "resource",
@@ -2082,7 +2085,7 @@
         "level": "warning",
         "comment": "可以为用户定义的类型特化某些标准模板类，除此之外对 std 命名空间添加、修改甚至删除任何代码所导致的后果都是标准未定义的。",
         "tag": "global",
-        "standard": "ISO/IEC 14882:2011 17.6.4.2.1(1 2),ISO/IEC 14882:2017 20.5.4.2.1(1 2)",
+        "standard": "ISO/IEC 14882:2011 17.6.4.2.1(1 2)-undefined,ISO/IEC 14882:2017 20.5.4.2.1(1 2)-undefined",
         "reference": "SEI CERT DCL58-CPP"
         },
     "ID_usingSelf": {

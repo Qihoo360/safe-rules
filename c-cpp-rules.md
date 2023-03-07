@@ -107,7 +107,7 @@
   - [R2.6 资源的分配与回收方法应配套使用](#incompatibledealloc)
   - [R2.7 模块之间不应传递容器等对象](#crossmoduletransfer)
   - [R2.8 对象申请的资源应在析构函数中释放](#memberdeallocation)
-  - [R2.9 不应直接使用已被移动的对象](#useaftermove)
+  - [R2.9 对象被移动后应重置状态再使用](#useaftermove)
   - [R2.10 构造函数抛出异常需避免相关资源泄漏](#throwinconstructor)
   - [R2.11 资源不可被重复释放](#doublefree)
   - [R2.12 用 delete 释放对象需保证其类型完整](#deleteincompletetype)
@@ -237,7 +237,7 @@
     - [R6.2.3 const、volatile 不可修饰引用](#qualifierinvalid)
     - [R6.2.4 const、volatile 限定类型时应出现在左侧](#badqualifierposition)
     - [R6.2.5 const、volatile 等关键字不应出现在基本类型名称的中间](#sandwichedmodifier)
-    - [R6.2.6 避免用常量字符串对非常量字符串指针赋值](#missingconst)
+    - [R6.2.6 指向常量字符串的指针应使用 const 声明](#missingconst)
     - [R6.2.7 枚举类型的底层类型不应为 const 或 volatile](#uselessqualifier)
     - [R6.2.8 对常量的定义不应为引用](#constliteralreference)
     - [R6.2.9 禁用 restrict 指针](#forbidrestrictptr)
@@ -1898,22 +1898,25 @@ C++ Core Guidelines E.6
 <br/>
 <br/>
 
-### <span id="useaftermove">▌R2.9 不应直接使用已被移动的对象</span>
+### <span id="useaftermove">▌R2.9 对象被移动后应重置状态再使用</span>
 
 ID_useAfterMove&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
 <hr/>
 
-std::move 宣告对象的数据将被移动到其他对象，移动后对象在逻辑上不再有效，如果对象的状态没有被重新设定，不应再被使用。  
+对象被移动后在逻辑上不再有效，如果没有通过清空数据或重新初始化等方法更新对象的状态，不应再使用该对象。  
   
 示例：
 ```
-string foo(string a) {
-    string b = std::move(a);
-    return a + b;              // Non-compliant
+void foo(string& a, string& b)
+{
+    a = move(b);
+
+    cout << a << '\n';   // OK
+    cout << b << '\n';   // Non-compliant
 }
 ```
-例中 a 对象的数据被转移到 b 对象，之后 a 不再有效，如果要继续使用 a，应清空其数据或对其重新赋值。
+例中 b 对象的数据被转移到 a 对象后，b 对象不再有效，如果要继续使用 b，应清空其数据或对其重新赋值。
 <br/>
 <br/>
 
@@ -2591,36 +2594,45 @@ ID_forbiddenHeader&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompile warning
 
 <hr/>
 
-无意义的，行为不明确的或有不良副作用的头文件应禁用。  
+已过时的、无意义的或有不良副作用的头文件应禁用。  
   
 示例：
 ```
 #include <tgmath.h>   // Non-compliant
 #include <setjmp.h>   // Non-compliant
+
+#include <iso646.h>   // Non-compliant in C++
 #include <stdbool.h>  // Non-compliant in C++
+#include <ciso646>    // Non-compliant in C++
+#include <cstdbool>   // Non-compliant in C++
+#include <ctgmath>    // Non-compliant in C++
+#include <ccomplex>   // Non-compliant in C++
+#include <cstdalign>  // Non-compliant in C++
 ```
 tgmath.h 和 ctgmath 会使用语言标准之外的技术实现某种重载效果，而且其中的部分函数名称会干扰其他标准库中的名称，setjmp.h 和 csetjmp 则包含危险的过程间跳转函数。  
   
-iso646.h、stdalign.h 以及 stdbool.h 对于 C\+\+ 语言来说没有意义，在 C\+\+ 代码中不应使用。  
+iso646.h、stdalign.h、stdbool.h 以及 ciso646、cstdalign、cstdbool 对 C\+\+ 语言没有意义，ccomplex、cstdalign、cstdbool、ctgmath 等在 C\+\+17 标准中已声明为过时，在 C\+\+ 代码中不应使用这类头文件。  
   
-stdio.h、signal.h、time.h、fenv.h 等头文件对于有高可靠性要求的软件系统也不建议使用，这些头文件含有较多标准未声明、未定义或由实现定义的内容。  
+stdio.h、signal.h、time.h、fenv.h 等头文件含有较多标准未声明或由实现定义的内容，对有高可靠性要求的软件系统也不建议使用。  
   
-审计工具不妨通过配置设定不合规头文件的名称：
+审计工具不妨通过配置设定不合规头文件的名称，如：
 ```
 [ID_forbiddenHeader]
-tgmath.h|ctgmath=May result in undefined behavior
-setjmp.h|csetjmp=Forbidden header
+inC=tgmath.h|setjmp.h
+inCpp=tgmath.h|ctgmath|setjmp.h|csetjmp
 ```
-表示将 tgmath.h、ctgmath、setjmp.h、csetjmp 设为不合规头文件，如发现代码中有 tgmath.h，则报告“May result in undefined behavior”，如发现代码中有 setjmp.h 或 csetjmp，则报告“Forbidden header”。
+表示对 C 代码将 tgmath.h、setjmp.h 设为不合规，对 C\+\+ 代码将 tgmath.h、ctgmath、setjmp.h、csetjmp 设为不合规。
 <br/>
 <br/>
 
 #### 配置
-详见说明  
+inC：C 代码中不合规头文件名称  
+inCpp：C++ 代码中不合规头文件名称  
 <br/>
 
 #### 依据
 ISO/IEC 14882:2017 C.5.1(4)  
+ISO/IEC 14882:2017 D.4(1)-deprecated  
 <br/>
 
 #### 参考
@@ -4529,8 +4541,8 @@ struct std::hash<MyType> {
 <br/>
 
 #### 依据
-ISO/IEC 14882:2011 17.6.4.2.1(1 2)  
-ISO/IEC 14882:2017 20.5.4.2.1(1 2)  
+ISO/IEC 14882:2011 17.6.4.2.1(1 2)-undefined  
+ISO/IEC 14882:2017 20.5.4.2.1(1 2)-undefined  
 <br/>
 
 #### 参考
@@ -6378,27 +6390,31 @@ C++ Core Guidelines NL.26
 <br/>
 <br/>
 
-### <span id="missingconst">▌R6.2.6 避免用常量字符串对非常量字符串指针赋值</span>
+### <span id="missingconst">▌R6.2.6 指向常量字符串的指针应使用 const 声明</span>
 
 ID_missingConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-用常量字符串对非常量字符串指针赋值是不安全的，一旦相关内存被修改会导致标准未定义的行为。  
+常量字符串与非常量字符串指针的隐式转换是不安全的，一旦相关内存被修改会导致标准未定义的行为，这种转换在 C\+\+ 标准中已被声明为过时，在 C 代码中也不应出现。  
   
+指向常量字符串的指针应声明为 const chartype \*，chartype 为常量字符串中的字符类型，如：
+```
+char、wchar_t、char16_t、char32_t
+```
 示例：
 ```
 char* p = "....";   // Non-compliant
 p[x] = '\0';        // Undefined behavior
 ```
-例中 p 指向常量字符串，通过 p 修改常量数据一般会引发“[段错误](https://en.wikipedia.org/wiki/Segmentation_fault)”而导致崩溃，应改为：
+例中非常量指针 p 指向常量字符串，通过 p 修改常量数据一般会引发“[段错误](https://en.wikipedia.org/wiki/Segmentation_fault)”而导致崩溃，应改为：
 ```
 const char* p = "....";   // Compliant
 p[x] = '\0';              // Compile-time protected
 ```
 改为常量字符串指针后，错误的操作无法通过编译。  
   
-常量字符串的参数传递同样受本规则约束，如：
+又如：
 ```
 void foo(char*);
 
@@ -6415,6 +6431,8 @@ ID_nonConstUnmodified
 <br/>
 
 #### 依据
+ISO/IEC 14882:1998 D.4(1)-deprecated  
+ISO/IEC 14882:2003 D.4(1)-deprecated  
 ISO/IEC 14882:2003 2.13.4(2)-undefined  
 ISO/IEC 14882:2011 2.14.5(12)-undefined  
 ISO/IEC 14882:2011 5.13.5(16)-undefined  
@@ -9983,7 +10001,7 @@ int foo() noexcept(false);   // Compliant
 ```
 int bar() throw();           // Let it go?
 ```
-空的 throw 异常规格说明与 noexcept 等价，是一种惯用写法，审计工具不妨通过配置决定是否放过这种方式。
+在 C\+\+17 标准之前，空的 throw 异常规格说明与 noexcept 等价，审计工具不妨通过配置决定是否放过这种方式。 
 <br/>
 <br/>
 
@@ -12796,7 +12814,7 @@ ID_for_counterChangedInBody&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
 <hr/>
 
-用于控制循环次数的变量称为“循环变量”，这种变量只应在 for 语句的第 3 个表达式中被改变，否则使代码复杂易错，不利于维护。  
+用于控制循环次数的变量称为“循环变量”，为了使代码具有清晰的静态结构，循环变量只应在 for 语句的第 3 个表达式中被改变。   
   
 示例：
 ```
@@ -12808,6 +12826,7 @@ for (int i = 0; i < 8; i++) {
     ....
 }
 ```
+例中循环变量 i 在多处被改变，循环的执行次数和结束条件变得难以理解，易错且不利于维护。
 <br/>
 <br/>
 
