@@ -2626,8 +2626,8 @@ inCpp=tgmath.h|ctgmath|setjmp.h|csetjmp
 <br/>
 
 #### 配置
-inC：C 代码中不合规头文件名称  
-inCpp：C++ 代码中不合规头文件名称  
+inC: C 代码中不合规头文件名称  
+inCpp: C++ 代码中不合规头文件名称  
 <br/>
 
 #### 依据
@@ -2778,10 +2778,10 @@ __STDC_ISO_10646__、__STDCPP_STRICT_POINTER_SAFETY__
 <br/>
 
 #### 配置
-keywordAsReserved：是否将关键字作为保留名称  
-reservedNames：用户指定的保留名称  
-stdNameAsReserved：是否将标准库中的名称作为保留名称  
-underscoreAsReserved：是否将下划线开头的名称作为保留名称  
+keywordAsReserved: 是否将关键字作为保留名称  
+stdNameAsReserved: 是否将标准库中的名称作为保留名称  
+underscoreAsReserved: 是否将下划线开头的名称作为保留名称  
+reservedNames: 用户指定的保留名称  
 <br/>
 
 #### 相关
@@ -2830,10 +2830,10 @@ __STDC_ISO_10646__、__STDCPP_STRICT_POINTER_SAFETY__
 <br/>
 
 #### 配置
-keywordAsReserved：是否将关键字作为保留名称  
-reservedNames：用户指定的保留名称  
-stdNameAsReserved：是否将标准库中的名称作为保留名称  
-underscoreAsReserved：是否将下划线开头的名称作为保留名称  
+keywordAsReserved: 是否将关键字作为保留名称  
+stdNameAsReserved: 是否将标准库中的名称作为保留名称  
+underscoreAsReserved: 是否将下划线开头的名称作为保留名称  
+reservedNames: 用户指定的保留名称  
 <br/>
 
 #### 相关
@@ -3490,7 +3490,7 @@ ID_missingHeaderGuard&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 <br/>
 
 #### 配置
-allowPragmaOnce：是否允许 #pragma once 作为头文件守卫  
+allowPragmaOnce: 是否允许 #pragma once 作为头文件守卫  
 <br/>
 
 #### 参考
@@ -3946,10 +3946,10 @@ int foo(int i) {
 <br/>
 
 #### 配置
-minFunctionNameLength：全局函数名称长度下限，小于则报出  
-minNameSpaceNameLength：全局命名空间名称长度下限，小于则报出  
-minTypeNameLength：全局类型名称长度下限，小于则报出  
-minVariableNameLength：全局对象名称长度下限，小于则报出  
+minVariableNameLength: 全局对象名称长度下限，小于则报出  
+minFunctionNameLength: 全局函数名称长度下限，小于则报出  
+minNameSpaceNameLength: 全局命名空间名称长度下限，小于则报出  
+minTypeNameLength: 全局类型名称长度下限，小于则报出  
 <br/>
 
 #### 相关
@@ -5345,8 +5345,8 @@ union U
 <br/>
 
 #### 配置
-maxClassFieldsCount：类数据成员的数量上限，超过则报出  
-maxUnionFieldsCount：联合体数据成员的数量上限，超过则报出  
+maxClassFieldsCount: 类数据成员的数量上限，超过则报出  
+maxUnionFieldsCount: 联合体数据成员的数量上限，超过则报出  
 <br/>
 <br/>
 
@@ -5888,7 +5888,10 @@ struct BinExpr {
 <br/>
 
 #### 配置
-maxWordLength：连续无大小写变化的字符个数上限，超过则报出  
+maxObjNameLength: 对象名称长度上限，超过则报出  
+maxFunNameLength: 函数名称长度上限，超过则报出  
+maxTypeNameLength: 类型名称长度上限，超过则报出  
+maxWordLength: 连续无大小写变化的字符数量上限，超过则报出  
 <br/>
 
 #### 依据
@@ -7352,7 +7355,7 @@ void foo(int a[], int n);   // Let it go
 <br/>
 
 #### 配置
-allowNoArraySizeWithInitList：是否放过带有初始化列表的数组  
+allowNoArraySizeWithInitList: 是否放过带有初始化列表的数组  
 <br/>
 
 #### 参考
@@ -7393,7 +7396,7 @@ void foo() {
 <br/>
 
 #### 配置
-maxLocalArraySize：局部数组的长度上限，超过则报出  
+maxLocalArraySize: 局部数组的长度上限，超过则报出  
 <br/>
 
 #### 参考
@@ -8478,8 +8481,8 @@ struct B {
 <br/>
 
 #### 配置
-bitfieldMustBeStdInt：位域类型是否必须为 stdint.h 或 cstdint 中定义的类型  
-bitfieldMustBeUnsigned：位域类型是否必须为无符号整型  
+bitfieldMustBeUnsigned: 位域类型是否必须为无符号整型  
+bitfieldMustBeStdInt: 位域类型是否必须为 stdint.h 或 cstdint 中定义的类型  
 <br/>
 
 #### 依据
@@ -8730,7 +8733,7 @@ int** (*pf)(int);   // Let it go
 <br/>
 
 #### 配置
-maxPtrLevel：指针嵌套的最大层数，超过则报出  
+maxPtrLevel: 指针嵌套的最大层数，超过则报出  
 <br/>
 
 #### 相关
@@ -8760,7 +8763,7 @@ int* a, b[8], c, d(int), e = 0;  // Bad
 <br/>
 
 #### 配置
-maxDeclaratorCount：一个声明语句能包含的对象或函数个数上限，超过则报出  
+maxDeclaratorCount: 一个声明语句能包含的对象或函数个数上限，超过则报出  
 <br/>
 
 #### 参考
@@ -10023,7 +10026,7 @@ int bar() throw();           // Let it go?
 <br/>
 
 #### 配置
-forbidEmptyThrowSpecification：是否放过空 throw 异常规格说明  
+forbidEmptyThrowSpecification: 是否放过空 throw 异常规格说明  
 <br/>
 
 #### 依据
@@ -11625,7 +11628,7 @@ try {
 <br/>
 
 #### 配置
-maxExitCount：退出点数量上限，超过则报出  
+maxExitCount: 退出点数量上限，超过则报出  
 <br/>
 
 #### 相关
@@ -11666,7 +11669,7 @@ L100:
 <br/>
 
 #### 配置
-maxLabelCount：标签数量上限，超过则报出  
+maxLabelCount: 标签数量上限，超过则报出  
 <br/>
 <br/>
 
@@ -11691,7 +11694,7 @@ int main()
 <br/>
 
 #### 配置
-maxLineCount：行数上限，超过则报出  
+maxLineCount: 函数行数上限，超过则报出  
 <br/>
 
 #### 参考
@@ -11729,7 +11732,7 @@ void foo()
 <br/>
 
 #### 配置
-maxLambdaLineCount：lambda 表达式行数上限，超过则报出  
+maxLambdaLineCount: lambda 表达式行数上限，超过则报出  
 <br/>
 <br/>
 
@@ -11770,8 +11773,8 @@ void foo(X x, Y y) {   // Good
 <br/>
 
 #### 配置
-maxInnerFunParamCount：static 函数或 private 成员函数参数数量上限，超过则报出  
-maxParamCount：参数数量上限，超过则报出  
+maxParamCount: 参数数量上限，超过则报出  
+maxInnerFunParamCount: static 函数或 private 成员函数参数数量上限，超过则报出  
 <br/>
 
 #### 参考
@@ -11797,7 +11800,7 @@ ID_complexInlineFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 <br/>
 
 #### 配置
-maxInlineFunctionLineCount：内联函数行数上限，超过则报出  
+maxInlineFunctionLineCount: 内联函数行数上限，超过则报出  
 <br/>
 
 #### 参考
@@ -11865,9 +11868,9 @@ if (cond0)
 <br/>
 
 #### 配置
-maxFunctionNestedDepth：函数作用域最大嵌套层数，超过则报出  
-maxNamespaceNestedDepth：命名空间最大嵌套层数，超过则报出  
-maxTypeNestedDepth：类型最大嵌套层数，超过则报出  
+maxTypeNestedDepth: 类型最大嵌套层数，超过则报出  
+maxFunctionNestedDepth: 函数作用域最大嵌套层数，超过则报出  
+maxNamespaceNestedDepth: 命名空间最大嵌套层数，超过则报出  
 <br/>
 <br/>
 
@@ -11986,8 +11989,8 @@ struct A {
 <br/>
 
 #### 配置
-repetitionRateThreshold：重复率阈值，超过则报出  
-tokenCountThreshold：符号数量小于此阈值的函数不参与比较  
+tokenCountThreshold: 符号数量阈值，小于此阈值的函数不参与比较  
+repetitionRateThreshold: 函数相似度阈值，超过则报出  
 <br/>
 
 #### 参考
@@ -12180,7 +12183,7 @@ else {
 <br/>
 
 #### 配置
-blockTokenCountThreshold：重复分枝符号数量限制，不检查符号数量小于该值的分枝  
+blockTokenCountThreshold: 分枝符号数量阈值，不检查符号数量小于该值的分枝  
 <br/>
 
 #### 相关
@@ -12396,7 +12399,7 @@ if ((r = fun())) {   // Let it go?
 <br/>
 
 #### 配置
-allowEnclosedAssignment：是否放过括号括起来的赋值表达式  
+allowEnclosedAssignment: 是否放过括号括起来的赋值表达式  
 <br/>
 
 #### 参考
@@ -12475,7 +12478,7 @@ else {
 <br/>
 
 #### 配置
-maxElseIfCount：分枝数量上限，超过则报出  
+maxElseIfCount: 分枝数量上限，超过则报出  
 <br/>
 <br/>
 
@@ -13485,7 +13488,7 @@ case 3:
 <br/>
 
 #### 配置
-branchTokenCountThreshold：重复分枝符号数量限制，不检查符号数量小于该值的分枝  
+branchTokenCountThreshold: 分枝符号数量阈值，不检查符号数量小于该值的分枝  
 <br/>
 
 #### 相关
@@ -13634,7 +13637,7 @@ case 1000: .... break;   // Non-compliant
 <br/>
 
 #### 配置
-maxCasesCount：分枝数量上限，超过则报出  
+maxCasesCount: 分枝数量上限，超过则报出  
 <br/>
 <br/>
 
@@ -16599,10 +16602,6 @@ void bar(int x) {
 <br/>
 <br/>
 
-#### 配置
-names：断言函数或宏的名称，如 assert、_ASSERT_EXPR 等，用“|”分隔  
-<br/>
-
 #### 依据
 ISO/IEC 9899:2011 7.2  
 <br/>
@@ -16632,10 +16631,6 @@ void foo(int* p) {
 }
 ```
 <br/>
-<br/>
-
-#### 配置
-names：断言函数或宏的名称，如 assert、_ASSERT_EXPR 等，用“|”分隔  
 <br/>
 
 #### 相关
@@ -16683,8 +16678,7 @@ void foo(int a, int b, int c) {
 <br/>
 
 #### 配置
-maxLogicOperatorCount：断言表达式中“逻辑与”运算符的最大数量，超过则报出  
-names：断言函数或宏的名称，如 assert、_ASSERT_EXPR 等，用“|”分隔  
+maxLogicOperatorCount: 断言表达式中“逻辑与”运算符的最大数量，超过则报出  
 <br/>
 <br/>
 
@@ -16721,11 +16715,11 @@ x ? y ? z ? .... : ....;   // Non-compliant
 <br/>
 
 #### 配置
-maxOperatorCount：运算符最大数量，超过则报出  
-maxParenthesesLevel：优先级括号嵌套最大层数，超过则报出  
-maxPostfixLevel：函数调用、数组索引嵌套最大层数，超过则报出  
-maxSideEffectPoints：具有副作用的子表达式最大数量，超过则报出  
-maxTernaryLevel：三元表达式嵌套最大层数，超过则报出  
+maxOperatorCount: 运算符最大数量，超过则报出  
+maxSideEffectPoints: 具有副作用的子表达式最大数量，超过则报出  
+maxParenthesesLevel: 优先级括号嵌套最大层数，超过则报出  
+maxPostfixLevel: 函数调用、数组索引嵌套最大层数，超过则报出  
+maxTernaryLevel: 三元表达式嵌套最大层数，超过则报出  
 <br/>
 
 #### 参考
@@ -16869,7 +16863,7 @@ for (a = 0, b = 0; a < 100; a++, b++)  {   // let it go?
 <br/>
 
 #### 配置
-allowCommaExpressionInForIteration：是否放过 for 语句中的逗号表达式  
+allowCommaExpressionInForIteration: 是否放过 for 语句中的逗号表达式  
 <br/>
 
 #### 参考
@@ -17564,7 +17558,7 @@ void foo(int* p) {
 <br/>
 
 #### 配置
-allowPointerToSizeType：是否放过指针与 size_t 的转换  
+allowPointerToSizeType: 是否放过指针与 size_t 的转换  
 <br/>
 
 #### 相关
@@ -17703,7 +17697,7 @@ V* v1 = reinterpret_cast<V*>(u);   // Still non-compliant
 <br/>
 
 #### 配置
-allowWeakerCast：是否放过与 unsigned char* 的转换  
+allowWeakerCast: 是否放过与 unsigned char* 的转换  
 <br/>
 
 #### 相关
@@ -18794,7 +18788,7 @@ volatile Dev* p = DEVICE_BASE;  // Let it go if the address is right
 <br/>
 
 #### 配置
-allowMinusOneAsPointerValue：是否允许 -1 作为指针的值  
+allowMinusOneAsPointerValue: 是否允许 -1 作为指针的值  
 <br/>
 
 #### 相关
