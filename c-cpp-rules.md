@@ -237,7 +237,7 @@
     - [R6.2.3 const、volatile 不可修饰引用](#qualifierinvalid)
     - [R6.2.4 const、volatile 限定类型时应出现在左侧](#badqualifierposition)
     - [R6.2.5 const、volatile 等关键字不应出现在基本类型名称的中间](#sandwichedmodifier)
-    - [R6.2.6 指向常量字符串的指针应使用 const 声明](#missingconst)
+    - [R6.2.6 指向常量字符串的指针应使用 const 声明](#conststrtononconstptr)
     - [R6.2.7 枚举类型的底层类型不应为 const 或 volatile](#uselessqualifier)
     - [R6.2.8 对常量的定义不应为引用](#constliteralreference)
     - [R6.2.9 禁用 restrict 指针](#forbidrestrictptr)
@@ -2636,6 +2636,7 @@ ISO/IEC 14882:2017 D.4(1)-deprecated
 <br/>
 
 #### 参考
+MISRA C 2012 21.4  
 MISRA C 2012 21.5  
 MISRA C 2012 21.10  
 MISRA C 2012 21.11  
@@ -2655,6 +2656,8 @@ ID_forbidCHeaderInCpp&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompile warning
 为了与 C 语言兼容，C\+\+ 标准库也会提供 C 头文件，但在这种 C 头文件在 C\+\+ 标准中是已过时的。  
   
 C 标准头文件均有对应的 C\+\+ 版本，C\+\+ 版本提供了更适合 C\+\+ 代码的命名空间、模板以及函数重载等功能。C 标准不在 C\+\+ 标准之内，在 C\+\+ 代码中不建议使用 C 标准库的功能，如果确有必要，应使用 C\+\+ 版本的头文件。  
+  
+本规则是 ID\_forbiddenHeader 的特化。  
   
 示例：
 ```
@@ -2677,6 +2680,10 @@ C 标准头文件均有对应的 C\+\+ 版本，C\+\+ 版本提供了更适合 C
 #include <wctype.h>    // Non-compliant, use <cwctype>
 ```
 <br/>
+<br/>
+
+#### 相关
+ID_forbiddenHeader  
 <br/>
 
 #### 依据
@@ -2729,7 +2736,7 @@ ID_macro_defineReserved&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 <hr/>
 
-重新定义已有特殊用途的名称，会使代码陷入难以维护的境地，也会导致标准未定义的行为。  
+重新定义已有特殊用途的名称，会导致标准未定义的行为，也会使代码陷入难以维护的境地。  
   
 C\+\+ 标准指明不可重新定义的宏有：
 ```
@@ -2766,21 +2773,15 @@ __STDC_ISO_10646__、__STDCPP_STRICT_POINTER_SAFETY__
 ```
 #define new new(std::nothrow)  // Non-compliant
 ```
-应实现为调用 new(std::nothrow) 的函数。  
-  
-审计工具不妨通过配置设定保留名称：
-```
-[ID_macro_defineReserved]
-keywordAsReserved=true
-NULL|NDEBUG|EOF=Reserved name should not be defined or undefined
-```
-表示将 NULL、NDEBUG、EOF 设为保留名称，当在代码中发现定义了相同名称的宏时则提示“Reserved name should not be redefined or undefined”。  
-配置项 keywordAsReserved 为 true 表示关键字也作为保留名称，否则只认为用户设置的名称为保留名称。
+应实现为调用 new(std::nothrow) 的函数。
 <br/>
 <br/>
 
 #### 配置
-详见说明  
+keywordAsReserved：是否将关键字作为保留名称  
+reservedNames：用户指定的保留名称  
+stdNameAsReserved：是否将标准库中的名称作为保留名称  
+underscoreAsReserved：是否将下划线开头的名称作为保留名称  
 <br/>
 
 #### 相关
@@ -2825,15 +2826,14 @@ __STDC_ISO_10646__、__STDCPP_STRICT_POINTER_SAFETY__
 #undef _WIN64       // Non-compliant
 #undef __unix__     // Non-compliant
 ```
-审计工具不妨通过配置设定保留名称：
-```
-[ID_macro_undefReserved]
-keywordAsReserved=true
-NULL|NDEBUG|EOF=Reserved name should not be defined or undefined
-```
-表示将 NULL、NDEBUG、EOF 设为保留名称，当在代码中发现 undef 相同名称的宏时则提示“Reserved name should not be redefined or undefined”。  
-配置项 keywordAsReserved 为 true 表示关键字也作为保留名称，否则只认为用户设置的名称为保留名称。
 <br/>
+<br/>
+
+#### 配置
+keywordAsReserved：是否将关键字作为保留名称  
+reservedNames：用户指定的保留名称  
+stdNameAsReserved：是否将标准库中的名称作为保留名称  
+underscoreAsReserved：是否将下划线开头的名称作为保留名称  
 <br/>
 
 #### 相关
@@ -3490,7 +3490,7 @@ ID_missingHeaderGuard&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 <br/>
 
 #### 配置
-allowPragmaOnce：为 true 时 #pragma once 也可作为符合要求的头文件守卫  
+allowPragmaOnce：是否允许 #pragma once 作为头文件守卫  
 <br/>
 
 #### 参考
@@ -5916,9 +5916,16 @@ ID_reservedName&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-自定义的名称不应与关键字、标准库或系统中的名称重复，否则不利于阅读和维护。  
+自定义的名称不应与标准库或编译环境中的名称相同，否则会导致标准未定义的行为，也不利于阅读和维护。  
   
-对于宏，本规则特化为 ID\_macro\_defineReserved、ID\_macro\_undefReserved，如果宏名称出现这种问题，会导致标准未定义的行为。  
+下列名称具有保留意义，自定义名称不应与之相同：  
+ - 标准库或编译环境中的宏名称  
+ - 标准库中具有外部链接性的对象或函数名称  
+ - 标准库中的类型名称  
+ - 以两个下划线或一个下划线和一个大写字母开头的名称  
+ - 以下划线开头的全局名称  
+  
+对于宏，本规则特化为 ID\_macro\_defineReserved、ID\_macro\_undefReserved。  
   
 示例：
 ```
@@ -5952,7 +5959,11 @@ ID_macro_undefReserved
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 7.1.3(1)  
 ISO/IEC 9899:2011 7.1.3(1)  
+ISO/IEC 14882:2003 17.4.3.1  
+ISO/IEC 14882:2011 17.6.4.3  
+ISO/IEC 14882:2017 20.5.4.3  
 <br/>
 
 #### 参考
@@ -6391,9 +6402,9 @@ C++ Core Guidelines NL.26
 <br/>
 <br/>
 
-### <span id="missingconst">▌R6.2.6 指向常量字符串的指针应使用 const 声明</span>
+### <span id="conststrtononconstptr">▌R6.2.6 指向常量字符串的指针应使用 const 声明</span>
 
-ID_missingConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
+ID_constStrToNonConstPtr&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
@@ -6629,7 +6640,7 @@ class Circle {
 <br/>
 
 #### 相关
-ID_missingConst  
+ID_constStrToNonConstPtr  
 <br/>
 
 #### 参考
@@ -7341,7 +7352,7 @@ void foo(int a[], int n);   // Let it go
 <br/>
 
 #### 配置
-allowArrayWithInitList：为 true 时可以放过带有初始化列表的数组  
+allowNoArraySizeWithInitList：是否放过带有初始化列表的数组  
 <br/>
 
 #### 参考
@@ -8464,6 +8475,11 @@ struct B {
 };
 ```
 <br/>
+<br/>
+
+#### 配置
+bitfieldMustBeStdInt：位域类型是否必须为 stdint.h 或 cstdint 中定义的类型  
+bitfieldMustBeUnsigned：位域类型是否必须为无符号整型  
 <br/>
 
 #### 依据
@@ -10007,7 +10023,7 @@ int bar() throw();           // Let it go?
 <br/>
 
 #### 配置
-forbidEmptyThrowSpecification：为 true 时报出空 throw 异常规格说明，否则放过  
+forbidEmptyThrowSpecification：是否放过空 throw 异常规格说明  
 <br/>
 
 #### 依据
@@ -12380,7 +12396,7 @@ if ((r = fun())) {   // Let it go?
 <br/>
 
 #### 配置
-allowEnclosedAssignment：为 true 可以放过括号括起来的赋值表达式  
+allowEnclosedAssignment：是否放过括号括起来的赋值表达式  
 <br/>
 
 #### 参考
@@ -16853,7 +16869,7 @@ for (a = 0, b = 0; a < 100; a++, b++)  {   // let it go?
 <br/>
 
 #### 配置
-allowCommaExpressionInForIteration：为 true 时放过 for 语句中的逗号表达式  
+allowCommaExpressionInForIteration：是否放过 for 语句中的逗号表达式  
 <br/>
 
 #### 参考
@@ -17548,7 +17564,7 @@ void foo(int* p) {
 <br/>
 
 #### 配置
-allowPointerToSizeType：为 true 时可以放过指针与 size_t 的转换  
+allowPointerToSizeType：是否放过指针与 size_t 的转换  
 <br/>
 
 #### 相关
@@ -17687,7 +17703,7 @@ V* v1 = reinterpret_cast<V*>(u);   // Still non-compliant
 <br/>
 
 #### 配置
-allowWeakerCast：为 true 可放过对象指针向 unsigned char* 的转换  
+allowWeakerCast：是否放过与 unsigned char* 的转换  
 <br/>
 
 #### 相关
@@ -18778,7 +18794,7 @@ volatile Dev* p = DEVICE_BASE;  // Let it go if the address is right
 <br/>
 
 #### 配置
-allowMinusOneAsPointerValue：为 true 时可以放过 -1 作为指针值的情况  
+allowMinusOneAsPointerValue：是否允许 -1 作为指针的值  
 <br/>
 
 #### 相关

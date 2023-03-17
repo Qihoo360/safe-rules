@@ -300,7 +300,7 @@ ISO/IEC 14882:2011 2.14.5(12)-undefined
 <br/>
 
 #### 规则
-[ID_missingConst](./c-cpp-rules.md#missingconst)  
+[ID_constStrToNonConstPtr](./c-cpp-rules.md#conststrtononconstptr)  
 <br/>
 
 <br/>
