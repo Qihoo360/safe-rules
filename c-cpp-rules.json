@@ -350,8 +350,8 @@
         "comment": "数组下标不在数组大小范围之内，意味着逻辑错误，会导致标准未定义的行为。",
         "tag": "buffer",
         "related": "ID_bufferOverflow",
-        "standard": "ISO/IEC 14882:2011 5.7(5)-undefined",
-        "reference": "CWE-119,CWE-125,CWE-131,CWE-787,CWE-788,C++ Core Guidelines ES.103,SEI CERT ARR30-C"
+        "standard": "ISO/IEC 9899:1999 6.5.6(8)-undefined,ISO/IEC 9899:2011 6.5.6(8)-undefined,ISO/IEC 14882:2003 5.7(5)-undefined,ISO/IEC 14882:2011 5.7(5)-undefined",
+        "reference": "CWE-119,CWE-125,CWE-131,CWE-787,CWE-788,C++ Core Guidelines ES.103,SEI CERT ARR30-C,SEI CERT INT04-C"
         },
     "ID_oddSubscripting": {
         "checkPoint": "数组下标应为整形表达式",
@@ -1937,7 +1937,7 @@
         "level": "warning",
         "comment": "函数参数的数量应在规定范围之内。",
         "config": [
-            "maxParamCount: 参数数量上限，超过则报出",
+            "maxParamCount: 函数参数数量上限，超过则报出",
             "maxInnerFunParamCount: static 函数或 private 成员函数参数数量上限，超过则报出"
             ],
         "tag": "function",
@@ -2308,7 +2308,7 @@
     "ID_while_brace": {
         "checkPoint": "while 循环体应该用大括号括起来",
         "level": "suggestion",
-        "comment": "while 循环体应为复合语句，即使只包含一条语句。",
+        "comment": "while 循环体应为大括号括起来的复合语句，即使该复合语句只包含一条语句。",
         "tag": "control",
         "related": "ID_do_brace,ID_for_brace,ID_if_brace,ID_switch_brace,ID_switch_onlyDefault,ID_switch_onlyOneCase",
         "reference": "MISRA C 2004 14.8,MISRA C 2012 15.6,MISRA C++ 2008 6-3-1"
@@ -2338,7 +2338,7 @@
     "ID_do_brace": {
         "checkPoint": "do-while 循环体应该用大括号括起来",
         "level": "suggestion",
-        "comment": "do-while 循环体应为复合语句，即使只包含一条语句。如果没有合理的大括号，可能会与内嵌的 while 语句形成难以发觉的错误。",
+        "comment": "do-while 循环体应为大括号括起来的复合语句，即使该复合语句只包含一条语句。",
         "tag": "control",
         "related": "ID_for_brace,ID_if_brace,ID_switch_brace,ID_while_brace",
         "reference": "MISRA C 2004 14.9,MISRA C 2012 15.6,MISRA C++ 2008 6-3-1"
@@ -2384,7 +2384,7 @@
     "ID_for_brace": {
         "checkPoint": "for 循环体应该用大括号括起来",
         "level": "suggestion",
-        "comment": "for 循环体应为复合语句，即使只包含一条语句。",
+        "comment": "for 循环体应为大括号括起来的复合语句，即使该复合语句只包含一条语句。",
         "tag": "control",
         "reference": "MISRA C 2004 14.8,MISRA C 2012 15.6,MISRA C++ 2008 6-3-1"
         },
@@ -3458,7 +3458,7 @@
         "comment": "如果 va_arg 的类型参数不符合要求，会导致标准未定义的行为。",
         "tag": "precompile",
         "related": "ID_badParmN,ID_nonPODVariadicArgument,ID_forbidVariadicFunction",
-        "standard": "ISO/IEC 9899:2011 7.16.1.1(2)-undefined",
+        "standard": "ISO/IEC 9899:1999 7.15.1.1(2)-undefined,ISO/IEC 9899:2011 7.16.1.1(2)-undefined",
         "reference": "SEI CERT EXP47-C"
         },
     "ID_voidCast": {

@@ -3329,15 +3329,17 @@ ID_incompleteVaMacros&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
   
 示例：
 ```
-void foo(const char* s, ...) {  // Non-compliant, missing ‘va_end(vl);’
-    va_list vl;
-    va_start(vl, s);
-    for (const char* p = s; *p; p++) {
-        ....
+int foo(int n, ...) {
+    va_list ap;
+    va_start(ap, n);
+    int sum = 0;
+    for (int i = 0; i < n; i++) {
+        sum += va_arg(ap, int);
     }
+    return sum;   // Non-compliant, missing ‘va_end(ap);’
 }
 ```
-示例代码应在返回前使用 va\_end。
+应在函数返回前使用 va\_end。
 <br/>
 <br/>
 
@@ -3356,10 +3358,10 @@ ID_badVaArgType&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: precompile error
 
 <hr/>
 
-对于 va\_arg 的类型参数，下列情况会导致标准未定义的行为：  
- - 名称后加 \* 号不能表示指针类型  
- - 与默认参数提升后的类型不兼容  
- - 与下一个参数的类型不兼容，或没有实际的下一个参数  
+对于宏 va\_arg(ap, type) 的类型参数 type，下列情况会导致标准未定义的行为：  
+ - type 后加 \* 号不能表示指针类型  
+ - 与“默认参数提升”后的类型不兼容  
+ - 与可变参数列表中对应的实参类型不兼容，或没有对应的实参  
   
 以下类型不可作为 av\_arg 的参数：
 ```
@@ -3376,14 +3378,23 @@ short int、signed short int、unsigned short int
 示例：
 ```
 void foo(int n, ...) {
-    va_list vl;
-    va_start(vl, n);
+    va_list ap;
+    va_start(ap, n);
     for (int i = 0; i < n; i++) {
-        char c = va_arg(vl, char);   // Non-compliant, use ‘va_arg(vl, int)’ instead
+        char c = va_arg(ap, char);   // Non-compliant
         ....
     }
-    va_end(vl);
+    va_end(ap);
 }
+```
+例中 va\_arg 的类型参数为 char 是不符合要求的。  
+  
+应改为：
+```
+    for (int i = 0; i < n; i++) {
+        char c = (char)va_arg(ap, int);   // Compliant
+        ....
+    }
 ```
 <br/>
 <br/>
@@ -3395,6 +3406,7 @@ ID_forbidVariadicFunction
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 7.15.1.1(2)-undefined  
 ISO/IEC 9899:2011 7.16.1.1(2)-undefined  
 <br/>
 
@@ -6887,7 +6899,7 @@ final 表示不可重写的重写，override 表示可再次重写的重写，�
 ```
 class D: public B {
 public:
-   int foo() override final;  // Non-compliant, ‘override’ is redundant
+    int foo() override final;  // Non-compliant, ‘override’ is redundant
 };
 ```
 <br/>
@@ -7123,20 +7135,18 @@ string format(const char* fmt, ...);  // Non-compliant
 如果用可变参数列表实现：
 ```
 string format(const char* fmt, ...) {
-    string res;
-    va_list vl;
-    va_start(vl, fmt);
-    for (auto* p = fmt; *p; p++) {
-        stringstream ss;
-        switch(*p) { 
-            case '@': ss << va_arg(vl, char*); break;
-            case '$': ss << va_arg(vl, int); break;
-            default:  ss << *p; break;
+    va_list ap;
+    stringstream res;
+    va_start(ap, fmt);
+    for (auto* c = fmt; *c; c++) {   
+        switch (*c) {
+            case '@': res << va_arg(ap, char*); break;
+            case '$': res << va_arg(ap, int); break;
+            default:  res << *c; break;
         }
-        res.append(ss.str());
     }
-    va_end(vl);
-    return res;
+    va_end(ap);
+    return res.str();
 }
 ```
 例中 va\_start、va\_arg、va\_end 是可变参数列表的标准支持，这种方法只能在运行时以 fmt 为依据获取后续参数，当实际参数与 fmt 不符时会造成严重问题，单纯地要求开发者小心谨慎是不可靠的，改用更安全的方法才是明智的选择。  
@@ -11773,7 +11783,7 @@ void foo(X x, Y y) {   // Good
 <br/>
 
 #### 配置
-maxParamCount: 参数数量上限，超过则报出  
+maxParamCount: 函数参数数量上限，超过则报出  
 maxInnerFunParamCount: static 函数或 private 成员函数参数数量上限，超过则报出  
 <br/>
 
@@ -12490,8 +12500,6 @@ ID_if_brace&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
 
 组成 if 分枝的语句应为大括号括起来的复合语句，即使该复合语句只包含一条语句。  
   
-这是非常好的编程习惯，如果能一直遵循此规则，可以杜绝由错误缩进、宏的错误使用造成的多种问题。  
-  
 示例：
 ```
 if (cond1)           // Non-compliant
@@ -12500,7 +12508,7 @@ if (cond1)           // Non-compliant
 else                 // Non-compliant
     action2();
 ```
-这段代码想表达的逻辑应是：
+根据缩进，这段代码想表达的逻辑应是：
 ```
 if (cond1) {
     if (cond2) {
@@ -12530,7 +12538,7 @@ else           // Non-compliant
     x = 3;
     y = 1;
 ```
-注意 else 子句中的 y = 1;  由于缩进的关系此句看起来应该是 else 分枝的一部分，但它实际上并不在 else 的作用范围之内，所以用大括号括起来，可杜绝此类问题：
+例中 y = 1; 看起来应该是 else 分枝的一部分，但它实际上并不在 else 的作用范围之内，所以用大括号括起来可避免此类问题：
 ```
 if (cond) {    // Compliant
     y = 2;
@@ -12539,6 +12547,15 @@ if (cond) {    // Compliant
     y = 1;
 }
 ```
+例外：
+```
+if (cond1) {
+    ....
+} else if (cond2) {   // Compliant
+    ....
+}
+```
+直接与 if 语句相连的 else 子句不受本规则约束。
 <br/>
 <br/>
 
@@ -12887,7 +12904,7 @@ ID_for_brace&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
 
 <hr/>
 
-for 循环体应为复合语句，即使只包含一条语句。  
+for 循环体应为大括号括起来的复合语句，即使该复合语句只包含一条语句。  
   
 示例：
 ```
@@ -13077,7 +13094,7 @@ ID_while_brace&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
 
 <hr/>
 
-while 循环体应为复合语句，即使只包含一条语句。  
+while 循环体应为大括号括起来的复合语句，即使该复合语句只包含一条语句。  
   
 示例：
 ```
@@ -13189,24 +13206,26 @@ ID_do_brace&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
 
 <hr/>
 
-do\-while 循环体应为复合语句，即使只包含一条语句。如果没有合理的大括号，可能会与内嵌的 while 语句形成难以发觉的错误。  
+do\-while 循环体应为大括号括起来的复合语句，即使该复合语句只包含一条语句。  
   
 示例：
 ```
-do           // Non-compliant
-    foo();
-    while (cond1);
-while (cond2);
+do              // Non-compliant
+    if (cond)
+        break;
+    while (*p++ = *q++);
+while (true);
 ```
 例中 while 关键字与 do 关键字产生了错误的对应关系，导致最后一个 while 形成了死循环，应改为：  
 
 ```
-do {         // Compliant
-    foo();
-    while (cond1) {
-        ....
+do {              // Compliant
+    if (cond) {
+        break;
     }
-} while (cond2);
+    while (*p++ = *q++);
+}
+while (true);
 ```
 <br/>
 <br/>
@@ -15842,18 +15861,20 @@ ID_nonPODVariadicArgument&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
   
 示例：
 ```
+using namespace std;
+
 void foo(int n, ...) {
-    va_list vl;
+    va_list ap;
     ....
-    string x = va_arg(vl, string);   // Undefined behavior
+    string s = va_arg(ap, string);   // Undefined behavior
     ....
 }
 
 void bar(string& s) {
-    foo(1, s);          // Non-compliant, undefined behavior
+    foo(1, s);          // Non-compliant
 }
 ```
-例中 string 类对象 s 不是 POD 对象，其拷贝构造和析构过程难以与可变参数列表机制兼容，通过 va\_arg 也难以获取正确的对象。  
+例中 string 类对象不是 POD 对象，其拷贝构造和析构过程难以与可变参数列表机制兼容，通过 va\_arg 难以获取正确的对象。  
   
 又如：
 ```
@@ -18315,6 +18336,9 @@ ID_bufferOverflow
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.5.6(8)-undefined  
+ISO/IEC 9899:2011 6.5.6(8)-undefined  
+ISO/IEC 14882:2003 5.7(5)-undefined  
 ISO/IEC 14882:2011 5.7(5)-undefined  
 <br/>
 
@@ -18326,6 +18350,7 @@ CWE-787
 CWE-788  
 C++ Core Guidelines ES.103  
 SEI CERT ARR30-C  
+SEI CERT INT04-C  
 <br/>
 <br/>
 
@@ -18339,30 +18364,30 @@ ID_insufficientBuffer&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: buffer warning
   
 示例：
 ```
-void foo() {
+void foo(const char* s) {
+    char* p = (char*)malloc(strlen(s));  // Non-compliant, should be ‘strlen(s) + 1’
+    strcpy(p, s);
+    printf("%s\n", p);  // Out of bounds, undefined behavior
+}
+```
+字符串以空字符结尾，在分配字符串空间时不可漏掉空字符的空间。  
+  
+又如：
+```
+void bar() {
     int* p = (int*)malloc(123);  // Non-compliant
     ....
 }
 ```
-例中 foo 函数为 int 型数组分配了 123 个字节的空间，而 123 不能被 sizeof(int) 整除，最后一个元素会越界。  
+例中 bar 函数为 int 型数组分配了 123 个字节的空间，而 123 不能被 sizeof(int) 整除，最后一个元素会越界。虽然 malloc 函数返回已对齐的地址，但这种代码往往意味着 sizeof 因子的缺失。  
   
 应改为：
 ```
-void foo() {
+void bar() {
     int* p = (int*)malloc(123 * sizeof(int));  // Compliant
     ....
 }
 ```
-需要注意数组的逻辑大小和字节大小的区别，不可漏掉 sizeof 因子。  
-  
-又如：
-```
-void bar(const char* s) {
-    char* p = (char*)malloc(strlen(s));  // May be ‘strlen(s) + 1’?
-    ....
-}
-```
-字符串以空字符结尾，在分配字符串空间时不可漏掉空字符的空间。
 <br/>
 <br/>
 
