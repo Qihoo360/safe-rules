@@ -458,8 +458,7 @@ ISO/IEC 14882:2011 3.6.3(4)-undefined
 ```
 void foo(size_t n) {
     int* p = new int[n];
-    ....
-    *p = 123;   // Undefined behavior if ‘n’ is zero
+    *p = 123;              // Undefined behavior if ‘n’ is zero
     ....
     delete[] p;
 }
@@ -2382,7 +2381,7 @@ struct T {
 又如：
 ```
 void my_handler() {  // A handler function
-     return;         // Do nothing
+    return;          // Do nothing
 }
 
 int main() {
