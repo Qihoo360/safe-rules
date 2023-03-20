@@ -2090,6 +2090,7 @@ void foo(T* p) {
 <br/>
 
 #### 依据
+ISO/IEC 14882:2003 5.3.5(5)-undefined  
 ISO/IEC 14882:2011 5.3.5(5)-undefined  
 <br/>
 <br/>
@@ -3461,6 +3462,7 @@ int baz() {
 <br/>
 
 #### 依据
+ISO/IEC 14882:2003 18.1(5)-undefined  
 ISO/IEC 14882:2011 18.2(4)-undefined  
 <br/>
 
@@ -3930,7 +3932,8 @@ const char* s = "\u4e2d";   // Compliant
 <br/>
 
 #### 依据
-ISO/IEC 14882:2011 2.2(2)-undefined  
+ISO/IEC 14882:2003 2.1(1)-undefined  
+ISO/IEC 14882:2011 2.2(1)-undefined  
 <br/>
 <br/>
 
@@ -4187,6 +4190,7 @@ ID_unsuitableDeclaration
 <br/>
 
 #### 依据
+ISO/IEC 14882:2003 3.5(3)  
 ISO/IEC 14882:2011 3.5(3)  
 <br/>
 <br/>
@@ -4217,6 +4221,7 @@ ID_unsuitableDeclaration
 <br/>
 
 #### 依据
+ISO/IEC 14882:2003 7.3.1.1  
 ISO/IEC 14882:2011 7.3.1.1  
 <br/>
 
@@ -8268,6 +8273,7 @@ ID_overloadLogicOperator
 <br/>
 
 #### 依据
+ISO/IEC 14882:2003 5.2.2(8)-unspecified  
 ISO/IEC 14882:2011 5.2.2(8)  
 <br/>
 
@@ -8335,6 +8341,7 @@ ID_overloadComma
 <br/>
 
 #### 依据
+ISO/IEC 14882:2003 5.2.2(8)-unspecified  
 ISO/IEC 14882:2011 5.2.2(8)  
 <br/>
 
@@ -9665,6 +9672,7 @@ public:
 <br/>
 
 #### 依据
+ISO/IEC 14882:2003 18.6.1  
 ISO/IEC 14882:2011 18.8.1  
 <br/>
 
@@ -10530,6 +10538,7 @@ A::A() {
 <br/>
 
 #### 依据
+ISO/IEC 14882:2003 15.3(10)-undefined  
 ISO/IEC 14882:2011 15.3(10)-undefined  
 <br/>
 
@@ -10616,9 +10625,9 @@ class A {
 
 public:
     A():
-     a(foo()),    // Non-compliant, undefined behavior
-     b(bar()) {   // Non-compliant, ‘b’ is always 0
-     }
+        a(foo()),    // Non-compliant, undefined behavior
+        b(bar())     // Non-compliant, ‘b’ is always 0
+    {}
 };
 
 class B: public A {
@@ -14548,8 +14557,10 @@ if (a == foo || b == bar++) {  // Non-compliant
 <br/>
 
 #### 依据
-ISO/IEC 9899:1999 6.5.13(4) 6.5.14(4)  
-ISO/IEC 9899:2011 6.5.13(4) 6.5.14(4)  
+ISO/IEC 9899:1999 6.5.13(4)  
+ISO/IEC 9899:1999 6.5.14(4)  
+ISO/IEC 9899:2011 6.5.13(4)  
+ISO/IEC 9899:2011 6.5.14(4)  
 <br/>
 
 #### 参考
@@ -14910,7 +14921,8 @@ bool foo(unsigned flags, unsigned flag) {
 <br/>
 
 #### 依据
-ISO/IEC 14882:2011 5.3.2(1 2) D.1-deprecated  
+ISO/IEC 14882:2011 5.3.2(1 2)  
+ISO/IEC 14882:2011 D.1-deprecated  
 <br/>
 
 #### 参考
@@ -15853,6 +15865,7 @@ ID_missingResetNull
 <br/>
 
 #### 依据
+ISO/IEC 14882:2003 12.4(14)-undefined  
 ISO/IEC 14882:2011 12.4(15)-undefined  
 <br/>
 <br/>
@@ -16503,9 +16516,12 @@ printf("%zu\n", sizeof(a));  // What is output?
 <br/>
 
 #### 依据
-ISO/IEC 14882:2003 5.3.3(1 6) 9(3)  
-ISO/IEC 14882:2011 5.3.3(1 6) 9(3)  
-ISO/IEC 14882:2017 8.3.3(1 6) 12(4)  
+ISO/IEC 14882:2003 5.3.3(1 6)  
+ISO/IEC 14882:2003 9(3)  
+ISO/IEC 14882:2011 5.3.3(1 6)  
+ISO/IEC 14882:2011 9(3)  
+ISO/IEC 14882:2017 8.3.3(1 6)  
+ISO/IEC 14882:2017 12(4)  
 <br/>
 
 #### 参考
@@ -17198,9 +17214,12 @@ ID_literal_confusingSuffix
 <br/>
 
 #### 依据
-ISO/IEC 14882:2003 2.14.2(2) 2.14.4(1)  
-ISO/IEC 14882:2011 2.14.2(2) 2.14.4(1)  
-ISO/IEC 14882:2017 5.13.2(2) 5.13.4(1)  
+ISO/IEC 14882:2003 2.14.2(2)  
+ISO/IEC 14882:2003 2.14.4(1)  
+ISO/IEC 14882:2011 2.14.2(2)  
+ISO/IEC 14882:2011 2.14.4(1)  
+ISO/IEC 14882:2017 5.13.2(2)  
+ISO/IEC 14882:2017 5.13.4(1)  
 <br/>
 <br/>
 
@@ -17776,6 +17795,7 @@ ID_castNoInheritance
 <br/>
 
 #### 依据
+ISO/IEC 14882:2003 4.10(3)  
 ISO/IEC 14882:2011 4.10(3)  
 <br/>
 <br/>
@@ -19153,6 +19173,7 @@ ID_nonDynamicDownCast
 <br/>
 
 #### 依据
+ISO/IEC 14882:2003 5.2.7(9)  
 ISO/IEC 14882:2011 5.2.7(9)  
 <br/>
 

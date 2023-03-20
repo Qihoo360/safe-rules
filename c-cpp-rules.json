@@ -977,7 +977,7 @@
         "level": "warning",
         "comment": "创建、复制异常对象以及获取异常信息时不应再抛出异常，否则不利于异常的定位与处理。",
         "tag": "exception",
-        "standard": "ISO/IEC 14882:2011 18.8.1",
+        "standard": "ISO/IEC 14882:2003 18.6.1,ISO/IEC 14882:2011 18.8.1",
         "reference": "MISRA C++ 2008 15-1-1"
         },
     "ID_forbidThrowSpecification": {
@@ -1267,7 +1267,7 @@
         "level": "warning",
         "comment": "bool 值只能为真或假，不具有“大小”等数值意义，bool 值参与位运算、大小比较、数值增减是不合理的。",
         "tag": "expression",
-        "standard": "ISO/IEC 14882:2011 5.3.2(1 2) D.1-deprecated",
+        "standard": "ISO/IEC 14882:2011 5.3.2(1 2),ISO/IEC 14882:2011 D.1-deprecated",
         "reference": "CWE-1024,CWE-1025,CWE-682,CWE-783,MISRA C 2004 12.7,MISRA C 2012 10.1,MISRA C++ 2008 5-0-21"
         },
     "ID_inaccessibleTmpObject": {
@@ -1328,7 +1328,7 @@
         "comment": "public 继承表示派生类是基类的某种扩展，而非 public 继承往往表示派生类是基类的某种“例外”，基类的方法不再适用于派生类的对象。",
         "tag": "cast",
         "related": "ID_castNoInheritance",
-        "standard": "ISO/IEC 14882:2011 4.10(3)"
+        "standard": "ISO/IEC 14882:2003 4.10(3),ISO/IEC 14882:2011 4.10(3)"
         },
     "ID_redundantCast": {
         "checkPoint": "不应存在多余的类型转换",
@@ -1553,7 +1553,7 @@
         "level": "suggestion",
         "comment": "逻辑表达式的右子表达式有副作用会使代码变得复杂易错，不利于阅读和维护。",
         "tag": "expression",
-        "standard": "ISO/IEC 9899:1999 6.5.13(4) 6.5.14(4),ISO/IEC 9899:2011 6.5.13(4) 6.5.14(4)",
+        "standard": "ISO/IEC 9899:1999 6.5.13(4),ISO/IEC 9899:1999 6.5.14(4),ISO/IEC 9899:2011 6.5.13(4),ISO/IEC 9899:2011 6.5.14(4)",
         "reference": "MISRA C 2004 12.4,MISRA C 2012 13.5,MISRA C++ 2008 5-14-1"
         },
     "ID_evaluationOrderReliance": {
@@ -1609,7 +1609,7 @@
         "level": "suggestion",
         "comment": "显式调用析构函数会提前结束对象的生命周期，之后对该对象的任何访问都会导致标准未定义的行为。",
         "tag": "expression",
-        "standard": "ISO/IEC 14882:2011 12.4(15)-undefined",
+        "standard": "ISO/IEC 14882:2003 12.4(14)-undefined,ISO/IEC 14882:2011 12.4(15)-undefined",
         "related": "ID_missingResetNull"
         },
     "ID_fixedAddrToPointer": {
@@ -2004,7 +2004,7 @@
         "comment": "对“逻辑与”、“逻辑或”等运算符的重载会影响效率，甚至造成不符合预期的结果。",
         "tag": "declaration",
         "related": "ID_overloadComma",
-        "standard": "ISO/IEC 14882:2011 5.2.2(8)",
+        "standard": "ISO/IEC 14882:2003 5.2.2(8)-unspecified,ISO/IEC 14882:2011 5.2.2(8)",
         "reference": "MISRA C++ 2008 5-2-11"
         },
     "ID_overloadComma": {
@@ -2013,7 +2013,7 @@
         "comment": "逗号表达式意在从左至右依次执行各子表达式，但重载逗号运算符会打破这一规则，易造成意料之外的结果。",
         "tag": "declaration",
         "related": "ID_overloadLogicOperator",
-        "standard": "ISO/IEC 14882:2011 5.2.2(8)",
+        "standard": "ISO/IEC 14882:2003 5.2.2(8)-unspecified,ISO/IEC 14882:2011 5.2.2(8)",
         "reference": "MISRA C++ 2008 5-2-11"
         },
     "ID_overloadAddressOperator": {
@@ -2099,7 +2099,7 @@
         "comment": "在头文件中定义匿名命名空间相当于在头文件中定义静态数据，头文件被多个源文件包含时会造成数据冗余。",
         "tag": "global",
         "related": "ID_staticInHeader,ID_unsuitableDeclaration",
-        "standard": "ISO/IEC 14882:2011 7.3.1.1",
+        "standard": "ISO/IEC 14882:2003 7.3.1.1,ISO/IEC 14882:2011 7.3.1.1",
         "reference": "C++ Core Guidelines SF.21,MISRA C++ 2008 7-3-3"
         },
     "ID_topInlineNamespace": {
@@ -2145,7 +2145,7 @@
         "comment": "头文件中由 static 关键字声明的对象、数组或函数，会在每个包含该头文件的翻译单元或模块中生成副本造成数据冗余，如果将静态数据误用作全局数据也会造成逻辑错误。",
         "tag": "global",
         "related": "ID_unsuitableDeclaration",
-        "standard": "ISO/IEC 14882:2011 3.5(3)"
+        "standard": "ISO/IEC 14882:2003 3.5(3),ISO/IEC 14882:2011 3.5(3)"
         },
     "ID_nameTooShort": {
         "checkPoint": "全局名称应遵循合理的命名方式",
@@ -2543,7 +2543,7 @@
         "comment": "整数常量后缀只应为 L、LL、UL、ULL，浮点数常量的后缀只应为 L、f 或 F，其他非标准后缀没有可移植性。",
         "tag": "literal",
         "related": "ID_literal_confusingSuffix",
-        "standard": "ISO/IEC 14882:2003 2.14.2(2) 2.14.4(1),ISO/IEC 14882:2011 2.14.2(2) 2.14.4(1),ISO/IEC 14882:2017 5.13.2(2) 5.13.4(1)"
+        "standard": "ISO/IEC 14882:2003 2.14.2(2),ISO/IEC 14882:2003 2.14.4(1),ISO/IEC 14882:2011 2.14.2(2),ISO/IEC 14882:2011 2.14.4(1),ISO/IEC 14882:2017 5.13.2(2),ISO/IEC 14882:2017 5.13.4(1)"
         },
     "ID_literal_magicNumber": {
         "checkPoint": "不应存在 magic number",
@@ -2784,7 +2784,7 @@
         "level": "warning",
         "comment": "dynamic_cast 转换指针失败会返回空指针，转换引用失败会抛出异常，如果不作判断则失去了使用 dynamic_cast 的意义。",
         "tag": "pointer",
-        "standard": "ISO/IEC 14882:2011 5.2.7(9)",
+        "standard": "ISO/IEC 14882:2003 5.2.7(9),ISO/IEC 14882:2011 5.2.7(9)",
         "related": "ID_nonDynamicDownCast",
         "reference": "CWE-476,C++ Core Guidelines C.148"
         },
@@ -2870,7 +2870,7 @@
         "level": "error",
         "comment": "将 sizeof 表达式的结果与 0 或负数比较往往意味着逻辑错误。",
         "tag": "expression",
-        "standard": "ISO/IEC 14882:2003 5.3.3(1 6) 9(3),ISO/IEC 14882:2011 5.3.3(1 6) 9(3),ISO/IEC 14882:2017 8.3.3(1 6) 12(4)",
+        "standard": "ISO/IEC 14882:2003 5.3.3(1 6),ISO/IEC 14882:2003 9(3),ISO/IEC 14882:2011 5.3.3(1 6),ISO/IEC 14882:2011 9(3),ISO/IEC 14882:2017 8.3.3(1 6),ISO/IEC 14882:2017 12(4)",
         "reference": "CWE-1025"
         },
     "ID_sizeof_sizeof": {
@@ -2978,7 +2978,7 @@
         "level": "error",
         "comment": "当流程进入面向构造或析构函数体的 catch handler 时，非静态成员的生命周期已经结束，如果继续访问会导致标准未定义的行为。",
         "tag": "function",
-        "standard": "ISO/IEC 14882:2011 15.3(10)-undefined",
+        "standard": "ISO/IEC 14882:2003 15.3(10)-undefined,ISO/IEC 14882:2011 15.3(10)-undefined",
         "reference": "MISRA C++ 2008 15-3-3"
         },
     "ID_this_selfJudgement": {
@@ -3079,7 +3079,7 @@
         "level": "suggestion",
         "comment": "宏 offsetof 很难适用于具有 C++ 特性的类，在 C++ 代码中不应使用。",
         "tag": "precompile",
-        "standard": "ISO/IEC 14882:2011 18.2(4)-undefined",
+        "standard": "ISO/IEC 14882:2003 18.1(5)-undefined,ISO/IEC 14882:2011 18.2(4)-undefined",
         "reference": "SEI CERT EXP59-CPP,MISRA C++ 2008 18-2-1"
         },
     "ID_forbidReinterpretCast": {
@@ -3411,14 +3411,14 @@
         "level": "warning",
         "comment": "反斜杠可用于标识转义字符，也可用于实现“伪换行”，即代码换行显示但在语法上并没有换行，一般用于宏定义，除此之外不应再使用反斜杠，否则没有实际意义，也会造成混乱。",
         "tag": "precompile",
-        "standard": "ISO/IEC 14882:2011 2.2(2)-undefined"
+        "standard": "ISO/IEC 14882:2003 2.1(1)-undefined,ISO/IEC 14882:2011 2.2(1)-undefined"
         },
     "ID_deleteIncompleteType": {
         "checkPoint": "用 delete 释放对象需保证其类型完整",
         "level": "warning",
         "comment": "如果用 delete 释放不完整类型的对象，而对象完整类型声明中有 non-trivial 析构函数，会导致标准未定义的行为。",
         "tag": "resource",
-        "standard": "ISO/IEC 14882:2011 5.3.5(5)-undefined"
+        "standard": "ISO/IEC 14882:2003 5.3.5(5)-undefined,ISO/IEC 14882:2011 5.3.5(5)-undefined"
         },
     "ID_missingNewLineFileEnd": {
         "checkPoint": "非空源文件应以换行符结尾",
