@@ -1254,6 +1254,7 @@ ID_unsafeStringFunction
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 7.21.2.4  
 ISO/IEC 9899:2011 7.24.2.4  
 <br/>
 
@@ -3348,6 +3349,7 @@ ID_forbidVariadicFunction
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 7.15.1.3(2)-undefined  
 ISO/IEC 9899:2011 7.16.1.3(2)-undefined  
 <br/>
 <br/>
@@ -3358,6 +3360,8 @@ ID_badVaArgType&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: precompile error
 
 <hr/>
 
+对于 stdarg.h 中的宏 va\_arg(ap, type)，其类型参数 type 在  
+  
 对于宏 va\_arg(ap, type) 的类型参数 type，下列情况会导致标准未定义的行为：  
  - type 后加 \* 号不能表示指针类型  
  - 与“默认参数提升”后的类型不兼容  
@@ -6954,7 +6958,7 @@ ID_invalidFinal&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-标准规定 union 不可作为基类，所以将 union 声明为 final 是没有意义的，属于语言运用错误。  
+C\+\+ 标准规定 union 不可作为基类，将 union 声明为 final 是没有意义的，属于语言运用错误。  
   
 示例：
 ```
@@ -6967,7 +6971,7 @@ union U final  // Non-compliant, meaningless
 <br/>
 
 #### 依据
-ISO/IEC 9899:2011 9.5(2)  
+ISO/IEC 14882:2011 9.5(2)  
 <br/>
 <br/>
 
@@ -8434,7 +8438,7 @@ public:
 <br/>
 
 #### 依据
-ISO/IEC 9899:2011 9(3)  
+ISO/IEC 14882:2011 9(3)  
 <br/>
 <br/>
 
@@ -10478,6 +10482,7 @@ struct B: A {
 <br/>
 
 #### 依据
+ISO/IEC 14882:2003 12.6.2(8)-undefined  
 ISO/IEC 14882:2011 12.6.2(13)-undefined  
 <br/>
 <br/>
@@ -11539,6 +11544,7 @@ int main() {
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 7.20.4.3(2 3)-undefined  
 ISO/IEC 9899:2011 7.22.4.4(2 3)-undefined  
 <br/>
 
@@ -16624,6 +16630,7 @@ void bar(int x) {
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 7.2  
 ISO/IEC 9899:2011 7.2  
 <br/>
 <br/>
@@ -16660,6 +16667,7 @@ ID_unevaluatedSideEffect
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 7.2  
 ISO/IEC 9899:2011 7.2  
 <br/>
 
@@ -16790,6 +16798,7 @@ ID_ignorePaddingData
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.2.6.2(5)-unspecified  
 ISO/IEC 9899:2011 6.2.6.2(5)-unspecified  
 <br/>
 <br/>
@@ -17886,6 +17895,7 @@ ID_castNoInheritance
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.3.2.3(7)-undefined  
 ISO/IEC 9899:2011 6.3.2.3(7)-undefined  
 <br/>
 
@@ -18745,7 +18755,8 @@ ID_repeatedNullCheck
 <br/>
 
 #### 依据
-ISO/IEC 9899:2011 18.6  
+ISO/IEC 14882:2003 18.4  
+ISO/IEC 14882:2011 18.6  
 <br/>
 <br/>
 
@@ -19309,6 +19320,7 @@ ID_dataRaces
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 7.14.1.1(5)-undefined  
 ISO/IEC 9899:2011 7.14.1.1(5)-undefined  
 <br/>
 
@@ -19372,6 +19384,7 @@ int main() {
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 7.14.1.1(3)-undefined  
 ISO/IEC 9899:2011 7.14.1.1(3)-undefined  
 <br/>
 
@@ -19544,6 +19557,7 @@ void create(const char* path) {
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 7.19.5.3(3)  
 ISO/IEC 9899:2011 7.21.5.3(3)  
 <br/>
 
@@ -19751,7 +19765,7 @@ ID_danglingDeref
 <br/>
 
 #### 依据
-ISO/IEC 9899:2011 30.4.1.2.1(5)-undefined  
+ISO/IEC 14882:2011 30.4.1.2.1(5)-undefined  
 <br/>
 
 #### 参考
