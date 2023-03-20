@@ -18278,9 +18278,7 @@ void foo(const char* s) {
     ....
 }
 ```
-strncpy 与 strcpy 不同，当源字符串长度超过指定限制时会结束复制，但要注意 strncpy 对空字符的处理。  
-  
-对数组下标越界的问题，本规则特化为 ID\_arrayIndexOverflow。
+strncpy 与 strcpy 不同，当源字符串长度超过指定限制时会结束复制，但要注意 strncpy 对空字符的处理。
 <br/>
 <br/>
 
@@ -18291,7 +18289,8 @@ ID_unsafeStringFunction
 
 #### 参考
 CWE-119  
-CWE-131  
+CWE-125  
+CWE-787  
 CWE-788  
 <br/>
 <br/>
@@ -18302,41 +18301,28 @@ ID_arrayIndexOverflow&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: buffer error
 
 <hr/>
 
-数组下标不在数组大小范围之内，意味着逻辑错误，会导致标准未定义的行为。  
+数组下标超过数组大小范围会导致标准未定义的行为。  
   
-通过 \[ \]、\+、\-、\+\+、\-\- 等运算符完成的数组元素定位均受本规则约束。  
+设数组元素个数为 N，p 为指向数组第一个元素的指针，i 为整数，标准规定：  
+ - 当 i >= 0 且 i < N 时，p \+ i 的结果不会溢出  
+ - 当 i 等于 N 时，p \+ i 的结果不会溢出，但不可对其解引用  
+ - 当 i < 0 或 i > N 时，p \+ i 的结果可能会溢出  
+ - 使数组下标超出 \[0, N\] 的运算可能会使指针值溢出，导致未定义的行为  
   
 示例：
 ```
-int foo() {
-    int a[10] = {};
-    ....
-    return a[10];  // Non-compliant, overflow
-}
-```
-例中数组声明的大小是 10，其下标有效范围是 0 至 9，10 不能再作为下标，这也是常见笔误。  
-  
-如果数组下标可受用户控制，更应该判断是否在有效范围内，如：
-```
-const char* fruits[] = {
-    "apple", "banana", "grape"
-};
+int a[10];
+int *p, *e;
 
-const char* bar() {
-    return fruits[userInput()];  // Non-compliant
-}
-```
-设 userInput 返回用户输入的整数，将其直接作为数组下标是不安全的。  
-  
-应改为：
-```
-const char* bar() {
-    int i = userInput();
-    if (i >= 0 && i < 3) {
-        return fruits[i];    // Compliant
-    }
-    return nullptr;
-}
+p = a + 0;    // Compliant
+p = a + 5;    // Compliant
+e = a + 10;   // Compliant, won't overflow
+
+p = a - 1;    // Non-compliant, the array subscript is -1, which exceeds [0, N]
+e = a + 11;   // Non-compliant, the array subscript is 11, which exceeds [0, N]
+
+--p;          // Non-compliant, may overflow
+e++;          // Non-compliant, may overflow
 ```
 <br/>
 <br/>
@@ -18353,14 +18339,8 @@ ISO/IEC 14882:2011 5.7(5)-undefined
 <br/>
 
 #### 参考
-CWE-119  
-CWE-125  
-CWE-131  
-CWE-787  
-CWE-788  
 C++ Core Guidelines ES.103  
 SEI CERT ARR30-C  
-SEI CERT INT04-C  
 <br/>
 <br/>
 

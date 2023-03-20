@@ -54,7 +54,7 @@
 | 42 | [对象解引用成员指针时，对象的动态类型不包含成员指针引用的成员](#_42) | [`11-5.5(4)`](#_42) |
 | 43 | [对象解引用成员指针时，成员指针为空指针](#_43) | [`11-5.5(6)`](#_43) |
 | 44 | [/ 或 % 运算符第二个操作数的值为 0](#_44) | [`11-5.6(4)`](#_44) |
-| 45 | [指针加减整数，结果超出了指针所在数组的地址范围](#_45) | [`11-5.7(5)`](#_45) |
+| 45 | [指针加减整数，结果超出了指针指向数组的地址范围，使指针的值溢出](#_45) | [`11-5.7(5)`](#_45) |
 | 46 | [未指向同一数组的指针相减](#_46) | [`11-5.7(5)`](#_46) |
 | 47 | [移位运算符右操作数为负数或超过相关类型比特位的数量](#_47) | [`11-5.8(1)`](#_47) |
 | 48 | [对有符号整数进行超出取值范围的左移运算](#_48) | [`11-5.8(2)`](#_48) |
@@ -474,7 +474,7 @@ ISO/IEC 14882:2011 3.7.4.1(2)-undefined
 <br/>
 
 #### 规则
-[ID_arrayIndexOverflow](./c-cpp-rules.md#arrayindexoverflow)  
+[ID_bufferOverflow](./c-cpp-rules.md#bufferoverflow)  
 <br/>
 
 <br/>
@@ -1357,19 +1357,22 @@ ISO/IEC 14882:2011 5.6(4)-undefined
 <br/>
 <br/>
 
-### <span id="_45">45. 指针加减整数，结果超出了指针所在数组的地址范围</span>
+### <span id="_45">45. 指针加减整数，结果超出了指针指向数组的地址范围，使指针的值溢出</span>
 <br/>
 
+设数组 a 的元素个数为 N，a 至 a \+ N 均为有效值（但不可对 a \+ N 解引用），超出这个范围的指针加减运算可能会使指针的值溢出，导致未定义的行为。  
+  
 示例：
 ```
-int foo() {
-    int a[10];
-    ....
-    int* p = a + 9;   // OK
-    return p[1];      // Undefined behavior
-}
+int a[N];    // Let ‘N’ be the array size
+int* p;
+
+p = a;       // OK
+p = a + N;   // OK, won't overflow
+
+p = a - 1;       // May overflow, resulting in undefined behavior
+p = a + N + 1;   // May overflow, resulting in undefined behavior
 ```
-例中 p\[1\] 相当于 \*(p \+ 1)，即 a\[10\]，超过了数组最后一个元素的地址，导致未定义的行为。
 <br/>
 <br/>
 
@@ -1379,7 +1382,6 @@ ISO/IEC 14882:2011 5.7(5)-undefined
 <br/>
 
 #### 规则
-[ID_bufferOverflow](./c-cpp-rules.md#bufferoverflow)  
 [ID_arrayIndexOverflow](./c-cpp-rules.md#arrayindexoverflow)  
 <br/>
 

@@ -347,11 +347,11 @@
     "ID_arrayIndexOverflow": {
         "checkPoint": "数组下标不可越界",
         "level": "error",
-        "comment": "数组下标不在数组大小范围之内，意味着逻辑错误，会导致标准未定义的行为。",
+        "comment": "数组下标超过数组大小范围会导致标准未定义的行为。",
         "tag": "buffer",
         "related": "ID_bufferOverflow",
         "standard": "ISO/IEC 9899:1999 6.5.6(8)-undefined,ISO/IEC 9899:2011 6.5.6(8)-undefined,ISO/IEC 14882:2003 5.7(5)-undefined,ISO/IEC 14882:2011 5.7(5)-undefined",
-        "reference": "CWE-119,CWE-125,CWE-131,CWE-787,CWE-788,C++ Core Guidelines ES.103,SEI CERT ARR30-C,SEI CERT INT04-C"
+        "reference": "C++ Core Guidelines ES.103,SEI CERT ARR30-C"
         },
     "ID_oddSubscripting": {
         "checkPoint": "数组下标应为整形表达式",
@@ -3323,7 +3323,7 @@
         "comment": "对缓冲区的读写应在有效边界内进行。",
         "tag": "buffer",
         "related": "ID_arrayIndexOverflow,ID_unsafeStringFunction",
-        "reference": "CWE-119,CWE-131,CWE-788"
+        "reference": "CWE-119,CWE-125,CWE-787,CWE-788"
         },
     "ID_protectedData": {
         "checkPoint": "类的非常量数据成员不应定义为 protected",
