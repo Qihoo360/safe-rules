@@ -263,8 +263,8 @@
     - [R6.4.5 类成员不应被声明为 void\*](#forbidmembervoidptr)
     - [R6.4.6 数组大小应被显式声明](#missingarraysize)
     - [R6.4.7 局部数组的长度不应过大](#unsuitablearraysize)
-    - [R6.4.8 不建议将类型定义和对象声明写在一个语句中](#mixedtypeobjdefinition)
-    - [R6.4.9 不应将函数或函数指针和其他声明写在同一个语句中](#mixeddeclarations)
+    - [R6.4.8 不应将类型定义和对象声明写在一个语句中](#mixedtypeobjdefinition)
+    - [R6.4.9 不应将不同类别的声明写在一个语句中](#mixeddeclarations)
   - [6.5 Object](#declaration.object)
     - [R6.5.1 不应产生无效的临时对象](#inaccessibletmpobject)
     - [R6.5.2 不应存在没有被用到的局部声明](#invalidlocaldeclaration)
@@ -298,9 +298,9 @@
     - [R6.8.4 不应对枚举对象声明位域](#forbidenumbitfield)
     - [R6.8.5 禁用位域](#forbidbitfield)
   - [6.9 Complexity](#declaration.complexity)
-    - [R6.9.1 不建议采用复杂的声明](#complexdeclaration)
+    - [R6.9.1 不应采用复杂的声明](#complexdeclaration)
     - [R6.9.2 声明中不应包含过多的指针嵌套](#toomanyptrlevel)
-    - [R6.9.3 在一个语句中不应声明过多对象或函数](#toomanydeclarators)
+    - [R6.9.3 在一个语句中不应声明多个对象或函数](#toomanydeclarators)
   - [6.10 Other](#declaration.other)
     - [R6.10.1 遵循 One Definition Rule](#violateodr)
     - [R6.10.2 声明与实现应一致](#inconsistentdeclaration)
@@ -470,7 +470,7 @@
     - [R10.2.2 避免依赖特定的子表达式求值顺序](#evaluationorderreliance)
     - [R10.2.3 在表达式中不应多次读写同一对象](#confusingassignment)
     - [R10.2.4 注意运算符优先级，避免非预期的结果](#unexpectedprecedence)
-    - [R10.2.5 未指向同一数组或对象的指针不可相减或比较大小](#illptrdiff)
+    - [R10.2.5 不在同一数组或对象中的地址不可相减或比较大小](#illptrdiff)
     - [R10.2.6 bool 值不应参与位运算、大小比较、数值增减](#illbooloperation)
     - [R10.2.7 不应出现复合赋值的错误形式](#illformedcompoundassignment)
     - [R10.2.8 避免出现复合赋值的可疑形式](#suspiciouscompoundassignment)
@@ -2738,7 +2738,9 @@ ID_macro_defineReserved&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 <hr/>
 
-重新定义已有特殊用途的名称，会导致标准未定义的行为，也会使代码陷入难以维护的境地。  
+重新定义已有特殊用途的名称会导致标准未定义的行为，也会使代码陷入难以维护的境地。  
+  
+标准库、编译环境中的名称以及关键字不应重新定义。  
   
 C\+\+ 标准指明不可重新定义的宏有：
 ```
@@ -2747,35 +2749,29 @@ __STDC__、__STDC_HOSTED__、__STDCPP_THREADS__、
 __STDC_MB_MIGHT_NEQ_WC__、__STDC_VERSION__、
 __STDC_ISO_10646__、__STDCPP_STRICT_POINTER_SAFETY__
 ```
-除此之外，平台、环境、框架相关的宏也不应在代码中重新定义。  
-  
-以下划线开头的名称用于表示标准库或系统的内部名称，自定义名称不应以下划线开头。  
+以下划线开头的名称用于表示标准库或编译环境的保留名称，自定义名称不应以下划线开头。  
   
 示例：
 ```
-#define defined  // Non-compliant
+#define _WIN64   0      // Non-compliant
+#define __GNUC__ 1      // Non-compliant
+#define __STDC__ 1      // Non-compliant
+#define __cplusplus 0   // Non-compliant
+```
+标识平台或编译环境的宏不可在代码中写死。  
+
+```
+#define defined            // Non-compliant
+#define new new(nothrow)   // Non-compliant
 ```
 不可重定义关键字。  
 
 ```
-#define __GNUC__ 1  // Non-compliant
+#define NDEBUG 0    // Non-compliant
+#define errno 0     // Non-compliant
+#define assert(x)   // Non-compliant
 ```
-标识编译器或平台的宏不可在代码中写死。  
-
-```
-#define NDEBUG 0  // Non-compliant
-```
-编译优化相关的宏不可在代码中写死。  
-
-```
-#define assert(x) ((void)x)  // Non-compliant
-```
-标准库中的宏不应重新实现。  
-
-```
-#define new new(std::nothrow)  // Non-compliant
-```
-应实现为调用 new(std::nothrow) 的函数。
+编译优化相关的宏不可在代码中写死，标准库中的名称不应被重新定义。
 <br/>
 <br/>
 
@@ -2809,24 +2805,16 @@ ID_macro_undefReserved&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 <hr/>
 
-取消定义已有特殊用途的宏名称，会使代码陷入难以维护的境地，也会导致标准未定义的行为。  
+取消定义已有特殊用途的宏会导致标准未定义的行为，也会使代码陷入难以维护的境地。  
   
-C\+\+ 标准指明不可取消定义的宏有：
-```
-__cplusplus、__TIME__、__DATE__、__FILE__、__ LINE__、
-__STDC__、__STDC_HOSTED__、__STDCPP_THREADS__、
-__STDC_MB_MIGHT_NEQ_WC__、__STDC_VERSION__、
-__STDC_ISO_10646__、__STDCPP_STRICT_POINTER_SAFETY__
-```
-除此之外，平台、环境、框架相关的宏也不可被取消定义。  
+标准库、编译环境中的宏不可被取消定义。  
   
 示例：
 ```
-#undef __LINE__     // Non-compliant
-#undef __cplusplus  // Non-compliant
-#undef NDEBUG       // Non-compliant
-#undef _WIN64       // Non-compliant
-#undef __unix__     // Non-compliant
+#undef __LINE__      // Non-compliant
+#undef __cplusplus   // Non-compliant
+#undef _WIN64        // Non-compliant
+#undef NDEBUG        // Non-compliant
 ```
 <br/>
 <br/>
@@ -2850,9 +2838,7 @@ ISO/IEC 14882:2011 16.8(4)-undefined
 
 #### 参考
 MISRA C 2012 21.1  
-MISRA C 2012 20.5  
 MISRA C++ 2008 17-0-1  
-MISRA C++ 2008 16-0-3  
 <br/>
 <br/>
 
@@ -5871,18 +5857,19 @@ ID_badName&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
   
 示例：
 ```
-namespace xxx   // Bad, meaningless name
-{
-    int l, I, O, l0, Il;   // Bad, like numbers
+int xxx(int);   // Bad, meaningless name
 
-    int YE5, N0;   // Bad, like a word but not
+int fun(int);   // Bad, vague name
 
-    void fun(int);   // Bad, vague
+int l, I, O, l0, Il;   // Bad, like numbers
 
-    const int nVarietyisthespiceoflife = 123;   // Bad, hard to read
-}
+int YE5, N0;   // Bad, like a word but not
+
+int \u540d\u79f0;   // Bad, no readability
+
+int nVarietyisthespiceoflife = 123;   // Bad, hard to read or write
 ```
-例中 l、I、lI 这种易与数字混淆的名称是不符合要求的，xxx、fun 这种无意义或过于空泛的名称也是不符合要求的，而且名称中各单词间应有下划线或大小写变化，否则是不便于读写的。本规则集合示例中出现的 foo、bar 等名称，意在代指一般的代码元素，仅作示例，实际代码中不应出现。  
+例中 xxx、fun 这种无意义或意义过于空泛的名称，以及 l、lI、N0 这种易与数字或其他单词混淆的名称均是不符合要求的；Unicode 转义名称只应出现在字符串中，否则没有可读性；名称中各单词间应有下划线或大小写变化，否则不便于读写。本规则集合示例中出现的 foo、bar 等名称，意在代指一般的代码元素，仅作示例，实际代码中不应出现。  
   
 不良命名方式甚至会导致标准未定义的行为，如：
 ```
@@ -5946,8 +5933,13 @@ ID_reservedName&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
  - 标准库或编译环境中的宏名称  
  - 标准库中具有外部链接性的对象或函数名称  
  - 标准库中的类型名称  
- - 以两个下划线或一个下划线和一个大写字母开头的名称  
+  
+自定义字面常量后缀应以下划线开头，否则为保留名称，除此之外：  
+ - 以两个下划线开头的名称  
+ - 以一个下划线和一个大写字母开头的名称  
  - 以下划线开头的全局名称  
+  
+均具有保留意义，自定义名称应避免这种命名方式。  
   
 对于宏，本规则特化为 ID\_macro\_defineReserved、ID\_macro\_undefReserved。  
   
@@ -5967,8 +5959,18 @@ private:
 ```
 例中成员变量 errno 与标准库中的 errno 名称相同，不便于区分是自定义的还是系统定义的。  
   
+又如：
+```
+size_t _Size();   // Non-compliant
+
+size_t operator "" KB(unsigned long long n) {   // Non-compliant
+    return n * 1024;
+}
+```
+例中函数名 \_Size 以一个下划线和一个大写字母开头，自定义字面常量后缀 KB 未以下划线开头，均不符合要求。  
+  
 为避免冲突和误解，以下命名方式可供参考：  
- - 避免名称以下划线开头  
+ - 除自定义字面常量后缀之外，避免名称以下划线开头  
  - 无命名空间限制的全局名称以模块名称开头  
  - 从名称上体现作用域，如全局对象名以 g\_ 开头，成员对象名以 m\_ 开头或以 \_ 结尾  
  - 从名称上体现类别，如宏名采用全大写字母，类型名以大写字母开头，函数或对象名以小写字母开头  
@@ -6672,6 +6674,7 @@ C++ Core Guidelines Con.1
 C++ Core Guidelines Con.2  
 C++ Core Guidelines Con.3  
 C++ Core Guidelines Con.4  
+MISRA C 2012 18.3  
 MISRA C++ 2008 7-1-1  
 MISRA C++ 2008 7-1-2  
 <br/>
@@ -7424,7 +7427,7 @@ SEI CERT MEM05-C
 <br/>
 <br/>
 
-### <span id="mixedtypeobjdefinition">▌R6.4.8 不建议将类型定义和对象声明写在一个语句中</span>
+### <span id="mixedtypeobjdefinition">▌R6.4.8 不应将类型定义和对象声明写在一个语句中</span>
 
 ID_mixedTypeObjDefinition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -7436,7 +7439,7 @@ ID_mixedTypeObjDefinition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration sugges
 ```
 struct T {
     ....
-} obj, *ptr;  // Bad
+} obj, *ptr, fun();   // Non-compliant
 ```
 应改为：
 ```
@@ -7444,8 +7447,9 @@ struct T {
     ....
 };
 
-T obj;   // OK
-T* ptr;  // OK
+T obj;   // Compliant
+T* ptr;   // Compliant
+T fun();   // Compliant
 ```
 <br/>
 <br/>
@@ -7455,25 +7459,33 @@ C++ Core Guidelines C.7
 <br/>
 <br/>
 
-### <span id="mixeddeclarations">▌R6.4.9 不应将函数或函数指针和其他声明写在同一个语句中</span>
+### <span id="mixeddeclarations">▌R6.4.9 不应将不同类别的声明写在一个语句中</span>
 
 ID_mixedDeclarations&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-每条语句只应声明一个函数或函数指针，否则可读性较差。  
+将对象、指针、引用、数组、函数等不同类别的声明写入一个语句可读性较差，易引起误解。  
+  
+本规则是 ID\_tooManyDeclarators 的特化。  
   
 示例：
 ```
-int* foo(int), bar(0), (*baz)(char);   // Non-compliant, very bad
+typedef int* p, n;                // Non-compliant
+int* a, b, c[8], d(int), e = 0;   // Non-compliant
 ```
-例中 foo 是函数，bar 是整数，baz 是函数指针，这种混在一起的声明是非常混乱的。  
+混在一起的声明易引起误解，例中 p 和 n 是不同的类型，只有 e 被初始化，d 为函数。  
   
 应分开声明：
 ```
-int* foo(int);      // Compliant
-int bar = 0;        // Compliant
-int (*baz)(char);   // Compliant
+typedef int* p;   // Compliant
+typedef int n;    // Compliant
+
+int* a;       // Compliant
+int b;        // Compliant
+int c[8];     // Compliant
+int d(int);   // Compliant
+int e = 0;    // Compliant
 ```
 <br/>
 <br/>
@@ -8695,7 +8707,7 @@ ISO/IEC 14882:2017 12.2.4(3)
 
 ### <span id="declaration.complexity">6.9 Complexity</span>
 
-### <span id="complexdeclaration">▌R6.9.1 不建议采用复杂的声明</span>
+### <span id="complexdeclaration">▌R6.9.1 不应采用复杂的声明</span>
 
 ID_complexDeclaration&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -8735,7 +8747,7 @@ ID_tooManyPtrLevel&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-指针嵌套层级过多意味着指针的解引用逻辑过于复杂，相关代码将难以理解，建议指针嵌套不超过 2 级。  
+指针嵌套层级过多意味着指针的解引用逻辑过于复杂，相关代码将难以理解，指针嵌套不宜超过 2 级。  
   
 示例：
 ```
@@ -8767,24 +8779,51 @@ MISRA C 2012 18.5
 <br/>
 <br/>
 
-### <span id="toomanydeclarators">▌R6.9.3 在一个语句中不应声明过多对象或函数</span>
+### <span id="toomanydeclarators">▌R6.9.3 在一个语句中不应声明多个对象或函数</span>
 
 ID_tooManyDeclarators&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-在一个语句中声明多个对象或函数不利于阅读和维护，建议在每个语句中只声明一个对象或函数。  
+在一个语句中声明多个对象或函数不利于阅读和维护，建议在一个语句中只声明一个对象或函数。  
+  
+函数、数组以及相关指针、引用的声明相对复杂，不应和其他声明混在一起。为了便于查阅，对于类及结构体成员、全局对象、具有外部链接性或静态存储期的对象，也不应将多项声明混在一个语句中。对于简单的局部对象声明可适当放宽要求，但仍以一个语句一项声明为宜。  
+  
+不应将指针、引用、数组、函数等不同类别的声明混在一个语句中，对此本规则特化为  ID\_mixedDeclarations。  
   
 示例：
 ```
-int* a, b[8], c, d(int), e = 0;  // Bad
+int a, b, c, d, e, f, g, ....;   // Bad, too many objects
+
+int fn1(void), fn2(int, int*), fn3(int);   // Bad
+
+struct T {
+    int i, j, k;   // Bad
+    int *p, *q;    // Bad
+};
+
+void foo() {
+    int long_name, name;             // Bad
+    int u = complex_expression, v;   // Bad
+    ....
+    int x, y;      // Simple declarations, let it go?
+    ....
+}
 ```
-例中只有 a 是指针，也只有 e 被初始化，d 为函数，应分开声明。
 <br/>
 <br/>
 
 #### 配置
-maxDeclaratorCount: 一个声明语句能包含的对象或函数个数上限，超过则报出  
+allowMultiArrayDeclarator: 是否允许在一个语句中声明多个数组以及相关的指针或引用  
+allowMultiFunctionDeclarator: 是否允许在一个语句中声明多个函数以及相关的指针或引用  
+maxLocalDeclaratorCount: 在局部作用域中一个语句能声明的对象或函数个数上限，超过则报出  
+maxMemberDeclaratorCount: 在类或结构体中一个语句能声明的对象或函数个数上限，超过则报出  
+maxGlobalDeclaratorCount: 在全局或命名空间作用域中一个语句能声明的对象或函数个数上限，超过则报出  
+simpleDeclaratorLengthThreshold: 简单声明字符数量阈值，如果声明和初始化表达式的总字符数超过此值，则应单独声明  
+<br/>
+
+#### 相关
+ID_mixedDeclarations  
 <br/>
 
 #### 参考
@@ -14839,34 +14878,55 @@ CWE-783
 <br/>
 <br/>
 
-### <span id="illptrdiff">▌R10.2.5 未指向同一数组或对象的指针不可相减或比较大小</span>
+### <span id="illptrdiff">▌R10.2.5 不在同一数组或对象中的地址不可相减或比较大小</span>
 
 ID_illPtrDiff&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-同一数组或对象内部的内存布局是确定的，但不同数组或对象的地址之间没有明确地数学关系，如果未指向同一数组或对象的指针相减或比较大小，会导致标准未定义的行为。  
+不在同一数组或对象中的地址之间没有逻辑关系，这种地址相减或比较大小属于逻辑错误，也会导致标准未定义或未声明的行为。  
+  
+对于 C\+\+ 语言，即使在同一对象中：  
+ - 静态成员之间  
+ - 静态成员与非静态成员之间  
+ - 由 access\-specifier 分隔的成员之间  
+  
+也不应对地址求差值或比较大小。  
   
 示例：
 ```
+bool b;
 ptrdiff_t d;
 
 int i, j;
-d = &j - &i;   // Non-compliant, undefined behavior
+b = &j > &i;   // Non-compliant, undefined in C, unspecified in C++
+d = &j - &i;   // Non-compliant, undefined in C and C++ if overflow
 
 struct A {
     int i, j;
 } a;
+b = &a.j > &a.i;   // Compliant, ‘b’ is true
 d = &a.j - &a.i;   // Compliant, ‘d’ is 1
 
 int x[8];
 int y[8];
-d = &y[1] - &x[0];   // Non-compliant, undefined behavior
+d = &y[1] - &x[0];   // Non-compliant, undefined behavior if overflow
 d = &x[1] - &x[0];   // Compliant, ‘d’ is 1
+
+class B {
+    static int i;
+    int j;
+public:                   // access-specifier
+    int k;
+    int foo() {
+        return &i < &j    // Non-compliant, unspecified
+            || &j < &k;   // Non-compliant, unspecified
+    }
+};
 ```
-指针与空指针之间也不应相减或比较大小：
+另外，指针与空指针之间也不应相减或比较大小：
 ```
-int* p = ....;
+int* p = &foo;
 bool b = p < NULL;              // Non-compliant
 ptrdiff_t d = p - (int*)NULL;   // Non-compliant
 ```
@@ -14879,11 +14939,14 @@ ID_oddPtrZeroComparison
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.5.6(9)-undefined  
 ISO/IEC 9899:1999 6.5.8(5)-undefined  
+ISO/IEC 9899:2011 6.5.6(9)-undefined  
 ISO/IEC 9899:2011 6.5.8(5)-undefined  
 ISO/IEC 14882:2003 5.7(6)-undefined  
+ISO/IEC 14882:2003 5.9(2)-unspecified  
 ISO/IEC 14882:2011 5.7(6)-undefined  
-ISO/IEC 14882:2011 8.7(5)-undefined  
+ISO/IEC 14882:2011 5.9(2)-unspecified  
 <br/>
 
 #### 参考
