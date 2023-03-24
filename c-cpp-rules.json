@@ -1358,9 +1358,9 @@
         "reference": "C++ Core Guidelines C.152"
         },
     "ID_nonDynamicDownCast": {
-        "checkPoint": "向下类型转换应使用 dynamic_cast",
+        "checkPoint": "向下动态类型转换应使用 dynamic_cast",
         "level": "warning",
-        "comment": "向下类型转换如果不用 dynamic_cast 难以保证安全性。",
+        "comment": "向下动态类型转换应使用 dynamic_cast 以保证安全性。",
         "tag": "cast",
         "standard": "ISO/IEC 14882:2011 5.2.7,ISO/IEC 14882:2003 5.2.9(5 8)-undefined,ISO/IEC 14882:2011 5.2.9(11 12)-undefined",
         "related": "ID_downCast",
@@ -1740,16 +1740,16 @@
         "reference": "C++ Core Guidelines C.31,C++ Core Guidelines E.6"
         },
     "ID_virtualCallInConstructor": {
-        "checkPoint": "在构造函数中不应调用虚函数",
+        "checkPoint": "在构造函数中不应使用动态类型",
         "level": "warning",
-        "comment": "虚函数的多态性在构造函数中不生效，而且在构造函数中调用纯虚函数会导致标准未定义的行为。",
+        "comment": "对象的动态类型在其构造过程中不生效。",
         "tag": "function",
         "reference": "C++ Core Guidelines C.82,MISRA C++ 2008 12-1-1,Effective C++ item 9"
         },
     "ID_virtualCallInDestructor": {
-        "checkPoint": "在析构函数中不应调用虚函数",
+        "checkPoint": "在析构函数中不应使用动态类型",
         "level": "warning",
-        "comment": "虚函数的多态性在析构函数中不生效，而且在析构函数中调用纯虚函数会导致标准未定义的行为。",
+        "comment": "对象的动态类型在其析构过程中不生效。",
         "tag": "function",
         "reference": "C++ Core Guidelines C.82,MISRA C++ 2008 12-1-1,Effective C++ item 9"
         },
@@ -1904,7 +1904,7 @@
     "ID_relyOnExternalObject": {
         "checkPoint": "全局对象的初始化不可依赖未初始化的对象",
         "level": "warning",
-        "comment": "全局对象的初始化不可依赖在其他源文件中定义的全局对象，也不可依赖在其后面定义的对象。",
+        "comment": "全局对象的初始化或构造过程不可依赖在其他源文件中定义的全局对象，也不可依赖在其后面定义的对象。",
         "tag": "global",
         "standard": "ISO/IEC 14882:2011 3.6.2(2 3),ISO/IEC 14882:2017 6.6.2(3),ISO/IEC 14882:2017 6.6.3(2)",
         "reference": "C++ Core Guidelines I.22"
@@ -3177,9 +3177,12 @@
     "ID_nonConstGlobalObject": {
         "checkPoint": "全局对象只应为常量",
         "level": "warning",
-        "comment": "非常量全局对象与类的 public 数据成员一样对外部的读写没有限制，破坏了面向对象的封装理念。",
+        "comment": "非常量全局对象对外部的读写没有限制，破坏了面向对象的封装理念，不利于维护。",
         "tag": "global",
-        "related": "ID_nonPrivateData",
+        "config": [
+            "onlyConstBasicTypeAllowed: 是否只允许基本类型的常量作为全局对象"
+            ],
+        "related": "ID_nonPrivateData,ID_relyOnExternalObject",
         "reference": "C++ Core Guidelines I.2,C++ Core Guidelines CP.3,C++ Core Guidelines R.6"
         },
     "ID_forbidMemberVoidPtr": {

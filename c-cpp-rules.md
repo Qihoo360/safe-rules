@@ -351,8 +351,8 @@
   - [R8.11 基类对象构造完毕之前不可调用成员函数](#illmembercall)
   - [R8.12 在面向构造或析构函数体的 catch handler 中不可访问非静态成员](#illmemberaccess)
   - [R8.13 成员初始化应遵循声明的顺序](#disorderedinitialization)
-  - [R8.14 在构造函数中不应调用虚函数](#virtualcallinconstructor)
-  - [R8.15 在析构函数中不应调用虚函数](#virtualcallindestructor)
+  - [R8.14 在构造函数中不应使用动态类型](#virtualcallinconstructor)
+  - [R8.15 在析构函数中不应使用动态类型](#virtualcallindestructor)
   - [R8.16 在析构函数中避免调用 exit 函数](#exitcallindestructor)
   - [R8.17 拷贝构造函数应避免实现复制之外的功能](#sideeffectcopyconstructor)
   - [R8.18 移动构造函数应避免实现数据移动之外的功能](#sideeffectmoveconstructor)
@@ -559,7 +559,7 @@
   - [R12.10 避免向对齐要求更严格的指针转换](#stricteralignedcast)
   - [R12.11 避免转换指向数组的指针](#arraypointercast)
   - [R12.12 避免转换函数指针](#functionpointercast)
-  - [R12.13 向下类型转换应使用 dynamic\_cast](#nondynamicdowncast)
+  - [R12.13 向下动态类型转换应使用 dynamic\_cast](#nondynamicdowncast)
   - [R12.14 对 new 表达式不应进行类型转换](#oddnewcast)
   - [R12.15 不应存在多余的类型转换](#redundantcast)
   - [R12.16 可用其他方式完成的转换不应使用 reinterpret\_cast](#unsuitablereinterpretcast)
@@ -4259,7 +4259,7 @@ ID_relyOnExternalObject&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
 <hr/>
 
-全局对象的初始化不可依赖在其他源文件中定义的全局对象，也不可依赖在其后面定义的对象。  
+全局对象的初始化或构造过程不可依赖在其他源文件中定义的全局对象，也不可依赖在其后面定义的对象。  
   
 在不同源文件中定义的全局对象，以及类的静态成员对象，其初始化顺序是不确定的，在同一源文件中定义的对象，排在前面的会先于后面的初始化。为避免产生问题，建议只使用基本类型的常量作为全局对象，且尽量不要使用 extern 关键字。  
   
@@ -4328,44 +4328,51 @@ ID_nonConstGlobalObject&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
 <hr/>
 
-非常量全局对象与类的 public 数据成员一样对外部的读写没有限制，破坏了面向对象的封装理念。  
+非常量全局对象对外部的读写没有限制，破坏了面向对象的封装理念，不利于维护。  
   
-关于封装的讨论可参见 ID\_nonPrivateData。  
+全局对象的初始化顺序和依赖关系也是开发与维护的难点，建议只允许基本类型的常量作为全局对象。  
+  
+进一步讨论可参见 ID\_nonPrivateData、ID\_relyOnExternalObject。  
   
 示例：
 ```
-char foo;         // Non-compliant
-extern char bar;  // Non-compliant, worse
+char foo;           // Non-compliant
+extern char bar;      // Non-compliant, worse
+const char baz = 'c';   // Compliant
 
 void fun() {
     do_something(foo, bar);
 }
 ```
-改进方法（将全局对象和相关函数封装成类）：
+应将全局对象和相关函数封装成类：
 ```
 class A {
+    char foo;  // Compliant
+    char bar;  // Compliant
 public:
     void fun() {
         do_something(foo, bar);
     }
-private:
-    char foo;  // Compliant
-    char bar;  // Compliant
 };
 ```
-如果变量 foo、bar 确实具有全局意义，多个文件都需要访问，不妨将其单件化：
+如果变量 foo、bar 确有全局意义，多个模块都需要访问，不妨将其单件化：
 ```
-A& getObject() {
-    static A a;
-    return a;
+A& getGlobal() {
+    static A obj;
+    return obj;    // The object must be initialized before returning
 }
 ```
-用 getObject 函数获取对象，再由其成员函数对 foo、bar 进行读写，有效实现封装理念，而且可以保证对象在使用之前被有效初始化。
+用 getGlobal 函数获取对象，再由其成员函数对数据进行读写，有效实现封装理念，而且可以保证对象在使用之前已被初始化。
 <br/>
+<br/>
+
+#### 配置
+onlyConstBasicTypeAllowed: 是否只允许基本类型的常量作为全局对象  
 <br/>
 
 #### 相关
 ID_nonPrivateData  
+ID_relyOnExternalObject  
 <br/>
 
 #### 参考
@@ -10647,36 +10654,45 @@ C++ Core Guidelines C.47
 <br/>
 <br/>
 
-### <span id="virtualcallinconstructor">▌R8.14 在构造函数中不应调用虚函数</span>
+### <span id="virtualcallinconstructor">▌R8.14 在构造函数中不应使用动态类型</span>
 
 ID_virtualCallInConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-虚函数的多态性在构造函数中不生效，而且在构造函数中调用纯虚函数会导致标准未定义的行为。  
+对象的动态类型在其构造过程中不生效。  
   
-派生类重写的虚函数与派生类对象紧密相关，但执行基类构造函数时，派生类对象尚未构造完毕，所以基类构造函数不能调用派生类重写的虚函数，标准规定构造函数只能调用当前类或基类的虚函数，而调用未实现的纯虚函数则会导致未定义的行为。  
+执行基类构造函数时，派生类对象尚未构造完毕，基类构造函数不能使用派生类动态类型。  
+  
+对于正在构造的对象，不应：  
+ - 调用派生类重写的虚函数  
+ - 通过 typeid 判断对象的动态类型  
+ - 通过 dynamic\_cast 转换对象的动态类型  
+  
+注意，如果在构造函数中调用未实现的纯虚函数会导致标准未定义的行为。  
   
 示例：
 ```
-class A {
-    int a, b;
-    virtual int foo() = 0;
-    virtual int bar() { return 0; }
-
-public:
-    A():
-        a(foo()),    // Non-compliant, undefined behavior
-        b(bar())     // Non-compliant, ‘b’ is always 0
-    {}
+struct A {
+    int tag;
+    A();
+    virtual ~A() = default;
 };
 
-class B: public A {
-    int foo() override { return 1; }   // Invalid
-    int bar() override { return 2; }   // Invalid
+struct B: public A {
 };
+
+A::A() {
+    if (typeid(*this) == typeid(B)) {   // Non-compliant, always false
+        tag = 2;
+    } else {
+        tag = 1;
+    }
+}
+
+B b;  // ‘b.tag’ is 1
 ```
-派生类重写的虚函数在基类的构造函数中不生效，也会使维护者产生相当大的误解。
+在基类 A 的构造函数中判断动态类型是无效的。
 <br/>
 <br/>
 
@@ -10687,15 +10703,22 @@ Effective C++ item 9
 <br/>
 <br/>
 
-### <span id="virtualcallindestructor">▌R8.15 在析构函数中不应调用虚函数</span>
+### <span id="virtualcallindestructor">▌R8.15 在析构函数中不应使用动态类型</span>
 
 ID_virtualCallInDestructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-虚函数的多态性在析构函数中不生效，而且在析构函数中调用纯虚函数会导致标准未定义的行为。  
+对象的动态类型在其析构过程中不生效。  
   
-派生类重写的虚函数与派生类对象紧密相关，但执行基类析构函数时，对象属于派生类的成员已被析构，所以基类析构函数不能调用派生类重写的虚函数，标准规定析构函数只能调用当前类或基类的虚函数，而调用未实现的纯虚函数则会导致未定义的行为。  
+执行基类析构函数时，属于派生类的成员已被析构，基类析构函数不能使用派生类动态类型。  
+  
+对于正在析构的对象，不应：  
+ - 调用派生类重写的虚函数  
+ - 通过 typeid 判断对象的动态类型  
+ - 通过 dynamic\_cast 转换对象的动态类型  
+  
+注意，如果在析构函数中调用未实现的纯虚函数会导致标准未定义的行为。  
   
 示例：
 ```
@@ -10703,7 +10726,6 @@ class A {
     virtual void clear() {}
 
 public:
-    A() {}
    ~A() { clear(); }   // Non-compliant
 };
 
@@ -10717,13 +10739,14 @@ class B: public A {
 应将基类的析构函数设为虚函数，在派生类的析构函数中释放资源：
 ```
 class A {
-    ....
-    virtual ~A() {}
+public:
+    virtual ~A() = default;
 };
 
 class B: public A {
-    ....
-   ~B() { delete[] p; }   // Compliant
+    int* p = new int[8];
+public:
+   ~B() override { delete[] p; }   // Compliant
 };
 ```
 <br/>
@@ -16975,7 +16998,7 @@ if (cond) {
     qux();   // Compliant
 }
 ```
-逗号表达式也被易误用，如：
+逗号表达式也易被误用，如：
 ```
 a = b++, b * 2;      // Non-compliant
 x, y, z = 1, 2, 3;   // Non-compliant
@@ -18098,32 +18121,36 @@ MISRA C++ 2008 5-2-6
 <br/>
 <br/>
 
-### <span id="nondynamicdowncast">▌R12.13 向下类型转换应使用 dynamic_cast</span>
+### <span id="nondynamicdowncast">▌R12.13 向下动态类型转换应使用 dynamic_cast</span>
 
 ID_nonDynamicDownCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
 <hr/>
 
-向下类型转换如果不用 dynamic\_cast 难以保证安全性。  
+向下动态类型转换应使用 dynamic\_cast 以保证安全性。  
   
 示例：
 ```
 class A { .... };
-class B: public A { .... };
+class B: public A { .... };   // A and B are polymorphic classes
 
-void foo(A* a) {
-    bar((B*)a);                 // Non-compliant
-    baz(dynamic_cast<B*>(a));   // Compliant
+void foo(A* a)
+{
+    B* b0 = (B*)a;                     // Non-compliant
+    B* b1 = static_cast<B*>(a);        // Non-compliant
+    B* b2 = reinterpret_cast<B*>(a);   // Non-compliant
+    B* b3 = dynamic_cast<B*>(a);       // Compliant
+    ....
 }
 ```
-如果参数 a 实际指向的不是 B 类的对象，(B\*)a 将得到一个无法判断对错的值，而 dynamic\_cast<B\*>(a) 会得到一个空值，便于进一步处理。  
+如果 a 实际指向的不是 B 类对象，dynamic\_cast 会得到一个空值，便于进一步处理，其他方式的转换会得到无法判断对错的结果。  
   
 注意，虚基类指针只能通过 dynamic\_cast 转换为派生类指针，否则导致标准未定义的行为：
 ```
-struct A { .... };
-struct B: virtual A { .... };
-struct C: virtual A { .... };
-struct D: B, C { .... };
+class A { .... };
+class B: virtual A { .... };
+class C: virtual A { .... };
+class D: B, C { .... };
 
 void foo(A* a) {
     D* d0 = (D*)a;                 // Undefined behavior
@@ -19249,7 +19276,7 @@ void foo(A* a) {
     }
 }
 ```
-使用 dynamic\_cast 需要一定开销，如果不对其结果作判断，还不如使用 static\_cast 等转换，但本规则集合不建议采用非 dynamic\_cast 之外的向下类型转换，参见 ID\_nonDynamicDownCast。
+使用 dynamic\_cast 会产生一定的开销，如果不对其结果作判断，还不如使用 static\_cast 等转换，但本规则集合不建议采用非 dynamic\_cast 的动态类型转换，参见 ID\_nonDynamicDownCast。
 <br/>
 <br/>
 
