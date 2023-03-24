@@ -235,7 +235,7 @@
     - [R6.2.1 const、volatile 不应重复](#qualifierrepeated)
     - [R6.2.2 const、volatile 修饰指针类型的别名是可疑的](#qualifierforptralias)
     - [R6.2.3 const、volatile 不可修饰引用](#qualifierinvalid)
-    - [R6.2.4 const、volatile 限定类型时应出现在左侧](#badqualifierposition)
+    - [R6.2.4 const、volatile 限定类型时应统一出现在类型名称的左侧或右侧](#badqualifierposition)
     - [R6.2.5 const、volatile 等关键字不应出现在基本类型名称的中间](#sandwichedmodifier)
     - [R6.2.6 指向常量字符串的指针应使用 const 声明](#conststrtononconstptr)
     - [R6.2.7 枚举类型的底层类型不应为 const 或 volatile](#uselessqualifier)
@@ -6358,7 +6358,7 @@ ISO/IEC 14882:2017 11.3.2(1)
 <br/>
 <br/>
 
-### <span id="badqualifierposition">▌R6.2.4 const、volatile 限定类型时应出现在左侧</span>
+### <span id="badqualifierposition">▌R6.2.4 const、volatile 限定类型时应统一出现在类型名称的左侧或右侧</span>
 
 ID_badQualifierPosition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -6368,23 +6368,27 @@ ID_badQualifierPosition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggesti
   
 示例：
 ```
-unsigned int const a = 0;          // Non-compliant
-long double const volatile b = 0;  // Non-compliant
+volatile int const i = 0;   // Non-compliant
 ```
 应改为：
 ```
-const unsigned int a = 0;          // Compliant
-const volatile long double b = 0;  // Compliant
+volatile const int i = 0;   // Compliant
 ```
 const、volatile 出现在类型名右侧时，易和 \* 号一起使人产生误解，如：
 ```
-const char const * p = "....";     // Non-compliant
+const char const * p = "....";   // Non-compliant
 ```
 应改为：
 ```
-const char * const p = "....";     // Compliant
+const char * const p = "....";   // Compliant
 ```
+审计工具不妨通过配置决定具体位置，本规则集合建议统一写在左侧。
 <br/>
+<br/>
+
+#### 配置
+allToTheRight: const 和 volatile 是否应统一写在类型名称的右侧，如果此项为 false 则应写在左侧  
+volatileInFront: volatile 是否应写在 const 的前面，如果值为 false 则应写在后面，不设此项则不考虑相关顺序  
 <br/>
 
 #### 相关
@@ -14712,7 +14716,7 @@ sizeof、_Alignof、_Generic
 ```
 sizeof、typeid、noexcept、decltype、declval
 ```
-其中 typeid 较为特殊，当其子表达式是函数调用，且返回多态类型的引用时，也会执行具体函数。  
+其中 typeid 较为特殊，当其子表达式是函数调用，且返回多态类型的引用时，也会执行函数。  
   
 示例：
 ```
@@ -18143,7 +18147,7 @@ void foo(A* a)
     ....
 }
 ```
-如果 a 实际指向的不是 B 类对象，dynamic\_cast 会得到一个空值，便于进一步处理，其他方式的转换会得到无法判断对错的结果。  
+如果 a 实际指向的不是 B 类对象，使用 dynamic\_cast 会得到一个空值便于进一步处理，其他方式的转换会得到无法判断对错的结果。  
   
 注意，虚基类指针只能通过 dynamic\_cast 转换为派生类指针，否则导致标准未定义的行为：
 ```
