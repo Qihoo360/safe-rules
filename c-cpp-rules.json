@@ -767,12 +767,10 @@
         "level": "suggestion",
         "comment": "在一个语句中声明多个对象或函数不利于阅读和维护，建议在一个语句中只声明一个对象或函数。",
         "config": [
-            "allowMultiArrayDeclarator: 是否允许在一个语句中声明多个数组以及相关的指针或引用",
-            "allowMultiFunctionDeclarator: 是否允许在一个语句中声明多个函数以及相关的指针或引用",
-            "maxLocalDeclaratorCount: 在局部作用域中一个语句能声明的对象或函数个数上限，超过则报出",
-            "maxMemberDeclaratorCount: 在类或结构体中一个语句能声明的对象或函数个数上限，超过则报出",
-            "maxGlobalDeclaratorCount: 在全局或命名空间作用域中一个语句能声明的对象或函数个数上限，超过则报出",
-            "simpleDeclaratorLengthThreshold: 简单声明字符数量阈值，如果声明和初始化表达式的总字符数超过此值，则应单独声明"
+            "maxLocalDeclaratorCount: 局部作用域中一个语句能声明的对象个数上限，超过则报出",
+            "maxMemberDeclaratorCount: 类或结构体中一个语句能声明的对象个数上限，超过则报出",
+            "maxGlobalDeclaratorCount: 全局或命名空间作用域中一个语句能声明的对象个数上限，超过则报出",
+            "simpleDeclaratorLengthThreshold: 声明字符数量阈值，超过此值则判其应在单独的语句中声明"
             ],
         "tag": "declaration",
         "related": "ID_mixedDeclarations",
@@ -1185,7 +1183,7 @@
     "ID_invalidCommaSubExpression": {
         "checkPoint": "逗号表达式的子表达式应具有必要的副作用",
         "level": "warning",
-        "comment": "逗号表达式的子表达式应具有必要的副作用，否则没有意义。",
+        "comment": "缺少必要副作用的逗号子表达式没有意义，往往意味着逻辑错误。",
         "tag": "expression",
         "related": "ID_forbidCommaExpression"
         },
@@ -1862,9 +1860,9 @@
         "reference": "CWE-909,CWE-908,CWE-824,CWE-457,C++ Core Guidelines ES.20,MISRA C 2004 9.1,MISRA C 2012 9.1,MISRA C++ 2008 8-5-1"
         },
     "ID_notAllBranchReturn": {
-        "checkPoint": "有返回值的函数其所有分枝都应有明确的返回值",
+        "checkPoint": "有返回值的函数其所有分枝都应显式返回",
         "level": "error",
-        "comment": "当函数的某个分枝没有明确的返回值时会导致标准未定义的行为。",
+        "comment": "如果有返回值的函数在某个分枝没有使用 return 语句显式返回，会导致标准未定义的行为。",
         "tag": "function",
         "standard": "ISO/IEC 9899:1999 6.9.1(12)-undefined,ISO/IEC 9899:1999 5.1.2.2.3(1),ISO/IEC 9899:2011 6.9.1(12)-undefined,ISO/IEC 9899:2011 5.1.2.2.3(1),ISO/IEC 14882:2011 6.6.3(2)-undefined,ISO/IEC 14882:2017 9.6.3(2)-undefined",
         "reference": "CWE-394,MISRA C 2004 16.8,MISRA C 2012 17.4,MISRA C++ 2008 8-4-3"
@@ -3185,17 +3183,17 @@
         "reference": "C++ Core Guidelines I.2,C++ Core Guidelines CP.3,C++ Core Guidelines R.6"
         },
     "ID_forbidMemberVoidPtr": {
-        "checkPoint": "类成员不应被声明为 void*",
+        "checkPoint": "类成员的类型不应为 void*",
         "level": "warning",
-        "comment": "与接口相关的数据类型应保持精确，不应将类成员声明为 void*，尤其是非 private 成员，更不应声明为 void*。",
+        "comment": "与接口相关的数据类型应保持精确，不应将成员类型设为 void*，尤其是非 private 成员的类型，更不应设为 void*。",
         "tag": "declaration",
         "related": "ID_voidCast,ID_forbidFunctionVoidPtr",
         "reference": "C++ Core Guidelines I.4"
         },
     "ID_forbidFunctionVoidPtr": {
-        "checkPoint": "接口的参数或返回值不应被声明为 void*",
+        "checkPoint": "接口的参数类型和返回类型不应为 void*",
         "level": "warning",
-        "comment": "与接口相关的数据类型应保持精确，不应将参数或返回值声明为 void*。",
+        "comment": "与接口相关的数据类型应保持精确，不应将参数类型或返回类型设为 void*。",
         "tag": "declaration",
         "related": "ID_voidCast,ID_forbidMemberVoidPtr",
         "reference": "C++ Core Guidelines I.4"

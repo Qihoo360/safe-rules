@@ -259,8 +259,8 @@
     - [R6.4.1 用 auto 声明指针或引用时应显式标明 \*、& 等符号](#roughauto)
     - [R6.4.2 禁用可变参数列表](#forbidvariadicfunction)
     - [R6.4.3 禁用柔性数组](#forbidflexiblearray)
-    - [R6.4.4 接口的参数或返回值不应被声明为 void\*](#forbidfunctionvoidptr)
-    - [R6.4.5 类成员不应被声明为 void\*](#forbidmembervoidptr)
+    - [R6.4.4 接口的参数类型和返回类型不应为 void\*](#forbidfunctionvoidptr)
+    - [R6.4.5 类成员的类型不应为 void\*](#forbidmembervoidptr)
     - [R6.4.6 数组大小应被显式声明](#missingarraysize)
     - [R6.4.7 局部数组的长度不应过大](#unsuitablearraysize)
     - [R6.4.8 不应将类型定义和对象声明写在一个语句中](#mixedtypeobjdefinition)
@@ -360,7 +360,7 @@
   - [R8.20 不应存在无效的写入操作](#invalidwrite)
   - [R8.21 不应存在没有副作用的语句](#missingsideeffect)
   - [R8.22 不应存在得不到执行机会的代码](#unreachablecode)
-  - [R8.23 有返回值的函数其所有分枝都应有明确的返回值](#notallbranchreturn)
+  - [R8.23 有返回值的函数其所有分枝都应显式返回](#notallbranchreturn)
   - [R8.24 不可返回局部对象的地址或引用](#localaddressflowout)
   - [R8.25 不可返回临时对象的地址或引用](#tmpaddressflowout)
   - [R8.26 合理设置 lambda 表达式的捕获方式](#unsuitablecapture)
@@ -1231,7 +1231,7 @@ void foo(const char* p) {
     printf("%s\n", strupr(a));   // To upper case and print, dangerous
 }
 ```
-例示代码将字符串复制到数组中，转为大写并打印，然而如果 p 所指字符串的长度超过 3，strncpy 不会在数组的结尾安置空字符 '\\0'，会导致内存访问错误，程序可能会崩溃，也可能打印出本该隐藏的敏感数据。  
+例示代码将字符串复制到数组中，转为大写并打印，然而如果 p 所指字符串的长度超过 3，strncpy 不会在数组的结尾安置空字符 '\\0'，导致 strupr 内存访问越界，程序可能会崩溃，也可能打印出本该隐藏的敏感数据。  
   
 应改为：
 ```
@@ -7252,13 +7252,13 @@ MISRA C 2012 18.7
 <br/>
 <br/>
 
-### <span id="forbidfunctionvoidptr">▌R6.4.4 接口的参数或返回值不应被声明为 void*</span>
+### <span id="forbidfunctionvoidptr">▌R6.4.4 接口的参数类型和返回类型不应为 void*</span>
 
 ID_forbidFunctionVoidPtr&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration warning
 
 <hr/>
 
-与接口相关的数据类型应保持精确，不应将参数或返回值声明为 void\*。  
+与接口相关的数据类型应保持精确，不应将参数类型或返回类型设为 void\*。  
   
 在 C\+\+ 代码中，如果参数或返回值需要面对多种不同类型的数据，应合理使用重载或模板机制。  
   
@@ -7305,13 +7305,13 @@ C++ Core Guidelines I.4
 <br/>
 <br/>
 
-### <span id="forbidmembervoidptr">▌R6.4.5 类成员不应被声明为 void*</span>
+### <span id="forbidmembervoidptr">▌R6.4.5 类成员的类型不应为 void*</span>
 
 ID_forbidMemberVoidPtr&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration warning
 
 <hr/>
 
-与接口相关的数据类型应保持精确，不应将类成员声明为 void\*，尤其是非 private 成员，更不应声明为 void\*。  
+与接口相关的数据类型应保持精确，不应将成员类型设为 void\*，尤其是非 private 成员的类型，更不应设为 void\*。  
   
 在 C\+\+ 代码中，如果成员需要面对多种不同类型的数据，应合理使用模板机制。  
   
@@ -8793,33 +8793,35 @@ ID_tooManyDeclarators&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
   
 示例：
 ```
-int a, b, c, d, e, f, g, ....;   // Bad, too many objects
+int a, b, c, d, e, f, g, ....;   // Non-compliant, too many objects
 
-int fn1(void), fn2(int, int*), fn3(int);   // Bad
+int fn1(void), fn2(int, int*), fn3(int);   // Non-compliant
 
 struct T {
-    int i, j, k;   // Bad
-    int *p, *q;    // Bad
+    int i, j, k;   // Non-compliant
 };
-
+```
+例中一个语句声明多个函数、成员或全局对象是不符合要求的。  
+  
+又如：
+```
 void foo() {
-    int long_name, name;             // Bad
-    int u = complex_expression, v;   // Bad
+    int long_name, name;             // Non-compliant
+    int u = complex_expression, v;   // Non-compliant
     ....
-    int x, y;      // Simple declarations, let it go?
+    int x, y;   // Simple declarations, let it go?
     ....
 }
 ```
+对于局部对象，审计工具不妨统计声明项及其初始化表达式的字符个数，如果超过指定限制，则判其应在单独的语句中声明。
 <br/>
 <br/>
 
 #### 配置
-allowMultiArrayDeclarator: 是否允许在一个语句中声明多个数组以及相关的指针或引用  
-allowMultiFunctionDeclarator: 是否允许在一个语句中声明多个函数以及相关的指针或引用  
-maxLocalDeclaratorCount: 在局部作用域中一个语句能声明的对象或函数个数上限，超过则报出  
-maxMemberDeclaratorCount: 在类或结构体中一个语句能声明的对象或函数个数上限，超过则报出  
-maxGlobalDeclaratorCount: 在全局或命名空间作用域中一个语句能声明的对象或函数个数上限，超过则报出  
-simpleDeclaratorLengthThreshold: 简单声明字符数量阈值，如果声明和初始化表达式的总字符数超过此值，则应单独声明  
+maxLocalDeclaratorCount: 局部作用域中一个语句能声明的对象个数上限，超过则报出  
+maxMemberDeclaratorCount: 类或结构体中一个语句能声明的对象个数上限，超过则报出  
+maxGlobalDeclaratorCount: 全局或命名空间作用域中一个语句能声明的对象个数上限，超过则报出  
+simpleDeclaratorLengthThreshold: 声明字符数量阈值，超过此值则判其应在单独的语句中声明  
 <br/>
 
 #### 相关
@@ -11077,13 +11079,13 @@ MISRA C++ 2008 0-1-1
 <br/>
 <br/>
 
-### <span id="notallbranchreturn">▌R8.23 有返回值的函数其所有分枝都应有明确的返回值</span>
+### <span id="notallbranchreturn">▌R8.23 有返回值的函数其所有分枝都应显式返回</span>
 
 ID_notAllBranchReturn&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
 <hr/>
 
-当函数的某个分枝没有明确的返回值时会导致标准未定义的行为。  
+如果有返回值的函数在某个分枝没有使用 return 语句显式返回，会导致标准未定义的行为。  
   
 示例：
 ```
@@ -11092,18 +11094,20 @@ int fun() {
         return 1;
     }
     else if (condition2) {
-        return 2;
-    }
-    else if (condition3) {  // Non-compliant if no return value
-    }
+    }                        // Non-compliant, no return value
     else {
-        return 4;
+        return 3; 
     }
 }
 ```
-当符合 condition3 的条件时，fun 函数的调用者将得到一个错误的返回值。  
+当条件符合 condition2 时，fun 函数的调用者将得到一个错误的返回值。  
   
-例外：  
+例外：
+```
+int main() {
+    printf("Hi~\n");
+}   // Compliant
+```
 在 main 函数的结尾如果不显式调用 return 语句，编译器会自动添加 return 0，故对 main 函数不作要求。
 <br/>
 <br/>
@@ -11254,7 +11258,7 @@ auto foo() -> function<int()> {
     return [&]() { return ++i; };  // Non-compliant
 }
 ```
-例中的 lambda 表达式引用了局部变量 i，但返回后 i 的地址不再有效，会引发标准未定义的行为。  
+例中的 lambda 表达式引用了局部变量 i，但返回后 i 的地址不再有效，会导致标准未定义的行为。  
   
 另外，要注意解引用指针造成的间接引用：
 ```
@@ -15315,7 +15319,7 @@ ID_evalOverflow&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 运算结果超出对应类型的存储范围往往意味着错误。  
   
-这种情况对于有符号整数，会引发标准未定义的行为，而对于无符号整数，则只保留有效范围内的值，相当于一种模运算，标准认为这是一种“语言特性”，规定无符号整数不存在溢出，然而实践表明，运算结果超出无符号整数的范围很容易引起意料之外的问题，所以不论是否有符号，均应规避这种问题。  
+这种情况对于有符号整数，会导致标准未定义的行为，而对于无符号整数，则只保留有效范围内的值，相当于一种模运算，标准认为这是一种语言特性，规定无符号整数不存在溢出，然而实践表明，运算结果超出无符号整数的范围很容易引起意料之外的问题，所以不论是否有符号，均应规避这种问题。  
   
 示例：
 ```
@@ -15438,7 +15442,9 @@ ID_invalidCommaSubExpression&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warn
 
 <hr/>
 
-逗号表达式的子表达式应具有必要的副作用，否则没有意义。  
+缺少必要副作用的逗号子表达式没有意义，往往意味着逻辑错误。  
+  
+设逗号表达式中逗号运算符的子表达式个数为 n（n >= 2），如果最后一个子表达式的值可影响程序状态，前 n \- 1 个子表达式应具备副作用，否则所有子表达式都应具备副作用。  
   
 示例：
 ```
@@ -15454,7 +15460,7 @@ void foo(int& a, int& b) {
     a = 0, b = 1;            // Compliant, but bad
 }
 ```
-本规则集合不建议使用逗号表达式，将逗号表达式拆分成合理的语句是更好的选择。  
+本规则集合不建议使用逗号表达式，将逗号表达式拆分成合理的语句是更好的选择，如：  
 
 ```
 void foo(int& a, int& b) {
@@ -16953,17 +16959,33 @@ ID_forbidCommaExpression&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: expression sugg
   
 示例：
 ```
-a = b++, b + 1;      // Non-compliant
-a, b, c = 0, 1, 2;   // Non-compliant
+fun1(), fun2();                     // Non-compliant, bad
+cond? foo(), bar(): baz(), qux();   // Non-compliant, very bad
+```
+逗号表达式会使代码的静态结构含混不明，总有更合理的方法替代逗号表达式： 
+```
+fun1();
+fun2();      // Compliant
+
+if (cond) {
+    foo();
+    bar();   // Compliant
+} else {
+    baz();
+    qux();   // Compliant
+}
+```
+逗号表达式也被易误用，如：
+```
+a = b++, b * 2;      // Non-compliant
+x, y, z = 1, 2, 3;   // Non-compliant
 delete p, q;         // Non-compliant
 foo((a, b), c);      // Non-compliant
-return a, b, c;      // Non-compliant
+return i, j, k;      // Non-compliant
 ```
-逗号运算符和其他运算符组合在一起，易造成各种错误。  
-  
-例外：
+又如：
 ```
-for (a = 0, b = 0; a < 100; a++, b++)  {   // let it go?
+for (a = 0, b = 0; a < 100; a++, b++)  {   // Let it go?
     ....
 }
 ```
