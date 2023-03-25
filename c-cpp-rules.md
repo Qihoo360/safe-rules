@@ -4336,8 +4336,8 @@ ID_nonConstGlobalObject&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
   
 示例：
 ```
-char foo;           // Non-compliant
-extern char bar;      // Non-compliant, worse
+char foo;               // Non-compliant
+extern char bar;        // Non-compliant, worse
 const char baz = 'c';   // Compliant
 
 void fun() {
@@ -4347,8 +4347,8 @@ void fun() {
 应将全局对象和相关函数封装成类：
 ```
 class A {
-    char foo;  // Compliant
-    char bar;  // Compliant
+    char foo;   // Compliant
+    char bar;   // Compliant
 public:
     void fun() {
         do_something(foo, bar);
@@ -4359,7 +4359,7 @@ public:
 ```
 A& getGlobal() {
     static A obj;
-    return obj;    // The object must be initialized before returning
+    return obj;     // The object must be initialized before returning
 }
 ```
 用 getGlobal 函数获取对象，再由其成员函数对数据进行读写，有效实现封装理念，而且可以保证对象在使用之前已被初始化。
@@ -15798,30 +15798,33 @@ ID_returnValueIgnored&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
   
 示例：
 ```
-void foo(string& s) {
+void bar(string& s) {
     s.empty();          // Non-compliant
 }
 ```
-例中 empty 返回字符串是否为空，如果忽略返回值会使函数调用失去意义。  
+例中 empty 函数返回字符串是否为空，如果忽略返回值会使函数调用失去意义。  
   
-C\+\+ 代码中由用户添加的具有 \[\[nodiscard\]\] 属性的函数，返回值也不应被忽略，如：
+C\+\+17 nodiscard 属性表示返回值具有重要意义，标准库中以及由用户标注的具有 nodiscard 属性的返回值不应被忽略，如：
 ```
-[[nodiscard]] int getStatus();
+[[nodiscard]] int fun();   // Or use __attribute__((warn_unused_result)) for C
 
-void bar() {
-    getStatus();   // Non-compliant
+int main() {
+    fun();           // Non-compliant
+    int r = fun();   // Compliant, 'r' should be used in subsequent code   
+    ....
+    (void)fun();     // Let it go?
 }
 ```
-例外：
-```
-[[nodiscard]] int getStatus();
-
-void baz() {
-    (void)getStatus();   // Let it go
-}
-```
-经 void 转换的函数调用可以认为是有意放弃返回值，这种情况可不受本规则限制，但最好配以注释说明。
+经 void 转换的函数调用可以认为是有意放弃返回值，审计工具不妨通过配置决定是否放过这种情况。
 <br/>
+<br/>
+
+#### 配置
+allowVoidCastedDiscard: 是否允许通过 void 转换忽略返回值  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2017 10.6.7  
 <br/>
 
 #### 参考

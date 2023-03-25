@@ -1428,6 +1428,10 @@
         "level": "warning",
         "comment": "与状态判断、信息获取、资源分配有关的返回值不应被忽略。",
         "tag": "expression",
+        "config": [
+            "allowVoidCastedDiscard: 是否允许通过 void 转换忽略返回值"
+            ],
+        "standard": "ISO/IEC 14882:2017 10.6.7",
         "reference": "MISRA C 2012 17.7,MISRA C++ 2008 0-1-7"
         },
     "ID_oddPtrCharComparison": {
