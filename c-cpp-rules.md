@@ -235,7 +235,7 @@
     - [R6.2.1 const、volatile 不应重复](#qualifierrepeated)
     - [R6.2.2 const、volatile 修饰指针类型的别名是可疑的](#qualifierforptralias)
     - [R6.2.3 const、volatile 不可修饰引用](#qualifierinvalid)
-    - [R6.2.4 const、volatile 限定类型时应统一出现在类型名称的左侧或右侧](#badqualifierposition)
+    - [R6.2.4 const、volatile 限定类型时的位置应统一](#badqualifierposition)
     - [R6.2.5 const、volatile 等关键字不应出现在基本类型名称的中间](#sandwichedmodifier)
     - [R6.2.6 指向常量字符串的指针应使用 const 声明](#conststrtononconstptr)
     - [R6.2.7 枚举类型的底层类型不应为 const 或 volatile](#uselessqualifier)
@@ -254,7 +254,7 @@
     - [R6.3.8 不应将 union 设为 final](#invalidfinal)
     - [R6.3.9 未访问 this 指针的成员函数应使用 static 声明](#this_notused)
     - [R6.3.10 声明和定义内部链接的对象和函数时均应使用 static 关键字](#missingstatic)
-    - [R6.3.11 inline、virtual、static、typedef 等关键字应出现在类型名的左侧](#badspecifierposition)
+    - [R6.3.11 inline、virtual、static、typedef 等关键字的位置应统一](#badspecifierposition)
   - [6.4 Declarator](#declaration.declarator)
     - [R6.4.1 用 auto 声明指针或引用时应显式标明 \*、& 等符号](#roughauto)
     - [R6.4.2 禁用可变参数列表](#forbidvariadicfunction)
@@ -6296,9 +6296,9 @@ void bar(const Alias a) {  // Rather suspicious
     a->foo();              // Calls ‘void Type::foo();’
 }
 ```
-例中 Alias 是 Type\* 的别名，“const Alias a”很容易引起误解，好像对象是不可被改变的，但实际上 a 的类型是 Type \*const，const 限定的是指针，而不是指针指向的对象，这种情况下，对象仍可以被修改，其调用的函数也可能与预期不符。  
+例中 Alias 是 Type\* 的别名，“const Alias a”很容易引起误解，好像对象是不可被改变的，但实际上 a 的类型是 Type \*const，const 限定的是指针而不是指针指向的对象，对象仍可被修改，其调用的函数也可能与预期不符。  
   
-应避免为指针类型定义别名，如果必须定义应提供常量和非常量两种别名，如：
+应避免为指针类型定义别名，否则应提供常量和非常量两种别名，如：
 ```
 typedef Type* Alias;
 typedef const Type* ConstAlias;
@@ -6358,36 +6358,55 @@ ISO/IEC 14882:2017 11.3.2(1)
 <br/>
 <br/>
 
-### <span id="badqualifierposition">▌R6.2.4 const、volatile 限定类型时应统一出现在类型名称的左侧或右侧</span>
+### <span id="badqualifierposition">▌R6.2.4 const、volatile 限定类型时的位置应统一</span>
 
 ID_badQualifierPosition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-语言允许 const、volatile 出现在类型名的左侧，也可以出现在其右侧，甚至可以出现在基本类型名的中间，为了提高可读性，应对其位置进行统一规范。  
+语言允许 const、volatile 等关键字出现在类型名称的左侧，也可以出现在其右侧，甚至可以出现在基本类型名称的中间，应对其位置进行统一规范以提高可读性。  
+  
+可从下列方案中选择一种作为规范，即统一要求 const、volatile：  
+ 1. 出现在类型名称的左侧  
+ 2. 出现在类型名称的右侧  
+ 3. 出现在指针类型名称的右侧，非指针类型名称的左侧  
   
 示例：
 ```
-volatile int const i = 0;   // Non-compliant
+// Non-compliant, inconsistent positions of cv-qualifiers
+const long long i = 0;
+unsigned int const j = 0;
+const int volatile k = 0;
 ```
-应改为：
+例中 const、volatile 的位置不统一是不符合要求的。  
+  
+const、volatile 出现在类型名称右侧时，和 \* 号一起易被误用，如：
 ```
-volatile const int i = 0;   // Compliant
+char const const * p = "....";   // Wrong, redundant const-qualifiers
+char const * const q = "....";   // Right
 ```
-const、volatile 出现在类型名右侧时，易和 \* 号一起使人产生误解，如：
+const、volatile 出现在类型名称左侧时，如果类型为指针类型，则易引起误解，如：
 ```
-const char const * p = "....";   // Non-compliant
+typedef int* ptr;
+const ptr cp = &x;
+*cp = 1;             // Looks a bit strange
 ```
-应改为：
+可参见 ID\_qualifierForPtrAlias 的进一步讨论。  
+  
+如果约定 const、volatile 出现左侧表示类型为对象类型，右侧表示类型为指针类型，有助于提高可读性：
 ```
-const char * const p = "....";   // Compliant
+typedef int obj;
+typedef int* ptr;
+
+const obj i = 0;    // Indicates that ‘obj’ is an object type
+ptr const p = &x;   // Indicates that ‘ptr’ is a pointer type
 ```
-审计工具不妨通过配置决定具体位置，本规则集合建议统一写在左侧。
+审计工具不妨通过配置决定具体检查方案。
 <br/>
 <br/>
 
 #### 配置
-allToTheRight: const 和 volatile 是否应统一写在类型名称的右侧，如果此项为 false 则应写在左侧  
+positionScheme: const、volatile 的位置方案，对应说明中的 1、2、3 号方案  
 volatileInFront: volatile 是否应写在 const 的前面，如果值为 false 则应写在后面，不设此项则不考虑相关顺序  
 <br/>
 
@@ -6403,11 +6422,20 @@ C++ Core Guidelines NL.26
 
 ### <span id="sandwichedmodifier">▌R6.2.5 const、volatile 等关键字不应出现在基本类型名称的中间</span>
 
-ID_sandwichedModifier&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
+ID_sandwichedModifier&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-某些基本类型可由多个符号组成，const 或 volatile 等关键字不应出现在这些符号的中间，否则可读性较差。  
+某些基本类型名称可由多个符号组成，const、volatile 等关键字不应出现在类型名称的中间，否则可读性较差。  
+  
+本规则对下列关键字有同样的要求：
+```
+const、volatile、
+inline、virtual、explicit、
+register、static、thread_local、extern、mutable、
+friend、typedef、constexpr
+```
+即使对这些关键字的位置不作统一要求，也不应使其出现在类型名称的中间，否则很容易引起误解。  
   
 示例：
 ```
@@ -6418,13 +6446,6 @@ long const double volatile cvld = 0;  // Non-compliant
 ```
 const volatile long long cvll = 0;    // Compliant
 const volatile long double cvld = 0;  // Compliant
-```
-本规则对下列关键字有同样的要求：
-```
-const、volatile、
-inline、virtual、explicit、
-register、static、thread_local、extern、mutable、
-friend、typedef、constexpr
 ```
 <br/>
 <br/>
@@ -6701,7 +6722,7 @@ ID_abusedAuto&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 auto 关键字隐藏了类型名称，在使用时需注意不应降低可读性。  
   
-非局部对象不宜用 auto 声明，如接口的返回类型、参数、全局对象等，如果局部对象的类型对程序的行为有显著影响，也不宜用 auto 声明。  
+非局部对象不宜用 auto 声明，如接口的返回类型、参数、全局对象等。如果局部对象的类型对程序的行为有显著影响，也不宜用 auto 声明。  
   
 示例：
 ```
@@ -7070,39 +7091,44 @@ MISRA C++ 2008 3-3-2
 <br/>
 <br/>
 
-### <span id="badspecifierposition">▌R6.3.11 inline、virtual、static、typedef 等关键字应出现在类型名的左侧</span>
+### <span id="badspecifierposition">▌R6.3.11 inline、virtual、static、typedef 等关键字的位置应统一</span>
 
 ID_badSpecifierPosition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-语言允许 inline、virtual、static、typedef 等关键字可以出现在类型名的左侧，也可以出现在其右侧，甚至可以出现在基本类型名的中间，为了提高可读性，应对其位置进行统一规范。  
+语言允许 inline、virtual、static、typedef 等关键字出现在类型名称的左侧，也可以出现在其右侧，甚至可以出现在基本类型名称的中间，应对其位置进行统一规范以提高可读性。  
   
-示例：
-```
-struct A {
-    long long typedef ll_t;     // Non-compliant
-    bool static foo();          // Non-compliant
-    char friend bar();          // Non-compliant
-    unsigned inline int baz();  // Non-compliant
-};
-```
-应统一规定出现在类型名的左侧：
-```
-struct A {
-    typedef long long ll_t;     // Compliant
-    static bool foo();          // Compliant
-    friend char bar();          // Compliant
-    inline unsigned int baz();  // Compliant
-};
-```
 本规则对下列关键字有同样的要求：
 ```
 inline、virtual、explicit、
 register、static、thread_local、extern、mutable、
 friend、typedef、constexpr
 ```
-对于 const 和 volatile 也建议出现在类型名的左侧。
+这些关键字应统一出现在声明的起始，类型名称的左侧。  
+  
+对于 const 和 volatile 也需面对类似的问题，参见 ID\_badQualifierPosition。  
+  
+示例：
+```
+struct A {
+    long long typedef LL;        // Non-compliant
+    bool static foo();           // Non-compliant
+    char friend bar();           // Non-compliant
+    unsigned int virtual baz();  // Non-compliant
+};
+```
+例中各种声明均有一定的特殊性，如果声明其特殊性的关键字在类型名称之后，不便于阅读甚至会引起误解。  
+  
+应改为：
+```
+struct A {
+    typedef long long LL;        // Compliant
+    static bool foo();           // Compliant
+    friend char bar();           // Compliant
+    virtual unsigned int baz();  // Compliant
+};
+```
 <br/>
 <br/>
 
@@ -17643,22 +17669,17 @@ ID_downCast&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: cast suggestion
   
 示例：
 ```
-class A {
-    ....
-};
+class A { .... };
 
 class B: public A {
-    ....
 public:
-    void bar();  // A new function
+    void bar();   // A new function
 };
 
 void foo(A* a) {
-    ....
-    if (auto* p = dynamic_cast<B*>(a)) {  // Bad
+    if (auto* p = dynamic_cast<B*>(a)) {   // Bad
         p->bar();
     }
-    ....
 }
 ```
 例中 foo 接口对 B 类型进行特殊处理，是不利于维护的，当这种特殊处理较多时，应利用虚函数、重载或模板等方法进行合理重构。
@@ -17670,17 +17691,14 @@ public:
 };
 
 class B: public A {
-    ....
 public:
     void bar() override;
 };
 
 void foo(A* a) {
-    ....
     if (a) {
-        a->bar();  // Good
+        a->bar();   // Good
     }
-    ....
 }
 ```
 <br/>

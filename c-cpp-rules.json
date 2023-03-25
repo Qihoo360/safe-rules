@@ -778,28 +778,28 @@
         },
     "ID_sandwichedModifier": {
         "checkPoint": "const、volatile 等关键字不应出现在基本类型名称的中间",
-        "level": "suggestion",
-        "comment": "某些基本类型可由多个符号组成，const 或 volatile 等关键字不应出现在这些符号的中间，否则可读性较差。",
+        "level": "warning",
+        "comment": "某些基本类型名称可由多个符号组成，const、volatile 等关键字不应出现在类型名称的中间，否则可读性较差。",
         "tag": "declaration",
         "related": "ID_badQualifierPosition,ID_badSpecifierPosition",
         "reference": "C++ Core Guidelines NL.26"
     },
     "ID_badQualifierPosition": {
-        "checkPoint": "const、volatile 限定类型时应统一出现在类型名称的左侧或右侧",
+        "checkPoint": "const、volatile 限定类型时的位置应统一",
         "level": "suggestion",
-        "comment": "语言允许 const、volatile 出现在类型名的左侧，也可以出现在其右侧，甚至可以出现在基本类型名的中间，为了提高可读性，应对其位置进行统一规范。",
+        "comment": "语言允许 const、volatile 等关键字出现在类型名称的左侧，也可以出现在其右侧，甚至可以出现在基本类型名称的中间，应对其位置进行统一规范以提高可读性。",
         "tag": "declaration",
         "config": [
-            "allToTheRight: const 和 volatile 是否应统一写在类型名称的右侧，如果此项为 false 则应写在左侧",
+            "positionScheme: const、volatile 的位置方案，对应说明中的 1、2、3 号方案",
             "volatileInFront: volatile 是否应写在 const 的前面，如果值为 false 则应写在后面，不设此项则不考虑相关顺序"
             ],
         "related": "ID_sandwichedModifier,ID_badSpecifierPosition",
         "reference": "C++ Core Guidelines NL.26"
         },
     "ID_badSpecifierPosition": {
-        "checkPoint": "inline、virtual、static、typedef 等关键字应出现在类型名的左侧",
+        "checkPoint": "inline、virtual、static、typedef 等关键字的位置应统一",
         "level": "suggestion",
-        "comment": "语言允许 inline、virtual、static、typedef 等关键字可以出现在类型名的左侧，也可以出现在其右侧，甚至可以出现在基本类型名的中间，为了提高可读性，应对其位置进行统一规范。",
+        "comment": "语言允许 inline、virtual、static、typedef 等关键字出现在类型名称的左侧，也可以出现在其右侧，甚至可以出现在基本类型名称的中间，应对其位置进行统一规范以提高可读性。",
         "tag": "declaration",
         "related": "ID_sandwichedModifier,ID_badQualifierPosition"
         },
