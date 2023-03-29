@@ -138,7 +138,7 @@
     - [R3.2.4 可作为子表达式的宏定义应该用括号括起来](#macro_expnotenclosed)
     - [R3.2.5 表达式中的宏参数应该用括号括起来](#macro_paramnotenclosed)
     - [R3.2.6 由多个语句组成的宏定义应该用 do\-while(0) 括起来](#macro_stmtnotenclosed)
-    - [R3.2.7 在宏定义中由 \# 修饰的参数后不应出现 \#\#](#macro_complexconcat)
+    - [R3.2.7 宏定义中的 \# 和 \#\# 运算符不应嵌套使用](#macro_complexconcat)
     - [R3.2.8 不应使用宏定义常量](#macro_const)
     - [R3.2.9 不应使用宏定义类型](#macro_typeid)
     - [R3.2.10 可由函数实现的功能不应使用宏实现](#macro_function)
@@ -181,7 +181,7 @@
   - [R4.9 全局对象只应为常量或静态对象](#nonconstnonstaticglobalobject)
   - [R4.10 全局对象只应为常量](#nonconstglobalobject)
   - [R4.11 全局对象不应同时被 static 和 const 关键字修饰](#staticandconst)
-  - [R4.12 全局或命名空间作用域中禁用 using directive](#forbidusingdirectives)
+  - [R4.12 全局及命名空间作用域中禁用 using directive](#forbidusingdirectives)
   - [R4.13 避免无效的 using directive](#usingself)
   - [R4.14 不应定义全局 inline 命名空间](#topinlinenamespace)
   - [R4.15 不可修改 std 命名空间](#stdnamespacemodified)
@@ -339,7 +339,7 @@
 
 <span id="__function">**[8. Function](#function)**</span>
   - [R8.1 main 函数的返回类型只应为 int](#mainreturnsnonint)
-  - [R8.2 main 函数不应被重载，也不应声明为 inline、static 或 constexpr](#illformedmain)
+  - [R8.2 main 函数不应被调用、重载或被 inline、static 等限定符修饰](#illformedmain)
   - [R8.3 函数不应在头文件中实现](#definedinheader)
   - [R8.4 函数的参数名称在声明处和实现处应保持一致](#inconsistentparamname)
   - [R8.5 多态类的对象作为参数时不应采用值传递的方式](#parammaybeslicing)
@@ -485,7 +485,7 @@
     - [R10.2.17 不应重复使用一元运算符](#repeatedunaryoperators)
     - [R10.2.18 运算结果不应溢出](#evaloverflow)
     - [R10.2.19 位运算符不应作用于有符号整数](#bitwiseoperonsigned)
-    - [R10.2.20 移位数量不可超过相关类型比特位的数量](#illshiftcount)
+    - [R10.2.20 移位数量不可超过相关类型提升后比特位的数量](#illshiftcount)
     - [R10.2.21 逗号表达式的子表达式应具有必要的副作用](#invalidcommasubexpression)
   - [10.3 Comparison](#expression.comparison)
     - [R10.3.1 比较运算应在正确的取值范围内进行](#illcomparison)
@@ -535,7 +535,7 @@
   - [R11.2 字符常量中不可存在应转义而未转义的字符](#literal_hardcodechar)
   - [R11.3 字符串常量中不可存在应转义而未转义的字符](#literal_hardcodestring)
   - [R11.4 不应使用非标准转义字符](#literal_nonstandardesc)
-  - [R11.5 不同前缀的字符串常量不可连接在一起](#literal_hybridconcat)
+  - [R11.5 不同前缀的字符串常量不应连接在一起](#literal_hybridconcat)
   - [R11.6 字符串常量中不应存在拼写错误](#literal_misspelling)
   - [R11.7 整数或浮点数常量的后缀应使用大写字母](#literal_confusingsuffix)
   - [R11.8 禁用 8 进制常量](#literal_forbidoct)
@@ -2489,6 +2489,7 @@ ID_nonStandardCharInHeaderName
 <br/>
 
 #### 依据
+ISO/IEC 9899:2011 6.10.2  
 ISO/IEC 14882:2011 2.9  
 ISO/IEC 14882:2011 16.2(4)-undefined  
 ISO/IEC 14882:2011 16.2(4)-implementation  
@@ -2946,13 +2947,13 @@ CWE-483
 <br/>
 <br/>
 
-### <span id="macro_complexconcat">▌R3.2.7 在宏定义中由 # 修饰的参数后不应出现 ##</span>
+### <span id="macro_complexconcat">▌R3.2.7 宏定义中的 # 和 ## 运算符不应嵌套使用</span>
 
 ID_macro_complexConcat&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 <hr/>
 
-不同编译器对 \# 和 \#\# 的优先级有不同的实现，在有可移植性要求的代码中不应嵌套使用，而且 \#\# 连接的单词数量不应超过两个。  
+\# 和 \#\# 运算符的优先级在标准中是未声明的，在有可移植性要求的代码中不应嵌套使用。  
   
 示例：
 ```
@@ -2966,6 +2967,10 @@ ID_macro_complexConcat&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.10.3.2(2)-unspecified  
+ISO/IEC 9899:1999 6.10.3.3(3)-unspecified  
+ISO/IEC 9899:2011 6.10.3.2(2)-unspecified  
+ISO/IEC 9899:2011 6.10.3.3(3)-unspecified  
 ISO/IEC 14882:2003 16.3.2(2)-unspecified  
 ISO/IEC 14882:2003 16.3.3(3)-unspecified  
 ISO/IEC 14882:2011 16.3.2(2)-unspecified  
@@ -3071,7 +3076,7 @@ ID_macro_function&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
 <hr/>
 
-宏用于文本处理，不受作用域、参数传递、重载等语言规则限制，可由函数实现的功能不应使用宏实现。  
+宏用于文本处理，不受作用域、参数传递、重载等语言规则限制，且难以调试，可由函数实现的功能不应使用宏实现。  
   
 示例：
 ```
@@ -3127,8 +3132,10 @@ int bar() {
 <br/>
 
 #### 依据
-ISO/IEC 14882:2003 16.3(2 3)  
+ISO/IEC 9899:1999 6.10.3(2)  
 ISO/IEC 9899:2011 6.10.3(2)  
+ISO/IEC 14882:2003 16.3(2 3)  
+ISO/IEC 14882:2011 16.3(2)  
 <br/>
 <br/>
 
@@ -3589,6 +3596,9 @@ ID_nonStdDirective&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 #### 依据
 ISO/IEC 9899:1999 6.10(1)  
 ISO/IEC 9899:2011 6.10(1)  
+ISO/IEC 14882:2003 16(1)  
+ISO/IEC 14882:2011 16(1)  
+ISO/IEC 14882:2017 19(1)  
 <br/>
 
 #### 参考
@@ -3603,7 +3613,7 @@ ID_directiveInMacroArgument&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warni
 
 <hr/>
 
-如果预编译指令出现在宏的参数列表中，指令和参数的处理顺序将是混乱的，导致标准未定义的行为。  
+如果预编译指令出现在宏的参数列表中，会导致标准未定义的行为。  
   
 示例：
 ```
@@ -3622,11 +3632,14 @@ PRINT(
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.10.3(11)-undefined  
+ISO/IEC 9899:2011 6.10.3(11)-undefined  
 ISO/IEC 14882:2003 16.3(10)-undefined  
 ISO/IEC 14882:2011 16.3(11)-undefined  
 <br/>
 
 #### 参考
+MISRA C 2012 20.6  
 MISRA C++ 2008 16-0-5  
 <br/>
 <br/>
@@ -3850,7 +3863,7 @@ ID_missingNewLineFileEnd&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggesti
 
 <hr/>
 
-非空源文件未以换行符结尾，或以换行符结尾但换行符之前是反斜杠，在 C\+\+03 标准中会导致未定义的行为。  
+非空源文件未以换行符结尾，或以换行符结尾但换行符之前是反斜杠，在 C 和 C\+\+03 标准中会导致未定义的行为。  
   
 一般情况下 IDE 或编辑器会保证源文件以空行结尾，而且 C\+\+11 规定编译器应补全所需的空行，但为了提高兼容性，尤其是自动生成的源文件，应以有效的换行符结尾。  
   
@@ -3872,7 +3885,10 @@ int main() {
 <br/>
 
 #### 依据
-ISO/IEC 14882:2003 2.1(2)-undefined  
+ISO/IEC 9899:1999 5.1.1.2(1)-undefined  
+ISO/IEC 9899:2011 5.1.1.2(1)-undefined  
+ISO/IEC 14882:2003 2.1(1)-undefined  
+ISO/IEC 14882:2011 2.2(1)  
 <br/>
 <br/>
 
@@ -4176,6 +4192,8 @@ ID_unsuitableDeclaration
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.2.2(3)  
+ISO/IEC 9899:2011 6.2.2(3)  
 ISO/IEC 14882:2003 3.5(3)  
 ISO/IEC 14882:2011 3.5(3)  
 <br/>
@@ -4223,7 +4241,7 @@ ID_staticInAnonymousNamespace&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
 <hr/>
 
-匿名命名空间中的元素已具有静态链接性（internal linkage），不应再用 static 关键字修饰。  
+匿名命名空间中的元素已具有内部链接性（internal linkage），不应再用 static 关键字修饰。  
   
 示例：
 ```
@@ -4265,24 +4283,29 @@ ID_relyOnExternalObject&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
   
 示例：
 ```
-extern int i;  // Defined in other translate unit
-int j = i;     // Non-compliant
+extern int i;   // Defined in other translate unit
+int j = i;      // Non-compliant
 ```
 例中 i 是在其他源文件中定义的对象，j 初始化时无法保证 i 已被正确初始化。  
   
 又如：
 ```
-extern int x;  // Defined after ‘y’
-int y = x;     // Non-compliant
-int x = 123;
+int foo() {
+    return 1;
+}
+extern int x;   // Defined after ‘y’
+int y = x;      // Non-compliant, unspecified
+int x = foo();
 ```
-例中 x 在 y 的后面定义，y 会先于 x 初始化，但 y 却依赖 x，所以 y 的初始化是无效的。
+例中 x 在 y 的后面定义，y 会先于 x 初始化，y 的值是 0 还是 foo 函数的返回值在标准中是未声明的。
 <br/>
 <br/>
 
 #### 依据
-ISO/IEC 14882:2011 3.6.2(2 3)  
-ISO/IEC 14882:2017 6.6.2(3)  
+ISO/IEC 9899:2011 5.1.2(1)-unspecified  
+ISO/IEC 14882:2011 3.6.2(2)  
+ISO/IEC 14882:2011 3.6.2(3)-unspecified  
+ISO/IEC 14882:2017 6.6.2(3)-unspecified  
 ISO/IEC 14882:2017 6.6.3(2)  
 <br/>
 
@@ -4388,7 +4411,7 @@ ID_staticAndConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
 <hr/>
 
-由 const 关键字修饰的全局对象已具有静态链接性（internal linkage），不应再用 static 关键字修饰。  
+在 C\+\+ 语言中，由 const 或 constexpr 关键字修饰的全局对象已具有内部链接性（internal linkage），不应再用 static 关键字修饰。  
   
 示例：
 ```
@@ -4411,7 +4434,7 @@ ISO/IEC 14882:2011 7.1.1(7)
 <br/>
 <br/>
 
-### <span id="forbidusingdirectives">▌R4.12 全局或命名空间作用域中禁用 using directive</span>
+### <span id="forbidusingdirectives">▌R4.12 全局及命名空间作用域中禁用 using directive</span>
 
 ID_forbidUsingDirectives&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: global suggestion
 
@@ -4760,6 +4783,8 @@ protected:
 <br/>
 
 #### 依据
+ISO/IEC 14882:2003 12.4(7)  
+ISO/IEC 14882:2003 5.3.5(3)-undefined  
 ISO/IEC 14882:2011 12.4(9)  
 ISO/IEC 14882:2011 5.3.5(3)-undefined  
 <br/>
@@ -4827,9 +4852,9 @@ void bar(A* a) {
 <br/>
 
 #### 依据
-ISO/IEC 14882:2011 10.1(4 5 6 7)  
 ISO/IEC 14882:2003 5.2.9(5 8)-undefined  
 ISO/IEC 14882:2011 5.2.9(11 12)-undefined  
+ISO/IEC 14882:2011 10.1(4 5 6 7)  
 <br/>
 
 #### 参考
@@ -6501,11 +6526,13 @@ ID_nonConstUnmodified
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.4.5(6)-undefined  
+ISO/IEC 9899:2011 6.4.5(7)-undefined  
 ISO/IEC 14882:1998 D.4(1)-deprecated  
 ISO/IEC 14882:2003 D.4(1)-deprecated  
 ISO/IEC 14882:2003 2.13.4(2)-undefined  
 ISO/IEC 14882:2011 2.14.5(12)-undefined  
-ISO/IEC 14882:2011 5.13.5(16)-undefined  
+ISO/IEC 14882:2017 5.13.5(16)-undefined  
 <br/>
 
 #### 参考
@@ -6642,6 +6669,8 @@ void thd() {
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.7.3(6)  
+ISO/IEC 9899:2011 6.7.3(7)  
 ISO/IEC 14882:2003 7.1.5.1(8)  
 ISO/IEC 14882:2011 7.1.6.1(7)  
 <br/>
@@ -7717,7 +7746,9 @@ int bar(signed char c) {   // Compliant
 <br/>
 
 #### 依据
-ISO/IEC 9899:2011 6.2.5(15)-implementation  
+ISO/IEC 9899:1999 6.2.5(3 15)-implementation  
+ISO/IEC 9899:2011 6.2.5(3 15)-implementation  
+ISO/IEC 14882:2003 3.9.1(1)-implementation  
 ISO/IEC 14882:2011 3.9.1(1)-implementation  
 <br/>
 
@@ -7766,6 +7797,8 @@ ID_bitwiseOperOnSigned
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.2.5(3 15)-implementation  
+ISO/IEC 9899:2011 6.2.5(3 15)-implementation  
 ISO/IEC 14882:2003 3.9.1(1)-implementation  
 ISO/IEC 14882:2011 3.9.1(1)-implementation  
 <br/>
@@ -8601,7 +8634,9 @@ struct A {
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.7.2.1(3)  
 ISO/IEC 9899:2011 6.7.2.1(4)  
+ISO/IEC 14882:2003 9.6(1)  
 ISO/IEC 14882:2011 9.6(1)  
 <br/>
 <br/>
@@ -8733,6 +8768,8 @@ ID_forbidEnumBitfield
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 J.3.9(1)-implementation  
+ISO/IEC 9899:2011 J.3.9(1)-implementation  
 ISO/IEC 14882:2003 9.6(1)-implementation  
 ISO/IEC 14882:2003 9.6(3)  
 ISO/IEC 14882:2011 9.6(1)-implementation  
@@ -8857,7 +8894,7 @@ void foo() {
 #### 配置
 maxLocalDeclaratorCount: 局部作用域中一个语句能声明的对象个数上限，超过则报出  
 maxMemberDeclaratorCount: 类或结构体中一个语句能声明的对象个数上限，超过则报出  
-maxGlobalDeclaratorCount: 全局或命名空间作用域中一个语句能声明的对象个数上限，超过则报出  
+maxGlobalDeclaratorCount: 全局及命名空间作用域中一个语句能声明的对象个数上限，超过则报出  
 simpleDeclaratorLengthThreshold: 声明字符数量阈值，超过此值则判其应在单独的语句中声明  
 <br/>
 
@@ -8993,7 +9030,7 @@ ID_unsuitableDeclaration&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggest
 如果声明的位置不合理会降低代码的可维护性，甚至会导致标准未定义的行为。  
   
 应遵循如下原则：  
- - 外部链接的对象或函数应在头文件中声明  
+ - 外部链接的对象或函数应在头文件中声明，并避免重复声明  
  - 内部链接的对象或函数应在源文件中声明，不应在头文件中声明  
  - 避免在头文件外手工书写外部声明  
  - 避免在局部作用域内声明函数或全局对象  
@@ -10184,7 +10221,7 @@ main 函数的返回值可作为整个进程执行情况的总结，按惯例返
 int main(void) { .... }                     // Compliant
 int main(int argc, char *argv[]) { .... }   // Compliant
 ```
-如果将返回值设为 void 或其他非 int 类型，均不符合要求。  
+如果将返回值设为 void 或其他非 int 类型，会导致未定义、未声明或由实现定义的行为。  
 
 ```
 void main() { .... }   // Non-compliant
@@ -10194,8 +10231,12 @@ bool main() { .... }   // Non-compliant
 <br/>
 
 #### 依据
-ISO/IEC 9899:2011 5.1.2.2.1(1)  
-ISO/IEC 9899:2011 5.1.2.2.3(1)  
+ISO/IEC 9899:1999 5.1.2.2.1(1)-implementation  
+ISO/IEC 9899:1999 5.1.2.2.3(1)-unspecified  
+ISO/IEC 9899:2011 5.1.2.2.1(1)-implementation  
+ISO/IEC 9899:2011 5.1.2.2.3(1)-unspecified  
+ISO/IEC 14882:2003 3.6.1(2)-implementation  
+ISO/IEC 14882:2011 3.6.1(2)-implementation  
 <br/>
 
 #### 参考
@@ -10203,37 +10244,39 @@ C++ Core Guidelines F.46
 <br/>
 <br/>
 
-### <span id="illformedmain">▌R8.2 main 函数不应被重载，也不应声明为 inline、static 或 constexpr</span>
+### <span id="illformedmain">▌R8.2 main 函数不应被调用、重载或被 inline、static 等限定符修饰</span>
 
 ID_illFormedMain&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-main 函数作为程序的入口，链接器需对其特殊处理，标准规定 main 函数不应被重载，也不应声明为 inline、static 或 constexpr。  
+main 函数作为程序的入口是一种特殊的函数，其链接性由实现定义，不应被调用、重载或被任何函数限定符修饰。  
   
 示例：
 ```
-static int main(const char* s) {  // Non-compliant
+int main();   // The main function does not need to be declared
+
+int foo() {
+    return main();   // Non-compliant
+}
+
+int main(const char* p) {   // Non-compliant
     ....
 }
 
-static int main(const wchar_t* w) {  // Non-compliant
+inline int main() {   // Non-compliant
     ....
-}
-
-int main()
-{
-    main(L"abc");  // Non-compliant
 }
 ```
-那么在 C\+\+ 代码中可以用 noexcept 修饰 main 函数吗？标准没有明确规定，本规则也不建议这样做，不论是否使用 noexcept，在 main 函数中抛出异常都会引起 std::terminate 的执行，而且这样做也不符合惯例。
 <br/>
 <br/>
 
 #### 依据
-ISO/IEC 14882:2003 3.6.1(2 3)  
-ISO/IEC 14882:2011 3.6.1(2 3)  
-ISO/IEC 14882:2017 6.6.1(2 3)  
+ISO/IEC 9899:1999 6.7.4(4)  
+ISO/IEC 9899:2011 6.7.4(4)  
+ISO/IEC 14882:2003 3.6.1(2 3)-implementation  
+ISO/IEC 14882:2011 3.6.1(2 3)-implementation  
+ISO/IEC 14882:2017 6.6.1(2 3)-implementation  
 <br/>
 <br/>
 
@@ -11161,7 +11204,7 @@ int main() {
     printf("Hi~\n");
 }   // Compliant
 ```
-在 main 函数的结尾如果不显式调用 return 语句，编译器会自动添加 return 0，故对 main 函数不作要求。
+标准规定未显式返回的 main 函数会返回 0，故 main 函数不受本规则约束。
 <br/>
 <br/>
 
@@ -11170,8 +11213,10 @@ ISO/IEC 9899:1999 6.9.1(12)-undefined
 ISO/IEC 9899:1999 5.1.2.2.3(1)  
 ISO/IEC 9899:2011 6.9.1(12)-undefined  
 ISO/IEC 9899:2011 5.1.2.2.3(1)  
+ISO/IEC 14882:2003 6.6.3(2)-undefined  
+ISO/IEC 14882:2003 3.6.1(5)  
 ISO/IEC 14882:2011 6.6.3(2)-undefined  
-ISO/IEC 14882:2017 9.6.3(2)-undefined  
+ISO/IEC 14882:2011 3.6.1(5)  
 <br/>
 
 #### 参考
@@ -11572,6 +11617,7 @@ ID_unsuitableReturnType
 <br/>
 
 #### 依据
+ISO/IEC 9899:2011 6.7.4(8 12)-undefined  
 ISO/IEC 14882:2011 7.6.3(2)-undefined  
 <br/>
 <br/>
@@ -11604,6 +11650,7 @@ ID_unsuitableReturn
 <br/>
 
 #### 依据
+ISO/IEC 9899:2011 6.7.4(8 12)-undefined  
 ISO/IEC 14882:2011 7.6.3(2)-undefined  
 <br/>
 <br/>
@@ -12037,7 +12084,10 @@ int avg(int a, int b) {
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 J.5.10-implementation  
+ISO/IEC 9899:2011 J.5.10-implementation  
 ISO/IEC 14882:2003 7.4(1)-implementation  
+ISO/IEC 14882:2011 7.4(1)-implementation  
 <br/>
 
 #### 参考
@@ -13859,6 +13909,7 @@ default:
 <br/>
 
 #### 依据
+ISO/IEC 9899:2011 6.8.4.2  
 ISO/IEC 14882:2017 10.6.5  
 <br/>
 
@@ -14759,6 +14810,8 @@ ID_sideEffectAssertion
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.5.3.4(2)  
+ISO/IEC 9899:2011 6.5.3.4(2)  
 ISO/IEC 14882:2003 5.3.3(1)  
 ISO/IEC 14882:2011 5.3.3(1)  
 ISO/IEC 14882:2017 8.3.3(1)  
@@ -14889,12 +14942,14 @@ ID_evaluationOrderReliance
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.5(2)-undefined  
+ISO/IEC 9899:1999 Annex C  
 ISO/IEC 9899:2011 6.5(2)-undefined  
+ISO/IEC 9899:2011 Annex C  
 ISO/IEC 14882:2003 5(4)-unspecified  
 ISO/IEC 14882:2011 1.9(15)-undefined  
 ISO/IEC 14882:2011 5.17(1)  
 ISO/IEC 14882:2017 8.18(1)  
-ISO/IEC 9899:2011 Annex C  
 <br/>
 
 #### 参考
@@ -15428,7 +15483,7 @@ int foo(signed s, unsigned u) {
 
 int bar(signed s, unsigned u) {
     if (s < 0) {
-        int a = s << u;           // Non-compliant, undefined
+        int a = s << u;           // Non-compliant, undefined in C++11
         int b = s >> u;           // Non-compliant, implementation-defined
         return a + b;
     }
@@ -15440,6 +15495,10 @@ int bar(signed s, unsigned u) {
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.5.7(3)-undefined  
+ISO/IEC 9899:2011 6.5.7(3)-undefined  
+ISO/IEC 14882:2003 5.8(2)  
+ISO/IEC 14882:2003 5.8(3)-implementation  
 ISO/IEC 14882:2011 5.8(2)-undefined  
 ISO/IEC 14882:2011 5.8(3)-implementation  
 <br/>
@@ -15453,13 +15512,13 @@ C++ Core Guidelines ES.101
 <br/>
 <br/>
 
-### <span id="illshiftcount">▌R10.2.20 移位数量不可超过相关类型比特位的数量</span>
+### <span id="illshiftcount">▌R10.2.20 移位数量不可超过相关类型提升后比特位的数量</span>
 
 ID_illShiftCount&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
 <hr/>
 
-移位数量超过相关类型比特位的数量会导致标准未定义的行为。  
+如果移位数量为负数、大于或等于相关类型提升后比特位的数量，会导致标准未定义的行为。  
   
 示例：
 ```
@@ -15467,7 +15526,7 @@ uint64_t foo(uint32_t u) {
     return u << 32;          // Non-compliant, undefined behavior
 }
 ```
-例中 u 为 32 位整型变量，将其左移 32 位并不能得到 64 位整数，反而会导致标准未定义的行为。  
+例中变量 u 为 32 位整型，将其左移 32 位并不能得到 64 位整数，反而会导致标准未定义的行为。  
   
 应改为：
 ```
@@ -15479,6 +15538,8 @@ uint64_t foo(uint32_t u) {
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.5.7(3)-undefined  
+ISO/IEC 9899:2011 6.5.7(3)-undefined  
 ISO/IEC 14882:2003 5.8(1)-undefined  
 ISO/IEC 14882:2011 5.8(1)-undefined  
 ISO/IEC 14882:2017 8.8(1)-undefined  
@@ -15668,9 +15729,11 @@ bool is_name(const char* p) {
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.4.5(6)-unspecified  
+ISO/IEC 9899:2011 6.4.5(7)-unspecified  
 ISO/IEC 14882:2003 2.13.4(2)-implementation  
 ISO/IEC 14882:2011 2.14.5(12)-implementation  
-ISO/IEC 14882:2011 5.13.5(16)-unspecified  
+ISO/IEC 14882:2017 5.13.5(16)-unspecified  
 <br/>
 
 #### 参考
@@ -15806,11 +15869,11 @@ void bar(string& s) {
   
 C\+\+17 nodiscard 属性表示返回值具有重要意义，标准库中以及由用户标注的具有 nodiscard 属性的返回值不应被忽略，如：
 ```
-[[nodiscard]] int fun();   // Or use __attribute__((warn_unused_result)) for C
+[[nodiscard]] int fun();   // Or use __attribute__((warn_unused_result)) in GCC
 
 int main() {
     fun();           // Non-compliant
-    int r = fun();   // Compliant, 'r' should be used in subsequent code   
+    int r = fun();   // Compliant, ‘r’ should be used in subsequent code   
     ....
     (void)fun();     // Let it go?
 }
@@ -16641,6 +16704,8 @@ printf("%zu\n", sizeof(a));  // What is output?
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.7.2.1(7)-undefined  
+ISO/IEC 9899:2011 6.7.2.1(8)-undefined  
 ISO/IEC 14882:2003 5.3.3(1 6)  
 ISO/IEC 14882:2003 9(3)  
 ISO/IEC 14882:2011 5.3.3(1 6)  
@@ -16674,6 +16739,8 @@ void foo() {
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.5.3.4(4)  
+ISO/IEC 9899:2011 6.5.3.4(5)  
 ISO/IEC 14882:2003 5.3.3(6)  
 ISO/IEC 14882:2011 5.3.3(6)  
 ISO/IEC 14882:2017 8.3.3(6)  
@@ -17000,6 +17067,8 @@ void fun() {
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.5.2.1(2)  
+ISO/IEC 9899:2011 6.5.2.1(2)  
 ISO/IEC 14882:2003 8.3.4(6)  
 ISO/IEC 14882:2011 8.3.4(6)  
 <br/>
@@ -17093,6 +17162,8 @@ ID_literal_multicharacter
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.4.4.4(10)-implementation  
+ISO/IEC 9899:2011 6.4.4.4(10)-implementation  
 ISO/IEC 14882:2011 2.13.2(1)-implementation  
 ISO/IEC 14882:2011 2.14.3(1)-implementation  
 ISO/IEC 14882:2017 5.13.3(2)-implementation  
@@ -17157,7 +17228,7 @@ ID_literal_nonStandardEsc&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: literal warning
 
 <hr/>
 
-使用非标准转义字符会导致标准未定义的行为，也可能是忘了将反斜杠转义。  
+非标准转义字符没有可移植性，也可能是忘了将反斜杠转义。  
   
 示例：
 ```
@@ -17188,6 +17259,8 @@ string path("C:\Files\x.cpp");   // Non-compliant
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.4.4.4  
+ISO/IEC 9899:2011 6.4.4.4  
 ISO/IEC 14882:2003 2.13.2(3)-undefined  
 ISO/IEC 14882:2011 2.14.3(3)-implementation  
 ISO/IEC 14882:2017 5.13.3(7)-implementation  
@@ -17199,34 +17272,48 @@ MISRA C++ 2008 2-13-1
 <br/>
 <br/>
 
-### <span id="literal_hybridconcat">▌R11.5 不同前缀的字符串常量不可连接在一起</span>
+### <span id="literal_hybridconcat">▌R11.5 不同前缀的字符串常量不应连接在一起</span>
 
 ID_literal_hybridConcat&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: literal warning
 
 <hr/>
 
-L、U、u、u8 等字符串前缀表示不同的类型，不可连接在一起。  
+不同前缀的字符串常量连接在一起会导致标准未定义或由实现定义的行为。  
   
 示例：
 ```
-auto* a = L"123" U"456";   // Non-compliant
-auto* b = U"123" u"456";   // Non-compliant
+typedef wchar_t S[];
+
+S a = L"123" U"456";   // Non-compliant
+S b = L"123" u"456";   // Non-compliant
 ```
-应保持一致：
+C\+\+03 规定宽字符串与窄字符串连接会导致未定义的行为，C\+\+11 规定如果一个字符串有前缀另一个没有，结果以有前缀的为准，其他情况由实现定义或无法通过编译，如：
 ```
-auto* a = L"123" L"456";   // Compliant
-auto* b = U"123" U"456";   // Compliant
+S x = L"123" "456";    // Undefined in C++03, a wide string in C++11
+S y = L"123" U"456";   // Implementation defined in C++11
+S z = L"123" u8"456";  // Ill-formed in C++11
 ```
-C\+\+03 规定宽字符串与窄字符串连接会导致未定义的行为，C\+\+11 规定如果一个字符串有前缀另一个没有，结果以有前缀的为准，其他情况由实现定义，如：
+C99 规定宽字符串与窄字符串连接的结果为宽字符串，C11 规定不同前缀的宽字符串连接结果由实现定义，如：
 ```
-auto* x = L"123" "456";    // Undefined in C++03
-auto* y = L"123" "456";    // A wide string in C++11
-auto* z = L"123" u8"456";  // Ill-formed in C++11
+S u = L"123" "456";    // A wide string in C99
+S v = L"123" U"456";   // Implementation defined in C11
+```
+为了提高可读性和可移植性，字符串前缀应保持一致，对于有前缀和无前缀的字符串连接，在新的语言标准中均已有定义，审计工具不妨通过配置决定是否放过这种连接：
+```
+S r = "123" L"456";    // Bad
+S s = L"123" L"456";   // Good
+S t = L"123" "456";    // Let it go?
 ```
 <br/>
 <br/>
 
+#### 配置
+allowPrefixedConcatUnprefixed: 是否允许有前缀和无前缀的字符串连接  
+<br/>
+
 #### 依据
+ISO/IEC 9899:1999 6.4.5(4)  
+ISO/IEC 9899:2011 6.4.5(5)-implementation  
 ISO/IEC 14882:2003 2.13.4(3)-undefined  
 ISO/IEC 14882:2011 2.14.5(13)-implementation  
 <br/>
@@ -17355,6 +17442,10 @@ ID_literal_confusingSuffix
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.4.4.1(5)  
+ISO/IEC 9899:1999 6.4.4.2(4)  
+ISO/IEC 9899:2011 6.4.4.1(5)  
+ISO/IEC 9899:2011 6.4.4.2(4)  
 ISO/IEC 14882:2003 2.14.2(2)  
 ISO/IEC 14882:2003 2.14.4(1)  
 ISO/IEC 14882:2011 2.14.2(2)  
@@ -17538,6 +17629,8 @@ ID_literal_suspiciousChar
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.4.4.4(10)-implementation  
+ISO/IEC 9899:2011 6.4.4.4(10)-implementation  
 ISO/IEC 14882:2011 2.13.2(1)-implementation  
 ISO/IEC 14882:2011 2.14.3(1)-implementation  
 ISO/IEC 14882:2017 5.13.3(2)-implementation  
@@ -17749,8 +17842,9 @@ ID_fixedAddrToPointer
 
 #### 依据
 ISO/IEC 9899:2011 6.3.2.3(5)-implementation  
-ISO/IEC 14882:2011 5.2.10(4 5)-implementation  
 ISO/IEC 9899:2011 7.20.1.4(1)  
+ISO/IEC 14882:2011 5.2.10(4 5)-implementation  
+ISO/IEC 14882:2011 3.7.4.3(1)  
 <br/>
 
 #### 参考
@@ -18192,8 +18286,9 @@ ID_downCast
 <br/>
 
 #### 依据
-ISO/IEC 14882:2011 5.2.7  
+ISO/IEC 14882:2003 5.2.7  
 ISO/IEC 14882:2003 5.2.9(5 8)-undefined  
+ISO/IEC 14882:2011 5.2.7  
 ISO/IEC 14882:2011 5.2.9(11 12)-undefined  
 <br/>
 
@@ -19009,7 +19104,9 @@ ID_oddPtrCharComparison
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.3.2.3(3)  
 ISO/IEC 9899:2011 6.3.2.3(3)  
+ISO/IEC 14882:2003 4.10(1)  
 ISO/IEC 14882:2011 4.10(1)  
 <br/>
 
@@ -20390,8 +20487,8 @@ NULL 表示空指针，所以应该调用参数为指针的重载函数，但不
 #### 依据
 ISO/IEC 14882:2003 C.2.2.3(1)-implementation  
 ISO/IEC 14882:2011 C.3.2.4(1)-implementation  
-ISO/IEC 14882:2017 C.5.2.7(1)-implementation  
 ISO/IEC 14882:2011 2.14.7(1)  
+ISO/IEC 14882:2017 C.5.2.7(1)-implementation  
 <br/>
 
 #### 参考
