@@ -231,7 +231,7 @@
         "level": "warning",
         "comment": "如果 lambda 表达式只在函数内部使用，可采用捕获引用的方式；如果 lambda 表达式可以超出函数作用域，应采用捕获值的方式。",
         "tag": "function",
-        "standard": "ISO/IEC 14882:2011 5.1.2(7)",
+        "standard": "ISO/IEC 14882:2011 5.1.2,ISO/IEC 14882:2017 8.1.5.2",
         "related": "ID_localAddressFlowOut",
         "reference": "C++ Core Guidelines F.52,C++ Core Guidelines F.53,C++ Core Guidelines F.54"
         },
@@ -919,7 +919,7 @@
         "level": "suggestion",
         "comment": "柔性数组（flexible array）一般是指结构体最后不完整定义的数组成员，表示不占用空间的指针，这种数组在 C99 中有所定义，但不在 C++ 标准之中，在 C++ 代码中不应使用。",
         "tag": "declaration",
-        "standard": "ISO/IEC 9899:1999 6.7.2.1(16)",
+        "standard": "ISO/IEC 9899:1999 6.7.2.1(16),ISO/IEC 9899:2011 6.7.2.1(18)",
         "reference": "MISRA C 2012 18.7"
         },
     "ID_unsuitableArraySize": {
@@ -962,14 +962,14 @@
         "checkPoint": "不应将 union 设为 final",
         "level": "warning",
         "comment": "C++ 标准规定 union 不可作为基类，将 union 声明为 final 是没有意义的，属于语言运用错误。",
-        "standard": "ISO/IEC 14882:2011 9.5(2)",
+        "standard": "ISO/IEC 14882:2011 9.5(2),ISO/IEC 14882:2017 12.3(3)",
         "tag": "declaration"
         },
     "ID_virtualInFinal": {
         "checkPoint": "final 类中不应声明虚函数",
         "level": "warning",
         "comment": "final 类不再产生派生类，其中的虚函数也不会再被重写，故不应声明虚函数。",
-        "standard": "ISO/IEC 14882:2011 9(3)",
+        "standard": "ISO/IEC 14882:2011 9(3),ISO/IEC 14882:2017 12(3)",
         "tag": "declaration"
         },
     "ID_exceptionUnsafe": {
@@ -1005,7 +1005,7 @@
         "comment": "可变参数列表对参数的类型和数量缺乏有效的限定和控制，是公认的不安全因素。",
         "tag": "declaration",
         "related": "ID_badParmN,ID_badVaArgType",
-        "standard": "ISO/IEC 14882:2003 5.2.2(7)-undefined",
+        "standard": "ISO/IEC 14882:2003 5.2.2(7)-undefined,ISO/IEC 14882:2011 5.2.2(7)-implementation",
         "reference": "C++ Core Guidelines ES.34,C++ Core Guidelines F.55,MISRA C 2004 16.1,MISRA C++ 2008 8-4-1"
         },
     "ID_redundantVirtual": {
@@ -1088,7 +1088,7 @@
         "level": "error",
         "comment": "#include 后只应为 < 头文件路径 > 或 \" 头文件路径 \"，否则会导致标准未定义的行为。",
         "tag": "precompile",
-        "standard": "ISO/IEC 9899:2011 6.10.2,ISO/IEC 14882:2011 2.9,ISO/IEC 14882:2011 16.2(4)-undefined,ISO/IEC 14882:2011 16.2(4)-implementation",
+        "standard": "ISO/IEC 9899:1999 6.10.2,ISO/IEC 9899:2011 6.10.2,ISO/IEC 14882:2003 2.8,ISO/IEC 14882:2003 16.2(4)-undefined,ISO/IEC 14882:2003 16.2(4)-implementation,ISO/IEC 14882:2011 2.9,ISO/IEC 14882:2011 16.2(4)-undefined,ISO/IEC 14882:2011 16.2(4)-implementation",
         "related": "ID_nonStandardCharInHeaderName",
         "reference": "MISRA C 2004 19.3,MISRA C 2012 20.3,MISRA C++ 2008 16-2-6"
         },
@@ -1327,7 +1327,7 @@
             ],
         "tag": "cast",
         "related": "ID_stricterAlignedCast,ID_castNonPublicInheritance",
-        "standard": "ISO/IEC 9899:2011 6.5(7)-undefined,ISO/IEC 14882:2011 3.10(10)-undefined,ISO/IEC 14882:2011 4.1(1)-undefined",
+        "standard": "ISO/IEC 9899:1999 6.5(7)-undefined,ISO/IEC 9899:2011 6.5(7)-undefined,ISO/IEC 14882:2003 3.10(15)-undefined,ISO/IEC 14882:2003 4.1(1)-undefined,ISO/IEC 14882:2011 3.10(10)-undefined,ISO/IEC 14882:2011 4.1(1)-undefined",
         "reference": "MISRA C 2012 11.3,MISRA C++ 2008 5-2-7,SEI CERT EXP39-C"
         },
     "ID_castNonPublicInheritance": {
@@ -1350,7 +1350,7 @@
         "level": "warning",
         "comment": "函数指针和不兼容的类型转换会导致标准未定义的行为。",
         "tag": "cast",
-        "standard": "ISO/IEC 9899:2011 6.3.2.3(6 7 8)-undefined,ISO/IEC 9899:2011 6.5.2.2(9)-undefined,ISO/IEC 14882:2011 5.2.10(6)-undefined,ISO/IEC 14882:2011 5.2.10(8)-implementation",
+        "standard": "ISO/IEC 9899:1999 6.3.2.3(6 7 8)-undefined,ISO/IEC 9899:1999 6.5.2.2(9)-undefined,ISO/IEC 9899:2011 6.3.2.3(6 7 8)-undefined,ISO/IEC 9899:2011 6.5.2.2(9)-undefined,ISO/IEC 14882:2003 5.2.10(6)-undefined,ISO/IEC 14882:2011 5.2.10(6)-undefined,ISO/IEC 14882:2011 5.2.10(8)-implementation",
         "reference": "MISRA C 2004 11.1,MISRA C 2012 11.1,MISRA C++ 2008 5-2-6"
         },
     "ID_arrayPointerCast": {
@@ -2142,7 +2142,7 @@
         "level": "warning",
         "comment": "匿名命名空间中的元素已具有内部链接性（internal linkage），不应再用 static 关键字修饰。",
         "tag": "global",
-        "standard": "ISO/IEC 14882:2011 3.5(4)"
+        "standard": "ISO/IEC 14882:2011 3.5(4),ISO/IEC 14882:2017 6.5(4)"
         },
     "ID_staticAndConst": {
         "checkPoint": "全局对象不应同时被 static 和 const 关键字修饰",
@@ -3529,7 +3529,7 @@
         "level": "warning",
         "comment": "对于锁等资源，错误的请求时序或管理方式会使程序永远陷入等待状态，这种问题称为“死锁（deadlock）”。",
         "tag": "concurrency",
-        "standard": "ISO/IEC 9899:2011 7.26.4.3(2)-undefined",
+        "standard": "ISO/IEC 9899:2011 7.26.4.3(2)-undefined,ISO/IEC 14882:2011 17.3.8",
         "reference": "SEI CERT CON35-C,SEI CERT CON53-CPP,SEI CERT CON56-CPP"
         },
     "ID_illLifetime": {
@@ -3537,7 +3537,7 @@
         "level": "warning",
         "comment": "共享对象的使用情况在异步过程中是难以掌控的，贸然终止共享对象的生命周期往往会导致标准未定义的行为。",
         "tag": "concurrency",
-        "standard": "ISO/IEC 14882:2011 30.4.1.2.1(5)-undefined",
+        "standard": "ISO/IEC 14882:2011 30.4.1.2.1(5)-undefined,ISO/IEC 14882:2017 33.4.3.2.1(5)-undefined",
         "related": "ID_asynchronousTermination,ID_localAddressFlowOut,ID_danglingDeref",
         "reference": "SEI CERT CON31-C,SEI CERT CON50-CPP"
         },

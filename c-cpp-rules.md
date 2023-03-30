@@ -1576,7 +1576,7 @@ ID_illAccess&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
 
 访问未初始化或已释放的资源属于逻辑错误，会导致标准未定义的行为。  
   
-对于解引用已经释放的指针，本规则特化为 ID\_danglingDeref。  
+对于解引用已被释放的指针，本规则特化为 ID\_danglingDeref。  
 对于访问未初始化的局部对象，本规则特化为 ID\_localInitialization。  
   
 示例：
@@ -2495,7 +2495,11 @@ ID_nonStandardCharInHeaderName
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.10.2  
 ISO/IEC 9899:2011 6.10.2  
+ISO/IEC 14882:2003 2.8  
+ISO/IEC 14882:2003 16.2(4)-undefined  
+ISO/IEC 14882:2003 16.2(4)-implementation  
 ISO/IEC 14882:2011 2.9  
 ISO/IEC 14882:2011 16.2(4)-undefined  
 ISO/IEC 14882:2011 16.2(4)-implementation  
@@ -4278,6 +4282,7 @@ namespace {
 
 #### 依据
 ISO/IEC 14882:2011 3.5(4)  
+ISO/IEC 14882:2017 6.5(4)  
 <br/>
 <br/>
 
@@ -7055,6 +7060,7 @@ union U final  // Non-compliant, meaningless
 
 #### 依据
 ISO/IEC 14882:2011 9.5(2)  
+ISO/IEC 14882:2017 12.3(3)  
 <br/>
 <br/>
 
@@ -7286,6 +7292,7 @@ ID_badVaArgType
 
 #### 依据
 ISO/IEC 14882:2003 5.2.2(7)-undefined  
+ISO/IEC 14882:2011 5.2.2(7)-implementation  
 <br/>
 
 #### 参考
@@ -7325,6 +7332,7 @@ A* cpy(const A* p) {
 
 #### 依据
 ISO/IEC 9899:1999 6.7.2.1(16)  
+ISO/IEC 9899:2011 6.7.2.1(18)  
 <br/>
 
 #### 参考
@@ -8546,6 +8554,7 @@ public:
 
 #### 依据
 ISO/IEC 14882:2011 9(3)  
+ISO/IEC 14882:2017 12(3)  
 <br/>
 <br/>
 
@@ -10512,7 +10521,7 @@ ID_localInitialization&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 示例：
 ```
 int foo() {
-    int a;         // An local object(automatic storage duration)
+    int a;         // A local object(automatic storage duration)
     if (cond) {
         a = 0;
     }
@@ -11390,7 +11399,7 @@ auto foo() -> function<int()> {
 另外，要注意解引用指针造成的间接引用：
 ```
 class A {
-    int i;
+    int i = 0;
 
 public:
     auto bar() {
@@ -11415,7 +11424,8 @@ ID_localAddressFlowOut
 <br/>
 
 #### 依据
-ISO/IEC 14882:2011 5.1.2(7)  
+ISO/IEC 14882:2011 5.1.2  
+ISO/IEC 14882:2017 8.1.5.2  
 <br/>
 
 #### 参考
@@ -18027,7 +18037,10 @@ ID_castNonPublicInheritance
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.5(7)-undefined  
 ISO/IEC 9899:2011 6.5(7)-undefined  
+ISO/IEC 14882:2003 3.10(15)-undefined  
+ISO/IEC 14882:2003 4.1(1)-undefined  
 ISO/IEC 14882:2011 3.10(10)-undefined  
 ISO/IEC 14882:2011 4.1(1)-undefined  
 <br/>
@@ -18272,8 +18285,11 @@ p = (fnp_t)dlsym(h, "f");  // Let it go
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.3.2.3(6 7 8)-undefined  
+ISO/IEC 9899:1999 6.5.2.2(9)-undefined  
 ISO/IEC 9899:2011 6.3.2.3(6 7 8)-undefined  
 ISO/IEC 9899:2011 6.5.2.2(9)-undefined  
+ISO/IEC 14882:2003 5.2.10(6)-undefined  
 ISO/IEC 14882:2011 5.2.10(6)-undefined  
 ISO/IEC 14882:2011 5.2.10(8)-implementation  
 <br/>
@@ -19977,6 +19993,7 @@ void lock_in_order(A* p, A* q) {
 
 #### 依据
 ISO/IEC 9899:2011 7.26.4.3(2)-undefined  
+ISO/IEC 14882:2011 17.3.8  
 <br/>
 
 #### 参考
@@ -20058,6 +20075,7 @@ ID_danglingDeref
 
 #### 依据
 ISO/IEC 14882:2011 30.4.1.2.1(5)-undefined  
+ISO/IEC 14882:2017 33.4.3.2.1(5)-undefined  
 <br/>
 
 #### 参考
@@ -20175,7 +20193,7 @@ int thread(void* param) {
     ....
 }
 ```
-设例中 thread 是线程函数，C11 标准指明在多线程环境中使用 signal 函数会导致未定义的行为。
+例中 thread 是线程函数，C11 标准指明在多线程环境中使用 signal 函数会导致未定义的行为。
 <br/>
 <br/>
 
