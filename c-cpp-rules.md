@@ -346,7 +346,7 @@
   - [R8.6 不应存在未被使用的具名形式参数](#paramnotused)
   - [R8.7 由 const 修饰的参数应为引用或指针](#parampassedbyvalue)
   - [R8.8 转发引用只应作为 std::forward 的参数](#illforwardingreference)
-  - [R8.9 局部对象在使用前必须初始化](#localinitialization)
+  - [R8.9 局部对象在使用前应被初始化](#localinitialization)
   - [R8.10 成员须在声明处或构造时初始化](#memberinitialization)
   - [R8.11 基类对象构造完毕之前不可调用成员函数](#illmembercall)
   - [R8.12 在面向构造或析构函数体的 catch handler 中不可访问非静态成员](#illmemberaccess)
@@ -500,7 +500,7 @@
     - [R10.4.3 避免对象切片](#objectslicing)
     - [R10.4.4 避免显式调用析构函数](#explicitdtorcall)
     - [R10.4.5 不应将非 POD 对象传入可变参数列表](#nonpodvariadicargument)
-    - [R10.4.6 C 格式化字符串与其参数的个数应一致](#inconsistentformatargnum)
+    - [R10.4.6 C 格式化字符串需要的参数个数与实际传入的参数个数应一致](#inconsistentformatargnum)
     - [R10.4.7 C 格式化占位符与其对应参数的类型应一致](#inconsistentformatargtype)
     - [R10.4.8 在 C\+\+ 代码中禁用 C 字符串格式化方法](#forbidcstringformat)
     - [R10.4.9 禁用 atof、atoi、atol 以及 atoll 等函数](#forbidatox)
@@ -793,6 +793,7 @@ ID_ignorePaddingData
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 5.1.2.3(3)  
 ISO/IEC 9899:2011 5.1.2.3(4)  
 ISO/IEC 9899:2011 K.3.7.4.1  
 <br/>
@@ -1573,7 +1574,10 @@ ID_illAccess&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
 
 <hr/>
 
-访问未初始化或已释放的资源属于逻辑错误，导致标准未定义的行为。  
+访问未初始化或已释放的资源属于逻辑错误，会导致标准未定义的行为。  
+  
+对于解引用已经释放的指针，本规则特化为 ID\_danglingDeref。  
+对于访问未初始化的局部对象，本规则特化为 ID\_localInitialization。  
   
 示例：
 ```
@@ -1591,8 +1595,6 @@ void foo(const char* path) {
     ....
 }
 ```
-关于解引用已经释放的指针，特化为 ID\_danglingDeref。  
-关于访问未初始化的局部对象，特化为 ID\_localInitialization。
 <br/>
 <br/>
 
@@ -1602,8 +1604,8 @@ ID_localInitialization
 <br/>
 
 #### 依据
-ISO/IEC 9899:2011 7.22.3.3(2)-undefined  
-ISO/IEC 14882:2011 3.7.4.2(4)-undefined  
+ISO/IEC 9899:1999 7.19.3(4)  
+ISO/IEC 9899:2011 7.21.3(4)  
 <br/>
 
 #### 参考
@@ -1815,8 +1817,9 @@ ID_incompleteNewDeletePair
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 7.20.3.2(2)-undefined  
 ISO/IEC 9899:2011 7.22.3.3(2)-undefined  
-ISO/IEC 9899:2011 7.22.3.4(3)-undefined  
+ISO/IEC 14882:2003 3.7.3.2(3)  
 ISO/IEC 14882:2011 3.7.4.2(3)-undefined  
 <br/>
 
@@ -2047,7 +2050,9 @@ void foo(const char* path) {
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 7.20.3.2(2)-undefined  
 ISO/IEC 9899:2011 7.22.3.3(2)-undefined  
+ISO/IEC 14882:2003 3.7.3.2(4)-undefined  
 ISO/IEC 14882:2011 3.7.4.2(4)-undefined  
 <br/>
 
@@ -2189,8 +2194,9 @@ void bar() {
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 7.20.3.2(2)-undefined  
 ISO/IEC 9899:2011 7.22.3.3(2)-undefined  
-ISO/IEC 9899:2011 7.22.3.4(3)-undefined  
+ISO/IEC 14882:2003 5.3.5(2)-undefined  
 ISO/IEC 14882:2011 5.3.5(2)-undefined  
 <br/>
 
@@ -2756,13 +2762,13 @@ __STDC_ISO_10646__、__STDCPP_STRICT_POINTER_SAFETY__
 ```
 #define _WIN64   0      // Non-compliant
 #define __GNUC__ 1      // Non-compliant
-#define __STDC__ 1      // Non-compliant
-#define __cplusplus 0   // Non-compliant
+#define __STDC__ 1      // Non-compliant, undefined behavior
+#define __cplusplus 0   // Non-compliant, undefined behavior
 ```
 标识平台或编译环境的宏不可在代码中写死。  
 
 ```
-#define defined            // Non-compliant
+#define defined            // Non-compliant, undefined behavior
 #define new new(nothrow)   // Non-compliant
 ```
 不可重定义关键字。  
@@ -2789,7 +2795,9 @@ ID_reservedName
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 7.1.3(2)-undefined  
 ISO/IEC 9899:2011 7.1.3(2)-undefined  
+ISO/IEC 14882:2003 16.8(3)-undefined  
 ISO/IEC 14882:2011 16.8(4)-undefined  
 <br/>
 
@@ -2833,7 +2841,9 @@ ID_reservedName
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 7.1.3(3)-undefined  
 ISO/IEC 9899:2011 7.1.3(3)-undefined  
+ISO/IEC 14882:2003 16.8(3)-undefined  
 ISO/IEC 14882:2011 16.8(4)-undefined  
 <br/>
 
@@ -4415,11 +4425,11 @@ ID_staticAndConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
   
 示例：
 ```
-static const int i = 123;  // Non-compliant, redundant ‘static’
+static const int i = 123;   // Non-compliant, redundant ‘static’
 ```
 应改为：
 ```
-const int i = 123;         // Compliant
+const int i = 123;   // Compliant
 ```
 <br/>
 <br/>
@@ -5714,6 +5724,7 @@ void bar() {
 
 #### 依据
 ISO/IEC 14882:2011 7.2(2)  
+ISO/IEC 14882:2017 10.2(2)  
 <br/>
 
 #### 参考
@@ -6886,6 +6897,8 @@ public:
 <br/>
 
 #### 依据
+ISO/IEC 14882:2003 7.1.2(3)  
+ISO/IEC 14882:2011 7.1.2(3)  
 ISO/IEC 14882:2011 7.1.5(2)  
 <br/>
 <br/>
@@ -6953,6 +6966,7 @@ class B: public A {
 
 #### 依据
 ISO/IEC 14882:2011 10.3(4 5)  
+ISO/IEC 14882:2017 13.3(4 5)  
 <br/>
 
 #### 参考
@@ -7908,8 +7922,10 @@ ID_forbidVariadicFunction
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 7.15.1.4(4)-undefined  
 ISO/IEC 9899:2011 7.16.1.4(4)-undefined  
-ISO/IEC 14882:2011 3.2(5)-undefined  
+ISO/IEC 14882:2003 18.7(3)-undefined  
+ISO/IEC 14882:2011 18.10(3)-undefined  
 <br/>
 
 #### 参考
@@ -8055,6 +8071,8 @@ ID_superfluousVoid
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.7.5.3(14)  
+ISO/IEC 9899:1999 6.11.6(1)  
 ISO/IEC 9899:2011 6.7.6.3(14)  
 ISO/IEC 9899:2011 6.11.6(1)  
 <br/>
@@ -8952,8 +8970,8 @@ void baz() {
 <br/>
 
 #### 依据
-ISO/IEC 9899:2011 7.16.1.4(4)-undefined  
-ISO/IEC 14882:2011 18.10(3)-undefined  
+ISO/IEC 14882:2003 3.2(5)-undefined  
+ISO/IEC 14882:2011 3.2(5)-undefined  
 <br/>
 
 #### 参考
@@ -10483,32 +10501,32 @@ C++ Core Guidelines F.19
 <br/>
 <br/>
 
-### <span id="localinitialization">▌R8.9 局部对象在使用前必须初始化</span>
+### <span id="localinitialization">▌R8.9 局部对象在使用前应被初始化</span>
 
 ID_localInitialization&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
 <hr/>
 
-未经初始化的局部对象具有不确定的值，在初始化前使用局部对象会导致标准未定义的行为。  
+未初始化的局部对象具有不确定的值，读取未初始化的对象会导致标准未定义的行为。  
   
 示例：
 ```
 int foo() {
-    int a;
+    int a;         // An local object(automatic storage duration)
     if (cond) {
         a = 0;
     }
-    return a;  // Non-compliant, an indeterminate value
+    return a;      // Non-compliant, may be an indeterminate value
 }
 ```
-例中 a 的初始化依赖某种条件，在条件范围之外使用是错误的。  
+例中局部对象 a 的初始化依赖某种条件，在条件范围之外读取 a 的值会得到不确定的结果。  
   
 建议对象在声明处初始化，即使不方便在声明处初始化，也应该在声明的附近进行无条件初始化：
 ```
-int a = 0;     // Compliant
+int a = 0;    // Good
 
 int b;
-b = foo();     // Compliant
+b = 123;      // OK
 ```
 不建议的模式：
 ```
@@ -10518,7 +10536,7 @@ if (x) {
 }
 ....
 if (y) {
-    use(a);    // Dangerous
+    use(a);   // Dangerous
 }
 ```
 例中 a 的初始化依赖条件 x，并在满足条件 y 时被使用，即使条件 x 和条件 y 有一定相关性可以保证对 a 的使用是正确的，也会造成潜在的维护困难，当条件比较复杂或有变化时极易出错。
@@ -10526,7 +10544,11 @@ if (y) {
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.2.4(5 6)  
+ISO/IEC 9899:2011 6.2.4(6 7)  
 ISO/IEC 9899:2011 6.3.2.1(2)-undefined  
+ISO/IEC 14882:2003 4.1(1)-undefined  
+ISO/IEC 14882:2003 8.5(9)  
 ISO/IEC 14882:2011 4.1(1)-undefined  
 ISO/IEC 14882:2011 8.5(11)  
 <br/>
@@ -11099,6 +11121,13 @@ p || p->fun;    // Non-compliant
 p->fun() || p;  // Non-compliant
 ```
 <br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 5.1.2.3(2)  
+ISO/IEC 9899:2011 5.1.2.3(2)  
+ISO/IEC 14882:2003 1.9(7)  
+ISO/IEC 14882:2011 1.9(12)  
 <br/>
 
 #### 参考
@@ -12457,7 +12486,7 @@ else {
 }
 bar();
 ```
-当条件分枝中的所有语句都相同时，特化为 ID\_if\_identicalBlock，这种情况往往意味着错误。
+当条件分枝中的所有语句都相同时，本规则特化为 ID\_if\_identicalBlock，这种情况往往意味着错误。
 <br/>
 <br/>
 
@@ -13909,8 +13938,11 @@ default:
 <br/>
 
 #### 依据
-ISO/IEC 9899:2011 6.8.4.2  
-ISO/IEC 14882:2017 10.6.5  
+ISO/IEC 9899:1999 6.8.4.2(7)  
+ISO/IEC 9899:2011 6.8.4.2(7)  
+ISO/IEC 14882:2003 6.4.2(6)  
+ISO/IEC 14882:2011 6.4.2(6)  
+ISO/IEC 14882:2017 10.6.5(1 2 3)  
 <br/>
 
 #### 参考
@@ -14869,6 +14901,8 @@ ID_confusingAssignment
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 5.1.2.3(2)  
+ISO/IEC 9899:1999 Annex C  
 ISO/IEC 9899:2011 5.1.2.3(3)  
 ISO/IEC 9899:2011 Annex C  
 <br/>
@@ -15042,7 +15076,7 @@ int* p = &foo;
 bool b = p < NULL;              // Non-compliant
 ptrdiff_t d = p - (int*)NULL;   // Non-compliant
 ```
-指针与空指针比较大小是一种常见笔误，相关规则特化为 ID\_oddPtrZeroComparison。
+指针与空指针比较大小是一种常见笔误，对此本规则特化为 ID\_oddPtrZeroComparison。
 <br/>
 <br/>
 
@@ -15096,6 +15130,10 @@ bool foo(unsigned flags, unsigned flag) {
 <br/>
 
 #### 依据
+ISO/IEC 14882:2003 5.2.6(1 2)  
+ISO/IEC 14882:2003 5.3.2(1 2)  
+ISO/IEC 14882:2003 D.1-deprecated  
+ISO/IEC 14882:2011 5.2.6(1 2)  
 ISO/IEC 14882:2011 5.3.2(1 2)  
 ISO/IEC 14882:2011 D.1-deprecated  
 <br/>
@@ -15455,8 +15493,11 @@ int64_t c = static_cast<int64_t>(a) * b;  // OK
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.5(5)-undefined  
+ISO/IEC 9899:1999 6.2.5(9)  
 ISO/IEC 9899:2011 6.5(5)-undefined  
 ISO/IEC 9899:2011 6.2.5(9)  
+ISO/IEC 14882:2003 5(5)-undefined  
 ISO/IEC 14882:2011 5(4)-undefined  
 <br/>
 
@@ -15483,7 +15524,7 @@ int foo(signed s, unsigned u) {
 
 int bar(signed s, unsigned u) {
     if (s < 0) {
-        int a = s << u;           // Non-compliant, undefined in C++11
+        int a = s << u;           // Non-compliant, undefined in C and C++11
         int b = s >> u;           // Non-compliant, implementation-defined
         return a + b;
     }
@@ -15526,9 +15567,7 @@ uint64_t foo(uint32_t u) {
     return u << 32;          // Non-compliant, undefined behavior
 }
 ```
-例中变量 u 为 32 位整型，将其左移 32 位并不能得到 64 位整数，反而会导致标准未定义的行为。  
-  
-应改为：
+例中变量 u 为 32 位整型，将其左移 32 位并不能得到 64 位整数，应改为：
 ```
 uint64_t foo(uint32_t u) {
     return static_cast<uint64_t>(u) << 32;   // Compliant
@@ -16121,21 +16160,21 @@ CWE-686
 <br/>
 <br/>
 
-### <span id="inconsistentformatargnum">▌R10.4.6 C 格式化字符串与其参数的个数应一致</span>
+### <span id="inconsistentformatargnum">▌R10.4.6 C 格式化字符串需要的参数个数与实际传入的参数个数应一致</span>
 
 ID_inconsistentFormatArgNum&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
 <hr/>
 
-C 格式化字符串与其对应参数的个数应严格一致，否则会引发严重的运行时堆栈错误。  
+如果 C 格式化占位符的数量大于参数的数量，会导致标准未定义的行为，反之多余的参数会失去意义，往往意味着逻辑错误。  
   
 示例：
 ```
 void foo(int type, const char* msg) {
-    printf("Error (type %d): %s\n", type);   // Non-compliant
+    printf("Error (type %d): %s\n", type);  // Non-compliant, undefined behavior
 }
 ```
-示例代码的格式化参数需要两个，但只传入一个，参数 msg 之外的不相关栈信息也会被读入。  
+例中格式化字符串需要两个参数，但只传入了一个，往往会引发运行时堆栈错误。  
   
 由于可变参数列表自身的局限，很难在编译时发现这种问题，有些编译器会检查 printf、sprintf 等标准函数，但无法检查自定义函数，建议在 C\+\+ 代码中禁用可变参数列表和 C 风格的格式化函数。
 <br/>
@@ -16147,7 +16186,7 @@ ID_forbidCStringFormat
 <br/>
 
 #### 依据
-ISO/IEC 9899:2011 7.16.1.1(2)-undefined  
+ISO/IEC 9899:1999 7.19.6.1(2)-undefined  
 ISO/IEC 9899:2011 7.21.6.1(2)-undefined  
 <br/>
 
@@ -16217,8 +16256,8 @@ ID_forbidCStringFormat
 <br/>
 
 #### 依据
-ISO/IEC 9899:2011 7.16.1.1(2)-undefined  
-ISO/IEC 9899:2011 7.21.6.1(2)-undefined  
+ISO/IEC 9899:1999 7.19.6.1(9)-undefined  
+ISO/IEC 9899:2011 7.21.6.1(9)-undefined  
 <br/>
 
 #### 参考
@@ -16279,8 +16318,10 @@ ID_forbidVariadicFunction
 <br/>
 
 #### 依据
-ISO/IEC 9899:2011 7.16.1.1(2)-undefined  
+ISO/IEC 9899:1999 7.19.6.1(2)-undefined  
+ISO/IEC 9899:1999 7.19.6.1(9)-undefined  
 ISO/IEC 9899:2011 7.21.6.1(2)-undefined  
+ISO/IEC 9899:2011 7.21.6.1(9)-undefined  
 <br/>
 
 #### 参考
@@ -17287,7 +17328,7 @@ typedef wchar_t S[];
 S a = L"123" U"456";   // Non-compliant
 S b = L"123" u"456";   // Non-compliant
 ```
-C\+\+03 规定宽字符串与窄字符串连接会导致未定义的行为，C\+\+11 规定如果一个字符串有前缀另一个没有，结果以有前缀的为准，其他情况由实现定义或无法通过编译，如：
+C\+\+03 规定宽字符串与窄字符串连接会导致未定义的行为；C\+\+11 规定如果一个字符串有前缀另一个没有，结果以有前缀的为准，其他情况由实现定义或无法通过编译，如：
 ```
 S x = L"123" "456";    // Undefined in C++03, a wide string in C++11
 S y = L"123" U"456";   // Implementation defined in C++11
@@ -17298,12 +17339,13 @@ C99 规定宽字符串与窄字符串连接的结果为宽字符串，C11 规定
 S u = L"123" "456";    // A wide string in C99
 S v = L"123" U"456";   // Implementation defined in C11
 ```
-为了提高可读性和可移植性，字符串前缀应保持一致，对于有前缀和无前缀的字符串连接，在新的语言标准中均已有定义，审计工具不妨通过配置决定是否放过这种连接：
+为了提高可读性和可移植性，字符串前缀应保持一致：
 ```
 S r = "123" L"456";    // Bad
 S s = L"123" L"456";   // Good
 S t = L"123" "456";    // Let it go?
 ```
+对于有前缀和无前缀的字符串连接，在新的语言标准中均已有定义，审计工具不妨通过配置决定是否放过这种连接。
 <br/>
 <br/>
 
@@ -17841,8 +17883,11 @@ ID_fixedAddrToPointer
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.3.2.3(5)-implementation  
+ISO/IEC 9899:1999 7.18.1.4(1)  
 ISO/IEC 9899:2011 6.3.2.3(5)-implementation  
 ISO/IEC 9899:2011 7.20.1.4(1)  
+ISO/IEC 14882:2003 5.2.10(4 5)-implementation  
 ISO/IEC 14882:2011 5.2.10(4 5)-implementation  
 ISO/IEC 14882:2011 3.7.4.3(1)  
 <br/>
@@ -18188,7 +18233,7 @@ delete[] p;          // Undefined behavior
 <br/>
 
 #### 依据
-ISO/IEC 9899:2011 6.5.6(8)  
+ISO/IEC 14882:2003 5.3.5(3)-undefined  
 ISO/IEC 14882:2011 5.3.5(3)-undefined  
 <br/>
 
@@ -18770,6 +18815,7 @@ memset(buf, 1024, 32);  // Non-compliant
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 7.21.6.1(2)  
 ISO/IEC 9899:2011 7.24.6.1(2)  
 ISO/IEC 9899:2011 K.3.7.4.1(4)  
 <br/>
@@ -18821,7 +18867,11 @@ auto c = p->foo();   // Non-compliant, even if it may not crash
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.3.2.1(1)-undefined  
+ISO/IEC 9899:1999 6.5.3.2(4)-undefined  
+ISO/IEC 9899:2011 6.3.2.1(1)-undefined  
 ISO/IEC 9899:2011 6.5.3.2(4)-undefined  
+ISO/IEC 14882:2003 8.3.2(4)-undefined  
 ISO/IEC 14882:2011 8.3.2(5)-undefined  
 <br/>
 
@@ -18858,7 +18908,11 @@ p->foo() && p;  // Non-compliant
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.3.2.1(1)-undefined  
+ISO/IEC 9899:1999 6.5.3.2(4)-undefined  
+ISO/IEC 9899:2011 6.3.2.1(1)-undefined  
 ISO/IEC 9899:2011 6.5.3.2(4)-undefined  
+ISO/IEC 14882:2003 8.3.2(4)-undefined  
 ISO/IEC 14882:2011 8.3.2(5)-undefined  
 <br/>
 
@@ -19515,7 +19569,9 @@ ID_sig_nonAsyncSafeCall
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 7.14.1.1(5)-undefined  
 ISO/IEC 9899:2011 7.14.1.1(5)-undefined  
+ISO/IEC 14882:2003 1.9(9)-undefined  
 ISO/IEC 14882:2011 1.9(6)-undefined  
 <br/>
 
@@ -19657,8 +19713,9 @@ ID_implementationDefinedFunction
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 7.14.1.1(3)-implementation  
 ISO/IEC 9899:2011 7.14.1.1(3)-implementation  
-ISO/IEC 9899:2011 7.14.1.1(7)-implementation  
+ISO/IEC 9899:2011 7.14.1.1(7)-undefined  
 <br/>
 
 #### 参考
@@ -20114,11 +20171,11 @@ ID_signalInMultiThreading&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: concurrency warnin
 void handler(int);
 
 int thread(void* param) {
-    signal(SIGINT, handler);  // Non-compliant
+    signal(SIGINT, handler);  // Non-compliant, undefined behavior
     ....
 }
 ```
-设例中 thread 是线程函数，在多线程环境中使用 signal 函数是不符合要求的。
+设例中 thread 是线程函数，C11 标准指明在多线程环境中使用 signal 函数会导致未定义的行为。
 <br/>
 <br/>
 
@@ -20424,7 +20481,9 @@ if (a || b || c)) {   // Compliant
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.5.2(1)  
 ISO/IEC 9899:2011 6.5.2(1)  
+ISO/IEC 14882:2003 5.2(1)  
 ISO/IEC 14882:2011 5.2(1)  
 <br/>
 
