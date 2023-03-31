@@ -659,8 +659,8 @@ ID_secretLeak
 <br/>
 
 #### 参考
-CWE-798  
 CWE-259  
+CWE-798  
 SEI CERT MSC41-C  
 <br/>
 <br/>
@@ -876,9 +876,9 @@ string bar() {
 <br/>
 
 #### 参考
-CWE-89  
 CWE-23  
 CWE-73  
+CWE-89  
 CWE-943  
 <br/>
 <br/>
@@ -1440,9 +1440,9 @@ errno 并不能反映所有异常情况，atoi 等函数与 errno 无关，例�
 <br/>
 
 #### 参考
+C++ Core Guidelines E.28  
 MISRA C 2004 20.5  
 MISRA C++ 2008 19-3-1  
-C++ Core Guidelines E.28  
 <br/>
 <br/>
 
@@ -1525,6 +1525,7 @@ ID_memoryLeak
 <br/>
 
 #### 参考
+CWE-772  
 C++ Core Guidelines P.8  
 C++ Core Guidelines E.13  
 <br/>
@@ -1562,7 +1563,15 @@ ID_resourceLeak
 ID_ownerlessResource  
 <br/>
 
+#### 依据
+ISO/IEC 9899:1999 7.20.3(1)  
+ISO/IEC 9899:2011 7.22.3(1)  
+ISO/IEC 14882:2003 3.7.3.1(2)  
+ISO/IEC 14882:2003 3.7.4.1(2)  
+<br/>
+
 #### 参考
+CWE-401  
 C++ Core Guidelines P.8  
 C++ Core Guidelines E.13  
 <br/>
@@ -1929,8 +1938,8 @@ ID_unsuitableMove
 <br/>
 
 #### 参考
-SEI CERT EXP63-CPP  
 C++ Core Guidelines ES.56  
+SEI CERT EXP63-CPP  
 <br/>
 <br/>
 
@@ -2024,6 +2033,12 @@ void foo() {
 ID_ownerlessResource  
 ID_multiAllocation  
 ID_memoryLeak  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 5.3.4(17)  
+ISO/IEC 14882:2011 5.3.4(18)  
+ISO/IEC 14882:2017 8.3.4(21)  
 <br/>
 <br/>
 
@@ -2373,10 +2388,10 @@ ISO/IEC 9899:2011 7.22.3
 <br/>
 
 #### 参考
+C++ Core Guidelines R.5  
 MISRA C 2004 20.4  
 MISRA C 2012 21.3  
 MISRA C++ 2008 18-4-1  
-C++ Core Guidelines R.5  
 <br/>
 <br/>
 
@@ -2410,8 +2425,8 @@ ISO/IEC 9899:2011 7.22.3(1)
 <br/>
 
 #### 参考
-CWE-476  
 CWE-252  
+CWE-476  
 <br/>
 <br/>
 
@@ -2532,8 +2547,8 @@ ID_nonStandardCharInHeaderName&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompil
 ```
 可以用 / 作为路径分隔符，但不应出现  // 或 /\*，  如：
 ```
-#include <foo//bar.h>   // Non-Compliant
-#include <foo/*bar.h>   // Non-Compliant
+#include <foo//bar.h>   // Non-Compliant, undefined behavior
+#include <foo/*bar.h>   // Non-Compliant, undefined behavior
 ```
 另外，由于某些平台的文件系统不区分路径大小写，建议头文件名称只使用小写字母以减少移植类问题。
 <br/>
@@ -2654,8 +2669,8 @@ MISRA C 2012 21.5
 MISRA C 2012 21.10  
 MISRA C 2012 21.11  
 MISRA C 2012 21.12  
-MISRA C++ 2008 18-7-1  
 MISRA C++ 2008 18-0-4  
+MISRA C++ 2008 18-7-1  
 MISRA C++ 2008 27-0-1  
 <br/>
 <br/>
@@ -2806,8 +2821,8 @@ ISO/IEC 14882:2011 16.8(4)-undefined
 <br/>
 
 #### 参考
-MISRA C 2012 21.1  
 MISRA C 2012 20.4  
+MISRA C 2012 21.1  
 MISRA C++ 2008 17-0-1  
 <br/>
 <br/>
@@ -2884,6 +2899,11 @@ a = (a) < 0? -(a): (a) + 1;
 <br/>
 <br/>
 
+#### 依据
+ISO/IEC 9899:1999 6.10.3.5(4)  
+ISO/IEC 9899:2011 6.10.3.5(4)  
+<br/>
+
 #### 参考
 CWE-783  
 MISRA C 2004 19.10  
@@ -2908,6 +2928,11 @@ ID_macro_paramNotEnclosed&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 #define SUM(a, b) ((a) + (b))  // Compliant
 ```
 <br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.10.3.5(4)  
+ISO/IEC 9899:2011 6.10.3.5(4)  
 <br/>
 
 #### 参考
@@ -2954,6 +2979,11 @@ if (x > y)
 ID_if_scope  
 ID_while_scope  
 ID_for_scope  
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.10.3.5(4)  
+ISO/IEC 9899:2011 6.10.3.5(4)  
 <br/>
 
 #### 参考
@@ -3186,6 +3216,11 @@ void foo(void) {
 ID_macro_undef  
 <br/>
 
+#### 依据
+ISO/IEC 9899:1999 6.10.3.5(1)  
+ISO/IEC 9899:2011 6.10.3.5(1)  
+<br/>
+
 #### 参考
 MISRA C 2004 19.5  
 MISRA C++ 2008 16-0-2  
@@ -3285,6 +3320,13 @@ const char* foo() {
 ID_macro_redundantArgs  
 <br/>
 
+#### 依据
+ISO/IEC 9899:1999 6.10.3(4)  
+ISO/IEC 9899:2011 6.10.3(4)  
+ISO/IEC 14882:2003 16.3(4)  
+ISO/IEC 14882:2011 16.3(4)  
+<br/>
+
 #### 参考
 CWE-628  
 MISRA C 2004 19.8  
@@ -3297,7 +3339,7 @@ ID_macro_redundantArgs&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 <hr/>
 
-宏的实参个数大于形参个数是不符合 C/C\+\+ 标准的，参数个数不一致必然意味着某种错误，然而在某些编译环境下却可以通过编译。  
+宏的实参个数大于形参个数是不符合 C/C\+\+ 标准的，多余的宏参数是没有意义的，然而在某些编译环境下却可以通过编译。  
   
 示例：
 ```
@@ -3321,6 +3363,13 @@ int main() {
 
 #### 相关
 ID_macro_insufficientArgs  
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.10.3(4)  
+ISO/IEC 9899:2011 6.10.3(4)  
+ISO/IEC 14882:2003 16.3(4)  
+ISO/IEC 14882:2011 16.3(4)  
 <br/>
 
 #### 参考
@@ -3474,8 +3523,8 @@ ISO/IEC 14882:2011 18.2(4)-undefined
 <br/>
 
 #### 参考
-SEI CERT EXP59-CPP  
 MISRA C++ 2008 18-2-1  
+SEI CERT EXP59-CPP  
 <br/>
 <br/>
 
@@ -3576,8 +3625,14 @@ int foo() {
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.10(1)  
+ISO/IEC 9899:1999 6.10.1(3)-undefined  
 ISO/IEC 9899:2011 6.10(1)  
 ISO/IEC 9899:2011 6.10.1(4)-undefined  
+ISO/IEC 14882:2003 16.1(4)-undefined  
+ISO/IEC 14882:2003 16.2(4)-undefined  
+ISO/IEC 14882:2003 16.4(3)-undefined  
+ISO/IEC 14882:2003 16.4(5)-undefined  
 ISO/IEC 14882:2011 16.1(4)-undefined  
 ISO/IEC 14882:2011 16.2(4)-undefined  
 ISO/IEC 14882:2011 16.4(3)-undefined  
@@ -3866,6 +3921,13 @@ void foo(int i /*= 0*/) {           // Let it go
 ```
 如果参数有默认值，在函数实现中参数声明的结尾可用注释说明，不受本规则限制。
 <br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.4.7(3)-undefined  
+ISO/IEC 9899:2011 6.4.7(3)-undefined  
+ISO/IEC 14882:2003 2.8(2)-undefined  
+ISO/IEC 14882:2011 2.9(2)-implementation  
 <br/>
 <br/>
 
@@ -4798,16 +4860,16 @@ protected:
 <br/>
 
 #### 依据
-ISO/IEC 14882:2003 12.4(7)  
 ISO/IEC 14882:2003 5.3.5(3)-undefined  
-ISO/IEC 14882:2011 12.4(9)  
+ISO/IEC 14882:2003 12.4(7)  
 ISO/IEC 14882:2011 5.3.5(3)-undefined  
+ISO/IEC 14882:2011 12.4(9)  
 <br/>
 
 #### 参考
+CWE-1045  
 CWE-1079  
 CWE-1087  
-CWE-1045  
 C++ Core Guidelines C.35  
 C++ Core Guidelines C.127  
 <br/>
@@ -5286,6 +5348,12 @@ public:
 ID_roughTemplateConstructor  
 <br/>
 
+#### 依据
+ISO/IEC 14882:2003 12.8(9)  
+ISO/IEC 14882:2011 12.8(17)  
+ISO/IEC 14882:2011 12.8(19)  
+<br/>
+
 #### 参考
 MISRA C++ 2008 14-5-3  
 <br/>
@@ -5324,6 +5392,12 @@ public:
 
 #### 相关
 ID_roughTemplateAssignOperator  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 12.8(2)  
+ISO/IEC 14882:2011 12.8(2)  
+ISO/IEC 14882:2011 12.8(3)  
 <br/>
 
 #### 参考
@@ -5368,8 +5442,8 @@ struct A {
 <br/>
 
 #### 参考
-MISRA C++ 2008 12-8-2  
 C++ Core Guidelines C.67  
+MISRA C++ 2008 12-8-2  
 <br/>
 <br/>
 
@@ -6041,12 +6115,12 @@ ISO/IEC 14882:2017 20.5.4.3
 <br/>
 
 #### 参考
-SEI CERT DCL37-C  
-SEI CERT DCL51-CPP  
 MISRA C 2012 21.2  
 MISRA C++ 2008 17-0-1  
 MISRA C++ 2008 17-0-2  
 MISRA C++ 2008 17-0-3  
+SEI CERT DCL37-C  
+SEI CERT DCL51-CPP  
 <br/>
 <br/>
 
@@ -6545,8 +6619,8 @@ ID_nonConstUnmodified
 ISO/IEC 9899:1999 6.4.5(6)-undefined  
 ISO/IEC 9899:2011 6.4.5(7)-undefined  
 ISO/IEC 14882:1998 D.4(1)-deprecated  
-ISO/IEC 14882:2003 D.4(1)-deprecated  
 ISO/IEC 14882:2003 2.13.4(2)-undefined  
+ISO/IEC 14882:2003 D.4(1)-deprecated  
 ISO/IEC 14882:2011 2.14.5(12)-undefined  
 ISO/IEC 14882:2017 5.13.5(16)-undefined  
 <br/>
@@ -6858,8 +6932,8 @@ int foo(register int x);   // Non-compliant
 <br/>
 
 #### 依据
+ISO/IEC 14882:2011 7.1.6.4(3)  
 ISO/IEC 14882:2011 D.2(1)-deprecated  
-ISO/IEC 14882:2011 7.1.6.4  
 <br/>
 <br/>
 
@@ -7213,6 +7287,11 @@ for (auto e: container) {  // Is it necessary to copy elements?
 ```
 例中 p 为指针，但看起来像是个对象，bar 返回引用，但 r 并不是引用，e 是容器元素的复本，这些问题可能与预期不符，需谨慎对待。
 <br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2011 7.1.6.4  
+ISO/IEC 14882:2017 10.1.7.4  
 <br/>
 <br/>
 
@@ -9041,10 +9120,10 @@ ISO/IEC 9899:2011 6.2.7(2)-undefined
 <br/>
 
 #### 参考
-SEI CERT DCL40-C  
 MISRA C 2004 8.4  
 MISRA C 2012 8.3  
 MISRA C++ 2008 3-9-1  
+SEI CERT DCL40-C  
 <br/>
 <br/>
 
@@ -9631,15 +9710,15 @@ ID_throwInMove
 
 #### 依据
 ISO/IEC 14882:2003 15.2(3)  
-ISO/IEC 14882:2011 15.2(3)  
 ISO/IEC 14882:2011 3.7.4.2(3)-undefined  
+ISO/IEC 14882:2011 15.2(3)  
 <br/>
 
 #### 参考
 C++ Core Guidelines C.36  
 C++ Core Guidelines C.37  
-SEI CERT DCL57-CPP  
 MISRA C++ 2008 15-5-1  
+SEI CERT DCL57-CPP  
 <br/>
 <br/>
 
@@ -9676,8 +9755,8 @@ ID_throwInMove
 
 #### 依据
 ISO/IEC 14882:2003 15.2(3)  
-ISO/IEC 14882:2011 15.2(3)  
 ISO/IEC 14882:2011 3.7.4.2(3)-undefined  
+ISO/IEC 14882:2011 15.2(3)  
 <br/>
 
 #### 参考
@@ -10563,10 +10642,10 @@ ISO/IEC 14882:2011 8.5(11)
 <br/>
 
 #### 参考
-CWE-909  
-CWE-908  
-CWE-824  
 CWE-457  
+CWE-824  
+CWE-908  
+CWE-909  
 C++ Core Guidelines ES.20  
 MISRA C 2004 9.1  
 MISRA C 2012 9.1  
@@ -10610,8 +10689,8 @@ struct A {
 <br/>
 
 #### 参考
-CWE-908  
 CWE-824  
+CWE-908  
 C++ Core Guidelines C.41  
 <br/>
 <br/>
@@ -10800,6 +10879,11 @@ B b;  // ‘b.tag’ is 1
 <br/>
 <br/>
 
+#### 依据
+ISO/IEC 14882:2003 10.4(6)-undefined  
+ISO/IEC 14882:2011 10.4(6)-undefined  
+<br/>
+
 #### 参考
 C++ Core Guidelines C.82  
 MISRA C++ 2008 12-1-1  
@@ -10854,6 +10938,11 @@ public:
 };
 ```
 <br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 10.4(6)-undefined  
+ISO/IEC 14882:2011 10.4(6)-undefined  
 <br/>
 
 #### 参考
@@ -11140,8 +11229,8 @@ ISO/IEC 14882:2011 1.9(12)
 <br/>
 
 #### 参考
-CWE-1164  
 CWE-482  
+CWE-1164  
 MISRA C 2004 14.2  
 MISRA C 2012 2.2  
 MISRA C++ 2008 0-1-9  
@@ -11247,14 +11336,14 @@ int main() {
 <br/>
 
 #### 依据
-ISO/IEC 9899:1999 6.9.1(12)-undefined  
 ISO/IEC 9899:1999 5.1.2.2.3(1)  
-ISO/IEC 9899:2011 6.9.1(12)-undefined  
+ISO/IEC 9899:1999 6.9.1(12)-undefined  
 ISO/IEC 9899:2011 5.1.2.2.3(1)  
-ISO/IEC 14882:2003 6.6.3(2)-undefined  
+ISO/IEC 9899:2011 6.9.1(12)-undefined  
 ISO/IEC 14882:2003 3.6.1(5)  
-ISO/IEC 14882:2011 6.6.3(2)-undefined  
+ISO/IEC 14882:2003 6.6.3(2)-undefined  
 ISO/IEC 14882:2011 3.6.1(5)  
+ISO/IEC 14882:2011 6.6.3(2)-undefined  
 <br/>
 
 #### 参考
@@ -12010,6 +12099,13 @@ ID_complexInlineFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 maxInlineFunctionLineCount: 内联函数行数上限，超过则报出  
 <br/>
 
+#### 依据
+ISO/IEC 9899:1999 6.7.4(5)-implementation  
+ISO/IEC 9899:2011 6.7.4(6)-implementation  
+ISO/IEC 14882:2003 7.1.2(2)-implementation  
+ISO/IEC 14882:2011 7.1.2(2)-implementation  
+<br/>
+
 #### 参考
 C++ Core Guidelines F.5  
 <br/>
@@ -12271,8 +12367,8 @@ ID_if_hiddenCondition
 <br/>
 
 #### 参考
-CWE-670  
 CWE-561  
+CWE-670  
 <br/>
 <br/>
 
@@ -12322,8 +12418,8 @@ ID_if_identicalCondition
 <br/>
 
 #### 参考
-CWE-670  
 CWE-561  
+CWE-670  
 <br/>
 <br/>
 
@@ -14094,9 +14190,9 @@ void foo() noexcept {
 <br/>
 
 #### 参考
+CWE-391  
 CWE-1069  
 CWE-1071  
-CWE-391  
 <br/>
 <br/>
 
@@ -14436,10 +14532,10 @@ ISO/IEC 14882:2011 18.10(4)-undefined
 <br/>
 
 #### 参考
+C++ Core Guidelines SL.C.1  
 MISRA C 2004 20.7  
 MISRA C 2012 21.4  
 MISRA C++ 2008 17-0-5  
-C++ Core Guidelines SL.C.1  
 <br/>
 <br/>
 
@@ -14998,9 +15094,9 @@ ISO/IEC 14882:2017 8.18(1)
 
 #### 参考
 C++ Core Guidelines ES.43  
-SEI CERT EXP50-CPP  
-MISRA C++ 2008 5-0-1  
 MISRA C 2012 13.2  
+MISRA C++ 2008 5-0-1  
+SEI CERT EXP50-CPP  
 <br/>
 <br/>
 
@@ -15106,11 +15202,11 @@ ISO/IEC 14882:2011 5.9(2)-unspecified
 <br/>
 
 #### 参考
+C++ Core Guidelines ES.62  
 MISRA C 2004 17.3  
 MISRA C++ 2008 5-0-16  
 MISRA C++ 2008 5-0-17  
 MISRA C++ 2008 5-0-18  
-C++ Core Guidelines ES.62  
 <br/>
 <br/>
 
@@ -15149,10 +15245,10 @@ ISO/IEC 14882:2011 D.1-deprecated
 <br/>
 
 #### 参考
-CWE-1024  
-CWE-1025  
 CWE-682  
 CWE-783  
+CWE-1024  
+CWE-1025  
 MISRA C 2004 12.7  
 MISRA C 2012 10.1  
 MISRA C++ 2008 5-0-21  
@@ -15503,10 +15599,10 @@ int64_t c = static_cast<int64_t>(a) * b;  // OK
 <br/>
 
 #### 依据
-ISO/IEC 9899:1999 6.5(5)-undefined  
 ISO/IEC 9899:1999 6.2.5(9)  
-ISO/IEC 9899:2011 6.5(5)-undefined  
+ISO/IEC 9899:1999 6.5(5)-undefined  
 ISO/IEC 9899:2011 6.2.5(9)  
+ISO/IEC 9899:2011 6.5(5)-undefined  
 ISO/IEC 14882:2003 5(5)-undefined  
 ISO/IEC 14882:2011 5(4)-undefined  
 <br/>
@@ -15556,10 +15652,10 @@ ISO/IEC 14882:2011 5.8(3)-implementation
 
 #### 参考
 CWE-682  
+C++ Core Guidelines ES.101  
 MISRA C 2004 12.7  
 MISRA C 2012 10.1  
 MISRA C++ 2008 5-0-21  
-C++ Core Guidelines ES.101  
 <br/>
 <br/>
 
@@ -16415,12 +16511,12 @@ void foo() {
 <br/>
 
 #### 依据
+ISO/IEC 9899:2011 7.14.1.1(3)-implementation  
 ISO/IEC 9899:2011 7.22.4.1(2)-implementation  
 ISO/IEC 9899:2011 7.22.4.4(5)-implementation  
 ISO/IEC 9899:2011 7.22.4.6(2)-implementation  
 ISO/IEC 9899:2011 7.22.4.8(3)-implementation  
 ISO/IEC 9899:2011 7.27.2.1(3)-implementation  
-ISO/IEC 9899:2011 7.14.1.1(3)-implementation  
 <br/>
 
 #### 参考
@@ -16855,8 +16951,10 @@ size_t b = sizeof(void*);  // Compliant
 <br/>
 
 #### 依据
-ISO/IEC 9899:1999 6.3.2.2(1)  
 ISO/IEC 9899:1999 6.2.5(19)  
+ISO/IEC 9899:1999 6.3.2.2(1)  
+ISO/IEC 9899:2011 6.2.5(19)  
+ISO/IEC 9899:2011 6.3.2.2(1)  
 <br/>
 <br/>
 
@@ -17756,8 +17854,12 @@ struct CastChecker<float, double>
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.3.1.4(1)-undefined  
+ISO/IEC 9899:1999 6.3.1.5(2)-undefined  
 ISO/IEC 9899:2011 6.3.1.4(1)-undefined  
 ISO/IEC 9899:2011 6.3.1.5(1)-undefined  
+ISO/IEC 14882:2003 4.8(1)-undefined  
+ISO/IEC 14882:2003 4.9(1)-undefined  
 ISO/IEC 14882:2011 4.8(1)-undefined  
 ISO/IEC 14882:2011 4.9(1 2)-undefined  
 <br/>
@@ -17898,15 +18000,15 @@ ISO/IEC 9899:1999 7.18.1.4(1)
 ISO/IEC 9899:2011 6.3.2.3(5)-implementation  
 ISO/IEC 9899:2011 7.20.1.4(1)  
 ISO/IEC 14882:2003 5.2.10(4 5)-implementation  
-ISO/IEC 14882:2011 5.2.10(4 5)-implementation  
 ISO/IEC 14882:2011 3.7.4.3(1)  
+ISO/IEC 14882:2011 5.2.10(4 5)-implementation  
 <br/>
 
 #### 参考
-SEI CERT INT36-C  
 MISRA C 2004 11.3  
 MISRA C 2012 11.4  
 MISRA C++ 2008 5-2-9  
+SEI CERT INT36-C  
 <br/>
 <br/>
 
@@ -18354,8 +18456,8 @@ ISO/IEC 14882:2011 5.2.9(11 12)-undefined
 <br/>
 
 #### 参考
-MISRA C++ 2008 5-2-2  
 C++ Core Guidelines Type.2  
+MISRA C++ 2008 5-2-2  
 <br/>
 <br/>
 
@@ -18546,8 +18648,8 @@ void bar(A* a) {
 <br/>
 
 #### 参考
-MISRA C++ 2008 5-2-4  
 C++ Core Guidelines ES.49  
+MISRA C++ 2008 5-2-4  
 <br/>
 <br/>
 
@@ -19181,8 +19283,8 @@ ISO/IEC 14882:2011 4.10(1)
 <br/>
 
 #### 参考
-MISRA C++ 2008 4-10-2  
 C++ Core Guidelines ES.47  
+MISRA C++ 2008 4-10-2  
 <br/>
 <br/>
 
@@ -20563,8 +20665,8 @@ NULL 表示空指针，所以应该调用参数为指针的重载函数，但不
 
 #### 依据
 ISO/IEC 14882:2003 C.2.2.3(1)-implementation  
-ISO/IEC 14882:2011 C.3.2.4(1)-implementation  
 ISO/IEC 14882:2011 2.14.7(1)  
+ISO/IEC 14882:2011 C.3.2.4(1)-implementation  
 ISO/IEC 14882:2017 C.5.2.7(1)-implementation  
 <br/>
 

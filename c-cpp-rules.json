@@ -44,7 +44,7 @@
         "level": "error",
         "comment": "void 表示不存在的类型，也是不完整的类型，sizeof 作用于 void 是没意义的，属于语言运用错误，也可能是 sizeof(void*) 的笔误。",
         "tag": "expression",
-        "standard": "ISO/IEC 9899:1999 6.3.2.2(1),ISO/IEC 9899:1999 6.2.5(19)"
+        "standard": "ISO/IEC 9899:1999 6.2.5(19),ISO/IEC 9899:1999 6.3.2.2(1),ISO/IEC 9899:2011 6.2.5(19),ISO/IEC 9899:2011 6.3.2.2(1)"
         },
     "ID_differentEnumComparison": {
         "checkPoint": "不应比较非同类枚举值",
@@ -60,9 +60,9 @@
             "allowPointerToSizeType: 是否放过指针与 size_t 的转换"
             ],
         "tag": "cast",
-        "standard": "ISO/IEC 9899:1999 6.3.2.3(5)-implementation,ISO/IEC 9899:1999 7.18.1.4(1),ISO/IEC 9899:2011 6.3.2.3(5)-implementation,ISO/IEC 9899:2011 7.20.1.4(1),ISO/IEC 14882:2003 5.2.10(4 5)-implementation,ISO/IEC 14882:2011 5.2.10(4 5)-implementation,ISO/IEC 14882:2011 3.7.4.3(1)",
+        "standard": "ISO/IEC 9899:1999 6.3.2.3(5)-implementation,ISO/IEC 9899:1999 7.18.1.4(1),ISO/IEC 9899:2011 6.3.2.3(5)-implementation,ISO/IEC 9899:2011 7.20.1.4(1),ISO/IEC 14882:2003 5.2.10(4 5)-implementation,ISO/IEC 14882:2011 3.7.4.3(1),ISO/IEC 14882:2011 5.2.10(4 5)-implementation",
         "related": "ID_fixedAddrToPointer",
-        "reference": "SEI CERT INT36-C,MISRA C 2004 11.3,MISRA C 2012 11.4,MISRA C++ 2008 5-2-9"
+        "reference": "MISRA C 2004 11.3,MISRA C 2012 11.4,MISRA C++ 2008 5-2-9,SEI CERT INT36-C"
         },
     "ID_zeroAsPtrValue": {
         "checkPoint": "不应使用常量 0 表示空指针",
@@ -71,7 +71,7 @@
         "tag": "pointer",
         "related": "ID_oddPtrBoolAssignment,ID_oddPtrCharAssignment,ID_oddPtrBoolComparison,ID_oddPtrCharComparison",
         "standard": "ISO/IEC 9899:1999 6.3.2.3(3),ISO/IEC 9899:2011 6.3.2.3(3),ISO/IEC 14882:2003 4.10(1),ISO/IEC 14882:2011 4.10(1)",
-        "reference": "MISRA C++ 2008 4-10-2,C++ Core Guidelines ES.47"
+        "reference": "C++ Core Guidelines ES.47,MISRA C++ 2008 4-10-2"
         },
     "ID_charWCharCast": {
         "checkPoint": "不同的字符串类型之间不可直接转换",
@@ -101,7 +101,7 @@
         "comment": "符号位在位运算方面没有逻辑意义，对负数进行位运算往往意味着逻辑错误。",
         "tag": "expression",
         "standard": "ISO/IEC 9899:1999 6.5.7(3)-undefined,ISO/IEC 9899:2011 6.5.7(3)-undefined,ISO/IEC 14882:2003 5.8(2),ISO/IEC 14882:2003 5.8(3)-implementation,ISO/IEC 14882:2011 5.8(2)-undefined,ISO/IEC 14882:2011 5.8(3)-implementation",
-        "reference": "CWE-682,MISRA C 2004 12.7,MISRA C 2012 10.1,MISRA C++ 2008 5-0-21,C++ Core Guidelines ES.101"
+        "reference": "CWE-682,C++ Core Guidelines ES.101,MISRA C 2004 12.7,MISRA C 2012 10.1,MISRA C++ 2008 5-0-21"
         },
     "ID_simplifiableTernary": {
         "checkPoint": "可化简为逻辑表达式的三元表达式应尽量化简",
@@ -259,7 +259,8 @@
         "comment": "已分配内存的地址不可被遗失，否则相关内存无法被访问也无法被回收，这种问题称为“内存泄漏（memory leak）”，会导致可用内存被耗尽，使程序无法正确运行。",
         "tag": "resource",
         "related": "ID_resourceLeak,ID_ownerlessResource",
-        "reference": "C++ Core Guidelines P.8,C++ Core Guidelines E.13"
+        "standard": "ISO/IEC 9899:1999 7.20.3(1),ISO/IEC 9899:2011 7.22.3(1),ISO/IEC 14882:2003 3.7.3.1(2),ISO/IEC 14882:2003 3.7.4.1(2)",
+        "reference": "CWE-401,C++ Core Guidelines P.8,C++ Core Guidelines E.13"
     },
     "ID_resourceLeak": {
         "checkPoint": "不可失去对已分配资源的控制",
@@ -267,7 +268,7 @@
         "comment": "已分配资源的指针、句柄或描述符等信息不可被遗失，否则相关资源无法被访问也无法被回收，会导致资源耗尽以及死锁等问题，使程序无法正确运行。",
         "tag": "resource",
         "related": "ID_memoryLeak",
-        "reference": "C++ Core Guidelines P.8,C++ Core Guidelines E.13"
+        "reference": "CWE-772,C++ Core Guidelines P.8,C++ Core Guidelines E.13"
     },
     "ID_insufficientDelete": {
         "checkPoint": "用 delete 释放数组不可漏写中括号",
@@ -366,7 +367,7 @@
         "comment": "代码中的敏感数据极易泄露，产品以及相关运维、测试工具的代码均不可记录任何敏感数据。",
         "tag": "security",
         "related": "ID_secretLeak",
-        "reference": "CWE-798,CWE-259,SEI CERT MSC41-C"
+        "reference": "CWE-259,CWE-798,SEI CERT MSC41-C"
         },
     "ID_throwPointer": {
         "checkPoint": "不应抛出指针",
@@ -586,7 +587,7 @@
         "level": "warning",
         "comment": "抽象类只能作为基类，没有独立的对象，调用拷贝或移动赋值运算符会造成数据不完整。",
         "tag": "type",
-        "reference": "MISRA C++ 2008 12-8-2,C++ Core Guidelines C.67"
+        "reference": "C++ Core Guidelines C.67,MISRA C++ 2008 12-8-2"
         },
     "ID_excessiveExplicit": {
         "checkPoint": "不应过度使用 explicit 关键字",
@@ -829,7 +830,7 @@
         "level": "warning",
         "comment": "常量字符串与非常量字符串指针的隐式转换是不安全的，一旦相关内存被修改会导致标准未定义的行为。",
         "tag": "declaration",
-        "standard": "ISO/IEC 9899:1999 6.4.5(6)-undefined,ISO/IEC 9899:2011 6.4.5(7)-undefined,ISO/IEC 14882:1998 D.4(1)-deprecated,ISO/IEC 14882:2003 D.4(1)-deprecated,ISO/IEC 14882:2003 2.13.4(2)-undefined,ISO/IEC 14882:2011 2.14.5(12)-undefined,ISO/IEC 14882:2017 5.13.5(16)-undefined",
+        "standard": "ISO/IEC 9899:1999 6.4.5(6)-undefined,ISO/IEC 9899:2011 6.4.5(7)-undefined,ISO/IEC 14882:1998 D.4(1)-deprecated,ISO/IEC 14882:2003 2.13.4(2)-undefined,ISO/IEC 14882:2003 D.4(1)-deprecated,ISO/IEC 14882:2011 2.14.5(12)-undefined,ISO/IEC 14882:2017 5.13.5(16)-undefined",
         "related": "ID_nonConstUnmodified",
         "reference": "MISRA C 2012 7.4"
         },
@@ -1127,7 +1128,7 @@
             ],
         "tag": "precompile",
         "standard": "ISO/IEC 14882:2017 C.5.1(4),ISO/IEC 14882:2017 D.4(1)-deprecated",
-        "reference": "MISRA C 2012 21.4,MISRA C 2012 21.5,MISRA C 2012 21.10,MISRA C 2012 21.11,MISRA C 2012 21.12,MISRA C++ 2008 18-7-1,MISRA C++ 2008 18-0-4,MISRA C++ 2008 27-0-1"
+        "reference": "MISRA C 2012 21.4,MISRA C 2012 21.5,MISRA C 2012 21.10,MISRA C 2012 21.11,MISRA C 2012 21.12,MISRA C++ 2008 18-0-4,MISRA C++ 2008 18-7-1,MISRA C++ 2008 27-0-1"
         },
     "ID_spaceStyle": {
         "checkPoint": "空格应遵循统一风格",
@@ -1174,7 +1175,7 @@
         "level": "warning",
         "comment": "运算结果超出对应类型的存储范围往往意味着错误。",
         "tag": "expression",
-        "standard": "ISO/IEC 9899:1999 6.5(5)-undefined,ISO/IEC 9899:1999 6.2.5(9),ISO/IEC 9899:2011 6.5(5)-undefined,ISO/IEC 9899:2011 6.2.5(9),ISO/IEC 14882:2003 5(5)-undefined,ISO/IEC 14882:2011 5(4)-undefined",
+        "standard": "ISO/IEC 9899:1999 6.2.5(9),ISO/IEC 9899:1999 6.5(5)-undefined,ISO/IEC 9899:2011 6.2.5(9),ISO/IEC 9899:2011 6.5(5)-undefined,ISO/IEC 14882:2003 5(5)-undefined,ISO/IEC 14882:2011 5(4)-undefined",
         "reference": "CWE-190,C++ Core Guidelines ES.103,C++ Core Guidelines ES.104"
     },
     "ID_constLogicExpression": {
@@ -1268,7 +1269,7 @@
         "tag": "expression",
         "related": "ID_oddPtrZeroComparison",
         "standard": "ISO/IEC 9899:1999 6.5.6(9)-undefined,ISO/IEC 9899:1999 6.5.8(5)-undefined,ISO/IEC 9899:2011 6.5.6(9)-undefined,ISO/IEC 9899:2011 6.5.8(5)-undefined,ISO/IEC 14882:2003 5.7(6)-undefined,ISO/IEC 14882:2003 5.9(2)-unspecified,ISO/IEC 14882:2011 5.7(6)-undefined,ISO/IEC 14882:2011 5.9(2)-unspecified",
-        "reference": "MISRA C 2004 17.3,MISRA C++ 2008 5-0-16,MISRA C++ 2008 5-0-17,MISRA C++ 2008 5-0-18,C++ Core Guidelines ES.62"
+        "reference": "C++ Core Guidelines ES.62,MISRA C 2004 17.3,MISRA C++ 2008 5-0-16,MISRA C++ 2008 5-0-17,MISRA C++ 2008 5-0-18"
         },
     "ID_illBoolOperation": {
         "checkPoint": "bool 值不应参与位运算、大小比较、数值增减",
@@ -1276,7 +1277,7 @@
         "comment": "bool 值只能为真或假，不具有“大小”等数值意义，bool 值参与位运算、大小比较、数值增减是不合理的。",
         "tag": "expression",
         "standard": "ISO/IEC 14882:2003 5.2.6(1 2),ISO/IEC 14882:2003 5.3.2(1 2),ISO/IEC 14882:2003 D.1-deprecated,ISO/IEC 14882:2011 5.2.6(1 2),ISO/IEC 14882:2011 5.3.2(1 2),ISO/IEC 14882:2011 D.1-deprecated",
-        "reference": "CWE-1024,CWE-1025,CWE-682,CWE-783,MISRA C 2004 12.7,MISRA C 2012 10.1,MISRA C++ 2008 5-0-21"
+        "reference": "CWE-682,CWE-783,CWE-1024,CWE-1025,MISRA C 2004 12.7,MISRA C 2012 10.1,MISRA C++ 2008 5-0-21"
         },
     "ID_inaccessibleTmpObject": {
         "checkPoint": "不应产生无效的临时对象",
@@ -1368,7 +1369,7 @@
         "tag": "cast",
         "standard": "ISO/IEC 14882:2003 5.2.7,ISO/IEC 14882:2003 5.2.9(5 8)-undefined,ISO/IEC 14882:2011 5.2.7,ISO/IEC 14882:2011 5.2.9(11 12)-undefined",
         "related": "ID_downCast",
-        "reference": "MISRA C++ 2008 5-2-2,C++ Core Guidelines Type.2"
+        "reference": "C++ Core Guidelines Type.2,MISRA C++ 2008 5-2-2"
         },
     "ID_unsuitableReinterpretCast": {
         "checkPoint": "可用其他方式完成的转换不应使用 reinterpret_cast",
@@ -1406,7 +1407,7 @@
         "level": "warning",
         "comment": "应检查类型转换的结果是否正确，避免数据丢失等问题。",
         "tag": "cast",
-        "standard": "ISO/IEC 9899:2011 6.3.1.4(1)-undefined,ISO/IEC 9899:2011 6.3.1.5(1)-undefined,ISO/IEC 14882:2011 4.8(1)-undefined,ISO/IEC 14882:2011 4.9(1 2)-undefined",
+        "standard": "ISO/IEC 9899:1999 6.3.1.4(1)-undefined,ISO/IEC 9899:1999 6.3.1.5(2)-undefined,ISO/IEC 9899:2011 6.3.1.4(1)-undefined,ISO/IEC 9899:2011 6.3.1.5(1)-undefined,ISO/IEC 14882:2003 4.8(1)-undefined,ISO/IEC 14882:2003 4.9(1)-undefined,ISO/IEC 14882:2011 4.8(1)-undefined,ISO/IEC 14882:2011 4.9(1 2)-undefined",
         "reference": "C++ Core Guidelines ES.46,SEI CERT FLP34-C"
         },
     "ID_forbidCStyleCast": {
@@ -1414,7 +1415,7 @@
         "level": "suggestion",
         "comment": "C 风格类型转换易造成数据丢失或逻辑错误，在 C++ 代码中应使用 static_cast、dynamic_cast 等方法代替 C 风格类型转换。",
         "tag": "cast",
-        "reference": "MISRA C++ 2008 5-2-4,C++ Core Guidelines ES.49"
+        "reference": "C++ Core Guidelines ES.49,MISRA C++ 2008 5-2-4"
         },
     "ID_missingSideEffect": {
         "checkPoint": "不应存在没有副作用的语句",
@@ -1422,7 +1423,7 @@
         "comment": "不能对程序状态产生影响的语句称为无“副作用（side effect）”的语句，往往属于笔误或调试痕迹，应当修正或去除。",
         "tag": "function",
         "standard": "ISO/IEC 9899:1999 5.1.2.3(2),ISO/IEC 9899:2011 5.1.2.3(2),ISO/IEC 14882:2003 1.9(7),ISO/IEC 14882:2011 1.9(12)",
-        "reference": "CWE-1164,CWE-482,MISRA C 2004 14.2,MISRA C 2012 2.2,MISRA C++ 2008 0-1-9"
+        "reference": "CWE-482,CWE-1164,MISRA C 2004 14.2,MISRA C 2012 2.2,MISRA C++ 2008 0-1-9"
         },
     "ID_returnValueIgnored": {
         "checkPoint": "不应忽略重要的返回值",
@@ -1509,7 +1510,7 @@
         "tag": "expression",
         "related": "ID_evaluationOrderReliance",
         "standard": "ISO/IEC 9899:1999 6.5(2)-undefined,ISO/IEC 9899:1999 Annex C,ISO/IEC 9899:2011 6.5(2)-undefined,ISO/IEC 9899:2011 Annex C,ISO/IEC 14882:2003 5(4)-unspecified,ISO/IEC 14882:2011 1.9(15)-undefined,ISO/IEC 14882:2011 5.17(1),ISO/IEC 14882:2017 8.18(1)",
-        "reference": "C++ Core Guidelines ES.43,SEI CERT EXP50-CPP,MISRA C++ 2008 5-0-1,MISRA C 2012 13.2"
+        "reference": "C++ Core Guidelines ES.43,MISRA C 2012 13.2,MISRA C++ 2008 5-0-1,SEI CERT EXP50-CPP"
         },
     "ID_oddPtrCharAssignment": {
         "checkPoint": "不应使用 '\\0' 等字符常量对指针赋值",
@@ -1672,7 +1673,7 @@
         "comment": "标准库提供的动态内存分配方法，其策略和算法不在使用者的控制之内，很多细节是标准没有明确规定的，而且也是内存耗尽等问题的根源，有高可靠性要求的嵌入式系统应选取本规则。",
         "tag": "resource",
         "standard": "ISO/IEC 9899:1999 7.20.3,ISO/IEC 9899:2011 7.22.3",
-        "reference": "MISRA C 2004 20.4,MISRA C 2012 21.3,MISRA C++ 2008 18-4-1,C++ Core Guidelines R.5"
+        "reference": "C++ Core Guidelines R.5,MISRA C 2004 20.4,MISRA C 2012 21.3,MISRA C++ 2008 18-4-1"
         },
     "ID_unsuitableMove": {
         "checkPoint": "合理使用 std::move",
@@ -1687,7 +1688,7 @@
         "comment": "std::move 宣告对象的数据将被移动到其他对象，移动后对象在逻辑上不再有效，如果对象的状态没有被重新设定，不应再被使用。",
         "tag": "resource",
         "related": "ID_unsuitableMove",
-        "reference": "SEI CERT EXP63-CPP,C++ Core Guidelines ES.56"
+        "reference": "C++ Core Guidelines ES.56,SEI CERT EXP63-CPP"
         },
     "ID_unsuitableForward": {
         "checkPoint": "合理使用 std::forward",
@@ -1732,7 +1733,7 @@
         "level": "warning",
         "comment": "成员的声明和使用相距较远，更容易造成未初始化先使用的问题，所以应在声明处或构造函数中初始化所有成员。",
         "tag": "function",
-        "reference": "CWE-908,CWE-824,C++ Core Guidelines C.41"
+        "reference": "CWE-824,CWE-908,C++ Core Guidelines C.41"
         },
     "ID_invalidWrite": {
         "checkPoint": "不应存在无效的写入操作",
@@ -1753,6 +1754,7 @@
         "level": "warning",
         "comment": "对象的动态类型在其构造过程中不生效。",
         "tag": "function",
+        "standard": "ISO/IEC 14882:2003 10.4(6)-undefined,ISO/IEC 14882:2011 10.4(6)-undefined",
         "reference": "C++ Core Guidelines C.82,MISRA C++ 2008 12-1-1,Effective C++ item 9"
         },
     "ID_virtualCallInDestructor": {
@@ -1760,6 +1762,7 @@
         "level": "warning",
         "comment": "对象的动态类型在其析构过程中不生效。",
         "tag": "function",
+        "standard": "ISO/IEC 14882:2003 10.4(6)-undefined,ISO/IEC 14882:2011 10.4(6)-undefined",
         "reference": "C++ Core Guidelines C.82,MISRA C++ 2008 12-1-1,Effective C++ item 9"
         },
     "ID_exitCallInDestructor": {
@@ -1791,7 +1794,8 @@
         "level": "warning",
         "comment": "构造函数抛出异常表示对象构造失败，不会再执行相关析构函数，需要保证已分配的资源被有效回收。",
         "tag": "resource",
-        "related": "ID_ownerlessResource,ID_multiAllocation,ID_memoryLeak"
+        "related": "ID_ownerlessResource,ID_multiAllocation,ID_memoryLeak",
+        "standard": "ISO/IEC 14882:2003 5.3.4(17),ISO/IEC 14882:2011 5.3.4(18),ISO/IEC 14882:2017 8.3.4(21)"
         },
     "ID_throwInDestructor": {
         "checkPoint": "析构函数不可抛出异常",
@@ -1799,8 +1803,8 @@
         "comment": "析构函数抛出异常是违反异常处理机制的。",
         "tag": "exception",
         "related": "ID_throwInDelete,ID_throwInHash,ID_throwInSwap,ID_throwInMove",
-        "standard": "ISO/IEC 14882:2003 15.2(3),ISO/IEC 14882:2011 15.2(3),ISO/IEC 14882:2011 3.7.4.2(3)-undefined",
-        "reference": "C++ Core Guidelines C.36,C++ Core Guidelines C.37,SEI CERT DCL57-CPP,MISRA C++ 2008 15-5-1"
+        "standard": "ISO/IEC 14882:2003 15.2(3),ISO/IEC 14882:2011 3.7.4.2(3)-undefined,ISO/IEC 14882:2011 15.2(3)",
+        "reference": "C++ Core Guidelines C.36,C++ Core Guidelines C.37,MISRA C++ 2008 15-5-1,SEI CERT DCL57-CPP"
         },
     "ID_throwInDelete": {
         "checkPoint": "内存回收函数不可抛出异常",
@@ -1808,7 +1812,7 @@
         "comment": "内存回收函数抛出异常会导致标准未定义的行为。",
         "tag": "exception",
         "related": "ID_throwInDestructor,ID_throwInHash,ID_throwInSwap,ID_throwInMove",
-        "standard": "ISO/IEC 14882:2003 15.2(3),ISO/IEC 14882:2011 15.2(3),ISO/IEC 14882:2011 3.7.4.2(3)-undefined",
+        "standard": "ISO/IEC 14882:2003 15.2(3),ISO/IEC 14882:2011 3.7.4.2(3)-undefined,ISO/IEC 14882:2011 15.2(3)",
         "reference": "C++ Core Guidelines E.16"
         },
     "ID_throwInHash": {
@@ -1866,14 +1870,14 @@
         "comment": "未初始化的局部对象具有不确定的值，读取未初始化的对象会导致标准未定义的行为。",
         "tag": "function",
         "standard": "ISO/IEC 9899:1999 6.2.4(5 6),ISO/IEC 9899:2011 6.2.4(6 7),ISO/IEC 9899:2011 6.3.2.1(2)-undefined,ISO/IEC 14882:2003 4.1(1)-undefined,ISO/IEC 14882:2003 8.5(9),ISO/IEC 14882:2011 4.1(1)-undefined,ISO/IEC 14882:2011 8.5(11)",
-        "reference": "CWE-909,CWE-908,CWE-824,CWE-457,C++ Core Guidelines ES.20,MISRA C 2004 9.1,MISRA C 2012 9.1,MISRA C++ 2008 8-5-1"
+        "reference": "CWE-457,CWE-824,CWE-908,CWE-909,C++ Core Guidelines ES.20,MISRA C 2004 9.1,MISRA C 2012 9.1,MISRA C++ 2008 8-5-1"
         },
     "ID_notAllBranchReturn": {
         "checkPoint": "有返回值的函数其所有分枝都应显式返回",
         "level": "error",
         "comment": "如果有返回值的函数在某个分枝没有使用 return 语句显式返回，会导致标准未定义的行为。",
         "tag": "function",
-        "standard": "ISO/IEC 9899:1999 6.9.1(12)-undefined,ISO/IEC 9899:1999 5.1.2.2.3(1),ISO/IEC 9899:2011 6.9.1(12)-undefined,ISO/IEC 9899:2011 5.1.2.2.3(1),ISO/IEC 14882:2003 6.6.3(2)-undefined,ISO/IEC 14882:2003 3.6.1(5),ISO/IEC 14882:2011 6.6.3(2)-undefined,ISO/IEC 14882:2011 3.6.1(5)",
+        "standard": "ISO/IEC 9899:1999 5.1.2.2.3(1),ISO/IEC 9899:1999 6.9.1(12)-undefined,ISO/IEC 9899:2011 5.1.2.2.3(1),ISO/IEC 9899:2011 6.9.1(12)-undefined,ISO/IEC 14882:2003 3.6.1(5),ISO/IEC 14882:2003 6.6.3(2)-undefined,ISO/IEC 14882:2011 3.6.1(5),ISO/IEC 14882:2011 6.6.3(2)-undefined",
         "reference": "CWE-394,MISRA C 2004 16.8,MISRA C 2012 17.4,MISRA C++ 2008 8-4-3"
         },
     "ID_returnSameConst": {
@@ -1930,7 +1934,8 @@
         "checkPoint": "用 auto 声明指针或引用时应显式标明 *、& 等符号",
         "level": "suggestion",
         "comment": "用 auto 声明指针时显式标明 * 号有利于提高可读性，否则会使人误以为是某种非指针的对象。在声明引用时必须显式标明 & 或 && 号，否则成为对象声明，导致逻辑错误或造成不必要的复制开销。",
-        "tag": "declaration"
+        "tag": "declaration",
+        "standard": "ISO/IEC 14882:2011 7.1.6.4,ISO/IEC 14882:2017 10.1.7.4"
         },
     "ID_selfDependentInitialization": {
         "checkPoint": "对象初始化不可依赖自身的值",
@@ -1986,6 +1991,7 @@
             "maxInlineFunctionLineCount: 内联函数行数上限，超过则报出"
             ],
         "tag": "function",
+        "standard": "ISO/IEC 9899:1999 6.7.4(5)-implementation,ISO/IEC 9899:2011 6.7.4(6)-implementation,ISO/IEC 14882:2003 7.1.2(2)-implementation,ISO/IEC 14882:2011 7.1.2(2)-implementation",
         "reference": "C++ Core Guidelines F.5"
         },
     "ID_nonVirtualOverride": {
@@ -2042,8 +2048,8 @@
         "level": "warning",
         "comment": "为了避免意料之外的资源泄漏，有虚函数的基类都应该具有虚析构函数。",
         "tag": "type",
-        "standard": "ISO/IEC 14882:2003 12.4(7),ISO/IEC 14882:2003 5.3.5(3)-undefined,ISO/IEC 14882:2011 12.4(9),ISO/IEC 14882:2011 5.3.5(3)-undefined",
-        "reference": "CWE-1079,CWE-1087,CWE-1045,C++ Core Guidelines C.35,C++ Core Guidelines C.127"
+        "standard": "ISO/IEC 14882:2003 5.3.5(3)-undefined,ISO/IEC 14882:2003 12.4(7),ISO/IEC 14882:2011 5.3.5(3)-undefined,ISO/IEC 14882:2011 12.4(9)",
+        "reference": "CWE-1045,CWE-1079,CWE-1087,C++ Core Guidelines C.35,C++ Core Guidelines C.127"
         },
     "ID_diamondInheritance": {
         "checkPoint": "用虚基类避免冗余的基类实例",
@@ -2059,6 +2065,7 @@
         "comment": "带模板的构造函数覆盖拷贝或移动构造函数，很可能导致意料之外的错误。",
         "tag": "type",
         "related": "ID_roughTemplateAssignOperator",
+        "standard": "ISO/IEC 14882:2003 12.8(2),ISO/IEC 14882:2011 12.8(2),ISO/IEC 14882:2011 12.8(3)",
         "reference": "MISRA C++ 2008 14-5-2"
         },
     "ID_roughTemplateAssignOperator": {
@@ -2067,6 +2074,7 @@
         "comment": "带模板的赋值运算符覆盖拷贝或移动赋值运算符，很可能导致意料之外的错误。",
         "tag": "type",
         "related": "ID_roughTemplateConstructor",
+        "standard": "ISO/IEC 14882:2003 12.8(9),ISO/IEC 14882:2011 12.8(17),ISO/IEC 14882:2011 12.8(19)",
         "reference": "MISRA C++ 2008 14-5-3"
         },
     "ID_missingExplicitOverride": {
@@ -2187,7 +2195,7 @@
         "comment": "if...else-if 分枝的条件不应有重复，否则相同条件排在前面的分枝会得以执行，而排在后面的分枝得不到执行机会。",
         "tag": "control",
         "related": "ID_if_hiddenCondition",
-        "reference": "CWE-670,CWE-561"
+        "reference": "CWE-561,CWE-670"
         },
     "ID_if_hiddenCondition": {
         "checkPoint": "在 if...else-if 分枝中不应有被遮盖的条件",
@@ -2195,7 +2203,7 @@
         "comment": "if...else-if 分枝中，如果前面的条件被满足，后面的分枝就不会被执行，所以如果前面的条件是后面条件的一部分，或者前面的条件包含后面的条件，即使后面的条件可以被满足，其分枝也得不到执行机会。",
         "tag": "control",
         "related": "ID_if_identicalCondition",
-        "reference": "CWE-670,CWE-561"
+        "reference": "CWE-561,CWE-670"
         },
     "ID_if_identicalBlock": {
         "checkPoint": "if 分枝和 else 分枝的代码不应完全相同",
@@ -2476,7 +2484,7 @@
         "level": "suggestion",
         "comment": "空的 catch handler 掩盖了异常，不利于问题的排查与纠正，应至少添加日志记录等操作。",
         "tag": "control",
-        "reference": "CWE-1069,CWE-1071,CWE-391"
+        "reference": "CWE-391,CWE-1069,CWE-1071"
         },
     "ID_literal_misspelling": {
         "checkPoint": "字符串常量中不应存在拼写错误",
@@ -2598,7 +2606,7 @@
         "level": "warning",
         "comment": "非标准格式的预编译指令往往意味着错误，也会导致标准未定义的行为。",
         "tag": "precompile",
-        "standard": "ISO/IEC 9899:2011 6.10(1),ISO/IEC 9899:2011 6.10.1(4)-undefined,ISO/IEC 14882:2011 16.1(4)-undefined,ISO/IEC 14882:2011 16.2(4)-undefined,ISO/IEC 14882:2011 16.4(3)-undefined,ISO/IEC 14882:2011 16.4(5)-undefined",
+        "standard": "ISO/IEC 9899:1999 6.10(1),ISO/IEC 9899:1999 6.10.1(3)-undefined,ISO/IEC 9899:2011 6.10(1),ISO/IEC 9899:2011 6.10.1(4)-undefined,ISO/IEC 14882:2003 16.1(4)-undefined,ISO/IEC 14882:2003 16.2(4)-undefined,ISO/IEC 14882:2003 16.4(3)-undefined,ISO/IEC 14882:2003 16.4(5)-undefined,ISO/IEC 14882:2011 16.1(4)-undefined,ISO/IEC 14882:2011 16.2(4)-undefined,ISO/IEC 14882:2011 16.4(3)-undefined,ISO/IEC 14882:2011 16.4(5)-undefined",
         "reference": "MISRA C++ 2008 16-0-7,MISRA C++ 2008 16-0-8,MISRA C++ 2008 16-1-1"
         },
     "ID_warningDisabled": {
@@ -2630,14 +2638,16 @@
         "comment": "宏的实参个数小于形参个数是不符合 C/C++ 标准的，参数个数不一致必然意味着某种错误，然而在某些编译环境下却可以通过编译。",
         "tag": "precompile",
         "related": "ID_macro_redundantArgs",
+        "standard": "ISO/IEC 9899:1999 6.10.3(4),ISO/IEC 9899:2011 6.10.3(4),ISO/IEC 14882:2003 16.3(4),ISO/IEC 14882:2011 16.3(4)",
         "reference": "CWE-628,MISRA C 2004 19.8"
         },
     "ID_macro_redundantArgs": {
         "checkPoint": "宏的实参个数不可大于形参个数",
         "level": "warning",
-        "comment": "宏的实参个数大于形参个数是不符合 C/C++ 标准的，参数个数不一致必然意味着某种错误，然而在某些编译环境下却可以通过编译。",
+        "comment": "宏的实参个数大于形参个数是不符合 C/C++ 标准的，多余的宏参数是没有意义的，然而在某些编译环境下却可以通过编译。",
         "tag": "precompile",
         "related": "ID_macro_insufficientArgs",
+        "standard": "ISO/IEC 9899:1999 6.10.3(4),ISO/IEC 9899:2011 6.10.3(4),ISO/IEC 14882:2003 16.3(4),ISO/IEC 14882:2011 16.3(4)",
         "reference": "CWE-628"
         },
     "ID_macro_sideEffectArgs": {
@@ -2653,6 +2663,7 @@
         "level": "warning",
         "comment": "由于宏只做文本处理，不考虑运算符优先级等问题，故应将宏参数用括号括起来，否则易产生意料之外的错误。",
         "tag": "precompile",
+        "standard": "ISO/IEC 9899:1999 6.10.3.5(4),ISO/IEC 9899:2011 6.10.3.5(4)",
         "reference": "CWE-783,MISRA C++ 2008 16-0-6"
         },
     "ID_macro_expNotEnclosed": {
@@ -2660,6 +2671,7 @@
         "level": "warning",
         "comment": "由于宏只做文本处理，不考虑运算符优先级等问题，可作为子表达式的宏定义应该用括号括起来，否则易产生意料之外的错误。",
         "tag": "precompile",
+        "standard": "ISO/IEC 9899:1999 6.10.3.5(4),ISO/IEC 9899:2011 6.10.3.5(4)",
         "reference": "CWE-783,MISRA C 2004 19.10,MISRA C 2012 20.7"
         },
     "ID_macro_stmtNotEnclosed": {
@@ -2667,6 +2679,7 @@
         "level": "warning",
         "comment": "可以作为一条语句使用的宏，且宏包含多个并列子句时，应该用“do {”和“} while(0)”括起来，否则易造成作用域的混乱。",
         "tag": "precompile",
+        "standard": "ISO/IEC 9899:1999 6.10.3.5(4),ISO/IEC 9899:2011 6.10.3.5(4)",
         "related": "ID_if_scope,ID_while_scope,ID_for_scope",
         "reference": "CWE-483"
         },
@@ -2683,7 +2696,7 @@
         "tag": "precompile",
         "standard": "ISO/IEC 9899:1999 7.1.3(2)-undefined,ISO/IEC 9899:2011 7.1.3(2)-undefined,ISO/IEC 14882:2003 16.8(3)-undefined,ISO/IEC 14882:2011 16.8(4)-undefined",
         "related": "ID_macro_undefReserved,ID_reservedName",
-        "reference": "MISRA C 2012 21.1,MISRA C 2012 20.4,MISRA C++ 2008 17-0-1"
+        "reference": "MISRA C 2012 20.4,MISRA C 2012 21.1,MISRA C++ 2008 17-0-1"
         },
     "ID_macro_undefReserved": {
         "checkPoint": "不可取消定义具有保留意义的宏名称",
@@ -2793,7 +2806,7 @@
         "comment": "malloc 等函数在分配失败时返回空指针，如果不加判断直接使用会导致标准未定义的行为。",
         "tag": "resource",
         "standard": "ISO/IEC 9899:1999 7.20.3(1),ISO/IEC 9899:2011 7.22.3(1)",
-        "reference": "CWE-476,CWE-252"
+        "reference": "CWE-252,CWE-476"
         },
     "ID_nullDerefDynamicCast": {
         "checkPoint": "判断 dynamic_cast 转换是否成功",
@@ -3022,7 +3035,7 @@
         "level": "warning",
         "comment": "根据 C++11 标准，register 等关键字已过时，不应再使用，auto 关键字也不可再作为存储类说明符（storage class specifier）。",
         "tag": "declaration",
-        "standard": "ISO/IEC 14882:2011 D.2(1)-deprecated,ISO/IEC 14882:2011 7.1.6.4"
+        "standard": "ISO/IEC 14882:2011 7.1.6.4(3),ISO/IEC 14882:2011 D.2(1)-deprecated"
         },
     "ID_inlineRedundant": {
         "checkPoint": "不应使用多余的 inline 关键字",
@@ -3052,7 +3065,7 @@
         "tag": "declaration",
         "related": "ID_macro_defineReserved,ID_macro_undefReserved",
         "standard": "ISO/IEC 9899:1999 7.1.3(1),ISO/IEC 9899:2011 7.1.3(1),ISO/IEC 14882:2003 17.4.3.1,ISO/IEC 14882:2011 17.6.4.3,ISO/IEC 14882:2017 20.5.4.3",
-        "reference": "SEI CERT DCL37-C,SEI CERT DCL51-CPP,MISRA C 2012 21.2,MISRA C++ 2008 17-0-1,MISRA C++ 2008 17-0-2,MISRA C++ 2008 17-0-3"
+        "reference": "MISRA C 2012 21.2,MISRA C++ 2008 17-0-1,MISRA C++ 2008 17-0-2,MISRA C++ 2008 17-0-3,SEI CERT DCL37-C,SEI CERT DCL51-CPP"
         },
     "ID_duplicatedTypeName": {
         "checkPoint": "类型名称不应重复定义",
@@ -3087,7 +3100,7 @@
         "level": "suggestion",
         "comment": "标识符 NULL 由实现定义，在 C++ 语言中往往等同于常量 0，无法有效区分整数与指针，用 nullptr 可避免这种问题。",
         "tag": "style",
-        "standard": "ISO/IEC 14882:2003 C.2.2.3(1)-implementation,ISO/IEC 14882:2011 C.3.2.4(1)-implementation,ISO/IEC 14882:2011 2.14.7(1),ISO/IEC 14882:2017 C.5.2.7(1)-implementation",
+        "standard": "ISO/IEC 14882:2003 C.2.2.3(1)-implementation,ISO/IEC 14882:2011 2.14.7(1),ISO/IEC 14882:2011 C.3.2.4(1)-implementation,ISO/IEC 14882:2017 C.5.2.7(1)-implementation",
         "reference": "C++ Core Guidelines ES.47"
         },
     "ID_deprecatedOffsetof": {
@@ -3096,7 +3109,7 @@
         "comment": "宏 offsetof 很难适用于具有 C++ 特性的类，在 C++ 代码中不应使用。",
         "tag": "precompile",
         "standard": "ISO/IEC 14882:2003 18.1(5)-undefined,ISO/IEC 14882:2011 18.2(4)-undefined",
-        "reference": "SEI CERT EXP59-CPP,MISRA C++ 2008 18-2-1"
+        "reference": "MISRA C++ 2008 18-2-1,SEI CERT EXP59-CPP"
         },
     "ID_forbidReinterpretCast": {
         "checkPoint": "合理使用 reinterpret_cast",
@@ -3227,7 +3240,7 @@
         "level": "warning",
         "comment": "避免使用 errno 和与其相同的模式，应根据实际需求选择通过函数返回值或 C++ 异常机制来处理异常情况。",
         "tag": "security",
-        "reference": "MISRA C 2004 20.5,MISRA C++ 2008 19-3-1,C++ Core Guidelines E.28"
+        "reference": "C++ Core Guidelines E.28,MISRA C 2004 20.5,MISRA C++ 2008 19-3-1"
     },
     "ID_unsafeStringFunction": {
         "checkPoint": "禁用不安全的字符串函数",
@@ -3252,7 +3265,7 @@
         "comment": "setjmp、longjmp 可以在函数间跳转，进一步破坏了结构化编程理念，非框架代码不应使用。",
         "tag": "control",
         "standard": "ISO/IEC 9899:1999 7.13.2.1(2)-undefined,ISO/IEC 14882:2011 18.10(4)-undefined",
-        "reference": "MISRA C 2004 20.7,MISRA C 2012 21.4,MISRA C++ 2008 17-0-5,C++ Core Guidelines SL.C.1"
+        "reference": "C++ Core Guidelines SL.C.1,MISRA C 2004 20.7,MISRA C 2012 21.4,MISRA C++ 2008 17-0-5"
         },
     "ID_obsoleteFunction": {
         "checkPoint": "不应使用已过时的函数",
@@ -3275,7 +3288,7 @@
         "level": "warning",
         "comment": "由实现定义的（implementation-defined）库函数会增加移植或兼容等方面的成本。",
         "tag": "expression",
-        "standard": "ISO/IEC 9899:2011 7.22.4.1(2)-implementation,ISO/IEC 9899:2011 7.22.4.4(5)-implementation,ISO/IEC 9899:2011 7.22.4.6(2)-implementation,ISO/IEC 9899:2011 7.22.4.8(3)-implementation,ISO/IEC 9899:2011 7.27.2.1(3)-implementation,ISO/IEC 9899:2011 7.14.1.1(3)-implementation",
+        "standard": "ISO/IEC 9899:2011 7.14.1.1(3)-implementation,ISO/IEC 9899:2011 7.22.4.1(2)-implementation,ISO/IEC 9899:2011 7.22.4.4(5)-implementation,ISO/IEC 9899:2011 7.22.4.6(2)-implementation,ISO/IEC 9899:2011 7.22.4.8(3)-implementation,ISO/IEC 9899:2011 7.27.2.1(3)-implementation",
         "reference": "MISRA C 2004 20.8,MISRA C 2004 20.11,MISRA C 2004 20.12,MISRA C 2012 21.5,MISRA C 2012 21.8,MISRA C 2012 21.10,MISRA C++ 2008 18-0-3,MISRA C++ 2008 18-0-4,MISRA C++ 2008 18-7-1"
         },
     "ID_missingVoid": {
@@ -3334,7 +3347,7 @@
         "level": "warning",
         "comment": "须对用户输入的脚本、路径、资源请求等信息进行预判，对产生不良后果的输入予以拒绝。",
         "tag": "security",
-        "reference": "CWE-89,CWE-23,CWE-73,CWE-943"
+        "reference": "CWE-23,CWE-73,CWE-89,CWE-943"
         },
     "ID_bufferOverflow": {
         "checkPoint": "避免缓冲区溢出",
@@ -3423,7 +3436,8 @@
         "checkPoint": "注释应出现在合理的位置",
         "level": "suggestion",
         "comment": "注释应出现在段落的前后或行尾，不应出现在行首或中间，否则干扰阅读，甚至会导致标准未定义的行为。",
-        "tag": "precompile"
+        "tag": "precompile",
+        "standard": "ISO/IEC 9899:1999 6.4.7(3)-undefined,ISO/IEC 9899:2011 6.4.7(3)-undefined,ISO/IEC 14882:2003 2.8(2)-undefined,ISO/IEC 14882:2011 2.9(2)-implementation"
         },
     "ID_badBackslash": {
         "checkPoint": "除转义字符、宏定义之外不应使用反斜杠",
@@ -3680,7 +3694,7 @@
         "tag": "declaration",
         "related": "ID_inconsistentParamName",
         "standard": "ISO/IEC 9899:1999 6.2.7(2)-undefined,ISO/IEC 9899:2011 6.2.7(2)-undefined",
-        "reference": "SEI CERT DCL40-C,MISRA C 2004 8.4,MISRA C 2012 8.3,MISRA C++ 2008 3-9-1"
+        "reference": "MISRA C 2004 8.4,MISRA C 2012 8.3,MISRA C++ 2008 3-9-1,SEI CERT DCL40-C"
         },
     "ID_unsuitableDeclaration": {
         "checkPoint": "在合理的位置声明",
@@ -3719,6 +3733,7 @@
         "comment": "宏不受作用域限制，在非全局作用域中定义宏易引起误解。",
         "tag": "precompile",
         "related": "ID_macro_undef",
+        "standard": "ISO/IEC 9899:1999 6.10.3.5(1),ISO/IEC 9899:2011 6.10.3.5(1)",
         "reference": "MISRA C 2004 19.5,MISRA C++ 2008 16-0-2"
         },
     "ID_macro_undef": {
