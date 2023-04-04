@@ -379,7 +379,7 @@
     "ID_if_tooManyElseIf": {
         "checkPoint": "if...else-if 分枝数量应在规定范围之内",
         "level": "warning",
-        "comment": "if...else-if 分枝过多不利于维护，而且执行时各分枝的条件需逐一判断，效率较低，建议改为遵循某种算法的索引结构。",
+        "comment": "if...else-if 分枝过多不利于阅读和维护，而且执行时需逐一判断各分枝的条件，效率较低，建议改为遵循某种算法的索引结构。",
         "config": [
             "maxElseIfCount: 分枝数量上限，超过则报出"
             ],
@@ -445,7 +445,7 @@
     "ID_switch_tooManyCases": {
         "checkPoint": "switch 语句分枝数量应在规定范围之内",
         "level": "warning",
-        "comment": "switch 语句分枝过多会使代码过于庞大不利于维护，分枝很多时建议将每个 case 的执行逻辑抽取成函数，再按遵循某种算法的索引结构组织在一起。",
+        "comment": "switch 语句分枝过多不利于阅读和维护，这种情况下建议将分枝抽取成函数，再按遵循某种算法的索引结构组织在一起。",
         "config": [
             "maxCasesCount: 分枝数量上限，超过则报出"
             ],
@@ -462,7 +462,7 @@
     "ID_switch_forbidNest": {
         "checkPoint": "switch 语句不应嵌套",
         "level": "suggestion",
-        "comment": "嵌套的 switch 语句使代码显得复杂，不利于维护。",
+        "comment": "嵌套的 switch 语句使代码显得复杂，不利于阅读和维护。",
         "tag": "control"
         },
     "ID_try_disorderedHandlers": {
@@ -484,7 +484,7 @@
     "ID_try_forbidNest": {
         "checkPoint": "不应嵌套 try-catch 语句",
         "level": "suggestion",
-        "comment": "嵌套的 try-catch 使代码显得复杂，不利于维护。",
+        "comment": "嵌套的 try-catch 语句使代码显得复杂，不利于阅读和维护。",
         "tag": "control",
         "reference": "C++ Core Guidelines E.17"
         },
@@ -1076,7 +1076,7 @@
     "ID_forbidGoto": {
         "checkPoint": "禁用 goto 语句",
         "level": "suggestion",
-        "comment": "历史表明，goto 语句会破坏程序的结构性规划，很容易导致逻辑混乱且不利于维护，在非自动生成的、对可读性有要求的代码中，建议禁用 goto 语句。",
+        "comment": "历史表明，goto 语句会破坏程序的结构性规划，很容易导致逻辑混乱且不利于阅读和维护，在非自动生成的、对可读性有要求的代码中，建议禁用 goto 语句。",
         "tag": "control",
         "related": "ID_forbidGotoBlocks,ID_forbidGotoBack",
         "reference": "C++ Core Guidelines ES.76,MISRA C 2012 15.1"
@@ -2765,7 +2765,7 @@
     "ID_functionRepetition": {
         "checkPoint": "避免重复的函数实现",
         "level": "suggestion",
-        "comment": "重复的或过于相似的代码是不利于维护的。",
+        "comment": "重复的或过于相似的代码不利于维护。",
         "tag": "function",
         "config": [
             "tokenCountThreshold: 符号数量阈值，小于此阈值的函数不参与比较",
@@ -3076,7 +3076,7 @@
     "ID_duplicatedTypeName": {
         "checkPoint": "类型名称不应重复定义",
         "level": "suggestion",
-        "comment": "如果类型相关的名称有重复，极易引起误解，不利于维护。",
+        "comment": "如果类型相关的名称有重复，极易引起误解，不利于阅读和维护。",
         "tag": "declaration",
         "reference": "MISRA C 2004 5.3,MISRA C 2004 5.4,MISRA C 2012 5.6,MISRA C 2012 5.7,MISRA C++ 2008 2-10-3,MISRA C++ 2008 2-10-4"
         },
