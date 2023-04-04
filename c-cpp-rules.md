@@ -202,8 +202,8 @@
     - [R5.1.11 可接受一个参数的构造函数需用 explicit 关键字限定](#missingexplicitconstructor)
     - [R5.1.12 重载的类型转换运算符需用 explicit 关键字限定](#missingexplicitconvertor)
     - [R5.1.13 不应过度使用 explicit 关键字](#excessiveexplicit)
-    - [R5.1.14 带模板的赋值运算符不应覆盖拷贝或移动赋值运算符](#roughtemplateassignoperator)
-    - [R5.1.15 带模板的构造函数不应覆盖拷贝或移动构造函数](#roughtemplateconstructor)
+    - [R5.1.14 带模板的赋值运算符不应与拷贝或移动赋值运算符混淆](#roughtemplateassignoperator)
+    - [R5.1.15 带模板的构造函数不应与拷贝或移动构造函数混淆](#roughtemplateconstructor)
     - [R5.1.16 抽象类禁用拷贝和移动赋值运算符](#unsuitableassignoperator)
     - [R5.1.17 数据成员的数量应在规定范围之内](#toomanyfields)
     - [R5.1.18 数据成员之间的填充数据不应被忽视](#ignorepaddingdata)
@@ -1499,35 +1499,35 @@ ID_resourceLeak&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
 <hr/>
 
-已分配资源的指针、句柄或描述符等信息不可被遗失，否则相关资源无法被访问也无法被回收，会导致资源耗尽以及死锁等问题，使程序无法正确运行。  
+对于动态分配的资源，其地址、句柄或描述符等标志性信息不可被遗失，否则资源无法被访问也无法被回收，这种问题称为“资源泄漏”，会导致资源耗尽或死锁等问题，使程序无法正常运行。  
   
-程序需要保证资源分配与回收之间的流程可达，且不可被异常中断，所在线程也不可在中途停止。  
+在资源被回收之前，记录其标志性信息的变量如果：  
+ - 均被重新赋值  
+ - 生命周期均已结束  
+ - 所在线程均被终止  
   
-关于内存资源，本规则特化为 ID\_memoryLeak。  
+相关资源便失去了控制，无法再通过正常手段访问相关资源。  
   
 示例：
 ```
-void foo(const char* path) {
-    FILE* p = fopen(path, "w");
-    if (cond) {
-        return;    // Non-compliant, ‘p’ is lost
-    }
-    ....
-    fclose(p);
-}
+int fd;
+fd = open("a", O_RDONLY);   // Open a file descriptor
+read(fd, buf1, 100);
+fd = open("b", O_RDONLY);   // Non-compliant, the previous descriptor is lost
+read(fd, buf2, 100);
 ```
-例中 p 指向文件对象，关闭文件对象之前在某种情况下返回，造成了文件资源的遗失。
+例中变量 fd 记录文件资源描述符，在回收资源之前对其重新赋值会导致资源泄漏。
 <br/>
 <br/>
 
 #### 相关
 ID_memoryLeak  
+ID_asynchronousTermination  
 <br/>
 
 #### 参考
 CWE-772  
 C++ Core Guidelines P.8  
-C++ Core Guidelines E.13  
 <br/>
 <br/>
 
@@ -1537,7 +1537,7 @@ ID_memoryLeak&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
 <hr/>
 
-已分配内存的地址不可被遗失，否则相关内存无法被访问也无法被回收，这种问题称为“[内存泄漏（memory leak）](https://en.wikipedia.org/wiki/Memory_leak)”，会导致可用内存被耗尽，使程序无法正确运行。  
+动态分配的内存地址不可被遗失，否则相关内存无法被访问也无法被回收，这种问题称为“[内存泄漏（memory leak）](https://en.wikipedia.org/wiki/Memory_leak)”，会导致可用内存被耗尽，使程序无法正常运行。  
   
 程序需要保证内存分配与回收之间的流程可达，且不可被异常中断，所在线程也不可在中途停止。  
   
@@ -1545,22 +1545,37 @@ ID_memoryLeak&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
   
 示例：
 ```
-void foo(size_t size) {
-    char* p = (char*)malloc(size);
+void foo(size_t n) {
+    void* p = malloc(n);
     if (cond) {
-        return;    // Non-compliant, ‘p’ is lost
+        return;  // Non-compliant, ‘p’ is lost
     }
     ....
     free(p);
 }
 ```
-本例由局部变量 p 记录申请的内存空间，释放之前在某种情况下函数返回，之后便再也无法访问到这块内存空间了，造成了内存空间的遗失。
+例中局部变量 p 记录已分配的内存地址，释放前在某种情况下函数返回，之后便再也无法访问到这块内存了，导致内存泄露。  
+  
+又如：
+```
+void bar(size_t n) {
+    void* p = malloc(n);
+    if (n < 100) {
+        p = realloc(p, 100);  // Non-compliant, the original value of ‘p’ is lost
+    }
+    ....
+}
+```
+例中 realloc 函数分配失败会返回 NULL，p 未经释放而被重新赋值，导致内存泄露。
 <br/>
 <br/>
 
 #### 相关
 ID_resourceLeak  
 ID_ownerlessResource  
+ID_throwInConstructor  
+ID_memberDeallocation  
+ID_multiAllocation  
 <br/>
 
 #### 依据
@@ -1590,18 +1605,20 @@ ID_illAccess&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
   
 示例：
 ```
-void foo(const char* path) {
-    FILE* p = NULL;
-    char buf[100] = {};
+void foo(const char* path, char buf[], size_t n) {
+    FILE* f;
     if (path != NULL) {
-        p = fopen(path, "rb");
+        f = fopen(path, "rb");
     }
-    fread(buf, 1, 100, p);       // Non-compliant, ‘p’ may be invalid
-    ....
-    fclose(p);
-    ....
-    fread(buf, 1, 100, p);       // Non-compliant, ‘p’ is closed
-    ....
+    fread(buf, 1, n, f);       // Non-compliant, ‘f’ may be invalid
+    fclose(f);
+}
+
+void bar(FILE* f, char buf[], size_t n) {
+    if (feof(f)) {
+        fclose(f);
+    }
+    fread(buf, 1, n, f);       // Non-compliant, ‘f’ may be closed
 }
 ```
 <br/>
@@ -2254,6 +2271,10 @@ fun(
 ```
 用 make\_shared、make\_unique 等函数代替 new 运算符可有效规避这种问题。
 <br/>
+<br/>
+
+#### 相关
+ID_memoryLeak  
 <br/>
 
 #### 参考
@@ -3939,25 +3960,14 @@ ID_missingNewLineFileEnd&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggesti
 
 <hr/>
 
-非空源文件未以换行符结尾，或以换行符结尾但换行符之前是反斜杠，在 C 和 C\+\+03 标准中会导致未定义的行为。  
+如果非空源文件未以换行符结尾，或以换行符结尾但换行符之前是反斜杠，在 C 和 C\+\+03 标准中会导致未定义的行为。  
   
-一般情况下 IDE 或编辑器会保证源文件以空行结尾，而且 C\+\+11 规定编译器应补全所需的空行，但为了提高兼容性，尤其是自动生成的源文件，应以有效的换行符结尾。  
-  
-示例：
-```
-// a.h
-#ifndef A_H
-#define A_H
-....
-#endif      // Non-compliant if no line break
-
-// a.cpp
-#include "a.h"
-int main() {
-}
-```
-如果 a.h 不是以有效的换行符结尾，在某些编译环境中有可能会使 \#endif 和 int main 被合成一行。
+一般情况下 IDE 或编辑器会保证源文件以空行结尾，而且 C\+\+11 规定编译器应补全所需的空行，但为了提高兼容性，并便于各种相关工具的使用，所有与代码相关的文本文件均应以有效的换行符结尾。
 <br/>
+<br/>
+
+#### 配置
+allTxtFileNeedNewLineEnd: 是否要求所有文本文件均以换行符结尾  
 <br/>
 
 #### 依据
@@ -5313,31 +5323,47 @@ C++ Core Guidelines C.46
 <br/>
 <br/>
 
-### <span id="roughtemplateassignoperator">▌R5.1.14 带模板的赋值运算符不应覆盖拷贝或移动赋值运算符</span>
+### <span id="roughtemplateassignoperator">▌R5.1.14 带模板的赋值运算符不应与拷贝或移动赋值运算符混淆</span>
 
 ID_roughTemplateAssignOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
 
 <hr/>
 
-带模板的赋值运算符覆盖拷贝或移动赋值运算符，很可能导致意料之外的错误。  
+带模板的赋值运算符不应与拷贝或移动赋值运算符混淆，存在带模板的赋值运算符时应明确声明拷贝和移动赋值运算符。  
   
 示例：
 ```
-class A {
+class A   // Non-compliant, missing copy and move assignment operators
+{
+    int* dat;   // Need deep copy
+
 public:
-    template <class T> A& operator = (T x);  // Non-compliant
-    ....
+    A();
+   ~A();
+    template <class T>
+    A& operator = (const T& a) {   // Not a copy assignment operator
+        return do_copy(a.dat);
+    }
+    template <class T>
+    A& operator = (T&& a) {   // Not a move assignment operator
+        return do_move(a.dat);
+    }
 };
+
+void foo(A& x, A& y)
+{
+    x = y;   // Not a deep copy
+}
 ```
-例中的赋值运算符可以同时作为普通赋值运算符、拷贝赋值运算符和移动赋值运算符，是一种混乱的设计。  
+设例中的类需要深拷贝，标准规定即使带模板的赋值运算符在功能上可以满足拷贝或移动赋值运算符的需求，也不能作为拷贝或移动赋值运算符，故其拷贝和移动赋值运算符仍然是默认的，无法完成深拷贝以及正确的数据移动。  
   
-应明确其拷贝赋和移动赋值运算符：
+应明确声明拷贝和移动赋值运算符：
 ```
-class A {
-public:
+class A   // Compliant
+{
+    ....
     A& operator = (const A&);
-    A& operator = (A&&);
-    template <class T> A& operator = (T x);  // Compliant
+    A& operator = (A&&);  
     ....
 };
 ```
@@ -5359,31 +5385,46 @@ MISRA C++ 2008 14-5-3
 <br/>
 <br/>
 
-### <span id="roughtemplateconstructor">▌R5.1.15 带模板的构造函数不应覆盖拷贝或移动构造函数</span>
+### <span id="roughtemplateconstructor">▌R5.1.15 带模板的构造函数不应与拷贝或移动构造函数混淆</span>
 
 ID_roughTemplateConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
 
 <hr/>
 
-带模板的构造函数覆盖拷贝或移动构造函数，很可能导致意料之外的错误。  
+带模板的构造函数不应与拷贝或移动构造函数混淆，存在带模板的构造函数时应明确声明拷贝和移动构造函数。  
   
 示例：
 ```
-class A {
+class A   // Non-compliant, missing copy and move constructors
+{
+    int* dat;   // Need deep copy
+
 public:
-    template <class T> A(T x);  // Non-compliant
-    ....
+    A();
+   ~A();
+    template <class T> A(const T& a) {   // Not a copy constructor
+        do_copy(a.dat);
+    }
+    template <class T> A(T&& a) {   // Not a move constructor
+        do_move(a.dat);
+    }
 };
+
+void foo(A& x)
+{
+    A y(x);   // Not a deep copy
+    ....
+}
 ```
-例中的构造函数可以同时作为普通构造函数、拷贝构造函数和移动构造函数，是一种混乱的设计。  
+设例中的类需要深拷贝，标准规定即使带模板的构造函数在功能上可以满足拷贝或移动构造函数的需求，也不能作为拷贝或移动构造函数，故其拷贝和移动构造函数仍然是默认的，无法完成深拷贝以及正确的数据移动。  
   
-应明确其拷贝和移动构造函数：
+应明确声明拷贝和移动构造函数：
 ```
-class A {
-public:
+class A   // Compliant
+{
+    ....
     A(const A&);
     A(A&&);
-    template <class T> A(T x);  // Compliant
     ....
 };
 ```
@@ -6530,6 +6571,15 @@ ID_sandwichedModifier
 ID_badSpecifierPosition  
 <br/>
 
+#### 依据
+ISO/IEC 9899:1999 6.7(1)  
+ISO/IEC 9899:1999 6.7.2(1)  
+ISO/IEC 9899:2011 6.7(1)  
+ISO/IEC 9899:2011 6.7.2(1)  
+ISO/IEC 14882:2003 A.6  
+ISO/IEC 14882:2011 A.6  
+<br/>
+
 #### 参考
 C++ Core Guidelines NL.26  
 <br/>
@@ -6543,12 +6593,13 @@ ID_sandwichedModifier&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 某些基本类型名称可由多个符号组成，const、volatile 等关键字不应出现在类型名称的中间，否则可读性较差。  
   
-本规则对下列关键字有同样的要求：
+本规则对下列 C 或 C\+\+ 关键字有同样的要求：
 ```
 const、volatile、
 inline、virtual、explicit、
 register、static、thread_local、extern、mutable、
-friend、typedef、constexpr
+friend、typedef、constexpr、
+_Alignas、_Atomic、_Noreturn、_Thread_local
 ```
 即使对这些关键字的位置不作统一要求，也不应使其出现在类型名称的中间，否则很容易引起误解。  
   
@@ -6568,6 +6619,15 @@ const volatile long double cvld = 0;  // Compliant
 #### 相关
 ID_badQualifierPosition  
 ID_badSpecifierPosition  
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.7(1)  
+ISO/IEC 9899:1999 6.7.2(1)  
+ISO/IEC 9899:2011 6.7(1)  
+ISO/IEC 9899:2011 6.7.2(1)  
+ISO/IEC 14882:2003 A.6  
+ISO/IEC 14882:2011 A.6  
 <br/>
 
 #### 参考
@@ -7222,11 +7282,12 @@ ID_badSpecifierPosition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggesti
 
 语言允许 inline、virtual、static、typedef 等关键字出现在类型名称的左侧，也可以出现在其右侧，甚至可以出现在基本类型名称的中间，应对其位置进行统一规范以提高可读性。  
   
-本规则对下列关键字有同样的要求：
+本规则对下列 C 或 C\+\+ 关键字有同样的要求：
 ```
 inline、virtual、explicit、
 register、static、thread_local、extern、mutable、
-friend、typedef、constexpr
+friend、typedef、constexpr、
+_Alignas、_Atomic、_Noreturn、_Thread_local
 ```
 这些关键字应统一出现在声明的起始，类型名称的左侧。  
   
@@ -7258,6 +7319,15 @@ struct A {
 #### 相关
 ID_sandwichedModifier  
 ID_badQualifierPosition  
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.7(1)  
+ISO/IEC 9899:1999 6.7.2(1)  
+ISO/IEC 9899:2011 6.7(1)  
+ISO/IEC 9899:2011 6.7.2(1)  
+ISO/IEC 14882:2003 A.6  
+ISO/IEC 14882:2011 A.6  
 <br/>
 <br/>
 
@@ -12085,8 +12155,10 @@ ID_complexInlineFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
 <hr/>
 
-不适合将函数声明为内联函数的情况：  
- - 行数超过指定限制  
+是否对函数进行内联优化由实现定义，当函数执行的开销远大于调用的开销时，将函数定义为内联函数是没有意义的。  
+  
+不适合将函数定义为内联函数的情况：  
+ - 语句数量超过指定限制  
  - 存在循环或异常处理语句  
  - 存在 switch 分枝语句  
  - 函数存在递归实现  
@@ -12096,7 +12168,7 @@ ID_complexInlineFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 <br/>
 
 #### 配置
-maxInlineFunctionLineCount: 内联函数行数上限，超过则报出  
+maxInlineStatementsCount: 内联函数语句数量上限，超过则报出  
 <br/>
 
 #### 依据
@@ -12154,7 +12226,14 @@ ID_nestedTooDeep&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
 
 <hr/>
 
-嵌套层次过深会造成阅读和维护困难。  
+作用域及类型嵌套过深会造成阅读和维护困难。  
+  
+建议：  
+ - 函数作用域嵌套不超过 7 层  
+ - 内联函数作用域嵌套不超过 2 层  
+ - lambda 表达式内作用域嵌套不超过 5 层  
+ - 类、结构体嵌套不超过 3 层  
+ - 命名空间嵌套不超过 4 层  
   
 示例：
 ```
@@ -12164,15 +12243,15 @@ if (cond0)
                 if (cond10)  // Terrible
                     ....   
 ```
-建议函数作用域嵌套不超过 7 层。对类型、命名空间也有同样的要求，建议类、结构体嵌套不超过 3 层，命名空间嵌套不超过 4 层。  
-  
 审计工具不妨通过配置决定嵌套层数是否合规。
 <br/>
 <br/>
 
 #### 配置
-maxTypeNestedDepth: 类型最大嵌套层数，超过则报出  
 maxFunctionNestedDepth: 函数作用域最大嵌套层数，超过则报出  
+maxInlineFunctionNestedDepth: 内联函数作用域最大嵌套层数，超过则报出  
+maxLambdaNestedDepth: 函数作用域最大嵌套层数，超过则报出  
+maxTypeNestedDepth: 类型最大嵌套层数，超过则报出  
 maxNamespaceNestedDepth: 命名空间最大嵌套层数，超过则报出  
 <br/>
 <br/>
@@ -20136,6 +20215,8 @@ PTHREAD\_CANCEL\_ASYNCHRONOUS 等选项、TerminateThread 等 Windows API，以�
 <br/>
 
 #### 相关
+ID_resourceLeak  
+ID_deadlock  
 ID_illLifetime  
 <br/>
 

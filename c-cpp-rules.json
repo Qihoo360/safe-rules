@@ -256,19 +256,19 @@
     "ID_memoryLeak": {
         "checkPoint": "不可失去对已分配内存的控制",
         "level": "warning",
-        "comment": "已分配内存的地址不可被遗失，否则相关内存无法被访问也无法被回收，这种问题称为“内存泄漏（memory leak）”，会导致可用内存被耗尽，使程序无法正确运行。",
+        "comment": "动态分配的内存地址不可被遗失，否则相关内存无法被访问也无法被回收，这种问题称为“内存泄漏（memory leak）”，会导致可用内存被耗尽，使程序无法正常运行。",
         "tag": "resource",
-        "related": "ID_resourceLeak,ID_ownerlessResource",
+        "related": "ID_resourceLeak,ID_ownerlessResource,ID_throwInConstructor,ID_memberDeallocation,ID_multiAllocation",
         "standard": "ISO/IEC 9899:1999 7.20.3(1),ISO/IEC 9899:2011 7.22.3(1),ISO/IEC 14882:2003 3.7.3.1(2),ISO/IEC 14882:2003 3.7.4.1(2)",
         "reference": "CWE-401,C++ Core Guidelines P.8,C++ Core Guidelines E.13"
     },
     "ID_resourceLeak": {
         "checkPoint": "不可失去对已分配资源的控制",
         "level": "warning",
-        "comment": "已分配资源的指针、句柄或描述符等信息不可被遗失，否则相关资源无法被访问也无法被回收，会导致资源耗尽以及死锁等问题，使程序无法正确运行。",
+        "comment": "对于动态分配的资源，其地址、句柄或描述符等标志性信息不可被遗失，否则资源无法被访问也无法被回收，这种问题称为“资源泄漏”，会导致资源耗尽或死锁等问题，使程序无法正常运行。",
         "tag": "resource",
-        "related": "ID_memoryLeak",
-        "reference": "CWE-772,C++ Core Guidelines P.8,C++ Core Guidelines E.13"
+        "related": "ID_memoryLeak,ID_asynchronousTermination",
+        "reference": "CWE-772,C++ Core Guidelines P.8"
     },
     "ID_insufficientDelete": {
         "checkPoint": "用 delete 释放数组不可漏写中括号",
@@ -782,6 +782,7 @@
         "level": "warning",
         "comment": "某些基本类型名称可由多个符号组成，const、volatile 等关键字不应出现在类型名称的中间，否则可读性较差。",
         "tag": "declaration",
+        "standard":"ISO/IEC 9899:1999 6.7(1),ISO/IEC 9899:1999 6.7.2(1),ISO/IEC 9899:2011 6.7(1),ISO/IEC 9899:2011 6.7.2(1),ISO/IEC 14882:2003 A.6,ISO/IEC 14882:2011 A.6",
         "related": "ID_badQualifierPosition,ID_badSpecifierPosition",
         "reference": "C++ Core Guidelines NL.26"
     },
@@ -794,6 +795,7 @@
             "positionScheme: const、volatile 的位置方案，对应说明中的 1、2、3 号方案",
             "volatileInFront: volatile 是否应写在 const 的前面，如果值为 false 则应写在后面，不设此项则不考虑相关顺序"
             ],
+        "standard":"ISO/IEC 9899:1999 6.7(1),ISO/IEC 9899:1999 6.7.2(1),ISO/IEC 9899:2011 6.7(1),ISO/IEC 9899:2011 6.7.2(1),ISO/IEC 14882:2003 A.6,ISO/IEC 14882:2011 A.6",
         "related": "ID_sandwichedModifier,ID_badSpecifierPosition",
         "reference": "C++ Core Guidelines NL.26"
         },
@@ -802,6 +804,7 @@
         "level": "suggestion",
         "comment": "语言允许 inline、virtual、static、typedef 等关键字出现在类型名称的左侧，也可以出现在其右侧，甚至可以出现在基本类型名称的中间，应对其位置进行统一规范以提高可读性。",
         "tag": "declaration",
+        "standard":"ISO/IEC 9899:1999 6.7(1),ISO/IEC 9899:1999 6.7.2(1),ISO/IEC 9899:2011 6.7(1),ISO/IEC 9899:2011 6.7.2(1),ISO/IEC 14882:2003 A.6,ISO/IEC 14882:2011 A.6",
         "related": "ID_sandwichedModifier,ID_badQualifierPosition"
         },
     "ID_hideLocal": {
@@ -1711,6 +1714,7 @@
         "level": "warning",
         "comment": "如果表达式语句多次使用 new，一旦某个构造函数抛出异常就会造成内存泄漏。",
         "tag": "resource",
+        "related": "ID_memoryLeak",
         "reference": "C++ Core Guidelines R.13"
         },
     "ID_recursion": {
@@ -1986,9 +1990,9 @@
     "ID_complexInlineFunction": {
         "checkPoint": "不应定义过于复杂的内联函数",
         "level": "suggestion",
-        "comment": "不应定义过于复杂的内联函数。",
+        "comment": "是否对函数进行内联优化由实现定义，当函数执行的开销远大于调用的开销时，将函数定义为内联函数是没有意义的。",
         "config": [
-            "maxInlineFunctionLineCount: 内联函数行数上限，超过则报出"
+            "maxInlineStatementsCount: 内联函数语句数量上限，超过则报出"
             ],
         "tag": "function",
         "standard": "ISO/IEC 9899:1999 6.7.4(5)-implementation,ISO/IEC 9899:2011 6.7.4(6)-implementation,ISO/IEC 14882:2003 7.1.2(2)-implementation,ISO/IEC 14882:2011 7.1.2(2)-implementation",
@@ -2060,18 +2064,18 @@
         "reference": "C++ Core Guidelines C.137"
         },
     "ID_roughTemplateConstructor": {
-        "checkPoint": "带模板的构造函数不应覆盖拷贝或移动构造函数",
+        "checkPoint": "带模板的构造函数不应与拷贝或移动构造函数混淆",
         "level": "warning",
-        "comment": "带模板的构造函数覆盖拷贝或移动构造函数，很可能导致意料之外的错误。",
+        "comment": "带模板的构造函数不应与拷贝或移动构造函数混淆，存在带模板的构造函数时应明确声明拷贝和移动构造函数。",
         "tag": "type",
         "related": "ID_roughTemplateAssignOperator",
         "standard": "ISO/IEC 14882:2003 12.8(2),ISO/IEC 14882:2011 12.8(2),ISO/IEC 14882:2011 12.8(3)",
         "reference": "MISRA C++ 2008 14-5-2"
         },
     "ID_roughTemplateAssignOperator": {
-        "checkPoint": "带模板的赋值运算符不应覆盖拷贝或移动赋值运算符",
+        "checkPoint": "带模板的赋值运算符不应与拷贝或移动赋值运算符混淆",
         "level": "warning",
-        "comment": "带模板的赋值运算符覆盖拷贝或移动赋值运算符，很可能导致意料之外的错误。",
+        "comment": "带模板的赋值运算符不应与拷贝或移动赋值运算符混淆，存在带模板的赋值运算符时应明确声明拷贝和移动赋值运算符。",
         "tag": "type",
         "related": "ID_roughTemplateConstructor",
         "standard": "ISO/IEC 14882:2003 12.8(9),ISO/IEC 14882:2011 12.8(17),ISO/IEC 14882:2011 12.8(19)",
@@ -2748,10 +2752,12 @@
     "ID_nestedTooDeep": {
         "checkPoint": "作用域及类型嵌套不应过深",
         "level": "suggestion",
-        "comment": "嵌套层次过深会造成阅读和维护困难。",
+        "comment": "作用域及类型嵌套过深会造成阅读和维护困难。",
         "config": [
-            "maxTypeNestedDepth: 类型最大嵌套层数，超过则报出",
             "maxFunctionNestedDepth: 函数作用域最大嵌套层数，超过则报出",
+            "maxInlineFunctionNestedDepth: 内联函数作用域最大嵌套层数，超过则报出",
+            "maxLambdaNestedDepth: 函数作用域最大嵌套层数，超过则报出",
+            "maxTypeNestedDepth: 类型最大嵌套层数，超过则报出",
             "maxNamespaceNestedDepth: 命名空间最大嵌套层数，超过则报出"
             ],
         "tag": "function"
@@ -3456,8 +3462,11 @@
     "ID_missingNewLineFileEnd": {
         "checkPoint": "非空源文件应以换行符结尾",
         "level": "suggestion",
-        "comment": "非空源文件未以换行符结尾，或以换行符结尾但换行符之前是反斜杠，在 C 和 C++03 标准中会导致未定义的行为。",
+        "comment": "如果非空源文件未以换行符结尾，或以换行符结尾但换行符之前是反斜杠，在 C 和 C++03 标准中会导致未定义的行为。",
         "tag": "precompile",
+        "config": [
+            "allTxtFileNeedNewLineEnd: 是否要求所有文本文件均以换行符结尾"
+            ],
         "standard": "ISO/IEC 9899:1999 5.1.1.2(1)-undefined,ISO/IEC 9899:2011 5.1.1.2(1)-undefined,ISO/IEC 14882:2003 2.1(1)-undefined,ISO/IEC 14882:2011 2.2(1)"
         },
     "ID_directiveInMacroArgument": {
@@ -3560,7 +3569,7 @@
         "level": "warning",
         "comment": "资源的使用情况在异步过程中是难以掌控的，异步终止线程往往会导致泄漏或死锁等严重问题。",
         "tag": "concurrency",
-        "related": "ID_illLifetime",
+        "related": "ID_resourceLeak,ID_deadlock,ID_illLifetime",
         "reference": "SEI CERT POS47-C"
         },
     "ID_spuriouslyWakeUp": {
