@@ -48,9 +48,9 @@
 
  - 示例：规则相关的示例代码，指明符合规则（Compliant）的和违反规则（Non-compliant）的情况
  - 相关：与当前规则有相关性的规则，可作为扩展阅读的线索
- - 依据：规则依照的 ISO/IEC 标准，C 规则以 ISO/IEC 9899:2011 为主，C++ 规则以 ISO/IEC 14882:2011 为主
- - 配置：某些规则的对象可由用户指定，审计工具可以此为参照实现定制化功能
- - 参考：规则参考的其他规范条款，如 C++ Core Guidelines、MISRA、SEI CERT Coding Standards 等，也可作为扩展阅读的线索
+ - 依据：规则依照的 ISO/IEC 标准条目，C 规则以 ISO/IEC 9899:2011 为主，C++ 规则以 ISO/IEC 14882:2011 为主
+ - 配置：某些规则的细节可灵活设置，审计工具可以此为参照实现定制化功能
+ - 参考：规则参考的其他规范条目，如 C++ Core Guidelines、MISRA、SEI CERT Coding Standards 等，也可作为扩展阅读的线索
 
 规则的相关性分为：
 
@@ -86,8 +86,8 @@
   - [R1.6 对资源设定合理的访问权限](#unlimitedauthority)
   - [R1.7 对用户落实有效的权限管理](#improperauthorization)
   - [R1.8 避免引用危险符号名称](#dangerousname)
-  - [R1.9 避免使用具有危险性的函数](#dangerousfunction)
-  - [R1.10 不应使用已过时的函数](#obsoletefunction)
+  - [R1.9 避免使用具有危险性的接口](#dangerousfunction)
+  - [R1.10 不应使用已过时的接口](#obsoletefunction)
   - [R1.11 禁用不安全的字符串函数](#unsafestringfunction)
   - [R1.12 确保字符串以空字符结尾](#impropernulltermination)
   - [R1.13 避免除 0 等计算异常](#dividebyzero)
@@ -1028,24 +1028,7 @@ void bar() {
     ....
 }
 ```
-审计工具不妨通过配置设定关注的危险符号名称，当代码中出现了这些名称时就给出警告。  
-  
-配置示例：
-```
-[ID_dangerousName]
-srand|random_shuffle=Weak random
-EVP_des_ecb|EVP_des_cbc=Weak encryption
-http|ftp=Non encrypted protocol
-CURL_SSLVERSION_TLSv1|TLS1_1_VERSION=Old TLS version
-```
-配置项等号左侧为危险符号名称，右侧为相关说明，可以指定多个名称对应一个说明，用“|”分隔。  
-  
-例中 srand 以及弱加密算法 EVP\_des\_ecb、EVP\_des\_cbc 等名称被设为危险名称，当代码中出现同名符号时就按相关说明给出警告。
 <br/>
-<br/>
-
-#### 配置
-详见说明  
 <br/>
 
 #### 参考
@@ -1054,13 +1037,13 @@ CWE-327
 <br/>
 <br/>
 
-### <span id="dangerousfunction">▌R1.9 避免使用具有危险性的函数</span>
+### <span id="dangerousfunction">▌R1.9 避免使用具有危险性的接口</span>
 
 ID_dangerousFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-某些函数本身就具有危险性，使用这种函数相当于直接引入了风险。  
+某些库函数或系统 API 本身就具有危险性，使用这种接口相当于直接引入了风险。  
   
 示例：
 ```
@@ -1079,38 +1062,23 @@ TerminateThread     // Forced termination of a thread can cause many problems
 GlobalMemoryStatus        // Return incorrect information, use ‘GlobalMemoryStatusEx’ instead
 SetProcessWorkingSetSize  // Cause adverse effects on other processes and the entire system
 ```
-gets 等函数无法检查缓冲区大小，是公认的危险函数，TerminateThread 等 Windows API 会强制结束线程的执行，线程持有的资源无法正确释放会导致泄漏或死锁，这类函数应避免使用。  
-  
-审计工具不妨通过配置设定关注的危险函数名称，当代码中出现了这些名称时就给出警告。  
-  
-配置示例：
-```
-[ID_dangerousFunction]
-gets|_getws=The most dangerous function
-TerminateThread=Forced termination of a thread can cause many problems
-```
-配置项等号左侧为危险函数名称，右侧为相关说明，可以指定多个名称对应一个说明，用“|”分隔。
+gets 等函数无法检查缓冲区边界，是公认的危险函数；TerminateThread 等 Windows API 会强制终止线程，线程持有的资源无法正确释放会导致泄漏或死锁等问题，应避免使用这类函数。
 <br/>
-<br/>
-
-#### 配置
-详见说明  
 <br/>
 
 #### 参考
 CWE-242  
-CWE-474  
 CWE-676  
 <br/>
 <br/>
 
-### <span id="obsoletefunction">▌R1.10 不应使用已过时的函数</span>
+### <span id="obsoletefunction">▌R1.10 不应使用已过时的接口</span>
 
 ID_obsoleteFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-某些函数存在缺陷或漏洞并已宣布过时，应使用更完善的替代方法。  
+某些库函数或系统 API 存在缺陷并已宣布过时，应改用更完善的替代方法。  
   
 示例：
 ```
@@ -1128,22 +1096,8 @@ RegOpenKey      // Use ‘RegOpenKeyEx’ instead
 RegQueryValue   // Use ‘RegQueryValueEx’ instead
 RegSetValue     // Use ‘RegSetValueEx’ instead
 ```
-例中 C89 声明的 ctime、asctime 等函数在 POSIX.1\-2008 中已宣告过时，应改用 strftime，RegCreateKey 等 16 位 Windows API 在 32 和 64 位平台中不应再使用。  
-  
-审计工具不妨通过配置设定关注的过时函数名称，当代码中出现了这些名称时就给出警告。  
-  
-配置示例：
-```
-[ID_obsoleteFunction]
-asctime|asctime_r=use 'strftime' instead
-bcopy=use 'memmove' or 'memcpy' instead
-```
-配置项等号左侧为过时函数名称，右侧为相关说明，可以指定多个名称对应一个说明，用“|”分隔。
+例中 C89 声明的 ctime、asctime 等函数在 POSIX.1\-2008 中已宣告过时，应改用 strftime；RegCreateKey 等 16 位 Windows API 在 32 和 64 位平台中不应再使用。
 <br/>
-<br/>
-
-#### 配置
-详见说明  
 <br/>
 
 #### 参考
@@ -1157,18 +1111,20 @@ ID_unsafeStringFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: security warning
 
 <hr/>
 
-由于历史原因，C 语言某些字符串函数不检查缓冲区长度，易造成运行时错误或安全漏洞。  
+由于历史原因，C 标准库中的某些字符串函数不执行边界检查，易造成运行时错误和安全漏洞。  
   
 这类函数包括：
 ```
-gets、sprintf、scanf、sscanf、fscanf、
-vfscanf、vsprintf、vscanf、vsscanf、
-strcpy、strcat、wcscpy、wcscat、
-StrCpy、StrCpyA、StrCpyW、StrCat、StrCatA、StrCatW、
-lstrcat、lstrcatA、lstrcatW、lstrcpy、lstrcpyA、lstrcpyW
+gets、strcpy、strcat、wcscpy、wcscat、
+sprintf、vsprintf、swprintf、vswprintf、
+scanf、sscanf、fscanf、vfscanf、vscanf、vsscanf
 ```
-对于 C\+\+ 代码，应采用 STL 标准库提供的相关功能。  
-对于 C 代码，应采用更安全的库函数，如用 fgets 代替 gets，snprintf 代替 sprintf。  
+与这类函数相似的 API 同样受本规则约束，如：
+```
+StrCpy、StrCpyA、StrCpyW、StrCat、StrCatA、StrCatW、
+lstrcpy、lstrcpyA、lstrcpyW、lstrcat、lstrcatA、lstrcatW
+```
+在 C 代码中应采用更安全的库函数，如用 fgets 代替 gets，snprintf 代替 sprintf。在 C\+\+ 代码中应采用 STL 标准库提供的相关功能。  
   
 示例：
 ```
@@ -1203,7 +1159,9 @@ ID_bufferOverflow
 <br/>
 
 #### 依据
+ISO/IEC 9899:2011 Annex K  
 ISO/IEC 9899:2011 K.3.7  
+ISO/IEC 9899:2011 K.3.9  
 <br/>
 
 #### 参考
@@ -1299,6 +1257,7 @@ ISO/IEC 14882:2017 8.6(4)-undefined
 <br/>
 
 #### 参考
+CWE-189  
 CWE-369  
 C++ Core Guidelines ES.105  
 <br/>
@@ -4148,6 +4107,11 @@ namespace NS {
 }
 ```
 <br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 3.6.1(1)  
+ISO/IEC 14882:2011 3.6.1(1)  
 <br/>
 
 #### 参考
@@ -8375,6 +8339,11 @@ struct B {
 <br/>
 <br/>
 
+#### 依据
+ISO/IEC 14882:2003 12.8(10)  
+ISO/IEC 14882:2011 12.8(22)  
+<br/>
+
 #### 参考
 C++ Core Guidelines F.47  
 C++ Core Guidelines C.60  
@@ -8388,21 +8357,24 @@ ID_nonStdCopyAssignmentParam&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration war
 
 <hr/>
 
-拷贝赋值运算符的参数不应按值传递，否则会产生不必要的复制开销以及“[对象切片](https://en.wikipedia.org/wiki/Object_slicing)”等问题。  
+拷贝赋值运算符应专注于复制参数的数据，且参数不应按值传递，否则会产生不必要的复制开销以及“[对象切片](https://en.wikipedia.org/wiki/Object_slicing)”等问题。  
   
 示例：
 ```
 struct A {
     A& operator = (A);  // Non-compliant
 };
-```
-应改为：
-```
-struct A {
-    A& operator = (const A&);  // Compliant
+
+struct B {
+    B& operator = (const B&);  // Compliant
 };
 ```
 <br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 12.8(9)  
+ISO/IEC 14882:2011 12.8(17)  
 <br/>
 
 #### 参考
@@ -8416,7 +8388,7 @@ ID_nonStdMoveAssignmentParam&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration war
 
 <hr/>
 
-移动赋值运算符的参数不可为 const 右值引用，否则将失去移动赋值的意义。  
+移动赋值意在将参数的数据转移到当前对象中，故参数不应为 const 右值引用，否则将失去移动赋值的意义。  
   
 示例：
 ```
@@ -8424,9 +8396,9 @@ class A {
     char* p;
 
 public:
-    A& operator = (const A&& a) {  // Non-compliant
+    A& operator = (const A&& a) {   // Non-compliant
         free(p);
-        p = copy(a.p);             // Not necessary
+        p = copy(a.p);   // Not necessary
         return *this;
     }
 
@@ -8435,21 +8407,19 @@ public:
 ```
 例中赋值运算符先释放持有的资源，再复制 a 的资源，不是真正的移动赋值，仍是一种低效实现。应将 a.p 与 this\->p 交换，省去复制过程，并使原有资源由 a 的析构函数释放，才是真正意义上的移动赋值：
 ```
-class A {
-    char* p;
-
-public:
-    A& operator = (A&& a) noexcept {  // Compliant
-        char* tmp = p;
-        p = a.p;
-        a.p = tmp;
-        return *this;
-    }
-
-    ....
-};
+A& A::operator = (A&& a) {   // Compliant
+    char* tmp = p;
+    p = a.p;
+    a.p = tmp;
+    return *this;
+}
 ```
 <br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2011 12.8(19)  
+ISO/IEC 14882:2017 15.8.2(3)  
 <br/>
 
 #### 参考
@@ -8613,7 +8583,7 @@ ID_virtualAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-拷贝和移动赋值运算符的返回类型应为所属类的非 const 引用，这类运算符即使是虚函数也不便于被重写。  
+拷贝和移动赋值运算符的参数应分别为所属类的左值和右值引用，这类运算符即使是虚函数也不便于被重写。  
   
 示例：
 ```
@@ -8633,6 +8603,12 @@ public:
 
 #### 相关
 ID_nonStdAssignmentRetType  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 12.8(9)  
+ISO/IEC 14882:2011 12.8(17)  
+ISO/IEC 14882:2011 12.8(19)  
 <br/>
 
 #### 参考
@@ -15095,7 +15071,6 @@ ISO/IEC 9899:2011 Annex C
 <br/>
 
 #### 参考
-CWE-758  
 C++ Core Guidelines ES.43  
 C++ Core Guidelines ES.44  
 <br/>
@@ -16557,7 +16532,6 @@ ISO/IEC 9899:2011 7.22.1(1)-undefined
 <br/>
 
 #### 参考
-CWE-190  
 MISRA C 2004 20.10  
 MISRA C 2012 21.7  
 MISRA C++ 2008 18-0-2  
@@ -16601,6 +16575,8 @@ ISO/IEC 9899:2011 7.27.2.1(3)-implementation
 <br/>
 
 #### 参考
+CWE-474  
+CWE-589  
 MISRA C 2004 20.8  
 MISRA C 2004 20.11  
 MISRA C 2004 20.12  
@@ -16664,6 +16640,11 @@ string foo() {
 }
 ```
 <br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2011 20.2.3(6)  
+ISO/IEC 14882:2017 23.2.5(5)  
 <br/>
 
 #### 参考
@@ -16742,6 +16723,11 @@ forward 的返回值应直接作为接口的参数，且只应使用 forward<T>�
 
 #### 相关
 ID_illForwardingReference  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2011 20.2.3(1)  
+ISO/IEC 14882:2017 23.2.5(1)  
 <br/>
 
 #### 参考

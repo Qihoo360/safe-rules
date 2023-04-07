@@ -847,9 +847,10 @@
     "ID_virtualAssignment": {
         "checkPoint": "拷贝和移动赋值运算符不应为虚函数",
         "level": "warning",
-        "comment": "拷贝和移动赋值运算符的返回类型应为所属类的非 const 引用，这类运算符即使是虚函数也不便于被重写。",
+        "comment": "拷贝和移动赋值运算符的参数应分别为所属类的左值和右值引用，这类运算符即使是虚函数也不便于被重写。",
         "tag": "declaration",
         "related": "ID_nonStdAssignmentRetType",
+        "standard": "ISO/IEC 14882:2003 12.8(9),ISO/IEC 14882:2011 12.8(17),ISO/IEC 14882:2011 12.8(19)",
         "reference": "C++ Core Guidelines C.60,C++ Core Guidelines C.63"
         },
     "ID_nonStdCopyAssignmentParam": {
@@ -857,13 +858,15 @@
         "level": "warning",
         "comment": "拷贝赋值运算符的参数不应按值传递，否则会产生不必要的复制开销以及“对象切片”等问题。",
         "tag": "declaration",
+        "standard": "ISO/IEC 14882:2003 12.8(9),ISO/IEC 14882:2011 12.8(17)",
         "reference": "C++ Core Guidelines C.60"
     },
     "ID_nonStdMoveAssignmentParam": {
         "checkPoint": "移动赋值运算符的参数应为同类对象的非 const 右值引用",
         "level": "warning",
-        "comment": "移动赋值运算符的参数不可为 const 右值引用，否则将失去移动赋值的意义。",
+        "comment": "移动赋值意在将参数的数据转移到当前对象中，故参数不应为 const 右值引用，否则将失去移动赋值的意义。",
         "tag": "declaration",
+        "standard": "ISO/IEC 14882:2011 12.8(19),ISO/IEC 14882:2017 15.8.2(3)",
         "reference": "C++ Core Guidelines C.63"
     },
     "ID_nonStdAssignmentRetType": {
@@ -871,6 +874,7 @@
         "level": "warning",
         "comment": "拷贝和移动赋值运算符应返回所属类的非 const 引用，便于调用者使用并满足泛型编程的要求。",
         "tag": "declaration",
+        "standard": "ISO/IEC 14882:2003 12.8(10),ISO/IEC 14882:2011 12.8(22)",
         "reference": "C++ Core Guidelines F.47,C++ Core Guidelines C.60,C++ Core Guidelines C.63"
     },
     "ID_mainReturnsNonInt": {
@@ -894,6 +898,7 @@
         "level": "warning",
         "comment": "main 函数作为程序的入口，链接器需对其特殊处理，不应受命名空间等作用域的限制。",
         "tag": "global",
+        "standard": "ISO/IEC 14882:2003 3.6.1(1),ISO/IEC 14882:2011 3.6.1(1)",
         "reference": "MISRA C++ 2008 7-3-2"
         },
     "ID_illFormedMain": {
@@ -1580,7 +1585,7 @@
         "tag": "expression",
         "related": "ID_confusingAssignment",
         "standard": "ISO/IEC 9899:1999 5.1.2.3(2),ISO/IEC 9899:1999 Annex C,ISO/IEC 9899:2011 5.1.2.3(3),ISO/IEC 9899:2011 Annex C",
-        "reference": "CWE-758,C++ Core Guidelines ES.43,C++ Core Guidelines ES.44"
+        "reference": "C++ Core Guidelines ES.43,C++ Core Guidelines ES.44"
         },
     "ID_complexExpression": {
         "checkPoint": "表达式不应过于复杂",
@@ -1683,6 +1688,7 @@
         "level": "warning",
         "comment": "std::move 的参数应为左值，返回值应直接作为接口的参数，除此之外的应用价值有限，且易产生错误。",
         "tag": "expression",
+        "standard": "ISO/IEC 14882:2011 20.2.3(6),ISO/IEC 14882:2017 23.2.5(5)",
         "reference": "C++ Core Guidelines ES.56,C++ Core Guidelines F.18,C++ Core Guidelines F.48"
         },
     "ID_useAfterMove": {
@@ -1699,6 +1705,7 @@
         "comment": "std::forward 的参数应为“转发引用（forwarding references）”，返回值应直接作为接口的参数，除此之外的使用方式价值有限，且易产生错误。",
         "tag": "expression",
         "related": "ID_illForwardingReference",
+        "standard": "ISO/IEC 14882:2011 20.2.3(1),ISO/IEC 14882:2017 23.2.5(1)",
         "reference": "C++ Core Guidelines F.19"
         },
     "ID_illForwardingReference": {
@@ -2804,7 +2811,7 @@
         "tag": "security",
         "related": "ID_sig_illReturn",
         "standard": "ISO/IEC 9899:1999 6.5.5(5)-undefined,ISO/IEC 9899:2011 6.5.5(5)-undefined,ISO/IEC 14882:2011 5.6(4)-undefined,ISO/IEC 14882:2017 8.6(4)-undefined",
-        "reference": "CWE-369,C++ Core Guidelines ES.105"
+        "reference": "CWE-189,CWE-369,C++ Core Guidelines ES.105"
         },
     "ID_nullDerefAllocRet": {
         "checkPoint": "判断资源分配函数的返回值是否有效",
@@ -2844,7 +2851,6 @@
         "level": "warning",
         "comment": "弱加密、弱哈希、弱随机、不安全的协议等相关库、函数、类、宏、常量等名称不应出现在代码中。",
         "tag": "security",
-        "config": [ "详见说明" ],
         "reference": "CWE-326,CWE-327"
         },
     "ID_badLength": {
@@ -3251,9 +3257,9 @@
     "ID_unsafeStringFunction": {
         "checkPoint": "禁用不安全的字符串函数",
         "level": "warning",
-        "comment": "由于历史原因，C 语言某些字符串函数不检查缓冲区长度，易造成运行时错误或安全漏洞。",
+        "comment": "由于历史原因，C 标准库中的某些字符串函数不执行边界检查，易造成运行时错误和安全漏洞。",
         "tag": "security",
-        "standard": "ISO/IEC 9899:2011 K.3.7",
+        "standard": "ISO/IEC 9899:2011 Annex K,ISO/IEC 9899:2011 K.3.7,ISO/IEC 9899:2011 K.3.9",
         "related": "ID_bufferOverflow",
         "reference": "CWE-119,CWE-120,CWE-676,MISRA C++ 2008 18-0-5"
         },
@@ -3263,7 +3269,7 @@
         "comment": "当字符串无法被正确转为数值时，stdlib.h 或 cstdlib 中的 atof、atoi、atol 以及 atoll 等函数会导致标准未定义的行为。",
         "tag": "expression",
         "standard": "ISO/IEC 9899:1999 7.20.1(1)-undefined,ISO/IEC 9899:2011 7.22.1(1)-undefined",
-        "reference": "CWE-190,MISRA C 2004 20.10,MISRA C 2012 21.7,MISRA C++ 2008 18-0-2"
+        "reference": "MISRA C 2004 20.10,MISRA C 2012 21.7,MISRA C++ 2008 18-0-2"
         },
     "ID_forbidLongjmp": {
         "checkPoint": "禁用 setjmp、longjmp",
@@ -3274,20 +3280,18 @@
         "reference": "C++ Core Guidelines SL.C.1,MISRA C 2004 20.7,MISRA C 2012 21.4,MISRA C++ 2008 17-0-5"
         },
     "ID_obsoleteFunction": {
-        "checkPoint": "不应使用已过时的函数",
+        "checkPoint": "不应使用已过时的接口",
         "level": "warning",
-        "comment": "某些函数存在缺陷或漏洞并已宣布过时，应使用更完善的替代方法。",
+        "comment": "某些库函数或系统 API 存在缺陷并已宣布过时，应改用更完善的替代方法。",
         "tag": "security",
-        "config": [ "详见说明" ],
         "reference": "CWE-477"
         },
     "ID_dangerousFunction": {
-        "checkPoint": "避免使用具有危险性的函数",
+        "checkPoint": "避免使用具有危险性的接口",
         "level": "warning",
-        "comment": "某些函数本身就具有危险性，使用这种函数相当于直接引入了风险。",
+        "comment": "某些库函数或系统 API 本身就具有危险性，使用这种接口相当于直接引入了风险。",
         "tag": "security",
-        "config": [ "详见说明" ],
-        "reference": "CWE-242,CWE-474,CWE-676"
+        "reference": "CWE-242,CWE-676"
         },
     "ID_implementationDefinedFunction": {
         "checkPoint": "避免使用由实现定义的库函数",
@@ -3295,7 +3299,7 @@
         "comment": "由实现定义的（implementation-defined）库函数会增加移植或兼容等方面的成本。",
         "tag": "expression",
         "standard": "ISO/IEC 9899:2011 7.14.1.1(3)-implementation,ISO/IEC 9899:2011 7.22.4.1(2)-implementation,ISO/IEC 9899:2011 7.22.4.4(5)-implementation,ISO/IEC 9899:2011 7.22.4.6(2)-implementation,ISO/IEC 9899:2011 7.22.4.8(3)-implementation,ISO/IEC 9899:2011 7.27.2.1(3)-implementation",
-        "reference": "MISRA C 2004 20.8,MISRA C 2004 20.11,MISRA C 2004 20.12,MISRA C 2012 21.5,MISRA C 2012 21.8,MISRA C 2012 21.10,MISRA C++ 2008 18-0-3,MISRA C++ 2008 18-0-4,MISRA C++ 2008 18-7-1"
+        "reference": "CWE-474,CWE-589,MISRA C 2004 20.8,MISRA C 2004 20.11,MISRA C 2004 20.12,MISRA C 2012 21.5,MISRA C 2012 21.8,MISRA C 2012 21.10,MISRA C++ 2008 18-0-3,MISRA C++ 2008 18-0-4,MISRA C++ 2008 18-7-1"
         },
     "ID_missingVoid": {
         "checkPoint": "C 代码中参数列表如果为空应声明为“(void)”",
