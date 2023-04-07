@@ -451,7 +451,7 @@
     - [R9.7.2 禁止 goto 语句向前跳转](#forbidgotoback)
     - [R9.7.3 禁用 goto 语句](#forbidgoto)
     - [R9.7.4 禁用 setjmp、longjmp](#forbidlongjmp)
-    - [R9.7.5 不应出现多余的跳转语句](#redundantjump)
+    - [R9.7.5 不应存在不受条件控制的跳转语句](#redundantjump)
     - [R9.7.6 避免使用跳转语句退出循环](#jumpoutloop)
 <br/>
 
@@ -1119,7 +1119,7 @@ gets、strcpy、strcat、wcscpy、wcscat、
 sprintf、vsprintf、swprintf、vswprintf、
 scanf、sscanf、fscanf、vfscanf、vscanf、vsscanf
 ```
-与这类函数相似的 API 同样受本规则约束，如：
+与这类函数相似的函数同样受本规则约束，如下列 Windows API：
 ```
 StrCpy、StrCpyA、StrCpyW、StrCat、StrCatA、StrCatW、
 lstrcpy、lstrcpyA、lstrcpyW、lstrcat、lstrcatA、lstrcatW
@@ -10611,7 +10611,7 @@ ID_illForwardingReference&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-不应混淆转发引用与右值引用，除作为 std::forward 的参数之外，不应对转发引用再有任何操作。  
+不应混淆“[转发引用（forwarding references）](https://en.cppreference.com/w/cpp/language/reference#Forwarding_references)”与右值引用，除作为 std::forward 的参数之外，不应对转发引用再有任何操作。  
   
 转发引用是类型为 T&& 的参数，T 为函数模板类型，无论左值还是右值均可被这种参数接受，而且 const、volatile 等属性也会被忽略，由于含有不确定的状态，所以直接操作转发引用是不妥的，只应通过 std::forward<T> 交由合适的接口处理。  
   
@@ -10628,6 +10628,11 @@ void bar(T&& x) {
 
 #### 相关
 ID_unsuitableForward  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2011 20.2.3(1)  
+ISO/IEC 14882:2017 23.2.5(1)  
 <br/>
 
 #### 参考
@@ -14596,32 +14601,33 @@ MISRA C++ 2008 17-0-5
 <br/>
 <br/>
 
-### <span id="redundantjump">▌R9.7.5 不应出现多余的跳转语句</span>
+### <span id="redundantjump">▌R9.7.5 不应存在不受条件控制的跳转语句</span>
 
 ID_redundantJump&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
 <hr/>
 
-无返回值函数的最后一条 return 语句、循环体的最后一条 continue 语句、goto 到下一条语句等是多余的，应当去除。  
+不受条件控制的跳转语句不改变程序的执行路径，往往意味着逻辑错误或功能未实现 。  
   
 示例：
 ```
 void foo() {
+    goto L;   // Non-compliant, unconditional
+    ....      // Dead code
+L:
     ....
-    return;   // Redundant
 }
 
 void bar() {
-    while (condition) {
-        ....
-        continue;    // Redundant
-    }
+    ....
+    return;   // Non-compliant, redundant
 }
 
 void baz() {
-    goto L;   // Redundant
-L:
-    ....
+    while (cond) {
+        ....
+        continue;   // Non-compliant, redundant
+    }
 }
 ```
 <br/>
