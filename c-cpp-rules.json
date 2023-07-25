@@ -931,16 +931,6 @@
         "standard": "ISO/IEC 9899:1999 6.7.2.1(16),ISO/IEC 9899:2011 6.7.2.1(18)",
         "reference": "MISRA C 2012 18.7"
         },
-    "ID_unsuitableArraySize": {
-        "checkPoint": "局部数组不应过大",
-        "level": "warning",
-        "comment": "局部数组在栈上分配空间，如果占用空间过大会导致栈溢出错误。",
-        "config": [
-            "maxLocalArraySize: 函数内局部数组空间之和的上限，超过则报出"
-            ],
-        "tag": "declaration",
-        "reference": "CWE-770,SEI CERT MEM05-C"
-        },
     "ID_improperBitfieldType": {
         "checkPoint": "对位域声明合理的类型",
         "level": "warning",
@@ -1652,12 +1642,31 @@
         "tag": "resource",
         "related": "ID_dynamicAllocation"
         },
+    "ID_variableLengthArray": {
+        "checkPoint": "避免使用变长数组",
+        "level": "warning",
+        "comment": "使用变长数组（variable length array）可以在栈上动态分配内存，但分配失败时的行为不受程序控制。",
+        "tag": "resource",
+        "related": "ID_stackAllocation",
+        "standard": "ISO/IEC 9899:1999 6.7.5.2(5),ISO/IEC 9899:2011 6.7.6.2(5)",
+        "reference": "MISRA C 2012 18.8"
+        },
     "ID_stackAllocation": {
         "checkPoint": "避免使用在栈上分配内存的函数",
         "level": "warning",
         "comment": "alloca、strdupa 等函数可以在栈上动态分配内存，但分配失败时的行为不受程序控制。",
         "tag": "resource",
-        "related": "ID_invalidNullCheck",
+        "related": "ID_variableLengthArray,ID_invalidNullCheck",
+        "reference": "CWE-770,SEI CERT MEM05-C"
+        },
+    "ID_unsuitableArraySize": {
+        "checkPoint": "局部数组不应过大",
+        "level": "warning",
+        "comment": "局部数组在栈上分配空间，如果占用空间过大会导致栈溢出错误。",
+        "config": [
+            "maxLocalArraySize: 函数内局部数组空间之和的上限，超过则报出"
+            ],
+        "tag": "resource",
         "reference": "CWE-770,SEI CERT MEM05-C"
         },
     "ID_forbidMallocAndFree": {
@@ -3793,5 +3802,5 @@
         "tag": "type",
         "related": "ID_nonPrivateData,ID_qualifierCastedAway",
         "reference": "MISRA C++ 2008 9-3-1"
-        }    
+        }
 }

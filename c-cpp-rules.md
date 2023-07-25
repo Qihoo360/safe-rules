@@ -4,7 +4,7 @@
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对 C、C++ 语言，本文收录了 468 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对 C、C++ 语言，本文收录了 469 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
@@ -116,11 +116,13 @@
   - [R2.15 非动态申请的资源不可被释放](#illdealloc)
   - [R2.16 在一个表达式语句中最多使用一次 new](#multiallocation)
   - [R2.17 流式资源对象不应被复制](#copiedstream)
-  - [R2.18 避免使用在栈上分配内存的函数](#stackallocation)
-  - [R2.19 避免不必要的内存分配](#unnecessaryallocation)
-  - [R2.20 避免动态内存分配](#dynamicallocation)
-  - [R2.21 判断资源分配函数的返回值是否有效](#nullderefallocret)
-  - [R2.22 C\+\+ 代码中禁用 C 内存管理函数](#forbidmallocandfree)
+  - [R2.18 避免使用变长数组](#variablelengtharray)
+  - [R2.19 避免使用在栈上分配内存的函数](#stackallocation)
+  - [R2.20 局部数组不应过大](#unsuitablearraysize)
+  - [R2.21 避免不必要的内存分配](#unnecessaryallocation)
+  - [R2.22 避免动态内存分配](#dynamicallocation)
+  - [R2.23 判断资源分配函数的返回值是否有效](#nullderefallocret)
+  - [R2.24 C\+\+ 代码中禁用 C 内存管理函数](#forbidmallocandfree)
 <br/>
 
 <span id="__precompile">**[3. Precompile](#precompile)**</span>
@@ -262,9 +264,8 @@
     - [R6.4.4 接口的参数类型和返回类型不应为 void\*](#forbidfunctionvoidptr)
     - [R6.4.5 类成员的类型不应为 void\*](#forbidmembervoidptr)
     - [R6.4.6 数组大小应被显式声明](#missingarraysize)
-    - [R6.4.7 局部数组不应过大](#unsuitablearraysize)
-    - [R6.4.8 不应将类型定义和对象声明写在一个语句中](#mixedtypeobjdefinition)
-    - [R6.4.9 不应将不同类别的声明写在一个语句中](#mixeddeclarations)
+    - [R6.4.7 不应将类型定义和对象声明写在一个语句中](#mixedtypeobjdefinition)
+    - [R6.4.8 不应将不同类别的声明写在一个语句中](#mixeddeclarations)
   - [6.5 Object](#declaration.object)
     - [R6.5.1 不应产生无效的临时对象](#inaccessibletmpobject)
     - [R6.5.2 不应存在没有被用到的局部声明](#invalidlocaldeclaration)
@@ -2288,7 +2289,55 @@ MISRA C 2012 22.5
 <br/>
 <br/>
 
-### <span id="stackallocation">▌R2.18 避免使用在栈上分配内存的函数</span>
+### <span id="variablelengtharray">▌R2.18 避免使用变长数组</span>
+
+ID_variableLengthArray&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
+
+<hr/>
+
+使用变长数组（Variable length array）可以在栈上动态分配内存，但分配失败时的行为不受程序控制。  
+  
+变长数组由 C99 标准提出，不在 C\+\+ 标准之内，在 C\+\+ 代码中不应使用。  
+  
+示例：
+```
+void foo(int n)
+{
+    int a[n];   // Non-compliant, a variable length array
+                // Undefined behavior if n <= 0
+    ....
+}
+```
+例中数组 a 的长度为变量，其内存空间在运行时动态分配，如果长度参数 n 不是合理的正整数会导致未定义的行为。  
+  
+另外，对于本应兼容的数组类型，如果长度不同也会导致未定义的行为，如：
+```
+void bar(int n)
+{
+    int a[5];
+    typedef int t[n];   // Non-compliant, a variable length array type
+    t* p = &a;          // Undefined behavior if n != 5
+    ....
+}
+```
+<br/>
+<br/>
+
+#### 相关
+ID_stackAllocation  
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.7.5.2(5)  
+ISO/IEC 9899:2011 6.7.6.2(5)  
+<br/>
+
+#### 参考
+MISRA C 2012 18.8  
+<br/>
+<br/>
+
+### <span id="stackallocation">▌R2.19 避免使用在栈上分配内存的函数</span>
 
 ID_stackAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -2313,6 +2362,7 @@ void fun(size_t n) {
 <br/>
 
 #### 相关
+ID_variableLengthArray  
 ID_invalidNullCheck  
 <br/>
 
@@ -2322,7 +2372,48 @@ SEI CERT MEM05-C
 <br/>
 <br/>
 
-### <span id="unnecessaryallocation">▌R2.19 避免不必要的内存分配</span>
+### <span id="unsuitablearraysize">▌R2.20 局部数组不应过大</span>
+
+ID_unsuitableArraySize&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
+
+<hr/>
+
+局部数组在栈上分配空间，如果占用空间过大会导致栈溢出错误。  
+  
+应关注具有较大数组的函数，评估其在运行时的最大资源消耗是否符合执行环境的要求。  
+  
+示例：
+```
+void foo() {
+    int arr[1024][1024][1024];   // Non-compliant, too large
+    ....
+}
+```
+在栈上分配空间难以控制失败情况，如果条件允许可改在堆上分配：
+```
+void foo() {
+    int* arr = (int*)malloc(1024 * 1024 * 1024 * sizeof(int));   // Compliant
+    if (arr) {
+        ....     // Normal procedure
+    } else {
+        ....     // Handle allocation failures
+    }
+}
+```
+<br/>
+<br/>
+
+#### 配置
+maxLocalArraySize：函数内局部数组空间之和的上限，超过则报出  
+<br/>
+
+#### 参考
+CWE-770  
+SEI CERT MEM05-C  
+<br/>
+<br/>
+
+### <span id="unnecessaryallocation">▌R2.21 避免不必要的内存分配</span>
 
 ID_unnecessaryAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -2361,7 +2452,7 @@ ID_dynamicAllocation
 <br/>
 <br/>
 
-### <span id="dynamicallocation">▌R2.20 避免动态内存分配</span>
+### <span id="dynamicallocation">▌R2.22 避免动态内存分配</span>
 
 ID_dynamicAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -2395,7 +2486,7 @@ MISRA C++ 2008 18-4-1
 <br/>
 <br/>
 
-### <span id="nullderefallocret">▌R2.21 判断资源分配函数的返回值是否有效</span>
+### <span id="nullderefallocret">▌R2.23 判断资源分配函数的返回值是否有效</span>
 
 ID_nullDerefAllocRet&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -2430,7 +2521,7 @@ CWE-476
 <br/>
 <br/>
 
-### <span id="forbidmallocandfree">▌R2.22 C++ 代码中禁用 C 内存管理函数</span>
+### <span id="forbidmallocandfree">▌R2.24 C++ 代码中禁用 C 内存管理函数</span>
 
 ID_forbidMallocAndFree&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: resource warning
 
@@ -7619,48 +7710,7 @@ MISRA C++ 2008 3-1-3
 <br/>
 <br/>
 
-### <span id="unsuitablearraysize">▌R6.4.7 局部数组不应过大</span>
-
-ID_unsuitableArraySize&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
-
-<hr/>
-
-局部数组在栈上分配空间，如果占用空间过大会导致栈溢出错误。  
-  
-应关注具有较大数组的函数，评估其在运行时的最大资源消耗是否符合执行环境的要求。  
-  
-示例：
-```
-void foo() {
-    int arr[1024][1024][1024];   // Non-compliant, too large
-    ....
-}
-```
-在栈上分配空间难以控制失败情况，如果条件允许可改在堆上分配：
-```
-void foo() {
-    int* arr = (int*)malloc(1024 * 1024 * 1024 * sizeof(int));   // Compliant
-    if (arr) {
-        ....     // Normal procedure
-    } else {
-        ....     // Handle allocation failures
-    }
-}
-```
-<br/>
-<br/>
-
-#### 配置
-maxLocalArraySize：函数内局部数组空间之和的上限，超过则报出  
-<br/>
-
-#### 参考
-CWE-770  
-SEI CERT MEM05-C  
-<br/>
-<br/>
-
-### <span id="mixedtypeobjdefinition">▌R6.4.8 不应将类型定义和对象声明写在一个语句中</span>
+### <span id="mixedtypeobjdefinition">▌R6.4.7 不应将类型定义和对象声明写在一个语句中</span>
 
 ID_mixedTypeObjDefinition&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -7692,7 +7742,7 @@ C++ Core Guidelines C.7
 <br/>
 <br/>
 
-### <span id="mixeddeclarations">▌R6.4.9 不应将不同类别的声明写在一个语句中</span>
+### <span id="mixeddeclarations">▌R6.4.8 不应将不同类别的声明写在一个语句中</span>
 
 ID_mixedDeclarations&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -14282,7 +14332,7 @@ void foo() noexcept {
         ....
     }
     catch (...) {
-        log_unexpected(__FILE__, __LINE__, "messages");   // Compliant
+        log(__FILE__, __LINE__, "messages");   // Compliant
     }
 }
 ```
@@ -15065,15 +15115,25 @@ sizeof、_Alignof、_Generic
 ```
 sizeof、typeid、noexcept、decltype、declval
 ```
-其中 typeid 较为特殊，当其子表达式是函数调用，且返回多态类型的引用时，也会执行函数。  
+这类运算符不宜作用于逻辑、算术、位运算、函数调用等子表达式。  
+  
+特殊情况：  
+ - 在 C 语言中，如果 sizeof 作用于变长数组类型，数组长度表达式会被求值。  
+ - 在 C\+\+ 语言中，如果 typeid 作用于返回多态类型的函数调用，该函数也会被执行。  
+  
+虽然在某些特殊情况下相关子表达式会被求值，但为了避免意料之外的错误，本规则要求这类运算符的子表达式在任何情况下均不可含有任何副作用。  
   
 示例：
 ```
 int a = 0;
-cout << sizeof(a++) << ' ';   // Non-compliant
-cout << a << '\n';            // What is output?
+
+int b = sizeof(a++);   // Non-compliant
+printf("%d ", a);
+
+int c = sizeof(int[a++]);   // Non-compliant, variable length array
+printf("%d\n", a);
 ```
-输出 4 0，a\+\+ 不会生效。
+输出 0 1，sizeof(a\+\+) 的副作用不生效，而 sizeof(int\[a\+\+\]) 的副作用会生效，这往往会使人困惑。
 <br/>
 <br/>
 
@@ -20902,7 +20962,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 468 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
+&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 469 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
 
 &emsp;&emsp;此致
 
