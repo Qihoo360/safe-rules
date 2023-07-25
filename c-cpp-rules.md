@@ -1,10 +1,10 @@
 <img src="logo.png" align="right"/>
 
-# C/C++ 安全规则集合 ![Version](https://img.shields.io/badge/version-1.3.1-brightgreen)
+# C/C++ 安全规则集合 ![Version](https://img.shields.io/badge/version-1.3.2-brightgreen)
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对 C、C++ 语言，本文收录了 467 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对 C、C++ 语言，本文收录了 468 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
@@ -262,7 +262,7 @@
     - [R6.4.4 接口的参数类型和返回类型不应为 void\*](#forbidfunctionvoidptr)
     - [R6.4.5 类成员的类型不应为 void\*](#forbidmembervoidptr)
     - [R6.4.6 数组大小应被显式声明](#missingarraysize)
-    - [R6.4.7 局部数组的长度不应过大](#unsuitablearraysize)
+    - [R6.4.7 局部数组不应过大](#unsuitablearraysize)
     - [R6.4.8 不应将类型定义和对象声明写在一个语句中](#mixedtypeobjdefinition)
     - [R6.4.9 不应将不同类别的声明写在一个语句中](#mixeddeclarations)
   - [6.5 Object](#declaration.object)
@@ -367,7 +367,7 @@
   - [R8.27 函数返回值不应为右值引用](#returnrvaluereference)
   - [R8.28 函数返回值不应为常量对象](#returnconstobject)
   - [R8.29 函数返回值不应为基本类型的常量](#returnsuperfluousconst)
-  - [R8.30 被返回的表达式应与函数的返回类型相符](#returnodd)
+  - [R8.30 被返回的表达式应与函数的返回类型一致](#returnodd)
   - [R8.31 被返回的表达式不应为相同的常量](#returnsameconst)
   - [R8.32 具有 noreturn 属性的函数不应返回](#unsuitablereturn)
   - [R8.33 具有 noreturn 属性的函数返回类型只应为 void](#unsuitablereturntype)
@@ -451,8 +451,9 @@
     - [R9.7.2 禁止 goto 语句向前跳转](#forbidgotoback)
     - [R9.7.3 禁用 goto 语句](#forbidgoto)
     - [R9.7.4 禁用 setjmp、longjmp](#forbidlongjmp)
-    - [R9.7.5 不应存在不受条件控制的跳转语句](#redundantjump)
-    - [R9.7.6 避免使用跳转语句退出循环](#jumpoutloop)
+    - [R9.7.5 不应存在不受条件控制的跳转语句](#uncondjump)
+    - [R9.7.6 不应存在不改变程序流程的跳转语句](#redundantjump)
+    - [R9.7.7 避免使用跳转语句退出循环](#jumpoutloop)
 <br/>
 
 <span id="__expression">**[10. Expression](#expression)**</span>
@@ -535,11 +536,11 @@
   - [R11.2 字符常量中不可存在应转义而未转义的字符](#literal_hardcodechar)
   - [R11.3 字符串常量中不可存在应转义而未转义的字符](#literal_hardcodestring)
   - [R11.4 不应使用非标准转义字符](#literal_nonstandardesc)
-  - [R11.5 不同前缀的字符串常量不应连接在一起](#literal_hybridconcat)
+  - [R11.5 不应连接不同前缀的字符串常量](#literal_hybridconcat)
   - [R11.6 字符串常量中不应存在拼写错误](#literal_misspelling)
-  - [R11.7 整数或浮点数常量的后缀应使用大写字母](#literal_confusingsuffix)
+  - [R11.7 常量后缀由应由大写字母组成](#literal_confusingsuffix)
   - [R11.8 禁用 8 进制常量](#literal_forbidoct)
-  - [R11.9 整数或浮点数常量应使用标准后缀](#literal_nonstandardsuffix)
+  - [R11.9 不应使用非标准常量后缀](#literal_nonstandardsuffix)
   - [R11.10 小心遗漏逗号导致的非预期字符串连接](#literal_oddconcat)
   - [R11.11 不应存在 magic number](#literal_magicnumber)
   - [R11.12 不应存在 magic string](#literal_magicstring)
@@ -1897,20 +1898,37 @@ ID_useAfterMove&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
   
 示例：
 ```
-void foo(string& a, string& b)
-{
-    a = move(b);
+#include <vector>
 
-    cout << a << '\n';   // OK
-    cout << b << '\n';   // Non-compliant
+using V = std::vector<int>;
+
+void foo(V& a, V& b)
+{
+    a = std::move(b);   // After moving, the state of ‘b’ is unspecified
+    b.push_back(0);     // Non-compliant
 }
 ```
-例中 b 对象的数据被转移到 a 对象后，b 对象不再有效，如果要继续使用 b，应清空其数据或对其重新赋值。
+例中容器 b 的数据被移动到容器 a，可能是通过交换的方法实现的，也可能是通过其他方法实现的，标准容器被移动后的状态在 C\+\+ 标准中是未声明的，程序不应依赖未声明的状态。  
+  
+应改为：
+```
+void foo(V& a, V& b)
+{
+    a = std::move(b);
+    b.clear();          // Clear
+    b.push_back(0);     // Compliant
+}
+```
 <br/>
 <br/>
 
 #### 相关
 ID_unsuitableMove  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2011 17.6.5.15(1)-unspecified  
+ISO/IEC 14882:2017 20.5.5.15(1)-unspecified  
 <br/>
 
 #### 参考
@@ -2276,19 +2294,21 @@ ID_stackAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
 <hr/>
 
-alloca、\_\_builtin\_alloca 等在栈上分配内存的函数难以控制失败时的情况，尤其在循环中更不应使用这种函数。  
+alloca、strdupa 等函数可以在栈上动态分配内存，但分配失败时的行为不受程序控制。  
   
 示例：
 ```
-void fun(size_t size) {
-    int* p = (int*)alloca(size);  // Non-compliant
+#include <alloca.h>
+
+void fun(size_t n) {
+    int* p = (int*)alloca(n * sizeof(int));  // Non-compliant
     if (!p) {
         return;  // Invalid
     }
     ....
 }
 ```
-例中 alloca 函数在失败时会直接崩溃，不会返回空指针，对其返回值的检查是无效的，这种后果不可控的函数应避免使用。
+例中 alloca 函数在失败时往往会使程序崩溃，对其返回值的检查是无效的。这种后果不可控的函数应避免使用，尤其在循环和递归调用过程中更不应使用这种函数。
 <br/>
 <br/>
 
@@ -2977,15 +2997,15 @@ ID_macro_complexConcat&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 <hr/>
 
-\# 和 \#\# 运算符的优先级在标准中是未声明的，在有可移植性要求的代码中不应嵌套使用。  
+\# 和 \#\# 运算符的求值顺序在标准中是未声明的，不应嵌套使用。  
   
 示例：
 ```
-#define M0(a, b) # a ## b          // Non-compliant
-#define M1(a, b, c) a ## #b ## c   // Non-compliant
+#define M0(a, b) #a ## b          // Non-compliant
+#define M1(a, b, c) a ## b ## c   // Non-compliant
 
-#define M2(a) #a                   // Compliant
-#define M3(a, b) M1(a ## b)        // Compliant
+#define M2(a) #a                  // Compliant
+#define M3(a, b) M2(a ## b)       // Compliant
 ```
 <br/>
 <br/>
@@ -3822,6 +3842,10 @@ void foo() {
 <br/>
 <br/>
 
+#### 配置
+specialCommentPatterns：特殊注释的模式字符串（如正则表达式等），供审计工具查找  
+<br/>
+
 #### 参考
 CWE-546  
 <br/>
@@ -3981,6 +4005,10 @@ const char* s = "\u4e2d";   // Compliant
 #### 依据
 ISO/IEC 14882:2003 2.1(1)-undefined  
 ISO/IEC 14882:2011 2.2(1)-undefined  
+<br/>
+
+#### 参考
+MISRA C 2012 3.2  
 <br/>
 <br/>
 
@@ -4904,6 +4932,7 @@ void bar(A* a) {
 
 #### 依据
 ISO/IEC 14882:2003 5.2.9(5 8)-undefined  
+ISO/IEC 14882:2003 10.1(4 5 6)  
 ISO/IEC 14882:2011 5.2.9(11 12)-undefined  
 ISO/IEC 14882:2011 10.1(4 5 6 7)  
 <br/>
@@ -5688,6 +5717,7 @@ Fruit favorite () {
 
 #### 参考
 C++ Core Guidelines Enum.8  
+MISRA C 2012 8.12  
 <br/>
 <br/>
 
@@ -7412,6 +7442,7 @@ ISO/IEC 14882:2011 5.2.2(7)-implementation
 C++ Core Guidelines ES.34  
 C++ Core Guidelines F.55  
 MISRA C 2004 16.1  
+MISRA C 2012 17.1  
 MISRA C++ 2008 8-4-1  
 <br/>
 <br/>
@@ -7588,22 +7619,24 @@ MISRA C++ 2008 3-1-3
 <br/>
 <br/>
 
-### <span id="unsuitablearraysize">▌R6.4.7 局部数组的长度不应过大</span>
+### <span id="unsuitablearraysize">▌R6.4.7 局部数组不应过大</span>
 
 ID_unsuitableArraySize&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-局部数组的长度过大增加函数堆栈的压力，易导致溢出错误。  
+局部数组在栈上分配空间，如果占用空间过大会导致栈溢出错误。  
+  
+应关注具有较大数组的函数，评估其在运行时的最大资源消耗是否符合执行环境的要求。  
   
 示例：
 ```
 void foo() {
-    int arr[1024 * 1024 * 1024];   // Non-compliant, too large
+    int arr[1024][1024][1024];   // Non-compliant, too large
     ....
 }
 ```
-局部数组在栈上分配空间，无法控制失败情况，大型数组应在堆上分配，或优化算法降低空间成本：
+在栈上分配空间难以控制失败情况，如果条件允许可改在堆上分配：
 ```
 void foo() {
     int* arr = (int*)malloc(1024 * 1024 * 1024 * sizeof(int));   // Compliant
@@ -7614,12 +7647,11 @@ void foo() {
     }
 }
 ```
-量化评估程序需要的堆栈空间是产品设计的重要环节，相关的评审与测试也需要落实。
 <br/>
 <br/>
 
 #### 配置
-maxLocalArraySize：局部数组的长度上限，超过则报出  
+maxLocalArraySize：函数内局部数组空间之和的上限，超过则报出  
 <br/>
 
 #### 参考
@@ -8826,6 +8858,7 @@ int main() {
 <br/>
 
 #### 参考
+MISRA C 2012 6.2  
 MISRA C++ 2008 9-6-4  
 <br/>
 <br/>
@@ -9510,6 +9543,7 @@ ID_throwInSwap
 <br/>
 
 #### 参考
+SEI CERT ERR56-CPP  
 Effective C++ item 29  
 <br/>
 <br/>
@@ -10019,6 +10053,7 @@ ID_throwPointer
 C++ Core Guidelines E.15  
 C++ Core Guidelines ES.63  
 MISRA C++ 2008 15-3-5  
+SEI CERT ERR61-CPP  
 <br/>
 <br/>
 
@@ -10098,14 +10133,14 @@ ID_improperRethrow&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
   
 示例：
 ```
-class EBase {};
-class EDerive: public EBase {};
+class Base {};
+class Derive: public Base {};
 
 void foo() {
     try {
-        throw EDerive();
+        throw Derive();
     }
-    catch (EBase& e) {
+    catch (Base& e) {
         throw e;         // Non-compliant, use ‘throw;’ instead
     }
 }
@@ -10114,12 +10149,12 @@ void bar() {
     try {
         foo();
     }
-    catch (EDerive& e) {
-        ....               // Cannot catch EDerive
+    catch (Derive& e) {
+        ....               // Cannot catch Derive
     }
 }
 ```
-注意，例中 foo 函数虽然捕获的是 EDerive 对象，但 throw e; 抛出的是 EBase 对象，这也是一种“[对象切片](https://en.wikipedia.org/wiki/Object_slicing)”问题，造成了对象类型的“精度损失”。将 throw e; 改为 throw; 可解决这种问题。
+注意，例中 foo 函数虽然捕获的是 Derive 对象，但 throw e; 抛出的是 Base 对象，这也是一种“[对象切片](https://en.wikipedia.org/wiki/Object_slicing)”问题，造成了对象类型的“精度损失”。将 throw e; 改为 throw; 可解决这种问题。
 <br/>
 <br/>
 
@@ -10826,6 +10861,7 @@ ISO/IEC 14882:2011 15.3(10)-undefined
 
 #### 参考
 MISRA C++ 2008 15-3-3  
+SEI CERT ERR53-CPP  
 <br/>
 <br/>
 
@@ -11296,16 +11332,13 @@ ID_unreachableCode&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
 得不到执行机会的代码是没有意义的，往往意味着逻辑错误。  
   
-这种代码的成因主要有：  
-1. 所在函数无法被调用  
-2. 之前的所有分枝都提前结束了函数的执行  
-3. 之前的必经分枝中存在不会结束执行的代码  
-4. 所在分枝的条件恒为假  
-5. 所在分枝被其他分枝遮盖  
-  
-第 1 点特化为：ID\_staticNotUsed、ID\_privateNotUsed  
-第 4 点特化为：ID\_constLogicExpression、ID\_invalidCondition、ID\_switch\_caseOutOfRange  
-第 5 点特化为：ID\_if\_identicalCondition、ID\_if\_hiddenCondition  
+这种代码的主要成因如下，括号内为特化规则：  
+ - 所在函数无法被调用（ID\_staticNotUsed、ID\_privateNotUsed）  
+ - 之前的所有分枝都提前结束了程序的执行  
+ - 之前的必经分枝中存在不会结束执行的代码  
+ - 所在分枝的条件恒为假（ID\_constLogicExpression、ID\_invalidCondition、ID\_switch\_caseOutOfRange）  
+ - 所在分枝被其他分枝遮盖（ID\_if\_identicalCondition、ID\_if\_hiddenCondition）  
+ - 流程被不受条件控制的跳转语句跨过（ID\_uncondJump）  
   
 示例：
 ```
@@ -11319,9 +11352,6 @@ int fun() {
 }
 ```
 例中 statements 之前的所有分枝都会结束函数的执行，所以 statements 不会被执行。  
-  
-例外：  
-在多分枝结构的末尾，统一安置一条结束函数执行的语句是一种好的编程习惯，即当 statements 只包含一条 return 或 throw 语句时可以不算作违规。  
   
 另外，在正式代码中不应存在如下形式的代码：
 ```
@@ -11343,6 +11373,7 @@ ID_invalidCondition
 ID_switch_caseOutOfRange  
 ID_if_identicalCondition  
 ID_if_hiddenCondition  
+ID_uncondJump  
 <br/>
 
 #### 参考
@@ -11721,12 +11752,14 @@ ISO/IEC 14882:2011 3.10(1)
 <br/>
 <br/>
 
-### <span id="returnodd">▌R8.30 被返回的表达式应与函数的返回类型相符</span>
+### <span id="returnodd">▌R8.30 被返回的表达式应与函数的返回类型一致</span>
 
 ID_returnOdd&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
+为了提高可读性并规避意料之外的错误，应避免隐式转换被返回的表达式。  
+  
 不应出现下列情况：  
  - 返回类型为 bool，却返回了非 true 非 false、非 0 非 1 的常量  
  - 返回类型为指针，却返回了非 0、非 NULL、非 nullptr 的常量  
@@ -13024,6 +13057,7 @@ for (....) {
 <br/>
 
 #### 相关
+ID_uncondJump  
 ID_while_uncondBroken  
 <br/>
 
@@ -13341,6 +13375,7 @@ while (condition) {
 <br/>
 
 #### 相关
+ID_uncondJump  
 ID_for_uncondBroken  
 <br/>
 
@@ -13677,6 +13712,7 @@ switch (v) {}  // Non-compliant
 
 #### 参考
 CWE-1071  
+MISRA C++ 2008 6-4-8  
 <br/>
 <br/>
 
@@ -13788,6 +13824,7 @@ ID_forbidGotoBlocks
 
 #### 参考
 MISRA C 2004 15.1  
+MISRA C 2012 16.2  
 MISRA C++ 2008 6-4-4  
 <br/>
 <br/>
@@ -13954,6 +13991,7 @@ default:
 
 #### 参考
 MISRA C 2012 16.6  
+MISRA C++ 2008 6-4-8  
 <br/>
 <br/>
 
@@ -14052,6 +14090,7 @@ ID_if_missingEndingElse
 
 #### 参考
 CWE-478  
+MISRA C 2012 16.4  
 MISRA C++ 2008 6-4-6  
 <br/>
 <br/>
@@ -14300,7 +14339,7 @@ ID_try_disorderedEllipsis&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: control error
 ```
 try {
     ....
-} catch (...) {  // Catch-all handler, non-compliant
+} catch (...) {  // Non-compliant, disordered catch-all handler
     ....
 } catch (const E&) {
     ....
@@ -14598,22 +14637,54 @@ C++ Core Guidelines SL.C.1
 MISRA C 2004 20.7  
 MISRA C 2012 21.4  
 MISRA C++ 2008 17-0-5  
+SEI CERT ERR52-CPP  
 <br/>
 <br/>
 
-### <span id="redundantjump">▌R9.7.5 不应存在不受条件控制的跳转语句</span>
+### <span id="uncondjump">▌R9.7.5 不应存在不受条件控制的跳转语句</span>
+
+ID_uncondJump&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
+
+<hr/>
+
+不受条件控制的跳转语句会剥夺其后续代码的执行机会，往往意味着逻辑错误，也可能是调试或维护痕迹。  
+  
+本规则是 ID\_unreachableCode 的特化。  
+  
+示例：
+```
+void foo() {
+    if (cond) {
+        goto L;   // Non-compliant, unconditional goto
+        bar();    // Unreachable code    
+    }
+L:
+    ....
+}
+```
+例中 goto 语句相对其同一作用域中的后续代码 bar(); 是不受条件控制的，bar 函数得不到执行机会。
+<br/>
+<br/>
+
+#### 相关
+ID_unreachableCode  
+<br/>
+<br/>
+
+### <span id="redundantjump">▌R9.7.6 不应存在不改变程序流程的跳转语句</span>
 
 ID_redundantJump&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
 <hr/>
 
-不受条件控制的跳转语句不改变程序的执行路径，往往意味着逻辑错误或功能未实现 。  
+不改变程序流程的跳转语句是多余的，往往意味着逻辑错误，也可能是调试或维护痕迹。  
+  
+goto、return、break、continue 等跳转语句均受本规则约束。  
   
 示例：
 ```
 void foo() {
-    goto L;   // Non-compliant, unconditional
-    ....      // Dead code
+    goto L;   // Non-compliant, redundant
 L:
     ....
 }
@@ -14634,7 +14705,7 @@ void baz() {
 <br/>
 <br/>
 
-### <span id="jumpoutloop">▌R9.7.6 避免使用跳转语句退出循环</span>
+### <span id="jumpoutloop">▌R9.7.7 避免使用跳转语句退出循环</span>
 
 ID_jumpOutLoop&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
 
@@ -15266,6 +15337,7 @@ ISO/IEC 14882:2011 5.9(2)-unspecified
 #### 参考
 C++ Core Guidelines ES.62  
 MISRA C 2004 17.3  
+MISRA C 2012 18.3  
 MISRA C++ 2008 5-0-16  
 MISRA C++ 2008 5-0-17  
 MISRA C++ 2008 5-0-18  
@@ -15753,6 +15825,7 @@ ISO/IEC 14882:2017 8.8(1)-undefined
 <br/>
 
 #### 参考
+MISRA C 2012 12.2  
 MISRA C++ 2008 5-8-1  
 <br/>
 <br/>
@@ -17494,13 +17567,13 @@ MISRA C++ 2008 2-13-1
 <br/>
 <br/>
 
-### <span id="literal_hybridconcat">▌R11.5 不同前缀的字符串常量不应连接在一起</span>
+### <span id="literal_hybridconcat">▌R11.5 不应连接不同前缀的字符串常量</span>
 
 ID_literal_hybridConcat&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: literal warning
 
 <hr/>
 
-不同前缀的字符串常量连接在一起会导致标准未定义或由实现定义的行为。  
+连接不同前缀的字符串常量会导致标准未定义或由实现定义的行为。  
   
 示例：
 ```
@@ -17573,18 +17646,18 @@ ID_misspelling
 <br/>
 <br/>
 
-### <span id="literal_confusingsuffix">▌R11.7 整数或浮点数常量的后缀应使用大写字母</span>
+### <span id="literal_confusingsuffix">▌R11.7 常量后缀由应由大写字母组成</span>
 
 ID_literal_confusingSuffix&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: literal warning
 
 <hr/>
 
-整数或浮点数常量的后缀应使用大写字母，否则小写字母“l”极易与数字“1”混淆。  
+小写字母“l”极易与数字“1”混淆，为了提高可读性，常量后缀均应由大写字母组成。  
   
 示例：
 ```
-long long a = 100ll;    // Non-compliant, misread as 10011
-long double b = 100.l;  // Non-compliant, misread as 100.1
+long long a = 100ll;    // Non-compliant, may be misread as 10011
+long double b = 100.l;  // Non-compliant, may be misread as 100.1
 ```
 应改为：
 ```
@@ -17604,6 +17677,10 @@ long long c = 100LL;            // Compliant
 unsigned long long d = 100LLU;  // Compliant
 ```
 <br/>
+<br/>
+
+#### 配置
+allSuffixCharMustBeUpperCase：要求后缀中所有字符均为大写，或只要求小写字符“l”不得用于后缀  
 <br/>
 
 #### 参考
@@ -17639,19 +17716,23 @@ MISRA C++ 2008 2-13-2
 <br/>
 <br/>
 
-### <span id="literal_nonstandardsuffix">▌R11.9 整数或浮点数常量应使用标准后缀</span>
+### <span id="literal_nonstandardsuffix">▌R11.9 不应使用非标准常量后缀</span>
 
 ID_literal_nonStandardSuffix&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: literal suggestion
 
 <hr/>
 
-整数常量后缀只应为 L、LL、UL、ULL，浮点数常量的后缀只应为 L、f 或 F，其他非标准后缀没有可移植性。  
+整数常量后缀应为 L、LL、UL、ULL，浮点数常量的后缀应为 L、f 或 F，非标准后缀不具备可移植性。  
+  
+在 C\+\+ 代码中，用户自定义后缀不受本规则限制。  
   
 示例：
 ```
 unsigned int a = 100ui32;  // Non-compliant, not common between compilers
 long long b = 100i64;      // Non-compliant
 ```
+例中 ui32、i64 为 MSVC 编译器特有的后缀。  
+  
 应改为：
 ```
 unsigned int a = 100U;  // Compliant
@@ -17939,6 +18020,10 @@ ISO/IEC 14882:2011 4.9(1 2)-undefined
 
 #### 参考
 C++ Core Guidelines ES.46  
+MISRA C 2012 10.3  
+MISRA C 2012 10.5  
+MISRA C++ 2008 5-0-5  
+MISRA C++ 2008 5-0-6  
 SEI CERT FLP34-C  
 <br/>
 <br/>
@@ -17978,6 +18063,7 @@ ISO/IEC 14882:2011 5.2.10(7)-unspecified
 
 #### 参考
 MISRA C 2012 11.5  
+MISRA C 2012 11.6  
 MISRA C++ 2008 5-2-8  
 <br/>
 <br/>
@@ -19357,6 +19443,7 @@ ISO/IEC 14882:2011 4.10(1)
 
 #### 参考
 C++ Core Guidelines ES.47  
+MISRA C 2012 11.9  
 MISRA C++ 2008 4-10-2  
 <br/>
 <br/>
@@ -19911,6 +19998,7 @@ ISO/IEC 9899:2011 7.14.1.1(7)-undefined
 
 #### 参考
 MISRA C 2012 21.5  
+MISRA C++ 2008 18-7-1  
 SEI CERT SIG01-C  
 SEI CERT SIG34-C  
 <br/>
@@ -20815,7 +20903,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 467 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
+&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 468 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
 
 &emsp;&emsp;此致
 
