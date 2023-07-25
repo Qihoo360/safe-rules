@@ -9615,7 +9615,7 @@ ID_catch_generic&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
 <hr/>
 
-捕获过于宽泛的异常会使异常处理失去针对性，而且很可能会将本不应处理的异常一并捕获，造成混乱。  
+捕获过于宽泛的异常，如 std::exception、std::logic\_error、std::runtime\_error 等，会使异常处理失去针对性，而且很可能会将本不应处理的异常一并捕获，造成混乱。  
   
 相关讨论详见 ID\_throwGenericException。  
   
@@ -10172,7 +10172,7 @@ ID_rethrowOutOfCatch&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
 空 throw 表达式用于重新抛出当前捕获的异常，用在 catch handler 外是危险的，增大了流程控制的复杂性。  
   
-如果当前没有捕获异常的话，空 throw 表达式会引发 std::terminate 函数的执行，这种情况下是否清理调用栈之间的对象则是由实现定义的。  
+如果没有异常被捕获，空 throw 表达式会引发 std::terminate 函数的执行，导致进程异常退出。  
   
 示例：
 ```
@@ -14269,8 +14269,8 @@ void foo() {
     try {
         ....
     }
-    catch (...)   // Non-compliant, very bad
-    {}
+    catch (...)
+    {}            // Non-compliant, empty catch handler
 }
 ```
 这样做并不能真正提高程序的稳定性，相当于逃避了问题，而且掩盖没有被处理的异常也可能会影响到其他方面的正常运行。  
@@ -14282,7 +14282,7 @@ void foo() noexcept {
         ....
     }
     catch (...) {
-        log_unexpected_and_exit(__FILE__, __LINE__, "messages");   // Compliant
+        log_unexpected(__FILE__, __LINE__, "messages");   // Compliant
     }
 }
 ```
@@ -17731,9 +17731,7 @@ ID_literal_nonStandardSuffix&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: literal suggest
 unsigned int a = 100ui32;  // Non-compliant, not common between compilers
 long long b = 100i64;      // Non-compliant
 ```
-例中 ui32、i64 为 MSVC 编译器特有的后缀。  
-  
-应改为：
+例中 ui32、i64 为 MSVC 编译器特有的后缀，应改为：
 ```
 unsigned int a = 100U;  // Compliant
 long long b = 100LL;    // Compliant
@@ -17767,6 +17765,12 @@ ID_literal_oddConcat&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: literal warning
 
 注意可能导致非预期结果的字符串连接，尤其在初始化列表中，小心逗号被遗漏。  
   
+字符串连接的适用场景：  
+ - 字符串过长不便于显示时可将字符串拆成多个子串分行书写  
+ - 宏和字符串连接在一起完成一些更灵活的操作  
+  
+除此之外不应将一个字符串拆成多个子串。  
+  
 示例：
 ```
 string strs[] = {
@@ -17786,11 +17790,6 @@ void bar() {
     foo("abc" "123");  // Rather suspicious, which ‘foo’ is right?
 }
 ```
-常量字符串连接的用途：  
- - 字符串过长不便于显示时可将字符串拆成多个子串分行书写  
- - 宏和字符串连接在一起完成一些更灵活的操作  
-  
-除此之外不应再将一个字符串拆成多个常量。
 <br/>
 <br/>
 <br/>

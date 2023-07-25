@@ -507,7 +507,7 @@
     "ID_catch_generic": {
         "checkPoint": "不应捕获过于宽泛的异常",
         "level": "warning",
-        "comment": "捕获过于宽泛的异常会使异常处理失去针对性，而且很可能会将本不应处理的异常一并捕获，造成混乱。",
+        "comment": "捕获过于宽泛的异常，如 std::exception、std::logic_error、std::runtime_error 等，会使异常处理失去针对性，而且很可能会将本不应处理的异常一并捕获，造成混乱。",
         "tag": "exception",
         "related": "ID_throwGenericException",
         "reference": "CWE-396"
