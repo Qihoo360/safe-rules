@@ -459,14 +459,14 @@
 
 <span id="__expression">**[10. Expression](#expression)**</span>
   - [10.1 Logic](#expression.logic)
-    - [R10.1.1 不应出现不合逻辑的重复子表达式](#illidentical)
-    - [R10.1.2 各逻辑子表达式不应自相矛盾](#conflictcondition)
-    - [R10.1.3 条件表达式不应恒为真或恒为假](#invalidcondition)
-    - [R10.1.4 不应使用多余的逻辑子表达式](#redundantcondition)
-    - [R10.1.5 逻辑表达式及其子表达式的结果不应为常量](#constlogicexpression)
+    - [R10.1.1 不应存在无意义的重复子表达式](#illidentical)
+    - [R10.1.2 逻辑子表达式之间不应存在矛盾](#conflictcondition)
+    - [R10.1.3 作为条件的逻辑表达式不应恒为真或恒为假](#invalidcondition)
+    - [R10.1.4 不应存在多余的逻辑子表达式](#redundantcondition)
+    - [R10.1.5 逻辑表达式及逻辑子表达式不应为常量](#constlogicexpression)
     - [R10.1.6 逻辑表达式的右子表达式不应有副作用](#shortcircuitsideeffect)
-    - [R10.1.7 逻辑表达式应保持简洁明了](#simplifiablecondition)
-    - [R10.1.8 可化简为逻辑表达式的三元表达式应尽量化简](#simplifiableternary)
+    - [R10.1.7 化简可被合并的逻辑子表达式](#simplifiablecondition)
+    - [R10.1.8 化简可转换为逻辑表达式的三元表达式](#simplifiableternary)
   - [10.2 Evaluation](#expression.evaluation)
     - [R10.2.1 不可依赖不会生效的副作用](#unevaluatedsideeffect)
     - [R10.2.2 避免依赖特定的子表达式求值顺序](#evaluationorderreliance)
@@ -534,8 +534,8 @@
 
 <span id="__literal">**[11. Literal](#literal)**</span>
   - [R11.1 注意可疑的字符常量](#literal_suspiciouschar)
-  - [R11.2 字符常量中不可存在应转义而未转义的字符](#literal_hardcodechar)
-  - [R11.3 字符串常量中不可存在应转义而未转义的字符](#literal_hardcodestring)
+  - [R11.2 在字符常量中用转义字符表示制表符和控制字符](#literal_hardcodechar)
+  - [R11.3 在字符串常量中用转义字符表示制表符和控制字符](#literal_hardcodestring)
   - [R11.4 不应使用非标准转义字符](#literal_nonstandardesc)
   - [R11.5 不应连接不同前缀的字符串常量](#literal_hybridconcat)
   - [R11.6 字符串常量中不应存在拼写错误](#literal_misspelling)
@@ -2295,7 +2295,7 @@ ID_variableLengthArray&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource war
 
 <hr/>
 
-使用变长数组（Variable length array）可以在栈上动态分配内存，但分配失败时的行为不受程序控制。  
+使用变长数组（variable length array）可以在栈上动态分配内存，但分配失败时的行为不受程序控制。  
   
 变长数组由 C99 标准提出，不在 C\+\+ 标准之内，在 C\+\+ 代码中不应使用。  
   
@@ -14765,7 +14765,7 @@ ID_jumpOutLoop&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
   
 示例：
 ```
-while (loop_cond) {
+while (cond) {
     if (x) {
         if (y) {
             break;   // Bad
@@ -14796,39 +14796,43 @@ MISRA C++ 2008 6-6-4
 
 ### <span id="expression.logic">10.1 Logic</span>
 
-### <span id="illidentical">▌R10.1.1 不应出现不合逻辑的重复子表达式</span>
+### <span id="illidentical">▌R10.1.1 不应存在无意义的重复子表达式</span>
 
 ID_illIdentical&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
 <hr/>
 
-逻辑与、逻辑或、按位与、按位或的子表达式以及三元表达式的两个分枝不应重复，否则失去逻辑意义。  
+逻辑与、逻辑或、按位与、按位或的子表达式以及三元表达式的两个分枝不应重复，否则相关运算会失去意义。  
   
 示例：
 ```
-bool foo(int* p, char* s) {
-    return p != NULL && p != NULL;  // Non-compliant
+void foo(int* p, int* q) {
+    if (p != NULL && p != NULL) {   // Non-compliant
+        ....
+    }
 }
 
-long bar() {
-    return FLAG0 | FLAG1 | FLAG0;   // Non-compliant
+void bar() {
+    while (FLAG0 | FLAG1 | FLAG0) {   // Non-compliant
+        ....
+    }
 }
 
-char baz(bool cond) {
-    return cond? 'a': 'a';          // Non-compliant
+char baz(bool x) {
+    return x? 'a': 'a';   // Non-compliant
 }
 ```
-例中重复的子表达式都是有问题的，这是一种很常见的错误。  
-  
-这种错误往往由复制粘贴引起，所以修正时不要只是删去重复的子表达式，要考虑是否有某些项被漏掉。  
+例中重复的子表达式都是有问题的，这是很常见的错误，多由复制粘贴引起。修正时不应只删去重复项，要考虑是否漏掉了某些项。  
   
 例外：
 ```
-if (fin.get() == 'a' && fin.get() == 'a') {   // Let it go
-    ....
+void qux(ifstream& f) {
+    if (f.get() == 'a' && f.get() == 'a') {   // Let it go
+        ....
+    }
 }
 ```
-重复的子表达式有一定副作用时可不受本规则限制，但不值得提倡。例中逻辑表达式从文件流中读取相邻的字符，第二个子表达式可能不会被执行，这种代码即使没有逻辑错误也是不利于维护的，参见 ID\_shortCircuitSideEffect。
+具有副作用的重复子表达式可不受本规则限制。例中重复的子表达式可以改变文件流的状态，但第二个子表达式可能不会被执行，这种代码即使没有逻辑错误也是不便于维护的，参见 ID\_shortCircuitSideEffect。
 <br/>
 <br/>
 
@@ -14837,13 +14841,13 @@ CWE-682
 <br/>
 <br/>
 
-### <span id="conflictcondition">▌R10.1.2 各逻辑子表达式不应自相矛盾</span>
+### <span id="conflictcondition">▌R10.1.2 逻辑子表达式之间不应存在矛盾</span>
 
 ID_conflictCondition&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
 <hr/>
 
-在逻辑表达式中，相互矛盾的子表达式会使整个表达式的结果恒为真或恒为假，造成条件失效。  
+相互矛盾的逻辑子表达式会使整个表达式的结果恒为真或恒为假。  
   
 1. 判断同一变量同时等于不同的值是无效的：
 ```
@@ -14857,7 +14861,6 @@ a >= -128 || a <= 127  // always true
 ```
 3. 如下逻辑判断也是无效的：
 ```
-a > b && a < b    // always false
 a > b && a <= b   // always false
 a > b || a <= b   // always true
 a == b && a != b  // always false
@@ -14867,13 +14870,18 @@ a == b || a != b  // always true
 <br/>
 <br/>
 
+#### 相关
+ID_redundantCondition  
+ID_simplifiableCondition  
+<br/>
+
 #### 参考
 CWE-570  
 CWE-571  
 <br/>
 <br/>
 
-### <span id="invalidcondition">▌R10.1.3 条件表达式不应恒为真或恒为假</span>
+### <span id="invalidcondition">▌R10.1.3 作为条件的逻辑表达式不应恒为真或恒为假</span>
 
 ID_invalidCondition&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -14892,7 +14900,7 @@ void foo() {
     }
 }
 ```
-例中变量 i 初始化为 1 后在没有被修改过的情况下，仍对其进行判断是没有意义的，else 分枝的代码得不到执行机会，显然是逻辑错误。
+例中变量 i 初始化为 1 后在没有被修改过的情况下，仍对其进行判断是没有意义的，else 分枝的代码得不到执行机会。
 <br/>
 <br/>
 
@@ -14909,7 +14917,7 @@ MISRA C++ 2008 0-1-2
 <br/>
 <br/>
 
-### <span id="redundantcondition">▌R10.1.4 不应使用多余的逻辑子表达式</span>
+### <span id="redundantcondition">▌R10.1.4 不应存在多余的逻辑子表达式</span>
 
 ID_redundantCondition&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -14924,18 +14932,23 @@ a < b || a != b     // None-compliant, a < b is redundant
 a >= b && a == b    // None-compliant, a >= b is redundant
 a == b || a <= b    // None-compliant, a == b is redundant
 ```
-这种多余的子表达式很可能包含某种错误，需认真对待。
-<br/>
+多余的子表达式很可能意味着某种错误，需认真对待。
 <br/>
 <br/>
 
-### <span id="constlogicexpression">▌R10.1.5 逻辑表达式及其子表达式的结果不应为常量</span>
+#### 相关
+ID_simplifiableCondition  
+ID_conflictCondition  
+<br/>
+<br/>
+
+### <span id="constlogicexpression">▌R10.1.5 逻辑表达式及逻辑子表达式不应为常量</span>
 
 ID_constLogicExpression&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-逻辑表达式及其子表达式的结果不应为常量，否则使逻辑判断失去意义。  
+不改变程序流程的常量逻辑表达式是没有意义的，而常量逻辑子表达式则是多余的。  
   
 示例：
 ```
@@ -14952,10 +14965,9 @@ if (False && other_condition) {  // Non-compliant
     ....
 }
 ```
-这种代码往往是调试或维护后的残留代码，没有意义的控制语句应及时去除。  
+这种代码往往是调试或维护过程中产生的残留代码，应及时去除。  
   
-例外：  
-true 或 1 等常量可用在 while 或 do\-while 循环的条件中，false 或 0 等常量可用在 do\-while 循环的条件中。
+例外：
 ```
 while (true) {  // Compliant
     ....
@@ -14965,21 +14977,17 @@ do {
     ....
 } while (0);  // Compliant
 ```
-但这种特例不包括逻辑表达式的子表达式，如：
+true 或 1 等常量可作为 while 或 do\-while 循环的条件，false 或 0 等常量可作为 do\-while 循环的条件。  
+  
+由宏定义的常量也不应作为控制语句的条件，如：
 ```
-while (other_condition || 1) {  // Non-compliant
-    ....
-}
-```
-另外，预编译阶段定义的常量也不应该作为逻辑条件或逻辑子表达式，如：
-```
-#define M 123
+#define M 1
 
 if (M) {  // Non-compliant
     ....
 }
 ```
-能在预编译阶段确定的代码应统一用预编译方式处理，不应占用运行时资源：
+应采用条件编译的方式，避免占用运行时资源：
 ```
 #if M  // Compliant
     ....
@@ -15039,7 +15047,7 @@ MISRA C++ 2008 5-14-1
 <br/>
 <br/>
 
-### <span id="simplifiablecondition">▌R10.1.7 逻辑表达式应保持简洁明了</span>
+### <span id="simplifiablecondition">▌R10.1.7 化简可被合并的逻辑子表达式</span>
 
 ID_simplifiableCondition&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -15053,15 +15061,18 @@ a < b || a > b      // None-compliant, use a != b instead
 a > b || a == b     // None-compliant, use a >= b instead
 a < b || a == b     // None-compliant, use a <= b instead
 a <= b && a >= b    // None-compliant, use a == b instead
-a > b && a >= b     // None-compliant, use a >  b instead
-a < b || a <= b     // None-compliant, use a <= b instead
 ```
-这种不合常理的繁琐写法也可能包含某种错误，需认真对待。
-<br/>
+不合理的繁琐写法也可能意味着某种错误，需认真对待。
 <br/>
 <br/>
 
-### <span id="simplifiableternary">▌R10.1.8 可化简为逻辑表达式的三元表达式应尽量化简</span>
+#### 相关
+ID_redundantCondition  
+ID_conflictCondition  
+<br/>
+<br/>
+
+### <span id="simplifiableternary">▌R10.1.8 化简可转换为逻辑表达式的三元表达式</span>
 
 ID_simplifiableTernary&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: expression suggestion
 
@@ -15078,7 +15089,7 @@ void foo(int a) {
 }
 
 bool bar(int a) {
-    return a > 123? fun(): false;   // Non-compliant, verbose
+    return a > 123? baz(): false;   // Non-compliant, verbose
 }
 ```
 应改为：
@@ -15090,7 +15101,7 @@ void foo(int a) {
 }
 
 bool bar(int a) {
-    return a > 123 && fun();   // Compliant
+    return a > 123 && baz();   // Compliant
 }
 ```
 <br/>
@@ -17525,21 +17536,21 @@ ISO/IEC 14882:2017 5.13.3(2)-implementation
 <br/>
 <br/>
 
-### <span id="literal_hardcodechar">▌R11.2 字符常量中不可存在应转义而未转义的字符</span>
+### <span id="literal_hardcodechar">▌R11.2 在字符常量中用转义字符表示制表符和控制字符</span>
 
 ID_literal_hardCodeChar&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: literal warning
 
 <hr/>
 
-在字符常量中，如果存在制表符或控制字符，应使用转义字符。  
+未经转义的制表符和控制字符不利于阅读和维护。  
   
 示例：
 ```
 char c = '	';  // Non-compliant
 ```
-例中空白符为 tab，易被人误解为空格，经过复制粘贴后也可能会变成数目不确定的空格，产生意外的错误。  
+例中字符常量为制表符，易被误解为空格，在终端上复制粘贴后也可能变成数目不确定的空格，成为 multi\-character 常量，导致意料之外的错误。  
   
-应使用转义字符：
+故应使用转义字符：
 ```
 char c = '\t';  // Compliant
 ```
@@ -17551,23 +17562,25 @@ ID_literal_hardCodeString
 <br/>
 <br/>
 
-### <span id="literal_hardcodestring">▌R11.3 字符串常量中不可存在应转义而未转义的字符</span>
+### <span id="literal_hardcodestring">▌R11.3 在字符串常量中用转义字符表示制表符和控制字符</span>
 
 ID_literal_hardCodeString&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: literal warning
 
 <hr/>
 
-在字符串常量中，如果存在制表符或控制字符，应使用转义字符。  
+未经转义的制表符和控制字符不利于阅读和维护。  
+  
+C\+\+ 原始字符串（raw string）不受本规则限制，但不建议在原始字符串中使用制表符和换行符之外的控制字符。  
   
 示例：
 ```
-const char* s = "a	b";  // Non-compliant
+const char* s = "	";  // Non-compliant
 ```
-例中空白符为 tab，易被人误解为空格，经过复制粘贴后也可能会变成数目不确定的空格，产生意外的错误。  
+例中字符串包含制表符，易被误解为空格，在终端上复制粘贴后也可能变成数目不确定的空格，导致与预期不符的结果。  
   
-应使用转义字符：
+故应使用转义字符：
 ```
-const char* s = "a\tb";  // Compliant
+const char* s = "\t";  // Compliant
 ```
 <br/>
 <br/>

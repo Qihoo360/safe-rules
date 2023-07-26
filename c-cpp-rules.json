@@ -104,7 +104,7 @@
         "reference": "CWE-682,C++ Core Guidelines ES.101,MISRA C 2004 12.7,MISRA C 2012 10.1,MISRA C++ 2008 5-0-21"
         },
     "ID_simplifiableTernary": {
-        "checkPoint": "可化简为逻辑表达式的三元表达式应尽量化简",
+        "checkPoint": "化简可转换为逻辑表达式的三元表达式",
         "level": "suggestion",
         "comment": "当三元表达式的分枝是常量 true 或 false 时应化简为逻辑表达式。",
         "tag": "expression"
@@ -1177,9 +1177,9 @@
         "reference": "CWE-190,C++ Core Guidelines ES.103,C++ Core Guidelines ES.104"
     },
     "ID_constLogicExpression": {
-        "checkPoint": "逻辑表达式及其子表达式的结果不应为常量",
+        "checkPoint": "逻辑表达式及逻辑子表达式不应为常量",
         "level": "warning",
-        "comment": "逻辑表达式及其子表达式的结果不应为常量，否则使逻辑判断失去意义。",
+        "comment": "不改变程序流程的常量逻辑表达式是没有意义的，而常量逻辑子表达式则是多余的。",
         "tag": "expression",
         "reference": "CWE-570,CWE-571,MISRA C 2004 13.7,MISRA C 2012 14.3,MISRA C++ 2008 0-1-2"
         },
@@ -1201,16 +1201,17 @@
         "reference": "MISRA C 2004 12.10,MISRA C 2012 12.3,MISRA C++ 2008 5-18-1"
         },
     "ID_conflictCondition": {
-        "checkPoint": "各逻辑子表达式不应自相矛盾",
+        "checkPoint": "逻辑子表达式之间不应存在矛盾",
         "level": "error",
-        "comment": "在逻辑表达式中，相互矛盾的子表达式会使整个表达式的结果恒为真或恒为假，造成条件失效。",
+        "comment": "相互矛盾的逻辑子表达式会使整个表达式的结果恒为真或恒为假。",
         "tag": "expression",
+        "related": "ID_redundantCondition,ID_simplifiableCondition",
         "reference": "CWE-570,CWE-571"
         },
     "ID_illIdentical": {
-        "checkPoint": "不应出现不合逻辑的重复子表达式",
+        "checkPoint": "不应存在无意义的重复子表达式",
         "level": "error",
-        "comment": "逻辑与、逻辑或、按位与、按位或的子表达式以及三元表达式的两个分枝不应重复，否则失去逻辑意义。",
+        "comment": "逻辑与、逻辑或、按位与、按位或的子表达式以及三元表达式的两个分枝不应重复，否则相关运算会失去意义。",
         "tag": "expression",
         "reference": "CWE-682"
         },
@@ -1549,16 +1550,18 @@
         "reference": "CWE-682"
         },
     "ID_redundantCondition": {
-        "checkPoint": "不应使用多余的逻辑子表达式",
+        "checkPoint": "不应存在多余的逻辑子表达式",
         "level": "warning",
         "comment": "逻辑或、逻辑与的子表达式有包含关系时，其中的一个表达式是多余的。",
-        "tag": "expression"
+        "tag": "expression",
+        "related": "ID_simplifiableCondition,ID_conflictCondition"
         },
     "ID_simplifiableCondition": {
-        "checkPoint": "逻辑表达式应保持简洁明了",
+        "checkPoint": "化简可被合并的逻辑子表达式",
         "level": "warning",
         "comment": "逻辑或、逻辑与的子表达式可以合并成一个表达式时应尽量合并。",
-        "tag": "expression"
+        "tag": "expression",
+        "related": "ID_redundantCondition,ID_conflictCondition"
         },
     "ID_shortCircuitSideEffect": {
         "checkPoint": "逻辑表达式的右子表达式不应有副作用",
@@ -2531,16 +2534,16 @@
         "standard": "ISO/IEC 9899:1999 6.4.4.4(10)-implementation,ISO/IEC 9899:2011 6.4.4.4(10)-implementation,ISO/IEC 14882:2011 2.13.2(1)-implementation,ISO/IEC 14882:2011 2.14.3(1)-implementation,ISO/IEC 14882:2017 5.13.3(2)-implementation"
         },
     "ID_literal_hardCodeChar": {
-        "checkPoint": "字符常量中不可存在应转义而未转义的字符",
+        "checkPoint": "在字符常量中用转义字符表示制表符和控制字符",
         "level": "warning",
-        "comment": "在字符常量中，如果存在制表符或控制字符，应使用转义字符。",
+        "comment": "未经转义的制表符和控制字符不利于阅读和维护。",
         "tag": "literal",
         "related": "ID_literal_hardCodeString"
         },
     "ID_literal_hardCodeString": {
-        "checkPoint": "字符串常量中不可存在应转义而未转义的字符",
+        "checkPoint": "在字符串常量中用转义字符表示制表符和控制字符",
         "level": "warning",
-        "comment": "在字符串常量中，如果存在制表符或控制字符，应使用转义字符。",
+        "comment": "未经转义的制表符和控制字符不利于阅读和维护。",
         "tag": "literal",
         "related": "ID_literal_hardCodeChar"
         },
@@ -2802,7 +2805,7 @@
         "reference": "CWE-1041,C++ Core Guidelines ES.3"
         },
     "ID_invalidCondition": {
-        "checkPoint": "条件表达式不应恒为真或恒为假",
+        "checkPoint": "作为条件的逻辑表达式不应恒为真或恒为假",
         "level": "warning",
         "comment": "以恒为真或恒为假的表达式作为条件是没有意义的，属于逻辑错误。",
         "tag": "expression",
