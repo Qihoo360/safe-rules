@@ -4,7 +4,7 @@
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对 C、C++ 语言，本文收录了 470 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对 C、C++ 语言，本文收录了 472 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
@@ -316,27 +316,29 @@
 
 <span id="__exception">**[7. Exception](#exception)**</span>
   - [R7.1 保证异常安全](#exceptionunsafe)
-  - [R7.2 不应抛出过于宽泛的异常](#throwgenericexception)
-  - [R7.3 不应捕获过于宽泛的异常](#catch_generic)
-  - [R7.4 不应抛出非异常类型的对象](#thrownonexceptiontype)
-  - [R7.5 不应捕获非异常类型的对象](#catch_nonexceptiontype)
-  - [R7.6 析构函数不可抛出异常](#throwindestructor)
-  - [R7.7 内存回收函数不可抛出异常](#throwindelete)
-  - [R7.8 对象交换过程不可抛出异常](#throwinswap)
-  - [R7.9 移动构造函数和移动赋值运算符不可抛出异常](#throwinmove)
-  - [R7.10 异常类的拷贝构造函数不可抛出异常](#throwwhilethrowing)
-  - [R7.11 异常类的构造函数和异常信息相关的函数不应抛出异常](#exceptioninexception)
-  - [R7.12 与标准库相关的 hash 过程不应抛出异常](#throwinhash)
-  - [R7.13 通过引用捕获异常](#catch_value)
-  - [R7.14 捕获异常时不应产生对象切片问题](#catch_slicing)
-  - [R7.15 捕获异常后不应直接再次抛出异常](#catch_justrethrow)
-  - [R7.16 重新抛出异常时应使用空 throw 表达式（throw;）](#improperrethrow)
-  - [R7.17 不应在 catch handler 外使用空 throw 表达式（throw;）](#rethrowoutofcatch)
-  - [R7.18 不应抛出指针](#throwpointer)
-  - [R7.19 不应抛出 NULL](#thrownull)
-  - [R7.20 不应抛出 nullptr](#thrownullptr)
-  - [R7.21 禁用含 throw 关键字的异常规格说明](#forbidthrowspecification)
-  - [R7.22 禁用 C\+\+ 异常](#forbidexception)
+  - [R7.2 处理所有显式抛出的异常](#uncaughtexception)
+  - [R7.3 不应抛出过于宽泛的异常](#throwgenericexception)
+  - [R7.4 不应捕获过于宽泛的异常](#catch_generic)
+  - [R7.5 不应抛出非异常类型的对象](#thrownonexceptiontype)
+  - [R7.6 不应捕获非异常类型的对象](#catch_nonexceptiontype)
+  - [R7.7 全局对象的初始化过程不可抛出异常](#throwoutofmain)
+  - [R7.8 析构函数不可抛出异常](#throwindestructor)
+  - [R7.9 内存回收函数不可抛出异常](#throwindelete)
+  - [R7.10 对象交换过程不可抛出异常](#throwinswap)
+  - [R7.11 移动构造函数和移动赋值运算符不可抛出异常](#throwinmove)
+  - [R7.12 异常类的拷贝构造函数不可抛出异常](#throwwhilethrowing)
+  - [R7.13 异常类的构造函数和异常信息相关的函数不应抛出异常](#exceptioninexception)
+  - [R7.14 与标准库相关的 hash 过程不应抛出异常](#throwinhash)
+  - [R7.15 通过引用捕获异常](#catch_value)
+  - [R7.16 捕获异常时不应产生对象切片问题](#catch_slicing)
+  - [R7.17 捕获异常后不应直接再次抛出异常](#catch_justrethrow)
+  - [R7.18 重新抛出异常时应使用空 throw 表达式（throw;）](#improperrethrow)
+  - [R7.19 不应在 catch handler 外使用空 throw 表达式（throw;）](#rethrowoutofcatch)
+  - [R7.20 不应抛出指针](#throwpointer)
+  - [R7.21 不应抛出 NULL](#thrownull)
+  - [R7.22 不应抛出 nullptr](#thrownullptr)
+  - [R7.23 禁用含 throw 关键字的异常规格说明](#forbidthrowspecification)
+  - [R7.24 禁用 C\+\+ 异常](#forbidexception)
 <br/>
 
 <span id="__function">**[8. Function](#function)**</span>
@@ -9599,7 +9601,61 @@ Effective C++ item 29
 <br/>
 <br/>
 
-### <span id="throwgenericexception">▌R7.2 不应抛出过于宽泛的异常</span>
+### <span id="uncaughtexception">▌R7.2 处理所有显式抛出的异常</span>
+
+ID_uncaughtException&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
+
+<hr/>
+
+如果由 throw 表达式显式抛出的异常没有被相应的 catch handler 处理会引发 std::terminate 函数的执行，使程序异常终止。  
+  
+应避免 std::terminate 函数被执行。std::terminate 函数执行前相关调用栈中的对象是否会被析构由实现定义。std::terminate 函数会调用由 std::set\_terminate 指定的回调函数，在默认情况下会执行 abort 函数终止进程，但打开的流是否会被关闭，缓冲区内的数据是否会写入文件，临时文件是否会被清理等问题仍由实现定义。  
+  
+为了使程序具有明确的行为，所有显式抛出的异常均应被有效处理。  
+  
+示例：
+```
+class A {};
+class B {};
+
+int main()
+{
+    try {
+        int i = userInput();
+        if (i < 0) {
+            throw A();   // Compliant 
+        }
+        if (i > 5) {
+            throw B();   // Non-compliant 
+        }
+        ....
+    } catch (const A&) {
+        ....
+    }
+}
+```
+例中 B 类型的异常未被处理，程序异常终止。
+<br/>
+<br/>
+
+#### 相关
+ID_throwOutOfMain  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 15.3(9)-implementation  
+ISO/IEC 14882:2003 15.5.1(2)-implementation  
+ISO/IEC 14882:2011 15.3(9)-implementation  
+ISO/IEC 14882:2011 15.5.1(2)-implementation  
+<br/>
+
+#### 参考
+MISRA C++ 2008 15-3-4  
+SEI CERT ERR51-CPP  
+<br/>
+<br/>
+
+### <span id="throwgenericexception">▌R7.3 不应抛出过于宽泛的异常</span>
 
 ID_throwGenericException&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
@@ -9660,7 +9716,7 @@ CWE-397
 <br/>
 <br/>
 
-### <span id="catch_generic">▌R7.3 不应捕获过于宽泛的异常</span>
+### <span id="catch_generic">▌R7.4 不应捕获过于宽泛的异常</span>
 
 ID_catch_generic&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
@@ -9694,7 +9750,7 @@ CWE-396
 <br/>
 <br/>
 
-### <span id="thrownonexceptiontype">▌R7.4 不应抛出非异常类型的对象</span>
+### <span id="thrownonexceptiontype">▌R7.5 不应抛出非异常类型的对象</span>
 
 ID_throwNonExceptionType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
@@ -9759,7 +9815,7 @@ C++ Core Guidelines E.3
 <br/>
 <br/>
 
-### <span id="catch_nonexceptiontype">▌R7.5 不应捕获非异常类型的对象</span>
+### <span id="catch_nonexceptiontype">▌R7.6 不应捕获非异常类型的对象</span>
 
 ID_catch_nonExceptionType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
@@ -9793,7 +9849,70 @@ C++ Core Guidelines E.14
 <br/>
 <br/>
 
-### <span id="throwindestructor">▌R7.6 析构函数不可抛出异常</span>
+### <span id="throwoutofmain">▌R7.7 全局对象的初始化过程不可抛出异常</span>
+
+ID_throwOutOfMain&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
+
+<hr/>
+
+在全局对象初始化过程中抛出的异常没有被处理的机会，导致程序异常终止。  
+  
+本规则是 ID\_uncaughtException 的特化。  
+  
+示例：
+```
+struct G {
+    G() noexcept(0);   // May throw exceptions
+};
+
+static G g;   // Non-compliant
+
+int main() {
+    ....
+}
+```
+如果例中全局对象 g 的构造函数抛出异常，会引发 std::terminate 函数的执行，使程序异常终止。  
+  
+应改为：
+```
+G* getG() {
+    try {
+        static G g;
+        return &g;
+    } catch (Exceptions&) {  // Exceptions thrown by ‘G::G()’
+        ....                 // Handle the exceptions
+    }
+    return nullptr;
+}
+
+int main() {
+    if (!getG()) {
+        return 1;     // Good, exit gracefully
+    }
+    ....
+}
+```
+<br/>
+<br/>
+
+#### 相关
+ID_uncaughtException  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 15.3(9)-implementation  
+ISO/IEC 14882:2003 15.5.1(2)-implementation  
+ISO/IEC 14882:2011 15.3(9)-implementation  
+ISO/IEC 14882:2011 15.5.1(2)-implementation  
+<br/>
+
+#### 参考
+MISRA C++ 2008 15-3-1  
+SEI CERT ERR58-CPP  
+<br/>
+<br/>
+
+### <span id="throwindestructor">▌R7.8 析构函数不可抛出异常</span>
 
 ID_throwInDestructor&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: exception error
 
@@ -9853,7 +9972,7 @@ SEI CERT DCL57-CPP
 <br/>
 <br/>
 
-### <span id="throwindelete">▌R7.7 内存回收函数不可抛出异常</span>
+### <span id="throwindelete">▌R7.9 内存回收函数不可抛出异常</span>
 
 ID_throwInDelete&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: exception error
 
@@ -9895,7 +10014,7 @@ C++ Core Guidelines E.16
 <br/>
 <br/>
 
-### <span id="throwinswap">▌R7.8 对象交换过程不可抛出异常</span>
+### <span id="throwinswap">▌R7.10 对象交换过程不可抛出异常</span>
 
 ID_throwInSwap&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
@@ -9938,7 +10057,7 @@ C++ Core Guidelines C.85
 <br/>
 <br/>
 
-### <span id="throwinmove">▌R7.9 移动构造函数和移动赋值运算符不可抛出异常</span>
+### <span id="throwinmove">▌R7.11 移动构造函数和移动赋值运算符不可抛出异常</span>
 
 ID_throwInMove&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
@@ -9979,7 +10098,7 @@ C++ Core Guidelines C.66
 <br/>
 <br/>
 
-### <span id="throwwhilethrowing">▌R7.10 异常类的拷贝构造函数不可抛出异常</span>
+### <span id="throwwhilethrowing">▌R7.12 异常类的拷贝构造函数不可抛出异常</span>
 
 ID_throwWhileThrowing&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: exception error
 
@@ -10028,7 +10147,7 @@ SEI CERT ERR60-CPP
 <br/>
 <br/>
 
-### <span id="exceptioninexception">▌R7.11 异常类的构造函数和异常信息相关的函数不应抛出异常</span>
+### <span id="exceptioninexception">▌R7.13 异常类的构造函数和异常信息相关的函数不应抛出异常</span>
 
 ID_exceptionInException&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
@@ -10057,7 +10176,7 @@ public:
     }
 };
 ```
-例中在构造函数和 what 函数中抛出异常是不符合要求的，而且要注意 string 的构造及拷贝构造函数需要动态内存分配，当分配失败时也会抛出异常，有高可靠性要求的软件系统需要规避。  
+例中在异常类的构造函数和 what 函数中抛出异常是不符合要求的，而且要注意 string 的构造及拷贝构造函数需要动态内存分配，当分配失败时也会抛出异常，有高可靠性要求的软件系统需要规避。  
   
 自定义的异常类可从标准异常类派生，成员也应尽量简单，如：
 ```
@@ -10086,7 +10205,7 @@ MISRA C++ 2008 15-1-1
 <br/>
 <br/>
 
-### <span id="throwinhash">▌R7.12 与标准库相关的 hash 过程不应抛出异常</span>
+### <span id="throwinhash">▌R7.14 与标准库相关的 hash 过程不应抛出异常</span>
 
 ID_throwInHash&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: exception suggestion
 
@@ -10118,7 +10237,7 @@ C++ Core Guidelines C.89
 <br/>
 <br/>
 
-### <span id="catch_value">▌R7.13 通过引用捕获异常</span>
+### <span id="catch_value">▌R7.15 通过引用捕获异常</span>
 
 ID_catch_value&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
@@ -10161,7 +10280,7 @@ SEI CERT ERR61-CPP
 <br/>
 <br/>
 
-### <span id="catch_slicing">▌R7.14 捕获异常时不应产生对象切片问题</span>
+### <span id="catch_slicing">▌R7.16 捕获异常时不应产生对象切片问题</span>
 
 ID_catch_slicing&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
@@ -10203,7 +10322,7 @@ C++ Core Guidelines ES.63
 <br/>
 <br/>
 
-### <span id="catch_justrethrow">▌R7.15 捕获异常后不应直接再次抛出异常</span>
+### <span id="catch_justrethrow">▌R7.17 捕获异常后不应直接再次抛出异常</span>
 
 ID_catch_justRethrow&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
@@ -10227,7 +10346,7 @@ void foo() {
 <br/>
 <br/>
 
-### <span id="improperrethrow">▌R7.16 重新抛出异常时应使用空 throw 表达式（throw;）</span>
+### <span id="improperrethrow">▌R7.18 重新抛出异常时应使用空 throw 表达式（throw;）</span>
 
 ID_improperRethrow&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
@@ -10268,7 +10387,7 @@ ISO/IEC 14882:2011 15.1(8)
 <br/>
 <br/>
 
-### <span id="rethrowoutofcatch">▌R7.17 不应在 catch handler 外使用空 throw 表达式（throw;）</span>
+### <span id="rethrowoutofcatch">▌R7.19 不应在 catch handler 外使用空 throw 表达式（throw;）</span>
 
 ID_rethrowOutOfCatch&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
@@ -10308,7 +10427,7 @@ MISRA C++ 2008 15-1-3
 <br/>
 <br/>
 
-### <span id="throwpointer">▌R7.18 不应抛出指针</span>
+### <span id="throwpointer">▌R7.20 不应抛出指针</span>
 
 ID_throwPointer&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: exception suggestion
 
@@ -10345,7 +10464,7 @@ MISRA C++ 2008 15-0-2
 <br/>
 <br/>
 
-### <span id="thrownull">▌R7.19 不应抛出 NULL</span>
+### <span id="thrownull">▌R7.21 不应抛出 NULL</span>
 
 ID_throwNULL&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
@@ -10391,7 +10510,7 @@ MISRA C++ 2008 15-1-2
 <br/>
 <br/>
 
-### <span id="thrownullptr">▌R7.20 不应抛出 nullptr</span>
+### <span id="thrownullptr">▌R7.22 不应抛出 nullptr</span>
 
 ID_throwNullptr&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
@@ -10427,7 +10546,7 @@ MISRA C++ 2008 15-0-2
 <br/>
 <br/>
 
-### <span id="forbidthrowspecification">▌R7.21 禁用含 throw 关键字的异常规格说明</span>
+### <span id="forbidthrowspecification">▌R7.23 禁用含 throw 关键字的异常规格说明</span>
 
 ID_forbidThrowSpecification&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: exception warning
 
@@ -10468,7 +10587,7 @@ C++ Core Guidelines E.30
 <br/>
 <br/>
 
-### <span id="forbidexception">▌R7.22 禁用 C++ 异常</span>
+### <span id="forbidexception">▌R7.24 禁用 C++ 异常</span>
 
 ID_forbidException&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: exception warning
 
@@ -21030,7 +21149,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 470 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
+&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 472 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
 
 &emsp;&emsp;此致
 
