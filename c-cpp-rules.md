@@ -9798,9 +9798,9 @@ ID_throwInDestructor&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: exception error
 
 <hr/>
 
-析构函数抛出异常是违反异常处理机制的。  
+析构函数抛出异常会违反异常处理机制。  
   
-当抛出异常时，从异常被抛出到异常被处理之间的对象，也就是从“throw”到“catch”各层调用栈中的对象会被自动析构，如果在这个过程中某个对象的析构函数又抛出了异常，将引发混乱。标准规定，这种情况会直接引发 std::terminate 函数的执行，所以从析构函数抛出的异常有可能是无法被捕获和处理的。  
+当抛出异常时，从异常被抛出到异常被处理之间的对象，也就是从“throw”到“catch”各层调用栈中的对象会被自动析构，如果在这个过程中某个对象的析构函数又抛出了异常会引发混乱，标准规定，这种情况将直接引发 std::terminate 函数的执行，所以从析构函数抛出的异常有可能无法被捕获和处理，也可能导致程序异常终止。  
   
 示例（设 E0 和 E1 是不相关的异常类）：
 ```
@@ -12255,6 +12255,8 @@ ID_recursion&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 递归实现，如函数直接或间接地调用自身，易导致难以控制的堆栈溢出等错误。  
   
+应尽量用迭代、堆栈等非递归方法代替递归实现，对于难以使用非递归方式实现的特殊算法，应做到递归深度可控。  
+  
 示例：
 ```
 size_t foo(size_t n) {
@@ -12272,9 +12274,7 @@ size_t bar(size_t n) {
     return n;
 }
 ```
-例中 bar 函数设置了递归条件，但仍是不可取的，当参数 n 较大时仍然可以造成堆栈溢出错误。  
-  
-对于一般的功能，应尽量采用迭代、堆栈等非递归手段实现，对于难以使用非递归方式实现的特殊算法，应做到递归深度可控。
+例中 bar 函数设置了递归条件，但仍是不可取的，当参数 n 较大时仍然可以造成堆栈溢出错误。
 <br/>
 <br/>
 
@@ -12864,7 +12864,7 @@ ID_if_emptyBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
 <hr/>
 
-空的 if 语句或 else 子句往往是残留代码或功能未实现。  
+空的 if 语句或 else 子句无实际意义，往往是残留代码或功能未实现。  
   
 示例：
 ```
@@ -13735,7 +13735,7 @@ switch 语句不应被分号隔断。
 ```
 switch (v);  // Non-compliant
 ```
-这是毫无意义的 switch 语句，可能是残留代码，应及时去除。
+这种无意义的 switch 语句应及时去除或补全代码。
 <br/>
 <br/>
 
@@ -13750,13 +13750,13 @@ ID_switch_emptyBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
 <hr/>
 
-空的 switch 语句没有意义。  
+空的 switch 语句无实际意义，往往是残留代码或功能未实现。  
   
 示例：
 ```
 switch (v) {}  // Non-compliant
 ```
-这是毫无意义的 switch 语句，可能是残留代码，也可能是功能未实现。
+这种无意义的 switch 语句应及时去除或补全代码。
 <br/>
 <br/>
 
@@ -14847,26 +14847,27 @@ ID_conflictCondition&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
 <hr/>
 
-相互矛盾的逻辑子表达式会使整个表达式的结果恒为真或恒为假。  
+相互矛盾的逻辑子表达式会使整个表达式的结果恒为真或恒为假，导致逻辑错误。  
   
-1. 判断同一变量同时等于不同的值是无效的：
+示例：
 ```
-a == 1 && a == 2  // always false
-a != 1 || a != 2  // always true
+a == 1 && a == 2   // always false
+a != 1 || a != 2   // always true
 ```
-2. 判断同一变量的上限小于下限是无效的：
-```
-a < -128 && a > 127    // always false
-a >= -128 || a <= 127  // always true
-```
-3. 如下逻辑判断也是无效的：
+同一变量不可能同时等于不同的值，这种表达式是无效的。  
+  
+又如：
 ```
 a > b && a <= b   // always false
 a > b || a <= b   // always true
-a == b && a != b  // always false
-a == b || a != b  // always true
+
+a == b && a != b   // always false
+a == b || a != b   // always true
+
+a < -128 && a > 127     // always false
+a >= -128 || a <= 127   // always true
 ```
-这类问题均为常见笔误，须认真对待。
+这种表达式均为常见笔误，应及时修正。
 <br/>
 <br/>
 

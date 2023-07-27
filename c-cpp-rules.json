@@ -1203,7 +1203,7 @@
     "ID_conflictCondition": {
         "checkPoint": "逻辑子表达式之间不应存在矛盾",
         "level": "error",
-        "comment": "相互矛盾的逻辑子表达式会使整个表达式的结果恒为真或恒为假。",
+        "comment": "相互矛盾的逻辑子表达式会使整个表达式的结果恒为真或恒为假，导致逻辑错误。",
         "tag": "expression",
         "related": "ID_redundantCondition,ID_simplifiableCondition",
         "reference": "CWE-570,CWE-571"
@@ -1825,7 +1825,7 @@
     "ID_throwInDestructor": {
         "checkPoint": "析构函数不可抛出异常",
         "level": "error",
-        "comment": "析构函数抛出异常是违反异常处理机制的。",
+        "comment": "析构函数抛出异常会违反异常处理机制。",
         "tag": "exception",
         "related": "ID_throwInDelete,ID_throwInHash,ID_throwInSwap,ID_throwInMove",
         "standard": "ISO/IEC 14882:2003 15.2(3),ISO/IEC 14882:2011 3.7.4.2(3)-undefined,ISO/IEC 14882:2011 15.2(3)",
@@ -2315,7 +2315,7 @@
     "ID_if_emptyBlock": {
         "checkPoint": "if 语句不应为空",
         "level": "warning",
-        "comment": "空的 if 语句或 else 子句往往是残留代码或功能未实现。",
+        "comment": "空的 if 语句或 else 子句无实际意义，往往是残留代码或功能未实现。",
         "tag": "control",
         "reference": "CWE-1071"
         },
