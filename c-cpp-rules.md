@@ -4,7 +4,7 @@
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对 C、C++ 语言，本文收录了 472 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对 C、C++ 语言，本文收录了 473 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
@@ -195,7 +195,7 @@
     - [R5.1.2 类的非常量数据成员不应定义为 protected](#protecteddata)
     - [R5.1.3 类不应既有 public 数据成员又有 private 数据成员](#mixpublicprivatedata)
     - [R5.1.4 有虚函数的基类应具有虚析构函数](#missingvirtualdestructor)
-    - [R5.1.5 用虚基类避免冗余的基类实例](#diamondinheritance)
+    - [R5.1.5 避免多重继承自同一非虚基类](#diamondinheritance)
     - [R5.1.6 存在析构函数或拷贝赋值运算符时，不应缺少拷贝构造函数](#missingcopyconstructor)
     - [R5.1.7 存在拷贝构造函数或析构函数时，不应缺少拷贝赋值运算符](#missingcopyassignoperator)
     - [R5.1.8 存在拷贝构造函数或拷贝赋值运算符时，不应缺少析构函数](#missingdestructor)
@@ -329,16 +329,17 @@
   - [R7.12 异常类的拷贝构造函数不可抛出异常](#throwwhilethrowing)
   - [R7.13 异常类的构造函数和异常信息相关的函数不应抛出异常](#exceptioninexception)
   - [R7.14 与标准库相关的 hash 过程不应抛出异常](#throwinhash)
-  - [R7.15 通过引用捕获异常](#catch_value)
-  - [R7.16 捕获异常时不应产生对象切片问题](#catch_slicing)
-  - [R7.17 捕获异常后不应直接再次抛出异常](#catch_justrethrow)
-  - [R7.18 重新抛出异常时应使用空 throw 表达式（throw;）](#improperrethrow)
-  - [R7.19 不应在 catch handler 外使用空 throw 表达式（throw;）](#rethrowoutofcatch)
-  - [R7.20 不应抛出指针](#throwpointer)
-  - [R7.21 不应抛出 NULL](#thrownull)
-  - [R7.22 不应抛出 nullptr](#thrownullptr)
-  - [R7.23 禁用含 throw 关键字的异常规格说明](#forbidthrowspecification)
-  - [R7.24 禁用 C\+\+ 异常](#forbidexception)
+  - [R7.15 避免异常类多重继承自同一非虚基类](#diamondexceptioninheritance)
+  - [R7.16 通过引用捕获异常](#catch_value)
+  - [R7.17 捕获异常时不应产生对象切片问题](#catch_slicing)
+  - [R7.18 捕获异常后不应直接再次抛出异常](#catch_justrethrow)
+  - [R7.19 重新抛出异常时应使用空 throw 表达式（throw;）](#improperrethrow)
+  - [R7.20 不应在 catch handler 外使用空 throw 表达式（throw;）](#rethrowoutofcatch)
+  - [R7.21 不应抛出指针](#throwpointer)
+  - [R7.22 不应抛出 NULL](#thrownull)
+  - [R7.23 不应抛出 nullptr](#thrownullptr)
+  - [R7.24 禁用含 throw 关键字的异常规格说明](#forbidthrowspecification)
+  - [R7.25 禁用 C\+\+ 异常](#forbidexception)
 <br/>
 
 <span id="__function">**[8. Function](#function)**</span>
@@ -4971,13 +4972,13 @@ C++ Core Guidelines C.127
 <br/>
 <br/>
 
-### <span id="diamondinheritance">▌R5.1.5 用虚基类避免冗余的基类实例</span>
+### <span id="diamondinheritance">▌R5.1.5 避免多重继承自同一非虚基类</span>
 
-ID_diamondInheritance&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestion
+ID_diamondInheritance&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
 
 <hr/>
 
-当一个类有多个基类，这些基类又继承自同一个类时，会产生多个不同的基类实例，造成逻辑上的冗余和不必要的存储开销。  
+当派生类有多个基类，这些基类又派生自同一非虚基类时，派生类对象会持有该非虚基类的多个实例，造成逻辑和存储上的冗余。  
   
 示例：
 ```
@@ -4987,7 +4988,7 @@ struct A {
 
 class B: public A {};
 class C: public A {};
-class D: public B, public C {};
+class D: public B, public C {};   // Non-compliant
 
 void foo(D& d) {
     d.i = 1;       // Compile error
@@ -5001,7 +5002,7 @@ void foo(D& d) {
 ```
 class B: virtual public A {};
 class C: virtual public A {};
-class D: public B, public C {};
+class D: public B, public C {};   // Compliant
 
 void foo(D& d) {
     d.i = 1;       // OK
@@ -5022,6 +5023,10 @@ void bar(A* a) {
 }
 ```
 <br/>
+<br/>
+
+#### 相关
+ID_diamondExceptionInheritance  
 <br/>
 
 #### 依据
@@ -10237,7 +10242,56 @@ C++ Core Guidelines C.89
 <br/>
 <br/>
 
-### <span id="catch_value">▌R7.15 通过引用捕获异常</span>
+### <span id="diamondexceptioninheritance">▌R7.15 避免异常类多重继承自同一非虚基类</span>
+
+ID_diamondExceptionInheritance&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
+
+<hr/>
+
+当异常类有多个基类，这些基类又派生自同一个非虚基类时，无法通过该非虚基类捕获异常。  
+  
+本规则是 ID\_diamondInheritance 的特化。  
+  
+示例：
+```
+class A {};
+class B: public A {};
+class C: public A {};
+class D: public B, public C {};  // Non-compliant, diamond inheritance
+
+int main()
+{
+    try {
+        throw D();
+    }
+    catch (A&) {  // Cannot catch derived objects
+        ....
+    }
+}
+```
+例中基类 A 在派生类 D 中会有多个实例，在这种情况下无法通过基类 A 捕获派生类的对象。  
+  
+应将 A 设为虚基类：
+```
+class A {};
+class B: virtual public A {};
+class C: virtual public A {};
+class D: public B, public C {};  // Compliant
+```
+<br/>
+<br/>
+
+#### 相关
+ID_diamondInheritance  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 10.1(4 5 6)  
+ISO/IEC 14882:2011 10.1(4 5 6 7)  
+<br/>
+<br/>
+
+### <span id="catch_value">▌R7.16 通过引用捕获异常</span>
 
 ID_catch_value&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
@@ -10280,7 +10334,7 @@ SEI CERT ERR61-CPP
 <br/>
 <br/>
 
-### <span id="catch_slicing">▌R7.16 捕获异常时不应产生对象切片问题</span>
+### <span id="catch_slicing">▌R7.17 捕获异常时不应产生对象切片问题</span>
 
 ID_catch_slicing&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
@@ -10322,7 +10376,7 @@ C++ Core Guidelines ES.63
 <br/>
 <br/>
 
-### <span id="catch_justrethrow">▌R7.17 捕获异常后不应直接再次抛出异常</span>
+### <span id="catch_justrethrow">▌R7.18 捕获异常后不应直接再次抛出异常</span>
 
 ID_catch_justRethrow&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
@@ -10341,12 +10395,12 @@ void foo() {
     }
 }
 ```
-例中的 catch 是没有意义的，应将其去掉，或对异常进行有效处理。
+例中的 catch 子句是没有意义的，应将其去掉或对异常进行有效处理。
 <br/>
 <br/>
 <br/>
 
-### <span id="improperrethrow">▌R7.18 重新抛出异常时应使用空 throw 表达式（throw;）</span>
+### <span id="improperrethrow">▌R7.19 重新抛出异常时应使用空 throw 表达式（throw;）</span>
 
 ID_improperRethrow&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
@@ -10364,7 +10418,7 @@ void foo() {
         throw Derive();
     }
     catch (Base& e) {
-        throw e;         // Non-compliant, use ‘throw;’ instead
+        throw e;        // Non-compliant, use ‘throw;’ instead
     }
 }
 
@@ -10372,8 +10426,8 @@ void bar() {
     try {
         foo();
     }
-    catch (Derive& e) {
-        ....               // Cannot catch Derive
+    catch (Derive& e) {   // Cannot catch Derive
+        ....
     }
 }
 ```
@@ -10387,7 +10441,7 @@ ISO/IEC 14882:2011 15.1(8)
 <br/>
 <br/>
 
-### <span id="rethrowoutofcatch">▌R7.19 不应在 catch handler 外使用空 throw 表达式（throw;）</span>
+### <span id="rethrowoutofcatch">▌R7.20 不应在 catch handler 外使用空 throw 表达式（throw;）</span>
 
 ID_rethrowOutOfCatch&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
@@ -10427,7 +10481,7 @@ MISRA C++ 2008 15-1-3
 <br/>
 <br/>
 
-### <span id="throwpointer">▌R7.20 不应抛出指针</span>
+### <span id="throwpointer">▌R7.21 不应抛出指针</span>
 
 ID_throwPointer&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: exception suggestion
 
@@ -10464,7 +10518,7 @@ MISRA C++ 2008 15-0-2
 <br/>
 <br/>
 
-### <span id="thrownull">▌R7.21 不应抛出 NULL</span>
+### <span id="thrownull">▌R7.22 不应抛出 NULL</span>
 
 ID_throwNULL&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
@@ -10510,7 +10564,7 @@ MISRA C++ 2008 15-1-2
 <br/>
 <br/>
 
-### <span id="thrownullptr">▌R7.22 不应抛出 nullptr</span>
+### <span id="thrownullptr">▌R7.23 不应抛出 nullptr</span>
 
 ID_throwNullptr&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
@@ -10546,7 +10600,7 @@ MISRA C++ 2008 15-0-2
 <br/>
 <br/>
 
-### <span id="forbidthrowspecification">▌R7.23 禁用含 throw 关键字的异常规格说明</span>
+### <span id="forbidthrowspecification">▌R7.24 禁用含 throw 关键字的异常规格说明</span>
 
 ID_forbidThrowSpecification&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: exception warning
 
@@ -10558,7 +10612,7 @@ ID_forbidThrowSpecification&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: exception wa
   
 示例：
 ```
-int foo() throw(Exception);  // Non-compliant
+int foo() throw(Exception);   // Non-compliant
 ```
 应改为：
 ```
@@ -10566,7 +10620,7 @@ int foo() noexcept(false);   // Compliant
 ```
 例外：
 ```
-int bar() throw();           // Let it go?
+int bar() throw();   // Let it go?
 ```
 在 C\+\+17 标准之前，空的 throw 异常规格说明与 noexcept 等价，审计工具不妨通过配置决定是否放过这种方式。 
 <br/>
@@ -10587,7 +10641,7 @@ C++ Core Guidelines E.30
 <br/>
 <br/>
 
-### <span id="forbidexception">▌R7.24 禁用 C++ 异常</span>
+### <span id="forbidexception">▌R7.25 禁用 C++ 异常</span>
 
 ID_forbidException&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: exception warning
 
@@ -21149,7 +21203,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 472 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
+&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 473 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
 
 &emsp;&emsp;此致
 

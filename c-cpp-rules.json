@@ -2112,12 +2112,21 @@
         "reference": "CWE-1045,CWE-1079,CWE-1087,C++ Core Guidelines C.35,C++ Core Guidelines C.127"
         },
     "ID_diamondInheritance": {
-        "checkPoint": "用虚基类避免冗余的基类实例",
-        "level": "suggestion",
-        "comment": "当一个类有多个基类，这些基类又继承自同一个类时，会产生多个不同的基类实例，造成逻辑上的冗余和不必要的存储开销。",
+        "checkPoint": "避免多重继承自同一非虚基类",
+        "level": "warning",
+        "comment": "当派生类有多个基类，这些基类又派生自同一非虚基类时，派生类对象会持有该非虚基类的多个实例，造成逻辑和存储上的冗余。",
         "tag": "type",
+        "related": "ID_diamondExceptionInheritance",
         "standard": "ISO/IEC 14882:2003 5.2.9(5 8)-undefined,ISO/IEC 14882:2003 10.1(4 5 6),ISO/IEC 14882:2011 5.2.9(11 12)-undefined,ISO/IEC 14882:2011 10.1(4 5 6 7)",
         "reference": "C++ Core Guidelines C.137"
+        },
+    "ID_diamondExceptionInheritance": {
+        "checkPoint": "避免异常类多重继承自同一非虚基类",
+        "level": "warning",
+        "comment": "当异常类有多个基类，这些基类又派生自同一个非虚基类时，无法通过该非虚基类捕获异常。",
+        "tag": "exception",
+        "related": "ID_diamondInheritance",
+        "standard": "ISO/IEC 14882:2003 10.1(4 5 6),ISO/IEC 14882:2011 10.1(4 5 6 7)"
         },
     "ID_roughTemplateConstructor": {
         "checkPoint": "带模板的构造函数不应与拷贝或移动构造函数混淆",
