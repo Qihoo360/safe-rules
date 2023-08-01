@@ -1891,6 +1891,15 @@
         "related": "ID_throwInSwap",
         "reference": "C++ Core Guidelines C.66"
         },
+    "ID_throwInNoexcept": {
+        "checkPoint": "由 noexcept 标记的函数不可产生未处理的异常",
+        "level": "warning",
+        "comment": "noexcept、noexcept(true) 表示无异常抛出，有相关标记的函数产生未被处理的异常属于逻辑错误，并会引发 std::terminate 函数的执行，使程序异常终止。",
+        "tag": "exception",
+        "related": "ID_uncaughtException",
+        "standard": "ISO/IEC 14882:2011 15.4(9),ISO/IEC 14882:2017 18.4(5)",
+        "reference": "SEI CERT ERR55-CPP"
+        },
     "ID_localAddressFlowOut": {
         "checkPoint": "不可返回局部对象的地址或引用",
         "level": "error",
