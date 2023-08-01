@@ -338,7 +338,7 @@
   - [R7.21 不应抛出指针](#throwpointer)
   - [R7.22 不应抛出 NULL](#thrownull)
   - [R7.23 不应抛出 nullptr](#thrownullptr)
-  - [R7.24 禁用含 throw 关键字的异常规格说明](#forbidthrowspecification)
+  - [R7.24 禁用动态异常规格说明](#forbidthrowspecification)
   - [R7.25 禁用 C\+\+ 异常](#forbidexception)
 <br/>
 
@@ -9616,12 +9616,13 @@ ID_uncaughtException&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
   
 应避免 std::terminate 函数被执行。std::terminate 函数执行前相关调用栈中的对象是否会被析构由实现定义。std::terminate 函数会调用由 std::set\_terminate 指定的回调函数，在默认情况下会执行 abort 函数终止进程，但打开的流是否会被关闭，缓冲区内的数据是否会写入文件，临时文件是否会被清理等问题仍由实现定义。  
   
-为了使程序具有明确的行为，所有显式抛出的异常均应被有效处理。  
+为了使程序具有明确的行为，所有 throw 表达式均应由对应的 catch handler 处理。  
   
 示例：
 ```
 class A {};
 class B {};
+class C {};
 
 int main()
 {
@@ -9630,16 +9631,22 @@ int main()
         if (i < 0) {
             throw A();   // Compliant 
         }
+        if (i == 0) {
+            throw B();   // Compliant
+        }
         if (i > 5) {
-            throw B();   // Non-compliant 
+            throw C();   // Non-compliant, missing handler
         }
         ....
-    } catch (const A&) {
-        ....
+    }
+    catch (A&) {
+        return 1;
+    }
+    catch (B&) {
+        throw;     // Non-compliant, missing handler
     }
 }
 ```
-例中 B 类型的异常未被处理，程序异常终止。
 <br/>
 <br/>
 
@@ -10248,7 +10255,7 @@ ID_diamondExceptionInheritance&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception war
 
 <hr/>
 
-当异常类有多个基类，这些基类又派生自同一个非虚基类时，无法通过该非虚基类捕获异常。  
+当异常类有多个基类，这些基类又派生自同一非虚基类时，无法通过该非虚基类捕获异常。  
   
 本规则是 ID\_diamondInheritance 的特化。  
   
@@ -10600,15 +10607,15 @@ MISRA C++ 2008 15-0-2
 <br/>
 <br/>
 
-### <span id="forbidthrowspecification">▌R7.24 禁用含 throw 关键字的异常规格说明</span>
+### <span id="forbidthrowspecification">▌R7.24 禁用动态异常规格说明</span>
 
 ID_forbidThrowSpecification&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: exception warning
 
 <hr/>
 
-由 throw 关键字声明的动态异常规格说明已过时，应采用由 noexcept 关键字声明的方式。  
+由 throw 关键字声明的“[动态异常规格说明（dynamic exception specification）](https://en.cppreference.com/w/cpp/language/except_spec)”已过时，应采用由 noexcept 关键字声明的方式。  
   
-将所有可能抛出的异常详细列出，尤其是牵扯到第三方不可控代码时，会增大代码的管理成本，而且各编译器相关的实现方式并未统一，现已移出标准。  
+将所有可能抛出的异常详细列出，尤其是牵扯到第三方不可控代码时，会大幅增加代码的管理成本，而且各编译器相关的实现方式并未统一，现已从 C\+\+17 标准中移出。  
   
 示例：
 ```
@@ -10622,7 +10629,7 @@ int foo() noexcept(false);   // Compliant
 ```
 int bar() throw();   // Let it go?
 ```
-在 C\+\+17 标准之前，空的 throw 异常规格说明与 noexcept 等价，审计工具不妨通过配置决定是否放过这种方式。 
+throw() 与 noexcept 等价，C\+\+17 保留了 throw()，但不建议继续使用，审计工具不妨通过配置决定是否放过这种方式。 
 <br/>
 <br/>
 
@@ -16925,7 +16932,7 @@ ID_implementationDefinedFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression 
 由实现定义的（implementation\-defined）库函数会增加移植或兼容等方面的成本。  
   
 如：  
- - cstdlib、stdlib.h 中的 abort、exit、getenv 或 system 等函数  
+ - cstdlib、stdlib.h 中的 abort、exit、\_Exit、quick\_exit、getenv、system 等函数  
  - ctime、time.h 中的 clock 等函数  
  - csignal、signal.h 中的 signal 等函数  
   
@@ -16939,7 +16946,7 @@ void foo() {
     abort();   // Non-compliant
 }
 ```
-标准规定调用 abort 后进程应被终止，但进程打开的流是否会被关闭，创建的临时文件是否会被清理等问题没明确定义。
+调用 abort 函数会终止进程，但打开的流是否会被关闭，缓冲区内的数据是否会写入文件，临时文件是否会被清理则由实现定义。
 <br/>
 <br/>
 
@@ -16947,7 +16954,9 @@ void foo() {
 ISO/IEC 9899:2011 7.14.1.1(3)-implementation  
 ISO/IEC 9899:2011 7.22.4.1(2)-implementation  
 ISO/IEC 9899:2011 7.22.4.4(5)-implementation  
+ISO/IEC 9899:2011 7.22.4.5(2)-implementation  
 ISO/IEC 9899:2011 7.22.4.6(2)-implementation  
+ISO/IEC 9899:2011 7.22.4.7(4)-implementation  
 ISO/IEC 9899:2011 7.22.4.8(3)-implementation  
 ISO/IEC 9899:2011 7.27.2.1(3)-implementation  
 <br/>

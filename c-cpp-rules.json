@@ -1016,9 +1016,9 @@
         "reference": "MISRA C++ 2008 15-3-4,SEI CERT ERR51-CPP"
         },
     "ID_forbidThrowSpecification": {
-        "checkPoint": "禁用含 throw 关键字的异常规格说明",
+        "checkPoint": "禁用动态异常规格说明",
         "level": "warning",
-        "comment": "由 throw 关键字声明的动态异常规格说明已过时，应采用由 noexcept 关键字声明的方式。",
+        "comment": "由 throw 关键字声明的“动态异常规格说明（dynamic exception specification）”已过时，应采用由 noexcept 关键字声明的方式。",
         "config": [
             "forbidEmptyThrowSpecification: 是否放过空 throw 异常规格说明"
             ],
@@ -2123,7 +2123,7 @@
     "ID_diamondExceptionInheritance": {
         "checkPoint": "避免异常类多重继承自同一非虚基类",
         "level": "warning",
-        "comment": "当异常类有多个基类，这些基类又派生自同一个非虚基类时，无法通过该非虚基类捕获异常。",
+        "comment": "当异常类有多个基类，这些基类又派生自同一非虚基类时，无法通过该非虚基类捕获异常。",
         "tag": "exception",
         "related": "ID_diamondInheritance",
         "standard": "ISO/IEC 14882:2003 10.1(4 5 6),ISO/IEC 14882:2011 10.1(4 5 6 7)"
@@ -3359,7 +3359,7 @@
         "level": "warning",
         "comment": "由实现定义的（implementation-defined）库函数会增加移植或兼容等方面的成本。",
         "tag": "expression",
-        "standard": "ISO/IEC 9899:2011 7.14.1.1(3)-implementation,ISO/IEC 9899:2011 7.22.4.1(2)-implementation,ISO/IEC 9899:2011 7.22.4.4(5)-implementation,ISO/IEC 9899:2011 7.22.4.6(2)-implementation,ISO/IEC 9899:2011 7.22.4.8(3)-implementation,ISO/IEC 9899:2011 7.27.2.1(3)-implementation",
+        "standard": "ISO/IEC 9899:2011 7.14.1.1(3)-implementation,ISO/IEC 9899:2011 7.22.4.1(2)-implementation,ISO/IEC 9899:2011 7.22.4.4(5)-implementation,ISO/IEC 9899:2011 7.22.4.5(2)-implementation,ISO/IEC 9899:2011 7.22.4.6(2)-implementation,ISO/IEC 9899:2011 7.22.4.7(4)-implementation,ISO/IEC 9899:2011 7.22.4.8(3)-implementation,ISO/IEC 9899:2011 7.27.2.1(3)-implementation",
         "reference": "CWE-474,CWE-589,MISRA C 2004 20.8,MISRA C 2004 20.11,MISRA C 2004 20.12,MISRA C 2012 21.5,MISRA C 2012 21.8,MISRA C 2012 21.10,MISRA C++ 2008 18-0-3,MISRA C++ 2008 18-0-4,MISRA C++ 2008 18-7-1"
         },
     "ID_missingVoid": {
