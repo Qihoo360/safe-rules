@@ -9617,8 +9617,6 @@ ID_uncaughtException&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
   
 应避免 std::terminate 函数被执行。std::terminate 函数执行前相关调用栈中的对象是否会被析构由实现定义。std::terminate 函数会调用由 std::set\_terminate 指定的回调函数，在默认情况下会执行 abort 函数终止进程，但打开的流是否会被关闭，缓冲区内的数据是否会写入文件，临时文件是否会被清理等问题仍由实现定义。  
   
-为了使程序具有明确的行为，所有 throw 表达式均应由对应的 catch handler 处理。  
-  
 示例：
 ```
 class A {};
@@ -9694,7 +9692,7 @@ catch (std::exception&)   // Other exceptions are also caught
 ```
 foo 函数在参数不符合要求时抛出 std::exception 类的异常，过于宽泛，如果 bar 函数抛出从 std::exception 派生的其他异常，也会被当作“参数不符合要求”处理。  
   
-正确的做法是为各种异常定义具体的类：
+应为异常定义具体的类：
 ```
 class WrongArg {};
 
@@ -9746,7 +9744,7 @@ catch (...)   // Non-compliant
     std::cout << "wrong argument\n";
 }
 ```
-例中 foo 函数在参数不符合要求时抛出异常，而 bar 函数会抛出其他异常，用 catch\-all handler 将所有异常都算作“参数不符合要求”是不合理的。  
+例中 foo 函数在参数不符合要求时抛出异常，bar 函数会抛出其他异常，用 catch\-all handler 将所有异常都当作“参数不符合要求”是不合理的。  
   
 例外：
 ```
