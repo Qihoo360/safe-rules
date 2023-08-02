@@ -151,7 +151,7 @@
     "ID_throwGenericException": {
         "checkPoint": "不应抛出过于宽泛的异常",
         "level": "warning",
-        "comment": "抛出过于宽泛的异常，如 std::exception、std::logic_error、std::runtime_error 等，会使异常处理失去针对性，而且处理这种异常时很可能会将本不应处理的异常一并捕获，造成混乱。",
+        "comment": "抛出过于宽泛的异常，如 std::exception、std::logic_error、std::runtime_error 等类型的异常，会使异常处理失去针对性，而且处理这种异常时很可能会将本不应处理的异常一并捕获。",
         "tag": "exception",
         "related": "ID_catch_generic",
         "reference": "CWE-397"
@@ -499,7 +499,7 @@
     "ID_catch_slicing": {
         "checkPoint": "捕获异常时不应产生对象切片问题",
         "level": "warning",
-        "comment": "通过值捕获多态类的异常对象，会使对象的多态性失效，造成异常处理方面的错误。",
+        "comment": "通过值捕获多态类的异常对象会使其多态性失效，使异常被错误处理。",
         "tag": "exception",
         "related": "ID_catch_value,ID_objectSlicing",
         "reference": "C++ Core Guidelines C.145,C++ Core Guidelines ES.63"
@@ -507,7 +507,7 @@
     "ID_catch_generic": {
         "checkPoint": "不应捕获过于宽泛的异常",
         "level": "warning",
-        "comment": "捕获过于宽泛的异常，如 std::exception、std::logic_error、std::runtime_error 等，会使异常处理失去针对性，而且很可能会将本不应处理的异常一并捕获，造成混乱。",
+        "comment": "捕获过于宽泛的异常，如捕获 std::exception、std::logic_error、std::runtime_error 等类型的异常，或使用 catch-all handler 捕获所有异常，会使异常处理失去针对性，而且很可能会将本不应处理的异常一并捕获。",
         "tag": "exception",
         "related": "ID_throwGenericException",
         "reference": "CWE-396"
@@ -1007,13 +1007,13 @@
         "reference": "MISRA C++ 2008 15-3-1,SEI CERT ERR58-CPP"
         },
     "ID_uncaughtException": {
-        "checkPoint": "处理所有显式抛出的异常",
+        "checkPoint": "处理所有异常",
         "level": "warning",
-        "comment": "如果由 throw 表达式显式抛出的异常没有被相应的 catch handler 处理会导致 std::terminate 函数的执行，使程序异常终止。",
+        "comment": "如果被抛出的异常没有被相应的 catch handler 处理会引发 std::terminate 函数的执行，使程序异常终止。",
         "tag": "exception",
-        "related": "ID_throwOutOfMain",
+        "related": "ID_throwOutOfMain,ID_implementationDefinedFunction",
         "standard": "ISO/IEC 14882:2003 15.3(9)-implementation,ISO/IEC 14882:2003 15.5.1(2)-implementation,ISO/IEC 14882:2011 15.3(9)-implementation,ISO/IEC 14882:2011 15.5.1(2)-implementation",
-        "reference": "MISRA C++ 2008 15-3-4,SEI CERT ERR51-CPP"
+        "reference": "MISRA C++ 2008 15-3-2,MISRA C++ 2008 15-3-4,SEI CERT ERR51-CPP"
         },
     "ID_forbidThrowSpecification": {
         "checkPoint": "禁用动态异常规格说明",
@@ -1894,7 +1894,7 @@
     "ID_throwInNoexcept": {
         "checkPoint": "由 noexcept 标记的函数不可产生未处理的异常",
         "level": "warning",
-        "comment": "noexcept、noexcept(true) 表示无异常抛出，有相关标记的函数产生未被处理的异常属于逻辑错误，并会引发 std::terminate 函数的执行，使程序异常终止。",
+        "comment": "由 noexcept 标记的函数产生未被处理的异常属于逻辑错误，会引发 std::terminate 函数的执行，使程序异常终止。",
         "tag": "exception",
         "related": "ID_uncaughtException",
         "standard": "ISO/IEC 14882:2011 15.4(9),ISO/IEC 14882:2017 18.4(5)",

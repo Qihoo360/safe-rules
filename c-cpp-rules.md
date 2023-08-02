@@ -316,7 +316,7 @@
 
 <span id="__exception">**[7. Exception](#exception)**</span>
   - [R7.1 保证异常安全](#exceptionunsafe)
-  - [R7.2 处理所有显式抛出的异常](#uncaughtexception)
+  - [R7.2 处理所有异常](#uncaughtexception)
   - [R7.3 不应抛出过于宽泛的异常](#throwgenericexception)
   - [R7.4 不应捕获过于宽泛的异常](#catch_generic)
   - [R7.5 不应抛出非异常类型的对象](#thrownonexceptiontype)
@@ -9607,13 +9607,13 @@ Effective C++ item 29
 <br/>
 <br/>
 
-### <span id="uncaughtexception">▌R7.2 处理所有显式抛出的异常</span>
+### <span id="uncaughtexception">▌R7.2 处理所有异常</span>
 
 ID_uncaughtException&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
 <hr/>
 
-如果由 throw 表达式显式抛出的异常没有被相应的 catch handler 处理会引发 std::terminate 函数的执行，使程序异常终止。  
+如果被抛出的异常没有被相应的 catch handler 处理会引发 std::terminate 函数的执行，使程序异常终止。  
   
 应避免 std::terminate 函数被执行。std::terminate 函数执行前相关调用栈中的对象是否会被析构由实现定义。std::terminate 函数会调用由 std::set\_terminate 指定的回调函数，在默认情况下会执行 abort 函数终止进程，但打开的流是否会被关闭，缓冲区内的数据是否会写入文件，临时文件是否会被清理等问题仍由实现定义。  
   
@@ -9653,6 +9653,7 @@ int main()
 
 #### 相关
 ID_throwOutOfMain  
+ID_implementationDefinedFunction  
 <br/>
 
 #### 依据
@@ -9663,6 +9664,7 @@ ISO/IEC 14882:2011 15.5.1(2)-implementation
 <br/>
 
 #### 参考
+MISRA C++ 2008 15-3-2  
 MISRA C++ 2008 15-3-4  
 SEI CERT ERR51-CPP  
 <br/>
@@ -9674,47 +9676,38 @@ ID_throwGenericException&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
 <hr/>
 
-抛出过于宽泛的异常，如 std::exception、std::logic\_error、std::runtime\_error 等，会使异常处理失去针对性，而且处理这种异常时很可能会将本不应处理的异常一并捕获，造成混乱。  
+抛出过于宽泛的异常，如 std::exception、std::logic\_error、std::runtime\_error 等类型的异常，会使异常处理失去针对性，而且处理这种异常时很可能会将本不应处理的异常一并捕获。  
   
 示例：
 ```
-int foo(int a) {
+void foo(int a) try
+{
     if (a < 0) {
-        throw std::exception();  // Non-compliant
+        throw std::exception();   // Non-compliant
     }
-    return bar(a);  // Other exceptions may be thrown
+    bar(a);   // Other exceptions may be thrown
 }
-
-void baz(int a) {
-    try {
-        foo(a);
-    } catch (std::exception& e) {  // Other exceptions are also caught
-        ....
-    }
+catch (std::exception&)   // Other exceptions are also caught
+{
+    std::cout << "wrong argument\n";
 }
 ```
-foo 函数在参数不符合要求时抛出 std::exception 类的异常，过于宽泛，如果 bar 函数也抛出从 std::exception 派生的异常，也会被当作“参数不符合要求”处理，这显然是错误的。  
+foo 函数在参数不符合要求时抛出 std::exception 类的异常，过于宽泛，如果 bar 函数抛出从 std::exception 派生的其他异常，也会被当作“参数不符合要求”处理。  
   
 正确的做法是为各种异常定义具体的类：
 ```
-class WrongArg {
-public:
-    WrongArg() {}
-};
+class WrongArg {};
 
-int foo(int a) {
+void foo(int a) try
+{
     if (a < 0) {
-        throw WrongArg();  // Compliant
+        throw WrongArg();   // Compliant
     }
-    return bar(a);  // Other exceptions may be thrown
+    bar(a);
 }
-
-void baz(int a) {
-    try {
-        foo(a);
-    } catch (WrongArg& e) {  // Right
-        ....
-    }
+catch (WrongArg&)   // Right
+{
+    std::cout << "wrong argument\n";
 }
 ```
 <br/>
@@ -9735,22 +9728,42 @@ ID_catch_generic&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
 <hr/>
 
-捕获过于宽泛的异常，如 std::exception、std::logic\_error、std::runtime\_error 等，会使异常处理失去针对性，而且很可能会将本不应处理的异常一并捕获，造成混乱。  
-  
-相关讨论详见 ID\_throwGenericException。  
+捕获过于宽泛的异常，如捕获 std::exception、std::logic\_error、std::runtime\_error 等类型的异常，或使用 catch\-all handler 捕获所有异常，会使异常处理失去针对性，而且很可能会将本不应处理的异常一并捕获。  
   
 示例：
 ```
-try {
-    ....
-} catch (std::logic_error&) {   // Non-compliant
-    ....
-} catch (std::runtime_error&) {   // Non-compliant
-    ....
-} catch (std::exception&) {   // Non-compliant
-    ....
+class WrongArg {};
+
+void foo(int a) try
+{
+    if (a < 0) {
+        throw WrongArg();
+    }
+    bar(a);   // Other exceptions may be thrown
+}
+catch (...)   // Non-compliant
+{
+    std::cout << "wrong argument\n";
 }
 ```
+例中 foo 函数在参数不符合要求时抛出异常，而 bar 函数会抛出其他异常，用 catch\-all handler 将所有异常都算作“参数不符合要求”是不合理的。  
+  
+例外：
+```
+try
+{
+    ext_interface();   // External interface
+}
+catch (std::exception& e)   // Let it go, but comments are required
+{
+    log(e.what());
+}
+catch (...)   // Let it go, but comments are required
+{
+    log("unknown exception");
+}
+```
+当不受控制的外部代码会抛出未知的异常时，可酌情捕获宽泛类型的异常，但应配以文档说明问题。
 <br/>
 <br/>
 
@@ -10227,8 +10240,7 @@ struct U {   // User defined type
     int* p;
 };
 
-template <>
-struct std::hash<U> {
+template <> struct std::hash<U> {   // Hash specialization
     using argument_type = U;
     using result_type = size_t;
 
@@ -10255,20 +10267,22 @@ ID_throwInNoexcept&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
 <hr/>
 
-noexcept、noexcept(true) 表示无异常抛出，有相关标记的函数产生未被处理的异常属于逻辑错误，并会引发 std::terminate 函数的执行，使程序异常终止。  
+由 noexcept 标记的函数产生未被处理的异常属于逻辑错误，会引发 std::terminate 函数的执行，使程序异常终止。  
   
-程序异常终止所产生的问题可详见 ID\_uncaughtException 的进一步讨论。  
+程序异常终止所产生的问题可参见 ID\_uncaughtException 的进一步讨论。  
   
 示例：
+```
+void foo() noexcept
+{
+    throw Exception();   // Non-compliant, calls std::terminate()
+}
+```
+应处理相关异常或修正异常规格说明：
 ```
 void foo() noexcept(false)
 {
     throw Exception();   // Compliant
-}
-
-void bar() noexcept
-{
-    throw Exception();   // Non-compliant, calls std::terminate()
 }
 ```
 <br/>
@@ -10386,28 +10400,30 @@ ID_catch_slicing&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
 <hr/>
 
-通过值捕获多态类的异常对象，会使对象的多态性失效，造成异常处理方面的错误。  
+通过值捕获多态类的异常对象会使其多态性失效，使异常被错误处理。  
   
 本规则是 ID\_catch\_value 与 ID\_objectSlicing 的特化。  
   
 示例：
 ```
-class Exception {
-    ....
-public:
+struct Exception {
     virtual const char* what() const { return nullptr; }
+};
+
+struct Error: public Exception {
+    const char* what() const override { return "error"; }
 };
 
 void foo() {
     try {
-        ....   // If objects derived from Exception may be thrown
+        throw Error();
     }
     catch (Exception e) {   // Non-compliant, use reference instead
-        log(e.what());
+        log(e.what());      // Only returns nullptr
     }
 }
 ```
-设例中 Exception 是所有异常类的基类，不论哪种异常被捕获，what 只能返回 nullptr，丧失了多态性，使异常被错误处理。
+例中抛出的是派生类对象，但 what 函数只能返回 nullptr。
 <br/>
 <br/>
 
@@ -10495,20 +10511,20 @@ ID_rethrowOutOfCatch&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
 空 throw 表达式用于重新抛出当前捕获的异常，用在 catch handler 外是危险的，增大了流程控制的复杂性。  
   
-如果没有异常被捕获，空 throw 表达式会引发 std::terminate 函数的执行，导致进程异常退出。  
+如果当前没有异常被捕获，空 throw 表达式会引发 std::terminate 函数的执行，导致程序异常终止。  
   
 示例：
 ```
 void foo() {
-    throw;           // Non-compliant
+    throw;     // Non-compliant
 }
 
 void bar() {
     try {
-        throw;       // Non-compliant
+        throw;   // Non-compliant
     }
-    catch (...) {
-        ....         // Cannot catch "throw;"
+    catch (...) {   // Cannot catch ‘throw;’
+        ....
     }
 }
 ```
@@ -10537,21 +10553,21 @@ ID_throwPointer&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: exception suggestion
   
 示例：
 ```
-class E { .... } e;
+class E {} e;
 
 void foo() {
     if (cond) {
-        throw &e;     // Non-compliant
+        throw &e;   // Non-compliant
     } else {
-        throw new E;  // Non-compliant
+        throw new E;   // Non-compliant
     }
 }
 
 void bar() {
     try {
         foo();
-    } catch (E* p) {
-        ....          // ‘p’ should be deleted or not??
+    } catch (E* p) {   // ‘p’ should be deleted or not??
+        ....
     }
 }
 ```
