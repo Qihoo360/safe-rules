@@ -143,7 +143,10 @@
     "ID_throwNonExceptionType": {
         "checkPoint": "不应抛出非异常类型的对象",
         "level": "warning",
-        "comment": "不应将整数、字符串等非异常相关的对象当作异常抛出，否则意味着异常相关的设计是不健全的。",
+        "comment": "不应将整数、字符串等非异常类的对象当作异常抛出，否则意味着异常相关的设计是不健全的。",
+        "config": [
+            "mustInheritStdException: 是否要求异常类必须派生自 std::exception"
+            ],
         "tag": "exception",
         "related": "ID_catch_nonExceptionType",
         "reference": "C++ Core Guidelines E.14,C++ Core Guidelines E.3"
@@ -515,7 +518,7 @@
     "ID_catch_nonExceptionType": {
         "checkPoint": "不应捕获非异常类型的对象",
         "level": "warning",
-        "comment": "整数、字符串等非异常相关的对象不应被当作异常捕获，否则意味着异常相关的设计是不健全的。",
+        "comment": "整数、字符串等非异常类的对象不应被当作异常捕获，否则意味着异常相关的设计是不健全的。",
         "tag": "exception",
         "related": "ID_throwNonExceptionType",
         "reference": "C++ Core Guidelines E.14"
@@ -2559,8 +2562,8 @@
         },
     "ID_catch_emptyBlock": {
         "checkPoint": "不应存在空的 catch handler",
-        "level": "suggestion",
-        "comment": "空的 catch handler 掩盖了异常，不利于问题的排查与纠正，应至少添加日志记录等操作。",
+        "level": "warning",
+        "comment": "空的 catch handler 仅捕获异常，但未作任何处理，相当于掩盖了异常。",
         "tag": "control",
         "reference": "CWE-391,CWE-1069,CWE-1071"
         },

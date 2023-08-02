@@ -9780,10 +9780,10 @@ ID_throwNonExceptionType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
 <hr/>
 
-不应将整数、字符串等非异常相关的对象当作异常抛出，否则意味着异常相关的设计是不健全的。  
+不应将整数、字符串等非异常类的对象当作异常抛出，否则意味着异常相关的设计是不健全的。  
   
-完善的异常类型应满足：  
- - 将异常情况合理分类  
+完善的异常类型应满足如下需求：  
+ - 可以将异常合理分类  
  - 提供对异常情况的准确描述  
  - 使异常便于处理和调试  
   
@@ -9793,26 +9793,27 @@ ID_throwNonExceptionType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 ```
 void foo() {
     if (cond) {
-        throw 1;       // Non-compliant
+        throw 1;   // Non-compliant
     }
     throw "message";   // Non-compliant
 }
 ```
-整数或字符串无法区分异常的种类，如果不同的模块均将简单变量作为异常，很容易产生冲突。  
+整数或字符串无法区分异常的种类，如果不同的功能模块均将简单变量作为异常，很容易产生冲突。  
   
-应为各种异常定义具体的类：
+如果条件允许，应选择适当的标准异常类作为异常类的基类，并实现相关接口：
 ```
-class Error { .... };
-class Exception { .... };
+class MyError: public std::logic_error {
+public:
+    MyError(const char* msg): std::logic_error(msg) {}
+};
 
-void foo() {
-    if (cond) {
-        throw Error(1);           // Compliant
-    }
-    throw Exception("message");   // Compliant
+void bar() {
+    throw MyError("message");   // Compliant
 }
 ```
-注意，throw、try、catch 等关键字应专注于异常处理，不应使用这些关键字控制程序的业务流程，业务代码与异常处理代码应有明显区别，否则会使代码含混不明，效率也会降低，如：
+这样可使异常类形成继承体系，便于分类管理。  
+  
+另外，要注意 throw、try、catch 等关键字应专注于异常处理，不应使用这些关键字控制程序的业务流程，业务代码与异常处理代码应有明显区别，否则会使代码含混不明，效率也会降低，如：
 ```
 void bar(const vector<string>& v, const string& s) {
     auto b = v.begin();
@@ -9827,6 +9828,10 @@ void bar(const vector<string>& v, const string& s) {
 ```
 例中 bar 抛出字符串 s 在容器 v 中的位置，用异常机制实现与异常无关的功能，是不符合要求的。
 <br/>
+<br/>
+
+#### 配置
+mustInheritStdException：是否要求异常类必须派生自 std::exception  
 <br/>
 
 #### 相关
@@ -9845,9 +9850,9 @@ ID_catch_nonExceptionType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
 <hr/>
 
-整数、字符串等非异常相关的对象不应被当作异常捕获，否则意味着异常相关的设计是不健全的。  
+整数、字符串等非异常类的对象不应被当作异常捕获，否则意味着异常相关的设计是不健全的。  
   
-相关讨论详见  ID\_throwNonExceptionType。  
+可参见  ID\_throwNonExceptionType 的进一步讨论。  
   
 示例：
 ```
@@ -14594,11 +14599,11 @@ CWE-1071
 
 ### <span id="catch_emptyblock">▌R9.6.2 不应存在空的 catch handler</span>
 
-ID_catch_emptyBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: control suggestion
+ID_catch_emptyBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
 <hr/>
 
-空的 catch handler 掩盖了异常，不利于问题的排查与纠正，应至少添加日志记录等操作。  
+空的 catch handler 仅捕获异常，但未作任何处理，相当于掩盖了异常。  
   
 示例：
 ```
@@ -14606,20 +14611,20 @@ void foo() {
     try {
         ....
     }
-    catch (...)
-    {}            // Non-compliant, empty catch handler
+    catch (E&)   // Non-compliant, empty catch handler
+    {}
 }
 ```
-这样做并不能真正提高程序的稳定性，相当于逃避了问题，而且掩盖没有被处理的异常也可能会影响到其他方面的正常运行。  
+掩盖没有被处理的异常也可能会影响到程序其他方面的正常运行。  
   
-对于要求不能抛出异常的接口，不妨按下例处理，记录意料之外的异常情况，以便问题的排查：
+至少应添加日志记录等操作：
 ```
-void foo() noexcept {
+void foo() {
     try {
         ....
     }
-    catch (...) {
-        log(__FILE__, __LINE__, "messages");   // Compliant
+    catch (E&) {
+        log("messages");   // Compliant
     }
 }
 ```
@@ -14647,9 +14652,9 @@ ID_try_forbidNest&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: control suggestion
 ```
 try {
     ....
-    try {        // Non-compliant
+    try {    // Non-compliant
         ....
-    } catch (A&) {     // Confusing
+    } catch (A&) {    // Confusing
         ....
     }
 } catch (B&) {
