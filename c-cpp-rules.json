@@ -1781,7 +1781,7 @@
     "ID_disorderedInitialization": {
         "checkPoint": "成员初始化应遵循声明的顺序",
         "level": "error",
-        "comment": "类成员的初始化顺序是按声明的顺序进行的，如果用后面的成员初始化前面的成员，就会造成错误。",
+        "comment": "类成员的初始化顺序是按声明的顺序进行的，初始化前面的成员时不可使用后面成员的值。",
         "tag": "function",
         "standard": "ISO/IEC 14882:2003 12.6.2(5),ISO/IEC 14882:2011 12.6.2(10)",
         "reference": "C++ Core Guidelines C.47"
@@ -1928,7 +1928,7 @@
         "level": "error",
         "comment": "得不到执行机会的代码是没有意义的，往往意味着逻辑错误。",
         "tag": "function",
-        "related": "ID_staticNotUsed,ID_privateNotUsed,ID_constLogicExpression,ID_invalidCondition,ID_switch_caseOutOfRange,ID_if_identicalCondition,ID_if_hiddenCondition,ID_uncondJump,ID_try_disorderedEllipsis,ID_try_disorderedHandlers",
+        "related": "ID_staticNotUsed,ID_privateNotUsed,ID_constLogicExpression,ID_invalidCondition,ID_switch_caseOutOfRange,ID_if_identicalCondition,ID_if_hiddenCondition,ID_try_disorderedEllipsis,ID_try_disorderedHandlers,ID_uncondJump",
         "reference": "CWE-561,MISRA C 2004 14.1,MISRA C 2012 2.1,MISRA C++ 2008 0-1-1"
         },
     "ID_localInitialization": {

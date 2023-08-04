@@ -11171,7 +11171,7 @@ class A {
 public:
     A() try {   // Function-try-block
         ....
-    } catch (...) {   // A handler of the function-try-block
+    } catch (...) {
         access(i);    // Non-compliant, ‘i’ may no longer exist 
     }
 
@@ -11214,46 +11214,46 @@ ID_disorderedInitialization&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
 <hr/>
 
-类成员的初始化顺序是按声明的顺序进行的，如果用后面的成员初始化前面的成员，就会造成错误。  
+类成员的初始化顺序是按声明的顺序进行的，初始化前面的成员时不可使用后面成员的值。  
   
 示例：
 ```
-struct T {
+struct A {
     int* p;
     size_t n;
 
-    T(size_t s): n(s), p(new int[n])  // Non-compliant
+    A(size_t s): n(s), p(new int[n])  // Non-compliant
     {}
 };
 ```
-虽然在初始化列表中 n 在 p 的前面，但实际上 n 仍然在 p 之后被初始化，“new int\[n\]”会造成严重错误。  
+虽然在初始化列表中 n 在 p 的前面，但 p 先于 n 声明，n 仍然在 p 之后被初始化，“p(new int\[n\])”会造成严重错误。  
   
 应改为：
 ```
-struct T {
+struct A {
     size_t n;
     int* p;
 
-    T(size_t s): n(s), p(new int[n])  // Compliant
+    A(size_t s): n(s), p(new int[n])  // Compliant
     {}
 };
 ```
-调整了 n 和 p 的声明顺序，使 n 先于 p 初始化即可解决问题。  
+调整了 n 和 p 的声明顺序，使 n 先于 p 初始化即可。  
   
-几个特例：
+如果使用后面成员的地址初始化前面的成员，则不受本规则约束，如：
 ```
-struct A {
+struct B {
     int*& a;
     int*  b;
-    int*  c;
-    int   d[123];
-    
-    A(int): a(b), b(c), c(d) {}
+    int   c[3];
+
+    B():
+        a(b),  // OK
+        b(c)   // OK
+    {}
 };
 ```
-a 为引用，b 的地址在初始化之前就确定了，所以“a(b)”没问题  
-b 为指针，用 c 的值初始化 b 的值是不对的  
-d 为数组，也是一个地址，所以“c(d)”没有问题
+例中 a 为引用，b 的地址在初始化之前就确定了，所以“a(b)”没问题；c 为数组，也是一个地址，所以“b(c)”没有问题。
 <br/>
 <br/>
 
@@ -11716,9 +11716,9 @@ ID_invalidCondition
 ID_switch_caseOutOfRange  
 ID_if_identicalCondition  
 ID_if_hiddenCondition  
-ID_uncondJump  
 ID_try_disorderedEllipsis  
 ID_try_disorderedHandlers  
+ID_uncondJump  
 <br/>
 
 #### 参考
