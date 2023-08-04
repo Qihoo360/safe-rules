@@ -335,11 +335,11 @@
   - [R7.18 捕获异常时不应产生对象切片问题](#catch_slicing)
   - [R7.19 捕获异常后不应直接再次抛出异常](#catch_justrethrow)
   - [R7.20 重新抛出异常时应使用空 throw 表达式（throw;）](#improperrethrow)
-  - [R7.21 不应在 catch handler 外使用空 throw 表达式（throw;）](#rethrowoutofcatch)
+  - [R7.21 不应在 catch 子句外使用空 throw 表达式（throw;）](#rethrowoutofcatch)
   - [R7.22 不应抛出指针](#throwpointer)
   - [R7.23 不应抛出 NULL](#thrownull)
   - [R7.24 不应抛出 nullptr](#thrownullptr)
-  - [R7.25 禁用动态异常规格说明](#forbidthrowspecification)
+  - [R7.25 禁用动态异常说明](#forbidthrowspecification)
   - [R7.26 禁用 C\+\+ 异常](#forbidexception)
 <br/>
 
@@ -355,7 +355,7 @@
   - [R8.9 局部对象在使用前应被初始化](#localinitialization)
   - [R8.10 成员须在声明处或构造时初始化](#memberinitialization)
   - [R8.11 基类对象构造完毕之前不可调用成员函数](#illmembercall)
-  - [R8.12 在面向构造或析构函数体的 catch handler 中不可访问非静态成员](#illmemberaccess)
+  - [R8.12 在面向构造或析构函数体的 catch 子句中不可访问非静态成员](#illmemberaccess)
   - [R8.13 成员初始化应遵循声明的顺序](#disorderedinitialization)
   - [R8.14 在构造函数中不应使用动态类型](#virtualcallinconstructor)
   - [R8.15 在析构函数中不应使用动态类型](#virtualcallindestructor)
@@ -385,7 +385,7 @@
   - [R8.39 lambda 表达式的行数应在规定范围之内](#toomanylambdalines)
   - [R8.40 函数参数的数量应在规定范围之内](#toomanyparams)
   - [R8.41 不应定义过于复杂的内联函数](#complexinlinefunction)
-  - [R8.42 避免递归实现](#recursion)
+  - [R8.42 避免函数调用自身](#recursion)
   - [R8.43 作用域及类型嵌套不应过深](#nestedtoodeep)
   - [R8.44 汇编代码不应与普通代码混合](#mixedasm)
   - [R8.45 避免重复的函数实现](#functionrepetition)
@@ -447,11 +447,11 @@
     - [R9.5.14 switch 语句应该用大括号括起来](#switch_brace)
     - [R9.5.15 switch 语句不应嵌套](#switch_forbidnest)
   - [9.6 Try-catch](#control.try-catch)
-    - [R9.6.1 不应存在空的 try 块](#try_emptyblock)
-    - [R9.6.2 不应存在空的 catch handler](#catch_emptyblock)
+    - [R9.6.1 try 关键字的作用域不应为空](#try_emptyblock)
+    - [R9.6.2 catch 子句不应为空](#catch_emptyblock)
     - [R9.6.3 不应嵌套 try\-catch 语句](#try_forbidnest)
-    - [R9.6.4 捕获所有异常的 catch\-all handler 应位于最后](#try_disorderedellipsis)
-    - [R9.6.5 派生类的 catch handler 应排在基类 catch handler 之前](#try_disorderedhandlers)
+    - [R9.6.4 捕获所有异常的 catch(...) 子句应位于最后](#try_disorderedellipsis)
+    - [R9.6.5 面向派生类的 catch 子句应排在面向基类的 catch 子句之前](#try_disorderedhandlers)
   - [9.7 Jump](#control.jump)
     - [R9.7.1 禁止 goto 语句向嵌套的或无包含关系的作用域跳转](#forbidgotoblocks)
     - [R9.7.2 禁止 goto 语句向前跳转](#forbidgotoback)
@@ -1241,12 +1241,12 @@ ID_divideByZero&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security error
 ```
 int foo(int n) {
     if (n) {
-        ....
+        return 100 / n;   // Compliant
     }
-    return 100 / n;   // Non-compliant, must determine whether ‘n’ is 0
+    return 200 / n;   // Non-compliant, undefined behavior
 }
 ```
-当除数为 0 时，对于整形数据的除法，进程往往会崩溃，对于浮点型数据的除法，一般会产生“[Inf](https://en.wikipedia.org/wiki/Infinity#Computing)”或“[NaN](https://en.wikipedia.org/wiki/NaN)”等无效结果，在特殊的设置下，也可以使进程异常终止。  
+整数除 0 往往会使程序崩溃，浮点数除 0 可以产生“[Inf](https://en.wikipedia.org/wiki/Infinity#Computing)”或“[NaN](https://en.wikipedia.org/wiki/NaN)”等无效结果，在某些环境中也可以设置浮点异常使程序收到特定信号。  
   
 崩溃会给用户不好的体验，而且要注意如果崩溃可由外部输入引起，会被攻击者利用从而迫使程序无法正常工作，具有高可靠性要求的服务类程序更应该注意这一点，可参见“[拒绝服务攻击](https://en.wikipedia.org/wiki/Denial-of-service_attack)”的进一步说明。对于客户端程序，也要防止攻击者对崩溃产生的“[core dump](https://en.wikipedia.org/wiki/Core_dump)”进行恶意调试，避免泄露敏感数据，总之程序的健壮性与安全性是紧密相关的。
 <br/>
@@ -1259,6 +1259,7 @@ ID_sig_illReturn
 #### 依据
 ISO/IEC 9899:1999 6.5.5(5)-undefined  
 ISO/IEC 9899:2011 6.5.5(5)-undefined  
+ISO/IEC 14882:2003 5.6(4)-undefined  
 ISO/IEC 14882:2011 5.6(4)-undefined  
 ISO/IEC 14882:2017 8.6(4)-undefined  
 <br/>
@@ -2501,7 +2502,7 @@ malloc 等函数在分配失败时返回空指针，如果不加判断直接使�
   
 在有虚拟内存支持的平台中，正常的内存分配一般不会失败，但申请内存过多或有误时（如参数为负数）也会导致分配失败，而对于没有虚拟内存支持的或可用内存有限的嵌入式系统，检查分配资源是否成功是十分重要的，所以本规则应该作为代码编写的一般性要求。  
   
-库的实现更需要注意这一点，如果库在分配失败时直接崩溃或不加说明地结束进程，相当于干扰了主程序的决策权，很可能会造成难以排查的问题，对于有高可靠性要求的软件，在极端环境中的行为是需要明确设定的。  
+库的实现更需要注意这一点，如果库由于分配失败而使程序直接崩溃，相当于干扰了主程序的决策权，很可能会造成难以排查的问题，对于有高可靠性要求的软件，在极端环境中的行为是需要明确设定的。  
   
 示例：
 ```
@@ -9613,7 +9614,7 @@ ID_uncaughtException&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
 <hr/>
 
-如果被抛出的异常没有被相应的 catch handler 处理会引发 std::terminate 函数的执行，使程序异常终止。  
+如果被抛出的异常没有被相应的 catch 子句处理会引发 std::terminate 函数的执行，使程序异常终止。  
   
 应避免 std::terminate 函数被执行。std::terminate 函数执行前相关调用栈中的对象是否会被析构由实现定义。std::terminate 函数会调用由 std::set\_terminate 指定的回调函数，在默认情况下会执行 abort 函数终止进程，但打开的流是否会被关闭，缓冲区内的数据是否会写入文件，临时文件是否会被清理等问题仍由实现定义。  
   
@@ -9726,7 +9727,7 @@ ID_catch_generic&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
 <hr/>
 
-捕获过于宽泛的异常，如捕获 std::exception、std::logic\_error、std::runtime\_error 等类型的异常，或使用 catch\-all handler 捕获所有异常，会使异常处理失去针对性，而且很可能会将本不应处理的异常一并捕获。  
+捕获过于宽泛的异常，如捕获 std::exception、std::logic\_error、std::runtime\_error 等类型的异常，或使用 catch(...) 子句捕获所有异常，会使异常处理失去针对性，而且很可能会将本不应处理的异常一并捕获。  
   
 示例：
 ```
@@ -9744,7 +9745,7 @@ catch (...)   // Non-compliant
     std::cout << "wrong argument\n";
 }
 ```
-例中 foo 函数在参数不符合要求时抛出异常，bar 函数会抛出其他异常，用 catch\-all handler 将所有异常都当作“参数不符合要求”是不合理的。  
+例中 foo 函数在参数不符合要求时抛出异常，bar 函数会抛出其他异常，用 catch(...) 子句将所有异常都当作“参数不符合要求”是不合理的。  
   
 例外：
 ```
@@ -9800,7 +9801,7 @@ void foo() {
 ```
 整数或字符串无法区分异常的种类，如果不同的功能模块均将简单变量作为异常，很容易产生冲突。  
   
-如果条件允许，应选择适当的标准异常类作为异常类的基类，并实现相关接口：
+如果条件允许，应选择适当的标准异常类作为基类，并实现相关接口：
 ```
 class MyError: public std::logic_error {
 public:
@@ -9826,7 +9827,7 @@ void bar(const vector<string>& v, const string& s) {
     throw -1;   // Non-compliant
 }
 ```
-例中 bar 抛出字符串 s 在容器 v 中的位置，用异常机制实现与异常无关的功能，是不符合要求的。
+例中 bar 函数抛出字符串 s 在容器 v 中的位置，用异常机制实现与异常无关的功能，是不符合要求的。
 <br/>
 <br/>
 
@@ -10281,7 +10282,7 @@ void foo() noexcept
     throw Exception();   // Non-compliant, calls std::terminate()
 }
 ```
-应处理相关异常或修正异常规格说明：
+应处理相关异常或修正异常说明：
 ```
 void foo() noexcept(false)
 {
@@ -10506,13 +10507,13 @@ ISO/IEC 14882:2011 15.1(8)
 <br/>
 <br/>
 
-### <span id="rethrowoutofcatch">▌R7.21 不应在 catch handler 外使用空 throw 表达式（throw;）</span>
+### <span id="rethrowoutofcatch">▌R7.21 不应在 catch 子句外使用空 throw 表达式（throw;）</span>
 
 ID_rethrowOutOfCatch&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
 <hr/>
 
-空 throw 表达式用于重新抛出当前捕获的异常，用在 catch handler 外是危险的，增大了流程控制的复杂性。  
+空 throw 表达式用于重新抛出当前捕获的异常，用在 catch 子句外是危险的，增大了流程控制的复杂性。  
   
 如果当前没有异常被捕获，空 throw 表达式会引发 std::terminate 函数的执行，导致程序异常终止。  
   
@@ -10589,7 +10590,7 @@ ID_throwNULL&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
 <hr/>
 
-虽然 NULL 用来表示空指针，但在多数环境中 throw NULL 相当于 throw 0，类型的不明确会造成对异常的错误捕捉。  
+虽然 NULL 表示空指针，但在相当一部分实现中 throw NULL 相当于 throw 0，无法区分指针与整数。  
   
 示例：
 ```
@@ -10607,7 +10608,7 @@ void bar() {
     }
 }
 ```
-本例意在抛出一个空指针，然而会被捕获整数的 catch handler 捕获。
+例中 throw NULL 意在抛出空指针，然而会被 catch(int) 子句捕获。
 <br/>
 <br/>
 
@@ -10635,7 +10636,7 @@ ID_throwNullptr&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
 
 <hr/>
 
-nullptr 可被所有接受指针的 catch handler 捕捉，使异常处理失去针对性，故不应抛出 nullptr。  
+nullptr 可被所有接受指针的 catch 子句捕获，使异常处理失去针对性。  
   
 示例：
 ```
@@ -10665,15 +10666,15 @@ MISRA C++ 2008 15-0-2
 <br/>
 <br/>
 
-### <span id="forbidthrowspecification">▌R7.25 禁用动态异常规格说明</span>
+### <span id="forbidthrowspecification">▌R7.25 禁用动态异常说明</span>
 
 ID_forbidThrowSpecification&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: exception warning
 
 <hr/>
 
-由 throw 关键字声明的“[动态异常规格说明（dynamic exception specification）](https://en.cppreference.com/w/cpp/language/except_spec)”已过时，应采用由 noexcept 关键字声明的方式。  
+用 throw 关键字声明的“[动态异常说明（dynamic exception specification）](https://en.cppreference.com/w/cpp/language/except_spec)”已过时，应使用 noexcept 关键字完成异常说明。  
   
-将所有可能抛出的异常详细列出，尤其是牵扯到第三方不可控代码时，会大幅增加代码的管理成本，而且各编译器相关的实现方式并未统一，现已从 C\+\+17 标准中移出。  
+动态异常说明将所有可能抛出的异常详细列出，尤其是牵扯到外部不可控代码时，会大幅增加异常管理成本，而且各编译器相关实现并未统一，现已从 C\+\+17 标准中移出。  
   
 示例：
 ```
@@ -10692,7 +10693,7 @@ throw() 与 noexcept 等价，C\+\+17 保留了 throw()，但不建议继续使�
 <br/>
 
 #### 配置
-forbidEmptyThrowSpecification：是否放过空 throw 异常规格说明  
+forbidEmptyThrowSpecification：是否放过空 throw 异常说明  
 <br/>
 
 #### 依据
@@ -11154,13 +11155,13 @@ ISO/IEC 14882:2011 12.6.2(13)-undefined
 <br/>
 <br/>
 
-### <span id="illmemberaccess">▌R8.12 在面向构造或析构函数体的 catch handler 中不可访问非静态成员</span>
+### <span id="illmemberaccess">▌R8.12 在面向构造或析构函数体的 catch 子句中不可访问非静态成员</span>
 
 ID_illMemberAccess&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
 
 <hr/>
 
-当流程进入面向构造或析构函数体的 catch handler 时，非静态成员的生命周期已结束，如果继续访问会导致标准未定义的行为。  
+当流程进入面向构造或析构函数体的 catch 子句时，非静态成员的生命周期已结束，如果继续访问会导致标准未定义的行为。  
   
 示例：
 ```
@@ -11168,22 +11169,22 @@ class A {
     int i = 0;
 
 public:
-    A() try {        // Function-try-block
+    A() try {   // Function-try-block
         ....
-    } catch (...) {  // A handler of the function-try-block
-        access(i);   // Non-compliant, ‘i’ may no longer exist 
+    } catch (...) {   // A handler of the function-try-block
+        access(i);    // Non-compliant, ‘i’ may no longer exist 
     }
 
    ~A() try {
         ....
     } catch (...) {
-        access(i);   // Non-compliant, ‘i’ may no longer exist 
+        access(i);    // Non-compliant, ‘i’ may no longer exist 
     }
 };
 ```
-例中 access(i) 等访问是有问题的。  
+例中 catch 子句均面向函数体，从属于“函数 try 块（function\-try\-block）”，当流程进入 catch 子句时成员 i 的生命周期已结束，不应被访问。  
   
-应调整实现或将“function\-try\-block”改为普通“try\-block”：
+应调整实现或将 try\-catch 语句移入函数内：
 ```
 A::A() {
     try {
@@ -11679,7 +11680,7 @@ ID_unreachableCode&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: function error
  - 之前的所有分枝都提前结束了程序的执行  
  - 之前的必经分枝中存在不会结束执行的代码  
  - 所在分枝的条件恒为假（ID\_constLogicExpression、ID\_invalidCondition、ID\_switch\_caseOutOfRange）  
- - 所在分枝被其他分枝遮盖（ID\_if\_identicalCondition、ID\_if\_hiddenCondition）  
+ - 所在分枝被其他分枝遮盖（ID\_if\_identicalCondition、ID\_if\_hiddenCondition、ID\_try\_disorderedHandlers、ID\_try\_disorderedEllipsis）  
  - 流程被不受条件控制的跳转语句跨过（ID\_uncondJump）  
   
 示例：
@@ -11716,6 +11717,8 @@ ID_switch_caseOutOfRange
 ID_if_identicalCondition  
 ID_if_hiddenCondition  
 ID_uncondJump  
+ID_try_disorderedEllipsis  
+ID_try_disorderedHandlers  
 <br/>
 
 #### 参考
@@ -12539,15 +12542,15 @@ C++ Core Guidelines F.5
 <br/>
 <br/>
 
-### <span id="recursion">▌R8.42 避免递归实现</span>
+### <span id="recursion">▌R8.42 避免函数调用自身</span>
 
 ID_recursion&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-递归实现，如函数直接或间接地调用自身，易导致难以控制的堆栈溢出等错误。  
+函数直接或间接调用自身可实现递归算法，但调用栈的消耗情况不够直观，易导致栈溢出等错误。  
   
-应尽量用迭代、堆栈等非递归方法代替递归实现，对于难以使用非递归方式实现的特殊算法，应做到递归深度可控。  
+应使用复杂度更易控制的方法代替函数调用自身这种实现方式，对于难以代替的特殊算法，应做到资源消耗可控。  
   
 示例：
 ```
@@ -12555,7 +12558,7 @@ size_t foo(size_t n) {
     return n + foo(n - 1);  // Non-compliant
 }
 ```
-例中 foo 函数无条件地调用自身，是一种逻辑错误，导致无限的递归调用。  
+例中 foo 函数无条件地调用自身是一种逻辑错误，导致无限的递归调用。  
   
 又如：
 ```
@@ -12566,7 +12569,7 @@ size_t bar(size_t n) {
     return n;
 }
 ```
-例中 bar 函数设置了递归条件，但仍是不可取的，当参数 n 较大时仍然可以造成堆栈溢出错误。
+例中 bar 函数设置了递归条件，但仍是不可取的，当参数 n 较大时仍然可以造成栈溢出错误。
 <br/>
 <br/>
 
@@ -14571,24 +14574,23 @@ default:
 
 ### <span id="control.try-catch">9.6 Try-catch</span>
 
-### <span id="try_emptyblock">▌R9.6.1 不应存在空的 try 块</span>
+### <span id="try_emptyblock">▌R9.6.1 try 关键字的作用域不应为空</span>
 
 ID_try_emptyBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
 <hr/>
 
-空的 try 块是没有意义的，可能是残留代码或功能未实现。  
+try 关键字的作用域，即 try 关键字后的复合语句不应为空，否则无实际意义，往往是残留代码或功能未实现。  
   
 示例：
 ```
-try {
-    // Empty block or some code commented out
-}
-catch (Exception& e) {
-    // The whole statement is meaningless
+try   // Non-compliant, the compound-statement is empty
+{}
+catch (Exception& e)
+{
+    handle(e);  // The whole statement is meaningless
 }
 ```
-如果是残留代码应及时删去，否则引入无意义的异常处理会影响代码优化。
 <br/>
 <br/>
 
@@ -14597,13 +14599,13 @@ CWE-1071
 <br/>
 <br/>
 
-### <span id="catch_emptyblock">▌R9.6.2 不应存在空的 catch handler</span>
+### <span id="catch_emptyblock">▌R9.6.2 catch 子句不应为空</span>
 
 ID_catch_emptyBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
 <hr/>
 
-空的 catch handler 仅捕获异常，但未作任何处理，相当于掩盖了异常。  
+空的 catch 子句仅捕获异常而未作任何处理，相当于掩盖了异常。  
   
 示例：
 ```
@@ -14611,11 +14613,11 @@ void foo() {
     try {
         ....
     }
-    catch (E&)   // Non-compliant, empty catch handler
+    catch (E&)   // Non-compliant, empty catch-clause
     {}
 }
 ```
-掩盖没有被处理的异常也可能会影响到程序其他方面的正常运行。  
+掩盖异常也可能会影响到程序其他方面的正常运行。  
   
 至少应添加日志记录等操作：
 ```
@@ -14646,7 +14648,7 @@ ID_try_forbidNest&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: control suggestion
 
 嵌套的 try\-catch 语句使代码显得复杂，不利于阅读和维护。  
   
-在嵌套的 try\-catch 语句中较难看出 catch 子句与 try 子句的从属关系，尤其是相关代码行数较多时这种问题会更为明显，应将内嵌的 try\-catch 语句抽取成一个函数，使代码具有更清晰的静态结构。  
+在嵌套的 try\-catch 语句中较难看出各 catch 子句的从属关系，尤其是相关代码行数较多时这种问题会更为明显，应将内嵌的 try\-catch 语句抽取成函数，使代码具有更清晰的静态结构。  
   
 示例：
 ```
@@ -14669,21 +14671,21 @@ C++ Core Guidelines E.17
 <br/>
 <br/>
 
-### <span id="try_disorderedellipsis">▌R9.6.4 捕获所有异常的 catch-all handler 应位于最后</span>
+### <span id="try_disorderedellipsis">▌R9.6.4 捕获所有异常的 catch(...) 子句应位于最后</span>
 
 ID_try_disorderedEllipsis&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: control error
 
 <hr/>
 
-如果 catch\-all handler 排在前面，其后面的 handler 将失去作用。  
+如果 catch(...) 子句排在前面，其后面的 catch 子句会失去作用。  
   
 示例：
 ```
 try {
     ....
-} catch (...) {  // Non-compliant, disordered catch-all handler
+} catch (...) {   // Non-compliant, disordered catch-all handler
     ....
-} catch (const E&) {
+} catch (E&) {   // Unreachable
     ....
 }
 ```
@@ -14691,13 +14693,17 @@ try {
 ```
 try {
     ....
-} catch (const E&) {
+} catch (E&) {
     ....
-} catch (...) {  // Compliant
+} catch (...) {   // Compliant
     ....
 }
 ```
 <br/>
+<br/>
+
+#### 相关
+ID_unreachableCode  
 <br/>
 
 #### 依据
@@ -14713,40 +14719,44 @@ MISRA C++ 2008 15-3-7
 <br/>
 <br/>
 
-### <span id="try_disorderedhandlers">▌R9.6.5 派生类的 catch handler 应排在基类 catch handler 之前</span>
+### <span id="try_disorderedhandlers">▌R9.6.5 面向派生类的 catch 子句应排在面向基类的 catch 子句之前</span>
 
 ID_try_disorderedHandlers&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: control error
 
 <hr/>
 
-如果违反这个顺序，派生类的 catch handler 将失去作用。  
+以派生类对象为参数的 catch 子句应排在以基类对象为参数的 catch 子句之前，否则后面的 catch 子句会失去作用。  
   
 示例：
 ```
-class B { .... };
-class D: public B { .... };
+class B {};
+class D: public B {};
 
 try {
     ....
-} catch (const B&) {
+} catch (B&) {
     ....
-} catch (const D&) {  // Non-compliant, unreachable
+} catch (D&) {  // Non-compliant, unreachable
     ....
 }
 ```
-例中 B 为基类，D 为派生类，D 类异常会被 B 的 handler 捕获，D 的 handler 失去了作用。  
+例中 B 为基类，D 为派生类，D 类异常会被第一个 catch 子句捕获，第二个 catch 子句失去了作用。  
   
 应改为：
 ```
 try {
     ....
-} catch (const D&) {
+} catch (D&) {
     ....
-} catch (const B&) {  // Compliant
+} catch (B&) {  // Compliant
     ....
 }
 ```
 <br/>
+<br/>
+
+#### 相关
+ID_unreachableCode  
 <br/>
 
 #### 依据
@@ -14759,6 +14769,7 @@ ISO/IEC 14882:2011 18.3
 CWE-561  
 C++ Core Guidelines E.31  
 MISRA C++ 2008 15-3-6  
+SEI CERT ERR54-CPP  
 <br/>
 <br/>
 
@@ -14990,8 +15001,6 @@ ID_uncondJump&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 <hr/>
 
 不受条件控制的跳转语句会剥夺其后续代码的执行机会，往往意味着逻辑错误，也可能是调试或维护痕迹。  
-  
-本规则是 ID\_unreachableCode 的特化。  
   
 示例：
 ```
