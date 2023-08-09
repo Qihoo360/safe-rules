@@ -4,7 +4,7 @@
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对 C、C++ 语言，本文收录了 474 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对 C、C++ 语言，本文收录了 476 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
@@ -106,23 +106,24 @@
   - [R2.5 资源的分配与回收方法应成对提供](#incompletenewdeletepair)
   - [R2.6 资源的分配与回收方法应配套使用](#incompatibledealloc)
   - [R2.7 不应在模块之间传递容器类对象](#crossmoduletransfer)
-  - [R2.8 对象申请的资源应在析构函数中释放](#memberdeallocation)
-  - [R2.9 对象被移动后应重置状态再使用](#useaftermove)
-  - [R2.10 构造函数抛出异常需避免相关资源泄漏](#throwinconstructor)
-  - [R2.11 资源不可被重复释放](#doublefree)
-  - [R2.12 用 delete 释放对象需保证其类型完整](#deleteincompletetype)
-  - [R2.13 用 delete 释放对象不可多写中括号](#excessivedelete)
-  - [R2.14 用 delete 释放数组不可漏写中括号](#insufficientdelete)
-  - [R2.15 非动态申请的资源不可被释放](#illdealloc)
-  - [R2.16 在一个表达式语句中最多使用一次 new](#multiallocation)
-  - [R2.17 流式资源对象不应被复制](#copiedstream)
-  - [R2.18 避免使用变长数组](#variablelengtharray)
-  - [R2.19 避免使用在栈上分配内存的函数](#stackallocation)
-  - [R2.20 局部数组不应过大](#unsuitablearraysize)
-  - [R2.21 避免不必要的内存分配](#unnecessaryallocation)
-  - [R2.22 避免动态内存分配](#dynamicallocation)
-  - [R2.23 判断资源分配函数的返回值是否有效](#nullderefallocret)
-  - [R2.24 C\+\+ 代码中禁用 C 内存管理函数](#forbidmallocandfree)
+  - [R2.8 不应在模块之间传递非标准布局类型的对象](#abiconflict)
+  - [R2.9 对象申请的资源应在析构函数中释放](#memberdeallocation)
+  - [R2.10 对象被移动后应重置状态再使用](#useaftermove)
+  - [R2.11 构造函数抛出异常需避免相关资源泄漏](#throwinconstructor)
+  - [R2.12 资源不可被重复释放](#doublefree)
+  - [R2.13 用 delete 释放对象需保证其类型完整](#deleteincompletetype)
+  - [R2.14 用 delete 释放对象不可多写中括号](#excessivedelete)
+  - [R2.15 用 delete 释放数组不可漏写中括号](#insufficientdelete)
+  - [R2.16 非动态申请的资源不可被释放](#illdealloc)
+  - [R2.17 在一个表达式语句中最多使用一次 new](#multiallocation)
+  - [R2.18 流式资源对象不应被复制](#copiedstream)
+  - [R2.19 避免使用变长数组](#variablelengtharray)
+  - [R2.20 避免使用在栈上分配内存的函数](#stackallocation)
+  - [R2.21 局部数组不应过大](#unsuitablearraysize)
+  - [R2.22 避免不必要的内存分配](#unnecessaryallocation)
+  - [R2.23 避免动态内存分配](#dynamicallocation)
+  - [R2.24 判断资源分配函数的返回值是否有效](#nullderefallocret)
+  - [R2.25 C\+\+ 代码中禁用 C 内存管理函数](#forbidmallocandfree)
 <br/>
 
 <span id="__precompile">**[3. Precompile](#precompile)**</span>
@@ -339,8 +340,9 @@
   - [R7.22 不应抛出指针](#throwpointer)
   - [R7.23 不应抛出 NULL](#thrownull)
   - [R7.24 不应抛出 nullptr](#thrownullptr)
-  - [R7.25 禁用动态异常说明](#forbidthrowspecification)
-  - [R7.26 禁用 C\+\+ 异常](#forbidexception)
+  - [R7.25 不应在模块之间传播异常](#crossmoduleexception)
+  - [R7.26 禁用动态异常说明](#forbidthrowspecification)
+  - [R7.27 禁用 C\+\+ 异常](#forbidexception)
 <br/>
 
 <span id="__function">**[8. Function](#function)**</span>
@@ -1830,7 +1832,7 @@ ID_crossModuleTransfer&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource war
   
 与资源管理相关的对象，如流、字符串、智能指针以及自定义对象均不应在模块间传递。  
   
-不同的可执行模块往往拥有独立的资源管理机制，跨模块的分配与回收会造成严重错误，而且不同的模块可能由不同的编译器生成，对同一对象的实现也可能存在冲突。  
+不同的可执行模块往往具有独立的资源管理机制，跨模块的分配与回收会造成严重错误，而且不同的模块可能由不同的编译器生成，对同一对象的实现也可能存在冲突。  
   
 示例：
 ```
@@ -1847,16 +1849,66 @@ int main() {
     foo(v);   // Non-compliant, reallocation in a.dll, crash
 }
 ```
-例中容器 v 的初始内存由 b.exe 分配，b.exe 与 a.dll 有各自独立的堆栈，由于模板库的内联实现，reserve 函数会调用 a.dll 的内存管理函数重新分配 b.exe 中的内存，造成严重错误。
+例中容器 v 的初始内存由 b.exe 分配，b.exe 与 a.dll 具有独立的堆栈，由于模板库的内联实现，reserve 函数会调用 a.dll 的内存管理函数重新分配 b.exe 中的内存，造成严重错误。
 <br/>
 <br/>
 
 #### 相关
 ID_incompleteNewDeletePair  
+ID_ABIConflict  
 <br/>
 <br/>
 
-### <span id="memberdeallocation">▌R2.8 对象申请的资源应在析构函数中释放</span>
+### <span id="abiconflict">▌R2.8 不应在模块之间传递非标准布局类型的对象</span>
+
+ID_ABIConflict&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
+
+<hr/>
+
+非标准布局类型的运行时支持依赖编译器的具体实现，在不同编译器生成的模块间传递这种类型的对象会导致运行时错误。  
+  
+“[标准布局（standard\-layout）](https://en.cppreference.com/w/cpp/named_req/StandardLayoutType)”类型应符合下列要求：  
+ - 没有非标准布局和引用类型的非静态数据成员  
+ - 没有虚函数也没有虚基类  
+ - 所有非静态数据成员均有相同的访问权限  
+ - 没有非标准布局的基类  
+ - 不存在相同类型的基类对象  
+ - 所有非静态数据成员和位域都在同一类中声明  
+  
+除非模块均由同一编译器的同一版本生成，否则不满足上述要求的对象不应在模块之间传递。  
+  
+示例：
+```
+// a.dll
+class A {
+    ....
+public:
+    virtual void foo();   // Non standard-layout
+};
+
+void bar(A&);
+
+// b.exe
+int main() {
+    A a;
+    bar(a);   // Non-compliant
+}
+```
+设例中 a.dll 和 b.exe 由不同的编译器生成，b.exe 中定义的 a 对象被传递给了 a.dll 中定义的接口，由于存在虚函数，不同的编译器对 a 对象的内存布局会有不同的解读，从而造成冲突。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2011 9(7)  
+ISO/IEC 14882:2017 12(7)  
+<br/>
+
+#### 参考
+SEI CERT EXP60-CPP  
+<br/>
+<br/>
+
+### <span id="memberdeallocation">▌R2.9 对象申请的资源应在析构函数中释放</span>
 
 ID_memberDeallocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -1892,7 +1944,7 @@ C++ Core Guidelines E.6
 <br/>
 <br/>
 
-### <span id="useaftermove">▌R2.9 对象被移动后应重置状态再使用</span>
+### <span id="useaftermove">▌R2.10 对象被移动后应重置状态再使用</span>
 
 ID_useAfterMove&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -1941,7 +1993,7 @@ SEI CERT EXP63-CPP
 <br/>
 <br/>
 
-### <span id="throwinconstructor">▌R2.10 构造函数抛出异常需避免相关资源泄漏</span>
+### <span id="throwinconstructor">▌R2.11 构造函数抛出异常需避免相关资源泄漏</span>
 
 ID_throwInConstructor&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -2040,7 +2092,7 @@ ISO/IEC 14882:2017 8.3.4(21)
 <br/>
 <br/>
 
-### <span id="doublefree">▌R2.11 资源不可被重复释放</span>
+### <span id="doublefree">▌R2.12 资源不可被重复释放</span>
 
 ID_doubleFree&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
 
@@ -2074,7 +2126,7 @@ CWE-415
 <br/>
 <br/>
 
-### <span id="deleteincompletetype">▌R2.12 用 delete 释放对象需保证其类型完整</span>
+### <span id="deleteincompletetype">▌R2.13 用 delete 释放对象需保证其类型完整</span>
 
 ID_deleteIncompleteType&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -2113,7 +2165,7 @@ ISO/IEC 14882:2011 5.3.5(5)-undefined
 <br/>
 <br/>
 
-### <span id="excessivedelete">▌R2.13 用 delete 释放对象不可多写中括号</span>
+### <span id="excessivedelete">▌R2.14 用 delete 释放对象不可多写中括号</span>
 
 ID_excessiveDelete&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
 
@@ -2145,7 +2197,7 @@ C++ Core Guidelines ES.61
 <br/>
 <br/>
 
-### <span id="insufficientdelete">▌R2.14 用 delete 释放数组不可漏写中括号</span>
+### <span id="insufficientdelete">▌R2.15 用 delete 释放数组不可漏写中括号</span>
 
 ID_insufficientDelete&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
 
@@ -2180,7 +2232,7 @@ C++ Core Guidelines ES.61
 <br/>
 <br/>
 
-### <span id="illdealloc">▌R2.15 非动态申请的资源不可被释放</span>
+### <span id="illdealloc">▌R2.16 非动态申请的资源不可被释放</span>
 
 ID_illDealloc&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
 
@@ -2218,7 +2270,7 @@ MISRA C 2012 22.2
 <br/>
 <br/>
 
-### <span id="multiallocation">▌R2.16 在一个表达式语句中最多使用一次 new</span>
+### <span id="multiallocation">▌R2.17 在一个表达式语句中最多使用一次 new</span>
 
 ID_multiAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -2263,7 +2315,7 @@ C++ Core Guidelines R.13
 <br/>
 <br/>
 
-### <span id="copiedstream">▌R2.17 流式资源对象不应被复制</span>
+### <span id="copiedstream">▌R2.18 流式资源对象不应被复制</span>
 
 ID_copiedStream&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -2292,7 +2344,7 @@ MISRA C 2012 22.5
 <br/>
 <br/>
 
-### <span id="variablelengtharray">▌R2.18 避免使用变长数组</span>
+### <span id="variablelengtharray">▌R2.19 避免使用变长数组</span>
 
 ID_variableLengthArray&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -2340,7 +2392,7 @@ MISRA C 2012 18.8
 <br/>
 <br/>
 
-### <span id="stackallocation">▌R2.19 避免使用在栈上分配内存的函数</span>
+### <span id="stackallocation">▌R2.20 避免使用在栈上分配内存的函数</span>
 
 ID_stackAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -2375,7 +2427,7 @@ SEI CERT MEM05-C
 <br/>
 <br/>
 
-### <span id="unsuitablearraysize">▌R2.20 局部数组不应过大</span>
+### <span id="unsuitablearraysize">▌R2.21 局部数组不应过大</span>
 
 ID_unsuitableArraySize&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -2416,7 +2468,7 @@ SEI CERT MEM05-C
 <br/>
 <br/>
 
-### <span id="unnecessaryallocation">▌R2.21 避免不必要的内存分配</span>
+### <span id="unnecessaryallocation">▌R2.22 避免不必要的内存分配</span>
 
 ID_unnecessaryAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -2455,7 +2507,7 @@ ID_dynamicAllocation
 <br/>
 <br/>
 
-### <span id="dynamicallocation">▌R2.22 避免动态内存分配</span>
+### <span id="dynamicallocation">▌R2.23 避免动态内存分配</span>
 
 ID_dynamicAllocation&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -2489,7 +2541,7 @@ MISRA C++ 2008 18-4-1
 <br/>
 <br/>
 
-### <span id="nullderefallocret">▌R2.23 判断资源分配函数的返回值是否有效</span>
+### <span id="nullderefallocret">▌R2.24 判断资源分配函数的返回值是否有效</span>
 
 ID_nullDerefAllocRet&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
@@ -2524,7 +2576,7 @@ CWE-476
 <br/>
 <br/>
 
-### <span id="forbidmallocandfree">▌R2.24 C++ 代码中禁用 C 内存管理函数</span>
+### <span id="forbidmallocandfree">▌R2.25 C++ 代码中禁用 C 内存管理函数</span>
 
 ID_forbidMallocAndFree&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: resource warning
 
@@ -10663,7 +10715,44 @@ MISRA C++ 2008 15-0-2
 <br/>
 <br/>
 
-### <span id="forbidthrowspecification">▌R7.25 禁用动态异常说明</span>
+### <span id="crossmoduleexception">▌R7.25 不应在模块之间传播异常</span>
+
+ID_crossModuleException&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: exception warning
+
+<hr/>
+
+异常的传播机制依赖编译器的具体实现，在不同编译器产生的模块间传播异常会造成运行时错误。  
+  
+除非模块均由同一编译器的同一版本生成，否则模块供外部使用的接口不应抛出异常。  
+  
+示例：
+```
+// a.dll
+void foo() {
+    throw Exception();   // Non-compliant
+}
+
+// b.exe
+int main() try {
+    foo();
+} catch (Exception&) {   // May not catch
+    //....
+}
+```
+设例中 a.dll 和 b.exe 由不同的编译器生成，异常的抛出机制和捕获机制可能并不匹配，进而导致冲突。
+<br/>
+<br/>
+
+#### 相关
+ID_ABIConflict  
+<br/>
+
+#### 参考
+SEI CERT ERR59-CPP  
+<br/>
+<br/>
+
+### <span id="forbidthrowspecification">▌R7.26 禁用动态异常说明</span>
 
 ID_forbidThrowSpecification&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: exception warning
 
@@ -10704,7 +10793,7 @@ C++ Core Guidelines E.30
 <br/>
 <br/>
 
-### <span id="forbidexception">▌R7.26 禁用 C++ 异常</span>
+### <span id="forbidexception">▌R7.27 禁用 C++ 异常</span>
 
 ID_forbidException&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: exception warning
 
@@ -21276,7 +21365,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 474 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
+&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 476 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
 
 &emsp;&emsp;此致
 

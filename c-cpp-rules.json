@@ -2181,7 +2181,23 @@
         "level": "warning",
         "comment": "在库或主程序等可执行模块之间传递容器类对象会造成分配回收方面的冲突。",
         "tag": "resource",
-        "related": "ID_incompleteNewDeletePair"
+        "related": "ID_incompleteNewDeletePair,ID_ABIConflict"
+        },
+    "ID_ABIConflict": {
+        "checkPoint": "不应在模块之间传递非标准布局类型的对象",
+        "level": "warning",
+        "comment": "非标准布局类型的运行时支持依赖编译器的具体实现，在不同编译器生成的模块间传递这种类型的对象会导致运行时错误。",
+        "tag": "resource",
+        "standard": "ISO/IEC 14882:2011 9(7),ISO/IEC 14882:2017 12(7)",
+        "reference": "SEI CERT EXP60-CPP"
+        },
+    "ID_crossModuleException": {
+        "checkPoint": "不应在模块之间传播异常",
+        "level": "warning",
+        "comment": "异常的传播机制依赖编译器的具体实现，在不同编译器产生的模块间传播异常会造成运行时错误。",
+        "tag": "exception",
+        "related": "ID_ABIConflict",
+        "reference": "SEI CERT ERR59-CPP"
         },
     "ID_stdNamespaceModified": {
         "checkPoint": "不可修改 std 命名空间",
