@@ -2186,7 +2186,7 @@
     "ID_ABIConflict": {
         "checkPoint": "不应在模块之间传递非标准布局类型的对象",
         "level": "warning",
-        "comment": "非标准布局类型的运行时支持依赖编译器的具体实现，在不同编译器生成的模块间传递这种类型的对象会导致运行时错误。",
+        "comment": "非标准布局类型的运行时特性依赖编译器的具体实现，在不同编译器生成的模块间传递这种类型的对象会导致运行时错误。",
         "tag": "resource",
         "standard": "ISO/IEC 14882:2011 9(7),ISO/IEC 14882:2017 12(7)",
         "reference": "SEI CERT EXP60-CPP"
