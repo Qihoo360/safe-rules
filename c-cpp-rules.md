@@ -105,7 +105,7 @@
   - [R2.4 资源应接受对象化管理](#ownerlessresource)
   - [R2.5 资源的分配与回收方法应成对提供](#incompletenewdeletepair)
   - [R2.6 资源的分配与回收方法应配套使用](#incompatibledealloc)
-  - [R2.7 模块之间不应传递容器等对象](#crossmoduletransfer)
+  - [R2.7 不应在模块之间传递容器类对象](#crossmoduletransfer)
   - [R2.8 对象申请的资源应在析构函数中释放](#memberdeallocation)
   - [R2.9 对象被移动后应重置状态再使用](#useaftermove)
   - [R2.10 构造函数抛出异常需避免相关资源泄漏](#throwinconstructor)
@@ -1700,9 +1700,9 @@ ID_incompleteNewDeletePair&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource
 
 <hr/>
 
-资源的分配方法和相应的回收方法应在同一模块中提供。  
+资源的分配和回收方法应在同一库或主程序等可执行模块、类等逻辑模块中提供。  
   
-如果一个模块分配的资源需要另一个模块回收，会打破模块之间的独立性，增加维护成本，而且 so、dll、exe 等模块一般都有独立的堆栈，跨模块的分配与回收往往会造成严重错误。  
+如果一个模块分配的资源需要另一个模块回收，会打破模块之间的独立性，增加维护成本，而且 so、dll、exe 等可执行模块一般都有独立的堆栈，跨模块的分配与回收往往会造成严重错误。  
   
 示例：
 ```
@@ -1740,8 +1740,7 @@ void bar() {
 ```
 修正后 a.dll 成对提供分配回收函数，b.dll 配套使用这些函数，避免了冲突。  
   
-对类等逻辑模块也有相同要求，在构造函数中分配了资源，应提供相应的析构函数，重载了 new 运算符，也应重载相应的 delete 运算符。  
-
+类等逻辑模块提供了分配方法，也应提供回收方法，如重载了 new 运算符，也应重载相应的 delete 运算符：
 ```
 class A {
     void* operator new(size_t);   // Non-compliant, missing ‘operator delete’
@@ -1821,17 +1820,17 @@ SEI CERT MEM51-CPP
 <br/>
 <br/>
 
-### <span id="crossmoduletransfer">▌R2.7 模块之间不应传递容器等对象</span>
+### <span id="crossmoduletransfer">▌R2.7 不应在模块之间传递容器类对象</span>
 
 ID_crossModuleTransfer&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource warning
 
 <hr/>
 
-容器的容量可以动态变化，在模块间传递这种对象会造成分配回收方面的冲突。  
+在库或主程序等可执行模块之间传递容器类对象会造成分配回收方面的冲突。  
   
-具有同等功能的对象，如流、字符串、智能指针等均不应在模块间传递。  
+与资源管理相关的对象，如流、字符串、智能指针以及自定义对象均不应在模块间传递。  
   
-在模块间传递复杂的对象也意味着模块耦合过于紧密，不是良好的设计。如果必须在模块间传递对象，需将所有相关资源的分配与回收过程限定在同一模块内，是繁琐且不利于维护的。  
+不同的可执行模块往往拥有独立的资源管理机制，跨模块的分配与回收会造成严重错误，而且不同的模块可能由不同的编译器生成，对同一对象的实现也可能存在冲突。  
   
 示例：
 ```
@@ -1842,15 +1841,13 @@ void foo(vector<int>& v) {
 
 // In b.exe
 int main() {
-    vector<int> v {  // Allocation in b.exe
+    vector<int> v {   // Allocation in b.exe
         1, 2, 3
     };
-    foo(v);          // Non-compliant, reallocation in a.dll, crash
+    foo(v);   // Non-compliant, reallocation in a.dll, crash
 }
 ```
-例中容器 v 的初始内存由 b.exe 分配，b.exe 与 a.dll 有各自独立的堆栈，由于模板库的内联实现，reserve 函数会调用 a.dll 的内存管理函数重新分配 b.exe 中的内存，造成严重冲突。  
-  
-另外，不同的模块可能由不同的编译器生成，声明与实现的差异也会导致冲突，参见“[Dll hell](https://en.wikipedia.org/wiki/DLL_Hell)”。
+例中容器 v 的初始内存由 b.exe 分配，b.exe 与 a.dll 有各自独立的堆栈，由于模板库的内联实现，reserve 函数会调用 a.dll 的内存管理函数重新分配 b.exe 中的内存，造成严重错误。
 <br/>
 <br/>
 
@@ -3582,7 +3579,7 @@ ID_deprecatedOffsetof&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 宏 offsetof 很难适用于具有 C\+\+ 特性的类，在 C\+\+ 代码中不应使用。  
   
 如果 offsetof 用于：  
- - 非“[standard layout](https://en.cppreference.com/w/cpp/named_req/StandardLayoutType)”类型  
+ - 非“[standard\-layout](https://en.cppreference.com/w/cpp/named_req/StandardLayoutType)”类型  
  - 计算静态成员或成员函数的偏移量  
   
 会导致标准未定义的行为。  

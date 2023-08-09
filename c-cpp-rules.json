@@ -2171,15 +2171,15 @@
     "ID_incompleteNewDeletePair": {
         "checkPoint": "资源的分配与回收方法应成对提供",
         "level": "suggestion",
-        "comment": "资源的分配方法和相应的回收方法应在同一模块中提供。",
+        "comment": "资源的分配和回收方法应在同一库或主程序等可执行模块、类等逻辑模块中提供。",
         "tag": "resource",
         "related": "ID_memberDeallocation,ID_crossModuleTransfer,ID_incompatibleDealloc",
         "reference": "C++ Core Guidelines R.15"
         },
     "ID_crossModuleTransfer": {
-        "checkPoint": "模块之间不应传递容器等对象",
+        "checkPoint": "不应在模块之间传递容器类对象",
         "level": "warning",
-        "comment": "容器的容量可以动态变化，在模块间传递这种对象会造成分配回收方面的冲突。",
+        "comment": "在库或主程序等可执行模块之间传递容器类对象会造成分配回收方面的冲突。",
         "tag": "resource",
         "related": "ID_incompleteNewDeletePair"
         },
