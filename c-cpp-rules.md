@@ -86,8 +86,8 @@
   - [R1.6 对资源设定合理的访问权限](#unlimitedauthority)
   - [R1.7 对用户落实有效的权限管理](#improperauthorization)
   - [R1.8 避免引用危险符号名称](#dangerousname)
-  - [R1.9 避免使用具有危险性的接口](#dangerousfunction)
-  - [R1.10 不应使用已过时的接口](#obsoletefunction)
+  - [R1.9 避免使用危险接口](#dangerousfunction)
+  - [R1.10 避免使用已过时的接口](#obsoletefunction)
   - [R1.11 禁用不安全的字符串函数](#unsafestringfunction)
   - [R1.12 确保字符串以空字符结尾](#impropernulltermination)
   - [R1.13 避免除 0 等计算异常](#dividebyzero)
@@ -312,7 +312,7 @@
     - [R6.10.6 不应存在没有被用到的 private 成员](#privatenotused)
     - [R6.10.7 不应省略声明对象或函数的类型](#missingtype)
     - [R6.10.8 用 stdint.h 中的类型代替 short、int、long 等类型](#unportabletype)
-    - [R6.10.9 避免使用 std::auto\_ptr](#deprecatedautoptr)
+    - [R6.10.9 不应使用已过时的标准库组件](#deprecatedautoptr)
 <br/>
 
 <span id="__exception">**[7. Exception](#exception)**</span>
@@ -742,7 +742,7 @@ void foo() {
     }
 }
 ```
-对于 Linux 等系统可参见如下有相似功能的系统 API：
+在 Linux 等系统中可参见如下有相似功能的接口：
 ```
 int mlock(const void* addr, size_t len);     // In <sys/mman.h>
 int munlock(const void* addr, size_t len);
@@ -1046,13 +1046,13 @@ CWE-327
 <br/>
 <br/>
 
-### <span id="dangerousfunction">▌R1.9 避免使用具有危险性的接口</span>
+### <span id="dangerousfunction">▌R1.9 避免使用危险接口</span>
 
 ID_dangerousFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-某些库函数或系统 API 本身就具有危险性，使用这种接口相当于直接引入了风险。  
+由于历史原因，有些系统接口甚至标准库函数存在缺陷，无法安全使用，也有一些接口的使用条件很苛刻，难以安全使用。  
   
 示例：
 ```
@@ -1071,7 +1071,7 @@ TerminateThread     // Forced termination of a thread can cause many problems
 GlobalMemoryStatus        // Return incorrect information, use ‘GlobalMemoryStatusEx’ instead
 SetProcessWorkingSetSize  // Cause adverse effects on other processes and the entire system
 ```
-gets 等函数无法检查缓冲区边界，是公认的危险函数；TerminateThread 等 Windows API 会强制终止线程，线程持有的资源无法正确释放会导致泄漏或死锁等问题，应避免使用这类函数。
+例中 gets 函数不检查缓冲区边界，无法安全使用；TerminateThread 等 Windows API 强制终止线程，线程持有的资源难以正确释放，极易导致泄漏或死锁等问题，应避免使用这类函数。
 <br/>
 <br/>
 
@@ -1081,32 +1081,48 @@ CWE-676
 <br/>
 <br/>
 
-### <span id="obsoletefunction">▌R1.10 不应使用已过时的接口</span>
+### <span id="obsoletefunction">▌R1.10 避免使用已过时的接口</span>
 
 ID_obsoleteFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 <hr/>
 
-某些库函数或系统 API 存在缺陷并已宣布过时，应改用更完善的替代方法。  
+避免使用在相关标准中已过时的接口，应改用更完善的替代方法以规避风险，提高可移植性。  
+  
+关于过时的 C\+\+ 标准库接口，本规则特化为 ID\_deprecatedAutoPtr。  
   
 示例：
 ```
-ctime           // Use ‘strftime’ instead
 asctime         // Use ‘strftime’ instead
 bcmp            // Use ‘memcmp’ instead
 bcopy           // Use ‘memmove’ or ‘memcpy’ instead
 bsd_signal      // Use ‘sigaction’ instead
+bzero           // Use ‘memset’ instead
+ctime           // Use ‘strftime’ instead
 gethostbyaddr   // Use ‘getnameinfo’ instead
 gethostbyname   // Use ‘getaddrinfo’ instead
+getwd           // Use ‘getcwd’ instead
+mktemp          // Use ‘mkstemp’ instead
+usleep          // Use ‘nanosleep’ instead
+utime           // Use ‘utimensat’ instead
+vfork           // Use ‘fork’ instead
+wcswcs          // Use ‘wcsstr’ instead
 
-RegCreateKey    // Use ‘RegCreateKeyEx’ instead
-RegEnumKey      // Use ‘RegEnumKeyEx’ instead
-RegOpenKey      // Use ‘RegOpenKeyEx’ instead
-RegQueryValue   // Use ‘RegQueryValueEx’ instead
-RegSetValue     // Use ‘RegSetValueEx’ instead
+pthread_attr_getstackaddr   // Use ‘pthread_attr_getstack’ instead
+pthread_attr_setstackaddr   // Use ‘pthread_attr_setstack’ instead
+
+CreateToolbarEx      // Use ‘CreateWindowEx’ instead
+InitCommonControls   // Use ‘InitCommonControlsEx’ instead
+NtQuerySystemTime    // Use ‘GetSystemTimeAsFileTime’ instead
+RegCreateKey         // Use ‘RegCreateKeyEx’ instead
+WinExec              // Use ‘CreateProcess’ instead
 ```
-例中 C89 声明的 ctime、asctime 等函数在 POSIX.1\-2008 中已宣告过时，应改用 strftime；RegCreateKey 等 16 位 Windows API 在 32 和 64 位平台中不应再使用。
+例中 C89 引入的 ctime、asctime 等函数在 POSIX.1\-2008 标准中已过时，应改用 strftime 函数；RegCreateKey 等 16 位 Windows API 在 32 和 64 位平台中不应再被使用。
 <br/>
+<br/>
+
+#### 相关
+ID_deprecatedAutoPtr  
 <br/>
 
 #### 参考
@@ -2785,7 +2801,7 @@ ID_forbiddenHeader&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompile warning
 ```
 tgmath.h 和 ctgmath 会使用语言标准之外的技术实现某种重载效果，而且其中的部分函数名称会干扰其他标准库中的名称，setjmp.h 和 csetjmp 则包含危险的过程间跳转函数。  
   
-iso646.h、stdalign.h、stdbool.h 以及 ciso646、cstdalign、cstdbool 对 C\+\+ 语言没有意义，ccomplex、cstdalign、cstdbool、ctgmath 等在 C\+\+17 标准中已声明为过时，在 C\+\+ 代码中不应使用这类头文件。  
+iso646.h、stdalign.h、stdbool.h 以及 ciso646、cstdalign、cstdbool 等头文件对 C\+\+ 语言没有意义，ccomplex、cstdalign、cstdbool、ctgmath 等头文件在 C\+\+17 标准中已过时，在 C\+\+ 代码中不应使用这些头文件。  
   
 stdio.h、signal.h、time.h、fenv.h 等头文件含有较多标准未声明或由实现定义的内容，对有高可靠性要求的软件系统也不建议使用。  
   
@@ -6785,7 +6801,7 @@ ID_constStrToNonConstPtr&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-常量字符串与非常量字符串指针的隐式转换是不安全的，一旦相关内存被修改会导致标准未定义的行为，这种转换在 C\+\+ 标准中已被声明为过时，在 C 代码中也不应出现。  
+常量字符串与非常量字符串指针的隐式转换是不安全的，一旦相关内存被修改会导致标准未定义的行为，这种转换在 C\+\+ 标准中是过时的，在 C 代码中也不应出现。  
   
 指向常量字符串的指针应声明为 const chartype \*，chartype 为常量字符串中的字符类型，如：
 ```
@@ -7122,7 +7138,7 @@ ID_deprecatedSpecifier&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-根据 C\+\+11 标准，register 等关键字已过时，auto 关键字也不可再作为存储类说明符（storage class specifier）。  
+在 C\+\+11 标准中，register 关键字已过时，auto 关键字也不可再作为“[存储类说明符（storage class specifier）](https://en.cppreference.com/w/cpp/language/storage_duration)”。  
   
 本规则对 C\+\+ 代码适用，C 代码可不受限制。  
   
@@ -9530,48 +9546,62 @@ MISRA C 2012 Dir 4.6
 <br/>
 <br/>
 
-### <span id="deprecatedautoptr">▌R6.10.9 避免使用 std::auto_ptr</span>
+### <span id="deprecatedautoptr">▌R6.10.9 不应使用已过时的标准库组件</span>
 
 ID_deprecatedAutoPtr&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-std::auto\_ptr 在 C\+\+11 标准中已被废弃，应使用 std::unique\_ptr。  
+已过时的标准库组件会被语言标准弃用，应改用更完善的替代方法。  
   
-std::auto\_ptr 在转移资源所有权等方面易被误用，std::unique\_ptr 在相关方面有更严格的限制。  
+下列 C\+\+ 标准库组件已过时：  
+ - 类型 auto\_ptr  
+ - 类型 binder1st、binder2nd 和函数 bind1st、bind2nd  
+ - 类型 const\_mem\_fun1\_ref\_t、const\_mem\_fun1\_t、const\_mem\_fun\_ref\_t、const\_mem\_fun\_t  
+ - 类型 ios\_base 的成员 io\_state、open\_mode、seek\_dir、streamoff、streampos  
+ - 类型 mem\_fun1\_ref\_t、mem\_fun1\_t、mem\_fun\_ref\_t、mem\_fun\_ref、mem\_fun\_t 和函数 mem\_fun  
+ - 类型 pointer\_to\_binary\_function、pointer\_to\_unary\_function 和函数 ptr\_fun  
+ - 函数 random\_shuffle  
+ - 类型 strstream、strstreambuf、istrstream、ostrstream  
+ - 类型 unary\_function、binary\_function  
+ - 类型 unexpected\_handler 和函数 unexpected、set\_unexpected、get\_unexpected  
   
 示例：
 ```
-class T { .... };
-void bar(auto_ptr<T> p);
+auto_ptr<T> a(new T);      // Non-compliant
+auto_ptr<T> b;             // Non-compliant
+void foo(auto_ptr<T> p);   // Non-compliant
 
-auto_ptr<T> a(new T);
-auto_ptr<T> b;
-....
-b = a;      // ‘a’ is invalid after the assignment
-bar(b);     // ‘b’ is invalid after this call
-....        // Undefined behavior if dereference ‘a’ or ‘b’
+b = a;    // ‘a’ is invalid after the assignment
+foo(b);   // ‘b’ is invalid after the call
+....      // Undefined behavior if dereference ‘a’ or ‘b’
 ```
-auto\_ptr 对象的赋值或按值传参都会引起资源所有权的转移，如 b = a 表示 a 的资源被 b 占有，foo(b) 表示 b 的资源被参数占有，之后再对 a 或 b 解引用就会造成错误，这种方式很容易被人误解，C\+\+11 标准已弃用。  
+auto\_ptr 对象的赋值或传参都会引起资源所有权的转移，如 b = a 会使 a 的资源被转移到 b 中，foo(b) 会使 b 的资源转移到参数中，这种方式很容易使人误解，故 auto\_ptr 被 C\+\+11 标准判为已过时，并从 C\+\+17 标准中移出。  
   
-unique\_ptr 禁止资源所有权的隐式转移，语义更为明确：
+可使用 unique\_ptr 代替 auto\_ptr：
 ```
 unique_ptr<T> a = make_unique<T>();
 unique_ptr<T> b;
-....
+
+b = a;         // Compile error
 b = move(a);   // OK, explicit moving
-foo(b);        // Compile error
 ```
-unique\_ptr 对象必须通过 move 显式转移资源所有权，否则无法通过编译。
+unique\_ptr 禁止资源所有权隐式转移，语义更为明确。
 <br/>
+<br/>
+
+#### 相关
+ID_obsoleteFunction  
 <br/>
 
 #### 依据
+ISO/IEC 14882:2011 D.6-deprecated  
+ISO/IEC 14882:2011 D.7-deprecated  
+ISO/IEC 14882:2011 D.8-deprecated  
+ISO/IEC 14882:2011 D.9-deprecated  
 ISO/IEC 14882:2011 D.10-deprecated  
-<br/>
-
-#### 参考
-C++ Core Guidelines R.20  
+ISO/IEC 14882:2011 D.11-deprecated  
+ISO/IEC 14882:2017 20.5.4.3.1(1)  
 <br/>
 <br/>
 

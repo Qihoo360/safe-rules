@@ -746,12 +746,12 @@
         "reference": "MISRA C 2004 16.3,MISRA C 2012 8.2"
         },
     "ID_deprecatedAutoPtr": {
-        "checkPoint": "避免使用 std::auto_ptr",
+        "checkPoint": "不应使用已过时的标准库组件",
         "level": "warning",
-        "comment": "std::auto_ptr 在 C++11 标准中已被废弃，应使用 std::unique_ptr。",
+        "comment": "已过时的标准库组件会被语言标准弃用，应改用更完善的替代方法。",
         "tag": "declaration",
-        "standard": "ISO/IEC 14882:2011 D.10-deprecated",
-        "reference": "C++ Core Guidelines R.20"
+        "related": "ID_obsoleteFunction",
+        "standard": "ISO/IEC 14882:2011 D.6-deprecated,ISO/IEC 14882:2011 D.7-deprecated,ISO/IEC 14882:2011 D.8-deprecated,ISO/IEC 14882:2011 D.9-deprecated,ISO/IEC 14882:2011 D.10-deprecated,ISO/IEC 14882:2011 D.11-deprecated,ISO/IEC 14882:2017 20.5.4.3.1(1)"
         },
     "ID_mixedDeclarations": {
         "checkPoint": "不应将不同类别的声明写在一个语句中",
@@ -836,7 +836,7 @@
     "ID_constStrToNonConstPtr": {
         "checkPoint": "指向常量字符串的指针应使用 const 声明",
         "level": "warning",
-        "comment": "常量字符串与非常量字符串指针的隐式转换是不安全的，一旦相关内存被修改会导致标准未定义的行为。",
+        "comment": "常量字符串与非常量字符串指针的隐式转换是不安全的，一旦相关内存被修改会导致标准未定义的行为，这种转换在 C++ 标准中是过时的，在 C 代码中也不应出现。",
         "tag": "declaration",
         "standard": "ISO/IEC 9899:1999 6.4.5(6)-undefined,ISO/IEC 9899:2011 6.4.5(7)-undefined,ISO/IEC 14882:1998 D.4(1)-deprecated,ISO/IEC 14882:2003 2.13.4(2)-undefined,ISO/IEC 14882:2003 D.4(1)-deprecated,ISO/IEC 14882:2011 2.14.5(12)-undefined,ISO/IEC 14882:2017 5.13.5(16)-undefined",
         "related": "ID_nonConstUnmodified",
@@ -3136,7 +3136,7 @@
     "ID_deprecatedSpecifier": {
         "checkPoint": "不应使用已过时的关键字",
         "level": "warning",
-        "comment": "根据 C++11 标准，register 等关键字已过时，不应再使用，auto 关键字也不可再作为存储类说明符（storage class specifier）。",
+        "comment": "在 C++11 标准中，register 关键字已过时，auto 关键字也不可再作为“存储类说明符（storage class specifier）”。",
         "tag": "declaration",
         "standard": "ISO/IEC 14882:2011 7.1.6.4(3),ISO/IEC 14882:2011 D.2(1)-deprecated"
         },
@@ -3371,16 +3371,17 @@
         "reference": "C++ Core Guidelines SL.C.1,MISRA C 2004 20.7,MISRA C 2012 21.4,MISRA C++ 2008 17-0-5,SEI CERT ERR52-CPP"
         },
     "ID_obsoleteFunction": {
-        "checkPoint": "不应使用已过时的接口",
+        "checkPoint": "避免使用已过时的接口",
         "level": "warning",
-        "comment": "某些库函数或系统 API 存在缺陷并已宣布过时，应改用更完善的替代方法。",
+        "comment": "避免使用在相关标准中已过时的接口，应改用更完善的替代方法以规避风险，提高可移植性。",
         "tag": "security",
+        "related": "ID_deprecatedAutoPtr",
         "reference": "CWE-477"
         },
     "ID_dangerousFunction": {
-        "checkPoint": "避免使用具有危险性的接口",
+        "checkPoint": "避免使用危险接口",
         "level": "warning",
-        "comment": "某些库函数或系统 API 本身就具有危险性，使用这种接口相当于直接引入了风险。",
+        "comment": "由于历史原因，有些系统接口甚至标准库函数存在缺陷，无法安全使用，也有一些接口的使用条件很苛刻，难以安全使用。",
         "tag": "security",
         "reference": "CWE-242,CWE-676"
         },
