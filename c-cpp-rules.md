@@ -312,7 +312,7 @@
     - [R6.10.6 不应存在没有被用到的 private 成员](#privatenotused)
     - [R6.10.7 不应省略声明对象或函数的类型](#missingtype)
     - [R6.10.8 用 stdint.h 中的类型代替 short、int、long 等类型](#unportabletype)
-    - [R6.10.9 不应使用已过时的标准库组件](#deprecatedautoptr)
+    - [R6.10.9 避免使用已过时的标准库组件](#obsoletestdfunction)
 <br/>
 
 <span id="__exception">**[7. Exception](#exception)**</span>
@@ -1089,7 +1089,7 @@ ID_obsoleteFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 避免使用在相关标准中已过时的接口，应改用更完善的替代方法以规避风险，提高可移植性。  
   
-关于过时的 C\+\+ 标准库接口，本规则特化为 ID\_deprecatedAutoPtr。  
+关于过时的 C\+\+ 标准库接口，本规则特化为 ID\_obsoleteStdFunction。  
   
 示例：
 ```
@@ -1122,7 +1122,7 @@ WinExec              // Use ‘CreateProcess’ instead
 <br/>
 
 #### 相关
-ID_deprecatedAutoPtr  
+ID_obsoleteStdFunction  
 <br/>
 
 #### 参考
@@ -9546,9 +9546,9 @@ MISRA C 2012 Dir 4.6
 <br/>
 <br/>
 
-### <span id="deprecatedautoptr">▌R6.10.9 不应使用已过时的标准库组件</span>
+### <span id="obsoletestdfunction">▌R6.10.9 避免使用已过时的标准库组件</span>
 
-ID_deprecatedAutoPtr&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
+ID_obsoleteStdFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 

@@ -745,8 +745,8 @@
         "tag": "declaration",
         "reference": "MISRA C 2004 16.3,MISRA C 2012 8.2"
         },
-    "ID_deprecatedAutoPtr": {
-        "checkPoint": "不应使用已过时的标准库组件",
+    "ID_obsoleteStdFunction": {
+        "checkPoint": "避免使用已过时的标准库组件",
         "level": "warning",
         "comment": "已过时的标准库组件会被语言标准弃用，应改用更完善的替代方法。",
         "tag": "declaration",
@@ -3375,7 +3375,7 @@
         "level": "warning",
         "comment": "避免使用在相关标准中已过时的接口，应改用更完善的替代方法以规避风险，提高可移植性。",
         "tag": "security",
-        "related": "ID_deprecatedAutoPtr",
+        "related": "ID_obsoleteStdFunction",
         "reference": "CWE-477"
         },
     "ID_dangerousFunction": {
