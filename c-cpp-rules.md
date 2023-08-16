@@ -1089,7 +1089,7 @@ ID_obsoleteFunction&emsp;&emsp;&emsp;&emsp;&nbsp;:shield: security warning
 
 避免使用在相关标准中已过时的接口，应改用更完善的替代方法以规避风险，提高可移植性。  
   
-关于过时的 C\+\+ 标准库接口，本规则特化为 ID\_obsoleteStdFunction。  
+对于过时的 C\+\+ 标准库接口，本规则特化为 ID\_obsoleteStdFunction。  
   
 示例：
 ```
@@ -12384,7 +12384,9 @@ ID_functionSpecialization&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-特化的函数模板不参与重载函数的选取，不属于常规用法，且容易造成混乱。  
+特化的函数模板不参与重载函数的选取，易导致意类之外的错误。  
+  
+如果某些特殊情况确实需要特化模板，不妨将函数委托给模板类实现，通过特化模板类实现特殊的需求，参见 ID\_narrowCast。  
   
 示例：
 ```
@@ -12416,9 +12418,7 @@ int foo(int*) {   // #3, compliant, safe and brief
     return 2;
 }
 ```
-这样例中 main 函数会输出 2。  
-  
-如果某些特殊情况确实需要特化模板，不妨将函数委托给模板类实现，通过特化模板类实现特殊的需求，参见 ID\_narrowCast 的示例。
+这样例中 main 函数会输出 2。
 <br/>
 <br/>
 
@@ -18441,25 +18441,24 @@ ID_narrowCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
 <hr/>
 
-应检查类型转换的结果是否正确，避免数据丢失等问题。  
+应避免取值范围大的类型向取值范围小的类型隐式转换，相关显式转换也应在合理的条件下完成。  
   
-取值范围大的类型向取值范围小的类型转换需要考虑数据丢失问题，这种问题在浮点型转整型、整型转浮点型，以及浮点型转浮点型时会导致标准未定义的行为。  
+如果对象的值无法用转换后的类型精确表示，转换由实现定义；如果对象的值超过了转换后类型的取值范围，会导致数据丢失或使程序产生未定义的行为。  
   
 示例：
 ```
-void foo(int i, double d) {
-    char c = i;              // Non-compliant
-    float f = (float)d;      // Non-compliant, may cause undefined behavior
-    ....
-}
+int i;
+double d;
+....
+short s = i;  // Non-compliant, may cause data loss
+long l = d;   // Non-compliant, may cause undefined behavior
+float f = d;  // Non-compliant, may cause undefined behavior
 ```
-直接将 int 转为 char、double 转为 float 是不符合要求的，应判断源对象的值是否在目标对象的取值范围内。  
+将整数类型转为取值范围更小的整数类型会造成数据丢失，将浮点类型转为整数类型或取值范围更小的浮点类型，则可导致由实现定义的或未定义的行为，所以应在转换前判断是否可以安全转换，或实现特定的转换逻辑。  
   
-下面给出判断转换是否安全的简单示例：
+下面给出判断转换是否安全的示例：
 ```
-template <class To, class From>
-struct CastChecker
-{
+template <class To, class From> struct Checker {
     static To cast(From x) {
         auto y = static_cast<To>(x);
         auto z = static_cast<From>(y);
@@ -18469,33 +18468,42 @@ struct CastChecker
 
 template <class To, class From>
 To checked_cast(From x) {
-    return CastChecker<To, From>::cast(x);
+    return Checker<To, From>::cast(x);
 }
 ```
-函数 checked\_cast 委托类 CastChecker 将源类型转为目标类型，再将目标类型转回源类型，如果经两次转换得到的数据与源数据不符，说明转换存在数据丢失，抛出 DataLoss 异常，使用方法如下：
+函数 checked\_cast 委托类 Checker 将源类型转为目标类型，再将目标类型转回源类型，如果经两次转换得到的值与转换前的值不符，说明转换存在数据丢失，抛出异常。  
+  
+浮点型转换可能导致未定义的行为，所以应在转换之前判断取值范围，可通过特化 Checker 实现：
 ```
-void foo(int i, double d) {
-    char c = checked_cast<char>(i);     // Compliant
-    float f = checked_cast<float>(d);   // Compliant
-    ....
-}
-```
-浮点型转换可能导致标准未定义的行为，所以应在转换之前判断取值范围，可通过特化 CastChecker 实现：
-```
-template <>
-struct CastChecker<float, double>
-{
+template <> struct Checker<long, double> {
     static bool check(double x) {
-        return !isnan(x)
-            && !isgreater(fabs(x), FLT_MAX)
-            && !isless(fabs(x), FLT_MIN);
+        return !isgreater(x, LONG_MAX) && !isless(x, LONG_MAX);
+    }
+    static long cast(double x) {
+        return check(x)? static_cast<long>(x): throw DataLoss();
+    }
+};
+
+template <> struct Checker<float, double> {
+    static bool check(double x) {
+        return !isgreater(fabs(x), FLT_MAX) && !isless(fabs(x), FLT_MIN);
     }
     static float cast(double x) {
         return check(x)? static_cast<float>(x): throw DataLoss();
     }
 };
 ```
-这样当 double 对象的值超出 float 对象的取值范围时会抛出异常。另外，浮点型转整型时小数部分如何取舍、负数是否可以转为无符号数等问题均可以根据实际需求通过特化 CastChecker 来实现。
+这样当 double 对象的值超出 long 或 float 对象的取值范围时会抛出异常。另外，浮点类型转整数类型时小数部分如何取舍、负数是否可以转为无符号数等问题均可以根据实际需求通过特化 Checker 来实现。  
+  
+函数 checked\_cast 的用法：
+```
+int i;
+double d;
+....
+short s = checked_cast<short>(i);  // Compliant
+long l = checked_cast<long>(d);    // Compliant
+float f = checked_cast<float>(d);  // Compliant
+```
 <br/>
 <br/>
 

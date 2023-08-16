@@ -215,7 +215,7 @@
     "ID_functionSpecialization": {
         "checkPoint": "函数模板不应被特化",
         "level": "warning",
-        "comment": "特化的函数模板不参与重载函数的选取，不属于常规用法，且容易造成混乱。",
+        "comment": "特化的函数模板不参与重载函数的选取，易导致意类之外的错误。",
         "tag": "function",
         "reference": "C++ Core Guidelines T.144,MISRA C++ 2008 14-8-1"
         },
@@ -1437,7 +1437,7 @@
     "ID_narrowCast": {
         "checkPoint": "避免类型转换造成数据丢失",
         "level": "warning",
-        "comment": "应检查类型转换的结果是否正确，避免数据丢失等问题。",
+        "comment": "应避免取值范围大的类型向取值范围小的类型隐式转换，相关显式转换也应在合理的条件下完成。",
         "tag": "cast",
         "standard": "ISO/IEC 9899:1999 6.3.1.4(1)-undefined,ISO/IEC 9899:1999 6.3.1.5(2)-undefined,ISO/IEC 9899:2011 6.3.1.4(1)-undefined,ISO/IEC 9899:2011 6.3.1.5(1)-undefined,ISO/IEC 14882:2003 4.8(1)-undefined,ISO/IEC 14882:2003 4.9(1)-undefined,ISO/IEC 14882:2011 4.8(1)-undefined,ISO/IEC 14882:2011 4.9(1 2)-undefined",
         "reference": "C++ Core Guidelines ES.46,MISRA C 2012 10.3,MISRA C 2012 10.5,MISRA C++ 2008 5-0-5,MISRA C++ 2008 5-0-6,SEI CERT FLP34-C"
