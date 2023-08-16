@@ -535,7 +535,7 @@
   - [10.8 Other](#expression.other)
     - [R10.8.1 不应访问填充数据](#accesspaddingdata)
     - [R10.8.2 new 表达式只可用于赋值或当作参数](#oddnew)
-    - [R10.8.3 数组下标应为整形表达式](#oddsubscripting)
+    - [R10.8.3 数组下标应为整型表达式](#oddsubscripting)
     - [R10.8.4 禁用逗号表达式](#forbidcommaexpression)
 <br/>
 
@@ -13674,7 +13674,7 @@ cout << n << '\n';  // Not 1000
 ```
 本例按常识应循环 1000 次，然而由于 f 无法精确表示 0.001，导致实际循环次数与预期产生偏差。  
   
-可变通地建立整形循环变量与浮点数的关系：
+可变通地建立整型循环变量与浮点数的关系：
 ```
 for (size_t n = 0; n < 1000; n++) {  // Compliant
     float f = n * 0.001f;
@@ -17830,7 +17830,7 @@ ID_multiAllocation
 <br/>
 <br/>
 
-### <span id="oddsubscripting">▌R10.8.3 数组下标应为整形表达式</span>
+### <span id="oddsubscripting">▌R10.8.3 数组下标应为整型表达式</span>
 
 ID_oddSubscripting&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -17925,7 +17925,7 @@ ID_literal_suspiciousChar&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: literal warning
 
 注意字符常量的错误书写，如正反斜杠的误用，'\\n' 误写为 '/n'、'\\\\' 误写为 '//' 等。  
   
-由于 C/C\+\+ 语言允许在单引号内写入多个字符来表示一个整形常量（multi\-character literal），如：
+由于 C/C\+\+ 语言允许在单引号内写入多个字符来表示一个整型常量（multi\-character literal），如：
 ```
 auto i = '/t';   // Non-compliant
 ```
@@ -18458,7 +18458,8 @@ float f = d;  // Non-compliant, may cause undefined behavior
   
 下面给出判断转换是否安全的示例：
 ```
-template <class To, class From> struct Checker {
+template <class To, class From>
+struct Checker {
     static To cast(From x) {
         auto y = static_cast<To>(x);
         auto z = static_cast<From>(y);
@@ -18477,7 +18478,7 @@ To checked_cast(From x) {
 ```
 template <> struct Checker<long, double> {
     static bool check(double x) {
-        return !isgreater(x, LONG_MAX) && !isless(x, LONG_MAX);
+        return !isgreater(x, LONG_MAX) && !isless(x, LONG_MIN);
     }
     static long cast(double x) {
         return check(x)? static_cast<long>(x): throw DataLoss();

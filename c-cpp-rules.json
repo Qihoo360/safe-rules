@@ -358,7 +358,7 @@
         "reference": "C++ Core Guidelines ES.103,SEI CERT ARR30-C"
         },
     "ID_oddSubscripting": {
-        "checkPoint": "数组下标应为整形表达式",
+        "checkPoint": "数组下标应为整型表达式",
         "level": "warning",
         "comment": "C/C++ 语言规定，数组下标可以在中括号的右侧也可以在左侧，然而这只是一种理论上的设计，在实际代码中应采用约定俗成的方式，即数组的名称在中括号的左侧，下标在中括号的右侧。",
         "tag": "expression",
