@@ -2712,7 +2712,7 @@ ID_nonStandardCharInHeaderName&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompil
 #include <foo//bar.h>   // Non-Compliant, undefined behavior
 #include <foo/*bar.h>   // Non-Compliant, undefined behavior
 ```
-另外，某些平台的文件路径不区分大小写，建议头文件名称只使用小写字母以减少移植相关的问题。
+另外，某些平台的文件路径不区分大小写，建议在头文件名称中只使用小写字母以提高可移植性。
 <br/>
 <br/>
 
@@ -16194,7 +16194,7 @@ ID_evalOverflow&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 溢出即运算结果超出了对应类型的取值范围，使相关数据无法被完整存储，造成数据丢失。  
   
-有符号整型和浮点型溢出会导致标准未定义的行为。对于无符号整型，则只保留其取值范围内的值，相当于一种模运算，标准认为这是一种语言特性，规定无符号整数不存在溢出，然而实践表明，运算结果超出无符号整数的范围很容易引起意料之外的问题，所以不论是否有符号，均应规避运算结果超出取值范围。  
+有符号整型和浮点型溢出会导致标准未定义的行为。无符号整数运算只保留结果与无符号整型最大值求模的结果，标准认为这是一种算法特性，规定无符号整型不存在溢出，然而实践表明，运算结果超出取值范围往往意味着错误。  
   
 示例：
 ```
@@ -16205,7 +16205,7 @@ int32_t mul(int32_t a, int32_t b)
 ```
 例中 32 位整数相乘可能产生溢出，使函数返回错误结果。  
   
-应改为：
+应对溢出作出判断：
 ```
 int32_t mul(int32_t a, int32_t b)
 {
