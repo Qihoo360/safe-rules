@@ -2712,7 +2712,7 @@ ID_nonStandardCharInHeaderName&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompil
 #include <foo//bar.h>   // Non-Compliant, undefined behavior
 #include <foo/*bar.h>   // Non-Compliant, undefined behavior
 ```
-另外，由于某些平台的文件系统不区分路径大小写，建议头文件名称只使用小写字母以减少移植类问题。
+另外，某些平台的文件路径不区分大小写，建议头文件名称只使用小写字母以减少移植相关的问题。
 <br/>
 <br/>
 
@@ -16192,32 +16192,34 @@ ID_evalOverflow&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-运算结果超出对应类型的存储范围往往意味着错误。  
+溢出即运算结果超出了对应类型的取值范围，使相关数据无法被完整存储，造成数据丢失。  
   
-这种情况对于有符号整数，会导致标准未定义的行为，而对于无符号整数，则只保留有效范围内的值，相当于一种模运算，标准认为这是一种语言特性，规定无符号整数不存在溢出，然而实践表明，运算结果超出无符号整数的范围很容易引起意料之外的问题，所以不论是否有符号，均应规避这种问题。  
+有符号整型和浮点型溢出会导致标准未定义的行为。对于无符号整型，则只保留其取值范围内的值，相当于一种模运算，标准认为这是一种语言特性，规定无符号整数不存在溢出，然而实践表明，运算结果超出无符号整数的范围很容易引起意料之外的问题，所以不论是否有符号，均应规避运算结果超出取值范围。  
   
 示例：
 ```
-uint64_t a = 0xffffffffU + 1;  // Non-compliant
+int32_t mul(int32_t a, int32_t b)
+{
+    return a * b;   // May overflow or underflow
+}
 ```
-例中 0xffffffffU 是 32 位无符号整数的最大值，根据 C/C\+\+ 语言的计算规则，0xffffffffU \+ 1 仍是 32 位无符号整数，不会自动转为 64 位整数，所以 a 的值是 0，而不会是 0x100000000。  
+例中 32 位整数相乘可能产生溢出，使函数返回错误结果。  
   
 应改为：
 ```
-uint64_t a = 0xffffffffULL + 1;  // Compliant
+int32_t mul(int32_t a, int32_t b)
+{
+    int64_t r = static_cast<int64_t>(a) * b;
+    if (r > INT32_MAX) {
+        throw Overflow();
+    }
+    if (r < INT32_MIN) {
+        throw Underflow();
+    }
+    return static_cast<int32_t>(r);   // Safe result
+}
 ```
-又如：
-```
-int32_t a = foo();
-int32_t b = bar();
-int64_t c = a * b;  // Rather suspicious
-```
-例中 a 和 b 是 32 位整数，a\*b 仍为 32 位整数，如果 a\*b 的预期结果超过了 32 位就会造成溢出，这也是很常见的错误。  
-  
-应改为：
-```
-int64_t c = static_cast<int64_t>(a) * b;  // OK
-```
+其中 INT32\_MAX 和 INT32\_MIN 分别为 32 位整数的最大值与最小值。
 <br/>
 <br/>
 
@@ -16961,7 +16963,7 @@ printf("%lu", u);   // Unportable
 printf("%" PRId32, i);   // OK
 printf("%" PRIu64, u);   // OK
 ```
-int32\_t、uint64\_t 并不一定对应 int、unsigned long，不应将 %d、%lu 等占位符在代码中写死，PRId32 和 PRIu64 是 inttypes.h 中定义的宏，可解决移植性问题。  
+int32\_t、uint64\_t 并不一定对应 int、unsigned long，不应将 %d、%lu 等占位符在代码中写死，PRId32 和 PRIu64 是 inttypes.h 中定义的宏，可解决移植相关的问题。  
   
 又如：
 ```

@@ -1204,7 +1204,7 @@
     "ID_evalOverflow": {
         "checkPoint": "运算结果不应溢出",
         "level": "warning",
-        "comment": "运算结果超出对应类型的存储范围往往意味着错误。",
+        "comment": "溢出即运算结果超出了对应类型的取值范围，使相关数据无法被完整存储，造成数据丢失。",
         "tag": "expression",
         "standard": "ISO/IEC 9899:1999 6.2.5(9),ISO/IEC 9899:1999 6.5(5)-undefined,ISO/IEC 9899:2011 6.2.5(9),ISO/IEC 9899:2011 6.5(5)-undefined,ISO/IEC 14882:2003 5(5)-undefined,ISO/IEC 14882:2011 5(4)-undefined",
         "reference": "CWE-190,C++ Core Guidelines ES.103,C++ Core Guidelines ES.104"
