@@ -4,7 +4,7 @@
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对 C、C++ 语言，本文收录了 476 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对 C、C++ 语言，本文收录了 478 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
@@ -557,23 +557,25 @@
 
 <span id="__cast">**[12. Cast](#cast)**</span>
   - [R12.1 避免类型转换造成数据丢失](#narrowcast)
-  - [R12.2 避免与 void\* 相互转换](#voidcast)
-  - [R12.3 避免向下类型转换](#downcast)
-  - [R12.4 指针与整数不应相互转换](#ptrintcast)
-  - [R12.5 类型转换不应去掉 const、volatile 等属性](#qualifiercastedaway)
-  - [R12.6 不应强制转换无继承关系的指针或引用](#castnoinheritance)
-  - [R12.7 不应强制转换无 public 继承关系的指针或引用](#castnonpublicinheritance)
-  - [R12.8 非 POD 类的指针与基本类型的指针不应相互转换](#nonpodbinarycast)
-  - [R12.9 不同的字符串类型之间不可直接转换](#charwcharcast)
-  - [R12.10 避免向对齐要求更严格的指针转换](#stricteralignedcast)
-  - [R12.11 避免转换指向数组的指针](#arraypointercast)
-  - [R12.12 避免转换函数指针](#functionpointercast)
-  - [R12.13 向下动态类型转换应使用 dynamic\_cast](#nondynamicdowncast)
-  - [R12.14 对 new 表达式不应进行类型转换](#oddnewcast)
-  - [R12.15 不应存在多余的类型转换](#redundantcast)
-  - [R12.16 可用其他方式完成的转换不应使用 reinterpret\_cast](#unsuitablereinterpretcast)
-  - [R12.17 合理使用 reinterpret\_cast](#forbidreinterpretcast)
-  - [R12.18 在 C\+\+ 代码中禁用 C 风格类型转换](#forbidcstylecast)
+  - [R12.2 避免数据丢失造成类型转换失效](#invalidpromotion)
+  - [R12.3 避免有符号整型与无符号整型相互转换](#signchangecast)
+  - [R12.4 避免与 void\* 相互转换](#voidcast)
+  - [R12.5 避免向下类型转换](#downcast)
+  - [R12.6 指针与整数不应相互转换](#ptrintcast)
+  - [R12.7 类型转换不应去掉 const、volatile 等属性](#qualifiercastedaway)
+  - [R12.8 不应转换无继承关系的指针或引用](#castnoinheritance)
+  - [R12.9 不应转换无 public 继承关系的指针或引用](#castnonpublicinheritance)
+  - [R12.10 非 POD 类的指针与基本类型的指针不应相互转换](#nonpodbinarycast)
+  - [R12.11 不同的字符串类型之间不可直接转换](#charwcharcast)
+  - [R12.12 避免向对齐要求更严格的指针转换](#stricteralignedcast)
+  - [R12.13 避免转换指向数组的指针](#arraypointercast)
+  - [R12.14 避免转换函数指针](#functionpointercast)
+  - [R12.15 向下动态类型转换应使用 dynamic\_cast](#nondynamicdowncast)
+  - [R12.16 对 new 表达式不应进行类型转换](#oddnewcast)
+  - [R12.17 不应存在多余的类型转换](#redundantcast)
+  - [R12.18 可用其他方式完成的转换不应使用 reinterpret\_cast](#unsuitablereinterpretcast)
+  - [R12.19 合理使用 reinterpret\_cast](#forbidreinterpretcast)
+  - [R12.20 在 C\+\+ 代码中禁用 C 风格类型转换](#forbidcstylecast)
 <br/>
 
 <span id="__buffer">**[13. Buffer](#buffer)**</span>
@@ -16194,7 +16196,7 @@ ID_evalOverflow&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 溢出即运算结果超出了对应类型的取值范围，使相关数据无法被完整存储，造成数据丢失。  
   
-有符号整型和浮点型溢出会导致标准未定义的行为。无符号整数运算只保留结果与无符号整型最大值求模的结果，标准认为这是一种算法特性，规定无符号整型不存在溢出，然而实践表明，运算结果超出取值范围往往意味着错误。  
+有符号整型和浮点型溢出会导致标准未定义的行为。无符号整数的运算结果是数学上的结果与无符号整型最大值求模的结果，标准认为这是一种算法特性，规定无符号整型不存在溢出，然而实践表明，运算结果超出取值范围往往意味着错误。  
   
 示例：
 ```
@@ -18445,7 +18447,7 @@ ID_narrowCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
 应避免取值范围大的类型向取值范围小的类型隐式转换，相关显式转换也应在合理的条件下完成。  
   
-如果对象的值无法用转换后的类型精确表示，转换由实现定义；如果对象的值超过了转换后类型的取值范围，会导致数据丢失或使程序产生未定义的行为。  
+如果对象的值在新类型取值范围内，但无法用新类型精确表示，转换由实现定义；如果对象的值超出了新类型的取值范围，会导致数据丢失以及由实现定义或未定义的行为。  
   
 示例：
 ```
@@ -18456,7 +18458,7 @@ short s = i;  // Non-compliant, may cause data loss
 long l = d;   // Non-compliant, may cause undefined behavior
 float f = d;  // Non-compliant, may cause undefined behavior
 ```
-将整数类型转为取值范围更小的整数类型会造成数据丢失，将浮点类型转为整数类型或取值范围更小的浮点类型，则可导致由实现定义的或未定义的行为，所以应在转换前判断是否可以安全转换，或实现特定的转换逻辑。  
+将整数类型转为取值范围更小的整数类型会造成数据丢失，将浮点类型转为整数类型或取值范围更小的浮点类型，则可导致由实现定义或未定义的行为，所以应在转换前判断是否可以安全转换，或实现特定的转换逻辑。  
   
 下面给出判断转换是否安全的示例：
 ```
@@ -18531,7 +18533,99 @@ SEI CERT FLP34-C
 <br/>
 <br/>
 
-### <span id="voidcast">▌R12.2 避免与 void* 相互转换</span>
+### <span id="invalidpromotion">▌R12.2 避免数据丢失造成类型转换失效</span>
+
+ID_invalidPromotion&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
+
+<hr/>
+
+下列表达式的类型不应被隐式或显式地转为取值范围更大的类型：  
+ - 二元算术表达式  
+ - 以二元算术表达式为分枝的三元表达式  
+  
+这种表达式的溢出或精度损失会发生在类型转换之前，使类型转换失效。  
+  
+示例：
+```
+void foo(int32_t a, int32_t b)
+{
+    int64_t i = a * b;            // Non-compliant
+    int64_t j = int64_t(a + b);   // Non-compliant
+
+    double x = a / b;             // Non-compliant
+    double y = double(a / b);     // Non-compliant
+    ....
+}
+```
+例中表达式 a \* b、a \+ b 的类型为 32 位整型，如果溢出则无法正确转为 64 位整型；a / b 的结果仍是整数，小数部分将丢失。  
+  
+应将操作数转为目标类型，使算术表达式与被赋值的对象具有相同的类型：
+```
+void foo(int32_t a, int32_t b)
+{
+    int64_t i = int64_t(a) * b;   // Compliant
+    int64_t j = a + int64_t(b);   // Compliant
+
+    double x = double(a) / b;     // Compliant
+    double y = a / double(b);     // Compliant
+    ....
+}
+```
+这样便可避免类型转换失效。
+<br/>
+<br/>
+
+#### 相关
+ID_evalOverflow  
+<br/>
+
+#### 参考
+MISRA C 2012 10.6  
+MISRA C 2012 10.7  
+MISRA C 2012 10.8  
+MISRA C++ 2008 5-0-3  
+MISRA C++ 2008 5-0-7  
+MISRA C++ 2008 5-0-8  
+<br/>
+<br/>
+
+### <span id="signchangecast">▌R12.3 避免有符号整型与无符号整型相互转换</span>
+
+ID_signChangeCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
+
+<hr/>
+
+有符号整型与无符号整型相互转换易导致意料之外的错误。  
+  
+整型转换规则：  
+ - 如果向布尔型以外的其他整数类型转换，且值在新类型取值范围内，值不变  
+ - 否则，如果新类型为无符号整型，将值不断加减 M \+ 1 直至进入新类型取值范围，M 为新类型最大值  
+ - 否则，如果新类型为有符号整型，相关转换由实现定义  
+  
+负数转为无符号整数往往会得到意料之外的结果，无符号整数转为有符号整数也可能导致移植相关的问题，所以应避免有符号整型与无符号整型之间的隐式转换，相关显式转换也应在合理的条件下完成。  
+  
+示例：
+```
+signed s = -1;
+unsigned u = 1;
+printf("%d\n", s < u);   // Non-compliant
+```
+例中有符号整数 s 的值为 \-1，无符号整数 u 的值为 1，s 理应小于 u，但由于“[类型提升](https://en.wikipedia.org/wiki/Type_conversion#Type_promotion)”，s 会被转为无符号整数，值为无符号整数的最大值，s < u 的实际结果为 0。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.3.1.3  
+ISO/IEC 9899:2011 6.3.1.3  
+<br/>
+
+#### 参考
+MISRA C++ 2008 5-0-4  
+SEI CERT INT02-C  
+<br/>
+<br/>
+
+### <span id="voidcast">▌R12.4 避免与 void* 相互转换</span>
 
 ID_voidCast&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: cast suggestion
 
@@ -18571,7 +18665,7 @@ MISRA C++ 2008 5-2-8
 <br/>
 <br/>
 
-### <span id="downcast">▌R12.3 避免向下类型转换</span>
+### <span id="downcast">▌R12.5 避免向下类型转换</span>
 
 ID_downCast&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: cast suggestion
 
@@ -18626,7 +18720,7 @@ C++ Core Guidelines ES.48
 <br/>
 <br/>
 
-### <span id="ptrintcast">▌R12.4 指针与整数不应相互转换</span>
+### <span id="ptrintcast">▌R12.6 指针与整数不应相互转换</span>
 
 ID_ptrIntCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
@@ -18674,7 +18768,7 @@ SEI CERT INT36-C
 <br/>
 <br/>
 
-### <span id="qualifiercastedaway">▌R12.5 类型转换不应去掉 const、volatile 等属性</span>
+### <span id="qualifiercastedaway">▌R12.7 类型转换不应去掉 const、volatile 等属性</span>
 
 ID_qualifierCastedAway&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
@@ -18736,13 +18830,13 @@ SEI CERT EXP55-CPP
 <br/>
 <br/>
 
-### <span id="castnoinheritance">▌R12.6 不应强制转换无继承关系的指针或引用</span>
+### <span id="castnoinheritance">▌R12.8 不应转换无继承关系的指针或引用</span>
 
 ID_castNoInheritance&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
 <hr/>
 
-无继承关系的指针或引用之间没有逻辑关系，不应强制转换，否则意味着设计缺陷或逻辑错误。  
+无继承关系的指针或引用之间没有逻辑关系，转换意味着设计缺陷或逻辑错误。  
   
 示例：
 ```
@@ -18752,7 +18846,7 @@ int* p = (int*)&f;  // Non-compliant
 ```
 基本类型之间没有继承关系，float\* 转为 int\* 属于逻辑错误，导致标准未定义的行为。  
   
-有时为了考察对象内部结构，需要将对象指针转为 unsigned char\* 等类型，但这种转换打破了类型的边界，超越了数据处理的常规方法，易造成移植等方面的问题，审计工具不妨通过配置决定是否放过这种转换。  
+有时为了考察对象内部结构，需要将对象指针转为 unsigned char\* 等类型，但这种转换脱离了类型的保护，也会降低代码的可移植性，审计工具不妨通过配置决定是否放过这种转换。  
   
 又如：
 ```
@@ -18816,13 +18910,13 @@ SEI CERT EXP39-C
 <br/>
 <br/>
 
-### <span id="castnonpublicinheritance">▌R12.7 不应强制转换无 public 继承关系的指针或引用</span>
+### <span id="castnonpublicinheritance">▌R12.9 不应转换无 public 继承关系的指针或引用</span>
 
 ID_castNonPublicInheritance&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
 <hr/>
 
-public 继承表示派生类是基类的某种扩展，而非 public 继承往往表示派生类是基类的某种“例外”，基类的方法不再适用于派生类的对象。  
+public 继承表示派生类是基类的某种扩展，而非 public 继承往往表示派生类是基类的某种例外，基类的方法不再适用于派生类的对象。  
   
 示例：
 ```
@@ -18835,7 +18929,7 @@ void foo(B* b) {
     bar((A*)b);    // Non-compliant
 }
 ```
-例中 B 是对 A 的某种改造，如果再用 A 的方法去处理 B 的对象，显然是有问题的。
+例中派生类 B 是对基类 A 的改造，再用 A 类方法处理 B 类对象是有问题的。
 <br/>
 <br/>
 
@@ -18849,7 +18943,7 @@ ISO/IEC 14882:2011 4.10(3)
 <br/>
 <br/>
 
-### <span id="nonpodbinarycast">▌R12.8 非 POD 类的指针与基本类型的指针不应相互转换</span>
+### <span id="nonpodbinarycast">▌R12.10 非 POD 类的指针与基本类型的指针不应相互转换</span>
 
 ID_nonPODBinaryCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
@@ -18891,7 +18985,7 @@ CWE-843
 <br/>
 <br/>
 
-### <span id="charwcharcast">▌R12.9 不同的字符串类型之间不可直接转换</span>
+### <span id="charwcharcast">▌R12.11 不同的字符串类型之间不可直接转换</span>
 
 ID_charWCharCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
@@ -18924,7 +19018,7 @@ SEI CERT STR38-C
 <br/>
 <br/>
 
-### <span id="stricteralignedcast">▌R12.10 避免向对齐要求更严格的指针转换</span>
+### <span id="stricteralignedcast">▌R12.12 避免向对齐要求更严格的指针转换</span>
 
 ID_stricterAlignedCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
@@ -18973,7 +19067,7 @@ SEI CERT EXP36-C
 <br/>
 <br/>
 
-### <span id="arraypointercast">▌R12.11 避免转换指向数组的指针</span>
+### <span id="arraypointercast">▌R12.13 避免转换指向数组的指针</span>
 
 ID_arrayPointerCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
@@ -19019,7 +19113,7 @@ C++ Core Guidelines C.152
 <br/>
 <br/>
 
-### <span id="functionpointercast">▌R12.12 避免转换函数指针</span>
+### <span id="functionpointercast">▌R12.14 避免转换函数指针</span>
 
 ID_functionPointerCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
@@ -19065,7 +19159,7 @@ MISRA C++ 2008 5-2-6
 <br/>
 <br/>
 
-### <span id="nondynamicdowncast">▌R12.13 向下动态类型转换应使用 dynamic_cast</span>
+### <span id="nondynamicdowncast">▌R12.15 向下动态类型转换应使用 dynamic_cast</span>
 
 ID_nonDynamicDownCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
@@ -19123,7 +19217,7 @@ MISRA C++ 2008 5-2-2
 <br/>
 <br/>
 
-### <span id="oddnewcast">▌R12.14 对 new 表达式不应进行类型转换</span>
+### <span id="oddnewcast">▌R12.16 对 new 表达式不应进行类型转换</span>
 
 ID_oddNewCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
@@ -19146,7 +19240,7 @@ ID_arrayPointerCast
 <br/>
 <br/>
 
-### <span id="redundantcast">▌R12.15 不应存在多余的类型转换</span>
+### <span id="redundantcast">▌R12.17 不应存在多余的类型转换</span>
 
 ID_redundantCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
@@ -19199,7 +19293,7 @@ CWE-704
 <br/>
 <br/>
 
-### <span id="unsuitablereinterpretcast">▌R12.16 可用其他方式完成的转换不应使用 reinterpret_cast</span>
+### <span id="unsuitablereinterpretcast">▌R12.18 可用其他方式完成的转换不应使用 reinterpret_cast</span>
 
 ID_unsuitableReinterpretCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: cast warning
 
@@ -19237,7 +19331,7 @@ C++ Core Guidelines Type.1
 <br/>
 <br/>
 
-### <span id="forbidreinterpretcast">▌R12.17 合理使用 reinterpret_cast</span>
+### <span id="forbidreinterpretcast">▌R12.19 合理使用 reinterpret_cast</span>
 
 ID_forbidReinterpretCast&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: cast suggestion
 
@@ -19282,7 +19376,7 @@ C++ Core Guidelines Pro.safety
 <br/>
 <br/>
 
-### <span id="forbidcstylecast">▌R12.18 在 C++ 代码中禁用 C 风格类型转换</span>
+### <span id="forbidcstylecast">▌R12.20 在 C++ 代码中禁用 C 风格类型转换</span>
 
 ID_forbidCStyleCast&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: cast suggestion
 
@@ -21406,7 +21500,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 476 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
+&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 478 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
 
 &emsp;&emsp;此致
 

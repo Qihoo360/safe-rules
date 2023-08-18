@@ -1352,9 +1352,9 @@
         "reference": "C++ Core Guidelines ES.48"
         },
     "ID_castNoInheritance": {
-        "checkPoint": "不应强制转换无继承关系的指针或引用",
+        "checkPoint": "不应转换无继承关系的指针或引用",
         "level": "warning",
-        "comment": "无继承关系的指针或引用之间没有逻辑关系，不应强制转换，否则意味着设计缺陷或逻辑错误。",
+        "comment": "无继承关系的指针或引用之间没有逻辑关系，转换意味着设计缺陷或逻辑错误。",
         "config": [
             "allowWeakerCast: 是否放过与 unsigned char* 的转换"
             ],
@@ -1364,9 +1364,9 @@
         "reference": "MISRA C 2012 11.3,MISRA C++ 2008 5-2-7,SEI CERT EXP39-C"
         },
     "ID_castNonPublicInheritance": {
-        "checkPoint": "不应强制转换无 public 继承关系的指针或引用",
+        "checkPoint": "不应转换无 public 继承关系的指针或引用",
         "level": "warning",
-        "comment": "public 继承表示派生类是基类的某种扩展，而非 public 继承往往表示派生类是基类的某种“例外”，基类的方法不再适用于派生类的对象。",
+        "comment": "public 继承表示派生类是基类的某种扩展，而非 public 继承往往表示派生类是基类的某种例外，基类的方法不再适用于派生类的对象。",
         "tag": "cast",
         "related": "ID_castNoInheritance",
         "standard": "ISO/IEC 14882:2003 4.10(3),ISO/IEC 14882:2011 4.10(3)"
@@ -1441,6 +1441,22 @@
         "tag": "cast",
         "standard": "ISO/IEC 9899:1999 6.3.1.4(1)-undefined,ISO/IEC 9899:1999 6.3.1.5(2)-undefined,ISO/IEC 9899:2011 6.3.1.4(1)-undefined,ISO/IEC 9899:2011 6.3.1.5(1)-undefined,ISO/IEC 14882:2003 4.8(1)-undefined,ISO/IEC 14882:2003 4.9(1)-undefined,ISO/IEC 14882:2011 4.8(1)-undefined,ISO/IEC 14882:2011 4.9(1 2)-undefined",
         "reference": "C++ Core Guidelines ES.46,MISRA C 2012 10.3,MISRA C 2012 10.5,MISRA C++ 2008 5-0-5,MISRA C++ 2008 5-0-6,SEI CERT FLP34-C"
+        },
+    "ID_invalidPromotion": {
+        "checkPoint": "避免数据丢失造成类型转换失效",
+        "level": "warning",
+        "comment": "二元算术表达式、以二元算术表达式为分枝的三元表达式不应被隐式或显式地转为取值范围更大的类型。",
+        "tag": "cast",
+        "related": "ID_evalOverflow",
+        "reference": "MISRA C 2012 10.6,MISRA C 2012 10.7,MISRA C 2012 10.8,MISRA C++ 2008 5-0-3,MISRA C++ 2008 5-0-7,MISRA C++ 2008 5-0-8"
+        },
+    "ID_signChangeCast": {
+        "checkPoint": "避免有符号整型与无符号整型相互转换",
+        "level": "warning",
+        "comment": "有符号整型与无符号整型相互转换易导致意料之外的错误。",
+        "tag": "cast",
+        "standard": "ISO/IEC 9899:1999 6.3.1.3,ISO/IEC 9899:2011 6.3.1.3",
+        "reference": "MISRA C++ 2008 5-0-4,SEI CERT INT02-C"
         },
     "ID_forbidCStyleCast": {
         "checkPoint": "在 C++ 代码中禁用 C 风格类型转换",
