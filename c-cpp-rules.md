@@ -494,7 +494,7 @@
     - [R10.2.17 不应重复使用一元运算符](#repeatedunaryoperators)
     - [R10.2.18 运算结果不应溢出](#evaloverflow)
     - [R10.2.19 位运算符不应作用于有符号整数](#bitwiseoperonsigned)
-    - [R10.2.20 移位数量不可超过相关类型提升后比特位的数量](#illshiftcount)
+    - [R10.2.20 移位数量不应超过相关类型比特位的数量](#illshiftcount)
     - [R10.2.21 逗号表达式的子表达式应具有必要的副作用](#invalidcommasubexpression)
   - [10.3 Comparison](#expression.comparison)
     - [R10.3.1 比较运算应在正确的取值范围内进行](#illcomparison)
@@ -695,8 +695,8 @@ void foo(User* u) {
 保护措施包括但不限于：  
  - 避免用明文或弱加密方式传输敏感数据  
  - 避免敏感数据从内存交换到外存  
- - 避免如除零、无效指针解引用等问题造成“[core dump](https://en.wikipedia.org/wiki/Core_dump)”  
- - 应具备反调试机制，使外界无法获得进程的内部数据  
+ - 避免避免敏感数据写入内存转储文件  
+ - 应具备反调试机制，使外界无法获得程序的内部数据  
  - 应具备反注入机制，使外界无法篡改程序的行为  
   
 下面以 Windows 平台为例，给出阻止敏感数据从内存交换到外存的示例：
@@ -1268,7 +1268,7 @@ int foo(int n) {
 ```
 整数除 0 往往会使程序崩溃，浮点数除 0 可以产生“[Inf](https://en.wikipedia.org/wiki/Infinity#Computing)”或“[NaN](https://en.wikipedia.org/wiki/NaN)”等无效结果，在某些环境中也可以设置浮点异常使程序收到特定信号。  
   
-崩溃会给用户不好的体验，而且要注意如果崩溃可由外部输入引起，会被攻击者利用从而迫使程序无法正常工作，具有高可靠性要求的服务类程序更应该注意这一点，可参见“[拒绝服务攻击](https://en.wikipedia.org/wiki/Denial-of-service_attack)”的进一步说明。对于客户端程序，也要防止攻击者对崩溃产生的“[core dump](https://en.wikipedia.org/wiki/Core_dump)”进行恶意调试，避免泄露敏感数据，总之程序的健壮性与安全性是紧密相关的。
+崩溃会使程序异常终止，无法或难以执行必要的善后工作。如果崩溃可由外部输入引起，会被攻击者利用从而迫使程序无法正常工作，具有高可靠性要求的服务类程序更应该注意这一点，可参见“[拒绝服务攻击](https://en.wikipedia.org/wiki/Denial-of-service_attack)”。对于客户端程序，也要防止攻击者对崩溃产生的“[core dump](https://en.wikipedia.org/wiki/Core_dump)”进行恶意调试，避免泄露敏感数据，总之程序的健壮性与安全性是紧密相关的。
 <br/>
 <br/>
 
@@ -1671,7 +1671,7 @@ void baz() {
 ```
 例中 foo 和 bar 函数的资源管理方式是不符合 C\+\+ 理念的，baz 函数中的 y 对象负责资源的分配与回收，称 y 对象具有资源的所有权，相关资源的生命周期与 y 的生命周期一致，有效避免了资源泄漏或错误回收等问题。  
   
-资源的所有权可以发生转移，但应保证转移前后均有对象负责管理资源，并且在转移过程中不会产生异常。进一步理解对象化管理方法，可参见“[RAII（Resource Acquisition Is Initialization）](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization)”等机制。  
+资源的所有权可以发生转移，但应保证转移前后均有对象负责管理资源，并且在转移过程中不会产生异常。进一步理解对象化管理方法，可参见“[RAII（Resource Acquisition Is Initialization）](https://en.cppreference.com/w/cpp/language/raii)”等机制。  
   
 与资源相关的系统接口不应直接被业务代码引用，如：
 ```
@@ -8960,7 +8960,7 @@ ID_singleSignedBitfield&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 有符号整型对象的位域长度如果为 1 表示只有一个比特位，而该比特位是符号位，极易造成意料之外的错误。  
   
-本规则不针对匿名成员。  
+匿名成员的位域长度不受本规则限制。  
   
 示例：
 ```
@@ -8980,7 +8980,7 @@ int main() {
     printf("%d %d %u\n", x.a, x.b, x.c);   // What is output?
 }
 ```
-输出 \-1 1 1，按常规思维，x.b 和 x.c 为 1 与预期相符，x.a 预期是 1，但实际是 \-1。
+输出 \-1 1 1，x.b 和 x.c 为 1 与预期相符，x.a 预期是 1，但实际是 \-1。
 <br/>
 <br/>
 
@@ -9477,7 +9477,7 @@ ID_missingType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-C90 允许省略对象或函数的类型声明，但实践表明这并不是一种好的编程方式，可读性较差。  
+C90 允许省略对象或函数的类型声明，但实践表明这并不是一种良好的编程方式，可读性较差。  
   
 本规则仅针对 C 语言，C\+\+ 语言不存在这种问题。  
   
@@ -9488,7 +9488,7 @@ const b;      // Non-compliant
 fun(void);    // Non-compliant
 typedef tp;   // Non-compliant
 ```
-例中 a、b、fun、tp 的类型被省略，默认为 int 型，应改为：
+例中 a、b、fun、tp 的类型被省略，默认为 int，应改为：
 ```
 extern int a;     // Compliant
 const int b;      // Compliant
@@ -15026,7 +15026,7 @@ E:                          // Single exit point
 ```
 在多次资源分配过程中，如果某次分配失败则需要释放已分配的资源，利用 goto 语句可实现资源的统一释放，在 C 代码中如果不用 goto 语句反而会很繁琐，所以这种模式在 C 代码中可以复用。  
   
-由于 C\+\+ 提供容器、智能指针等更丰富的资源管理手段，所以不建议在 C\+\+ 代码中再使用这种模式，即使标准库没有和相关资源对应的功能，也应该利用“[RAII](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization)”等机制对其先封装再使用。
+由于 C\+\+ 提供容器、智能指针等更丰富的资源管理手段，所以不建议在 C\+\+ 代码中再使用这种模式，即使标准库没有和相关资源对应的功能，也应该利用“[RAII](https://en.cppreference.com/w/cpp/language/raii)”等机制对其先封装再使用。
 ```
 void foo(size_t n) {
     std::vector<int> a, b, c;   // Safe and brief
@@ -16139,17 +16139,21 @@ ID_minusOnUnsigned&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-负号作用于无符号整数，结果仍是无符号整数，令人费解易产生意料之外的错误。  
+负号作用于 unsigned int、unsigned long、unsigned long long 等无符号整型表达式的结果仍为无符号整数，易产生意料之外的错误。  
+  
+当 int 类型的取值范围可以包含 unsigned char、unsigned short 等“较小”无符号整型的取值范围时，较小的无符号整型可以被提升为 int 类型，负号作用于这种类型的表达式可以得到有符号的结果，但会降低可移植性。  
   
 示例：
 ```
-unsigned int a = 1;
-long long b = -a;    // Non-compliant, ‘b’ is 4294967295, confusing
+unsigned int x = 1;
+signed long long y = -x;        // Non-compliant, ‘y’ equals UINT_MAX, confusing
+unsigned long long z = -1ULL;   // Non-compliant, use ULLONG_MAX instead
 ```
-例外：  
- - unsigned char、unsigned short 等可以“[类型提升](https://en.wikipedia.org/wiki/Type_conversion#Type_promotion)”为 int 的无符号类型可不受本规则约束  
- - \-1U、\-1UL、\-1ULL 作为 UINT\_MAX、ULONG\_MAX、ULLONG\_MAX 的惯用简写形式可不受本规则约束
 <br/>
+<br/>
+
+#### 配置
+allowSmallUnsignedTypes：是否允许负号作用于 unsigned char、unsigned short 等无符号整型表达式  
 <br/>
 
 #### 依据
@@ -16286,24 +16290,34 @@ MISRA C++ 2008 5-0-21
 <br/>
 <br/>
 
-### <span id="illshiftcount">▌R10.2.20 移位数量不可超过相关类型提升后比特位的数量</span>
+### <span id="illshiftcount">▌R10.2.20 移位数量不应超过相关类型比特位的数量</span>
 
 ID_illShiftCount&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
 <hr/>
 
-如果移位数量为负数、大于或等于相关类型提升后比特位的数量，会导致标准未定义的行为。  
+如果移位数量为负数、大于或等于相关类型比特位的数量，会导致标准未定义的行为。  
   
 示例：
 ```
-uint64_t foo(uint32_t u) {
-    return u << 32;          // Non-compliant, undefined behavior
+uint32_t foo(uint16_t a) {
+    return a << 16;         // Non-compliant, unportable
+}
+
+uint64_t bar(uint32_t b) {
+    return b << 32;         // Non-compliant, undefined behavior
 }
 ```
-例中变量 u 为 32 位整型，将其左移 32 位并不能得到 64 位整数，应改为：
+例中变量 a 为 16 位整数，是否会被提升为 32 位整型由实现定义，参见“[类型提升](https://en.cppreference.com/w/c/language/conversion#Integer_promotions)”；变量 b 为 32 位整数，将其左移 32 位并不能得到 64 位整数，反而会导致标准未定义的行为。  
+  
+应改为：
 ```
-uint64_t foo(uint32_t u) {
-    return static_cast<uint64_t>(u) << 32;   // Compliant
+uint32_t foo(uint16_t a) {
+    return uint32_t(a) << 16;   // Compliant
+}
+
+uint64_t bar(uint32_t b) {
+    return uint64_t(b) << 32;   // Compliant
 }
 ```
 <br/>
@@ -16393,7 +16407,7 @@ void fun(X x) {
     }
 }
 ```
-例中 x 为无符号短整型变量，其取值范围为 \[0, 65535\]，x == \-1 恒为假。由于“[类型提升](https://en.wikipedia.org/wiki/Type_conversion#Type_promotion)”，x 会被转为 int 型再与 \-1 比较，x 恒为正数，\-1 为负数，故不可能相等。  
+例中 x 为无符号短整型变量，其取值范围为 \[0, 65535\]，x == \-1 恒为假。由于“[类型提升](https://en.cppreference.com/w/c/language/conversion#Integer_promotions)”，x 会被转为 int 型再与 \-1 比较，x 恒为正数，\-1 为负数，故不可能相等。  
   
 对于有符号字符型变量，与其比较的数值不在 \[\-128, 127\] 范围内时，也是无效的：
 ```
@@ -16407,7 +16421,7 @@ CodePage encodingDetect(const char* src) {
     ....
 }
 ```
-即使例中 b0 的二进制绝对值确实为 0xef，但由于“[类型提升](https://en.wikipedia.org/wiki/Type_conversion#Type_promotion)”，b0 转为 int 型后为负数，0xef 为正数，比较的结果恒为假。char 型变量是否有符号由实现定义，可参见 ID\_plainNumericChar 的进一步说明，将 b0 等变量设为 unsigned char 可解决这个问题。
+即使例中 b0 的二进制绝对值确实为 0xef，但由于类型提升，b0 转为 int 型后为负数，0xef 为正数，比较的结果恒为假。char 型变量是否有符号由实现定义，可参见 ID\_plainNumericChar 的进一步说明，将 b0 等变量设为 unsigned char 可解决这个问题。
 <br/>
 <br/>
 
@@ -18610,7 +18624,7 @@ signed s = -1;
 unsigned u = 1;
 printf("%d\n", s < u);   // Non-compliant
 ```
-例中有符号整数 s 的值为 \-1，无符号整数 u 的值为 1，s 理应小于 u，但由于“[类型提升](https://en.wikipedia.org/wiki/Type_conversion#Type_promotion)”，s 会被转为无符号整数，值为无符号整数的最大值，s < u 的实际结果为 0。
+例中有符号整数 s 的值为 \-1，无符号整数 u 的值为 1，s 理应小于 u，但由于“[类型提升](https://en.cppreference.com/w/c/language/conversion#Integer_promotions)”，s 会被转为无符号整数，值为无符号整数的最大值，s < u 的实际结果为 0。
 <br/>
 <br/>
 
@@ -18671,7 +18685,7 @@ ID_downCast&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: cast suggestion
 
 <hr/>
 
-当代码中出现了从基类到派生类的向下类型转换，以及可以造成数据损失的类型转换，意味着现有接口或流程不能满足需求，需要“特殊处理”，所以这种转换越少越好。  
+从基类到派生类的向下类型转换往往意味着现有接口已经不能满足需求，故应避免这种转换。  
   
 示例：
 ```
@@ -18683,12 +18697,12 @@ public:
 };
 
 void foo(A* a) {
-    if (auto* p = dynamic_cast<B*>(a)) {   // Bad
+    if (B* p = dynamic_cast<B*>(a)) {   // Bad, down cast
         p->bar();
     }
 }
 ```
-例中 foo 接口对 B 类型进行特殊处理，是不利于维护的，当这种特殊处理较多时，应利用虚函数、重载或模板等方法进行合理重构。
+例中 foo 接口对基类参数进行向下类型转换是不利于维护的，当这种特殊处理较多时，应利用多态方法合理重构。
 ```
 class A {
     ....
@@ -19721,8 +19735,6 @@ int foo(int i) {
 ```
 例中指针 p 为空的状态可以到达解引用处，往往会引发“[段错误](https://en.wikipedia.org/wiki/Segmentation_fault)”而导致崩溃。  
   
-崩溃会给用户不好的体验，而且要注意如果崩溃可由外部输入引起，会被攻击者利用从而迫使程序无法正常工作，具有高可靠性要求的服务类程序更应该注意这一点，可参见“[拒绝服务攻击](https://en.wikipedia.org/wiki/Denial-of-service_attack)”的进一步说明。对于客户端程序，也要防止攻击者对崩溃产生的“[core dump](https://en.wikipedia.org/wiki/Core_dump)”进行恶意调试，避免泄露敏感数据，总之程序的健壮性与安全性是紧密相关的。  
-  
 例外：
 ```
 struct T {
@@ -19731,8 +19743,8 @@ struct T {
 };
 
 T* p = nullptr;
-auto b = p->bar();   // Compliant, but bad, use ‘T::bar()’ instead
-auto c = p->foo();   // Non-compliant, even if it may not crash
+int b = p->bar();   // Compliant, but bad, use ‘T::bar()’ instead
+int c = p->foo();   // Non-compliant, even if it may not crash
 ```
 在 C\+\+ 代码中通过指针访问静态成员不算作解引用，可不受本规则约束，但这种风格易引起维护者的疑虑而增加维护成本。  
   

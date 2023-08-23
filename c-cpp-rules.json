@@ -90,8 +90,11 @@
     "ID_minusOnUnsigned": {
         "checkPoint": "负号不应作用于无符号整数",
         "level": "warning",
-        "comment": "负号作用于无符号整数，结果仍是无符号整数，令人费解易产生意料之外的错误。",
+        "comment": "负号作用于 unsigned int、unsigned long 或 unsigned long long 等无符号整型表达式的结果仍为无符号整数，易产生意料之外的错误。",
         "tag": "expression",
+        "config": [
+            "allowSmallUnsignedTypes: 是否允许负号作用于 unsigned char、unsigned short 等无符号整型表达式"
+            ],
         "standard": "ISO/IEC 9899:1999 6.5.3.3(3),ISO/IEC 9899:2011 6.5.3.3(3)",
         "reference": "MISRA C 2004 12.9,MISRA C 2012 10.1,MISRA C++ 2008 5-3-2"
         },
@@ -1280,9 +1283,9 @@
         "reference": "CWE-697,CWE-1024,CWE-1025"
         },
     "ID_illShiftCount": {
-        "checkPoint": "移位数量不可超过相关类型提升后比特位的数量",
+        "checkPoint": "移位数量不应超过相关类型比特位的数量",
         "level": "error",
-        "comment": "如果移位数量为负数、大于或等于相关类型提升后比特位的数量，会导致标准未定义的行为。",
+        "comment": "如果移位数量为负数、大于或等于相关类型比特位的数量，会导致标准未定义的行为。",
         "tag": "expression",
         "standard": "ISO/IEC 9899:1999 6.5.7(3)-undefined,ISO/IEC 9899:2011 6.5.7(3)-undefined,ISO/IEC 14882:2003 5.8(1)-undefined,ISO/IEC 14882:2011 5.8(1)-undefined,ISO/IEC 14882:2017 8.8(1)-undefined",
         "reference": "MISRA C 2012 12.2,MISRA C++ 2008 5-8-1"
@@ -1346,7 +1349,7 @@
     "ID_downCast": {
         "checkPoint": "避免向下类型转换",
         "level": "suggestion",
-        "comment": "当代码中出现了从基类到派生类的向下类型转换，以及可以造成数据损失的类型转换，意味着现有接口或流程不能满足需求，需要“特殊处理”，所以这种转换越少越好。",
+        "comment": "从基类到派生类的向下类型转换往往意味着现有接口已经不能满足需求，故应避免这种转换。",
         "tag": "cast",
         "related": "ID_nonDynamicDownCast,ID_narrowCast",
         "reference": "C++ Core Guidelines ES.48"
@@ -3771,7 +3774,7 @@
     "ID_missingType": {
         "checkPoint": "不应省略声明对象或函数的类型",
         "level": "warning",
-        "comment": "C90 允许省略对象或函数的类型声明，但实践表明这并不是一种好的编程方式，可读性较差。",
+        "comment": "C90 允许省略对象或函数的类型声明，但实践表明这并不是一种良好的编程方式，可读性较差。",
         "tag": "declaration",
         "reference": "MISRA C 2004 8.2,MISRA C 2012 8.1"
         },
