@@ -132,7 +132,7 @@
     - [R3.1.2 include 指令中禁用不合规的字符](#nonstandardcharinheadername)
     - [R3.1.3 include 指令中不应使用反斜杠](#forbidbackslashinheadername)
     - [R3.1.4 include 指令中不应使用绝对路径](#forbidabspathinheadername)
-    - [R3.1.5 include 指令之前的代码只应为预编译指令或注释](#badincludeposition)
+    - [R3.1.5 include 指令应位于文件的起始部分](#badincludeposition)
     - [R3.1.6 禁用不合规的头文件](#forbiddenheader)
     - [R3.1.7 C\+\+ 代码不应引用 C 头文件](#forbidcheaderincpp)
   - [3.2 Macro-definition](#precompile.macro-definition)
@@ -351,7 +351,7 @@
 <span id="__function">**[8. Function](#function)**</span>
   - [R8.1 main 函数的返回类型只应为 int](#mainreturnsnonint)
   - [R8.2 main 函数不应被调用、重载或被 inline、static 等限定符修饰](#illformedmain)
-  - [R8.3 函数不应在头文件中实现](#definedinheader)
+  - [R8.3 在头文件中不应实现函数或定义对象](#definedinheader)
   - [R8.4 函数的参数名称在声明处和实现处应保持一致](#inconsistentparamname)
   - [R8.5 多态类的对象作为参数时不应采用值传递的方式](#parammaybeslicing)
   - [R8.6 不应存在未被使用的具名形式参数](#paramnotused)
@@ -2784,13 +2784,13 @@ ID_forbidAbsPathInHeaderName&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompile 
 <br/>
 <br/>
 
-### <span id="badincludeposition">▌R3.1.5 include 指令之前的代码只应为预编译指令或注释</span>
+### <span id="badincludeposition">▌R3.1.5 include 指令应位于文件的起始部分</span>
 
 ID_badIncludePosition&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 <hr/>
 
-用于包含头文件的 include 指令应统一位于代码的起始部分，以提高可读性和可维护性。  
+include 指令之前的代码只应为预编译指令或注释，否则不利于阅读和维护。  
   
 用于包含模板实现文件的 include 指令可不受本规则限制，但相关文件的命名应与普通头文件有所区别。  
   
@@ -8207,6 +8207,7 @@ char* strstr(const char* haystack, const char* needle);   // Good
 char* strstr(const char*, const char*);       // Bad
 char* strstr(const char* a, const char* b);   // Bad
 ```
+例中无名称或名称无实际意义的参数是不符合要求的。
 <br/>
 <br/>
 
@@ -11016,43 +11017,43 @@ ISO/IEC 14882:2017 6.6.1(2 3)-implementation
 <br/>
 <br/>
 
-### <span id="definedinheader">▌R8.3 函数不应在头文件中实现</span>
+### <span id="definedinheader">▌R8.3 在头文件中不应实现函数或定义对象</span>
 
 ID_definedInHeader&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-在头文件中实现的函数如果不是内联、静态或模板函数，则可能被引入不同的翻译单元（translate\-unit）造成编译冲突。  
+头文件中的函数或对象可能会被引入不同的翻译单元（translate\-unit）造成编译冲突。  
   
-头文件也是项目文档的重要组成部分，头文件的主要内容应是类型或接口的声明，有必要保持头文件简洁清晰。除非函数很简短，否则不建议在头文件中内联实现，大段的函数实现会影响头文件的可读性。  
+常量对象和内联、模板函数可不受本规则约束，静态对象和静态函数也不受本规则约束，但违反规则 ID\_staticInHeader。  
+  
+头文件是项目文档的重要组成部分，有必要保持头文件简洁清晰，头文件的主要内容应是类型或接口的声明。除非函数很简短，否则不建议在头文件中内联实现，大段的函数实现会影响头文件的可读性。  
   
 示例：
 ```
-// In a header file
-int foo() {          // Non-compliant, add ‘inline’ or move it to a cpp file
-    return 1;
-}
+// In a header
+int a[] = {1, 2, 3};   // Non-compliant
 
-inline int bar() {   // Compliant
-    return 2;
+int foo() {    // Non-compliant
+    return 1;
 }
 ```
 对于较为复杂的模板函数，建议将其实现与主体头文件分离，如：
 ```
-// In B.h
+// In a header
 template <class T>
-struct B {
+struct A {
     T foo(T&);
 };
+#include "A.imp"
 
-#include "impl/B.inc"
-
-// In impl/B.inc
+// In A.imp
 template <class T>
-T B<T>::foo(T& p) {
-    ....             // Complex implementation
+T A<T>::foo(T& p) {   // Implementation
+    ....
 }
 ```
+将模板函数的实现移入 A.imp 文件中，再由主头文件包含即可，A.imp 文件称为模板实现文件。
 <br/>
 <br/>
 
