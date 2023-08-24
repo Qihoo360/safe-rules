@@ -1152,6 +1152,14 @@
         "standard": "ISO/IEC 14882:1998 D.5-deprecated,ISO/IEC 14882:2003 D.5-deprecated,ISO/IEC 14882:2011 D.5-deprecated,ISO/IEC 14882:2017 D.5-deprecated",
         "reference": "MISRA C++ 2008 18-0-1"
         },
+    "ID_badIncludePosition": {
+        "checkPoint": "include 指令之前的代码只应为预编译指令或注释",
+        "level": "warning",
+        "comment": "用于包含头文件的 include 指令应统一位于代码的起始部分，否则不便于查看包含了哪些文件，甚至会导致标准未定义的行为。",
+        "tag": "precompile",
+        "standard": "ISO/IEC 9899:1999 7.1.2(4),ISO/IEC 9899:2011 7.1.2(4),ISO/IEC 14882:2003 17.4.2.1(3),ISO/IEC 14882:2011 17.6.2.2(3),ISO/IEC 14882:2017 20.5.2.2(3)",
+        "reference": "MISRA C 2012 20.1,MISRA C++ 2008 16-0-1"
+        },
     "ID_forbiddenHeader": {
         "checkPoint": "禁用不合规的头文件",
         "level": "warning",
@@ -1550,9 +1558,17 @@
     "ID_selfExclusiveOr": {
         "checkPoint": "异或运算符左右子表达式不应相同",
         "level": "warning",
-        "comment": "与自身异或，结果总为 0，而且也可能意味着某种错误。",
+        "comment": "与自身异或的结果总为 0，而且也可能意味着某种错误。",
         "tag": "expression",
         "reference": "CWE-682"
+        },
+    "ID_overlappingAssignment": {
+        "checkPoint": "不可将对象的值赋给具有部分重叠区域的对象",
+        "level": "warning",
+        "comment": "如果两个对象的存储区域有部分重叠，将其中一个对象的值赋给另一个对象会导致标准未定义的行为。",
+        "tag": "expression",
+        "standard": "ISO/IEC 9899:1999 6.5.16.1(3)-undefined,ISO/IEC 9899:2011 6.5.16.1(3)-undefined,ISO/IEC 14882:2003 5.17(8)-undefined,ISO/IEC 14882:2011 5.17(8)-undefined",
+        "reference": "MISRA C 2012 19.1,MISRA C++ 2008 0-2-1"
         },
     "ID_confusingAssignment": {
         "checkPoint": "在表达式中不应多次读写同一对象",
@@ -2721,6 +2737,21 @@
         "tag": "precompile",
         "standard": "ISO/IEC 9899:1999 6.10(1),ISO/IEC 9899:2011 6.10(1),ISO/IEC 14882:2003 16(1),ISO/IEC 14882:2011 16(1),ISO/IEC 14882:2017 19(1)",
         "reference": "MISRA C 2004 19.16,MISRA C 2012 20.13"
+        },
+    "ID_forbidPragmaDirective": {
+        "checkPoint": "避免使用 pragma 指令",
+        "level": "warning",
+        "comment": "为了提高可移植性，应避免使用由实现定义的 pragma 指令。",
+        "tag": "precompile",
+        "standard": "ISO/IEC 9899:1999 6.10.6(1)-implementation,ISO/IEC 9899:2011 6.10.6(1)-implementation",
+        "reference": "MISRA C++ 2008 16-6-1"
+        },
+    "ID_explicitLineDirective": {
+        "checkPoint": "非自动生成的代码中不应出现 line 指令",
+        "level": "warning",
+        "comment": "在非自动生成的代码中没有必要使用 line 指令，否则会干扰编译器的输出，使问题难以定位。",
+        "tag": "precompile",
+        "standard": "ISO/IEC 9899:1999 6.10.4,ISO/IEC 9899:2011 6.10.4"
         },
     "ID_illFormedDirective": {
         "checkPoint": "不应出现非标准格式的预编译指令",

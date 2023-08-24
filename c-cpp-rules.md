@@ -4,7 +4,7 @@
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对 C、C++ 语言，本文收录了 478 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对 C、C++ 语言，本文收录了 482 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
@@ -132,8 +132,9 @@
     - [R3.1.2 include 指令中禁用不合规的字符](#nonstandardcharinheadername)
     - [R3.1.3 include 指令中不应使用反斜杠](#forbidbackslashinheadername)
     - [R3.1.4 include 指令中不应使用绝对路径](#forbidabspathinheadername)
-    - [R3.1.5 禁用不合规的头文件](#forbiddenheader)
-    - [R3.1.6 C\+\+ 代码不应引用 C 头文件](#forbidcheaderincpp)
+    - [R3.1.5 include 指令之前的代码只应为预编译指令或注释](#badincludeposition)
+    - [R3.1.6 禁用不合规的头文件](#forbiddenheader)
+    - [R3.1.7 C\+\+ 代码不应引用 C 头文件](#forbidcheaderincpp)
   - [3.2 Macro-definition](#precompile.macro-definition)
     - [R3.2.1 宏应遵循合理的命名方式](#macro_badname)
     - [R3.2.2 不可定义具有保留意义的宏名称](#macro_definereserved)
@@ -159,10 +160,12 @@
     - [R3.4.1 头文件不应缺少守卫](#missingheaderguard)
     - [R3.4.2 不应出现非标准格式的预编译指令](#illformeddirective)
     - [R3.4.3 不应使用非标准预编译指令](#nonstddirective)
-    - [R3.4.4 宏的参数列表中不应出现预编译指令](#directiveinmacroargument)
-    - [R3.4.5 条件编译代码块应在同一文件中](#incompletedirective)
-    - [R3.4.6 对编译警告的屏蔽应慎重](#warningdisabled)
-    - [R3.4.7 在高级别的警告设置下编译](#warningdefault)
+    - [R3.4.4 避免使用 pragma 指令](#forbidpragmadirective)
+    - [R3.4.5 非自动生成的代码中不应出现 line 指令](#explicitlinedirective)
+    - [R3.4.6 宏的参数列表中不应出现预编译指令](#directiveinmacroargument)
+    - [R3.4.7 条件编译代码块应在同一文件中](#incompletedirective)
+    - [R3.4.8 对编译警告的屏蔽应慎重](#warningdisabled)
+    - [R3.4.9 在高级别的警告设置下编译](#warningdefault)
   - [3.5 Comment](#precompile.comment)
     - [R3.5.1 关注 TODO、FIXME、XXX、BUG 等特殊注释](#specialcomment)
     - [R3.5.2 注释不可嵌套](#nestedcomment)
@@ -486,16 +489,17 @@
     - [R10.2.9 &=、|=、\-=、/=、%= 左右子表达式不应相同](#illselfcompoundassignment)
     - [R10.2.10 不应将 NULL 当作整数使用](#oddnullassignment)
     - [R10.2.11 注意赋值运算符与一元运算符的空格方式](#stickyassignmentoperator)
-    - [R10.2.12 赋值运算符左右子表达式不应相同](#selfassignment)
-    - [R10.2.13 除法和求余运算符左右子表达式不应相同](#selfdivision)
-    - [R10.2.14 减法运算符左右子表达式不应相同](#selfsubtraction)
-    - [R10.2.15 异或运算符左右子表达式不应相同](#selfexclusiveor)
-    - [R10.2.16 负号不应作用于无符号整数](#minusonunsigned)
-    - [R10.2.17 不应重复使用一元运算符](#repeatedunaryoperators)
-    - [R10.2.18 运算结果不应溢出](#evaloverflow)
-    - [R10.2.19 位运算符不应作用于有符号整数](#bitwiseoperonsigned)
-    - [R10.2.20 移位数量不应超过相关类型比特位的数量](#illshiftcount)
-    - [R10.2.21 逗号表达式的子表达式应具有必要的副作用](#invalidcommasubexpression)
+    - [R10.2.12 不可将对象的值赋给具有部分重叠区域的对象](#overlappingassignment)
+    - [R10.2.13 赋值运算符左右子表达式不应相同](#selfassignment)
+    - [R10.2.14 除法和求余运算符左右子表达式不应相同](#selfdivision)
+    - [R10.2.15 减法运算符左右子表达式不应相同](#selfsubtraction)
+    - [R10.2.16 异或运算符左右子表达式不应相同](#selfexclusiveor)
+    - [R10.2.17 负号不应作用于无符号整数](#minusonunsigned)
+    - [R10.2.18 不应重复使用一元运算符](#repeatedunaryoperators)
+    - [R10.2.19 运算结果不应溢出](#evaloverflow)
+    - [R10.2.20 位运算符不应作用于有符号整数](#bitwiseoperonsigned)
+    - [R10.2.21 移位数量不应超过相关类型比特位的数量](#illshiftcount)
+    - [R10.2.22 逗号表达式的子表达式应具有必要的副作用](#invalidcommasubexpression)
   - [10.3 Comparison](#expression.comparison)
     - [R10.3.1 比较运算应在正确的取值范围内进行](#illcomparison)
     - [R10.3.2 不应使用 == 或 != 判断浮点数是否相等](#illfloatcomparison)
@@ -2780,7 +2784,43 @@ ID_forbidAbsPathInHeaderName&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompile 
 <br/>
 <br/>
 
-### <span id="forbiddenheader">▌R3.1.5 禁用不合规的头文件</span>
+### <span id="badincludeposition">▌R3.1.5 include 指令之前的代码只应为预编译指令或注释</span>
+
+ID_badIncludePosition&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
+
+<hr/>
+
+用于包含头文件的 include 指令应统一位于代码的起始部分，以提高可读性和可维护性。  
+  
+用于包含模板实现文件的 include 指令可不受本规则限制，但相关文件的命名应与普通头文件有所区别。  
+  
+示例：
+```
+#include "a.h"   // Compliant
+extern int i;
+#include "b.h"   // Non-compliant
+extern
+#include "c.h"   // Non-compliant, undefined behavior
+```
+如果声明的一部分在头文件内，另一部分在头文件外，会导致标准未定义的行为。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 7.1.2(4)  
+ISO/IEC 9899:2011 7.1.2(4)  
+ISO/IEC 14882:2003 17.4.2.1(3)  
+ISO/IEC 14882:2011 17.6.2.2(3)  
+ISO/IEC 14882:2017 20.5.2.2(3)  
+<br/>
+
+#### 参考
+MISRA C 2012 20.1  
+MISRA C++ 2008 16-0-1  
+<br/>
+<br/>
+
+### <span id="forbiddenheader">▌R3.1.6 禁用不合规的头文件</span>
 
 ID_forbiddenHeader&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompile warning
 
@@ -2839,7 +2879,7 @@ MISRA C++ 2008 27-0-1
 <br/>
 <br/>
 
-### <span id="forbidcheaderincpp">▌R3.1.6 C++ 代码不应引用 C 头文件</span>
+### <span id="forbidcheaderincpp">▌R3.1.7 C++ 代码不应引用 C 头文件</span>
 
 ID_forbidCHeaderInCpp&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompile warning
 
@@ -3840,7 +3880,55 @@ MISRA C 2012 20.13
 <br/>
 <br/>
 
-### <span id="directiveinmacroargument">▌R3.4.4 宏的参数列表中不应出现预编译指令</span>
+### <span id="forbidpragmadirective">▌R3.4.4 避免使用 pragma 指令</span>
+
+ID_forbidPragmaDirective&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: precompile warning
+
+<hr/>
+
+应避免使用由实现定义的 pragma 指令以提高可移植性。  
+  
+示例：
+```
+#pragma once   // Non-compliant, use macro header guards instead
+```
+应使用标准方法代替 pragma 指令，如果难以代替，相关 pragma 指令应备以文档说明。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.10.6(1)-implementation  
+ISO/IEC 9899:2011 6.10.6(1)-implementation  
+<br/>
+
+#### 参考
+MISRA C++ 2008 16-6-1  
+<br/>
+<br/>
+
+### <span id="explicitlinedirective">▌R3.4.5 非自动生成的代码中不应出现 line 指令</span>
+
+ID_explicitLineDirective&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
+
+<hr/>
+
+在非自动生成的代码中没有必要使用 line 指令，否则会干扰编译器的输出，使问题难以定位。  
+  
+示例：
+```
+#line 123           // Non-compliant
+#line 456 "foo.c"   // Non-compliant
+```
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.10.4  
+ISO/IEC 9899:2011 6.10.4  
+<br/>
+<br/>
+
+### <span id="directiveinmacroargument">▌R3.4.6 宏的参数列表中不应出现预编译指令</span>
 
 ID_directiveInMacroArgument&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
@@ -3877,7 +3965,7 @@ MISRA C++ 2008 16-0-5
 <br/>
 <br/>
 
-### <span id="incompletedirective">▌R3.4.5 条件编译代码块应在同一文件中</span>
+### <span id="incompletedirective">▌R3.4.7 条件编译代码块应在同一文件中</span>
 
 ID_incompleteDirective&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
@@ -3911,7 +3999,7 @@ MISRA C++ 2008 16-1-2
 <br/>
 <br/>
 
-### <span id="warningdisabled">▌R3.4.6 对编译警告的屏蔽应慎重</span>
+### <span id="warningdisabled">▌R3.4.8 对编译警告的屏蔽应慎重</span>
 
 ID_warningDisabled&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
@@ -3938,7 +4026,7 @@ ID_warningDefault
 <br/>
 <br/>
 
-### <span id="warningdefault">▌R3.4.7 在高级别的警告设置下编译</span>
+### <span id="warningdefault">▌R3.4.9 在高级别的警告设置下编译</span>
 
 ID_warningDefault&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
@@ -15894,7 +15982,7 @@ a &= a & x;
 a |= a | x;
 a ^= a ^ x;
 ```
-是没有意义的，均为常见笔误，应将复合赋值改为普通赋值，或去掉重复的子表达式。
+均为常见笔误，应将复合赋值改为普通赋值，或去掉重复的子表达式。
 <br/>
 <br/>
 
@@ -16029,7 +16117,43 @@ CWE-480
 <br/>
 <br/>
 
-### <span id="selfassignment">▌R10.2.12 赋值运算符左右子表达式不应相同</span>
+### <span id="overlappingassignment">▌R10.2.12 不可将对象的值赋给具有部分重叠区域的对象</span>
+
+ID_overlappingAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
+
+<hr/>
+
+如果两个对象的存储区域有部分重叠，将其中一个对象的值赋给另一个对象会导致标准未定义的行为。  
+  
+示例：
+```
+union U {
+    int16_t x;
+    int16_t y;
+    int64_t z;
+} u;
+
+u.x = u.y;   // Compliant
+u.z = u.x;   // Non-compliant
+```
+例中 x 和 y 的存储区域完全重叠且类型相同，可以相互赋值；x 和 z 有部分重叠，不可相互赋值。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.5.16.1(3)-undefined  
+ISO/IEC 9899:2011 6.5.16.1(3)-undefined  
+ISO/IEC 14882:2003 5.17(8)-undefined  
+ISO/IEC 14882:2011 5.17(8)-undefined  
+<br/>
+
+#### 参考
+MISRA C 2012 19.1  
+MISRA C++ 2008 0-2-1  
+<br/>
+<br/>
+
+### <span id="selfassignment">▌R10.2.13 赋值运算符左右子表达式不应相同</span>
 
 ID_selfAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -16066,7 +16190,7 @@ CWE-682
 <br/>
 <br/>
 
-### <span id="selfdivision">▌R10.2.13 除法和求余运算符左右子表达式不应相同</span>
+### <span id="selfdivision">▌R10.2.14 除法和求余运算符左右子表达式不应相同</span>
 
 ID_selfDivision&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -16088,7 +16212,7 @@ CWE-682
 <br/>
 <br/>
 
-### <span id="selfsubtraction">▌R10.2.14 减法运算符左右子表达式不应相同</span>
+### <span id="selfsubtraction">▌R10.2.15 减法运算符左右子表达式不应相同</span>
 
 ID_selfSubtraction&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -16111,20 +16235,20 @@ CWE-682
 <br/>
 <br/>
 
-### <span id="selfexclusiveor">▌R10.2.15 异或运算符左右子表达式不应相同</span>
+### <span id="selfexclusiveor">▌R10.2.16 异或运算符左右子表达式不应相同</span>
 
 ID_selfExclusiveOr&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 <hr/>
 
-与自身异或，结果总为 0，而且也可能意味着某种错误。  
+与自身异或的结果总为 0，而且也可能意味着某种错误。  
   
-对变量的清零，有一种惯用写法：
+示例：
 ```
 a ^= a;      // Non-compliant
 a = a ^ a;   // Non-compliant
 ```
-这种复杂的写法在 C/C\+\+ 等高级语言中已不再提倡，应将变量直接赋值为 0，编译器会作更好的优化。
+这种代码可能是为了对变量清零，也可能是笔误，即使没有逻辑错误，也应将变量直接赋值为 0 以提高可读性。
 <br/>
 <br/>
 
@@ -16133,7 +16257,7 @@ CWE-682
 <br/>
 <br/>
 
-### <span id="minusonunsigned">▌R10.2.16 负号不应作用于无符号整数</span>
+### <span id="minusonunsigned">▌R10.2.17 负号不应作用于无符号整数</span>
 
 ID_minusOnUnsigned&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -16146,9 +16270,10 @@ ID_minusOnUnsigned&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 示例：
 ```
 unsigned int x = 1;
-signed long long y = -x;        // Non-compliant, ‘y’ equals UINT_MAX, confusing
+signed long long y = -x;        // Non-compliant, ‘y’ equals UINT_MAX, not -1
 unsigned long long z = -1ULL;   // Non-compliant, use ULLONG_MAX instead
 ```
+例中 y 的值预期为 \-1，但实际值是无符号整数的最大值；\-1ULL 这种常量是令人困惑的，应使用 ULLONG\_MAX 代替。
 <br/>
 <br/>
 
@@ -16168,7 +16293,7 @@ MISRA C++ 2008 5-3-2
 <br/>
 <br/>
 
-### <span id="repeatedunaryoperators">▌R10.2.17 不应重复使用一元运算符</span>
+### <span id="repeatedunaryoperators">▌R10.2.18 不应重复使用一元运算符</span>
 
 ID_repeatedUnaryOperators&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -16192,7 +16317,7 @@ bool e = !!a;   // Let it go
 <br/>
 <br/>
 
-### <span id="evaloverflow">▌R10.2.18 运算结果不应溢出</span>
+### <span id="evaloverflow">▌R10.2.19 运算结果不应溢出</span>
 
 ID_evalOverflow&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -16245,7 +16370,7 @@ C++ Core Guidelines ES.104
 <br/>
 <br/>
 
-### <span id="bitwiseoperonsigned">▌R10.2.19 位运算符不应作用于有符号整数</span>
+### <span id="bitwiseoperonsigned">▌R10.2.20 位运算符不应作用于有符号整数</span>
 
 ID_bitwiseOperOnSigned&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -16290,7 +16415,7 @@ MISRA C++ 2008 5-0-21
 <br/>
 <br/>
 
-### <span id="illshiftcount">▌R10.2.20 移位数量不应超过相关类型比特位的数量</span>
+### <span id="illshiftcount">▌R10.2.21 移位数量不应超过相关类型比特位的数量</span>
 
 ID_illShiftCount&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
@@ -16337,7 +16462,7 @@ MISRA C++ 2008 5-8-1
 <br/>
 <br/>
 
-### <span id="invalidcommasubexpression">▌R10.2.21 逗号表达式的子表达式应具有必要的副作用</span>
+### <span id="invalidcommasubexpression">▌R10.2.22 逗号表达式的子表达式应具有必要的副作用</span>
 
 ID_invalidCommaSubExpression&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -21512,7 +21637,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 478 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
+&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 482 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
 
 &emsp;&emsp;此致
 
