@@ -2088,7 +2088,7 @@
     "ID_definedInHeader": {
         "checkPoint": "在头文件中不应实现函数或定义对象",
         "level": "warning",
-        "comment": "头文件中的函数或对象可能会被引入不同的翻译单元（translate-unit）造成编译冲突。",
+        "comment": "头文件中的函数或对象会被引入不同的翻译单元（translate-unit）造成编译冲突。",
         "tag": "function",
         "reference": "C++ Core Guidelines SF.2"
         },
@@ -3798,7 +3798,7 @@
     "ID_macro_redefined": {
         "checkPoint": "宏不应被重定义",
         "level": "warning",
-        "comment": "宏不受作用域限制，重定义后无法恢复，往往意味着错误。",
+        "comment": "宏不受作用域限制，重定义宏会使同一个全局名称产生多种不同的意义，易导致错误并降低可维护性。",
         "tag": "precompile",
         "standard": "ISO/IEC 9899:1999 6.10.3(2),ISO/IEC 9899:2011 6.10.3(2),ISO/IEC 14882:2003 16.3(2 3),ISO/IEC 14882:2011 16.3(2)"
         },
@@ -3891,16 +3891,22 @@
         "level": "suggestion",
         "comment": "宏不受作用域限制，在非全局作用域中定义宏易引起误解。",
         "tag": "precompile",
+        "config": [
+            "allowDefineAndUndefInSameBlock: 是否允许在同一非全局作用域内定义并取消定义宏"
+            ],
         "related": "ID_macro_undef",
         "standard": "ISO/IEC 9899:1999 6.10.3.5(1),ISO/IEC 9899:2011 6.10.3.5(1)",
         "reference": "MISRA C 2004 19.5,MISRA C++ 2008 16-0-2"
         },
     "ID_macro_undef": {
-        "checkPoint": "合理使用 #undef",
+        "checkPoint": "避免宏被取消定义",
         "level": "suggestion",
-        "comment": "内部宏在使用完毕后可用 #undef 取消定义，以免被外部非法使用，除此之外不应使用 #undef。",
+        "comment": "宏不受作用域限制，不应被取消定义，否则会失去确定性，使代码难以维护。",
         "tag": "precompile",
-        "related": "ID_macro_undefReserved",
+        "config": [
+            "allowUndefMacroInBlock: 是否允许取消在同一作用域内定义的宏"
+            ],
+        "related": "ID_macro_undefReserved,ID_macro_inBlock",
         "reference": "MISRA C 2004 19.6,MISRA C 2012 20.5,MISRA C++ 2008 16-0-3"
         },
     "ID_incompleteDirective": {

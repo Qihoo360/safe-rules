@@ -148,7 +148,7 @@
     - [R3.2.10 可由函数实现的功能不应使用宏实现](#macro_function)
     - [R3.2.11 宏不应被重定义](#macro_redefined)
     - [R3.2.12 只应在全局作用域中定义宏](#macro_inblock)
-    - [R3.2.13 合理使用 \#undef](#macro_undef)
+    - [R3.2.13 避免宏被取消定义](#macro_undef)
   - [3.3 Macro-usage](#precompile.macro-usage)
     - [R3.3.1 宏的实参不应有副作用](#macro_sideeffectargs)
     - [R3.3.2 宏的实参个数不可小于形参个数](#macro_insufficientargs)
@@ -3359,23 +3359,22 @@ ID_macro_redefined&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 <hr/>
 
-宏不受作用域限制，重定义后无法恢复，往往意味着错误。  
+宏不受作用域限制，重定义宏会使同一个全局名称产生多种不同的意义，易导致错误并降低可维护性。  
   
 示例：
 ```
 #define M 1
 
 int foo() {
-    #define M 0   // Non-compliant, redefine
-    ....
+    #define M 0   // Non-compliant, redefined
     return M;
 }
 
 int bar() {
-    return M;     // Probably wrong
+    return M;   // Probably wrong
 }
 ```
-例中宏 M 被重定义，实际影响范围是难以估计的，在语言标准中也是非良构的（ill\-formed）。如果一定要重定义，应在定义之前用 \#undef 取消定义，但不建议这么做，宏的名称不应被复用，否则不利于维护。
+例中宏 M 在 foo 函数中被重定义，影响范围会超出函数作用域，即使在重定前用 \#undef 取消定义也是不可取的，复用宏名称会使代码难以维护。
 <br/>
 <br/>
 
@@ -3398,22 +3397,26 @@ ID_macro_inBlock&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 示例：
 ```
 void foo(void) {
-    #define M 123   // Non-compliant, define in function scope
+    #define M 123   // Non-compliant, defined in a function scope
     ....
 }
 ```
-例中在函数作用域内定义宏是不符合要求的。  
+例中宏 M 在函数中定义，但其作用范围却是全局的。  
   
-例外：
+如果宏与某作用域密切相关，在该作用域内定义宏，使用后再取消定义是一种惯用方式，如：
 ```
 void foo(void) {
-    #define M 123   // Let it go
+    #define M 123   // Let it go?
     ....
     #undef M
 }
 ```
-如果宏与某作用域密切相关，也可以在该作用域内定义宏，但在作用域结尾应使用 \#undef 取消定义。
+审计工具不妨通过配置决定是否放过这种情况。
 <br/>
+<br/>
+
+#### 配置
+allowDefineAndUndefInSameBlock：是否允许在同一非全局作用域内定义并取消定义宏  
 <br/>
 
 #### 相关
@@ -3431,29 +3434,36 @@ MISRA C++ 2008 16-0-2
 <br/>
 <br/>
 
-### <span id="macro_undef">▌R3.2.13 合理使用 #undef</span>
+### <span id="macro_undef">▌R3.2.13 避免宏被取消定义</span>
 
 ID_macro_undef&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 
 <hr/>
 
-内部宏在使用完毕后可用 \#undef 取消定义，以免被外部非法使用，除此之外不应使用 \#undef。  
+宏不受作用域限制，不应被取消定义，否则会失去确定性，使代码难以维护。  
   
 示例：
 ```
-#ifndef HEADER_GUARD
-#define HEADER_GUARD 
-....
-#undef HEADER_GUARD   // Non-compliant
-....
-#endif
+// In a.h
+#define M 1
+
+// In b.h
+#undef M      // Non-compliant
+#define M 0   // Redefined, bad
 ```
-对其他模块的宏、系统宏以及头文件守卫等宏均不应使用 \#undef。
+在一个文件中定义了宏 M，在另一个文件取消并重定义了 M，使同一个全局名称产生两种不同的意义，严重降低了可维护性。  
+  
+有时取消定义已使用完毕的内部宏可避免对外部产生不良影响，具有一定积极作用，但宏的定义和取消应在同一文件的同一作用域中完成，相关示例可参见 ID\_macro\_inBlock。
 <br/>
+<br/>
+
+#### 配置
+allowUndefMacroInBlock：是否允许取消在同一作用域内定义的宏  
 <br/>
 
 #### 相关
 ID_macro_undefReserved  
+ID_macro_inBlock  
 <br/>
 
 #### 参考
@@ -11023,9 +11033,9 @@ ID_definedInHeader&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-头文件中的函数或对象可能会被引入不同的翻译单元（translate\-unit）造成编译冲突。  
+头文件中的函数或对象会被引入不同的翻译单元（translate\-unit）造成编译冲突。  
   
-常量对象和内联、模板函数可不受本规则约束，静态对象和静态函数也不受本规则约束，但违反规则 ID\_staticInHeader。  
+常量对象和内联、模板函数可不受本规则约束，静态对象和静态函数也不受本规则约束，但受规则 ID\_staticInHeader 限制。  
   
 头文件是项目文档的重要组成部分，有必要保持头文件简洁清晰，头文件的主要内容应是类型或接口的声明。除非函数很简短，否则不建议在头文件中内联实现，大段的函数实现会影响头文件的可读性。  
   
@@ -11038,12 +11048,12 @@ int foo() {    // Non-compliant
     return 1;
 }
 ```
-对于较为复杂的模板函数，建议将其实现与主体头文件分离，如：
+对于较为复杂的模板函数，应将其实现与声明分离，如：
 ```
 // In a header
 template <class T>
 struct A {
-    T foo(T&);
+    T foo(T&);   // Declaration
 };
 #include "A.imp"
 
@@ -15330,9 +15340,9 @@ char baz(bool x) {
     return x? 'a': 'a';   // Non-compliant
 }
 ```
-例中重复的子表达式都是有问题的，这是很常见的错误，多由复制粘贴引起。修正时不应只删去重复项，要考虑是否漏掉了某些项。  
+例中重复的子表达式都是有问题的，这是很常见的错误，多由复制粘贴引起。修正时不应只删去重复项，还要考虑是否漏掉了某些项。  
   
-例外：
+具有副作用的逻辑子表达式可不受本规则限制，但也是不便于阅读和维护的。如：
 ```
 void qux(ifstream& f) {
     if (f.get() == 'a' && f.get() == 'a') {   // Let it go
@@ -15340,7 +15350,7 @@ void qux(ifstream& f) {
     }
 }
 ```
-具有副作用的重复子表达式可不受本规则限制。例中重复的子表达式可以改变文件流的状态，但第二个子表达式可能不会被执行，这种代码即使没有逻辑错误也是不便于维护的，参见 ID\_shortCircuitSideEffect。
+例中重复的子表达式可以改变文件流的状态，但第二个子表达式可能不会被执行，这种代码即使没有逻辑错误也是不便于维护的，参见 ID\_shortCircuitSideEffect。
 <br/>
 <br/>
 
@@ -18306,9 +18316,7 @@ long double b = 100.L;  // Compliant
 long long c = 100lL;            // Non-compliant, very bad
 unsigned long long d = 100lLU;  // Non-compliant, very bad
 ```
-其中，小写的 l 和大写的 L 混在了一起。  
-  
-应改为：
+其中，小写的 l 和大写的 L 混在了一起，应改为：
 ```
 long long c = 100LL;            // Compliant
 unsigned long long d = 100LLU;  // Compliant
