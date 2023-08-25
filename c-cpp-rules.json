@@ -2404,6 +2404,7 @@
         "config": [
             "allowEnclosedAssignment: 是否放过括号括起来的赋值表达式"
             ],
+        "related": "ID_assignmentAsSubExpression",
         "reference": "CWE-480,CWE-481,CWE-783"
         },
     "ID_if_brace": {
@@ -3291,8 +3292,12 @@
     "ID_assignmentAsSubExpression": {
         "checkPoint": "赋值表达式不应作为子表达式",
         "level": "suggestion",
-        "comment": "赋值表达式作为子表达式易使人费解，也易产生优先级相关的问题。",
+        "comment": "赋值及复合赋值表达式作为子表达式可读性较差，易产生求值顺序或运算符优先级相关的问题。",
+        "config": [
+            "allowSuccessiveAssignment: 是否允许连续赋值"
+            ],
         "tag": "style",
+        "related": "ID_if_assignment",
         "reference": "CWE-481,MISRA C 2004 13.1,MISRA C 2012 13.4,MISRA C++ 2008 6-2-1"
         },
     "ID_incDecAsSubExpression": {
@@ -3904,7 +3909,7 @@
         "comment": "宏不受作用域限制，不应被取消定义，否则会失去确定性，使代码难以维护。",
         "tag": "precompile",
         "config": [
-            "allowUndefMacroInBlock: 是否允许取消在同一作用域内定义的宏"
+            "allowUndefMacroInSameBlock: 是否允许取消在同一作用域内定义的宏"
             ],
         "related": "ID_macro_undefReserved,ID_macro_inBlock",
         "reference": "MISRA C 2004 19.6,MISRA C 2012 20.5,MISRA C++ 2008 16-0-3"

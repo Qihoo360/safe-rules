@@ -3374,7 +3374,7 @@ int bar() {
     return M;   // Probably wrong
 }
 ```
-例中宏 M 在 foo 函数中被重定义，影响范围会超出函数作用域，即使在重定前用 \#undef 取消定义也是不可取的，复用宏名称会使代码难以维护。
+例中宏 M 在 foo 函数中被重定义，其影响范围是难以控制的，即使在重定义前用 \#undef 取消定义也是不可取的，复用宏名称会使代码难以维护。
 <br/>
 <br/>
 
@@ -3458,7 +3458,7 @@ ID_macro_undef&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: precompile suggestion
 <br/>
 
 #### 配置
-allowUndefMacroInBlock：是否允许取消在同一作用域内定义的宏  
+allowUndefMacroInSameBlock：是否允许取消在同一作用域内定义的宏  
 <br/>
 
 #### 相关
@@ -13327,6 +13327,8 @@ ID_if_assignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: control warning
 
 虽然语言允许在 if 语句的条件中赋值，但 = 和 == 极易混淆，建议所有产生 bool 型结果的表达式，都不要包含赋值运算符。  
   
+本规则是 ID\_assignmentAsSubExpression 的特化。  
+  
 示例：
 ```
 void foo(HRESULT r) {
@@ -13349,7 +13351,7 @@ if (auto r = fun()) {   // Compliant
     ....
 }
 ```
-将赋值表达式加上括号表示有意为之，是一种惯用写法：
+将赋值表达式加上括号表示有意为之，是一种惯用写法，但并不值得提倡，如：
 ```
 if ((r = fun())) {   // Let it go?
     ....
@@ -13361,6 +13363,10 @@ if ((r = fun())) {   // Let it go?
 
 #### 配置
 allowEnclosedAssignment：是否放过括号括起来的赋值表达式  
+<br/>
+
+#### 相关
+ID_assignmentAsSubExpression  
 <br/>
 
 #### 参考
@@ -21303,21 +21309,36 @@ ID_assignmentAsSubExpression&emsp;&emsp;&emsp;&emsp;&nbsp;:womans_hat: style sug
 
 <hr/>
 
-赋值表达式作为子表达式易使人费解，也易产生优先级相关的问题。  
+赋值及复合赋值表达式作为子表达式可读性较差，易产生求值顺序或运算符优先级相关的问题。  
   
-赋值及复合赋值表达式均受本规则约束。  
-  
-示例（设 a、b、c 为整型变量）：
+示例（设 a、b、c 为变量）：
 ```
-a = b;              // Compliant
-a = b = c;          // Non-compliant
+a = b;    // Compliant
+a += b;   // Compliant
+
+while (a = b) {   // Non-compliant
+    ....
+}
 if (a = b != 0) {   // Non-compliant
     ....
 }
-a += b;             // Compliant
-a += b += c;        // Non-compliant
+a += b += c;     // Non-compliant
+fun(a = b, c);   // Non-compliant
 ```
+连续赋值是一种惯用方式，但不值得提倡，如：
+```
+a = b = c;   // Let it go?
+```
+审计工具不妨通过配置决定是否放过这种方式。
 <br/>
+<br/>
+
+#### 配置
+allowSuccessiveAssignment：是否允许连续赋值  
+<br/>
+
+#### 相关
+ID_if_assignment  
 <br/>
 
 #### 参考
