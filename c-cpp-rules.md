@@ -4,7 +4,7 @@
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对 C、C++ 语言，本文收录了 482 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对 C、C++ 语言，本文收录了 486 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
@@ -287,15 +287,18 @@
     - [R6.6.8 声明数组参数的大小时禁用 static 关键字](#forbidstaticarrsize)
   - [6.7 Function](#declaration.function)
     - [R6.7.1 派生类不应重新定义与基类相同的非虚函数](#nonvirtualoverride)
-    - [R6.7.2 拷贝和移动赋值运算符应返回所属类的非 const 引用](#nonstdassignmentrettype)
-    - [R6.7.3 拷贝赋值运算符的参数应为同类对象的 const 左值引用](#nonstdcopyassignmentparam)
-    - [R6.7.4 移动赋值运算符的参数应为同类对象的非 const 右值引用](#nonstdmoveassignmentparam)
-    - [R6.7.5 不应重载取地址运算符](#overloadaddressoperator)
-    - [R6.7.6 不应重载逗号运算符](#overloadcomma)
-    - [R6.7.7 不应重载“逻辑与”和“逻辑或”运算符](#overloadlogicoperator)
-    - [R6.7.8 拷贝和移动赋值运算符不应为虚函数](#virtualassignment)
-    - [R6.7.9 比较运算符不应为虚函数](#virtualcomparison)
-    - [R6.7.10 final 类中不应声明虚函数](#virtualinfinal)
+    - [R6.7.2 重载运算符的返回类型应与内置运算符相符](#illoperatorrettype)
+    - [R6.7.3 拷贝和移动赋值运算符应返回所属类的非 const 左值引用](#nonstdassignmentrettype)
+    - [R6.7.4 拷贝构造函数的参数应为同类对象的 const 左值引用](#illcopyconstructorparam)
+    - [R6.7.5 拷贝赋值运算符的参数应为同类对象的 const 左值引用](#nonstdcopyassignmentparam)
+    - [R6.7.6 移动构造函数的参数应为同类对象的非 const 右值引用](#illmoveconstructorparam)
+    - [R6.7.7 移动赋值运算符的参数应为同类对象的非 const 右值引用](#nonstdmoveassignmentparam)
+    - [R6.7.8 不应重载取地址运算符](#overloadaddressoperator)
+    - [R6.7.9 不应重载逗号运算符](#overloadcomma)
+    - [R6.7.10 不应重载“逻辑与”和“逻辑或”运算符](#overloadlogicoperator)
+    - [R6.7.11 拷贝和移动赋值运算符不应为虚函数](#virtualassignment)
+    - [R6.7.12 比较运算符不应为虚函数](#virtualcomparison)
+    - [R6.7.13 final 类中不应声明虚函数](#virtualinfinal)
   - [6.8 Bitfield](#declaration.bitfield)
     - [R6.8.1 对位域声明合理的类型](#improperbitfieldtype)
     - [R6.8.2 位域长度不应超过类型长度](#exceededbitfield)
@@ -499,7 +502,8 @@
     - [R10.2.19 运算结果不应溢出](#evaloverflow)
     - [R10.2.20 位运算符不应作用于有符号整数](#bitwiseoperonsigned)
     - [R10.2.21 移位数量不应超过相关类型比特位的数量](#illshiftcount)
-    - [R10.2.22 逗号表达式的子表达式应具有必要的副作用](#invalidcommasubexpression)
+    - [R10.2.22 按位取反需避免由类型提升产生的多余数据](#suspiciouspromotion)
+    - [R10.2.23 逗号表达式的子表达式应具有必要的副作用](#invalidcommasubexpression)
   - [10.3 Comparison](#expression.comparison)
     - [R10.3.1 比较运算应在正确的取值范围内进行](#illcomparison)
     - [R10.3.2 不应使用 == 或 != 判断浮点数是否相等](#illfloatcomparison)
@@ -8570,31 +8574,74 @@ Effective C++ item 36
 <br/>
 <br/>
 
-### <span id="nonstdassignmentrettype">▌R6.7.2 拷贝和移动赋值运算符应返回所属类的非 const 引用</span>
+### <span id="illoperatorrettype">▌R6.7.2 重载运算符的返回类型应与内置运算符相符</span>
+
+ID_illOperatorRetType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
+
+<hr/>
+
+为了便于调用者使用，并满足泛型编程的要求，重载运算符的返回类型应与内置运算符相符：  
+ - 比较和逻辑运算符应返回 bool 型对象  
+ - 算术和位运算符应返回相关类的对象  
+ - 符号运算符 \+、\- 应返回相关类的对象  
+ - 后置 \+\+、\-\- 运算符应返回相关类的对象  
+ - 前置 \+\+、\-\- 运算符应返回相关类的引用  
+ - 下标运算符 \[ \] 应返回相关类的引用  
+ - 赋值及复合赋值运算符应返回相关类的引用  
+  
+示例：
+```
+struct A {
+    int operator < (const A&);   // Non-compliant
+};
+```
+例中重载的比较运算符返回 int 型对象，而内置比较运算符的结果为 bool 型，这种不一致会使重载的运算符无法全完地像内置运算符一样工作，会导致意料之外的错误，相关对象也可能不被通用泛型算法接受。  
+  
+应改为：
+```
+struct A {
+    bool operator < (const A&);   // Compliant
+};
+```
+<br/>
+<br/>
+
+#### 相关
+ID_nonStdAssignmentRetType  
+<br/>
+<br/>
+
+### <span id="nonstdassignmentrettype">▌R6.7.3 拷贝和移动赋值运算符应返回所属类的非 const 左值引用</span>
 
 ID_nonStdAssignmentRetType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-拷贝和移动赋值运算符应返回所属类的非 const 引用，便于调用者使用并满足泛型编程的要求。  
+拷贝和移动赋值运算符应返回所属类的非 const 左值引用，便于调用者使用并满足泛型编程的要求。  
   
-对赋值运算符的合理重载，可以使对象的赋值表达式作为子表达式灵活地出现在各种语句中，这也是“泛型程序设计”的必要条件，使算法的代码实现既可以适应普通变量，也可以适应类对象。如果类对象与标准模板库相关，其赋值运算符应满足本规则的要求，否则无法满足连续赋值等语法要求，在标准模板库的使用上会受到限制。  
+对赋值运算符的合理重载可以使对象的赋值表达式作为子表达式灵活地出现在各种语句中，这也是“泛型程序设计”的必要条件，使同一套代码既可以适应普通变量，也可以适应类对象。如果类对象与标准模板库相关，其赋值运算符应满足本规则的要求，否则无法满足连续赋值等语法要求，在标准模板库的使用上会受到限制。  
   
 本规则对 \+=、\-= 等复合赋值运算符也有相同的要求。  
   
 示例：
 ```
 struct A {
-    A& operator = (const A&);    // Compliant
-    A& operator = (A&&);         // Compliant
+    void operator = (const A&);  // Non-compliant
+    void operator = (A&&);       // Non-compliant
 };
-
-struct B {
-    void operator = (const B&);  // Non-compliant, should return ‘B&’
-    void operator = (B&&);       // Non-compliant, should return ‘B&’
+```
+应改为：
+```
+struct A {
+    A& operator = (const A&);  // Compliant
+    A& operator = (A&&);       // Compliant
 };
 ```
 <br/>
+<br/>
+
+#### 相关
+ID_illOperatorRetType  
 <br/>
 
 #### 依据
@@ -8609,7 +8656,42 @@ C++ Core Guidelines C.63
 <br/>
 <br/>
 
-### <span id="nonstdcopyassignmentparam">▌R6.7.3 拷贝赋值运算符的参数应为同类对象的 const 左值引用</span>
+### <span id="illcopyconstructorparam">▌R6.7.4 拷贝构造函数的参数应为同类对象的 const 左值引用</span>
+
+ID_illCopyConstructorParam&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
+
+<hr/>
+
+如果构造函数的参数不是同类对象的左值引用，则不构成拷贝构造函数，拷贝构造函数不应具备复制之外的功能，故其参数不应被修改，应受 const 关键字限制。  
+  
+拷贝构造函数可能会被优化而导致复制之外的功能不生效，可参见 ID\_sideEffectCopyConstructor 的进一步讨论。  
+  
+示例：
+```
+struct A {
+    A(A);    // Non-compliant, logic and compile error
+    A(A&);   // Non-compliant, missing ‘const’
+};
+```
+拷贝构造函数不可按值传递参数，否则会再次调用拷贝构造函数，从而陷入无限递归。  
+  
+应改为：
+```
+struct A {
+    A(const A&);   // Compliant
+};
+```
+<br/>
+<br/>
+
+#### 相关
+ID_sideEffectCopyConstructor  
+ID_nonStdCopyAssignmentParam  
+ID_nonConstUnmodified  
+<br/>
+<br/>
+
+### <span id="nonstdcopyassignmentparam">▌R6.7.5 拷贝赋值运算符的参数应为同类对象的 const 左值引用</span>
 
 ID_nonStdCopyAssignmentParam&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
@@ -8622,12 +8704,19 @@ ID_nonStdCopyAssignmentParam&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration war
 struct A {
     A& operator = (A);  // Non-compliant
 };
-
-struct B {
-    B& operator = (const B&);  // Compliant
+```
+应改为：
+```
+struct A {
+    A& operator = (const A&);  // Compliant
 };
 ```
 <br/>
+<br/>
+
+#### 相关
+ID_illCopyConstructorParam  
+ID_nonConstUnmodified  
 <br/>
 
 #### 依据
@@ -8640,26 +8729,47 @@ C++ Core Guidelines C.60
 <br/>
 <br/>
 
-### <span id="nonstdmoveassignmentparam">▌R6.7.4 移动赋值运算符的参数应为同类对象的非 const 右值引用</span>
+### <span id="illmoveconstructorparam">▌R6.7.6 移动构造函数的参数应为同类对象的非 const 右值引用</span>
+
+ID_illMoveConstructorParam&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
+
+<hr/>
+
+移动构造意在将参数的数据转移到当前对象中，故参数应为右值引用，且不应受 const 关键字限制。  
+  
+示例：
+```
+struct A {
+    A(const A&&);   // Non-compliant
+    ....
+};
+```
+<br/>
+<br/>
+
+#### 相关
+ID_nonStdMoveAssignmentParam  
+<br/>
+<br/>
+
+### <span id="nonstdmoveassignmentparam">▌R6.7.7 移动赋值运算符的参数应为同类对象的非 const 右值引用</span>
 
 ID_nonStdMoveAssignmentParam&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-移动赋值意在将参数的数据转移到当前对象中，故参数不应为 const 右值引用，否则将失去移动赋值的意义。  
+移动赋值意在将参数的数据转移到当前对象中，故参数应为右值引用，且不应受 const 关键字限制。  
   
 示例：
 ```
 class A {
     char* p;
-
 public:
     A& operator = (const A&& a) {   // Non-compliant
         free(p);
         p = copy(a.p);   // Not necessary
         return *this;
     }
-
     ....
 };
 ```
@@ -8685,7 +8795,7 @@ C++ Core Guidelines C.63
 <br/>
 <br/>
 
-### <span id="overloadaddressoperator">▌R6.7.5 不应重载取地址运算符</span>
+### <span id="overloadaddressoperator">▌R6.7.8 不应重载取地址运算符</span>
 
 ID_overloadAddressOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -8728,7 +8838,7 @@ MISRA C++ 2008 5-3-3
 <br/>
 <br/>
 
-### <span id="overloadcomma">▌R6.7.6 不应重载逗号运算符</span>
+### <span id="overloadcomma">▌R6.7.9 不应重载逗号运算符</span>
 
 ID_overloadComma&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -8767,7 +8877,7 @@ MISRA C++ 2008 5-2-11
 <br/>
 <br/>
 
-### <span id="overloadlogicoperator">▌R6.7.7 不应重载“逻辑与”和“逻辑或”运算符</span>
+### <span id="overloadlogicoperator">▌R6.7.10 不应重载“逻辑与”和“逻辑或”运算符</span>
 
 ID_overloadLogicOperator&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
@@ -8800,7 +8910,7 @@ bool operator && (const A& a, const A& b) {  // Non-compliant
     return a.valid() && b.valid();
 }
 ```
-注意表达式（设 a 和 b 为 A 的对象）：
+注意表达式（设 a 和 b 为 A 类对象）：
 ```
 b && a.assign(b)
 ```
@@ -8835,7 +8945,7 @@ MISRA C++ 2008 5-2-11
 <br/>
 <br/>
 
-### <span id="virtualassignment">▌R6.7.8 拷贝和移动赋值运算符不应为虚函数</span>
+### <span id="virtualassignment">▌R6.7.11 拷贝和移动赋值运算符不应为虚函数</span>
 
 ID_virtualAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
@@ -8875,7 +8985,7 @@ C++ Core Guidelines C.63
 <br/>
 <br/>
 
-### <span id="virtualcomparison">▌R6.7.9 比较运算符不应为虚函数</span>
+### <span id="virtualcomparison">▌R6.7.12 比较运算符不应为虚函数</span>
 
 ID_virtualComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
@@ -8907,7 +9017,7 @@ C++ Core Guidelines C.87
 <br/>
 <br/>
 
-### <span id="virtualinfinal">▌R6.7.10 final 类中不应声明虚函数</span>
+### <span id="virtualinfinal">▌R6.7.13 final 类中不应声明虚函数</span>
 
 ID_virtualInFinal&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
@@ -15348,7 +15458,7 @@ char baz(bool x) {
 ```
 例中重复的子表达式都是有问题的，这是很常见的错误，多由复制粘贴引起。修正时不应只删去重复项，还要考虑是否漏掉了某些项。  
   
-具有副作用的逻辑子表达式可不受本规则限制，但也是不便于阅读和维护的。如：
+例外：
 ```
 void qux(ifstream& f) {
     if (f.get() == 'a' && f.get() == 'a') {   // Let it go
@@ -15356,7 +15466,7 @@ void qux(ifstream& f) {
     }
 }
 ```
-例中重复的子表达式可以改变文件流的状态，但第二个子表达式可能不会被执行，这种代码即使没有逻辑错误也是不便于维护的，参见 ID\_shortCircuitSideEffect。
+具有副作用的逻辑子表达式可不受本规则约束。例中重复的子表达式可以改变文件流的状态，但第二个子表达式可能不会被执行，这种代码即使没有逻辑错误也是不便于维护的，参见 ID\_shortCircuitSideEffect。
 <br/>
 <br/>
 
@@ -16479,7 +16589,35 @@ MISRA C++ 2008 5-8-1
 <br/>
 <br/>
 
-### <span id="invalidcommasubexpression">▌R10.2.22 逗号表达式的子表达式应具有必要的副作用</span>
+### <span id="suspiciouspromotion">▌R10.2.22 按位取反需避免由类型提升产生的多余数据</span>
+
+ID_suspiciousPromotion&emsp;&emsp;&emsp;&emsp;&nbsp;:question: expression suspicious
+
+<hr/>
+
+8 位或 16 位整数按位取反时会被提升为 int 等类型，可能会产生非预期的多余数据。  
+  
+示例：
+```
+uint8_t a = 0xCD;
+uint8_t b = (~a) >> 4;   // Rather suspicious, ‘b’ is 0xF3 
+```
+经“[类型提升](https://en.cppreference.com/w/c/language/conversion#Integer_promotions)”，例中 \~a 在 16 位环境中为 0xFF32，在 32 位环境中为 0xFFFFFF32，高位的数据很可能是多余的。  
+  
+应在取反后立即转为目标类型：
+```
+uint8_t a = 0xCD;
+uint8_t b = uint8_t(~a) >> 4;   // OK, ‘b’ is 0x03
+```
+<br/>
+<br/>
+
+#### 参考
+MISRA C++ 2008 5-0-10  
+<br/>
+<br/>
+
+### <span id="invalidcommasubexpression">▌R10.2.23 逗号表达式的子表达式应具有必要的副作用</span>
 
 ID_invalidCommaSubExpression&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
@@ -21667,7 +21805,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 482 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
+&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 486 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
 
 &emsp;&emsp;此致
 

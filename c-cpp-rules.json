@@ -861,27 +861,50 @@
         "standard": "ISO/IEC 14882:2003 12.8(9),ISO/IEC 14882:2011 12.8(17),ISO/IEC 14882:2011 12.8(19)",
         "reference": "C++ Core Guidelines C.60,C++ Core Guidelines C.63"
         },
+    "ID_illCopyConstructorParam": {
+        "checkPoint": "拷贝构造函数的参数应为同类对象的 const 左值引用",
+        "level": "warning",
+        "comment": "如果构造函数的参数不是同类对象的左值引用，则不构成拷贝构造函数，拷贝构造函数不应具备复制之外的功能，故其参数不应被修改，应受 const 关键字限制。",
+        "tag": "declaration",
+        "related": "ID_sideEffectCopyConstructor,ID_nonStdCopyAssignmentParam,ID_nonConstUnmodified"
+    },
     "ID_nonStdCopyAssignmentParam": {
         "checkPoint": "拷贝赋值运算符的参数应为同类对象的 const 左值引用",
         "level": "warning",
         "comment": "拷贝赋值运算符的参数不应按值传递，否则会产生不必要的复制开销以及“对象切片”等问题。",
         "tag": "declaration",
         "standard": "ISO/IEC 14882:2003 12.8(9),ISO/IEC 14882:2011 12.8(17)",
+        "related": "ID_illCopyConstructorParam,ID_nonConstUnmodified",
         "reference": "C++ Core Guidelines C.60"
+    },
+    "ID_illMoveConstructorParam": {
+        "checkPoint": "移动构造函数的参数应为同类对象的非 const 右值引用",
+        "level": "warning",
+        "comment": "移动构造意在将参数的数据转移到当前对象中，故参数应为右值引用，且不应受 const 关键字限制。",
+        "tag": "declaration",
+        "related": "ID_nonStdMoveAssignmentParam"
     },
     "ID_nonStdMoveAssignmentParam": {
         "checkPoint": "移动赋值运算符的参数应为同类对象的非 const 右值引用",
         "level": "warning",
-        "comment": "移动赋值意在将参数的数据转移到当前对象中，故参数不应为 const 右值引用，否则将失去移动赋值的意义。",
+        "comment": "移动赋值意在将参数的数据转移到当前对象中，故参数应为右值引用，且不应受 const 关键字限制。",
         "tag": "declaration",
         "standard": "ISO/IEC 14882:2011 12.8(19),ISO/IEC 14882:2017 15.8.2(3)",
         "reference": "C++ Core Guidelines C.63"
     },
-    "ID_nonStdAssignmentRetType": {
-        "checkPoint": "拷贝和移动赋值运算符应返回所属类的非 const 引用",
+    "ID_illOperatorRetType": {
+        "checkPoint": "重载运算符的返回类型应与内置运算符相符",
         "level": "warning",
-        "comment": "拷贝和移动赋值运算符应返回所属类的非 const 引用，便于调用者使用并满足泛型编程的要求。",
+        "comment": "为了便于调用者使用，并满足泛型编程的要求，重载运算符的返回类型应与内置运算符相符。",
         "tag": "declaration",
+        "related": "ID_nonStdAssignmentRetType"
+    },
+    "ID_nonStdAssignmentRetType": {
+        "checkPoint": "拷贝和移动赋值运算符应返回所属类的非 const 左值引用",
+        "level": "warning",
+        "comment": "拷贝和移动赋值运算符应返回所属类的非 const 左值引用，便于调用者使用并满足泛型编程的要求。",
+        "tag": "declaration",
+        "related": "ID_illOperatorRetType",
         "standard": "ISO/IEC 14882:2003 12.8(10),ISO/IEC 14882:2011 12.8(22)",
         "reference": "C++ Core Guidelines F.47,C++ Core Guidelines C.60,C++ Core Guidelines C.63"
     },
@@ -1298,6 +1321,13 @@
         "standard": "ISO/IEC 9899:1999 6.5.7(3)-undefined,ISO/IEC 9899:2011 6.5.7(3)-undefined,ISO/IEC 14882:2003 5.8(1)-undefined,ISO/IEC 14882:2011 5.8(1)-undefined,ISO/IEC 14882:2017 8.8(1)-undefined",
         "reference": "MISRA C 2012 12.2,MISRA C++ 2008 5-8-1"
         },
+    "ID_suspiciousPromotion": {
+        "checkPoint": "按位取反需避免由类型提升产生的多余数据",
+        "level": "suspicious",
+        "comment": "8 位或 16 位整数按位取反时会被提升为 int 等类型，可能会产生非预期的多余数据。",
+        "tag": "expression",
+        "reference": "MISRA C++ 2008 5-0-10"
+    },
     "ID_unexpectedPrecedence": {
         "checkPoint": "注意运算符优先级，避免非预期的结果",
         "level": "warning",
