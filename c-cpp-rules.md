@@ -4,7 +4,7 @@
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对 C、C++ 语言，本文收录了 486 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对 C、C++ 语言，本文收录了 487 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
@@ -186,7 +186,7 @@
   - [R4.8 全局对象的初始化不可依赖未初始化的对象](#relyonexternalobject)
   - [R4.9 全局对象只应为常量或静态对象](#nonconstnonstaticglobalobject)
   - [R4.10 全局对象只应为常量](#nonconstglobalobject)
-  - [R4.11 全局对象不应同时被 static 和 const 关键字修饰](#staticandconst)
+  - [R4.11 全局对象不应同时被 static 和 const 等关键字限定](#staticandconst)
   - [R4.12 全局及命名空间作用域中禁用 using directive](#forbidusingdirectives)
   - [R4.13 避免无效的 using directive](#usingself)
   - [R4.14 不应定义全局 inline 命名空间](#topinlinenamespace)
@@ -239,8 +239,8 @@
     - [R6.1.8 不应存在拼写错误](#misspelling)
   - [6.2 Qualifier](#declaration.qualifier)
     - [R6.2.1 const、volatile 不应重复](#qualifierrepeated)
-    - [R6.2.2 const、volatile 修饰指针类型的别名是可疑的](#qualifierforptralias)
-    - [R6.2.3 const、volatile 不可修饰引用](#qualifierinvalid)
+    - [R6.2.2 const、volatile 限定指针类型的别名是可疑的](#qualifierforptralias)
+    - [R6.2.3 const、volatile 不可限定引用](#qualifierinvalid)
     - [R6.2.4 const、volatile 限定类型时的位置应统一](#badqualifierposition)
     - [R6.2.5 const、volatile 等关键字不应出现在基本类型名称的中间](#sandwichedmodifier)
     - [R6.2.6 指向常量字符串的指针应使用 const 声明](#conststrtononconstptr)
@@ -288,7 +288,7 @@
   - [6.7 Function](#declaration.function)
     - [R6.7.1 派生类不应重新定义与基类相同的非虚函数](#nonvirtualoverride)
     - [R6.7.2 重载运算符的返回类型应与内置运算符相符](#illoperatorrettype)
-    - [R6.7.3 拷贝和移动赋值运算符应返回所属类的非 const 左值引用](#nonstdassignmentrettype)
+    - [R6.7.3 赋值运算符应返回所属类的非 const 左值引用](#nonstdassignmentrettype)
     - [R6.7.4 拷贝构造函数的参数应为同类对象的 const 左值引用](#illcopyconstructorparam)
     - [R6.7.5 拷贝赋值运算符的参数应为同类对象的 const 左值引用](#nonstdcopyassignmentparam)
     - [R6.7.6 移动构造函数的参数应为同类对象的非 const 右值引用](#illmoveconstructorparam)
@@ -353,12 +353,12 @@
 
 <span id="__function">**[8. Function](#function)**</span>
   - [R8.1 main 函数的返回类型只应为 int](#mainreturnsnonint)
-  - [R8.2 main 函数不应被调用、重载或被 inline、static 等限定符修饰](#illformedmain)
+  - [R8.2 main 函数不应被调用、重载或被 inline、static 等关键字限定](#illformedmain)
   - [R8.3 在头文件中不应实现函数或定义对象](#definedinheader)
   - [R8.4 函数的参数名称在声明处和实现处应保持一致](#inconsistentparamname)
   - [R8.5 多态类的对象作为参数时不应采用值传递的方式](#parammaybeslicing)
   - [R8.6 不应存在未被使用的具名形式参数](#paramnotused)
-  - [R8.7 由 const 修饰的参数应为引用或指针](#parampassedbyvalue)
+  - [R8.7 非基本类型的常量参数不应按值传递](#parampassedbyvalue)
   - [R8.8 转发引用只应作为 std::forward 的参数](#illforwardingreference)
   - [R8.9 局部对象在使用前应被初始化](#localinitialization)
   - [R8.10 成员须在声明处或构造时初始化](#memberinitialization)
@@ -505,7 +505,7 @@
     - [R10.2.22 按位取反需避免由类型提升产生的多余数据](#suspiciouspromotion)
     - [R10.2.23 逗号表达式的子表达式应具有必要的副作用](#invalidcommasubexpression)
   - [10.3 Comparison](#expression.comparison)
-    - [R10.3.1 比较运算应在正确的取值范围内进行](#illcomparison)
+    - [R10.3.1 参与比较的对象之间应具备合理的大小关系](#illcomparison)
     - [R10.3.2 不应使用 == 或 != 判断浮点数是否相等](#illfloatcomparison)
     - [R10.3.3 指针不应与字符串常量直接比较](#illptrstrcomparison)
     - [R10.3.4 不应比较非同类枚举值](#differentenumcomparison)
@@ -548,7 +548,7 @@
 <br/>
 
 <span id="__literal">**[11. Literal](#literal)**</span>
-  - [R11.1 注意可疑的字符常量](#literal_suspiciouschar)
+  - [R11.1 转义字符的反斜杠不可误写成斜杠](#literal_suspiciouschar)
   - [R11.2 在字符常量中用转义字符表示制表符和控制字符](#literal_hardcodechar)
   - [R11.3 在字符串常量中用转义字符表示制表符和控制字符](#literal_hardcodestring)
   - [R11.4 不应使用非标准转义字符](#literal_nonstandardesc)
@@ -598,21 +598,22 @@
 <span id="__pointer">**[14. Pointer](#pointer)**</span>
   - [R14.1 避免空指针解引用](#nullderefinscp)
   - [R14.2 注意逻辑表达式内的空指针解引用](#nullderefinexp)
-  - [R14.3 不可解引用已被释放的指针](#danglingderef)
-  - [R14.4 避免无效的空指针检查](#invalidnullcheck)
-  - [R14.5 不应重复检查指针是否为空](#repeatednullcheck)
-  - [R14.6 不应将非零常量值赋值给指针](#fixedaddrtopointer)
-  - [R14.7 不应使用常量 0 表示空指针](#zeroasptrvalue)
-  - [R14.8 不应使用 false 对指针赋值](#oddptrboolassignment)
-  - [R14.9 不应使用 '\\0' 等字符常量对指针赋值](#oddptrcharassignment)
-  - [R14.10 指针不应与 false 比较大小](#oddptrboolcomparison)
-  - [R14.11 指针不应与 '\\0' 等字符常量比较大小](#oddptrcharcomparison)
-  - [R14.12 指针与空指针不应比较大小](#oddptrzerocomparison)
-  - [R14.13 不应判断 this 指针是否为空](#this_zerocomparison)
-  - [R14.14 析构函数中不可使用 delete this](#this_deleteindestructor)
-  - [R14.15 禁用 delete this](#this_forbiddeletethis)
-  - [R14.16 判断 dynamic\_cast 转换是否成功](#nullderefdynamiccast)
-  - [R14.17 指针在释放后应置空](#missingresetnull)
+  - [R14.3 不可解引用未初始化的指针](#wildptrderef)
+  - [R14.4 不可解引用已被释放的指针](#danglingderef)
+  - [R14.5 避免无效的空指针检查](#invalidnullcheck)
+  - [R14.6 不应重复检查指针是否为空](#repeatednullcheck)
+  - [R14.7 不应将非零常量值赋值给指针](#fixedaddrtopointer)
+  - [R14.8 不应使用常量 0 表示空指针](#zeroasptrvalue)
+  - [R14.9 不应使用 false 对指针赋值](#oddptrboolassignment)
+  - [R14.10 不应使用 '\\0' 等字符常量对指针赋值](#oddptrcharassignment)
+  - [R14.11 指针不应与 false 比较大小](#oddptrboolcomparison)
+  - [R14.12 指针不应与 '\\0' 等字符常量比较大小](#oddptrcharcomparison)
+  - [R14.13 指针与空指针不应比较大小](#oddptrzerocomparison)
+  - [R14.14 不应判断 this 指针是否为空](#this_zerocomparison)
+  - [R14.15 析构函数中不可使用 delete this](#this_deleteindestructor)
+  - [R14.16 禁用 delete this](#this_forbiddeletethis)
+  - [R14.17 判断 dynamic\_cast 转换是否成功](#nullderefdynamiccast)
+  - [R14.18 指针在释放后应置空](#missingresetnull)
 <br/>
 
 <span id="__interruption">**[15. Interruption](#interruption)**</span>
@@ -1595,8 +1596,7 @@ ID_illAccess&emsp;&emsp;&emsp;&emsp;&nbsp;:drop_of_blood: resource error
 
 访问未初始化或已释放的资源属于逻辑错误，会导致标准未定义的行为。  
   
-对于解引用已被释放的指针，本规则特化为 ID\_danglingDeref。  
-对于访问未初始化的局部对象，本规则特化为 ID\_localInitialization。  
+对于访问未初始化的局部对象，本规则特化为 ID\_localInitialization；对于解引用未初始化或已被释放的指针，本规则特化为 ID\_wildPtrDeref 、ID\_danglingDeref。  
   
 示例：
 ```
@@ -1605,7 +1605,7 @@ void foo(const char* path, char buf[], size_t n) {
     if (path != NULL) {
         f = fopen(path, "rb");
     }
-    fread(buf, 1, n, f);       // Non-compliant, ‘f’ may be invalid
+    fread(buf, 1, n, f);   // Non-compliant, ‘f’ may be invalid
     fclose(f);
 }
 
@@ -1613,13 +1613,14 @@ void bar(FILE* f, char buf[], size_t n) {
     if (feof(f)) {
         fclose(f);
     }
-    fread(buf, 1, n, f);       // Non-compliant, ‘f’ may be closed
+    fread(buf, 1, n, f);   // Non-compliant, ‘f’ may be closed
 }
 ```
 <br/>
 <br/>
 
 #### 相关
+ID_wildPtrDeref  
 ID_danglingDeref  
 ID_localInitialization  
 <br/>
@@ -1630,7 +1631,10 @@ ISO/IEC 9899:2011 7.21.3(4)
 <br/>
 
 #### 参考
+CWE-672  
+CWE-908  
 SEI CERT FIO46-C  
+SEI CERT EXP53-CPP  
 <br/>
 <br/>
 
@@ -4511,7 +4515,7 @@ inline void bar() {
 ```
 如果该头文件被不同的模块（so、dll、exe）包含，obj 对象会生成不同的副本，很可能造成逻辑错误。  
   
-另外，由 const 或 constexpr 关键字修饰的常量也具有静态数据的特性，在头文件中定义常量也面对这种问题，基本类型的常量经过编译优化可以不占用存储空间（有取地址操作的除外），而对于非基本类型的常量对象或数组也不应在头文件中定义，建议采用单件模式，将其数据定义在 cpp 等源文件中，在头文件中定义访问这些数据的接口，如：
+另外，由 const 或 constexpr 关键字限定的常量也具有静态数据的特性，在头文件中定义常量也面对这种问题，基本类型的常量经过编译优化可以不占用存储空间（有取地址操作的除外），而对于非基本类型的常量对象或数组也不应在头文件中定义，建议采用单件模式，将其数据定义在 cpp 等源文件中，在头文件中定义访问这些数据的接口，如：
 ```
 // In arr.h
 using Arr = int[256];
@@ -4585,7 +4589,7 @@ ID_staticInAnonymousNamespace&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
 <hr/>
 
-匿名命名空间中的元素已具有内部链接性（internal linkage），不应再用 static 关键字修饰。  
+匿名命名空间中的元素已具有内部链接性（internal linkage），不应再用 static 关键字限定。  
   
 示例：
 ```
@@ -4750,13 +4754,13 @@ C++ Core Guidelines R.6
 <br/>
 <br/>
 
-### <span id="staticandconst">▌R4.11 全局对象不应同时被 static 和 const 关键字修饰</span>
+### <span id="staticandconst">▌R4.11 全局对象不应同时被 static 和 const 等关键字限定</span>
 
 ID_staticAndConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: global warning
 
 <hr/>
 
-在 C\+\+ 语言中，由 const 或 constexpr 关键字修饰的全局对象已具有内部链接性（internal linkage），不应再用 static 关键字修饰。  
+在 C\+\+ 语言中，由 const 或 constexpr 关键字限定的全局对象已具有内部链接性（internal linkage），不应再被 static 关键字限定。  
   
 示例：
 ```
@@ -6670,7 +6674,7 @@ ID_qualifierRepeated&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: declaration error
 
 <hr/>
 
-重复的 const 或 volatile 限定符是没意义的，也可能意味着某种错误。  
+重复的 const 或 volatile 限定符是没意义的，很可能意味着某种错误。  
   
 示例：
 ```
@@ -6678,12 +6682,12 @@ const const char* p0 = "....";   // Non-compliant
 const char const* p1 = "....";   // Non-compliant
 char* const const p2 = "....";   // Non-compliant
 ```
-对于 p0 和 p1，const 重复修饰 char，很可能应该修饰 \* 号，属于常见笔误，应改为：
+对于 p0 和 p1，const 重复限定 char，其中一个 const 很可能是为了限定 \* 号，但形成了笔误，应改为：
 ```
 const char * const p0 = "....";  // Compliant
 const char * const p1 = "....";  // Compliant
 ```
-对于 p2，const 重复修饰 \* 号，符合语言文法，但没有实际意义，很可能应该修饰 char，应改为：
+对于 p2，const 重复限定 \* 号，其中一个 const 很可能是为了限定 char，应改为：
 ```
 const char * const p2 = "....";  // Compliant
 ```
@@ -6695,13 +6699,13 @@ ID_badQualifierPosition
 <br/>
 <br/>
 
-### <span id="qualifierforptralias">▌R6.2.2 const、volatile 修饰指针类型的别名是可疑的</span>
+### <span id="qualifierforptralias">▌R6.2.2 const、volatile 限定指针类型的别名是可疑的</span>
 
 ID_qualifierForPtrAlias&emsp;&emsp;&emsp;&emsp;&nbsp;:question: declaration suspicious
 
 <hr/>
 
-如果 const、volatile 修饰指针类型的别名，很可能会造成意料之外的问题。  
+如果用 const、volatile 限定指针类型的别名，很可能会造成意料之外的错误。  
   
 示例：
 ```
@@ -6727,7 +6731,7 @@ void bar(ConstAlias a) {
     a->foo();              // Calls ‘void Type::foo() const;’
 }
 ```
-注意，如果 const、volatile 修饰引用的别名则是错误的，详见 ID\_qualifierInvalid。
+注意，如果用 const、volatile 限定引用的别名则是错误的，详见 ID\_qualifierInvalid。
 <br/>
 <br/>
 
@@ -6740,13 +6744,13 @@ SEI CERT DCL05-C
 <br/>
 <br/>
 
-### <span id="qualifierinvalid">▌R6.2.3 const、volatile 不可修饰引用</span>
+### <span id="qualifierinvalid">▌R6.2.3 const、volatile 不可限定引用</span>
 
 ID_qualifierInvalid&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: declaration error
 
 <hr/>
 
-C\+\+ 标准规定，const 或 volatile 可修饰指针，但不可修饰引用，否则起不到任何作用。  
+在 C\+\+ 语言中，const 或 volatile 可以限定指针，但不可限定引用，否则起不到任何作用。  
   
 示例：
 ```
@@ -6754,14 +6758,14 @@ int a = 0;
 int &const i = a;     // Non-compliant
 int &volatile j = a;  // Non-compliant
 ```
-修饰 & 号的 const 和 volatile 是无效的，i 可被随意修改，j 也可能被优化。  
+限定 & 号的 const 和 volatile 是无效的，i 可被随意修改，j 也可能被优化。  
   
-应去掉限定符，或使限定符修饰引用的对象：
+应去掉限定符，或使限定符作用于类型名称：
 ```
 const int& i = a;     // Compliant
 volatile int& j = a;  // Compliant
 ```
-注意，如果限定符修饰引用类型的别名，会引起很大误解，如：
+注意，如果限定符作用于引用类型的别名，会引起很大误解，如：
 ```
 typedef int& int_r;   // Reference type alias, bad
 const int_r r0 = a;   // Non-compliant, r0 is not a const-reference at all
@@ -7267,7 +7271,7 @@ ID_inlineRedundant&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: declaration suggestion
 
 <hr/>
 
-constexpr 关键字修饰的函数已经相当于被声明为 inline，不应再重复声明。  
+由 constexpr 关键字限定的函数已经相当于被声明为 inline，不应再重复声明。  
   
 示例：
 ```
@@ -7444,7 +7448,7 @@ ID_invalidFinal&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-C\+\+ 标准规定 union 不可作为基类，将 union 声明为 final 是没有意义的，属于语言运用错误。  
+在 C\+\+ 语言中，union 不可作为基类，将 union 声明为 final 是没有意义的，属于语言运用错误。  
   
 示例：
 ```
@@ -8295,7 +8299,7 @@ void foo(float f, ...);          // Non-compliant
 void bar(int& i, ...);           // Non-compliant in C++
 void baz(register int n, ...);   // Non-compliant in C
 ```
-例中参数 f 为 float 型，与“[默认参数提升（default argument promotion）](https://en.cppreference.com/w/cpp/language/variadic_arguments#Default_conversions)”后的类型 double 不兼容，参数 i 为引用，参数 n 被 register 修饰具有寄存器存储期，这种代码均会导致标准未定义的行为。
+例中参数 f 为 float 型，与“[默认参数提升（default argument promotion）](https://en.cppreference.com/w/cpp/language/variadic_arguments#Default_conversions)”后的类型 double 不兼容，参数 i 为引用，参数 n 被 register 限定具有寄存器存储期，这种代码均会导致标准未定义的行为。
 <br/>
 <br/>
 
@@ -8504,7 +8508,7 @@ ID_forbidStaticArrSize&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration warni
 
 <hr/>
 
-C 语言规定数组作为形式参数时，可用 static 关键字修饰大小，要求传入数组的大小不能小于由 static  关键字修饰的值，有助于编译器优化，但不符合这种限制时会导致标准未定义的行为，相当于增加了误用风险，也增加了测试成本。  
+C 语言规定数组作为形式参数时，可用 static 关键字限定大小，要求传入数组的大小不能小于由 static 关键字限定的值，有助于编译器优化，但不符合这种限制时会导致标准未定义的行为，相当于增加了误用风险，也增加了测试成本。  
   
 示例：
 ```
@@ -8595,7 +8599,7 @@ struct A {
     int operator < (const A&);   // Non-compliant
 };
 ```
-例中重载的比较运算符返回 int 型对象，而内置比较运算符的结果为 bool 型，这种不一致会使重载的运算符无法全完地像内置运算符一样工作，会导致意料之外的错误，相关对象也可能不被通用泛型算法接受。  
+例中重载的比较运算符返回 int 型对象，而内置比较运算符的结果为 bool 型，重载运算符的行为和内置运算符不一致会导致意料之外的错误，相关对象也可能无法被通用泛型算法接受。  
   
 应改为：
 ```
@@ -8611,17 +8615,17 @@ ID_nonStdAssignmentRetType
 <br/>
 <br/>
 
-### <span id="nonstdassignmentrettype">▌R6.7.3 拷贝和移动赋值运算符应返回所属类的非 const 左值引用</span>
+### <span id="nonstdassignmentrettype">▌R6.7.3 赋值运算符应返回所属类的非 const 左值引用</span>
 
 ID_nonStdAssignmentRetType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-拷贝和移动赋值运算符应返回所属类的非 const 左值引用，便于调用者使用并满足泛型编程的要求。  
+赋值运算符应返回所属类不受 const 关键字限定的左值引用，以便调用者使用并满足泛型编程的要求。  
   
-对赋值运算符的合理重载可以使对象的赋值表达式作为子表达式灵活地出现在各种语句中，这也是“泛型程序设计”的必要条件，使同一套代码既可以适应普通变量，也可以适应类对象。如果类对象与标准模板库相关，其赋值运算符应满足本规则的要求，否则无法满足连续赋值等语法要求，在标准模板库的使用上会受到限制。  
+重载赋值运算符的行为应与内置赋值运算符一致，使类对象的赋值表达式可以灵活地作为各种语句的子表达式，这也是“[泛型程序设计](https://en.wikipedia.org/wiki/Generic_programming)”的必要条件，使同一套代码既可以适应普通变量，也可以适应类对象。  
   
-本规则对 \+=、\-= 等复合赋值运算符也有相同的要求。  
+本规则是 ID\_illOperatorRetType 的特化，对复合赋值运算符也有相同的要求。  
   
 示例：
 ```
@@ -8764,12 +8768,14 @@ ID_nonStdMoveAssignmentParam&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration war
 ```
 class A {
     char* p;
+
 public:
     A& operator = (const A&& a) {   // Non-compliant
         free(p);
         p = copy(a.p);   // Not necessary
         return *this;
     }
+
     ....
 };
 ```
@@ -8922,7 +8928,7 @@ class A {
     ....
 
 public:
-    operator bool() const {
+    explicit operator bool() const {
         return valid();
     }
 };
@@ -10977,7 +10983,7 @@ void foo() {
 int main() try {
     foo();
 } catch (Exception&) {   // May not catch
-    //....
+    ....
 }
 ```
 设例中 a.dll 和 b.exe 由不同的编译器生成，异常的抛出机制和捕获机制可能并不匹配，进而导致冲突。
@@ -11101,7 +11107,7 @@ C++ Core Guidelines F.46
 <br/>
 <br/>
 
-### <span id="illformedmain">▌R8.2 main 函数不应被调用、重载或被 inline、static 等限定符修饰</span>
+### <span id="illformedmain">▌R8.2 main 函数不应被调用、重载或被 inline、static 等关键字限定</span>
 
 ID_illFormedMain&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
@@ -11281,13 +11287,15 @@ MISRA C++ 2008 0-1-11
 <br/>
 <br/>
 
-### <span id="parampassedbyvalue">▌R8.7 由 const 修饰的参数应为引用或指针</span>
+### <span id="parampassedbyvalue">▌R8.7 非基本类型的常量参数不应按值传递</span>
 
 ID_paramPassedByValue&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-参数按值传递时会产生复制开销，而且如果有 const 修饰，意味着对象不可改变，按值传递是没有意义的。  
+常量参数不可被改变，按值传递产生的复制开销是没有意义的，应使用常量引用传递参数。  
+  
+基本类型的参数复制开销可被忽略，故不受本规则限制。  
   
 示例：
 ```
@@ -11295,13 +11303,13 @@ void fun(const string s) {    // Non-compliant
     ....
 }
 ```
-例中 s 为按值传递的参数，每当 fun 被调用时，s 都会作为一个新的对象被构造，因为其值又不能被改变，所以这种构造是没有意义的，利用常量引用即可解决这个问题：
+例中 s 为按值传递的常量参数，每当函数被调用时，传入的参数会被复制成一个新的对象，但其值又不能被改变，所以这种复制是没有意义的，利用常量引用可解决这个问题：
 ```
 void fun(const string& s) {   // Compliant
     ....
 }
 ```
-改为常量引用后，s 的值和原来一样不可被改变，而且不需要额外的开销。
+改为常量引用后不会产生额外的复制开销。
 <br/>
 <br/>
 
@@ -11322,12 +11330,32 @@ ID_illForwardingReference&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
   
 示例：
 ```
+int func();
+int func(int&);
+int func(const int&);
+
 template <class T>
-void bar(T&& x) {
-    x.foo();        // Non-compliant
+int wrapper(T&& arg) {
+    return func(arg);   // Non-compliant
+}
+
+template <class... V>
+int wrapper(V&&... args) {
+    return func(args...);   // Non-compliant
 }
 ```
-例中参数 x 是转发引用，并不是右值引用，在 bar 函数内部并不知道 x 是左值还是右值，而且 x 对应的实际参数也可能被 const 或 volatile 修饰，所以直接调用 x 的 foo 成员会引发逻辑上的混乱。
+例中 arg 和 args 为转发引用及相关参数包，不经 std::forward 的转换直接作为接口的参数无法正确选择重载的接口，应改为：
+```
+template <class T>
+int wrapper(T&& arg) {
+    return func(forward<T>(arg));   // Compliant
+}
+
+template <class... V>
+int wrapper(V&&... args) {
+    return func(forward<V>(args)...);   // Compliant
+}
+```
 <br/>
 <br/>
 
@@ -11387,6 +11415,10 @@ if (y) {
 <br/>
 <br/>
 
+#### 相关
+ID_illAccess  
+<br/>
+
 #### 依据
 ISO/IEC 9899:1999 6.2.4(5 6)  
 ISO/IEC 9899:2011 6.2.4(6 7)  
@@ -11399,9 +11431,6 @@ ISO/IEC 14882:2011 8.5(11)
 
 #### 参考
 CWE-457  
-CWE-824  
-CWE-908  
-CWE-909  
 C++ Core Guidelines ES.20  
 MISRA C 2004 9.1  
 MISRA C 2012 9.1  
@@ -11445,7 +11474,6 @@ struct A {
 <br/>
 
 #### 参考
-CWE-824  
 CWE-908  
 C++ Core Guidelines C.41  
 <br/>
@@ -12392,9 +12420,7 @@ ID_returnSuperfluousConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-基本类型的对象作为返回值时，本来就是不可被修改的右值，const 修饰符是多余的。  
-  
-出现这种问题说明设计与使用存在一定的偏差，也可能本意是返回引用或指针，而书写时漏掉了相关符号。  
+基本类型的函数返回值本来就是不可被修改的右值，不应再受 const 关键字限制。  
   
 本规则是 ID\_returnConstObject 的特化。  
   
@@ -12411,6 +12437,7 @@ public:
     const int fun() const;  // Non-compliant, missing ‘&’
 };
 ```
+出现这种问题说明设计与使用存在一定的偏差，也可能本意是返回引用或指针，而书写时漏掉了相关符号。
 <br/>
 <br/>
 
@@ -16659,13 +16686,13 @@ ID_forbidCommaExpression
 
 ### <span id="expression.comparison">10.3 Comparison</span>
 
-### <span id="illcomparison">▌R10.3.1 比较运算应在正确的取值范围内进行</span>
+### <span id="illcomparison">▌R10.3.1 参与比较的对象之间应具备合理的大小关系</span>
 
 ID_illComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
 <hr/>
 
-应在正确的取值范围内进行比较，否则会造成恒为真或恒为假的无效结果。  
+对象与超出其类型取值范围的值比较，或与取值范围的边界进行无意义的比较属于逻辑错误。  
   
 示例：
 ```
@@ -16676,18 +16703,17 @@ void foo(string& txt, string& sub) {
     }
 }
 ```
-无符号变量不可能小于 0，也一定大于等于 0，例中 n >= 0 恒为真，是没有意义的条件。  
+例中 n 为无符号变量，一定大于或等于 0，n >= 0 是无意义的比较，也是一种常见笔误。  
   
 又如：
 ```
-typedef unsigned short X;
-void fun(X x) {
-    if (x == -1) {   // Non-compliant, always false
+void bar(uint16_t x) {
+    if (x == -1) {      // Non-compliant, always false
         ....
     }
 }
 ```
-例中 x 为无符号短整型变量，其取值范围为 \[0, 65535\]，x == \-1 恒为假。由于“[类型提升](https://en.cppreference.com/w/c/language/conversion#Integer_promotions)”，x 会被转为 int 型再与 \-1 比较，x 恒为正数，\-1 为负数，故不可能相等。  
+例中 x 为 16 位无符号变量，其取值范围为 \[0, 65535\]，x == \-1 恒为假。由于“[类型提升](https://en.cppreference.com/w/c/language/conversion#Integer_promotions)”，x 可以被转为 int 型再与 \-1 比较，x 恒为正数而 \-1 为负数，故不可能相等。  
   
 对于有符号字符型变量，与其比较的数值不在 \[\-128, 127\] 范围内时，也是无效的：
 ```
@@ -18215,29 +18241,32 @@ MISRA C++ 2008 5-18-1
 
 ## <span id="literal">11. Literal</span>
 
-### <span id="literal_suspiciouschar">▌R11.1 注意可疑的字符常量</span>
+### <span id="literal_suspiciouschar">▌R11.1 转义字符的反斜杠不可误写成斜杠</span>
 
 ID_literal_suspiciousChar&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: literal warning
 
 <hr/>
 
-注意字符常量的错误书写，如正反斜杠的误用，'\\n' 误写为 '/n'、'\\\\' 误写为 '//' 等。  
+将转义字符的反斜杠误写成斜杠是常见笔误，但仍可通过编译，造成不易察觉的问题。  
   
-由于 C/C\+\+ 语言允许在单引号内写入多个字符来表示一个整型常量（multi\-character literal），如：
+本规则是 ID\_literal\_multicharacter 的特化。  
+  
+示例：
 ```
-auto i = '/t';   // Non-compliant
+char a = '/t';   // Non-compliant
+char b = '\t';   // Compliant
 ```
-例中 i 为 int 型变量，值可以为 12148，这种语言特性可以让一些笔误通过编译，造成不易察觉的问题。  
+例中 '/t' 是错误的，但可以作为“多字符常量”通过编译，值由实现定义。  
   
 又如：
 ```
-auto* tab = wcschr(str, L'/t');   // Non-compliant
+const char* p = strchr(str, '/t');   // Non-compliant
 ```
 在某些环境中执行结果和下列代码一样：
 ```
-auto* tab = wcschr(str, L'/');
+const char* p = strchr(str, '/');
 ```
-字符 t 将被忽略，这显然是错误的，L'/t' 应改为 L'\\t'。
+字符 t 将被忽略，造成逻辑错误，'/t' 应改为 '\\t'。
 <br/>
 <br/>
 
@@ -20087,13 +20116,48 @@ C++ Core Guidelines ES.65
 <br/>
 <br/>
 
-### <span id="danglingderef">▌R14.3 不可解引用已被释放的指针</span>
+### <span id="wildptrderef">▌R14.3 不可解引用未初始化的指针</span>
+
+ID_wildPtrDeref&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: pointer error
+
+<hr/>
+
+未初始化的指针具有不确定的值，对其解引用会导致标准未定义的行为，往往会造成严重错误。  
+  
+示例：
+```
+int foo() {
+    int* p;      // Uninitialized
+    return *p;   // Non-compliant
+}
+```
+例中指针 p 定义后未被初始化，可能指向不可访问的空间，也可能指向已分配的空间，对其读写可能会导致崩溃，也可能会扰乱程序的行为，造成难以排查的错误。
+<br/>
+<br/>
+
+#### 相关
+ID_illAccess  
+ID_localInitialization  
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.5.3.2(4)-undefined  
+ISO/IEC 9899:2011 6.5.3.2(4)-undefined  
+<br/>
+
+#### 参考
+CWE-824  
+C++ Core Guidelines ES.65  
+<br/>
+<br/>
+
+### <span id="danglingderef">▌R14.4 不可解引用已被释放的指针</span>
 
 ID_danglingDeref&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: pointer error
 
 <hr/>
 
-已被释放的指针指向失效的内存空间，再次对其解引用会导致标准未定义的行为，往往会造成严重错误。  
+已被释放的指针指向失效的内存空间，对其解引用会导致标准未定义的行为，往往会造成严重错误。  
   
 示例：
 ```
@@ -20106,9 +20170,9 @@ int foo() {
     return p[0];  // Non-compliant, ‘p’ may be deallocated
 }
 ```
-本来指针 p 指向有效的内存空间，但由于某种原因相关内存被释放，p 的值不变但已无效，这种情况被形象地称为“指针悬挂”，未经初始化的指针和这种“被悬挂”的指针统称“野指针”，均指向无效地址不可被解引用。  
+本来指针 p 指向有效的内存空间，但由于某种原因相关内存被释放，p 的值不变但已无效，这种情况被形象地称为“指针悬挂”，未经初始化的指针和这种被悬挂的指针统称“野指针”，均指向无效地址不可被解引用。  
   
-应避免内层作用域中的地址向外层传递，如：
+应关注对象的生命周期，避免内层作用域中的地址向外层传递，如：
 ```
 int foo(int i) {
     int* p = &i;
@@ -20120,14 +20184,14 @@ int foo(int i) {
     return *p;    // Non-compliant, ‘p’ may be deallocated
 }
 ```
-例中局部变量 j 的地址被传给了外层作域中的 p，j 的生命周期结束后，p 为野指针。  
+例中局部变量 j 的地址被传给了外层作域中的指针 p，j 的生命周期结束后，p 会成为野指针。  
   
-另外，在 C\+\+ 代码中，应避免持有可被自动销毁的对象地址，如容器中对象的地址、智能指针所指对象的地址等。
+另外，在 C\+\+ 代码中，应避免持有可被自动销毁的对象地址，如容器中对象的地址、智能指针所指对象的地址等：
 ```
 int bar(vector<int>& v) {
-    int* p = &v.front();         // Bad practice
-    v.push_back(some_value);
-    return *p;                   // ‘p’ may be invalid
+    int* p = &v.front();    // Bad practice
+    v.push_back(1);
+    return *p;              // ‘p’ may be invalid
 }
 ```
 例中指针 p 记录了 vector 容器中对象的地址，根据 vector 容器持有对象的策略，随着元素的增加原有对象的地址可能不再有效。  
@@ -20157,14 +20221,13 @@ ISO/IEC 9899:2011 6.5.3.2(4)-undefined
 <br/>
 
 #### 参考
-CWE-822  
 CWE-825  
 C++ Core Guidelines ES.65  
 SEI CERT EXP54-CPP  
 <br/>
 <br/>
 
-### <span id="invalidnullcheck">▌R14.4 避免无效的空指针检查</span>
+### <span id="invalidnullcheck">▌R14.5 避免无效的空指针检查</span>
 
 ID_invalidNullCheck&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 
@@ -20210,7 +20273,7 @@ ISO/IEC 14882:2011 18.6
 <br/>
 <br/>
 
-### <span id="repeatednullcheck">▌R14.5 不应重复检查指针是否为空</span>
+### <span id="repeatednullcheck">▌R14.6 不应重复检查指针是否为空</span>
 
 ID_repeatedNullCheck&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 
@@ -20239,7 +20302,7 @@ ID_invalidNullCheck
 <br/>
 <br/>
 
-### <span id="fixedaddrtopointer">▌R14.6 不应将非零常量值赋值给指针</span>
+### <span id="fixedaddrtopointer">▌R14.7 不应将非零常量值赋值给指针</span>
 
 ID_fixedAddrToPointer&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 
@@ -20288,7 +20351,7 @@ CWE-587
 <br/>
 <br/>
 
-### <span id="zeroasptrvalue">▌R14.7 不应使用常量 0 表示空指针</span>
+### <span id="zeroasptrvalue">▌R14.8 不应使用常量 0 表示空指针</span>
 
 ID_zeroAsPtrValue&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: pointer suggestion
 
@@ -20335,7 +20398,7 @@ MISRA C++ 2008 4-10-2
 <br/>
 <br/>
 
-### <span id="oddptrboolassignment">▌R14.8 不应使用 false 对指针赋值</span>
+### <span id="oddptrboolassignment">▌R14.9 不应使用 false 对指针赋值</span>
 
 ID_oddPtrBoolAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 
@@ -20369,7 +20432,7 @@ CWE-351
 <br/>
 <br/>
 
-### <span id="oddptrcharassignment">▌R14.9 不应使用 '\0' 等字符常量对指针赋值</span>
+### <span id="oddptrcharassignment">▌R14.10 不应使用 '\0' 等字符常量对指针赋值</span>
 
 ID_oddPtrCharAssignment&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 
@@ -20403,7 +20466,7 @@ CWE-351
 <br/>
 <br/>
 
-### <span id="oddptrboolcomparison">▌R14.10 指针不应与 false 比较大小</span>
+### <span id="oddptrboolcomparison">▌R14.11 指针不应与 false 比较大小</span>
 
 ID_oddPtrBoolComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 
@@ -20431,7 +20494,7 @@ CWE-1025
 <br/>
 <br/>
 
-### <span id="oddptrcharcomparison">▌R14.11 指针不应与 '\0' 等字符常量比较大小</span>
+### <span id="oddptrcharcomparison">▌R14.12 指针不应与 '\0' 等字符常量比较大小</span>
 
 ID_oddPtrCharComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 
@@ -20466,7 +20529,7 @@ CWE-1025
 <br/>
 <br/>
 
-### <span id="oddptrzerocomparison">▌R14.12 指针与空指针不应比较大小</span>
+### <span id="oddptrzerocomparison">▌R14.13 指针与空指针不应比较大小</span>
 
 ID_oddPtrZeroComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 
@@ -20505,7 +20568,7 @@ CWE-1025
 <br/>
 <br/>
 
-### <span id="this_zerocomparison">▌R14.13 不应判断 this 指针是否为空</span>
+### <span id="this_zerocomparison">▌R14.14 不应判断 this 指针是否为空</span>
 
 ID_this_zeroComparison&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 
@@ -20537,7 +20600,7 @@ CWE-1025
 <br/>
 <br/>
 
-### <span id="this_deleteindestructor">▌R14.14 析构函数中不可使用 delete this</span>
+### <span id="this_deleteindestructor">▌R14.15 析构函数中不可使用 delete this</span>
 
 ID_this_deleteInDestructor&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: pointer error
 
@@ -20561,7 +20624,7 @@ CWE-674
 <br/>
 <br/>
 
-### <span id="this_forbiddeletethis">▌R14.15 禁用 delete this</span>
+### <span id="this_forbiddeletethis">▌R14.16 禁用 delete this</span>
 
 ID_this_forbidDeleteThis&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: pointer suggestion
 
@@ -20595,7 +20658,7 @@ p->foo();              // Memory is still leaking
 <br/>
 <br/>
 
-### <span id="nullderefdynamiccast">▌R14.16 判断 dynamic_cast 转换是否成功</span>
+### <span id="nullderefdynamiccast">▌R14.17 判断 dynamic_cast 转换是否成功</span>
 
 ID_nullDerefDynamicCast&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: pointer warning
 
@@ -20636,7 +20699,7 @@ C++ Core Guidelines C.148
 <br/>
 <br/>
 
-### <span id="missingresetnull">▌R14.17 指针在释放后应置空</span>
+### <span id="missingresetnull">▌R14.18 指针在释放后应置空</span>
 
 ID_missingResetNull&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: pointer suggestion
 
@@ -21805,7 +21868,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 486 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
+&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 487 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
 
 &emsp;&emsp;此致
 

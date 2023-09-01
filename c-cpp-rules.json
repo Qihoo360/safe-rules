@@ -309,8 +309,8 @@
         "comment": "访问未初始化或已释放的资源属于逻辑错误，会导致标准未定义的行为。",
         "tag": "resource",
         "standard": "ISO/IEC 9899:1999 7.19.3(4),ISO/IEC 9899:2011 7.21.3(4)",
-        "related": "ID_danglingDeref,ID_localInitialization",
-        "reference": "SEI CERT FIO46-C"
+        "related": "ID_wildPtrDeref,ID_danglingDeref,ID_localInitialization",
+        "reference": "CWE-672,CWE-908,SEI CERT FIO46-C,SEI CERT EXP53-CPP "
         },
     "ID_illDealloc": {
         "checkPoint": "非动态申请的资源不可被释放",
@@ -900,9 +900,9 @@
         "related": "ID_nonStdAssignmentRetType"
     },
     "ID_nonStdAssignmentRetType": {
-        "checkPoint": "拷贝和移动赋值运算符应返回所属类的非 const 左值引用",
+        "checkPoint": "赋值运算符应返回所属类的非 const 左值引用",
         "level": "warning",
-        "comment": "拷贝和移动赋值运算符应返回所属类的非 const 左值引用，便于调用者使用并满足泛型编程的要求。",
+        "comment": "赋值运算符应返回所属类不受 const 关键字限定的左值引用，以便调用者使用并满足泛型编程的要求。",
         "tag": "declaration",
         "related": "ID_illOperatorRetType",
         "standard": "ISO/IEC 14882:2003 12.8(10),ISO/IEC 14882:2011 12.8(22)",
@@ -933,7 +933,7 @@
         "reference": "MISRA C++ 2008 7-3-2"
         },
     "ID_illFormedMain": {
-        "checkPoint": "main 函数不应被调用、重载或被 inline、static 等限定符修饰",
+        "checkPoint": "main 函数不应被调用、重载或被 inline、static 等关键字限定",
         "level": "warning",
         "comment": "main 函数作为程序的入口是一种特殊的函数，其链接性由实现定义，不应被调用、重载或被任何函数限定符修饰。",
         "tag": "function",
@@ -991,7 +991,7 @@
     "ID_invalidFinal": {
         "checkPoint": "不应将 union 设为 final",
         "level": "warning",
-        "comment": "C++ 标准规定 union 不可作为基类，将 union 声明为 final 是没有意义的，属于语言运用错误。",
+        "comment": "在 C++ 语言中，union 不可作为基类，将 union 声明为 final 是没有意义的，属于语言运用错误。",
         "standard": "ISO/IEC 14882:2011 9.5(2),ISO/IEC 14882:2017 12.3(3)",
         "tag": "declaration"
         },
@@ -1106,7 +1106,7 @@
     "ID_forbidStaticArrSize": {
         "checkPoint": "声明数组参数的大小时禁用 static 关键字",
         "level": "warning",
-        "comment": "C 语言规定数组作为形式参数时，可用 static 关键字修饰大小，要求传入数组的大小不能小于由 static  关键字修饰的值，有助于编译器优化，但不符合这种限制时会导致标准未定义的行为，相当于增加了误用风险，也提高了测试成本。",
+        "comment": "C 语言规定数组作为形式参数时，可用 static 关键字限定大小，要求传入数组的大小不能小于由 static 关键字限定的值，有助于编译器优化，但不符合这种限制时会导致标准未定义的行为，相当于增加了误用风险，也增加了测试成本。",
         "tag": "declaration",
         "standard": "ISO/IEC 9899:1999 6.7.6.3(7),ISO/IEC 9899:2011 6.7.6.3(7)",
         "reference": "MISRA C 2012 17.6"
@@ -1212,7 +1212,7 @@
     "ID_returnSuperfluousConst": {
         "checkPoint": "函数返回值不应为基本类型的常量",
         "level": "warning",
-        "comment": "基本类型的对象作为返回值时，本来就是不可被修改的右值，const 修饰符是多余的。",
+        "comment": "基本类型的函数返回值本来就是不可被修改的右值，不应再受 const 关键字限制。",
         "tag": "function",
         "related": "ID_returnConstObject",
         "standard": "ISO/IEC 14882:2003 3.10(5),ISO/IEC 14882:2011 3.10(1)"
@@ -1283,9 +1283,9 @@
         "reference": "CWE-682"
         },
     "ID_illComparison": {
-        "checkPoint": "比较运算应在正确的取值范围内进行",
+        "checkPoint": "参与比较的对象之间应具备合理的大小关系",
         "level": "error",
-        "comment": "应在正确的取值范围内进行比较，否则会造成恒为真或恒为假的无效结果。",
+        "comment": "对象与超出其类型取值范围的值比较，或与取值范围的边界进行无意义的比较属于逻辑错误。",
         "tag": "expression",
         "related": "ID_switch_caseOutOfRange",
         "reference": "CWE-697,CWE-1024,CWE-1025"
@@ -1856,7 +1856,7 @@
         "level": "warning",
         "comment": "成员的声明和使用相距较远，更容易造成未初始化先使用的问题，所以应在声明处或构造函数中初始化所有成员。",
         "tag": "function",
-        "reference": "CWE-824,CWE-908,C++ Core Guidelines C.41"
+        "reference": "CWE-908,C++ Core Guidelines C.41"
         },
     "ID_invalidWrite": {
         "checkPoint": "不应存在无效的写入操作",
@@ -2001,8 +2001,9 @@
         "level": "error",
         "comment": "未初始化的局部对象具有不确定的值，读取未初始化的对象会导致标准未定义的行为。",
         "tag": "function",
+        "related": "ID_illAccess",
         "standard": "ISO/IEC 9899:1999 6.2.4(5 6),ISO/IEC 9899:2011 6.2.4(6 7),ISO/IEC 9899:2011 6.3.2.1(2)-undefined,ISO/IEC 14882:2003 4.1(1)-undefined,ISO/IEC 14882:2003 8.5(9),ISO/IEC 14882:2011 4.1(1)-undefined,ISO/IEC 14882:2011 8.5(11)",
-        "reference": "CWE-457,CWE-824,CWE-908,CWE-909,C++ Core Guidelines ES.20,MISRA C 2004 9.1,MISRA C 2012 9.1,MISRA C++ 2008 8-5-1"
+        "reference": "CWE-457,C++ Core Guidelines ES.20,MISRA C 2004 9.1,MISRA C 2012 9.1,MISRA C++ 2008 8-5-1"
         },
     "ID_notAllBranchReturn": {
         "checkPoint": "有返回值的函数其所有分枝都应显式返回",
@@ -2039,9 +2040,9 @@
         "tag": "control"
         },
     "ID_paramPassedByValue": {
-        "checkPoint": "由 const 修饰的参数应为引用或指针",
+        "checkPoint": "非基本类型的常量参数不应按值传递",
         "level": "warning",
-        "comment": "参数按值传递时会产生复制开销，而且如果有 const 修饰，意味着对象不可改变，按值传递是没有意义的。",
+        "comment": "常量参数不可被改变，按值传递产生的复制开销是没有意义的，应使用常量引用传递参数。",
         "tag": "function",
         "reference": "C++ Core Guidelines F.16"
         },
@@ -2312,14 +2313,14 @@
     "ID_staticInAnonymousNamespace": {
         "checkPoint": "匿名命名空间中不应使用静态声明",
         "level": "warning",
-        "comment": "匿名命名空间中的元素已具有内部链接性（internal linkage），不应再用 static 关键字修饰。",
+        "comment": "匿名命名空间中的元素已具有内部链接性（internal linkage），不应再用 static 关键字限定。",
         "tag": "global",
         "standard": "ISO/IEC 14882:2011 3.5(4),ISO/IEC 14882:2017 6.5(4)"
         },
     "ID_staticAndConst": {
-        "checkPoint": "全局对象不应同时被 static 和 const 关键字修饰",
+        "checkPoint": "全局对象不应同时被 static 和 const 等关键字限定",
         "level": "warning",
-        "comment": "在 C++ 语言中，由 const 或 constexpr 关键字修饰的全局对象已具有内部链接性（internal linkage），不应再用 static 关键字修饰。",
+        "comment": "在 C++ 语言中，由 const 或 constexpr 关键字限定的全局对象已具有内部链接性（internal linkage），不应再被 static 关键字限定。",
         "tag": "global",
         "related": "ID_staticInHeader",
         "standard": "ISO/IEC 14882:2003 7.1.1(6),ISO/IEC 14882:2011 7.1.1(7)"
@@ -2659,9 +2660,9 @@
         "related": "ID_misspelling"
         },
     "ID_literal_suspiciousChar": {
-        "checkPoint": "注意可疑的字符常量",
+        "checkPoint": "转义字符的反斜杠不可误写成斜杠",
         "level": "warning",
-        "comment": "注意字符常量的错误书写，如正反斜杠的误用，'\\n' 误写为 '/n'、'\\\\' 误写为 '//' 等。",
+        "comment": "将转义字符的反斜杠误写成斜杠是常见笔误，但仍可通过编译，造成不易察觉的问题。",
         "tag": "literal",
         "related": "ID_literal_multicharacter",
         "standard": "ISO/IEC 9899:1999 6.4.4.4(10)-implementation,ISO/IEC 9899:2011 6.4.4.4(10)-implementation,ISO/IEC 14882:2011 2.13.2(1)-implementation,ISO/IEC 14882:2011 2.14.3(1)-implementation,ISO/IEC 14882:2017 5.13.3(2)-implementation"
@@ -3002,14 +3003,23 @@
         "related": "ID_nonDynamicDownCast",
         "reference": "CWE-476,C++ Core Guidelines C.148"
         },
+    "ID_wildPtrDeref": {
+        "checkPoint": "不可解引用未初始化的指针",
+        "level": "error",
+        "comment": "未初始化的指针具有不确定的值，对其解引用会导致标准未定义的行为，往往会造成严重错误。",
+        "tag": "pointer",
+        "related": "ID_illAccess,ID_localInitialization",
+        "standard": "ISO/IEC 9899:1999 6.5.3.2(4)-undefined,ISO/IEC 9899:2011 6.5.3.2(4)-undefined",
+        "reference": "CWE-824,C++ Core Guidelines ES.65"
+        },
     "ID_danglingDeref": {
         "checkPoint": "不可解引用已被释放的指针",
         "level": "error",
-        "comment": "已被释放的指针指向失效的内存空间，再次对其解引用会导致标准未定义的行为，往往会造成严重错误。",
+        "comment": "已被释放的指针指向失效的内存空间，对其解引用会导致标准未定义的行为，往往会造成严重错误。",
         "tag": "pointer",
         "related": "ID_illAccess,ID_localAddressFlowOut,ID_illLifetime",
         "standard": "ISO/IEC 9899:1999 6.5.3.2(4)-undefined,ISO/IEC 9899:2011 6.5.3.2(4)-undefined",
-        "reference": "CWE-822,CWE-825,C++ Core Guidelines ES.65,SEI CERT EXP54-CPP"
+        "reference": "CWE-825,C++ Core Guidelines ES.65,SEI CERT EXP54-CPP"
         },
     "ID_sensitiveName": {
         "checkPoint": "公共成员或全局对象不应记录敏感数据",
@@ -3041,16 +3051,16 @@
         "reference": "CWE-130"
         },
     "ID_qualifierInvalid": {
-        "checkPoint": "const、volatile 不可修饰引用",
+        "checkPoint": "const、volatile 不可限定引用",
         "level": "error",
-        "comment": "C++ 标准规定，const 或 volatile 可修饰指针，但不可修饰引用，否则起不到任何作用。",
+        "comment": "在 C++ 语言中，const 或 volatile 可以限定指针，但不可限定引用，否则起不到任何作用。",
         "tag": "declaration",
         "standard": "ISO/IEC 14882:2003 8.3.2(1),ISO/IEC 14882:2011 8.3.2(1),ISO/IEC 14882:2017 11.3.2(1)"
         },
     "ID_qualifierForPtrAlias": {
-        "checkPoint": "const、volatile 修饰指针类型的别名是可疑的",
+        "checkPoint": "const、volatile 限定指针类型的别名是可疑的",
         "level": "suspicious",
-        "comment": "如果 const、volatile 修饰指针类型的别名，很可能会造成意料之外的问题。",
+        "comment": "如果用 const、volatile 限定指针类型的别名，很可能会造成意料之外的错误。",
         "tag": "declaration",
         "related": "ID_qualifierInvalid",
         "reference": "SEI CERT DCL05-C"
@@ -3058,7 +3068,7 @@
     "ID_qualifierRepeated": {
         "checkPoint": "const、volatile 不应重复",
         "level": "error",
-        "comment": "重复的 const 或 volatile 限定符是没意义的，也可能意味着某种错误。",
+        "comment": "重复的 const 或 volatile 限定符是没意义的，很可能意味着某种错误。",
         "tag": "declaration",
         "related": "ID_badQualifierPosition"
         },
@@ -3224,7 +3234,7 @@
     "ID_inlineRedundant": {
         "checkPoint": "不应使用多余的 inline 关键字",
         "level": "suggestion",
-        "comment": "constexpr 关键字修饰的函数已经相当于被声明为 inline，不应再重复声明。",
+        "comment": "由 constexpr 关键字限定的函数已经相当于被声明为 inline，不应再重复声明。",
         "standard": "ISO/IEC 14882:2003 7.1.2(3),ISO/IEC 14882:2011 7.1.2(3),ISO/IEC 14882:2011 7.1.5(2)",
         "tag": "declaration"
         },
