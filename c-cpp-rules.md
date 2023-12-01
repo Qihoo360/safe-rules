@@ -7019,27 +7019,30 @@ ID_forbidRestrictPtr&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration warning
 
 <hr/>
 
-C 语言中的 restrict 指针要求其他指针不能再指向相同区域，有助于编译器优化，但不符合这种限制时会导致标准未定义的行为，相当于增加了误用风险，也增加了测试成本。  
+C 语言的 restrict 指针要求其他指针不能指向与之相同的区域，否则会导致标准未定义的行为，这种特性有助于编译器优化代码，但也增加了误用风险。  
+  
+应在效率和风险之间合理取舍，不建议在有高可靠性要求的代码中使用这种特性。  
   
 示例：
 ```
-void foo(int c[]) {
-    int *restrict a = &c[0];   // Non-compliant
-    int *restrict b = &c[1];   // Non-compliant
-    ....
-    a = b;                     // Undefined behavior
-    ....
-}
-
-int bar(int *restrict x, int *restrict y) {   // Non-compliant
-    return *x + *y;
-}
-
-int baz(int* p) {
-    return bar(p, p);   // Undefined behavior
+void foo(int* restrict a, int* restrict b)   // Non-compliant
+{
+    *a += *b;
+    *a *= *b;
 }
 ```
-restrict 指针虽然有助于编译器优化，但应在效率的提高和存在的风险之间进行取舍，非系统库中的代码、改动频繁的代码不建议使用 restrict 指针，而且这种优化大部分情况下也难以真正解决效率的瓶颈问题。
+例中指针 a 和 b 由 restrict 关键字限定，表示指向不同的对象，由于未通过 b 写入数据，在优化时可以认为 b 指向的对象不变，可将相关对象存入寄存器等高速存储器，不必每次都从内存中读取。  
+  
+但如果 a 和 b 指向同一对象会导致未定义的行为，如：
+```
+int main(void)
+{
+    int i = 8;
+    foo(&i, &i);     // Undefined behavior
+    printf("%d", i);
+}
+```
+这段代码在启用优化时和关闭优化时可能会有不同的输出。
 <br/>
 <br/>
 
@@ -8241,26 +8244,31 @@ ID_invalidParamArraySize&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-数组作为形式参数时，其大小声明起不到实际的限制作用。  
+被声明为数组的形式参数等同于指针，第一个维度的大小声明对传入的实际参数起不到限制作用。  
   
 示例：
 ```
-int foo(int a[100]);   // Non-compliant
+int foo(int a[5]);       // Non-compliant, same as ‘foo(int* a)’
+int bar(int a[5][10]);   // Non-compliant, same as ‘bar(int (*a)[10])’
 
-int bar() {
-    int a[50] = {};
-    return foo(a);     // It can be compiled
+int main() {
+    int a[3] = {};
+    return foo(a);   // It can be compiled
 }
 ```
+例中 foo 函数声明的数组参数有 5 个元素，传入的实际参数只有 3 个元素，往往意味着错误，但可以通过编译。  
+  
 建议在 C\+\+ 代码中采用数组引用或模板的方式：
 ```
-void foo(int (&a)[100]);     // Compliant
+void foo(int (&a)[5]);    // Compliant
 
-template <size_t size>
-void foo(int (&a)[size]) {   // Compliant
+template <size_t n>
+void foo(int (&a)[n]) {   // Compliant
     ....
 }
 ```
+这样数组大小不一致便无法通过编译。  
+  
 例外：
 ```
 int foo(int a[], int n);   // Let it go
@@ -8272,6 +8280,8 @@ int foo(int a[], int n);   // Let it go
 #### 依据
 ISO/IEC 9899:1999 6.7.5.3(7)  
 ISO/IEC 9899:2011 6.7.6.3(7)  
+ISO/IEC 14882:2003 13.1(3)  
+ISO/IEC 14882:2011 13.1(3)  
 <br/>
 
 #### 参考
@@ -8508,7 +8518,9 @@ ID_forbidStaticArrSize&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration warni
 
 <hr/>
 
-C 语言规定数组作为形式参数时，可用 static 关键字限定大小，要求传入数组的大小不能小于由 static 关键字限定的值，有助于编译器优化，但不符合这种限制时会导致标准未定义的行为，相当于增加了误用风险，也增加了测试成本。  
+C 语言规定数组作为形式参数时，可用 static 关键字限定大小，要求对应的实际参数必须是数组第一个元素的地址，且数组的大小不能小于 static 关键字限定的值，否则会导致标准未定义的行为，这种特性有助于编译器优化代码，但也增加了误用风险。  
+  
+并非所有处理器都可以利用这种特性提高效率，而且应在效率和风险之间合理取舍，不建议在有高可靠性要求的代码中使用这种特性。  
   
 示例：
 ```
@@ -8521,17 +8533,17 @@ int foo(int a[static 5], int n) {   // Non-compliant
     return s;
 }
 
-int bar() {
+int main() {
     int a[3] = {1, 2, 3};
     return foo(a, 3);       // Undefined behavior
 }
 ```
-这种机制虽然有助于编译器优化，但应在效率的提高和存在的风险之间进行取舍，非系统库中的代码、改动频繁的代码不建议使用这种机制，而且这种优化大部分情况下也难以真正解决效率的瓶颈问题。
+例中 foo 函数要求传入的数组至少有 5 个元素，但实际传入的数组只有 3 个元素，导致未定义的行为。
 <br/>
 <br/>
 
 #### 依据
-ISO/IEC 9899:1999 6.7.6.3(7)  
+ISO/IEC 9899:1999 6.7.5.3(7)  
 ISO/IEC 9899:2011 6.7.6.3(7)  
 <br/>
 
@@ -11798,7 +11810,7 @@ int main() {
     ....
 }
 ```
-用 foo 函数返回的临时对象构造对象 a，理论上应执行拷贝构造函数，但标准允许编译器将临时对象直接作为对象 a，省略拷贝构造函数的执行以提高效率，这种优化称为“[copy elision](https://en.wikipedia.org/wiki/Copy_elision)”，复制之外的功能会因此无法生效。在 C\+\+17 之前，是否执行这种优化由实现定义，从 C\+\+17 开始，在某些情况下必须执行这种优化，具体可参见“[mandatory copy elision](https://en.cppreference.com/w/cpp/language/copy_elision#Mandatory_elision_of_copy.2Fmove_operations)”。
+用相同类型的临时对象构造对象 a，标准允许编译器将临时对象直接当作对象 a，省略拷贝构造函数的执行从而提高效率，这种优化称为“[copy elision](https://en.wikipedia.org/wiki/Copy_elision)”，复制之外的功能会因此无法生效。在 C\+\+17 之前，是否执行这种优化由实现定义，C\+\+17 规定在某些情况下必须执行这种优化，具体可参见“[guaranteed copy elision](https://en.cppreference.com/w/cpp/language/copy_elision)”。
 <br/>
 <br/>
 
@@ -11852,7 +11864,7 @@ int main() {
     ....
 }
 ```
-用 foo 函数返回的临时对象构造对象 a，理论上应执行移动构造函数，但标准允许编译器将临时对象直接作为对象 a，移动和拷贝构造函数均可省略以提高效率，这种优化称为“[copy/move elision](https://en.wikipedia.org/wiki/Copy_elision)”，移动或复制之外的功能会因此无法生效。在 C\+\+17 之前，是否执行这种优化由实现定义，从 C\+\+17 开始，在某些情况下必须执行这种优化，具体可参见“[mandatory copy elision](https://en.cppreference.com/w/cpp/language/copy_elision#Mandatory_elision_of_copy.2Fmove_operations)”。
+用相同类型的临时对象构造对象 a，标准允许编译器将临时对象直接当作对象 a，移动和拷贝构造函数均可省略以提高效率，这种优化称为“[copy/move elision](https://en.wikipedia.org/wiki/Copy_elision)”，移动或复制之外的功能会因此无法生效。在 C\+\+17 之前，是否执行这种优化由实现定义，C\+\+17 规定在某些情况下必须执行这种优化，具体可参见“[guaranteed copy elision](https://en.cppreference.com/w/cpp/language/copy_elision)”。
 <br/>
 <br/>
 
@@ -12327,7 +12339,7 @@ void bar() {
     access(a);      // Undefined behavior, ‘a’ refers to an invalid object
 }
 ```
-例中 foo 函数返回类型为右值引用，这种情况下返回临时对象一定是错误的，临时对象在返回前析构，返回的是无效引用。  
+例中 foo 函数返回临时对象的右值引用，临时对象在返回前析构，返回的是无效引用。  
   
 也不应返回局部对象的右值引用，如：
 ```
@@ -12360,7 +12372,7 @@ A&& baz(A& a) {     // Non-compliant
 ```
 这种情况在运行机制上可能没有问题，但满足的实际需求较为有限，而且相当于将 access(a) 和 move(a) 两种事务合在一个函数中，在某种程度上违反了“[单一职责原则](https://en.wikipedia.org/wiki/Single-responsibility_principle)”。  
   
-综上所述，应统一要求函数不应返回右值引用。
+综上所述，统一要求函数不应返回右值引用。
 <br/>
 <br/>
 
@@ -12383,23 +12395,24 @@ ID_returnConstObject&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: function suggestion
   
 示例：
 ```
-const vector<int> fun() {  // Non-compliant
+const vector<int> foo() {   // Non-compliant
     return { 1, 2, 3 };
 }
 
-vector<int> obj(fun());    // Call ‘vector(const vector&)’
+int main() {
+    vector<int> v;
+    v = foo();      // Call the copy assignment operator
+}
 ```
-fun 返回 const 对象，构造 obj 对象时只能进行深拷贝，无法利用移动构造等特性。  
+例中 foo 返回常量对象，对 v 对象赋值时只能进行深拷贝，无法利用移动赋值等机制。  
   
 应改为：
 ```
-vector<int> fun() {        // Compliant
+vector<int> foo() {     // Compliant
     return { 1, 2, 3 };
 }
-
-vector<int> obj(fun());    // Call ‘vector(vector&&)’, more efficient
 ```
-这样可以利用移动构造函数提高效率。  
+这样便可以利用移动赋值等机制提高效率。  
   
 对于遵循 C\+\+11 之前标准的代码，也不应返回常量对象，函数返回的对象本来就需要通过常量引用或传值的方式被后续代码使用，将返回值设为常量的意义不大。
 <br/>
@@ -12420,21 +12433,20 @@ ID_returnSuperfluousConst&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: function warning
 
 <hr/>
 
-基本类型的函数返回值本来就是不可被修改的右值，不应再受 const 关键字限制。  
+基本类型的函数返回值本来就是不可被修改的临时对象，不应再受 const 关键字限制。  
   
 本规则是 ID\_returnConstObject 的特化。  
   
 示例：
 ```
-const int* foo();  // Compliant
-const int bar();   // Non-compliant, ‘const’ is superfluous
+const int foo();    // Non-compliant, ‘const’ is superfluous
+const int* bar();   // Compliant
 
 class A {
     ....
-
 public:
     int& fun();
-    const int fun() const;  // Non-compliant, missing ‘&’
+    const int fun() const;   // Non-compliant, missing ‘&’
 };
 ```
 出现这种问题说明设计与使用存在一定的偏差，也可能本意是返回引用或指针，而书写时漏掉了相关符号。
@@ -15320,7 +15332,7 @@ int main() {
 ```
 setjmp 返回 0 表示设置跳转位置成功，之后如果调用 longjmp 会跳回 setjmp 的位置，这时 setjmp 返回非 0 值，这种机制在 C 语言中可以用作异常处理，也可以实现“协程”等概念，但会严重地降低代码可读性，在普通的业务逻辑或算法实现中不应使用。  
   
-另外，函数间跳转与编译器的优化机制有冲突，如：
+另外，函数间跳转与编译器的优化机制也会产生冲突，如：
 ```
 jmp_buf buf;
 
@@ -15336,7 +15348,7 @@ void bar() {
     }
 }
 ```
-在启用优化时和关闭优化时可能会有不同的输出，启用优化时局部变量 i 可能直接存于寄存器，当通过 longjmp 跳转回 bar 函数时，i\+\+ 的结果会丢失。将局部变量用 volatile 限定可解决这种问题，但很容易遗漏或产生无必要的限定。
+这段代码在启用优化时和关闭优化时可能会有不同的输出，启用优化时局部变量 i 可能直接存于寄存器，当通过 longjmp 跳转回 bar 函数时，i\+\+ 的结果会丢失。将局部变量用 volatile 限定可解决这种问题，但很容易遗漏或产生无必要的限定。
 <br/>
 <br/>
 
@@ -15788,11 +15800,11 @@ sizeof、_Alignof、_Generic
 ```
 sizeof、typeid、noexcept、decltype、declval
 ```
-这类运算符不宜作用于逻辑、算术、位运算、函数调用等子表达式。  
+这类运算符不宜作用于逻辑、算术、位运算、函数调用等表达式。  
   
 特殊情况：  
- - 在 C 语言中，如果 sizeof 作用于变长数组类型，数组长度表达式会被求值。  
- - 在 C\+\+ 语言中，如果 typeid 作用于返回多态类型的函数调用，该函数也会被执行。  
+ - 在 C 语言中，如果 sizeof 作用于变长数组类型，数组长度表达式会被求值  
+ - 在 C\+\+ 语言中，如果 typeid 作用于多态类型的“[泛左值（glvalue）](https://en.cppreference.com/w/cpp/language/value_category#glvalue)”，该泛左值会被求值  
   
 虽然在某些特殊情况下相关子表达式会被求值，但为了避免意料之外的错误，本规则要求这类运算符的子表达式在任何情况下均不可含有任何副作用。  
   
@@ -17491,46 +17503,46 @@ ID_unsuitableMove&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: expression warning
 
 std::move 的参数应为左值，返回值应直接作为接口的参数，除此之外的使用方式价值有限，且易产生错误。  
   
-std::move 将左值转为右值，意在宣告对象的数据将被转移到其他对象，应由合适的接口完成数据转移。  
+左值可由 std::move 转为将亡值，宣告对象的数据即将被转移到其他对象中，将亡值和纯右值统称右值，对应转移接口的右值引用型参数。左值和将亡值也统称泛左值，具体分类依据可参见“[值类别（value categories）](https://en.cppreference.com/w/cpp/language/value_category)”。  
   
 示例：
 ```
 string foo();
-string s = move(foo());  // Non-compliant
+string s = move(foo());   // Non-compliant
 ```
-例中 foo 函数返回的是右值，如果再调用 std::move 是多余的，应将 std::move 去掉。  
+例中 foo 函数返回临时对象，为纯右值，move 在此处是多余的。  
   
 又如：
 ```
 string a("....");
-string&& b = move(a);  // Non-compliant
-string c(b);           // Not move construction
+string&& b = move(a);   // Non-compliant
+string c(b);            // Not move construction
 ```
-例中 b 是具有名称的右值引用，其实是左值，c 仍是拷贝构造。  
+例中 b 是具有名称的右值引用，为左值，c 仍会复制 a 的数据，move 在此处没有意义。  
   
 应改为：
 ```
 string a("....");
-string c(move(a));  // Compliant
+string c(move(a));   // Compliant
 ```
-这样构造 c 时会自动选取移动构造函数，避免了复制。  
+这样便可将 a 的数据转移到 c 中。  
   
 又如：
 ```
 string foo() {
-    string s("....");
+    string s;
     ....
-    return move(s);  // Non-compliant
+    return move(s);   // Non-compliant
 }
 ```
-例中 foo 函数返回对象，编译器会进行“[RVO（Return Value Optimization）](https://en.wikipedia.org/wiki/Copy_elision#Return_value_optimization)”优化，显式调用 move 是多余的，而且会干扰优化，不应出现 return std::move(....) 这种代码。  
+例中 foo 函数返回对象，编译器会进行“[RVO（Return Value Optimization）](https://en.wikipedia.org/wiki/Copy_elision#Return_value_optimization)”优化，使用 move 会干扰优化，故不应出现 return std::move(....) 这种代码。  
   
 应改为：
 ```
 string foo() {
-    string s("....");
+    string s;
     ....
-    return s;  // Compliant
+    return s;   // Compliant
 }
 ```
 <br/>
@@ -17637,29 +17649,35 @@ ID_sizeof_arrayParameter&emsp;&emsp;&emsp;&emsp;&nbsp;:boom: expression error
 
 <hr/>
 
-当函数的形式参数为数组时，实际上是一个指针，对这种参数使用 sizeof 无法获取到数组大小，往往意味着错误。  
+被声明为数组的形式参数等同于指针，对其使用 sizeof 无法获取到数组大小，往往意味着错误。  
   
 示例：
 ```
-void fun(char arr[32]) {
-    memset(arr, 0, sizeof(arr));  // Non-compliant
+void fun(char a[10]) {
+    memset(a, 0, sizeof(a));   // Non-compliant
 }
 ```
-例中参数 arr 是一个指针，而不是一个真实的数组。  
+例中参数 a 是一个指针，sizeof(a) 等同于 sizeof(char\*)。  
   
 在 C\+\+ 代码中，如果有必要将参数设为数组，建议使用引用的方式，如：
 ```
-void fun(char (&arr)[32]) {
-    memset(arr, 0, sizeof(arr));  // Compliant
+void fun(char (&a)[10]) {
+    memset(a, 0, sizeof(a));   // Compliant
 }
 ```
-这样 sizeof(arr) 的结果就会和预期一致。
+这样 sizeof(a) 便等同于 sizeof(char\[10\])。
 <br/>
+<br/>
+
+#### 相关
+ID_invalidParamArraySize  
 <br/>
 
 #### 依据
 ISO/IEC 9899:1999 6.7.5.3(7)  
 ISO/IEC 9899:2011 6.7.6.3(7)  
+ISO/IEC 14882:2003 13.1(3)  
+ISO/IEC 14882:2011 13.1(3)  
 <br/>
 
 #### 参考

@@ -195,9 +195,9 @@
     "ID_invalidParamArraySize": {
         "checkPoint": "不应将数组作为函数的形式参数",
         "level": "warning",
-        "comment": "数组作为形式参数时，其大小声明起不到实际的限制作用。",
+        "comment": "被声明为数组的形式参数等同于指针，第一个维度的大小声明对传入的实参起不到限制作用。",
         "tag": "declaration",
-        "standard": "ISO/IEC 9899:1999 6.7.5.3(7),ISO/IEC 9899:2011 6.7.6.3(7)",
+        "standard": "ISO/IEC 9899:1999 6.7.5.3(7),ISO/IEC 9899:2011 6.7.6.3(7),ISO/IEC 14882:2003 13.1(3),ISO/IEC 14882:2011 13.1(3)",
         "reference": "C++ Core Guidelines I.13,C++ Core Guidelines R.14,MISRA C++ 2008 5-2-12"
         },
     "ID_illMemberCall": {
@@ -1098,7 +1098,7 @@
     "ID_forbidRestrictPtr": {
         "checkPoint": "禁用 restrict 指针",
         "level": "warning",
-        "comment": "C 语言中的 restrict 指针要求其他指针不能再指向相同区域，有助于编译器优化，但不符合这种限制时会导致标准未定义的行为，相当于增加了误用风险，也增加了测试成本。",
+        "comment": "C 语言的 restrict 指针要求其他指针不能指向与之相同的区域，否则会导致标准未定义的行为，这种特性有助于编译器优化代码，但也增加了误用风险。",
         "tag": "declaration",
         "standard": "ISO/IEC 9899:1999 6.7.3.1(4 9 11)-undefined,ISO/IEC 9899:2011 6.7.3.1(4 9 11)-undefined",
         "reference": "MISRA C 2012 8.14,SEI CERT EXP43-C"
@@ -1106,9 +1106,9 @@
     "ID_forbidStaticArrSize": {
         "checkPoint": "声明数组参数的大小时禁用 static 关键字",
         "level": "warning",
-        "comment": "C 语言规定数组作为形式参数时，可用 static 关键字限定大小，要求传入数组的大小不能小于由 static 关键字限定的值，有助于编译器优化，但不符合这种限制时会导致标准未定义的行为，相当于增加了误用风险，也增加了测试成本。",
+        "comment": "C 语言规定数组作为形式参数时，可用 static 关键字限定大小，要求对应的实际参数必须是数组第一个元素的地址，且数组的大小不能小于 static 关键字限定的值，否则会导致标准未定义的行为，这种特性有助于编译器优化代码，但也增加了误用风险。",
         "tag": "declaration",
-        "standard": "ISO/IEC 9899:1999 6.7.6.3(7),ISO/IEC 9899:2011 6.7.6.3(7)",
+        "standard": "ISO/IEC 9899:1999 6.7.5.3(7),ISO/IEC 9899:2011 6.7.6.3(7)",
         "reference": "MISRA C 2012 17.6"
         },
     "ID_forbidGotoBlocks": {
@@ -1212,7 +1212,7 @@
     "ID_returnSuperfluousConst": {
         "checkPoint": "函数返回值不应为基本类型的常量",
         "level": "warning",
-        "comment": "基本类型的函数返回值本来就是不可被修改的右值，不应再受 const 关键字限制。",
+        "comment": "基本类型的函数返回值本来就是不可被修改的临时对象，不应再受 const 关键字限制。",
         "tag": "function",
         "related": "ID_returnConstObject",
         "standard": "ISO/IEC 14882:2003 3.10(5),ISO/IEC 14882:2011 3.10(1)"
@@ -1636,14 +1636,14 @@
     "ID_illFormedCompoundAssignment": {
         "checkPoint": "不应出现复合赋值的错误形式",
         "level": "warning",
-        "comment": "如下形式的复合赋值表达式（设 a 和 x 为变量或表达式）：\na -= a - x;\na /= a / x;\na &= a & x;\na |= a | x;\na ^= a ^ x;\n为常见笔误，应将复合赋值改为普通赋值，或去掉重复的子表达式。",
+        "comment": "不应出现复合赋值的错误形式。",
         "tag": "expression",
         "reference": "CWE-682"
         },
     "ID_suspiciousCompoundAssignment": {
         "checkPoint": "避免出现复合赋值的可疑形式",
         "level": "suspicious",
-        "comment": "如下形式的复合赋值表达式（设 a 和 x 为变量或表达式）：\na += a + x;\na *= a * x;\na %= a % x;\na <<= a << x;\na >>= a >> x;\n为常见笔误，但在特定需求下也有其逻辑意义，故对这种表达式应给出可疑提醒。",
+        "comment": "避免出现复合赋值的可疑形式。",
         "tag": "expression",
         "reference": "CWE-682"
         },
@@ -3083,9 +3083,10 @@
     "ID_sizeof_arrayParameter": {
         "checkPoint": "sizeof 不应作用于数组参数",
         "level": "error",
-        "comment": "当函数的形式参数为数组时，实际上是一个指针，对这种参数使用 sizeof 无法获取到数组大小，往往意味着错误。",
+        "comment": "被声明为数组的形式参数等同于指针，对其使用 sizeof 无法获取到数组大小，往往意味着错误。",
         "tag": "expression",
-        "standard": "ISO/IEC 9899:1999 6.7.5.3(7),ISO/IEC 9899:2011 6.7.6.3(7)",
+        "standard": "ISO/IEC 9899:1999 6.7.5.3(7),ISO/IEC 9899:2011 6.7.6.3(7),ISO/IEC 14882:2003 13.1(3),ISO/IEC 14882:2011 13.1(3)",
+        "related": "ID_invalidParamArraySize",
         "reference": "CWE-467"
         },
     "ID_sizeof_zeroComparison": {
