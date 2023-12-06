@@ -139,7 +139,7 @@
     - [R3.2.1 宏应遵循合理的命名方式](#macro_badname)
     - [R3.2.2 不可定义具有保留意义的宏名称](#macro_definereserved)
     - [R3.2.3 不可取消定义具有保留意义的宏名称](#macro_undefreserved)
-    - [R3.2.4 可作为子表达式的宏定义应该用括号括起来](#macro_expnotenclosed)
+    - [R3.2.4 宏定义为表达式时应该用括号括起来](#macro_expnotenclosed)
     - [R3.2.5 表达式中的宏参数应该用括号括起来](#macro_paramnotenclosed)
     - [R3.2.6 由多个语句组成的宏定义应该用 do\-while(0) 括起来](#macro_stmtnotenclosed)
     - [R3.2.7 宏定义中的 \# 和 \#\# 运算符不应嵌套使用](#macro_complexconcat)
@@ -3084,19 +3084,19 @@ MISRA C++ 2008 17-0-1
 <br/>
 <br/>
 
-### <span id="macro_expnotenclosed">▌R3.2.4 可作为子表达式的宏定义应该用括号括起来</span>
+### <span id="macro_expnotenclosed">▌R3.2.4 宏定义为表达式时应该用括号括起来</span>
 
 ID_macro_expNotEnclosed&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 <hr/>
 
-由于宏只做文本处理，不考虑运算符优先级等问题，可作为子表达式的宏定义应该用括号括起来，否则易产生意料之外的错误。  
+宏的展开只是文本替换，不考虑运算符优先级等问题，所以宏定义为表达式时应该用括号括起来，从而避免意料之外的错误。  
   
 示例：
 ```
 #define ABS(x) (x) < 0? -(x): (x)  // Non-compliant
 ```
-设 a 为变量，如果按如下使用方式：
+设 a 为变量，如果按如下方式使用宏：
 ```
 a = ABS(a) + 1;
 ```
@@ -3104,7 +3104,7 @@ a = ABS(a) + 1;
 ```
 a = (a) < 0? -(a): (a) + 1;
 ```
-这显然会造成意料之外的结果，所以 ABS 的定义应改为：
+这显然会造成意料之外的结果，所以宏定义应该用括号括起来：
 ```
 #define ABS(x) ((x) < 0? -(x): (x))  // Compliant
 ```
@@ -3118,8 +3118,6 @@ ISO/IEC 9899:2011 6.10.3.5(4)
 
 #### 参考
 CWE-783  
-MISRA C 2004 19.10  
-MISRA C 2012 20.7  
 <br/>
 <br/>
 
@@ -3129,12 +3127,22 @@ ID_macro_paramNotEnclosed&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 <hr/>
 
-由于宏只做文本处理，不考虑运算符优先级等问题，故应将宏参数用括号括起来，否则易产生意料之外的错误。  
+编译器对宏参数只做文本替换，不考虑运算符优先级等问题，所以应将宏参数用括号括起来，从而避免意料之外的错误。  
   
 示例：
 ```
 #define SUM(a, b) (a + b)  // Non-compliant
 ```
+设 x 为变量，如果按如下方式使用宏：
+```
+x = SUM(x, x << 1);
+```
+则相当于：
+```
+x = x + x << 1;
+```
+注意，\+ 的优选级高于 <<，结果为 (2 \* x) << 1，这往往是不符合预期的。  
+  
 应改为：
 ```
 #define SUM(a, b) ((a) + (b))  // Compliant
@@ -3149,6 +3157,8 @@ ISO/IEC 9899:2011 6.10.3.5(4)
 
 #### 参考
 CWE-783  
+MISRA C 2004 19.10  
+MISRA C 2012 20.7  
 MISRA C++ 2008 16-0-6  
 <br/>
 <br/>
@@ -3159,14 +3169,14 @@ ID_macro_stmtNotEnclosed&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: precompile warning
 
 <hr/>
 
-可以作为一条语句使用的宏，且宏包含多个并列子句时，应该用“do {”和“} while(0)”括起来，否则易造成作用域的混乱。  
+由多个语句组成的宏定义应该用“do {”和“} while(0)”括起来，从而避免意料之外的错误。  
   
 示例：
 ```
 #define SWAP(a, b)\
     a ^= b; b ^= a; a ^= b   // Non-compliant
 ```
-如果按如下使用方式：
+如果按如下方式使用宏：
 ```
 if (x > y)
     SWAP(x, y);
@@ -3183,7 +3193,7 @@ if (x > y)
     a ^= b; b ^= a; a ^= b;\
 } while(0)
 ```
-这样在使用宏时必须以分号结尾，否则无法通过编译，使宏在使用风格上与函数相同，易于阅读。
+这样在使用宏时必须以分号结尾，否则无法通过编译，使宏在使用风格上与函数相同，便于阅读。
 <br/>
 <br/>
 
@@ -5953,14 +5963,14 @@ ID_duplicateEnumerator&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: type warning
 
 <hr/>
 
-枚举项用于标记不同的事物，名称不同但值相同的枚举项往往意味着错误。  
+枚举项用于标记不同的事物，在同一枚举类型中，名称不同但值相同的枚举项往往意味着错误。  
   
 示例：
 ```
 enum Color {
     red = 1,
     yellow = 2,
-    blue = 2,    // Non-compliant, see ‘yellow’
+    blue = 2,    // Non-compliant, same value as ‘yellow’
 };
 ```
 例中三个枚举项应分别表示三种颜色，但 blue 与 yellow 的值相同会造成逻辑错误。  
@@ -5982,7 +5992,7 @@ enum Fruit {
     apple, pear, grape
 };
 
-Fruit favorite () {
+Fruit favorite() {
     return grape;
 }
 ```
@@ -6001,10 +6011,12 @@ ID_casualInitialization&emsp;&emsp;&emsp;&emsp;&nbsp;:bulb: type suggestion
 
 <hr/>
 
-合理初始化各枚举项，只应从下列方式中选择一种：   
- - 全不初始化  
- - 只初始化第一个  
- - 全部初始化为不同的值  
+同类枚举项的初始化只应从下列方式中选择一种：  
+ - 全部隐式初始化  
+ - 只显式初始化第一个枚举项  
+ - 全部显式初始化为不同的值  
+  
+枚举项可以隐式初始化，由编译器分配不同的值，首项为 0，后续各项依次增 1，也可以显式初始化，由 = 和初始化表达式指定某具体值，应合理初始化各枚举项，避免产生冲突。  
   
 示例：
 ```
@@ -6015,6 +6027,8 @@ enum Color {
     yellow = 2   // Non-compliant
 };
 ```
+例中隐式初始化的 green 和显式初始化的 yellow 具有相同的值，属于常见笔误。  
+  
 应改为：
 ```
 enum Color {
@@ -6300,27 +6314,29 @@ int \u540d\u79f0;   // Bad, no readability
 
 int nVarietyisthespiceoflife = 123;   // Bad, hard to read or write
 ```
-例中 xxx、fun 这种无意义或意义过于空泛的名称，以及 l、lI、N0 这种易与数字或其他单词混淆的名称均是不符合要求的；Unicode 转义名称只应出现在字符串中，否则没有可读性；名称中各单词间应有下划线或大小写变化，否则不便于读写。本规则集合示例中出现的 foo、bar 等名称，意在代指一般的代码元素，仅作示例，实际代码中不应出现。  
+例中 xxx、fun 这种无意义或意义过于空泛的名称，以及 l、lI、N0 这种易与数字或其他单词混淆的名称均是不符合要求的；Unicode 转义名称只应出现在字符串中，否则没有可读性；名称中各单词间应有下划线或大小写变化，否则不便于读写。  
   
-不良命名方式甚至会导致标准未定义的行为，如：
+本规则集合示例中出现的 foo、bar 等名称，意在代指一般的代码元素，仅作示例，实际代码中不应出现。  
+  
+注意，不良命名方式甚至会导致标准未定义的行为，如：
 ```
 extern int identifier_of_a_very_very_long_name_1;
 extern int identifier_of_a_very_very_long_name_2;   // Dangerous
 ```
-注意，如果两个名称有相同的前缀，而且相同前缀超过一定长度时是危险的，有可能会导致编译器无法有效区分相关名称。C 标准指明，保证名称前 31 位不同即可避免这种问题，可参见 ISO/IEC 9899:2011 5.2.4.1 的相关规定。  
+如果两个名称有相同的前缀，当相同前缀超过一定长度时是危险的，可能会导致编译器无法有效区分相关名称。C 标准指明，保证名称前 31 位不同可避免这种问题。  
   
-不建议采用相同“长前缀”\+ 不同“短后缀”的命名方式，这种名称非常容易形成笔误或由复制粘贴造成错误，如：
+不建议采用相同“长前缀”\+ 不同“短后缀”的命名方式，这种名称非常容易造成笔误或复制粘贴错误，如：
 ```
-struct BinExpr {
-    BinExpr* sub0;   // Bad
-    BinExpr* sub1;   // Bad
+struct Expr {
+    Expr* sub0;   // Bad
+    Expr* sub1;   // Bad
 };
 ```
-设 BinExpr 是“二元表达式”类，sub0、sub1 为左右子表达式，这种命名方式应改进：
+设 Expr 是某二元表达式类，sub0、sub1 为左右子表达式，这种命名方式应改进：
 ```
-struct BinExpr {
-    BinExpr* left;   // Better
-    BinExpr* right;  // Better
+struct Expr {
+    Expr* left;   // Better
+    Expr* right;  // Better
 };
 ```
 <br/>
@@ -7019,7 +7035,7 @@ ID_forbidRestrictPtr&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration warning
 
 <hr/>
 
-C 语言的 restrict 指针要求其他指针不能指向与之相同的区域，否则会导致标准未定义的行为，这种特性有助于编译器优化代码，但也增加了误用风险。  
+restrict 指针要求其他指针不能指向与之相同的区域，否则会导致标准未定义的行为，这种特性有助于编译器优化代码，但也增加了误用风险。restrict 指针由 C99 标准提出，不在 C\+\+ 标准之内，在 C\+\+ 代码中不应使用。  
   
 应在效率和风险之间合理取舍，不建议在有高可靠性要求的代码中使用这种特性。  
   
@@ -7730,20 +7746,20 @@ ID_forbidFlexibleArray&emsp;&emsp;&emsp;&emsp;&nbsp;:no_entry: declaration sugge
 
 <hr/>
 
-柔性数组（flexible array）一般是指结构体最后不完整定义的数组成员，表示不占用空间的指针，这种数组在 C99 中有所定义，但不在 C\+\+ 标准之中，在 C\+\+ 代码中不应使用。  
+柔性数组（flexible array）指结构体最后不完整定义的数组成员，表示不占用空间的指针，这种数组由 C99 标准提出，不在 C\+\+ 标准之内，在 C\+\+ 代码中不应使用。  
   
 示例：
 ```
 struct A {
     int len;
-    int dat[];  // Non-compliant
+    int dat[];  // Non-compliant, flexible array
 };
 
 A* cpy(const A* p) {
     A* a = (A*)malloc(
         sizeof(A) + p->len * sizeof(int)
     );
-    *a = *p;    // Error, only p->len is copied
+    *a = *p;    // Data loss, only p->len is copied
     return a;
 }
 ```
@@ -9082,7 +9098,7 @@ ID_improperBitfieldType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
  - C\+\+ 语言的 bool 或 C 语言的 \_Bool 类型  
  - 各种实现中取值范围均一致的整数类型  
   
-C90 标准只允许 signed int 或 unsigned int 作为位域类型，在之后的 C 标准以及 C\+\+14 之前的 C\+\+ 标准中，用于位域的 char、short、int、long 或 long long 等整数类型是否有符号由实现定义。  
+C90 标准只允许 int、signed int 或 unsigned int 作为位域类型，在之后的 C 标准以及 C\+\+14 之前的 C\+\+ 标准中，用于位域的 char、short、int、long 或 long long 等整数类型是否有符号由实现定义。  
   
 为了避免意料之外的符号扩展、溢出等问题，建议统一使用无符号整型作为位域类型。  
   
@@ -9127,6 +9143,7 @@ bitfieldMustBeStdInt：位域类型是否必须为 stdint.h 或 cstdint 中定�
 <br/>
 
 #### 依据
+ISO/IEC 9899:1990 6.5.2.1  
 ISO/IEC 9899:1999 J.3.9(1)-implementation  
 ISO/IEC 9899:2011 J.3.9(1)-implementation  
 ISO/IEC 14882:2003 9.6(3)-implementation  
@@ -9704,9 +9721,9 @@ ID_missingType&emsp;&emsp;&emsp;&emsp;&nbsp;:fire: declaration warning
 
 <hr/>
 
-C90 允许省略对象或函数的类型声明，但实践表明这并不是一种良好的编程方式，可读性较差。  
+C 语言在早期阶段曾允许省略声明对象或函数的类型，然而实践表明这种编程方式并不理想，已从 C99 标准中移出。  
   
-本规则仅针对 C 语言，C\+\+ 语言不存在这种问题。  
+本规则针对 C 语言，C\+\+ 语言没有这种特性，不受本规则限制。  
   
 示例：
 ```
@@ -9715,7 +9732,9 @@ const b;      // Non-compliant
 fun(void);    // Non-compliant
 typedef tp;   // Non-compliant
 ```
-例中 a、b、fun、tp 的类型被省略，默认为 int，应改为：
+例中 a、b、fun、tp 的类型为 int，可被省略声明，但可读性较差。  
+  
+应改为：
 ```
 extern int a;     // Compliant
 const int b;      // Compliant
@@ -9725,9 +9744,15 @@ typedef int tp;   // Compliant
 <br/>
 <br/>
 
+#### 依据
+ISO/IEC 9899:1999 6.7.2(2)  
+ISO/IEC 9899:2011 6.7.2(2)  
+<br/>
+
 #### 参考
 MISRA C 2004 8.2  
 MISRA C 2012 8.1  
+SEI CERT DCL31-C  
 <br/>
 <br/>
 
@@ -12370,9 +12395,7 @@ A&& baz(A& a) {     // Non-compliant
     return std::move(a);
 }
 ```
-这种情况在运行机制上可能没有问题，但满足的实际需求较为有限，而且相当于将 access(a) 和 move(a) 两种事务合在一个函数中，在某种程度上违反了“[单一职责原则](https://en.wikipedia.org/wiki/Single-responsibility_principle)”。  
-  
-综上所述，统一要求函数不应返回右值引用。
+这种情况在运行机制上可能没有问题，但满足的实际需求较为有限，而且相当于将 access(a) 和 move(a) 两种事务合在一个函数中，在某种程度上违反了“[单一职责原则](https://en.wikipedia.org/wiki/Single-responsibility_principle)”。
 <br/>
 <br/>
 
