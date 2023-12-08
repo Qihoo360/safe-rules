@@ -482,7 +482,7 @@
     - [R10.1.8 化简可转换为逻辑表达式的三元表达式](#simplifiableternary)
   - [10.2 Evaluation](#expression.evaluation)
     - [R10.2.1 不可依赖不会生效的副作用](#unevaluatedsideeffect)
-    - [R10.2.2 避免依赖特定的子表达式求值顺序](#evaluationorderreliance)
+    - [R10.2.2 不可依赖未声明的求值顺序](#evaluationorderreliance)
     - [R10.2.3 在表达式中不应多次读写同一对象](#confusingassignment)
     - [R10.2.4 注意运算符优先级，避免非预期的结果](#unexpectedprecedence)
     - [R10.2.5 不在同一数组或对象中的地址不可相减或比较大小](#illptrdiff)
@@ -3649,14 +3649,12 @@ ID_badVaArgType &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: precompile error
 
 <hr/>
 
-对于 stdarg.h 中的宏 va\_arg(ap, type)，其类型参数 type 在  
-  
-对于宏 va\_arg(ap, type) 的类型参数 type，下列情况会导致标准未定义的行为：  
+对于 stdarg.h 中的宏 va\_arg(ap, type)，其类型参数 type 在下列情况会导致标准未定义的行为：  
  - type 后加 \* 号不能表示指针类型  
  - 与“默认参数提升”后的类型不兼容  
  - 与可变参数列表中对应的实参类型不兼容，或没有对应的实参  
   
-以下类型不可作为 av\_arg 的参数：
+以下类型不可作为 va\_arg 的参数：
 ```
 bool、_Bool、
 char、signed char、unsigned char、char16_t、
@@ -8835,7 +8833,7 @@ ID_overloadAddressOperator &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: declaration sug
 
 <hr/>
 
-取地址运算符（一元 & 运算符），重载之后可以返回任意地址，极易误用。  
+重载的取地址运算符可以返回任意类型的数据，易被误用，非智能指针相关的基础类不应重载取地址运算符。  
   
 获取不完整类型的对象地址时，如果其完整类型重载了取地址运算符，会导致标准未定义的行为。  
   
@@ -8848,9 +8846,7 @@ X* foo(X& x) {
 }
 
 struct X {
-    X* operator &() {   // Non-compliant
-        return nullptr;
-    }
+    X* operator &();   // Non-compliant
 };
 
 X* bar(X& x) {
@@ -8878,22 +8874,21 @@ ID_overloadComma &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: declaration suggestion
 
 <hr/>
 
-逗号表达式意在从左至右依次执行各子表达式，但重载逗号运算符会打破这一规则，易造成意料之外的结果。  
+对于重载的逗号运算符，C\+\+17 之前的标准未声明其子表达式的求值顺序，应避免重载逗号运算符以确保代码的兼容性和正确性。  
   
 示例：
 ```
 class A { .... };
 
-A& foo(int);
-A& operator , (int, A&);  // Non-compliant
+A& operator , (int, A&);   // Non-compliant
 
-int bar(int i) {
-    ++i, foo(i);   // Disordered
+A& foo(int);
+
+A& bar(int i) {
+    return ++i, foo(i);   // May be disordered
 }
 ```
-例中逗号运算符被重载后变成了一个函数，\+\+i 和 foo(i) 变成了函数参数，函数参数的求值顺序在标准中是未声明的，foo(i) 很有可能会先被求值，\+\+i 则失去了意义。  
-  
-另外，也不应重载逻辑运算符，参见 ID\_overloadLogicOperator。
+例中逗号表达式意在将变量 i 增 1 后作为 foo 的参数，但逗号运算符被重载后变成了一个函数，\+\+i 和 foo(i) 是函数的参数。在 C\+\+17 之前，所有参数的求值顺序均是未声明的，foo(i) 可能会先被求值，\+\+i 便失去了意义。C\+\+17 明确了重载运算符参数的求值顺序与内置运算符一致，但遵循之前标准的编译器仍在广泛使用中，故应考虑兼容性，从而保证正确性。
 <br/>
 <br/>
 
@@ -8904,6 +8899,7 @@ ID_overloadLogicOperator
 #### 依据
 ISO/IEC 14882:2003 5.2.2(8)-unspecified  
 ISO/IEC 14882:2011 5.2.2(8)  
+ISO/IEC 14882:2017 16.3.1.2(2)  
 <br/>
 
 #### 参考
@@ -8917,51 +8913,38 @@ ID_overloadLogicOperator &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: declaration sugge
 
 <hr/>
 
-对“逻辑与”、“逻辑或”等运算符的重载会影响效率，甚至造成不符合预期的结果。  
+重载“逻辑与”、“逻辑或”等运算符会影响效率，甚至会导致不符合预期的结果。  
   
-C/C\+\+ 标准明确规定了内置逗号、逻辑与、逻辑或等运算符的子表达式求值顺序。对于逻辑表达式，从左到右计算子表达式的值，当可以确定整个表达式的值时立即结束计算，如果还有其他子表达式未求值也不再计算了，这种规则称为“短路规则”，意在提高效率，然而运算符的重载却打破了这一规则。  
+对于非重载的内置“逻辑与”、“逻辑或”运算符，标准要求从左到右依次对子表达式求值，一旦可以确定整个表达式的值，计算就会立即停止，如果还有其他子表达式未被求值，也不会再进行计算，这就是“短路规则”，其目的是为了提高效率。然而，运算符的重载会导致短路规则失效，甚至会导致逻辑错误。  
   
 示例：
 ```
-class A {
-    int i;
-
-public:
-    A(int x = 0): i(x) {
-    }
-
-    bool valid() const {
-        return i != 0;
-    }
-
-    A& assign(const A& a) {
-        i = a.i;
-        return *this;
-    }
+struct A {
+    A();
+    bool valid() const;
+    A& assign(const A&);
 };
 
-bool operator && (const A& a, const A& b) {  // Non-compliant
-    return a.valid() && b.valid();
+bool operator && (const A& x, const A& y) {  // Non-compliant
+    return x.valid() && y.valid();
 }
 ```
-注意表达式（设 a 和 b 为 A 类对象）：
+设 a 和 b 为 A 类对象：
 ```
-b && a.assign(b)
+b && a.assign(b)  // Logic error
 ```
-按常理，此表达式的意思应该是如果 b 在某种意义上“有效”，就将 b 赋给 a，所以 b 的值应先被求出，但由于 && 被重载成了一个函数，其左右子表达式成了函数的参数，“短路规则”不再有效，而且参数的求值顺序在标准中是未声明的，所以常规逻辑子表达式的求值顺序无法得到保证。目前 MSVC、g\+\+ 等主流编译器默认都是从右到左计算参数的值，例中 a.assign(b) 会先被执行，造成完全不符合预期的结果。  
+按常理，此表达式的意思是如果 b 在某种意义上为真，就用 b 对 a 赋值，否则不进行赋值，但由于 && 被重载成了函数，左右子表达式成了函数的参数，短路规则不再有效。在 C\+\+17 之前，所有参数的求值顺序均是未声明的，a.assign(b) 可能会先被执行，造成完全不符合预期的结果，C\+\+17 明确了重载运算符参数的求值顺序与内置运算符一致，但仍然无法遵守短路规则，a.assign(b) 总会被执行。  
   
 解决方法：
 ```
-class A {
-    ....
-
-public:
+struct A {
     explicit operator bool() const {
         return valid();
     }
+    ....
 };
 ```
-去掉对 && 的重载，在 A 中定义 bool 类型转换运算符，既可保证“短路规则”，又可保证求值顺序。
+去掉对 && 的重载，在类中定义 bool 类型转换运算符，既可保证求值顺序，又可遵守短路规则。
 <br/>
 <br/>
 
@@ -8972,6 +8955,7 @@ ID_overloadComma
 #### 依据
 ISO/IEC 14882:2003 5.2.2(8)-unspecified  
 ISO/IEC 14882:2011 5.2.2(8)  
+ISO/IEC 14882:2017 16.3.1.2(2)  
 <br/>
 
 #### 参考
@@ -12657,7 +12641,7 @@ ID_functionSpecialization &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
 <hr/>
 
-特化的函数模板不参与重载函数的选取，易导致意类之外的错误。  
+特化的函数模板不参与重载函数的选取，易导致意料之外的错误。  
   
 如果某些特殊情况确实需要特化模板，不妨将函数委托给模板类实现，通过特化模板类实现特殊的需求，参见 ID\_narrowCast。  
   
@@ -15866,25 +15850,25 @@ SEI CERT EXP52-CPP
 <br/>
 <br/>
 
-### <span id="evaluationorderreliance">▌R10.2.2 避免依赖特定的子表达式求值顺序</span>
+### <span id="evaluationorderreliance">▌R10.2.2 不可依赖未声明的求值顺序</span>
 
 ID_evaluationOrderReliance &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
 <hr/>
 
-不同的求值顺序不应产生不同的结果，否则极易导致意料之外的错误，也会降低代码的可移植性。  
+依赖未声明的求值顺序会导致意料之外的错误，也会降低代码的可移植性。  
   
-C 标准用“[序列点（sequence point）](https://en.wikipedia.org/wiki/Sequence_point)”定义求值顺序，序列点前面的表达式先于后面的表达式求值并落实相关副作用，逻辑与、逻辑或、三元、逗号等运算符以及函数调用的左括号与序列点相关，其左子表达式先于右子表达式求值并落实副作用，赋值、算术、位运算等运算符与序列点无关，其左右子表达式的求值顺序是未声明的，函数各参数的求值顺序也是未声明的，C\+\+ 标准与 C 标准大致相同，C\+\+17 明确了赋值、移位等运算符的求值顺序。  
+C 标准用“[序列点（sequence point）](https://en.wikipedia.org/wiki/Sequence_point)”定义求值顺序，序列点前面的表达式先于后面的表达式求值并落实相关副作用。逻辑与、逻辑或、三元、逗号等运算符以及函数调用的左括号与序列点相关，其左子表达式先于右子表达式求值并落实副作用，赋值、算术、位运算等运算符与序列点无关，其左右子表达式的求值顺序是未声明的，函数调用表达式中各参数的求值顺序也是未声明的，详见“[C 求值顺序](https://en.cppreference.com/w/c/language/eval_order)”。  
   
-要注意子表达式的副作用在不同求值顺序下的正确性，可参见 ID\_confusingAssignment 的进一步说明。  
+C\+\+ 标准与 C 标准大致相同，C\+\+17 明确了赋值、移位、数组下标等表达式的求值顺序，详见“[C\+\+ 求值顺序](https://en.cppreference.com/w/cpp/language/eval_order)”。  
   
 示例：
 ```
 Stack s {1, 2, 3};      // A stack, the top is 1
-int pop();              // Pop and return the top element from the stack
+int pop(void);          // Pop and return the top element from the stack
 int x = pop() - pop();  // Non-compliant
 ```
-设 pop 函数弹出并返回栈顶元素，减号左右的两个 pop 函数哪个先执行呢？这是标准未声明的，x 的值可以是 1 \- 2，也可以是 2 \- 1，由编译器决定。  
+设 pop 函数弹出并返回栈顶元素，减号左右的两个 pop 函数哪个先执行呢？这是标准未声明的，x 的值可以是 1 \- 2，也可以是 2 \- 1，所以不可臆断或依赖这种未声明的求值顺序。  
   
 应改为：
 ```
@@ -15892,15 +15876,13 @@ int a = pop();
 int b = pop();
 x = a - b;      // Compliant, or ‘b - a’, depends on your needs
 ```
-这样便确定是栈项的第一个元素减第二个元素。  
+这样便明确了 x 的值为 1 \- 2。  
   
 又如：
 ```
 fun(pop(), pop());  // Non-compliant
 ```
-设 fun 是函数名称或获取函数指针的表达式，标准规定 fun 会先于参数求值，但参数之间的求值顺序是未声明的。  
-  
-逻辑与、逻辑或、三元、逗号等表达式可不受本规则限制，但其子表达式需受本规则限制。
+设 fun 是函数名称或获取函数指针的表达式，标准规定 fun 会先于参数求值，但参数之间的求值顺序是未声明的。
 <br/>
 <br/>
 
@@ -15927,15 +15909,14 @@ ID_confusingAssignment &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
 <hr/>
 
-在表达式中多次引用并修改同一对象，很可能会因为非预期的求值顺序而产生错误的结果。  
+如果在表达式中多次读写同一对象，很可能会因为非预期的求值顺序而产生错误的结果。  
   
-关于对象的副作用在求值过程中何时生效这一问题，相关标准既复杂又有大量未声明和未定义的情况，故需注意：  
-1. 写入对象的次数不应超过 1 次  
-2. 对象不应既被读取又被写入，除非是为了计算对象的新状态并写入对象  
+关于表达式的求值顺序，以及副作用何时生效等问题，相关标准既复杂又存在大量未声明的情况。为了避免意料之外的错误，要求表达式中的任一对象：  
+1. 被写入的次数不应超过 1 次  
+2. 不应既被读取又被写入，除非是为了计算对象的新状态而写入对象  
+3. 如果对象由 volatile 限定，被读取的次数不应超过 1 次  
   
-注意，对 volatile 对象的读取相当于更新对象的值，也是一种副作用，故：  
-1. volatile 对象在表达式中只应出现 1 次  
-2. volatile 对象不应既被读取又被写入  
+对于逻辑与、逻辑或、三元以及逗号表达式，标准明确规定了子表达式从左至右求值，左子表达式的副作用也会在右子表达式求值前生效，故子表达式之间可不受本规则限制，但子表达式本身仍受本规则限制，进一步可参见“[序列点（sequence point）](https://en.wikipedia.org/wiki/Sequence_point)”以及“[求值顺序](https://en.cppreference.com/w/cpp/language/eval_order)”等概念。  
   
 本规则是 ID\_evaluationOrderReliance 的特化。  
   
@@ -15953,28 +15934,33 @@ p->fun(p++);    // Non-compliant
 fun(a, a++);    // Non-compliant
 fun(++a, a++);  // Non-compliant
 ```
-例中 \+\+ 泛指写入操作。  
+例中表达式均不符合要求。  
   
 设 a 是值为 0 的整型变量，如下表达式：
 ```
-a = a++;        // Non-compliant
+a = a++;   // Non-compliant
 ```
-对变量 a 有两次写入，分别是增 1 和赋值为 0（子表达式 a\+\+ 的值为 0），这两次写入的次序在 C 和 C\+\+17 之前的标准中是未声明的，如果先增 1 再赋 0，a 的值最终为 0，如果先赋 0 再增 1，a 的值最终为 1，这种不确定的结果应当避免，C\+\+17 规定了右子表达式的副作用先于赋值生效，所以在 C\+\+17 之后例中表达式是无效的。  
+对变量 a 有两次写入，分别是增 1 和赋值为 0（子表达式 a\+\+ 的值为 0），这两次写入的次序在 C 和 C\+\+17 之前的标准中是未声明的，如果先增 1 再赋 0，a 的值最终为 0，如果先赋 0 再增 1，a 的值最终为 1，这种不确定的结果应当避免，C\+\+17 规定了右子表达式的副作用先于赋值生效，所以在 C\+\+17 之后该表达式是无效的。  
   
-虽然新的标准强化了求值顺序，但这种代码使人费解，很容易造成理解上的偏差，故不应使用。  
+虽然新标准强化了求值顺序，但这种代码使人费解，很容易造成理解上的偏差，故不应使用，应改为：
+```
+a++;         // Compliant, or
+a += 1;      // Compliant, or
+a = a + 1;   // Compliant
+```
+又如：
+```
+volatile int v;
+fun(v, v);        // Non-compliant
+```
+例中 volatile 对象 v 在一个表达式中被读取两次是不符合要求的。volatile 对象的值可在程序之外被改变，对 volatile 对象的读取相当于更新对象的值，也是一种副作用。  
   
-如果 a 不是 volatile 变量，应改为：
+应在简单的赋值语句中访问 volatile 对象：
 ```
-a++;            // Compliant, or
-a += 1;         // Compliant, or
-a = a + 1;      // Compliant
+volatile int v;
+int tmp = v;
+fun(tmp, tmp);    // Compliant
 ```
-如果 a 是 volatile 变量，应改为：
-```
-int tmp = a;
-a = tmp + 1;    // Compliant
-```
-对于逻辑与、逻辑或、三元以及逗号表达式，标准明确规定了子表达式从左至右求值，左子表达式的副作用也会在右子表达式求值前生效，故可不受本规则限制，但其子表达式仍需受本规则限制，进一步可参见“[序列点（sequence point）](https://en.wikipedia.org/wiki/Sequence_point)”以及“[求值顺序](https://en.cppreference.com/w/cpp/language/eval_order)”等概念。
 <br/>
 <br/>
 

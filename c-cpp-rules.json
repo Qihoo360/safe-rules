@@ -76,7 +76,7 @@
     "ID_charWCharCast": {
         "checkPoint": "不同的字符串类型之间不可直接转换",
         "level": "warning",
-        "comment": "char* 和 wchar_t* 直接转换并不进行字符集编码转换，往往意味着语言运用错误，char*、wchar_t*、char16_t* 和 char32_t* 之间均不可直接转换。",
+        "comment": "char* 和 wchar_t* 直接转换并不进行字符集转换，属于语言运用错误，char*、wchar_t*、char16_t* 以及 char32_t* 之间均不可直接转换。",                  
         "tag": "cast",
         "related": "ID_castNoInheritance,ID_plainBinaryChar",
         "reference": "CWE-704,SEI CERT STR38-C"
@@ -90,7 +90,7 @@
     "ID_minusOnUnsigned": {
         "checkPoint": "负号不应作用于无符号整数",
         "level": "warning",
-        "comment": "负号作用于 unsigned int、unsigned long 或 unsigned long long 等无符号整型表达式的结果仍为无符号整数，易产生意料之外的错误。",
+        "comment": "负号作用于 unsigned int、unsigned long、unsigned long long 等无符号整型表达式的结果仍为无符号整数，易产生意料之外的错误。",                  
         "tag": "expression",
         "config": [
             "allowSmallUnsignedTypes: 是否允许负号作用于 unsigned char、unsigned short 等无符号整型表达式"
@@ -195,7 +195,7 @@
     "ID_invalidParamArraySize": {
         "checkPoint": "不应将数组作为函数的形式参数",
         "level": "warning",
-        "comment": "被声明为数组的形式参数等同于指针，第一个维度的大小声明对传入的实参起不到限制作用。",
+        "comment": "被声明为数组的形式参数等同于指针，第一个维度的大小声明对传入的实际参数起不到限制作用。",
         "tag": "declaration",
         "standard": "ISO/IEC 9899:1999 6.7.5.3(7),ISO/IEC 9899:2011 6.7.6.3(7),ISO/IEC 14882:2003 13.1(3),ISO/IEC 14882:2011 13.1(3)",
         "reference": "C++ Core Guidelines I.13,C++ Core Guidelines R.14,MISRA C++ 2008 5-2-12"
@@ -218,7 +218,7 @@
     "ID_functionSpecialization": {
         "checkPoint": "函数模板不应被特化",
         "level": "warning",
-        "comment": "特化的函数模板不参与重载函数的选取，易导致意类之外的错误。",
+        "comment": "特化的函数模板不参与重载函数的选取，易导致意料之外的错误。",
         "tag": "function",
         "reference": "C++ Core Guidelines T.144,MISRA C++ 2008 14-8-1"
         },
@@ -871,7 +871,7 @@
     "ID_nonStdCopyAssignmentParam": {
         "checkPoint": "拷贝赋值运算符的参数应为同类对象的 const 左值引用",
         "level": "warning",
-        "comment": "拷贝赋值运算符的参数不应按值传递，否则会产生不必要的复制开销以及“对象切片”等问题。",
+        "comment": "拷贝赋值运算符应专注于复制参数的数据，且参数不应按值传递，否则会产生不必要的复制开销以及“对象切片”等问题。",
         "tag": "declaration",
         "standard": "ISO/IEC 14882:2003 12.8(9),ISO/IEC 14882:2011 12.8(17)",
         "related": "ID_illCopyConstructorParam,ID_nonConstUnmodified",
@@ -1370,7 +1370,7 @@
     "ID_objectSlicing": {
         "checkPoint": "避免对象切片",
         "level": "warning",
-        "comment": "将派生类对象复制为基类对象的行为称为“对象切片”，基类对象不再持有派生类的属性，多态性也不再有效，意味着某种精度上的损失，往往会造成意料之外的错误。",
+        "comment": "将派生类对象复制为基类对象的行为称为“对象切片（object slicing）”，基类对象不再持有派生类的属性，不再遵循多态机制，意味着某种精度上的损失，往往会造成意料之外的错误。",
         "tag": "expression",
         "related": "ID_paramMayBeSlicing",
         "reference": "C++ Core Guidelines ES.63,C++ Core Guidelines C.145,SEI CERT OOP51-CPP"
@@ -1603,7 +1603,7 @@
     "ID_confusingAssignment": {
         "checkPoint": "在表达式中不应多次读写同一对象",
         "level": "warning",
-        "comment": "在表达式中多次引用并修改同一对象，很可能会因为非预期的求值顺序而产生错误的结果。",
+        "comment": "如果在表达式中多次读写同一对象，很可能会因为非预期的求值顺序而产生错误的结果。",
         "tag": "expression",
         "related": "ID_evaluationOrderReliance",
         "standard": "ISO/IEC 9899:1999 6.5(2)-undefined,ISO/IEC 9899:1999 Annex C,ISO/IEC 9899:2011 6.5(2)-undefined,ISO/IEC 9899:2011 Annex C,ISO/IEC 14882:2003 5(4)-unspecified,ISO/IEC 14882:2011 1.9(15)-undefined,ISO/IEC 14882:2011 5.17(1),ISO/IEC 14882:2017 8.18(1)",
@@ -1670,9 +1670,9 @@
         "reference": "MISRA C 2004 12.4,MISRA C 2012 13.5,MISRA C++ 2008 5-14-1"
         },
     "ID_evaluationOrderReliance": {
-        "checkPoint": "避免依赖特定的子表达式求值顺序",
+        "checkPoint": "不可依赖未声明的求值顺序",
         "level": "warning",
-        "comment": "不同的求值顺序不应产生不同的结果，否则极易导致意料之外的错误，也会降低代码的可移植性。",
+        "comment": "依赖未声明的求值顺序会导致意料之外的错误，也会降低代码的可移植性。",
         "tag": "expression",
         "related": "ID_confusingAssignment",
         "standard": "ISO/IEC 9899:1999 5.1.2.3(2),ISO/IEC 9899:1999 Annex C,ISO/IEC 9899:2011 5.1.2.3(3),ISO/IEC 9899:2011 Annex C",
@@ -1796,7 +1796,7 @@
     "ID_unsuitableMove": {
         "checkPoint": "合理使用 std::move",
         "level": "warning",
-        "comment": "std::move 的参数应为左值，返回值应直接作为接口的参数，除此之外的应用价值有限，且易产生错误。",
+        "comment": "std::move 的参数应为左值，返回值应直接作为接口的参数，除此之外的使用方式价值有限，且易产生错误。",
         "tag": "expression",
         "standard": "ISO/IEC 14882:2011 20.2.3(6),ISO/IEC 14882:2017 23.2.5(5)",
         "reference": "C++ Core Guidelines ES.56,C++ Core Guidelines F.18,C++ Core Guidelines F.48"
@@ -2016,7 +2016,7 @@
     "ID_returnSameConst": {
         "checkPoint": "被返回的表达式不应为相同的常量",
         "level": "warning",
-        "comment": "函数所有返回值均为相同的常量是没有意义的。",
+        "comment": "被返回的表达式均为相同的常量是没有意义的。",
         "tag": "function"
         },
     "ID_returnOdd": {
@@ -2160,25 +2160,25 @@
     "ID_overloadLogicOperator": {
         "checkPoint": "不应重载“逻辑与”和“逻辑或”运算符",
         "level": "suggestion",
-        "comment": "对“逻辑与”、“逻辑或”等运算符的重载会影响效率，甚至造成不符合预期的结果。",
+        "comment": "重载“逻辑与”、“逻辑或”等运算符会影响效率，甚至会导致不符合预期的结果。",
         "tag": "declaration",
         "related": "ID_overloadComma",
-        "standard": "ISO/IEC 14882:2003 5.2.2(8)-unspecified,ISO/IEC 14882:2011 5.2.2(8)",
+        "standard": "ISO/IEC 14882:2003 5.2.2(8)-unspecified,ISO/IEC 14882:2011 5.2.2(8),ISO/IEC 14882:2017 16.3.1.2(2)",
         "reference": "MISRA C++ 2008 5-2-11"
         },
     "ID_overloadComma": {
         "checkPoint": "不应重载逗号运算符",
         "level": "suggestion",
-        "comment": "逗号表达式意在从左至右依次执行各子表达式，但重载逗号运算符会打破这一规则，易造成意料之外的结果。",
+        "comment": "对于重载的逗号运算符，C++17 之前的标准未声明其子表达式的求值顺序，应避免重载逗号运算符以确保代码的兼容性和正确性。",
         "tag": "declaration",
         "related": "ID_overloadLogicOperator",
-        "standard": "ISO/IEC 14882:2003 5.2.2(8)-unspecified,ISO/IEC 14882:2011 5.2.2(8)",
+        "standard": "ISO/IEC 14882:2003 5.2.2(8)-unspecified,ISO/IEC 14882:2011 5.2.2(8),ISO/IEC 14882:2017 16.3.1.2(2)",
         "reference": "MISRA C++ 2008 5-2-11"
         },
     "ID_overloadAddressOperator": {
         "checkPoint": "不应重载取地址运算符",
         "level": "suggestion",
-        "comment": "取地址运算符（一元 & 运算符），重载之后可以返回任意地址，极易误用。",
+        "comment": "重载的取地址运算符可以返回任意类型的数据，易被误用，非智能指针相关的基础类不应重载取地址运算符。",
         "tag": "declaration",
         "standard": "ISO/IEC 14882:2003 5.3.1(4)-undefined,ISO/IEC 14882:2011 5.3.1(5)-undefined",
         "reference": "C++ Core Guidelines C.166,MISRA C++ 2008 5-3-3"
@@ -3200,7 +3200,7 @@
     "ID_illMemberAccess": {
         "checkPoint": "在面向构造或析构函数体的 catch 子句中不可访问非静态成员",
         "level": "error",
-        "comment": "当流程进入面向构造或析构函数体的 catch 子句时，非静态成员的生命周期已经结束，如果继续访问会导致标准未定义的行为。",
+        "comment": "当流程进入面向构造或析构函数体的 catch 子句时，非静态成员的生命周期已结束，如果继续访问会导致标准未定义的行为。",
         "tag": "function",
         "standard": "ISO/IEC 14882:2003 15.3(10)-undefined,ISO/IEC 14882:2011 15.3(10)-undefined",
         "reference": "MISRA C++ 2008 15-3-3,SEI CERT ERR53-CPP"
