@@ -354,7 +354,7 @@
 <span id="__function">**[8. Function](#function)**</span>
   - [R8.1 main 函数的返回类型只应为 int](#mainreturnsnonint)
   - [R8.2 main 函数不应被调用、重载或被 inline、static 等关键字限定](#illformedmain)
-  - [R8.3 在头文件中不应实现函数或定义对象](#definedinheader)
+  - [R8.3 不应在头文件中实现函数或定义对象](#definedinheader)
   - [R8.4 函数的参数名称在声明处和实现处应保持一致](#inconsistentparamname)
   - [R8.5 多态类的对象作为参数时不应采用值传递的方式](#parammaybeslicing)
   - [R8.6 不应存在未被使用的具名形式参数](#paramnotused)
@@ -392,7 +392,7 @@
   - [R8.38 函数的行数应在规定范围之内](#toomanylines)
   - [R8.39 lambda 表达式的行数应在规定范围之内](#toomanylambdalines)
   - [R8.40 函数参数的数量应在规定范围之内](#toomanyparams)
-  - [R8.41 不应定义过于复杂的内联函数](#complexinlinefunction)
+  - [R8.41 不应定义复杂的内联函数](#complexinlinefunction)
   - [R8.42 避免函数调用自身](#recursion)
   - [R8.43 作用域及类型嵌套不应过深](#nestedtoodeep)
   - [R8.44 汇编代码不应与普通代码混合](#mixedasm)
@@ -610,7 +610,7 @@
   - [R14.12 指针不应与 '\\0' 等字符常量比较大小](#oddptrcharcomparison)
   - [R14.13 指针与空指针不应比较大小](#oddptrzerocomparison)
   - [R14.14 不应判断 this 指针是否为空](#this_zerocomparison)
-  - [R14.15 析构函数中不可使用 delete this](#this_deleteindestructor)
+  - [R14.15 不可递归调用析构函数](#this_deleteindestructor)
   - [R14.16 禁用 delete this](#this_forbiddeletethis)
   - [R14.17 判断 dynamic\_cast 转换是否成功](#nullderefdynamiccast)
   - [R14.18 指针在释放后应置空](#missingresetnull)
@@ -1785,15 +1785,6 @@ class B {
 class C {
     void* operator new(size_t);   // Compliant
     void operator delete(void*);   // Compliant
-};
-```
-placement\-new 与 placement\-delete 也应成对提供：
-```
-class D {
-    void* operator new(size_t, bool);   // Non-compliant
-
-    void* operator new(size_t, int, int);   // Compliant
-    void operator delete(void*, int, int);   // Compliant
 };
 ```
 <br/>
@@ -7288,35 +7279,21 @@ ID_inlineRedundant &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: declaration suggestion
 
 <hr/>
 
-由 constexpr 关键字限定的函数已经相当于被声明为 inline，不应再重复声明。  
+在类定义中实现的函数、由 constexpr 关键字限定的函数已是内联函数，不需要显式声明 inline 关键字。  
   
 示例：
 ```
-inline constexpr int foo(int n) {  // Non-compliant, ‘inline’ is redundant
-    return n + 1;
-}
-```
-应改为：
-```
-constexpr int foo(int n) {  // Compliant
-    return n + 1;
-}
-```
-另外，在类声明中实现的函数也相当于被声明为 inline，不应重复声明：
-```
-class A {
-    ....
-
-public:
+struct T {
     inline int foo() {  // Non-compliant, ‘inline’ is redundant
-        return 123;
-    }
-
-    int bar() {         // Compliant
-        return 456;
+        return 1;
     }
 };
+
+inline constexpr int bar() {  // Non-compliant, ‘inline’ is redundant
+    return 0;
+}
 ```
+例中 inline 关键字均是多余的，应保持代码简洁，去掉多余的关键字。
 <br/>
 <br/>
 
@@ -9600,6 +9577,7 @@ ISO/IEC 9899:2011 6.7.1(7)-undefined
 <br/>
 
 #### 参考
+C++ Core Guidelines SF.3  
 MISRA C++ 2008 3-1-2  
 MISRA C++ 2008 3-3-1  
 <br/>
@@ -11164,17 +11142,17 @@ ISO/IEC 14882:2017 6.6.1(2 3)-implementation
 <br/>
 <br/>
 
-### <span id="definedinheader">▌R8.3 在头文件中不应实现函数或定义对象</span>
+### <span id="definedinheader">▌R8.3 不应在头文件中实现函数或定义对象</span>
 
 ID_definedInHeader &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
 <hr/>
 
-头文件中的函数或对象会被引入不同的翻译单元（translate\-unit）造成编译冲突。  
+在头文件中定义的函数或对象会被引入不同的翻译单元（translate\-unit）造成编译冲突。  
   
-常量对象和内联、模板函数可不受本规则约束，静态对象和静态函数也不受本规则约束，但受规则 ID\_staticInHeader 限制。  
+定义为常量、内联、模板的函数或对象可不受本规则约束，静态函数或对象也不受本规则约束，但受规则 ID\_staticInHeader 限制。  
   
-头文件是项目文档的重要组成部分，有必要保持头文件简洁清晰，头文件的主要内容应是类型或接口的声明。除非函数很简短，否则不建议在头文件中内联实现，大段的函数实现会影响头文件的可读性。  
+头文件是项目文档的重要组成部分，有必要保持头文件简洁清晰，头文件的主要内容应是类型或接口的声明。除非函数很简短，否则也不建议在头文件中内联实现，大段的函数实现会影响头文件的可读性。  
   
 示例：
 ```
@@ -11200,7 +11178,7 @@ T A<T>::foo(T& p) {   // Implementation
     ....
 }
 ```
-将模板函数的实现移入 A.imp 文件中，再由主头文件包含即可，A.imp 文件称为模板实现文件。
+将模板函数的实现移入 .imp 文件中，再由主头文件包含即可，.imp 文件称为模板实现文件。
 <br/>
 <br/>
 
@@ -12881,33 +12859,43 @@ C++ Core Guidelines I.23
 <br/>
 <br/>
 
-### <span id="complexinlinefunction">▌R8.41 不应定义过于复杂的内联函数</span>
+### <span id="complexinlinefunction">▌R8.41 不应定义复杂的内联函数</span>
 
 ID_complexInlineFunction &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: function suggestion
 
 <hr/>
 
-是否对函数进行内联优化由实现定义，当函数执行的开销远大于调用的开销时，将函数定义为内联函数是没有意义的。  
+是否对函数进行内联优化由实现定义，当函数执行的开销远大于调用的开销时，不会进行内联优化。  
   
 不适合将函数定义为内联函数的情况：  
- - 语句数量超过指定限制  
+ - 语句数量过多  
  - 存在循环或异常处理语句  
  - 存在 switch 分枝语句  
- - 函数存在递归实现  
+ - 存在递归调用  
   
-建议内联函数的实现不要超过 3 个语句。
+建议内联函数的实现不超过 3 个语句。  
+  
+内联函数应在头文件中定义，但也应保持头文件简洁，可参见 ID\_definedInHeader 的进一步讨论。  
+  
+内联函数可以在多个翻译单元中重复定义同一实例，有时需要利用这种特性将函数在头文件中实现，以便将库以头文件的形式发布，在这种情况下应在 .imp 等特殊头文件中实现内联函数，.imp 等文件中的内联函数可不受本规则限制。
 <br/>
 <br/>
 
 #### 配置
-maxInlineStatementsCount：内联函数语句数量上限，超过则报出  
+maxStatementsCount：内联函数语句数量上限，超过则报出  
+excludedFileExts：不受限制的文件扩展名  
+<br/>
+
+#### 相关
+ID_definedInHeader  
 <br/>
 
 #### 依据
 ISO/IEC 9899:1999 6.7.4(5)-implementation  
 ISO/IEC 9899:2011 6.7.4(6)-implementation  
-ISO/IEC 14882:2003 7.1.2(2)-implementation  
-ISO/IEC 14882:2011 7.1.2(2)-implementation  
+ISO/IEC 14882:2003 7.1.2(2 4)-implementation  
+ISO/IEC 14882:2011 7.1.2(2 4)-implementation  
+ISO/IEC 14882:2017 10.1.6(2 3)-implementation  
 <br/>
 
 #### 参考
@@ -12947,6 +12935,7 @@ size_t bar(size_t n) {
 <br/>
 
 #### 参考
+CWE-674  
 MISRA C 2012 17.2  
 MISRA C++ 2008 7-5-4  
 <br/>
@@ -15916,7 +15905,7 @@ ID_confusingAssignment &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 2. 不应既被读取又被写入，除非是为了计算对象的新状态而写入对象  
 3. 如果对象由 volatile 限定，被读取的次数不应超过 1 次  
   
-对于逻辑与、逻辑或、三元以及逗号表达式，标准明确规定了子表达式从左至右求值，左子表达式的副作用也会在右子表达式求值前生效，故子表达式之间可不受本规则限制，但子表达式本身仍受本规则限制，进一步可参见“[序列点（sequence point）](https://en.wikipedia.org/wiki/Sequence_point)”以及“[求值顺序](https://en.cppreference.com/w/cpp/language/eval_order)”等概念。  
+对于逻辑与、逻辑或、三元以及逗号表达式，标准明确规定了子表达式从左至右求值，左子表达式的副作用也会在右子表达式求值前生效，所以相关子表达式之间可不受本规则限制，但子表达式本身仍受本规则限制，进一步可参见“[序列点（sequence point）](https://en.wikipedia.org/wiki/Sequence_point)”以及“[求值顺序](https://en.cppreference.com/w/cpp/language/eval_order)”等概念。  
   
 本规则是 ID\_evaluationOrderReliance 的特化。  
   
@@ -15950,15 +15939,15 @@ a = a + 1;   // Compliant
 ```
 又如：
 ```
-volatile int v;
-fun(v, v);        // Non-compliant
+volatile int* v = DEV;
+fun(*v, *v);            // Non-compliant
 ```
-例中 volatile 对象 v 在一个表达式中被读取两次是不符合要求的。volatile 对象的值可在程序之外被改变，对 volatile 对象的读取相当于更新对象的值，也是一种副作用。  
+例中 volatile 对象 \*v 在一个表达式中被读取两次是不符合要求的。volatile 对象的值可在程序之外被改变，对 volatile 对象的读取相当于更新对象的值，也是一种副作用。  
   
 应在简单的赋值语句中访问 volatile 对象：
 ```
-volatile int v;
-int tmp = v;
+volatile int* v = DEV;
+int tmp = *v;
 fun(tmp, tmp);    // Compliant
 ```
 <br/>
@@ -17128,37 +17117,31 @@ ID_explicitDtorCall &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: expression suggestion
 
 <hr/>
 
-显式调用析构函数会提前结束对象的生命周期，之后对该对象的任何访问都会导致标准未定义的行为。  
+何时调用析构函数应由语言的底层机制决定，程序不宜显式调用析构函数。  
   
-对于在栈上定义的对象，流程离开相关作用域时会再次自动调用其析构函数；对于动态创建的对象，用 delete 回收时也会调用其析构函数，使对象在生命周期之外被访问，导致标准未定义的行为。   
+显式调用析构函数后，应释放对象的内存空间并舍弃对象，或者重新构造对象，否则访问对象的任何非静态成员都会导致标准未定义的行为。显式调用析构函数会提前结束对象的生命周期，易被误用，不应作为惯用方法。  
   
 示例：
 ```
 class A {
     int* p = new int[123];
-
 public:
-   ~A() {
-        delete[] p;
-    }
+   ~A() { delete[] p; }
 };
 
 void foo() {
     A a;
     a.~A();   // Non-compliant, explicitly call the destructor
-}             // ~A() twice called, crash...
+}             // ~A() twice called, crash
 ```
 例中对象 a 的析构函数被显式调用，foo 返回前会再次调用析构函数，造成内存被重复释放。应去掉显式调用，由类提供提前释放资源的方法，并保证资源不会被重复释放。  
   
-例外：
+显式调用析构函数往往需要与“[placement new](https://en.cppreference.com/w/cpp/language/new#Placement_new)”配合使用，如：
 ```
-char* p = new char[sizeof(Type)];
-Type* q = new (p) Type;
-....
-q->~Type();   // Compliant, used with replacement new
-delete[] p;
+alignas(A) byte buf[sizeof(A)];
+A* p = new(buf) A;  // Place an object of ‘A’ into the pre-allocated address ‘buf’
+p->~A();            // OK, used with the placement new
 ```
-与 replacement new 配合的显式析构是实现容器或内存池的常规手段，可不受本规则约束。
 <br/>
 <br/>
 
@@ -17169,6 +17152,8 @@ ID_missingResetNull
 #### 依据
 ISO/IEC 14882:2003 12.4(14)-undefined  
 ISO/IEC 14882:2011 12.4(15)-undefined  
+ISO/IEC 14882:2017 15.4(15)  
+ISO/IEC 14882:2017 15.4(16)-undefined  
 <br/>
 <br/>
 
@@ -18156,7 +18141,7 @@ ID_oddNew &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
 new 表达式只应作为“=”的直接右子表达式，或直接作为参数，其他形式均有问题。  
   
-本规则对 replacement new 不作要求。  
+本规则对“[placement new](https://en.cppreference.com/w/cpp/language/new#Placement_new)”表达式不作要求。  
   
 示例：
 ```
@@ -18172,7 +18157,7 @@ if (new int[10]) {            // Non-compliant, memory leak
     ....
 }
 ```
-这种问题多数是由笔误或错误的宏展开造成的。
+这些问题多数是由笔误或错误的宏展开造成的。
 <br/>
 <br/>
 
@@ -20627,23 +20612,35 @@ CWE-1025
 <br/>
 <br/>
 
-### <span id="this_deleteindestructor">▌R14.15 析构函数中不可使用 delete this</span>
+### <span id="this_deleteindestructor">▌R14.15 不可递归调用析构函数</span>
 
 ID_this_deleteInDestructor &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: pointer error
 
 <hr/>
 
-析构函数中不可使用 delete this，否则造成无限递归。  
+析构函数开始执行时，对象整体已不存在，再次调用析构函数会导致标准未定义的行为。   
   
 示例：
 ```
 struct A {
     ~A() {
-        delete this;  // Non-compliant
+        delete this;  // Non-compliant, undefined behavior
     }
 };
 ```
+在析构函数中调用 delete this 会再次调用析构函数，导致未定义的行为。
 <br/>
+<br/>
+
+#### 相关
+ID_recursion  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 3.8(1)  
+ISO/IEC 14882:2003 12.4(14)-undefined  
+ISO/IEC 14882:2011 3.8(1)  
+ISO/IEC 14882:2011 12.4(15)-undefined  
 <br/>
 
 #### 参考
@@ -20658,8 +20655,8 @@ ID_this_forbidDeleteThis &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: pointer sugge
 <hr/>
 
 使用 delete this 须保证：  
- - 对象是用 new 创建的，但不能用 new\[\] 或 replacement new  
- - 使用 delete this 之后不能再访问相关非静态成员  
+ - 对象是用 new 创建的，但不能用 new\[\]  
+ - 使用 delete this 后，除非重新构造对象，否则不能再访问相关非静态成员  
  - 不能在析构函数中使用 delete this  
   
 由于限制条件易被打破，对框架以及语言工具之外的业务类或算法类代码建议禁用 delete this。  
@@ -20682,6 +20679,10 @@ p->foo();              // Memory is still leaking
 ```
 如果有必要使用 delete this，应将类的析构函数设为非 public，使对象只能通过 new 创建，并确保执行 delete this 后 this 指针再也不会被访问，而且不能用 new\[\] 创建数组，否则仍然存在内存泄漏等问题。
 <br/>
+<br/>
+
+#### 参考
+CWE-1082  
 <br/>
 <br/>
 

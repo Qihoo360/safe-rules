@@ -1720,9 +1720,9 @@
     "ID_explicitDtorCall": {
         "checkPoint": "避免显式调用析构函数",
         "level": "suggestion",
-        "comment": "显式调用析构函数会提前结束对象的生命周期，之后对该对象的任何访问都会导致标准未定义的行为。",
+        "comment": "何时调用析构函数应由语言的底层机制决定，程序不宜显式调用析构函数。",
         "tag": "expression",
-        "standard": "ISO/IEC 14882:2003 12.4(14)-undefined,ISO/IEC 14882:2011 12.4(15)-undefined",
+        "standard": "ISO/IEC 14882:2003 12.4(14)-undefined,ISO/IEC 14882:2011 12.4(15)-undefined,ISO/IEC 14882:2017 15.4(15),ISO/IEC 14882:2017 15.4(16)-undefined",
         "related": "ID_missingResetNull"
         },
     "ID_fixedAddrToPointer": {
@@ -1841,7 +1841,7 @@
         "level": "warning",
         "comment": "函数直接或间接调用自身可实现递归算法，但调用栈的消耗情况不够直观，易导致栈溢出等错误。",
         "tag": "function",
-        "reference": "MISRA C 2012 17.2,MISRA C++ 2008 7-5-4"
+        "reference": "CWE-674,MISRA C 2012 17.2,MISRA C++ 2008 7-5-4"
         },
     "ID_disorderedInitialization": {
         "checkPoint": "成员初始化应遵循声明的顺序",
@@ -2117,21 +2117,23 @@
         "reference": "MISRA C++ 2008 8-4-2"
         },
     "ID_definedInHeader": {
-        "checkPoint": "在头文件中不应实现函数或定义对象",
+        "checkPoint": "不应在头文件中实现函数或定义对象",
         "level": "warning",
-        "comment": "头文件中的函数或对象会被引入不同的翻译单元（translate-unit）造成编译冲突。",
+        "comment": "在头文件中定义的函数或对象会被引入不同的翻译单元（translate-unit）造成编译冲突。",
         "tag": "function",
         "reference": "C++ Core Guidelines SF.2"
         },
     "ID_complexInlineFunction": {
-        "checkPoint": "不应定义过于复杂的内联函数",
+        "checkPoint": "不应定义复杂的内联函数",
         "level": "suggestion",
-        "comment": "是否对函数进行内联优化由实现定义，当函数执行的开销远大于调用的开销时，将函数定义为内联函数是没有意义的。",
+        "comment": "是否对函数进行内联优化由实现定义，当函数执行的开销远大于调用的开销时，不会进行内联优化。",
         "config": [
-            "maxInlineStatementsCount: 内联函数语句数量上限，超过则报出"
+            "maxStatementsCount: 内联函数语句数量上限，超过则报出",
+            "excludedFileExts: 不受限制的文件扩展名"
             ],
         "tag": "function",
-        "standard": "ISO/IEC 9899:1999 6.7.4(5)-implementation,ISO/IEC 9899:2011 6.7.4(6)-implementation,ISO/IEC 14882:2003 7.1.2(2)-implementation,ISO/IEC 14882:2011 7.1.2(2)-implementation",
+        "related": "ID_definedInHeader",
+        "standard": "ISO/IEC 9899:1999 6.7.4(5)-implementation,ISO/IEC 9899:2011 6.7.4(6)-implementation,ISO/IEC 14882:2003 7.1.2(2 4)-implementation,ISO/IEC 14882:2011 7.1.2(2 4)-implementation,ISO/IEC 14882:2017 10.1.6(2 3)-implementation",
         "reference": "C++ Core Guidelines F.5"
         },
     "ID_nonVirtualOverride": {
@@ -3213,17 +3215,20 @@
         "reference": "C++ Core Guidelines C.62"
         },
     "ID_this_deleteInDestructor": {
-        "checkPoint": "析构函数中不可使用 delete this",
+        "checkPoint": "不可递归调用析构函数",
         "level": "error",
-        "comment": "析构函数中不可使用 delete this，否则造成无限递归。",
+        "comment": "析构函数开始执行时，对象整体已不存在，再次调用析构函数会导致标准未定义的行为。 ",
         "tag": "pointer",
+        "standard": "ISO/IEC 14882:2003 3.8(1),ISO/IEC 14882:2003 12.4(14)-undefined,ISO/IEC 14882:2011 3.8(1),ISO/IEC 14882:2011 12.4(15)-undefined",
+        "related": "ID_recursion",
         "reference": "CWE-674"
         },
     "ID_this_forbidDeleteThis": {
         "checkPoint": "禁用 delete this",
         "level": "suggestion",
         "comment": "由于限制条件易被打破，对框架以及语言工具之外的业务类或算法类代码建议禁用 delete this。",
-        "tag": "pointer"
+        "tag": "pointer",
+        "reference": "CWE-1082"
         },
     "ID_deprecatedSpecifier": {
         "checkPoint": "不应使用已过时的关键字",
@@ -3235,7 +3240,7 @@
     "ID_inlineRedundant": {
         "checkPoint": "不应使用多余的 inline 关键字",
         "level": "suggestion",
-        "comment": "由 constexpr 关键字限定的函数已经相当于被声明为 inline，不应再重复声明。",
+        "comment": "在类定义中实现的函数、由 constexpr 关键字限定的函数已是内联函数，不需要显式声明 inline 关键字。",
         "standard": "ISO/IEC 14882:2003 7.1.2(3),ISO/IEC 14882:2011 7.1.2(3),ISO/IEC 14882:2011 7.1.5(2)",
         "tag": "declaration"
         },
@@ -3909,7 +3914,7 @@
         "tag": "declaration",
         "related": "ID_staticInHeader,ID_anonymousNamespaceInHeader",
         "standard": "ISO/IEC 9899:1999 6.7.1(5)-undefined,ISO/IEC 9899:2011 6.7.1(7)-undefined",
-        "reference": "MISRA C++ 2008 3-1-2,MISRA C++ 2008 3-3-1"
+        "reference": "C++ Core Guidelines SF.3,MISRA C++ 2008 3-1-2,MISRA C++ 2008 3-3-1"
         },
     "ID_missingStatic": {
         "checkPoint": "声明和定义内部链接的对象和函数时均应使用 static 关键字",
