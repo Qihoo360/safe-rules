@@ -110,7 +110,7 @@
   - [R2.9 对象申请的资源应在析构函数中释放](#memberdeallocation)
   - [R2.10 对象被移动后应重置状态再使用](#useaftermove)
   - [R2.11 构造函数抛出异常需避免相关资源泄漏](#throwinconstructor)
-  - [R2.12 资源不可被重复释放](#doublefree)
+  - [R2.12 不可重复释放资源](#doublefree)
   - [R2.13 用 delete 释放对象需保证其类型完整](#deleteincompletetype)
   - [R2.14 用 delete 释放对象不可多写中括号](#excessivedelete)
   - [R2.15 用 delete 释放数组不可漏写中括号](#insufficientdelete)
@@ -579,7 +579,7 @@
   - [R12.13 避免转换指向数组的指针](#arraypointercast)
   - [R12.14 避免转换函数指针](#functionpointercast)
   - [R12.15 向下动态类型转换应使用 dynamic\_cast](#nondynamicdowncast)
-  - [R12.16 对 new 表达式不应进行类型转换](#oddnewcast)
+  - [R12.16 不应转换 new 表达式的类型](#oddnewcast)
   - [R12.17 不应存在多余的类型转换](#redundantcast)
   - [R12.18 可用其他方式完成的转换不应使用 reinterpret\_cast](#unsuitablereinterpretcast)
   - [R12.19 合理使用 reinterpret\_cast](#forbidreinterpretcast)
@@ -613,7 +613,7 @@
   - [R14.15 不可递归调用析构函数](#this_deleteindestructor)
   - [R14.16 禁用 delete this](#this_forbiddeletethis)
   - [R14.17 判断 dynamic\_cast 转换是否成功](#nullderefdynamiccast)
-  - [R14.18 指针在释放后应置空](#missingresetnull)
+  - [R14.18 释放指针后应将指针赋值为空指针](#missingresetnull)
 <br/>
 
 <span id="__interruption">**[15. Interruption](#interruption)**</span>
@@ -1054,6 +1054,7 @@ void bar() {
 #### 参考
 CWE-326  
 CWE-327  
+SEI CERT MSC25-C  
 <br/>
 <br/>
 
@@ -1634,6 +1635,7 @@ ISO/IEC 9899:2011 7.21.3(4)
 CWE-672  
 CWE-908  
 SEI CERT FIO46-C  
+SEI CERT MEM30-C  
 SEI CERT EXP53-CPP  
 <br/>
 <br/>
@@ -2113,13 +2115,15 @@ ISO/IEC 14882:2017 8.3.4(21)
 <br/>
 <br/>
 
-### <span id="doublefree">▌R2.12 资源不可被重复释放</span>
+### <span id="doublefree">▌R2.12 不可重复释放资源</span>
 
 ID_doubleFree &emsp;&emsp;&emsp;&emsp;&nbsp; :drop_of_blood: resource error
 
 <hr/>
 
-重复释放资源属于逻辑错误，导致标准未定义的行为。  
+重复释放资源会导致标准未定义的行为。  
+  
+由于多种原因，资源管理系统难以甚至无法预先判断资源是否已被回收，一旦重复释放资源，可能会直接破坏资源管理系统的数据结构，导致不可预期的错误。  
   
 示例：
 ```
@@ -2129,10 +2133,14 @@ void foo(const char* path) {
         ....
         fclose(p);
     }
-    fclose(p);  // Non-compliant
+    fclose(p);  // Non-compliant, closed twice, undefined behavior
 }
 ```
 <br/>
+<br/>
+
+#### 相关
+ID_missingResetNull  
 <br/>
 
 #### 依据
@@ -2144,6 +2152,7 @@ ISO/IEC 14882:2011 3.7.4.2(4)-undefined
 
 #### 参考
 CWE-415  
+SEI CERT MEM00-C  
 <br/>
 <br/>
 
@@ -4041,6 +4050,10 @@ ID_warningDisabled &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: precompile suggestion
 #### 相关
 ID_warningDefault  
 <br/>
+
+#### 参考
+CWE-1127  
+<br/>
 <br/>
 
 ### <span id="warningdefault">▌R3.4.9 在高级别的警告设置下编译</span>
@@ -4946,9 +4959,11 @@ ID_nonPrivateData &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: type suggestion
 
 <hr/>
 
-类的数据成员均应设为 private，对外统一由成员函数提供访问方法，且应避免返回 private 成员的非常量引用或指针。  
+类的数据成员均应设为 private，统一由成员函数提供访问方法，并避免返回数据成员的非常量引用或指针。  
   
 将类的所有接口都实现为成员函数，由成员函数按指定逻辑读写数据，以便保证有效地改变对象状态。良好的接口设计会对代码的职责进行合理划分，显著提升可维护性。理想状态下，当有错误需要修正或有功能需要调整时，只改动相关接口的实现即可，调用接口的代码不需要改动，从而将改动降到最低。这种设计的基础便是将数据设为 private，只能由本类的成员函数访问，否则数据可被各个模块随意读写，当有一处需要改动时，很难控制其影响范围。  
+  
+另外，充分隐藏数据的内部细节也是重要的安全保障，可以有效避免攻击者窃取数据或引发程序的意外行为。  
   
 常量数据成员不可被改变，所以可不受本规则约束。  
   
@@ -4986,6 +5001,7 @@ ID_mixPublicPrivateData
 <br/>
 
 #### 参考
+CWE-1061  
 MISRA C++ 2008 11-0-1  
 <br/>
 <br/>
@@ -5782,6 +5798,10 @@ union U
 #### 配置
 maxClassFieldsCount：类数据成员的数量上限，超过则报出  
 maxUnionFieldsCount：联合体数据成员的数量上限，超过则报出  
+<br/>
+
+#### 参考
+CWE-1093  
 <br/>
 <br/>
 
@@ -6626,7 +6646,9 @@ ID_duplicatedName &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: declaration suggestion
 
 <hr/>
 
-不同的代码元素使用相同的名称不利于阅读和维护。  
+不同种类或用途的代码元素具有相同的名称不利于阅读和维护。  
+  
+即使在同一作用域中，语言也允许类型和对象或函数重名，但在实际代码中应有所区分。  
   
 示例：
 ```
@@ -6642,6 +6664,10 @@ size_t x = sizeof(A);   // Which ‘A’?
 ```
 例中结构体名称 A 与枚举项 A 重名，sizeof(A) 的意义是非常令人困惑的。
 <br/>
+<br/>
+
+#### 相关
+ID_duplicatedTypeName  
 <br/>
 
 #### 参考
@@ -7884,6 +7910,7 @@ allowNoArraySizeWithInitList：是否放过带有初始化列表的数组
 MISRA C 2004 8.12  
 MISRA C 2012 8.11  
 MISRA C++ 2008 3-1-3  
+SEI CERT ARR02-C  
 <br/>
 <br/>
 
@@ -11154,6 +11181,8 @@ ID_definedInHeader &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
   
 头文件是项目文档的重要组成部分，有必要保持头文件简洁清晰，头文件的主要内容应是类型或接口的声明。除非函数很简短，否则也不建议在头文件中内联实现，大段的函数实现会影响头文件的可读性。  
   
+注意，当头文件中的函数定义，尤其是动态链接库头文件中的函数定义发生变化时，所有相关模块均需重新编译，否则会导致严重错误。在头文件中定义的函数是模块二进制接口的一部分，应合理规划以降低维护成本。  
+  
 示例：
 ```
 // In a header
@@ -11180,6 +11209,10 @@ T A<T>::foo(T& p) {   // Implementation
 ```
 将模板函数的实现移入 .imp 文件中，再由主头文件包含即可，.imp 文件称为模板实现文件。
 <br/>
+<br/>
+
+#### 相关
+ID_complexInlineFunction  
 <br/>
 
 #### 参考
@@ -11515,7 +11548,7 @@ ID_illMemberAccess &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: function error
 
 <hr/>
 
-当流程进入面向构造或析构函数体的 catch 子句时，非静态成员的生命周期已结束，如果继续访问会导致标准未定义的行为。  
+当流程进入面向构造或析构函数体的 catch 子句时，非静态成员的生命周期均已结束，如果继续访问会导致标准未定义的行为。  
   
 示例：
 ```
@@ -11536,7 +11569,7 @@ public:
     }
 };
 ```
-例中 catch 子句均面向函数体，从属于“函数 try 块（function\-try\-block）”，当流程进入 catch 子句时成员 i 的生命周期已结束，不应被访问。  
+例中 catch 子句均面向函数体，从属于“[函数 try 块（function\-try\-block）](https://en.cppreference.com/w/cpp/language/function-try-block)”，当流程进入 catch 子句时成员 i 的生命周期已结束，不应被访问。  
   
 应调整实现或将 try\-catch 语句移入函数内：
 ```
@@ -11959,6 +11992,10 @@ int baz() {
 例中局部变量 n 初始化后经由 if\-else 分枝，在其两个分枝中都被赋值，也相当于被无条件写入，但在声明处初始化是值得提倡的，故这种情况不受本规则限制。
 <br/>
 <br/>
+
+#### 参考
+CWE-563  
+<br/>
 <br/>
 
 ### <span id="missingsideeffect">▌R8.21 不应存在没有副作用的语句</span>
@@ -12080,6 +12117,7 @@ CWE-561
 MISRA C 2004 14.1  
 MISRA C 2012 2.1  
 MISRA C++ 2008 0-1-1  
+SEI CERT MSC12-C  
 <br/>
 <br/>
 
@@ -12747,6 +12785,10 @@ L100:
 #### 配置
 maxLabelCount：标签数量上限，超过则报出  
 <br/>
+
+#### 参考
+CWE-1119  
+<br/>
 <br/>
 
 ### <span id="toomanylines">▌R8.38 函数的行数应在规定范围之内</span>
@@ -12974,6 +13016,10 @@ maxInlineFunctionNestedDepth：内联函数作用域最大嵌套层数，超过�
 maxLambdaNestedDepth：函数作用域最大嵌套层数，超过则报出  
 maxTypeNestedDepth：类型最大嵌套层数，超过则报出  
 maxNamespaceNestedDepth：命名空间最大嵌套层数，超过则报出  
+<br/>
+
+#### 参考
+CWE-1124  
 <br/>
 <br/>
 
@@ -13592,6 +13638,14 @@ else {
 #### 配置
 maxElseIfCount：分枝数量上限，超过则报出  
 <br/>
+
+#### 相关
+ID_switch_tooManyCases  
+<br/>
+
+#### 参考
+CWE-1121  
+<br/>
 <br/>
 
 ### <span id="if_brace">▌R9.1.14 if 分枝中的语句应该用大括号括起来</span>
@@ -13713,6 +13767,7 @@ ID_switch_missingDefault
 #### 参考
 MISRA C 2012 15.7  
 MISRA C++ 2008 6-4-2  
+SEI CERT MSC01-C  
 <br/>
 <br/>
 
@@ -13971,6 +14026,7 @@ for (int i = 0; i < 8; i++) {
 <br/>
 
 #### 参考
+CWE-1095  
 C++ Core Guidelines ES.86  
 MISRA C 2004 13.6  
 MISRA C++ 2008 6-5-3  
@@ -14765,6 +14821,14 @@ case 1000: .... break;   // Non-compliant
 #### 配置
 maxCasesCount：分枝数量上限，超过则报出  
 <br/>
+
+#### 相关
+ID_if_tooManyElseIf  
+<br/>
+
+#### 参考
+CWE-1121  
+<br/>
 <br/>
 
 ### <span id="switch_missingdefault">▌R9.5.12 switch 语句应配有 default 分枝</span>
@@ -14805,6 +14869,7 @@ ID_if_missingEndingElse
 CWE-478  
 MISRA C 2012 16.4  
 MISRA C++ 2008 6-4-6  
+SEI CERT MSC01-C  
 <br/>
 <br/>
 
@@ -15422,6 +15487,10 @@ void baz() {
 ```
 <br/>
 <br/>
+
+#### 参考
+CWE-1164  
+<br/>
 <br/>
 
 ### <span id="jumpoutloop">▌R9.7.7 避免使用跳转语句退出循环</span>
@@ -15984,6 +16053,8 @@ ID_unexpectedPrecedence &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
 对运算符优先级的错误理解是产生逻辑错误的主要原因之一。  
   
+位运算、赋值、三元等表达式作为子表达式时，合理使用括号既能保证正确性，又能提高可读性。由于运算符的特性各不相同，较为灵活，难以用一条规则来规范，本规则集合将分开讨论，与优先级有关的规则均作为本规则的相关规则以供参考。  
+  
 示例：
 ```
 int foo(bool cond) {
@@ -15992,17 +16063,27 @@ int foo(bool cond) {
 ```
 加号的优先级大于三元运算符，但 cond 是 bool 型变量，所以这种情况十分可疑。  
   
-很可能应改为：
+应合理使用括号：
 ```
 int foo(bool cond) {
-    return 1 + (cond? 2: 3);
+    return 1 + (cond? 2: 3);  // Right
 }
 ```
 <br/>
 <br/>
 
+#### 相关
+ID_macro_expNotEnclosed  
+ID_macro_paramNotEnclosed  
+ID_illBoolOperation  
+ID_assignmentAsSubExpression  
+ID_nonPostfixSubCondition  
+ID_oddSubscripting  
+<br/>
+
 #### 参考
 CWE-783  
+C++ Core Guidelines ES.41  
 <br/>
 <br/>
 
@@ -16879,6 +16960,10 @@ void bar(Pet p) {
 ```
 <br/>
 <br/>
+
+#### 参考
+CWE-697  
+<br/>
 <br/>
 
 ### <span id="selfcomparison">▌R10.3.5 比较运算符左右子表达式不应相同</span>
@@ -17136,17 +17221,15 @@ void foo() {
 ```
 例中对象 a 的析构函数被显式调用，foo 返回前会再次调用析构函数，造成内存被重复释放。应去掉显式调用，由类提供提前释放资源的方法，并保证资源不会被重复释放。  
   
-显式调用析构函数往往需要与“[placement new](https://en.cppreference.com/w/cpp/language/new#Placement_new)”配合使用，如：
+处理专用硬件资源或开发资源管理设施时，显式析构可能是必要的，一般与“[placement new](https://en.cppreference.com/w/cpp/language/new#Placement_new)”配合使用，如：
 ```
-alignas(A) byte buf[sizeof(A)];
-A* p = new(buf) A;  // Place an object of ‘A’ into the pre-allocated address ‘buf’
-p->~A();            // OK, used with the placement new
+size_t n = sizeof(A);
+alignas(A) byte buf[n];
+A* p = new(buf) A;      // Place an object of ‘A’ into the pre-allocated ‘buf’
+p->~A();                // OK, used with the placement new
 ```
+例中 new(buf) A 在指定的内存空间中构造对象，通过这种方式构造的对象可被显式析构。
 <br/>
-<br/>
-
-#### 相关
-ID_missingResetNull  
 <br/>
 
 #### 依据
@@ -17676,6 +17759,7 @@ ISO/IEC 14882:2011 13.1(3)
 
 #### 参考
 CWE-467  
+SEI CERT ARR01-C  
 <br/>
 <br/>
 
@@ -18669,6 +18753,7 @@ ID_literal_magicString
 <br/>
 
 #### 参考
+CWE-1106  
 C++ Core Guidelines ES.45  
 <br/>
 <br/>
@@ -18712,6 +18797,7 @@ ID_literal_magicNumber
 <br/>
 
 #### 参考
+CWE-1106  
 C++ Core Guidelines ES.45  
 <br/>
 <br/>
@@ -19550,13 +19636,13 @@ MISRA C++ 2008 5-2-2
 <br/>
 <br/>
 
-### <span id="oddnewcast">▌R12.16 对 new 表达式不应进行类型转换</span>
+### <span id="oddnewcast">▌R12.16 不应转换 new 表达式的类型</span>
 
 ID_oddNewCast &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: cast warning
 
 <hr/>
 
-new 表达式本身是类型明确的，转换 new 表达式的类型也容易造成分配、访问或回收相关的错误。  
+new 表达式的类型是明确的，转换 new 表达式的类型易造成分配、访问或回收相关的错误。  
   
 示例：
 ```
@@ -20223,8 +20309,9 @@ int baz() {
 
 #### 相关
 ID_illAccess  
-ID_localAddressFlowOut  
 ID_illLifetime  
+ID_localAddressFlowOut  
+ID_missingResetNull  
 <br/>
 
 #### 依据
@@ -20233,6 +20320,7 @@ ISO/IEC 9899:2011 6.5.3.2(4)-undefined
 <br/>
 
 #### 参考
+CWE-416  
 CWE-825  
 C++ Core Guidelines ES.65  
 SEI CERT EXP54-CPP  
@@ -20727,38 +20815,35 @@ C++ Core Guidelines C.148
 <br/>
 <br/>
 
-### <span id="missingresetnull">▌R14.18 指针在释放后应置空</span>
+### <span id="missingresetnull">▌R14.18 释放指针后应将指针赋值为空指针</span>
 
 ID_missingResetNull &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: pointer suggestion
 
 <hr/>
 
-内存空间被回收后相关指针不再有效，这时应将指针设为空指针，可避免重复释放等问题，如果后续对指针有错误访问，也可使问题立即显现出来，便于修正。  
+回收资源后，应立即将指向该资源的指针赋值为空指针，以明确其状态。  
+  
+本规则是避免“重复释放”和“指针悬挂”等问题的有效措施，参见 ID\_doubleFree、ID\_danglingDeref。  
   
 示例：
 ```
-class T {
-    int* p = new int[123];
-    ....
-
+class A {
+    int* p = new int[10];
 public:
-   ~T() {
-        dealloc();
-    }
-
     void dealloc() {
         delete[] p;
-        p = nullptr;    // Good
+        p = nullptr;   // Good
     }
+   ~A() { dealloc(); }
 };
 ```
-例中 dealloc 函数释放指针 p 后将其置为空指针，如果 dealloc 函数被外界反复调用也没有问题。本规则是对“指针悬挂”等问题的有效措施，参见 ID\_danglingDeref。
+例中 dealloc 函数释放指针后将其赋值为空指针，delete、free 等接口可以接受空指针，dealloc 函数被反复调用也没有问题，即使相关接口不接受空指针，也可以使问题立即显现出来，便于修正。
 <br/>
 <br/>
 
 #### 相关
+ID_doubleFree  
 ID_danglingDeref  
-ID_explicitDtorCall  
 <br/>
 
 #### 参考

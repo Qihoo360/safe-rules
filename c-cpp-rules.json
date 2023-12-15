@@ -50,7 +50,8 @@
         "checkPoint": "不应比较非同类枚举值",
         "level": "warning",
         "comment": "比较非同类枚举值相当于比较不同类别的事物，没有逻辑意义，往往是设计缺陷或逻辑错误。",
-        "tag": "expression"
+        "tag": "expression",
+        "reference": "CWE-697"
         },
     "ID_ptrIntCast": {
         "checkPoint": "指针与整数不应相互转换",
@@ -257,7 +258,8 @@
         "config": [
             "maxLabelCount: 标签数量上限，超过则报出"
             ],
-        "tag": "function"
+        "tag": "function",
+        "reference": "CWE-1119"
         },
     "ID_memoryLeak": {
         "checkPoint": "不可失去对已分配内存的控制",
@@ -310,7 +312,7 @@
         "tag": "resource",
         "standard": "ISO/IEC 9899:1999 7.19.3(4),ISO/IEC 9899:2011 7.21.3(4)",
         "related": "ID_wildPtrDeref,ID_danglingDeref,ID_localInitialization",
-        "reference": "CWE-672,CWE-908,SEI CERT FIO46-C,SEI CERT EXP53-CPP "
+        "reference": "CWE-672,CWE-908,SEI CERT FIO46-C,SEI CERT MEM30-C,SEI CERT EXP53-CPP"
         },
     "ID_illDealloc": {
         "checkPoint": "非动态申请的资源不可被释放",
@@ -321,12 +323,13 @@
         "reference": "MISRA C 2012 22.2"
         },
     "ID_doubleFree": {
-        "checkPoint": "资源不可被重复释放",
+        "checkPoint": "不可重复释放资源",
         "level": "error",
-        "comment": "重复释放资源属于逻辑错误，导致标准未定义的行为。",
+        "comment": "重复释放资源会导致标准未定义的行为。",
         "tag": "resource",
         "standard": "ISO/IEC 9899:1999 7.20.3.2(2)-undefined,ISO/IEC 9899:2011 7.22.3.3(2)-undefined,ISO/IEC 14882:2003 3.7.3.2(4)-undefined,ISO/IEC 14882:2011 3.7.4.2(4)-undefined",
-        "reference": "CWE-415"
+        "related": "ID_missingResetNull",
+        "reference": "CWE-415,SEI CERT MEM00-C"
         },
     "ID_invalidNullCheck": {
         "checkPoint": "避免无效的空指针检查",
@@ -389,7 +392,9 @@
         "config": [
             "maxElseIfCount: 分枝数量上限，超过则报出"
             ],
-        "tag": "control"
+        "tag": "control",
+        "related": "ID_switch_tooManyCases",
+        "reference": "CWE-1121"
         },
     "ID_for_floatCounter": {
         "checkPoint": "for 循环变量不应为浮点型",
@@ -404,7 +409,7 @@
         "level": "warning",
         "comment": "用于控制循环次数的变量称为“循环变量”，为了使代码具有清晰的静态结构，循环变量只应在 for 语句的第 3 个表达式中被改变。",
         "tag": "control",
-        "reference": "C++ Core Guidelines ES.86,MISRA C 2004 13.6,MISRA C++ 2008 6-5-3"
+        "reference": "CWE-1095,C++ Core Guidelines ES.86,MISRA C 2004 13.6,MISRA C++ 2008 6-5-3"
         },
     "ID_for_counterNested": {
         "checkPoint": "嵌套的 for 语句不应使用相同的循环变量",
@@ -455,7 +460,9 @@
         "config": [
             "maxCasesCount: 分枝数量上限，超过则报出"
             ],
-        "tag": "control"
+        "tag": "control",
+        "related": "ID_if_tooManyElseIf",
+        "reference": "CWE-1121"
         },
     "ID_switch_brace": {
         "checkPoint": "switch 语句应该用大括号括起来",
@@ -612,7 +619,8 @@
             "maxClassFieldsCount: 类数据成员的数量上限，超过则报出",
             "maxUnionFieldsCount: 联合体数据成员的数量上限，超过则报出"
             ],
-        "tag": "type"
+        "tag": "type",
+        "reference": "CWE-1093"
         },
     "ID_plainNumericChar": {
         "checkPoint": "参与数值运算的 char 对象应显式声明 signed 或 unsigned",
@@ -1333,7 +1341,8 @@
         "level": "warning",
         "comment": "对运算符优先级的错误理解是产生逻辑错误的主要原因之一。",
         "tag": "expression",
-        "reference": "CWE-783"
+        "related": "ID_macro_expNotEnclosed,ID_macro_paramNotEnclosed,ID_illBoolOperation,ID_assignmentAsSubExpression,ID_nonPostfixSubCondition,ID_oddSubscripting",
+        "reference": "CWE-783,C++ Core Guidelines ES.41"
         },
     "ID_illPtrDiff": {
         "checkPoint": "不在同一数组或对象中的地址不可相减或比较大小",
@@ -1469,9 +1478,9 @@
         "related": "ID_multiAllocation"
         },
     "ID_oddNewCast": {
-        "checkPoint": "对 new 表达式不应进行类型转换",
+        "checkPoint": "不应转换 new 表达式的类型",
         "level": "warning",
-        "comment": "new 表达式本身是类型明确的，转换 new 表达式的类型也容易造成分配、访问或回收相关的错误。",
+        "comment": "new 表达式的类型是明确的，转换 new 表达式的类型易造成分配、访问或回收相关的错误。",
         "tag": "cast",
         "related": "ID_arrayPointerCast"
         },
@@ -1722,8 +1731,7 @@
         "level": "suggestion",
         "comment": "何时调用析构函数应由语言的底层机制决定，程序不宜显式调用析构函数。",
         "tag": "expression",
-        "standard": "ISO/IEC 14882:2003 12.4(14)-undefined,ISO/IEC 14882:2011 12.4(15)-undefined,ISO/IEC 14882:2017 15.4(15),ISO/IEC 14882:2017 15.4(16)-undefined",
-        "related": "ID_missingResetNull"
+        "standard": "ISO/IEC 14882:2003 12.4(14)-undefined,ISO/IEC 14882:2011 12.4(15)-undefined,ISO/IEC 14882:2017 15.4(15),ISO/IEC 14882:2017 15.4(16)-undefined"
         },
     "ID_fixedAddrToPointer": {
         "checkPoint": "不应将非零常量值赋值给指针",
@@ -1862,7 +1870,8 @@
         "checkPoint": "不应存在无效的写入操作",
         "level": "warning",
         "comment": "对于内存中的数据，写入之后应被读取，否则没有意义。",
-        "tag": "function"
+        "tag": "function",
+        "reference": "CWE-563"
         },
     "ID_memberDeallocation": {
         "checkPoint": "对象申请的资源应在析构函数中释放",
@@ -1994,7 +2003,7 @@
         "comment": "得不到执行机会的代码是没有意义的，往往意味着逻辑错误。",
         "tag": "function",
         "related": "ID_staticNotUsed,ID_privateNotUsed,ID_constLogicExpression,ID_invalidCondition,ID_switch_caseOutOfRange,ID_if_identicalCondition,ID_if_hiddenCondition,ID_try_disorderedEllipsis,ID_try_disorderedHandlers,ID_uncondJump",
-        "reference": "CWE-561,MISRA C 2004 14.1,MISRA C 2012 2.1,MISRA C++ 2008 0-1-1"
+        "reference": "CWE-561,MISRA C 2004 14.1,MISRA C 2012 2.1,MISRA C++ 2008 0-1-1,SEI CERT MSC12-C"
         },
     "ID_localInitialization": {
         "checkPoint": "局部对象在使用前应被初始化",
@@ -2037,7 +2046,8 @@
         "checkPoint": "不应存在不改变程序流程的跳转语句",
         "level": "warning",
         "comment": "不改变程序流程的跳转语句是多余的，往往意味着逻辑错误，也可能是调试或维护痕迹。",
-        "tag": "control"
+        "tag": "control",
+        "reference": "CWE-1164"
         },
     "ID_paramPassedByValue": {
         "checkPoint": "非基本类型的常量参数不应按值传递",
@@ -2121,6 +2131,7 @@
         "level": "warning",
         "comment": "在头文件中定义的函数或对象会被引入不同的翻译单元（translate-unit）造成编译冲突。",
         "tag": "function",
+        "related": "ID_complexInlineFunction",
         "reference": "C++ Core Guidelines SF.2"
         },
     "ID_complexInlineFunction": {
@@ -2461,7 +2472,7 @@
         "comment": "所有 if...else-if 分枝都以 else 子句结束是“防御性编程”思想的良好体现。",
         "tag": "control",
         "related": "ID_switch_missingDefault",
-        "reference": "MISRA C 2012 15.7,MISRA C++ 2008 6-4-2"
+        "reference": "MISRA C 2012 15.7,MISRA C++ 2008 6-4-2,SEI CERT MSC01-C"
         },
     "ID_while_semicolon": {
         "checkPoint": "while 语句不应被分号隔断",
@@ -2638,7 +2649,7 @@
         "comment": "所有 switch 语句都配有 default 分枝是“防御性编程”思想的良好体现。",
         "tag": "control",
         "related": "ID_if_missingEndingElse",
-        "reference": "CWE-478,MISRA C 2012 16.4,MISRA C++ 2008 6-4-6"
+        "reference": "CWE-478,MISRA C 2012 16.4,MISRA C++ 2008 6-4-6,SEI CERT MSC01-C"
         },
     "ID_try_emptyBlock": {
         "checkPoint": "try 关键字的作用域不应为空",
@@ -2746,7 +2757,7 @@
         "comment": "直接出现在代码中的字面数值称为 magic number，使人难以理解其含义，不利于阅读和维护，应改用具有适当名称的常量或枚举项。",
         "tag": "literal",
         "related": "ID_literal_magicString",
-        "reference": "C++ Core Guidelines ES.45"
+        "reference": "CWE-1106,C++ Core Guidelines ES.45"
         },
     "ID_literal_magicString": {
         "checkPoint": "不应存在 magic string",
@@ -2754,7 +2765,7 @@
         "comment": "直接出现在代码中的字面常量字符串称为 magic string，不利于阅读和维护，应改用具有适当名称的常量。",
         "tag": "literal",
         "related": "ID_literal_magicNumber",
-        "reference": "C++ Core Guidelines ES.45"
+        "reference": "CWE-1106,C++ Core Guidelines ES.45"
         },
     "ID_literal_multicharacter": {
         "checkPoint": "不应使用多字符常量",
@@ -2800,7 +2811,8 @@
         "level": "suggestion",
         "comment": "编译器一般允许使用预编译指令屏蔽某些编译警告，但对于反映风险或安全问题的警告不应屏蔽。",
         "tag": "precompile",
-        "related": "ID_warningDefault"
+        "related": "ID_warningDefault",
+        "reference": "CWE-1127"
         },
     "ID_warningDefault": {
         "checkPoint": "在高级别的警告设置下编译",
@@ -2942,7 +2954,8 @@
             "maxTypeNestedDepth: 类型最大嵌套层数，超过则报出",
             "maxNamespaceNestedDepth: 命名空间最大嵌套层数，超过则报出"
             ],
-        "tag": "function"
+        "tag": "function",
+        "reference": "CWE-1124"
         },
     "ID_functionRepetition": {
         "checkPoint": "避免重复的函数实现",
@@ -3019,9 +3032,9 @@
         "level": "error",
         "comment": "已被释放的指针指向失效的内存空间，对其解引用会导致标准未定义的行为，往往会造成严重错误。",
         "tag": "pointer",
-        "related": "ID_illAccess,ID_localAddressFlowOut,ID_illLifetime",
+        "related": "ID_illAccess,ID_illLifetime,ID_localAddressFlowOut,ID_missingResetNull",
         "standard": "ISO/IEC 9899:1999 6.5.3.2(4)-undefined,ISO/IEC 9899:2011 6.5.3.2(4)-undefined",
-        "reference": "CWE-825,C++ Core Guidelines ES.65,SEI CERT EXP54-CPP"
+        "reference": "CWE-416,CWE-825,C++ Core Guidelines ES.65,SEI CERT EXP54-CPP"
         },
     "ID_sensitiveName": {
         "checkPoint": "公共成员或全局对象不应记录敏感数据",
@@ -3035,7 +3048,7 @@
         "level": "warning",
         "comment": "弱加密、弱哈希、弱随机、不安全的协议等相关库、函数、类、宏、常量等名称不应出现在代码中。",
         "tag": "security",
-        "reference": "CWE-326,CWE-327"
+        "reference": "CWE-326,CWE-327,SEI CERT MSC25-C"
         },
     "ID_badLength": {
         "checkPoint": "memset 等函数长度相关的参数不应有误",
@@ -3089,7 +3102,7 @@
         "tag": "expression",
         "standard": "ISO/IEC 9899:1999 6.7.5.3(7),ISO/IEC 9899:2011 6.7.6.3(7),ISO/IEC 14882:2003 13.1(3),ISO/IEC 14882:2011 13.1(3)",
         "related": "ID_invalidParamArraySize",
-        "reference": "CWE-467"
+        "reference": "CWE-467,SEI CERT ARR01-C"
         },
     "ID_sizeof_zeroComparison": {
         "checkPoint": "sizeof 表达式的结果不应与 0 或负数比较",
@@ -3202,7 +3215,7 @@
     "ID_illMemberAccess": {
         "checkPoint": "在面向构造或析构函数体的 catch 子句中不可访问非静态成员",
         "level": "error",
-        "comment": "当流程进入面向构造或析构函数体的 catch 子句时，非静态成员的生命周期已结束，如果继续访问会导致标准未定义的行为。",
+        "comment": "当流程进入面向构造或析构函数体的 catch 子句时，非静态成员的生命周期均已结束，如果继续访问会导致标准未定义的行为。",
         "tag": "function",
         "standard": "ISO/IEC 14882:2003 15.3(10)-undefined,ISO/IEC 14882:2011 15.3(10)-undefined",
         "reference": "MISRA C++ 2008 15-3-3,SEI CERT ERR53-CPP"
@@ -3277,8 +3290,9 @@
     "ID_duplicatedName": {
         "checkPoint": "类型名称不应与对象或函数名称相同",
         "level": "suggestion",
-        "comment": "不同的代码元素使用相同的名称不利于阅读和维护。",
+        "comment": "不同种类或用途的代码元素具有相同的名称不利于阅读和维护。",
         "tag": "declaration",
+        "related": "ID_duplicatedTypeName",
         "reference": "MISRA C++ 2008 2-10-6"
         },
     "ID_misspelling": {
@@ -3513,11 +3527,11 @@
         "reference": "C++ Core Guidelines NL.25"
         },
     "ID_missingResetNull": {
-        "checkPoint": "指针在释放后应置空",
+        "checkPoint": "释放指针后应将指针赋值为空指针",
         "level": "suggestion",
-        "comment": "内存空间被回收后相关指针不再有效，这时应将指针设为空指针，可避免重复释放等问题，如果后续对指针有错误访问，也可使问题立即显现出来，便于修正。",
+        "comment": "回收资源后，应立即将指向该资源的指针赋值为空指针，以明确其状态。",
         "tag": "pointer",
-        "related": "ID_danglingDeref,ID_explicitDtorCall",
+        "related": "ID_doubleFree,ID_danglingDeref",
         "reference": "SEI CERT MEM01-C"
         },
     "ID_unlimitedAuthority": {
@@ -3598,7 +3612,7 @@
         "comment": "类的数据成员均应设为 private，对外统一由成员函数提供访问方法，且应避免返回 private 成员的非常量引用或指针。",
         "tag": "type",
         "related": "ID_protectedData,ID_mixPublicPrivateData",
-        "reference": "MISRA C++ 2008 11-0-1"
+        "reference": "CWE-1061,MISRA C++ 2008 11-0-1"
         },
     "ID_unsuitableStructTag": {
         "checkPoint": "存在构造、析构或虚函数的类不应采用 struct 关键字",
@@ -3869,7 +3883,7 @@
         "config": [
             "allowNoArraySizeWithInitList: 是否放过带有初始化列表的数组"
             ],
-        "reference": "MISRA C 2004 8.12,MISRA C 2012 8.11,MISRA C++ 2008 3-1-3"
+        "reference": "MISRA C 2004 8.12,MISRA C 2012 8.11,MISRA C++ 2008 3-1-3,SEI CERT ARR02-C"
         },
     "ID_unportableType": {
         "checkPoint": "用 stdint.h 中的类型代替 short、int、long 等类型",
