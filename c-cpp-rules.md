@@ -20126,7 +20126,7 @@ ID_nullDerefInScp &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: pointer error
 
 <hr/>
 
-通过指针的值访问相应地址中的数据称为“解引用（dereference）”，空指针是没有指向任何数据的指针，空指针解引用是一种逻辑错误，会导致标准未定义的行为。  
+通过指针的值访问相应地址中的数据称为“解引用（dereference）”，空指针是值为空的指针（通常使用空指针字面量 nullptr，或空指针常量 0、NULL 进行初始化），空指针解引用是一种逻辑错误，会导致标准未定义的行为。  
   
 示例：
 ```
