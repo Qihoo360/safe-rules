@@ -4,7 +4,7 @@
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对 C、C++ 语言，本文收录了 493 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对 C、C++ 语言，本文收录了 501 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
@@ -325,6 +325,8 @@
     - [R6.10.7 不应省略声明对象或函数的类型](#missingtype)
     - [R6.10.8 用 stdint.h 中的类型代替 short、int、long 等类型](#unportabletype)
     - [R6.10.9 避免使用已过时的标准库组件](#obsoletestdfunction)
+    - [R6.10.10 禁止隐式声明](#implicitdeclaration)
+    - [R6.10.11 禁用老式声明与定义](#oldstyleparamlist)
 <br/>
 
 <span id="__exception">**[7. Exception](#exception)**</span>
@@ -510,6 +512,7 @@
     - [R10.2.21 移位数量不应超过相关类型比特位的数量](#illshiftcount)
     - [R10.2.22 按位取反需避免由类型提升产生的多余数据](#suspiciouspromotion)
     - [R10.2.23 逗号表达式的子表达式应具有必要的副作用](#invalidcommasubexpression)
+    - [R10.2.24 枚举对象不应参与位运算或算数运算](#illenumoperation)
   - [10.3 Comparison](#expression.comparison)
     - [R10.3.1 参与比较的对象之间应具备合理的大小关系](#illcomparison)
     - [R10.3.2 不应使用 == 或 != 判断浮点数是否相等](#illfloatcomparison)
@@ -517,6 +520,7 @@
     - [R10.3.4 不应比较非同类枚举值](#differentenumcomparison)
     - [R10.3.5 比较运算符左右子表达式不应相同](#selfcomparison)
     - [R10.3.6 比较运算不可作为另一个比较运算的直接子表达式](#successivecomparison)
+    - [R10.3.7 有符号数不应和无符号数比较](#inconsistentsigncomparison)
   - [10.4 Call](#expression.call)
     - [R10.4.1 不应忽略重要的返回值](#returnvalueignored)
     - [R10.4.2 不可臆断返回值的意义](#wronguseofreturnvalue)
@@ -530,6 +534,7 @@
     - [R10.4.10 避免使用由实现定义的库函数](#implementationdefinedfunction)
     - [R10.4.11 合理使用 std::move](#unsuitablemove)
     - [R10.4.12 合理使用 std::forward](#unsuitableforward)
+    - [R10.4.13 形参与实参均为数组时，数组大小应一致](#inconsistentarraysize)
   - [10.5 Sizeof](#expression.sizeof)
     - [R10.5.1 sizeof 不应作用于数组参数](#sizeof_arrayparameter)
     - [R10.5.2 sizeof 不应作用于逻辑表达式](#sizeof_oddexpression)
@@ -551,6 +556,7 @@
     - [R10.8.2 new 表达式只可用于赋值或当作参数](#oddnew)
     - [R10.8.3 数组下标应为整型表达式](#oddsubscripting)
     - [R10.8.4 禁用逗号表达式](#forbidcommaexpression)
+    - [R10.8.5 初始化列表中不应存在重复的 designator](#repeateddesignator)
 <br/>
 
 <span id="__literal">**[11. Literal](#literal)**</span>
@@ -590,6 +596,7 @@
   - [R12.18 可用其他方式完成的转换不应使用 reinterpret\_cast](#unsuitablereinterpretcast)
   - [R12.19 合理使用 reinterpret\_cast](#forbidreinterpretcast)
   - [R12.20 在 C\+\+ 代码中禁用 C 风格类型转换](#forbidcstylecast)
+  - [R12.21 不应将负数转为无符号数](#negativeunsignedcast)
 <br/>
 
 <span id="__buffer">**[13. Buffer](#buffer)**</span>
@@ -620,6 +627,7 @@
   - [R14.16 禁用 delete this](#this_forbiddeletethis)
   - [R14.17 判断 dynamic\_cast 转换是否成功](#nullderefdynamiccast)
   - [R14.18 释放指针后应将指针赋值为空指针](#missingresetnull)
+  - [R14.19 指针运算应使用数组下标的方式](#missingarrayindexing)
 <br/>
 
 <span id="__interruption">**[15. Interruption](#interruption)**</span>
@@ -8481,6 +8489,10 @@ int foo(int a[], int n);   // Let it go
 <br/>
 <br/>
 
+#### 相关
+ID_inconsistentArraySize  
+<br/>
+
 #### 依据
 ISO/IEC 9899:1999 6.7.5.3(7)  
 ISO/IEC 9899:2011 6.7.6.3(7)  
@@ -8668,6 +8680,7 @@ int foo(int a);  // Compliant, ‘foo()’ cannot be compiled
 <br/>
 
 #### 相关
+ID_oldStyleParamList  
 ID_superfluousVoid  
 <br/>
 
@@ -9415,7 +9428,7 @@ ID_forbidEnumBitfield &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: declaration warn
 
 <hr/>
 
-枚举类型是否有符号由实现定义，而且符号位与位域结合易导致意料之外的错误。  
+枚举类型的底层整数类型以及是否存在符号位由实现定义，与位域结合易导致意料之外的错误。  
   
 示例：
 ```
@@ -9920,6 +9933,10 @@ typedef int tp;   // Compliant
 <br/>
 <br/>
 
+#### 相关
+ID_oldStyleParamList  
+<br/>
+
 #### 依据
 ISO/IEC 9899:1999 6.7.2(2)  
 ISO/IEC 9899:2011 6.7.2(2)  
@@ -10032,6 +10049,102 @@ ISO/IEC 14882:2011 D.9-deprecated
 ISO/IEC 14882:2011 D.10-deprecated  
 ISO/IEC 14882:2011 D.11-deprecated  
 ISO/IEC 14882:2017 20.5.4.3.1(1)  
+<br/>
+<br/>
+
+### <span id="implicitdeclaration">▌R6.10.10 禁止隐式声明</span>
+
+ID_implicitDeclaration &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: declaration warning
+
+<hr/>
+
+在 C90 标准中，如果函数在没有事先声明或定义的情况下被调用，编译器会为其生成一个隐式声明，指定函数的返回类型为 int，但不指定参数类型和数量，如果与函数的实际定义不符会导致未定义的行为。  
+  
+实践表明，隐式声明会隐藏错误，不是可靠的语言特性，已从后续标准中移除。  
+  
+示例：
+```
+// In main.c
+#include <stdio.h>
+
+int main(void) {
+    double r = foo();   // Non-compliant
+    printf("%f\n", r);
+}
+```
+调用 foo 函数前未对其进行声明，但仍可通过编译，如果 foo 函数的实际定义如下：
+```
+// In foo.c
+double foo() {
+    return 1.23;
+}
+```
+返回值将被解释成整型，使程序输出错误的结果。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:1990 6.3.2.2-undefined  
+<br/>
+
+#### 参考
+MISRA C 2004 8.1  
+MISRA C 2012 17.3  
+SEI CERT DCL31-C  
+<br/>
+<br/>
+
+### <span id="oldstyleparamlist">▌R6.10.11 禁用老式声明与定义</span>
+
+ID_oldStyleParamList &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: declaration warning
+
+<hr/>
+
+在 C 语言的早期阶段，函数类型、参数类型以及参数列表的声明均可以被省略，这种特性使编译器难以检查相关错误，也会使代码难以阅读和维护。  
+  
+示例：
+```
+int foo();     // Non-compliant
+int bar(x);    // Non-compliant
+
+int i = 0;
+foo();
+foo(i);   // Which is right?
+bar(i);
+bar(&i);   // Unable to check error
+```
+例中 foo 函数并不是没有参数，而是未声明参数，bar 函数只声明了参数名称，如果传入的参数与实际定义不符会导致未定义的行为。  
+  
+应采用“原型声明”，明确声明函数的参数列表和返回类型：
+```
+int foo(void);     // Compliant
+int bar(int* x);   // Compliant
+```
+相应的老式定义也不应再继续使用，如：
+```
+int bar(x) int* x; {  // Non-compliant
+    ....
+}
+```
+<br/>
+<br/>
+
+#### 相关
+ID_missingVoid  
+ID_missingType  
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.11.6(1)-deprecated  
+ISO/IEC 9899:1999 6.11.7(1)-deprecated  
+ISO/IEC 9899:2011 6.11.6(1)-deprecated  
+ISO/IEC 9899:2011 6.11.7(1)-deprecated  
+<br/>
+
+#### 参考
+MISRA C 2004 16.6  
+MISRA C 2012 8.2  
+SEI CERT EXP37-C  
 <br/>
 <br/>
 
@@ -16835,6 +16948,10 @@ int bar(signed s, unsigned u) {
 <br/>
 <br/>
 
+#### 相关
+ID_illEnumOperation  
+<br/>
+
 #### 依据
 ISO/IEC 9899:1999 6.5.7(3)-undefined  
 ISO/IEC 9899:2011 6.5.7(3)-undefined  
@@ -16966,6 +17083,44 @@ void foo(int& a, int& b) {
 
 #### 相关
 ID_forbidCommaExpression  
+<br/>
+<br/>
+
+### <span id="illenumoperation">▌R10.2.24 枚举对象不应参与位运算或算数运算</span>
+
+ID_illEnumOperation &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
+
+<hr/>
+
+枚举类型的底层整数类型由实现定义，应避免枚举对象参与位运算或算数运算，以防止意料之外的错误并提高可移植性。  
+  
+示例：
+```
+enum  {
+    FlagA = 0x1234,
+    FlagB = 0xABCD
+};
+
+bool foo(uint16_t x) {
+    return (x & FlagA) != 0;   // Non-compliant
+}
+```
+<br/>
+<br/>
+
+#### 相关
+ID_bitwiseOperOnSigned  
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.7.2.2(4)-implementation  
+ISO/IEC 9899:2011 6.7.2.2(4)-implementation  
+ISO/IEC 14882:2011 7.2(6)-implementation  
+ISO/IEC 14882:2017 10.2(7)-implementation  
+<br/>
+
+#### 参考
+MISRA C 2012 10.1  
 <br/>
 <br/>
 
@@ -17229,6 +17384,50 @@ ID_illBoolOperation
 CWE-697  
 CWE-1024  
 CWE-1025  
+<br/>
+<br/>
+
+### <span id="inconsistentsigncomparison">▌R10.3.7 有符号数不应和无符号数比较</span>
+
+ID_inconsistentSignComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
+
+<hr/>
+
+有符号数和无符号数比较时，有符号数会被转换成无符号数，易产生意料之外的错误。  
+  
+本规则是 ID\_signChangeCast 的特化。  
+  
+示例：
+```
+void foo(signed s, unsigned u) {
+    if (s < u) {   // Non-compliant
+        ....
+    }
+}
+```
+<br/>
+<br/>
+
+#### 配置
+allowSmallUnsignedTypes：是否允许 unsigned char、unsigned short 型表达式与 int 及更大取值范围的表达式比较  
+allowPtrdiffTypeToSizeType：是否允许 ptrdiff_t 型表达式与 size_t 型表达式比较  
+<br/>
+
+#### 相关
+ID_signChangeCast  
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.3.1.3  
+ISO/IEC 9899:2011 6.3.1.3  
+ISO/IEC 14882:2003 4.7  
+ISO/IEC 14882:2011 4.7  
+<br/>
+
+#### 参考
+C++ Core Guidelines ES.100  
+MISRA C 2012 10.4  
+MISRA C++ 2008 5-0-4  
 <br/>
 <br/>
 
@@ -17914,6 +18113,42 @@ C++ Core Guidelines F.19
 <br/>
 <br/>
 
+### <span id="inconsistentarraysize">▌R10.4.13 形参与实参均为数组时，数组大小应一致</span>
+
+ID_inconsistentArraySize &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
+
+<hr/>
+
+被声明为数组的形式参数等同于指针，对传入的实际参数起不到限制作用，为了避免潜在的问题，当实际参数也是数组时，应要求实际参数与形式参数具有相同的元素个数。  
+  
+示例：
+```
+int foo(int a[10]);
+
+int bar() {
+    int a[5] = {0};
+    return foo(a);    // Non-compliant
+}
+```
+<br/>
+<br/>
+
+#### 相关
+ID_invalidParamArraySize  
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.7.5.3(7)  
+ISO/IEC 9899:2011 6.7.6.3(7)  
+ISO/IEC 14882:2003 13.1(3)  
+ISO/IEC 14882:2011 13.1(3)  
+<br/>
+
+#### 参考
+MISRA C 2012 17.5  
+<br/>
+<br/>
+
 ### <span id="expression.sizeof">10.5 Sizeof</span>
 
 ### <span id="sizeof_arrayparameter">▌R10.5.1 sizeof 不应作用于数组参数</span>
@@ -18528,6 +18763,34 @@ allowCommaExpressionInForIteration：是否放过 for 语句中的逗号表达�
 MISRA C 2004 12.10  
 MISRA C 2012 12.3  
 MISRA C++ 2008 5-18-1  
+<br/>
+<br/>
+
+### <span id="repeateddesignator">▌R10.8.5 初始化列表中不应存在重复的 designator</span>
+
+ID_repeatedDesignator &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: expression error
+
+<hr/>
+
+重复的指派符（designator）会使指定的元素被重复初始化，往往意味着笔误或复制粘贴错误。  
+  
+示例：
+```
+struct T { int x, y; };
+struct T obj = { .x = 0, .x = 1 };            // Non-compliant
+int arr[3] = { [0] = 0, [1] = 1, [1] = 2 };   // Non-compliant
+```
+例中重复的指派符 .x 和 \[1\] 是没有意义的。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.7.8(6 7)  
+ISO/IEC 9899:2011 6.7.9(6 7)  
+<br/>
+
+#### 参考
+MISRA C 2012 9.4  
 <br/>
 <br/>
 
@@ -19229,12 +19492,27 @@ printf("%d\n", s < u);   // Non-compliant
 <br/>
 <br/>
 
+#### 配置
+allowSmallUnsignedTypes：是否允许 unsigned char、unsigned short 隐式转为 int 或更大取值范围的类型  
+allowPtrdiffTypeToSizeType：是否允许 ptrdiff_t 隐式转为 size_t  
+<br/>
+
+#### 相关
+ID_negativeUnsignedCast  
+ID_inconsistentSignComparison  
+<br/>
+
 #### 依据
 ISO/IEC 9899:1999 6.3.1.3  
 ISO/IEC 9899:2011 6.3.1.3  
+ISO/IEC 14882:2003 4.7  
+ISO/IEC 14882:2011 4.7  
 <br/>
 
 #### 参考
+CWE-195  
+C++ Core Guidelines ES.100  
+MISRA C 2012 10.4  
 MISRA C++ 2008 5-0-4  
 SEI CERT INT02-C  
 <br/>
@@ -20021,6 +20299,39 @@ void bar(A* a) {
 #### 参考
 C++ Core Guidelines ES.49  
 MISRA C++ 2008 5-2-4  
+<br/>
+<br/>
+
+### <span id="negativeunsignedcast">▌R12.21 不应将负数转为无符号数</span>
+
+ID_negativeUnsignedCast &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: cast warning
+
+<hr/>
+
+负数转为无符号数的适用场景有限，易导致意料之外的错误，应避免负数与无符号数的隐式转换，相关显式转换也应在合理的条件下完成。  
+  
+本规则是 ID\_signChangeCast 的特化。  
+  
+示例：
+```
+size_t foo() {
+    if (cond) {
+        return -1;   // Non-compliant
+    }
+    ....
+}
+```
+<br/>
+<br/>
+
+#### 相关
+ID_signChangeCast  
+ID_minusOnUnsigned  
+<br/>
+
+#### 参考
+CWE-195  
+MISRA C++ 2008 5-0-4  
 <br/>
 <br/>
 
@@ -21055,6 +21366,41 @@ ID_danglingDeref
 
 #### 参考
 SEI CERT MEM01-C  
+<br/>
+<br/>
+
+### <span id="missingarrayindexing">▌R14.19 指针运算应使用数组下标的方式</span>
+
+ID_missingArrayIndexing &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: pointer suggestion
+
+<hr/>
+
+指针运算可由多种方式完成，为了提高可读性应统一使用数组下标的方式，不宜使用 \+、\-、\+=、\-= 等运算符，且应尽量减少指针运算。  
+  
+指针的 \+\+、\-\- 运算和两个指针的减法运算可不受本规则限制。  
+  
+示例：
+```
+int a[10];
+int* p;
+
+p = a + 1;      // Non-compliant
+p = &a[1];      // Compliant
+
+*(p + 1) = 0;   // Non-compliant
+p[1] = 0;       // Compliant
+
+p = p + 1;      // Non-compliant
+p++;            // Compliant
+p = &p[1];      // Compliant
+```
+<br/>
+<br/>
+
+#### 参考
+MISRA C 2012 18.4  
+MISRA C++ 2008 5-0-15  
+SEI CERT EXP08-C  
 <br/>
 <br/>
 
@@ -22188,7 +22534,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 493 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
+&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 501 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
 
 &emsp;&emsp;此致
 

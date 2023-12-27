@@ -104,6 +104,7 @@
         "level": "warning",
         "comment": "符号位在位运算方面没有逻辑意义，对负数进行位运算往往意味着逻辑错误。",
         "tag": "expression",
+        "related": "ID_illEnumOperation",
         "standard": "ISO/IEC 9899:1999 6.5.7(3)-undefined,ISO/IEC 9899:2011 6.5.7(3)-undefined,ISO/IEC 14882:2003 5.8(2),ISO/IEC 14882:2003 5.8(3)-implementation,ISO/IEC 14882:2011 5.8(2)-undefined,ISO/IEC 14882:2011 5.8(3)-implementation",
         "reference": "CWE-682,C++ Core Guidelines ES.101,MISRA C 2004 12.7,MISRA C 2012 10.1,MISRA C++ 2008 5-0-21,SEI CERT INT13-C"
         },
@@ -198,6 +199,7 @@
         "level": "warning",
         "comment": "被声明为数组的形式参数等同于指针，第一个维度的大小声明对传入的实际参数起不到限制作用。",
         "tag": "declaration",
+        "related": "ID_inconsistentArraySize",
         "standard": "ISO/IEC 9899:1999 6.7.5.3(7),ISO/IEC 9899:2011 6.7.6.3(7),ISO/IEC 14882:2003 13.1(3),ISO/IEC 14882:2011 13.1(3)",
         "reference": "C++ Core Guidelines I.13,C++ Core Guidelines R.14,MISRA C++ 2008 5-2-12"
         },
@@ -956,7 +958,7 @@
     "ID_forbidEnumBitfield": {
         "checkPoint": "不应对枚举对象声明位域",
         "level": "warning",
-        "comment": "枚举类型是否有符号由实现定义，而且符号位与位域结合易导致意料之外的错误。",
+        "comment": "枚举类型的底层整数类型以及是否存在符号位由实现定义，与位域结合易导致意料之外的错误。",
         "tag": "declaration",
         "related": "ID_improperBitfieldType,ID_singleSignedBitfield",
         "standard": "ISO/IEC 9899:1999 6.7.2.2(4)-implementation,ISO/IEC 9899:2011 6.7.2.2(4)-implementation,ISO/IEC 14882:2011 7.2(6)-implementation,ISO/IEC 14882:2017 10.2(7)-implementation",
@@ -1505,8 +1507,13 @@
         "level": "warning",
         "comment": "有符号整型与无符号整型相互转换易导致意料之外的错误。",
         "tag": "cast",
-        "standard": "ISO/IEC 9899:1999 6.3.1.3,ISO/IEC 9899:2011 6.3.1.3",
-        "reference": "MISRA C++ 2008 5-0-4,SEI CERT INT02-C"
+        "config": [
+            "allowSmallUnsignedTypes: 是否允许 unsigned char、unsigned short 隐式转为 int 或更大取值范围的类型",
+            "allowPtrdiffTypeToSizeType: 是否允许 ptrdiff_t 隐式转为 size_t"
+            ],
+        "standard": "ISO/IEC 9899:1999 6.3.1.3,ISO/IEC 9899:2011 6.3.1.3,ISO/IEC 14882:2003 4.7,ISO/IEC 14882:2011 4.7",
+        "related": "ID_negativeUnsignedCast,ID_inconsistentSignComparison",
+        "reference": "CWE-195,C++ Core Guidelines ES.100,MISRA C 2012 10.4,MISRA C++ 2008 5-0-4,SEI CERT INT02-C"
         },
     "ID_forbidCStyleCast": {
         "checkPoint": "在 C++ 代码中禁用 C 风格类型转换",
@@ -3516,7 +3523,7 @@
         "level": "warning",
         "comment": "在 C 语言中，如果将函数的参数列表声明为空括号，表示参数的声明被省略，而不是没有参数，这很容易使人误解，没有参数的参数列表应声明为“(void)”。",
         "tag": "declaration",
-        "related": "ID_superfluousVoid",
+        "related": "ID_oldStyleParamList,ID_superfluousVoid",
         "standard": "ISO/IEC 9899:1999 6.7.5.3(14),ISO/IEC 9899:1999 6.11.6(1)-deprecated,ISO/IEC 9899:2011 6.7.6.3(14),ISO/IEC 9899:2011 6.11.6(1)-deprecated",
         "reference": "MISRA C 2004 16.5,MISRA C 2012 8.2"
         },
@@ -3875,6 +3882,7 @@
         "level": "warning",
         "comment": "C 语言在早期阶段曾允许省略声明对象或函数的类型，然而实践表明这种编程方式并不理想，已从 C99 标准中移出。",
         "tag": "declaration",
+        "related": "ID_oldStyleParamList",
         "standard": "ISO/IEC 9899:1999 6.7.2(2),ISO/IEC 9899:2011 6.7.2(2)",
         "reference": "MISRA C 2004 8.2,MISRA C 2012 8.1,SEI CERT DCL31-C"
         },
@@ -4053,5 +4061,76 @@
         "related": "ID_literal_trigraphs",
         "standard": "ISO/IEC 9899:1999 6.4.6(3),ISO/IEC 9899:2011 6.4.6(3),ISO/IEC 14882:2003 2.5,ISO/IEC 14882:2011 2.6,ISO/IEC 14882:2017 5.5",
         "reference": "MISRA C++ 2008 2-5-1"
+        },
+    "ID_implicitDeclaration": {
+        "checkPoint": "禁止隐式声明",
+        "level": "warning",
+        "comment": "在 C90 标准中，如果函数在没有事先声明或定义的情况下被调用，编译器会为其生成一个隐式声明，指定函数的返回类型为 int，但不指定参数类型和数量，如果与函数的实际定义不符会导致未定义的行为。",
+        "tag": "declaration",
+        "standard": "ISO/IEC 9899:1990 6.3.2.2-undefined",
+        "reference": "MISRA C 2004 8.1,MISRA C 2012 17.3,SEI CERT DCL31-C"
+        },
+    "ID_oldStyleParamList": {
+        "checkPoint": "禁用老式声明与定义",
+        "level": "warning",
+        "comment": "在 C 语言的早期阶段，函数类型、参数类型以及参数列表的声明均可以被省略，这种特性使编译器难以检查相关错误，也会使代码难以阅读和维护。",
+        "tag": "declaration",
+        "related": "ID_missingVoid,ID_missingType",
+        "standard": "ISO/IEC 9899:1999 6.11.6(1)-deprecated,ISO/IEC 9899:1999 6.11.7(1)-deprecated,ISO/IEC 9899:2011 6.11.6(1)-deprecated,ISO/IEC 9899:2011 6.11.7(1)-deprecated",
+        "reference": "MISRA C 2004 16.6,MISRA C 2012 8.2,SEI CERT EXP37-C"
+        },
+    "ID_missingArrayIndexing": {
+        "checkPoint": "指针运算应使用数组下标的方式",
+        "level": "suggestion",
+        "comment": "指针运算可由多种方式完成，为了提高可读性应统一使用数组下标的方式，不宜使用 +、-、+=、-= 等运算符，且应尽量减少指针运算。",
+        "tag": "pointer",
+        "reference": "MISRA C 2012 18.4,MISRA C++ 2008 5-0-15,SEI CERT EXP08-C"
+        },
+    "ID_inconsistentArraySize": {
+        "checkPoint": "形参与实参均为数组时，数组大小应一致",
+        "level": "warning",
+        "comment": "被声明为数组的形式参数等同于指针，对传入的实际参数起不到限制作用，为了避免潜在的问题，当实际参数也是数组时，应要求实际参数与形式参数具有相同的元素个数。",
+        "tag": "expression",
+        "related": "ID_invalidParamArraySize",
+        "standard": "ISO/IEC 9899:1999 6.7.5.3(7),ISO/IEC 9899:2011 6.7.6.3(7),ISO/IEC 14882:2003 13.1(3),ISO/IEC 14882:2011 13.1(3)",
+        "reference": "MISRA C 2012 17.5"
+        },
+    "ID_repeatedDesignator": {
+        "checkPoint": "初始化列表中不应存在重复的 designator",
+        "level": "error",
+        "comment": "重复的指派符（designator）会使指定的元素被重复初始化，往往意味着笔误或复制粘贴错误。",
+        "tag": "expression",
+        "standard": "ISO/IEC 9899:1999 6.7.8(6 7),ISO/IEC 9899:2011 6.7.9(6 7)",
+        "reference": "MISRA C 2012 9.4"
+        },
+    "ID_negativeUnsignedCast": {
+        "checkPoint": "不应将负数转为无符号数",
+        "level": "warning",
+        "comment": "负数转为无符号数的适用场景有限，易导致意料之外的错误，应避免负数与无符号数的隐式转换，相关显式转换也应在合理的条件下完成。",
+        "tag": "cast",
+        "related": "ID_signChangeCast,ID_minusOnUnsigned",
+        "reference": "CWE-195,MISRA C++ 2008 5-0-4"
+        },
+    "ID_inconsistentSignComparison": {
+        "checkPoint": "有符号数不应和无符号数比较",
+        "level": "warning",
+        "comment": "有符号数和无符号数比较时，有符号数会被转换成无符号数，易产生意料之外的错误。",
+        "tag": "expression",
+        "config": [
+            "allowSmallUnsignedTypes: 是否允许 unsigned char、unsigned short 型表达式与 int 及更大取值范围的表达式比较",
+            "allowPtrdiffTypeToSizeType: 是否允许 ptrdiff_t 型表达式与 size_t 型表达式比较"
+            ],
+        "related": "ID_signChangeCast",
+        "standard": "ISO/IEC 9899:1999 6.3.1.3,ISO/IEC 9899:2011 6.3.1.3,ISO/IEC 14882:2003 4.7,ISO/IEC 14882:2011 4.7",
+        "reference": "C++ Core Guidelines ES.100,MISRA C 2012 10.4,MISRA C++ 2008 5-0-4"
+        },
+    "ID_illEnumOperation": {
+        "checkPoint": "枚举对象不应参与位运算或算数运算",
+        "level": "warning",
+        "comment": "枚举类型的底层整数类型由实现定义，应避免枚举对象参与位运算或算数运算，以防止意料之外的错误并提高可移植性。",
+        "tag": "expression",
+        "related": "ID_bitwiseOperOnSigned",
+        "standard": "ISO/IEC 9899:1999 6.7.2.2(4)-implementation,ISO/IEC 9899:2011 6.7.2.2(4)-implementation,ISO/IEC 14882:2011 7.2(6)-implementation,ISO/IEC 14882:2017 10.2(7)-implementation",
+        "reference": "MISRA C 2012 10.1"
         }
 }
