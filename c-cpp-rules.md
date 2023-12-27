@@ -4,7 +4,7 @@
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对 C、C++ 语言，本文收录了 487 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对 C、C++ 语言，本文收录了 493 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
@@ -135,6 +135,7 @@
     - [R3.1.5 include 指令应位于文件的起始部分](#badincludeposition)
     - [R3.1.6 禁用不合规的头文件](#forbiddenheader)
     - [R3.1.7 C\+\+ 代码不应引用 C 头文件](#forbidcheaderincpp)
+    - [R3.1.8 源文件不应被包含](#includedsourcefile)
   - [3.2 Macro-definition](#precompile.macro-definition)
     - [R3.2.1 宏应遵循合理的命名方式](#macro_badname)
     - [R3.2.2 不可定义具有保留意义的宏名称](#macro_definereserved)
@@ -171,8 +172,13 @@
     - [R3.5.2 注释不可嵌套](#nestedcomment)
     - [R3.5.3 注释应出现在合理的位置](#badcommentposition)
   - [3.6 Other](#precompile.other)
-    - [R3.6.1 非空源文件应以换行符结尾](#missingnewlinefileend)
-    - [R3.6.2 除转义字符、宏定义之外不应使用反斜杠](#badbackslash)
+    - [R3.6.1 禁用 trigraph sequences](#literal_trigraphs)
+    - [R3.6.2 禁用 digraphs](#forbiddigraphs)
+    - [R3.6.3 除转义字符、宏定义之外不应使用反斜杠](#badbackslash)
+    - [R3.6.4 非空源文件应以换行符结尾](#missingnewlinefileend)
+    - [R3.6.5 源文件扩展名应一致](#sourcefileext)
+    - [R3.6.6 头文件扩展名应一致](#includedfileext)
+    - [R3.6.7 源代码文件的行数不应过多](#filetoolarg)
 <br/>
 
 <span id="__global">**[4. Global](#global)**</span>
@@ -2940,6 +2946,27 @@ MISRA C++ 2008 18-0-1
 <br/>
 <br/>
 
+### <span id="includedsourcefile">▌R3.1.8 源文件不应被包含</span>
+
+ID_includedSourceFile &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: precompile warning
+
+<hr/>
+
+应将 .c、.cpp 等源文件作为独立的翻译单元，否则代码的管理和维护会变得困难。  
+  
+示例：
+```
+#include "foo.c"     // Non-compliant
+#include "bar.cpp"   // Non-compliant
+```
+<br/>
+<br/>
+
+#### 相关
+ID_sourceFileExt  
+<br/>
+<br/>
+
 ### <span id="precompile.macro-definition">3.2 Macro-definition</span>
 
 ### <span id="macro_badname">▌R3.2.1 宏应遵循合理的命名方式</span>
@@ -4221,31 +4248,106 @@ ISO/IEC 14882:2011 2.9(2)-implementation
 
 ### <span id="precompile.other">3.6 Other</span>
 
-### <span id="missingnewlinefileend">▌R3.6.1 非空源文件应以换行符结尾</span>
+### <span id="literal_trigraphs">▌R3.6.1 禁用 trigraph sequences</span>
 
-ID_missingNewLineFileEnd &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: precompile suggestion
+ID_literal_trigraphs &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: precompile warning
 
 <hr/>
 
-如果非空源文件未以换行符结尾，或以换行符结尾但换行符之前是反斜杠，在 C 和 C\+\+03 标准中会导致未定义的行为。  
+由于少数键盘无法输出所有 C/C\+\+ 标准字符，C/C\+\+ 语言允许使用 trigraph sequences 代替无法输出的字符，但可能会导致意外的结果，且可读性较差，已从 C\+\+17 标准中移除。  
   
-一般情况下 IDE 或编辑器会保证源文件以空行结尾，而且 C\+\+11 规定编译器应补全所需的空行，但为了提高兼容性，并便于各种相关工具的使用，所有与代码相关的文本文件均应以有效的换行符结尾。
+Trigraph sequence 由两个问号和另一个特定字符组成：
+```
+??=  #      ??)  ]      ??!  |
+??(  [      ??'  ^      ??>  }
+??/  \      ??<  {      ??-  ~
+```
+如 ??= 替代 \#，??\- 替代 \~。  
+  
+示例：
+```
+int main(void) ??<          // Non-compliant
+    printf("what??!\n");    // Non-compliant
+??>                         // Non-compliant
+```
+如果启用 trigraph sequences，编译器会在词法分析之前完成替换，与问号相关的字符组合可能会与预期不符，示例代码将输出“what|”而不是“what??!”。  
+  
+应改为：
+```
+int main(void) {             // Compliant
+    printf("what\?\?!\n");   // Compliant
+}                            // Compliant
+```
 <br/>
 <br/>
 
-#### 配置
-allTxtFileNeedNewLineEnd：是否要求所有文本文件均以换行符结尾  
+#### 相关
+ID_forbidDigraphs  
 <br/>
 
 #### 依据
-ISO/IEC 9899:1999 5.1.1.2(1)-undefined  
-ISO/IEC 9899:2011 5.1.1.2(1)-undefined  
-ISO/IEC 14882:2003 2.1(1)-undefined  
-ISO/IEC 14882:2011 2.2(1)  
+ISO/IEC 9899:1999 5.2.1.1  
+ISO/IEC 9899:2011 5.2.1.1  
+ISO/IEC 14882:2003 2.3  
+ISO/IEC 14882:2011 2.4  
+ISO/IEC 14882:2017 C.4.1  
+<br/>
+
+#### 参考
+MISRA C 2004 4.2  
+MISRA C 2012 4.2  
+MISRA C++ 2008 2-3-1  
+SEI CERT PRE07-C  
 <br/>
 <br/>
 
-### <span id="badbackslash">▌R3.6.2 除转义字符、宏定义之外不应使用反斜杠</span>
+### <span id="forbiddigraphs">▌R3.6.2 禁用 digraphs</span>
+
+ID_forbidDigraphs &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: precompile suggestion
+
+<hr/>
+
+由于少数键盘无法输出所有 C/C\+\+ 标准字符，C/C\+\+ 语言允许使用 digraphs 代替无法输出的字符，但可读性较差，不利于维护。  
+  
+digraph 由特定字符组成：
+```
+<:  :>  <%  %>  %:  %:%:
+```
+分别对应：
+```
+[  ]  {  }  #  ##
+```
+示例：
+```
+%:include <math.h>   // Non-compliant
+
+int g = 3;
+
+int foo(int i) <%    // Non-compliant
+    return i%::g;    // Non-compliant, ‘%:’ is a digraph
+%>                   // Non-compliant
+```
+<br/>
+<br/>
+
+#### 相关
+ID_literal_trigraphs  
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.4.6(3)  
+ISO/IEC 9899:2011 6.4.6(3)  
+ISO/IEC 14882:2003 2.5  
+ISO/IEC 14882:2011 2.6  
+ISO/IEC 14882:2017 5.5  
+<br/>
+
+#### 参考
+MISRA C++ 2008 2-5-1  
+<br/>
+<br/>
+
+### <span id="badbackslash">▌R3.6.3 除转义字符、宏定义之外不应使用反斜杠</span>
 
 ID_badBackslash &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: precompile warning
 
@@ -4293,6 +4395,87 @@ ISO/IEC 14882:2011 2.2(1)-undefined
 
 #### 参考
 MISRA C 2012 3.2  
+<br/>
+<br/>
+
+### <span id="missingnewlinefileend">▌R3.6.4 非空源文件应以换行符结尾</span>
+
+ID_missingNewLineFileEnd &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: precompile suggestion
+
+<hr/>
+
+如果非空源文件未以换行符结尾，或以换行符结尾但换行符之前是反斜杠，在 C 和 C\+\+03 标准中会导致未定义的行为。  
+  
+一般情况下 IDE 或编辑器会保证源文件以空行结尾，而且 C\+\+11 规定编译器应补全所需的空行，但为了提高兼容性，并便于各种相关工具的使用，所有与代码相关的文本文件均应以有效的换行符结尾。
+<br/>
+<br/>
+
+#### 配置
+allTxtFileNeedNewLineEnd：是否要求所有文本文件均以换行符结尾  
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 5.1.1.2(1)-undefined  
+ISO/IEC 9899:2011 5.1.1.2(1)-undefined  
+ISO/IEC 14882:2003 2.1(1)-undefined  
+ISO/IEC 14882:2011 2.2(1)  
+<br/>
+<br/>
+
+### <span id="sourcefileext">▌R3.6.5 源文件扩展名应一致</span>
+
+ID_sourceFileExt &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: precompile suggestion
+
+<hr/>
+
+为了便于管理和维护，同一项目的源文件扩展名应一致，建议 C 源文件使用 .c，C\+\+ 源文件使用 .cpp。
+<br/>
+<br/>
+
+#### 配置
+sourceFileExts：被允许的源文件扩展名列表  
+<br/>
+
+#### 参考
+C++ Core Guidelines SF.1  
+<br/>
+<br/>
+
+### <span id="includedfileext">▌R3.6.6 头文件扩展名应一致</span>
+
+ID_includedFileExt &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: precompile suggestion
+
+<hr/>
+
+为了便于管理和维护，同一项目的头文件扩展名应一致。
+<br/>
+<br/>
+
+#### 配置
+headerFileExts：被允许的头文件扩展名列表  
+<br/>
+
+#### 参考
+C++ Core Guidelines SF.1  
+<br/>
+<br/>
+
+### <span id="filetoolarg">▌R3.6.7 源代码文件的行数不应过多</span>
+
+ID_fileTooLarg &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: precompile suggestion
+
+<hr/>
+
+源文件或头文件行数过多会使代码难以阅读和维护，建议将行数控制在 1000 行以内。
+<br/>
+<br/>
+
+#### 配置
+maxFileLines：文件行数阈值，超过则报出  
+<br/>
+
+#### 参考
+CWE-1080  
 <br/>
 <br/>
 
@@ -22005,7 +22188,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 487 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
+&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 493 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
 
 &emsp;&emsp;此致
 

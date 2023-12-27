@@ -3998,5 +3998,60 @@
         "tag": "type",
         "related": "ID_nonPrivateData,ID_qualifierCastedAway",
         "reference": "MISRA C++ 2008 9-3-1"
+        },
+    "ID_includedSourceFile": {
+        "checkPoint": "源文件不应被包含",
+        "level": "warning",
+        "comment": "应将 .c、.cpp 等源文件作为独立的翻译单元，否则代码的管理和维护会变得困难。",
+        "tag": "precompile",
+        "related": "ID_sourceFileExt"
+        },
+    "ID_sourceFileExt": {
+        "checkPoint": "源文件扩展名应一致",
+        "level": "suggestion",
+        "comment": "为了便于管理和维护，同一项目的源文件扩展名应一致，建议 C 源文件使用 .c，C++ 源文件使用 .cpp。",
+        "tag": "precompile",
+        "config": [
+            "sourceFileExts: 被允许的源文件扩展名列表"
+            ],
+        "reference": "C++ Core Guidelines SF.1"
+        },
+    "ID_includedFileExt": {
+        "checkPoint": "头文件扩展名应一致",
+        "level": "suggestion",
+        "comment": "为了便于管理和维护，同一项目的头文件扩展名应一致。",
+        "tag": "precompile",
+        "config": [
+            "headerFileExts: 被允许的头文件扩展名列表"
+            ],
+        "reference": "C++ Core Guidelines SF.1"
+        },
+    "ID_fileTooLarg": {
+        "checkPoint": "源代码文件的行数不应过多",
+        "level": "suggestion",
+        "comment": "源文件或头文件行数过多会使代码难以阅读和维护，建议将行数控制在 1000 行以内。",
+        "tag": "precompile",
+        "config": [
+            "maxFileLines: 文件行数阈值，超过则报出"
+            ],
+        "reference": "CWE-1080"
+        },
+    "ID_literal_trigraphs": {
+        "checkPoint": "禁用 trigraph sequences",
+        "level": "warning",
+        "comment": "由于少数键盘无法输出所有 C/C++ 标准字符，C/C++ 语言允许使用 trigraph sequences 代替无法输出的字符，但可能会导致意外的结果，且可读性较差，已从 C++17 标准中移除。",
+        "tag": "precompile",
+        "related": "ID_forbidDigraphs",
+        "standard": "ISO/IEC 9899:1999 5.2.1.1,ISO/IEC 9899:2011 5.2.1.1,ISO/IEC 14882:2003 2.3,ISO/IEC 14882:2011 2.4,ISO/IEC 14882:2017 C.4.1",
+        "reference": "MISRA C 2004 4.2,MISRA C 2012 4.2,MISRA C++ 2008 2-3-1,SEI CERT PRE07-C"
+        },
+    "ID_forbidDigraphs": {
+        "checkPoint": "禁用 digraphs",
+        "level": "suggestion",
+        "comment": "由于少数键盘无法输出所有 C/C++ 标准字符，C/C++ 语言允许使用 digraphs 代替无法输出的字符，但可读性较差，不利于维护。",
+        "tag": "precompile",
+        "related": "ID_literal_trigraphs",
+        "standard": "ISO/IEC 9899:1999 6.4.6(3),ISO/IEC 9899:2011 6.4.6(3),ISO/IEC 14882:2003 2.5,ISO/IEC 14882:2011 2.6,ISO/IEC 14882:2017 5.5",
+        "reference": "MISRA C++ 2008 2-5-1"
         }
 }
