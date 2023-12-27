@@ -1636,6 +1636,8 @@ CWE-672
 CWE-908  
 SEI CERT FIO46-C  
 SEI CERT MEM30-C  
+SEI CERT MEM50-CPP  
+SEI CERT EXP33-C  
 SEI CERT EXP53-CPP  
 <br/>
 <br/>
@@ -6057,6 +6059,7 @@ ID_duplicateEnumerator
 #### 参考
 MISRA C 2004 9.3  
 MISRA C++ 2008 8-5-3  
+SEI CERT INT09-C  
 <br/>
 <br/>
 
@@ -8445,7 +8448,7 @@ ID_missingVoid &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: declaration warning
 
 <hr/>
 
-在 C 语言中，如果函数的参数列表声明为空括号，表示函数的参数还没有声明，而不是表示没有参数，这很容易使人误解，所以在 C 代码中没有参数的参数列表应声明为“(void)”。  
+在 C 语言中，如果将函数的参数列表声明为空括号，表示参数的声明被省略，而不是没有参数，这很容易使人误解，没有参数的参数列表应声明为“(void)”。  
   
 示例：
 ```
@@ -8487,13 +8490,14 @@ ID_superfluousVoid
 
 #### 依据
 ISO/IEC 9899:1999 6.7.5.3(14)  
-ISO/IEC 9899:1999 6.11.6(1)  
+ISO/IEC 9899:1999 6.11.6(1)-deprecated  
 ISO/IEC 9899:2011 6.7.6.3(14)  
-ISO/IEC 9899:2011 6.11.6(1)  
+ISO/IEC 9899:2011 6.11.6(1)-deprecated  
 <br/>
 
 #### 参考
 MISRA C 2004 16.5  
+MISRA C 2012 8.2  
 <br/>
 <br/>
 
@@ -11181,7 +11185,7 @@ ID_definedInHeader &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
   
 头文件是项目文档的重要组成部分，有必要保持头文件简洁清晰，头文件的主要内容应是类型或接口的声明。除非函数很简短，否则也不建议在头文件中内联实现，大段的函数实现会影响头文件的可读性。  
   
-注意，当头文件中的函数定义，尤其是动态链接库头文件中的函数定义发生变化时，所有相关模块均需重新编译，否则会导致严重错误。在头文件中定义的函数是模块二进制接口的一部分，应合理规划以降低维护成本。  
+注意，定义在头文件中的函数发生变化时，所有相关模块均需重新编译，会增加构建和维护成本，在使用动态链接库时这个问题尤为突出，如果库的导入者没有及时编译，可能会造成严重后果。在头文件中定义的函数是模块二进制接口的一部分，应合理规划以降低维护成本。   
   
 示例：
 ```
@@ -12170,6 +12174,7 @@ CWE-394
 MISRA C 2004 16.8  
 MISRA C 2012 17.4  
 MISRA C++ 2008 8-4-3  
+SEI CERT MSC52-CPP  
 <br/>
 <br/>
 
@@ -12565,6 +12570,10 @@ ID_unsuitableReturnType
 #### 依据
 ISO/IEC 9899:2011 6.7.4(8 12)-undefined  
 ISO/IEC 14882:2011 7.6.3(2)-undefined  
+<br/>
+
+#### 参考
+SEI CERT MSC53-CPP  
 <br/>
 <br/>
 
@@ -16084,6 +16093,7 @@ ID_oddSubscripting
 #### 参考
 CWE-783  
 C++ Core Guidelines ES.41  
+SEI CERT EXP00-C  
 <br/>
 <br/>
 
@@ -16657,6 +16667,7 @@ C++ Core Guidelines ES.101
 MISRA C 2004 12.7  
 MISRA C 2012 10.1  
 MISRA C++ 2008 5-0-21  
+SEI CERT INT13-C  
 <br/>
 <br/>
 
@@ -16963,6 +16974,7 @@ void bar(Pet p) {
 
 #### 参考
 CWE-697  
+MISRA C 2012 10.4  
 <br/>
 <br/>
 
@@ -17081,6 +17093,7 @@ ISO/IEC 14882:2017 10.6.7
 #### 参考
 MISRA C 2012 17.7  
 MISRA C++ 2008 0-1-7  
+SEI CERT EXP12-C  
 <br/>
 <br/>
 
@@ -19240,7 +19253,7 @@ ISO/IEC 14882:2011 7.1.6.1(4 6)-undefined
 <br/>
 
 #### 参考
-C++ Core Guidelines Type.3  
+C++ Core Guidelines ES.50  
 MISRA C 2004 11.5  
 MISRA C 2012 11.8  
 MISRA C++ 2008 5-2-5  
@@ -19631,7 +19644,7 @@ ISO/IEC 14882:2011 5.2.9(11 12)-undefined
 <br/>
 
 #### 参考
-C++ Core Guidelines Type.2  
+C++ Core Guidelines C.146  
 MISRA C++ 2008 5-2-2  
 <br/>
 <br/>
@@ -19746,7 +19759,7 @@ ISO/IEC 14882:2011 5.2.10(7)-unspecified
 <br/>
 
 #### 参考
-C++ Core Guidelines Type.1  
+C++ Core Guidelines Pro.safety  
 <br/>
 <br/>
 
@@ -20126,7 +20139,9 @@ ID_nullDerefInScp &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: pointer error
 
 <hr/>
 
-通过指针的值访问相应地址中的数据称为“解引用（dereference）”，空指针是值为空的指针（通常使用空指针字面量 nullptr，或空指针常量 0、NULL 进行初始化），空指针解引用是一种逻辑错误，会导致标准未定义的行为。  
+空指针解引用会导致标准未定义的行为。  
+  
+使用 \*、\->、.\*、\->\*、\[\]、() 等运算符，通过指针的值访问指针指向的数据称为“解引用（dereference）”。使用 nullptr、NULL、0 等常量初始化的指针是空指针，未指向任何对象或函数，解引用空指针属于逻辑错误，也是一种严重的运行时错误。  
   
 示例：
 ```
@@ -20138,7 +20153,7 @@ int foo(int i) {
     return *p;    // Non-compliant
 }
 ```
-例中指针 p 为空的状态可以到达解引用处，往往会引发“[段错误](https://en.wikipedia.org/wiki/Segmentation_fault)”而导致崩溃。  
+例中指针 p 为空的状态可以到达解引用处，往往会引发“[段错误](https://en.wikipedia.org/wiki/Segmentation_fault)”等严重后果。  
   
 例外：
 ```
@@ -20157,6 +20172,10 @@ int c = p->foo();   // Non-compliant, even if it may not crash
 <br/>
 <br/>
 
+#### 相关
+ID_nullDerefInExp  
+<br/>
+
 #### 依据
 ISO/IEC 9899:1999 6.3.2.1(1)-undefined  
 ISO/IEC 9899:1999 6.5.3.2(4)-undefined  
@@ -20169,6 +20188,7 @@ ISO/IEC 14882:2011 8.3.2(5)-undefined
 #### 参考
 CWE-476  
 C++ Core Guidelines ES.65  
+SEI CERT EXP34-C  
 <br/>
 <br/>
 
@@ -20196,6 +20216,10 @@ p->foo() && p;  // Non-compliant
 ```
 这是颠倒了对指针的判断和解引用次序，属于语言运用错误。
 <br/>
+<br/>
+
+#### 相关
+ID_nullDerefInScp  
 <br/>
 
 #### 依据
@@ -20268,7 +20292,7 @@ int foo() {
     return p[0];  // Non-compliant, ‘p’ may be deallocated
 }
 ```
-本来指针 p 指向有效的内存空间，但由于某种原因相关内存被释放，p 的值不变但已无效，这种情况被形象地称为“指针悬挂”，未经初始化的指针和这种被悬挂的指针统称“野指针”，均指向无效地址不可被解引用。  
+本来指针 p 指向有效的内存空间，但由于某种原因相关内存被释放，p 的值不变但已无效，这种情况被形象地称为“指针悬挂”，未初始化的指针和被悬挂的指针统称“野指针”，均指向无效地址不可被解引用。  
   
 应关注对象的生命周期，避免内层作用域中的地址向外层传递，如：
 ```
@@ -20676,7 +20700,7 @@ ID_this_zeroComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: pointer warning
 
 正常情况下 this 指针不会为空，而且判断 this 指针是否为空会影响编译器对 this 指针的优化，造成难以预料的后果。  
   
-在某些环境中通过空指针调用非静态成员函数时，this 指针可能为空，但这并不符合标准，并且这里其实是未定义行为（对于内建类型，表达式 E1->E2 与 (*E1).E2 严格等价，所以实际有解引用空指针的问题）。值得强调的是，任何情况下都不应逃避解引用空指针造成的问题。  
+在某些环境中通过空指针调用非静态成员函数时，this 指针可能为空，但这并不符合标准。对于内建类型，表达式 E1\->E2 与 (\*E1).E2 等价，通过空指针访问非静态成员所导致的行为均是未定义的。值得强调的是，任何情况下都不应逃避解引用空指针造成的问题。    
   
 示例：
 ```
@@ -20691,7 +20715,7 @@ A* p = foo();
 // Suppose an error has occurred and a null pointer is returned
 cout << p->getX() << '\n';
 ```
-假设 foo 函数不应返回空指针，而某个错误导致其返回了空指针，程序本应崩溃，而 getX 函数却逃避了崩溃，这非但不能真正地解决问题（产生了未定义行为），反而使问题难以定位，使程序难以调试，大大降低了可维护性。
+假设 foo 函数不应返回空指针，而某个错误导致其返回了空指针，程序本应崩溃，而 getX 函数却逃避了崩溃，这非但不能真正地解决问题，反而使问题难以定位，使程序难以调试，大大降低了可维护性。
 <br/>
 <br/>
 
