@@ -1323,6 +1323,10 @@ ISO/IEC 14882:2003 5.5(6)-undefined
 ISO/IEC 14882:2011 5.5(6)-undefined  
 <br/>
 
+#### 规则
+[ID_nullDerefInScp](./c-cpp-rules.md#nullderefinscp)  
+<br/>
+
 <br/>
 <br/>
 
@@ -1651,7 +1655,7 @@ ISO/IEC 14882:2011 7.6.3(2)-undefined
 ### <span id="_55">55. 空指针解引用</span>
 <br/>
 
-空指针表示没有指向任何对象的指针，通过空指针访问对象属于逻辑错误。  
+空指针未指向任何对象或函数，解引用空指针会导致未定义的行为。  
   
 示例：
 ```
@@ -1670,7 +1674,6 @@ p->foo();   // Undefined behavior
 p->bar();   // Undefined behavior
 p->baz();   // Well-defined, ‘baz’ is a static member
 ```
-通过空指针调用对象的非静态成员函数会导致未定义的行为，即使成员函数没有引用成员数据。通过空指针调用静态成员函数不属于访问对象，所以这种情况不属于逻辑错误。
 <br/>
 <br/>
 
