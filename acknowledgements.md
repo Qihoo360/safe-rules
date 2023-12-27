@@ -18,6 +18,8 @@
  - [lhmouse](https://github.com/lhmouse)
  - [Timothy-Liuxf](https://github.com/Timothy-Liuxf)
  - [onionblack](https://github.com/onionblack)
+ - [Mq-b](https://github.com/Mq-b)
+ - [frederick-vs-ja](https://github.com/frederick-vs-ja)
 
 感谢下列组织和媒体的推广：
  - [360 技术](https://blog.csdn.net/qihoo_tech)
