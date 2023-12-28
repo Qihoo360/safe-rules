@@ -629,6 +629,7 @@
         "level": "warning",
         "comment": "char 类型是否有符号由实现定义，为了提高可移植性并规避意料之外的错误，参与数值运算的 char 对象应显式声明符号属性。",
         "tag": "declaration",
+        "related": "ID_excessiveCharSign",
         "standard": "ISO/IEC 9899:1999 6.2.5(3 15)-implementation,ISO/IEC 9899:2011 6.2.5(3 15)-implementation,ISO/IEC 14882:2003 3.9.1(1)-implementation,ISO/IEC 14882:2011 3.9.1(1)-implementation",
         "reference": "MISRA C++ 2008 5-0-11,SEI CERT INT07-C"
         },
@@ -1347,12 +1348,12 @@
         "reference": "CWE-783,C++ Core Guidelines ES.41,SEI CERT EXP00-C"
         },
     "ID_illPtrDiff": {
-        "checkPoint": "不在同一数组或对象中的地址不可相减或比较大小",
+        "checkPoint": "不在同一数组或对象中的地址不可相减",
         "level": "warning",
-        "comment": "不在同一数组或对象中的地址之间没有逻辑关系，这种地址相减或比较大小属于逻辑错误，也会导致标准未定义或未声明的行为。",
+        "comment": "不在同一数组或对象中的地址之间没有逻辑关系，这种地址相减属于逻辑错误，也会导致标准未定义的行为。",
         "tag": "expression",
-        "related": "ID_oddPtrZeroComparison",
-        "standard": "ISO/IEC 9899:1999 6.5.6(9)-undefined,ISO/IEC 9899:1999 6.5.8(5)-undefined,ISO/IEC 9899:2011 6.5.6(9)-undefined,ISO/IEC 9899:2011 6.5.8(5)-undefined,ISO/IEC 14882:2003 5.7(6)-undefined,ISO/IEC 14882:2003 5.9(2)-unspecified,ISO/IEC 14882:2011 5.7(6)-undefined,ISO/IEC 14882:2011 5.9(2)-unspecified",
+        "related": "ID_illPtrComparison",
+        "standard": "ISO/IEC 9899:1999 6.5.6(9)-undefined,ISO/IEC 9899:1999 6.5.8(5)-undefined,ISO/IEC 9899:2011 6.5.6(9)-undefined,ISO/IEC 9899:2011 6.5.8(5)-undefined,ISO/IEC 14882:2003 5.7(6)-undefined,ISO/IEC 14882:2011 5.7(6)-undefined",
         "reference": "C++ Core Guidelines ES.62,MISRA C 2004 17.3,MISRA C 2012 18.3,MISRA C++ 2008 5-0-16,MISRA C++ 2008 5-0-17,MISRA C++ 2008 5-0-18"
         },
     "ID_illBoolOperation": {
@@ -3625,9 +3626,9 @@
         "reference": "CWE-1061,MISRA C++ 2008 11-0-1"
         },
     "ID_unsuitableStructTag": {
-        "checkPoint": "存在构造、析构或虚函数的类不应采用 struct 关键字",
+        "checkPoint": "非平凡或非标准布局的类应采用 class 关键字定义",
         "level": "suggestion",
-        "comment": "简单结构体应采用 struct 关键字，具有封装或多态等特性的类应采用 class 关键字，以便提高可读性。",
+        "comment": "“平凡（trivial）”且“标准布局（standard-layout）”的类可用 struct 关键字定义，否则应使用 class 关键字。",
         "tag": "type",
         "reference": "C++ Core Guidelines C.2,C++ Core Guidelines C.8"
         },
@@ -3987,9 +3988,9 @@
         "reference": "MISRA C 2004 19.6,MISRA C 2012 20.5,MISRA C++ 2008 16-0-3"
         },
     "ID_incompleteDirective": {
-        "checkPoint": "条件编译代码块应在同一文件中",
+        "checkPoint": "相互关联的条件编译指令应在同一文件中",
         "level": "warning",
-        "comment": "#if、#ifdef 与对应的 #else、#elif、#endif 应在同一文件中，否则会增加代码的维护成本。",
+        "comment": "#if、#ifdef 与对应的 #else、#elif、#endif 应在同一文件中，否则会使代码难以阅读和维护。",
         "tag": "precompile",
         "reference": "MISRA C 2004 19.17,MISRA C 2012 20.14,MISRA C++ 2008 16-1-2"
         },
@@ -4045,7 +4046,7 @@
         "reference": "CWE-1080"
         },
     "ID_literal_trigraphs": {
-        "checkPoint": "禁用 trigraph sequences",
+        "checkPoint": "避免出现 trigraph sequences",
         "level": "warning",
         "comment": "由于少数键盘无法输出所有 C/C++ 标准字符，C/C++ 语言允许使用 trigraph sequences 代替无法输出的字符，但可能会导致意外的结果，且可读性较差，已从 C++17 标准中移除。",
         "tag": "precompile",
@@ -4063,7 +4064,7 @@
         "reference": "MISRA C++ 2008 2-5-1"
         },
     "ID_implicitDeclaration": {
-        "checkPoint": "禁止隐式声明",
+        "checkPoint": "避免隐式声明",
         "level": "warning",
         "comment": "在 C90 标准中，如果函数在没有事先声明或定义的情况下被调用，编译器会为其生成一个隐式声明，指定函数的返回类型为 int，但不指定参数类型和数量，如果与函数的实际定义不符会导致未定义的行为。",
         "tag": "declaration",
@@ -4071,7 +4072,7 @@
         "reference": "MISRA C 2004 8.1,MISRA C 2012 17.3,SEI CERT DCL31-C"
         },
     "ID_oldStyleParamList": {
-        "checkPoint": "禁用老式声明与定义",
+        "checkPoint": "弃用老式声明与定义",
         "level": "warning",
         "comment": "在 C 语言的早期阶段，函数类型、参数类型以及参数列表的声明均可以被省略，这种特性使编译器难以检查相关错误，也会使代码难以阅读和维护。",
         "tag": "declaration",
@@ -4084,7 +4085,7 @@
         "level": "suggestion",
         "comment": "指针运算可由多种方式完成，为了提高可读性应统一使用数组下标的方式，不宜使用 +、-、+=、-= 等运算符，且应尽量减少指针运算。",
         "tag": "pointer",
-        "reference": "MISRA C 2012 18.4,MISRA C++ 2008 5-0-15,SEI CERT EXP08-C"
+        "reference": "MISRA C 2004 17.4,MISRA C 2012 18.4,MISRA C++ 2008 5-0-15,SEI CERT EXP08-C"
         },
     "ID_inconsistentArraySize": {
         "checkPoint": "形参与实参均为数组时，数组大小应一致",
@@ -4132,5 +4133,97 @@
         "related": "ID_bitwiseOperOnSigned",
         "standard": "ISO/IEC 9899:1999 6.7.2.2(4)-implementation,ISO/IEC 9899:2011 6.7.2.2(4)-implementation,ISO/IEC 14882:2011 7.2(6)-implementation,ISO/IEC 14882:2017 10.2(7)-implementation",
         "reference": "MISRA C 2012 10.1"
+        },
+    "ID_paramModified": {
+        "checkPoint": "函数的形式参数不应被修改",
+        "level": "suggestion",
+        "comment": "为了提高可读性和可维护性，应分清形式参数和普通局部变量的职责，避免修改形式参数。",
+        "tag": "function",
+        "related": "ID_invalidWrite",
+        "reference": "MISRA C 2012 17.8"
+        },
+    "ID_nonBoolPPCondition": {
+        "checkPoint": "条件编译指令控制表达式的值应为 0 或 1",
+        "level": "suggestion",
+        "comment": "如果 #if 和 #elif 指令的控制表达式均为 bool 型表达式，可使逻辑结构更清晰，有利于阅读和维护。",
+        "tag": "precompile",
+        "reference": "MISRA C 2012 20.8"
+        },
+    "ID_literal_casualSeparators": {
+        "checkPoint": "合理使用数字分隔符",
+        "level": "suggestion",
+        "comment": "数字分隔符的间距应遵循合理的规律，否则不利于阅读和维护。",
+        "config": [
+            "binarySeparatorInterval: 2 进制常量分隔符间距",
+            "octalSeparatorInterval: 8 进制常量分隔符间距",
+            "decimalSeparatorInterval: 10 进制常量分隔符间距",
+            "hexadecimalSeparatorInterval: 16 进制常量分隔符间距"
+            ],
+        "tag": "literal",
+        "standard": "ISO/IEC 14882:2014 2.14.2(1),ISO/IEC 14882:2017 5.13.2(1)"
+        },
+    "ID_inheritTooDeep": {
+        "checkPoint": "继承层次不应过深",
+        "level": "warning",
+        "comment": "过深的继承层次会使代码难以阅读和维护，建议将继承层次限制在 7 层以内。",
+        "config": [
+            "maxInheritDepth: 最大继承层数，超过则报出"
+            ],
+        "tag": "type",
+        "reference": "CWE-1074"
+        },
+    "ID_missingBracedInitializer": {
+        "checkPoint": "在初始化列表中对聚合体也应使用初始化列表",
+        "level": "suggestion",
+        "comment": "结构体、联合体、类对象、数组等聚合体在初始化列表中也应使用由大括号初始化，否则可读性较差。",
+        "tag": "expression",
+        "reference": "MISRA C 2012 9.2"
+        },
+    "ID_missingBracedSyntax": {
+        "checkPoint": "用 {} 代替 = 或 () 进行初始化",
+        "level": "suggestion",
+        "comment": "由 C++11 提出的 {} 初始化法有效规避了用 = 或 () 进行初始化的不确定性。",
+        "tag": "expression",
+        "related": "ID_narrowCast",
+        "standard": "ISO/IEC 14882:2011 8.5.4",
+        "reference": "C++ Core Guidelines ES.23"
+        },
+    "ID_excessiveCharSign": {
+        "checkPoint": "signed char 和 unsigned char 对象只应用于数值计算",
+        "level": "suggestion",
+        "comment": "signed char、unsigned char 以及 int8_t、uint8_t 是整数类型，只应用于数值计算，不应用于存储字符。",
+        "tag": "declaration",
+        "related": "ID_plainNumericChar",
+        "reference": "MISRA C++ 2008 5-0-12"
+        },
+    "ID_literal_mixedEscSequence": {
+        "checkPoint": "8 进制或 16 进制转义字符不应与其他字符连在一起",
+        "level": "suggestion",
+        "comment": "8 进制或 16 进制转义字符与其他字符连在一起不利于阅读和维护，也容易造成意料之外的错误。",
+        "tag": "literal",
+        "reference": "MISRA C 2012 4.1"
+        },
+    "ID_literal_missingSuffix": {
+        "checkPoint": "无符号整数常量应具有后缀 U",
+        "level": "suggestion",
+        "comment": "为了便于查看常量的类型，避免意料之外的错误，无符号整数常量应具有后缀 U。",
+        "tag": "literal",
+        "reference": "MISRA C 2012 7.2,MISRA C++ 2008 2-13-3"
+        },
+    "ID_missingAddressOperator": {
+        "checkPoint": "函数取地址时应显式使用 & 运算符",
+        "level": "suggestion",
+        "comment": "函数名称标识符可以隐式转换为函数指针或函数地址，但为了提高可读性，应对其有所区分。",
+        "tag": "pointer",
+        "reference": "MISRA C++ 2008 8-4-4"
+        },
+    "ID_illPtrComparison": {
+        "checkPoint": "不在同一数组或对象中的地址不可比较大小",
+        "level": "warning",
+        "comment": "不在同一数组或对象中的地址之间没有逻辑关系，这种地址比较大小属于逻辑错误，也会导致标准未定义或未声明的行为。",
+        "tag": "expression",
+        "related": "ID_illPtrDiff,ID_oddPtrZeroComparison",
+        "standard": "ISO/IEC 9899:1999 6.5.6(9)-undefined,ISO/IEC 9899:1999 6.5.8(5)-undefined,ISO/IEC 9899:2011 6.5.6(9)-undefined,ISO/IEC 9899:2011 6.5.8(5)-undefined,ISO/IEC 14882:2003 5.7(6)-undefined,ISO/IEC 14882:2003 5.9(2)-unspecified,ISO/IEC 14882:2011 5.7(6)-undefined,ISO/IEC 14882:2011 5.9(2)-unspecified",
+        "reference": "C++ Core Guidelines ES.62,MISRA C 2004 17.3,MISRA C 2012 18.3,MISRA C++ 2008 5-0-16,MISRA C++ 2008 5-0-17,MISRA C++ 2008 5-0-18"
         }
 }
