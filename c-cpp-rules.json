@@ -4100,7 +4100,7 @@
         "checkPoint": "初始化列表中不应存在重复的 designator",
         "level": "error",
         "comment": "重复的指派符（designator）会使指定的元素被重复初始化，往往意味着笔误或复制粘贴错误。",
-        "tag": "expression",
+        "tag": "declaration",
         "standard": "ISO/IEC 9899:1999 6.7.8(6 7),ISO/IEC 9899:2011 6.7.9(6 7)",
         "reference": "MISRA C 2012 9.4"
         },
@@ -4176,14 +4176,14 @@
         "checkPoint": "在初始化列表中对聚合体也应使用初始化列表",
         "level": "suggestion",
         "comment": "结构体、联合体、类对象、数组等聚合体在初始化列表中也应使用由大括号初始化，否则可读性较差。",
-        "tag": "expression",
+        "tag": "declaration",
         "reference": "MISRA C 2012 9.2"
         },
     "ID_missingBracedSyntax": {
         "checkPoint": "用 {} 代替 = 或 () 进行初始化",
         "level": "suggestion",
         "comment": "由 C++11 提出的 {} 初始化法有效规避了用 = 或 () 进行初始化的不确定性。",
-        "tag": "expression",
+        "tag": "declaration",
         "related": "ID_narrowCast",
         "standard": "ISO/IEC 14882:2011 8.5.4",
         "reference": "C++ Core Guidelines ES.23"
