@@ -172,14 +172,15 @@
     - [R3.5.1 关注 TODO、FIXME、XXX、BUG 等特殊注释](#specialcomment)
     - [R3.5.2 注释不可嵌套](#nestedcomment)
     - [R3.5.3 注释应出现在合理的位置](#badcommentposition)
-  - [3.6 Other](#precompile.other)
-    - [R3.6.1 避免出现 trigraph sequences](#literal_trigraphs)
-    - [R3.6.2 禁用 digraphs](#forbiddigraphs)
-    - [R3.6.3 除转义字符、宏定义之外不应使用反斜杠](#badbackslash)
-    - [R3.6.4 非空源文件应以换行符结尾](#missingnewlinefileend)
-    - [R3.6.5 源文件扩展名应一致](#sourcefileext)
-    - [R3.6.6 头文件扩展名应一致](#includedfileext)
-    - [R3.6.7 源代码文件的行数不应过多](#filetoolarg)
+  - [3.6 File](#precompile.file)
+    - [R3.6.1 源文件扩展名应一致](#sourcefileext)
+    - [R3.6.2 头文件扩展名应一致](#includedfileext)
+    - [R3.6.3 非空源文件应以换行符结尾](#missingnewlinefileend)
+    - [R3.6.4 源代码文件的行数不应过多](#filetoolarg)
+  - [3.7 Other](#precompile.other)
+    - [R3.7.1 避免出现 trigraph sequences](#literal_trigraphs)
+    - [R3.7.2 禁用 digraphs](#forbiddigraphs)
+    - [R3.7.3 除转义字符、宏定义之外不应使用反斜杠](#badbackslash)
 <br/>
 
 <span id="__global">**[4. Global](#global)**</span>
@@ -4297,9 +4298,92 @@ ISO/IEC 14882:2011 2.9(2)-implementation
 <br/>
 <br/>
 
-### <span id="precompile.other">3.6 Other</span>
+### <span id="precompile.file">3.6 File</span>
 
-### <span id="literal_trigraphs">▌R3.6.1 避免出现 trigraph sequences</span>
+### <span id="sourcefileext">▌R3.6.1 源文件扩展名应一致</span>
+
+ID_sourceFileExt &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: precompile suggestion
+
+<hr/>
+
+为了便于管理和维护，同一项目的源文件扩展名应一致，建议 C 源文件使用 .c，C\+\+ 源文件使用 .cpp。
+<br/>
+<br/>
+
+#### 配置
+sourceFileExts：被允许的源文件扩展名列表  
+<br/>
+
+#### 参考
+C++ Core Guidelines SF.1  
+<br/>
+<br/>
+
+### <span id="includedfileext">▌R3.6.2 头文件扩展名应一致</span>
+
+ID_includedFileExt &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: precompile suggestion
+
+<hr/>
+
+为了便于管理和维护，同一项目的头文件扩展名应一致。
+<br/>
+<br/>
+
+#### 配置
+headerFileExts：被允许的头文件扩展名列表  
+<br/>
+
+#### 参考
+C++ Core Guidelines SF.1  
+<br/>
+<br/>
+
+### <span id="missingnewlinefileend">▌R3.6.3 非空源文件应以换行符结尾</span>
+
+ID_missingNewLineFileEnd &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: precompile suggestion
+
+<hr/>
+
+如果非空源文件未以换行符结尾，或以换行符结尾但换行符之前是反斜杠，在 C 和 C\+\+03 标准中会导致未定义的行为。  
+  
+一般情况下 IDE 或编辑器会保证源文件以空行结尾，而且 C\+\+11 规定编译器应补全所需的空行，但为了提高兼容性，并便于各种相关工具的使用，所有与代码相关的文本文件均应以有效的换行符结尾。
+<br/>
+<br/>
+
+#### 配置
+allTxtFileNeedNewLineEnd：是否要求所有文本文件均以换行符结尾  
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 5.1.1.2(1)-undefined  
+ISO/IEC 9899:2011 5.1.1.2(1)-undefined  
+ISO/IEC 14882:2003 2.1(1)-undefined  
+ISO/IEC 14882:2011 2.2(1)  
+<br/>
+<br/>
+
+### <span id="filetoolarg">▌R3.6.4 源代码文件的行数不应过多</span>
+
+ID_fileTooLarg &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: precompile suggestion
+
+<hr/>
+
+源文件或头文件行数过多会使代码难以阅读和维护，建议将行数控制在 1000 行以内。
+<br/>
+<br/>
+
+#### 配置
+maxFileLines：文件行数阈值，超过则报出  
+<br/>
+
+#### 参考
+CWE-1080  
+<br/>
+<br/>
+
+### <span id="precompile.other">3.7 Other</span>
+
+### <span id="literal_trigraphs">▌R3.7.1 避免出现 trigraph sequences</span>
 
 ID_literal_trigraphs &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: precompile warning
 
@@ -4352,7 +4436,7 @@ SEI CERT PRE07-C
 <br/>
 <br/>
 
-### <span id="forbiddigraphs">▌R3.6.2 禁用 digraphs</span>
+### <span id="forbiddigraphs">▌R3.7.2 禁用 digraphs</span>
 
 ID_forbidDigraphs &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: precompile suggestion
 
@@ -4398,7 +4482,7 @@ MISRA C++ 2008 2-5-1
 <br/>
 <br/>
 
-### <span id="badbackslash">▌R3.6.3 除转义字符、宏定义之外不应使用反斜杠</span>
+### <span id="badbackslash">▌R3.7.3 除转义字符、宏定义之外不应使用反斜杠</span>
 
 ID_badBackslash &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: precompile warning
 
@@ -4446,87 +4530,6 @@ ISO/IEC 14882:2011 2.2(1)-undefined
 
 #### 参考
 MISRA C 2012 3.2  
-<br/>
-<br/>
-
-### <span id="missingnewlinefileend">▌R3.6.4 非空源文件应以换行符结尾</span>
-
-ID_missingNewLineFileEnd &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: precompile suggestion
-
-<hr/>
-
-如果非空源文件未以换行符结尾，或以换行符结尾但换行符之前是反斜杠，在 C 和 C\+\+03 标准中会导致未定义的行为。  
-  
-一般情况下 IDE 或编辑器会保证源文件以空行结尾，而且 C\+\+11 规定编译器应补全所需的空行，但为了提高兼容性，并便于各种相关工具的使用，所有与代码相关的文本文件均应以有效的换行符结尾。
-<br/>
-<br/>
-
-#### 配置
-allTxtFileNeedNewLineEnd：是否要求所有文本文件均以换行符结尾  
-<br/>
-
-#### 依据
-ISO/IEC 9899:1999 5.1.1.2(1)-undefined  
-ISO/IEC 9899:2011 5.1.1.2(1)-undefined  
-ISO/IEC 14882:2003 2.1(1)-undefined  
-ISO/IEC 14882:2011 2.2(1)  
-<br/>
-<br/>
-
-### <span id="sourcefileext">▌R3.6.5 源文件扩展名应一致</span>
-
-ID_sourceFileExt &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: precompile suggestion
-
-<hr/>
-
-为了便于管理和维护，同一项目的源文件扩展名应一致，建议 C 源文件使用 .c，C\+\+ 源文件使用 .cpp。
-<br/>
-<br/>
-
-#### 配置
-sourceFileExts：被允许的源文件扩展名列表  
-<br/>
-
-#### 参考
-C++ Core Guidelines SF.1  
-<br/>
-<br/>
-
-### <span id="includedfileext">▌R3.6.6 头文件扩展名应一致</span>
-
-ID_includedFileExt &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: precompile suggestion
-
-<hr/>
-
-为了便于管理和维护，同一项目的头文件扩展名应一致。
-<br/>
-<br/>
-
-#### 配置
-headerFileExts：被允许的头文件扩展名列表  
-<br/>
-
-#### 参考
-C++ Core Guidelines SF.1  
-<br/>
-<br/>
-
-### <span id="filetoolarg">▌R3.6.7 源代码文件的行数不应过多</span>
-
-ID_fileTooLarg &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: precompile suggestion
-
-<hr/>
-
-源文件或头文件行数过多会使代码难以阅读和维护，建议将行数控制在 1000 行以内。
-<br/>
-<br/>
-
-#### 配置
-maxFileLines：文件行数阈值，超过则报出  
-<br/>
-
-#### 参考
-CWE-1080  
 <br/>
 <br/>
 
@@ -8560,6 +8563,8 @@ ISO/IEC 9899:1999 6.2.5(3 15)-implementation
 ISO/IEC 9899:2011 6.2.5(3 15)-implementation  
 ISO/IEC 14882:2003 3.9.1(1)-implementation  
 ISO/IEC 14882:2011 3.9.1(1)-implementation  
+ISO/IEC 14882:2017 21.2.1  
+ISO/IEC 14882:2017 21.2.5  
 <br/>
 <br/>
 

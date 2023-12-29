@@ -639,7 +639,7 @@
         "comment": "字节等二进制概念不应受对齐方式或符号位的干扰，字节的类型应为 std::byte 或 unsigned char。",
         "tag": "declaration",
         "related": "ID_plainNumericChar,ID_bitwiseOperOnSigned",
-        "standard": "ISO/IEC 9899:1999 6.2.5(3 15)-implementation,ISO/IEC 9899:2011 6.2.5(3 15)-implementation,ISO/IEC 14882:2003 3.9.1(1)-implementation,ISO/IEC 14882:2011 3.9.1(1)-implementation"
+        "standard": "ISO/IEC 9899:1999 6.2.5(3 15)-implementation,ISO/IEC 9899:2011 6.2.5(3 15)-implementation,ISO/IEC 14882:2003 3.9.1(1)-implementation,ISO/IEC 14882:2011 3.9.1(1)-implementation,ISO/IEC 14882:2017 21.2.1,ISO/IEC 14882:2017 21.2.5"
         },
     "ID_uselessQualifier": {
         "checkPoint": "枚举类型的底层类型不应为 const 或 volatile",
