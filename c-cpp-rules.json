@@ -2127,7 +2127,7 @@
         "reference": "C++ Core Guidelines F.9,MISRA C 2012 2.7,MISRA C++ 2008 0-1-11"
         },
     "ID_inconsistentParamName": {
-        "checkPoint": "函数的参数名称在声明处和实现处应保持一致",
+        "checkPoint": "参数名称在声明处和实现处应保持一致",
         "level": "warning",
         "comment": "参数名称在声明处和实现处不一致会误导函数的使用者，而且很可能是实现错误。",
         "tag": "function",
@@ -2138,7 +2138,7 @@
         "checkPoint": "不应在头文件中实现函数或定义对象",
         "level": "warning",
         "comment": "在头文件中定义的函数或对象会被引入不同的翻译单元（translate-unit）造成编译冲突。",
-        "tag": "function",
+        "tag": "global",
         "related": "ID_complexInlineFunction",
         "reference": "C++ Core Guidelines SF.2"
         },
@@ -2302,7 +2302,7 @@
         "tag": "global"
         },
     "ID_anonymousNamespaceInHeader": {
-        "checkPoint": "头文件中不应定义匿名命名空间",
+        "checkPoint": "不应在头文件中定义匿名命名空间",
         "level": "warning",
         "comment": "在头文件中定义匿名命名空间相当于在头文件中定义静态数据，头文件被多个源文件包含时会造成数据冗余。",
         "tag": "global",
@@ -2317,7 +2317,7 @@
         "tag": "global"
         },
     "ID_usingNamespaceInHeader": {
-        "checkPoint": "头文件中不应使用 using directive",
+        "checkPoint": "不应在头文件中使用 using directive",
         "level": "warning",
         "comment": "在头文件的全局作用域中使用 using directive 极易造成命名冲突，且影响范围难以控制。",
         "tag": "global",
@@ -2333,7 +2333,7 @@
         "reference": "C++ Core Guidelines SF.6,MISRA C++ 2008 7-3-4"
         },
     "ID_staticInAnonymousNamespace": {
-        "checkPoint": "匿名命名空间中不应使用静态声明",
+        "checkPoint": "不应在匿名命名空间中使用静态声明",
         "level": "warning",
         "comment": "匿名命名空间中的元素已具有内部链接性（internal linkage），不应再用 static 关键字限定。",
         "tag": "global",
@@ -2348,7 +2348,7 @@
         "standard": "ISO/IEC 14882:2003 7.1.1(6),ISO/IEC 14882:2011 7.1.1(7)"
         },
     "ID_staticInHeader": {
-        "checkPoint": "头文件中不应使用静态声明",
+        "checkPoint": "不应在头文件中使用静态声明",
         "level": "warning",
         "comment": "头文件中由 static 关键字声明的对象、数组或函数，会在每个包含该头文件的翻译单元或模块中生成副本造成数据冗余，如果将静态数据误用作全局数据也会造成逻辑错误。",
         "tag": "global",
@@ -3242,7 +3242,7 @@
         "checkPoint": "不可递归调用析构函数",
         "level": "error",
         "comment": "析构函数开始执行时，对象整体已不存在，再次调用析构函数会导致标准未定义的行为。 ",
-        "tag": "pointer",
+        "tag": "function",
         "standard": "ISO/IEC 14882:2003 3.8(1),ISO/IEC 14882:2003 12.4(14)-undefined,ISO/IEC 14882:2011 3.8(1),ISO/IEC 14882:2011 12.4(15)-undefined",
         "related": "ID_recursion",
         "reference": "CWE-674"
@@ -4135,7 +4135,7 @@
         "reference": "MISRA C 2012 10.1"
         },
     "ID_paramModified": {
-        "checkPoint": "函数的形式参数不应被修改",
+        "checkPoint": "形式参数不应被修改",
         "level": "suggestion",
         "comment": "为了提高可读性和可维护性，应分清形式参数和普通局部变量的职责，避免修改形式参数。",
         "tag": "function",
