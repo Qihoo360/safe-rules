@@ -1357,9 +1357,9 @@
         "reference": "C++ Core Guidelines ES.62,MISRA C 2004 17.3,MISRA C 2012 18.3,MISRA C++ 2008 5-0-16,MISRA C++ 2008 5-0-17,MISRA C++ 2008 5-0-18"
         },
     "ID_illBoolOperation": {
-        "checkPoint": "bool 值不应参与位运算、大小比较、数值增减",
+        "checkPoint": "bool 对象不应参与位运算、大小比较、数值增减",
         "level": "warning",
-        "comment": "bool 值只能为真或假，不具有“大小”等数值意义，bool 值参与位运算、大小比较、数值增减是不合理的。",
+        "comment": "bool 对象的值只能为真或假，不具有“大小”等数值意义，bool 对象参与位运算、大小比较、数值增减是不合理的。",
         "tag": "expression",
         "standard": "ISO/IEC 14882:2003 5.2.6(1 2),ISO/IEC 14882:2003 5.3.2(1 2),ISO/IEC 14882:2003 D.1-deprecated,ISO/IEC 14882:2011 5.2.6(1 2),ISO/IEC 14882:2011 5.3.2(1 2),ISO/IEC 14882:2011 D.1-deprecated",
         "reference": "CWE-682,CWE-783,CWE-1024,CWE-1025,MISRA C 2004 12.7,MISRA C 2012 10.1,MISRA C++ 2008 5-0-21"
@@ -4097,9 +4097,9 @@
         "reference": "MISRA C 2012 17.5"
         },
     "ID_repeatedDesignator": {
-        "checkPoint": "初始化列表中不应存在重复的 designator",
+        "checkPoint": "初始化列表中不应存在重复的指派符",
         "level": "error",
-        "comment": "重复的指派符（designator）会使指定的元素被重复初始化，往往意味着笔误或复制粘贴错误。",
+        "comment": "重复的指派符（designator）会使其指定的元素被重复初始化，往往意味着笔误或复制粘贴错误。",
         "tag": "declaration",
         "standard": "ISO/IEC 9899:1999 6.7.8(6 7),ISO/IEC 9899:2011 6.7.9(6 7)",
         "reference": "MISRA C 2012 9.4"

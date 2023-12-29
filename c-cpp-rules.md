@@ -281,16 +281,15 @@
     - [R6.4.7 不应将类型定义和对象声明写在一个语句中](#mixedtypeobjdefinition)
     - [R6.4.8 不应将不同类别的声明写在一个语句中](#mixeddeclarations)
   - [6.5 Initializer](#declaration.initializer)
-    - [R6.5.1 初始化列表中不应存在重复的 designator](#repeateddesignator)
+    - [R6.5.1 用 {} 代替 = 或 () 进行初始化](#missingbracedsyntax)
     - [R6.5.2 在初始化列表中对聚合体也应使用初始化列表](#missingbracedinitializer)
-    - [R6.5.3 用 {} 代替 = 或 () 进行初始化](#missingbracedsyntax)
+    - [R6.5.3 初始化列表中不应存在重复的指派符](#repeateddesignator)
   - [6.6 Object](#declaration.object)
     - [R6.6.1 不应产生无效的临时对象](#inaccessibletmpobject)
-    - [R6.6.2 不应存在没有被用到的局部声明](#invalidlocaldeclaration)
-    - [R6.6.3 对象初始化不可依赖自身的值](#selfdependentinitialization)
-    - [R6.6.4 参与数值运算的 char 对象应显式声明 signed 或 unsigned](#plainnumericchar)
-    - [R6.6.5 signed char 和 unsigned char 对象只应用于数值计算](#excessivecharsign)
-    - [R6.6.6 字节的类型应为 std::byte 或 unsigned char](#plainbinarychar)
+    - [R6.6.2 对象初始化不可依赖自身的值](#selfdependentinitialization)
+    - [R6.6.3 参与数值运算的 char 对象应显式声明 signed 或 unsigned](#plainnumericchar)
+    - [R6.6.4 signed char 和 unsigned char 对象只应用于数值计算](#excessivecharsign)
+    - [R6.6.5 字节的类型应为 std::byte 或 unsigned char](#plainbinarychar)
   - [6.7 Parameter](#declaration.parameter)
     - [R6.7.1 函数原型声明中的参数应具有合理的名称](#missingparamname)
     - [R6.7.2 不应将数组作为函数的形式参数](#invalidparamarraysize)
@@ -331,11 +330,12 @@
     - [R6.11.4 不应存在没有被用到的标签](#labelnotused)
     - [R6.11.5 不应存在没有被用到的静态声明](#staticnotused)
     - [R6.11.6 不应存在没有被用到的 private 成员](#privatenotused)
-    - [R6.11.7 不应省略声明对象或函数的类型](#missingtype)
+    - [R6.11.7 不应存在没有被用到的局部声明](#invalidlocaldeclaration)
     - [R6.11.8 用 stdint.h 中的类型代替 short、int、long 等类型](#unportabletype)
     - [R6.11.9 避免使用已过时的标准库组件](#obsoletestdfunction)
-    - [R6.11.10 避免隐式声明](#implicitdeclaration)
-    - [R6.11.11 弃用老式声明与定义](#oldstyleparamlist)
+    - [R6.11.10 不应省略声明对象或函数的类型](#missingtype)
+    - [R6.11.11 避免隐式声明](#implicitdeclaration)
+    - [R6.11.12 弃用老式声明与定义](#oldstyleparamlist)
 <br/>
 
 <span id="__exception">**[7. Exception](#exception)**</span>
@@ -504,10 +504,10 @@
     - [R10.2.3 在表达式中不应多次读写同一对象](#confusingassignment)
     - [R10.2.4 注意运算符优先级，避免非预期的结果](#unexpectedprecedence)
     - [R10.2.5 不在同一数组或对象中的地址不可相减](#illptrdiff)
-    - [R10.2.6 bool 值不应参与位运算、大小比较、数值增减](#illbooloperation)
-    - [R10.2.7 不应出现复合赋值的错误形式](#illformedcompoundassignment)
-    - [R10.2.8 避免出现复合赋值的可疑形式](#suspiciouscompoundassignment)
-    - [R10.2.9 &=、|=、\-=、/=、%= 左右子表达式不应相同](#illselfcompoundassignment)
+    - [R10.2.6 bool 对象不应参与位运算、大小比较、数值增减](#illbooloperation)
+    - [R10.2.7 枚举对象不应参与位运算或算数运算](#illenumoperation)
+    - [R10.2.8 不应出现复合赋值的错误形式](#illformedcompoundassignment)
+    - [R10.2.9 避免出现复合赋值的可疑形式](#suspiciouscompoundassignment)
     - [R10.2.10 不应将 NULL 当作整数使用](#oddnullassignment)
     - [R10.2.11 注意赋值运算符与一元运算符的空格方式](#stickyassignmentoperator)
     - [R10.2.12 不可将对象的值赋给具有部分重叠区域的对象](#overlappingassignment)
@@ -515,23 +515,23 @@
     - [R10.2.14 除法和求余运算符左右子表达式不应相同](#selfdivision)
     - [R10.2.15 减法运算符左右子表达式不应相同](#selfsubtraction)
     - [R10.2.16 异或运算符左右子表达式不应相同](#selfexclusiveor)
-    - [R10.2.17 负号不应作用于无符号整数](#minusonunsigned)
-    - [R10.2.18 不应重复使用一元运算符](#repeatedunaryoperators)
-    - [R10.2.19 运算结果不应溢出](#evaloverflow)
-    - [R10.2.20 位运算符不应作用于有符号整数](#bitwiseoperonsigned)
-    - [R10.2.21 移位数量不应超过相关类型比特位的数量](#illshiftcount)
-    - [R10.2.22 按位取反需避免由类型提升产生的多余数据](#suspiciouspromotion)
-    - [R10.2.23 逗号表达式的子表达式应具有必要的副作用](#invalidcommasubexpression)
-    - [R10.2.24 枚举对象不应参与位运算或算数运算](#illenumoperation)
+    - [R10.2.17 &=、|=、\-=、/=、%= 左右子表达式不应相同](#illselfcompoundassignment)
+    - [R10.2.18 负号不应作用于无符号整数](#minusonunsigned)
+    - [R10.2.19 不应重复使用一元运算符](#repeatedunaryoperators)
+    - [R10.2.20 运算结果不应溢出](#evaloverflow)
+    - [R10.2.21 位运算符不应作用于有符号整数](#bitwiseoperonsigned)
+    - [R10.2.22 移位数量不应超过相关类型比特位的数量](#illshiftcount)
+    - [R10.2.23 按位取反需避免由类型提升产生的多余数据](#suspiciouspromotion)
+    - [R10.2.24 逗号表达式的子表达式应具有必要的副作用](#invalidcommasubexpression)
   - [10.3 Comparison](#expression.comparison)
     - [R10.3.1 参与比较的对象之间应具备合理的大小关系](#illcomparison)
-    - [R10.3.2 不应使用 == 或 != 判断浮点数是否相等](#illfloatcomparison)
-    - [R10.3.3 指针不应与字符串常量直接比较](#illptrstrcomparison)
-    - [R10.3.4 不应比较非同类枚举值](#differentenumcomparison)
-    - [R10.3.5 比较运算符左右子表达式不应相同](#selfcomparison)
-    - [R10.3.6 比较运算不可作为另一个比较运算的直接子表达式](#successivecomparison)
-    - [R10.3.7 有符号数不应和无符号数比较](#inconsistentsigncomparison)
-    - [R10.3.8 不在同一数组或对象中的地址不可比较大小](#illptrcomparison)
+    - [R10.3.2 不在同一数组或对象中的地址不可比较大小](#illptrcomparison)
+    - [R10.3.3 不应使用 == 或 != 判断浮点数是否相等](#illfloatcomparison)
+    - [R10.3.4 指针不应与字符串常量直接比较](#illptrstrcomparison)
+    - [R10.3.5 有符号数不应和无符号数比较](#inconsistentsigncomparison)
+    - [R10.3.6 不应比较非同类枚举值](#differentenumcomparison)
+    - [R10.3.7 比较运算不可作为另一个比较运算的直接子表达式](#successivecomparison)
+    - [R10.3.8 比较运算符左右子表达式不应相同](#selfcomparison)
   - [10.4 Call](#expression.call)
     - [R10.4.1 不应忽略重要的返回值](#returnvalueignored)
     - [R10.4.2 不可臆断返回值的意义](#wronguseofreturnvalue)
@@ -540,12 +540,12 @@
     - [R10.4.5 不应将非 POD 对象传入可变参数列表](#nonpodvariadicargument)
     - [R10.4.6 C 格式化字符串需要的参数个数与实际传入的参数个数应一致](#inconsistentformatargnum)
     - [R10.4.7 C 格式化占位符与其对应参数的类型应一致](#inconsistentformatargtype)
-    - [R10.4.8 在 C\+\+ 代码中禁用 C 字符串格式化方法](#forbidcstringformat)
-    - [R10.4.9 禁用 atof、atoi、atol 以及 atoll 等函数](#forbidatox)
-    - [R10.4.10 避免使用由实现定义的库函数](#implementationdefinedfunction)
-    - [R10.4.11 合理使用 std::move](#unsuitablemove)
-    - [R10.4.12 合理使用 std::forward](#unsuitableforward)
-    - [R10.4.13 形参与实参均为数组时，数组大小应一致](#inconsistentarraysize)
+    - [R10.4.8 形参与实参均为数组时，数组大小应一致](#inconsistentarraysize)
+    - [R10.4.9 在 C\+\+ 代码中禁用 C 字符串格式化方法](#forbidcstringformat)
+    - [R10.4.10 禁用 atof、atoi、atol 以及 atoll 等函数](#forbidatox)
+    - [R10.4.11 避免使用由实现定义的库函数](#implementationdefinedfunction)
+    - [R10.4.12 合理使用 std::move](#unsuitablemove)
+    - [R10.4.13 合理使用 std::forward](#unsuitableforward)
   - [10.5 Sizeof](#expression.sizeof)
     - [R10.5.1 sizeof 不应作用于数组参数](#sizeof_arrayparameter)
     - [R10.5.2 sizeof 不应作用于逻辑表达式](#sizeof_oddexpression)
@@ -592,24 +592,24 @@
   - [R12.1 避免类型转换造成数据丢失](#narrowcast)
   - [R12.2 避免数据丢失造成类型转换失效](#invalidpromotion)
   - [R12.3 避免有符号整型与无符号整型相互转换](#signchangecast)
-  - [R12.4 避免与 void\* 相互转换](#voidcast)
-  - [R12.5 避免向下类型转换](#downcast)
-  - [R12.6 指针与整数不应相互转换](#ptrintcast)
-  - [R12.7 类型转换不应去掉 const、volatile 等属性](#qualifiercastedaway)
-  - [R12.8 不应转换无继承关系的指针或引用](#castnoinheritance)
-  - [R12.9 不应转换无 public 继承关系的指针或引用](#castnonpublicinheritance)
-  - [R12.10 非 POD 类的指针与基本类型的指针不应相互转换](#nonpodbinarycast)
-  - [R12.11 不同的字符串类型之间不可直接转换](#charwcharcast)
-  - [R12.12 避免向对齐要求更严格的指针转换](#stricteralignedcast)
-  - [R12.13 避免转换指向数组的指针](#arraypointercast)
-  - [R12.14 避免转换函数指针](#functionpointercast)
-  - [R12.15 向下动态类型转换应使用 dynamic\_cast](#nondynamicdowncast)
-  - [R12.16 不应转换 new 表达式的类型](#oddnewcast)
-  - [R12.17 不应存在多余的类型转换](#redundantcast)
-  - [R12.18 可用其他方式完成的转换不应使用 reinterpret\_cast](#unsuitablereinterpretcast)
-  - [R12.19 合理使用 reinterpret\_cast](#forbidreinterpretcast)
-  - [R12.20 在 C\+\+ 代码中禁用 C 风格类型转换](#forbidcstylecast)
-  - [R12.21 不应将负数转为无符号数](#negativeunsignedcast)
+  - [R12.4 不应将负数转为无符号数](#negativeunsignedcast)
+  - [R12.5 避免与 void\* 相互转换](#voidcast)
+  - [R12.6 避免向下类型转换](#downcast)
+  - [R12.7 指针与整数不应相互转换](#ptrintcast)
+  - [R12.8 类型转换不应去掉 const、volatile 等属性](#qualifiercastedaway)
+  - [R12.9 不应转换无继承关系的指针或引用](#castnoinheritance)
+  - [R12.10 不应转换无 public 继承关系的指针或引用](#castnonpublicinheritance)
+  - [R12.11 非 POD 类的指针与基本类型的指针不应相互转换](#nonpodbinarycast)
+  - [R12.12 不同的字符串类型之间不可直接转换](#charwcharcast)
+  - [R12.13 避免向对齐要求更严格的指针转换](#stricteralignedcast)
+  - [R12.14 避免转换指向数组的指针](#arraypointercast)
+  - [R12.15 避免转换函数指针](#functionpointercast)
+  - [R12.16 向下动态类型转换应使用 dynamic\_cast](#nondynamicdowncast)
+  - [R12.17 不应转换 new 表达式的类型](#oddnewcast)
+  - [R12.18 不应存在多余的类型转换](#redundantcast)
+  - [R12.19 可用其他方式完成的转换不应使用 reinterpret\_cast](#unsuitablereinterpretcast)
+  - [R12.20 合理使用 reinterpret\_cast](#forbidreinterpretcast)
+  - [R12.21 在 C\+\+ 代码中禁用 C 风格类型转换](#forbidcstylecast)
 <br/>
 
 <span id="__buffer">**[13. Buffer](#buffer)**</span>
@@ -8299,60 +8299,7 @@ C++ Core Guidelines ES.10
 
 ### <span id="declaration.initializer">6.5 Initializer</span>
 
-### <span id="repeateddesignator">▌R6.5.1 初始化列表中不应存在重复的 designator</span>
-
-ID_repeatedDesignator &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: declaration error
-
-<hr/>
-
-重复的指派符（designator）会使指定的元素被重复初始化，往往意味着笔误或复制粘贴错误。  
-  
-示例：
-```
-struct T { int x, y; };
-struct T obj = { .x = 0, .x = 1 };            // Non-compliant
-int arr[3] = { [0] = 0, [1] = 1, [1] = 2 };   // Non-compliant
-```
-例中重复的指派符 .x 和 \[1\] 是没有意义的。
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 9899:1999 6.7.8(6 7)  
-ISO/IEC 9899:2011 6.7.9(6 7)  
-<br/>
-
-#### 参考
-MISRA C 2012 9.4  
-<br/>
-<br/>
-
-### <span id="missingbracedinitializer">▌R6.5.2 在初始化列表中对聚合体也应使用初始化列表</span>
-
-ID_missingBracedInitializer &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: declaration suggestion
-
-<hr/>
-
-结构体、联合体、类对象、数组等聚合体在初始化列表中也应使用由大括号初始化，否则可读性较差。  
-  
-示例：
-```
-int a[2][3] = {1, 2, 3, 4, 5, 6};       // Non-compliant
-int b[2][3] = {{1, 2, 3}, {4, 5, 6}};   // Compliant
-
-struct T {int x, y;};
-struct T u[3] = {1, 2, 3, 4, 5, 6};         // Non-compliant
-struct T v[3] = {{1, 2}, {3, 4}, {5, 6}};   // Compliant
-```
-<br/>
-<br/>
-
-#### 参考
-MISRA C 2012 9.2  
-<br/>
-<br/>
-
-### <span id="missingbracedsyntax">▌R6.5.3 用 {} 代替 = 或 () 进行初始化</span>
+### <span id="missingbracedsyntax">▌R6.5.1 用 {} 代替 = 或 () 进行初始化</span>
 
 ID_missingBracedSyntax &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: declaration suggestion
 
@@ -8381,6 +8328,59 @@ ISO/IEC 14882:2011 8.5.4
 
 #### 参考
 C++ Core Guidelines ES.23  
+<br/>
+<br/>
+
+### <span id="missingbracedinitializer">▌R6.5.2 在初始化列表中对聚合体也应使用初始化列表</span>
+
+ID_missingBracedInitializer &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: declaration suggestion
+
+<hr/>
+
+结构体、联合体、类对象、数组等聚合体在初始化列表中也应使用由大括号初始化，否则可读性较差。  
+  
+示例：
+```
+int a[2][3] = {1, 2, 3, 4, 5, 6};       // Non-compliant
+int b[2][3] = {{1, 2, 3}, {4, 5, 6}};   // Compliant
+
+struct T {int x, y;};
+struct T u[3] = {1, 2, 3, 4, 5, 6};         // Non-compliant
+struct T v[3] = {{1, 2}, {3, 4}, {5, 6}};   // Compliant
+```
+<br/>
+<br/>
+
+#### 参考
+MISRA C 2012 9.2  
+<br/>
+<br/>
+
+### <span id="repeateddesignator">▌R6.5.3 初始化列表中不应存在重复的指派符</span>
+
+ID_repeatedDesignator &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: declaration error
+
+<hr/>
+
+重复的指派符（designator）会使其指定的元素被重复初始化，往往意味着笔误或复制粘贴错误。  
+  
+示例：
+```
+struct T { int x, y; };
+struct T obj = { .x = 0, .x = 1 };            // Non-compliant
+int arr[3] = { [0] = 0, [1] = 1, [1] = 2 };   // Non-compliant
+```
+例中重复的指派符 .x 和 \[1\] 是没有意义的。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.7.8(6 7)  
+ISO/IEC 9899:2011 6.7.9(6 7)  
+<br/>
+
+#### 参考
+MISRA C 2012 9.4  
 <br/>
 <br/>
 
@@ -8444,66 +8444,7 @@ C++ Core Guidelines ES.84
 <br/>
 <br/>
 
-### <span id="invalidlocaldeclaration">▌R6.6.2 不应存在没有被用到的局部声明</span>
-
-ID_invalidLocalDeclaration &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: declaration warning
-
-<hr/>
-
-没有被用到的局部声明是没有意义的，往往意味着代码冗余或功能不完整，也可能导致严重的逻辑错误。  
-  
-示例：
-```
-int foo(int n) {
-    int x = 0;
-    if (n) {
-        int x = 100 / n;   // Non-compliant
-    }
-    return x;
-}
-```
-在 if 作用域中声明的 x 对象没有被使用，与其相关的计算过程是无效的。  
-  
-应改为：
-```
-int foo(int n) {
-    int x = 0;
-    if (n) {
-        x = 100 / n;   // Compliant
-    }
-    return x;
-}
-```
-具有特定构造或析构函数的 C\+\+ 对象可以做到“声明即使用”，但要注意如下情况：
-```
-class LockGuard {
-    LockGuard();
-   ~LockGuard();
-};
-
-void bar() {
-    LockGuard guard();   // Non-compliant, this is a function
-    do_something();
-}
-```
-例中 guard 意在实现某种 RAII 锁，但 LockGuard guard(); 声明的是函数而不是对象，构造和析构函数不会按预期执行，这也是一种常见笔误。  
-  
-应改为：
-```
-void bar() {
-    LockGuard guard;   // Compliant
-    do_something();
-}
-```
-<br/>
-<br/>
-
-#### 参考
-MISRA C++ 2008 0-1-3  
-<br/>
-<br/>
-
-### <span id="selfdependentinitialization">▌R6.6.3 对象初始化不可依赖自身的值</span>
+### <span id="selfdependentinitialization">▌R6.6.2 对象初始化不可依赖自身的值</span>
 
 ID_selfDependentInitialization &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: declaration error
 
@@ -8535,7 +8476,7 @@ void foo(int i) {
 <br/>
 <br/>
 
-### <span id="plainnumericchar">▌R6.6.4 参与数值运算的 char 对象应显式声明 signed 或 unsigned</span>
+### <span id="plainnumericchar">▌R6.6.3 参与数值运算的 char 对象应显式声明 signed 或 unsigned</span>
 
 ID_plainNumericChar &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: declaration warning
 
@@ -8581,7 +8522,7 @@ SEI CERT INT07-C
 <br/>
 <br/>
 
-### <span id="excessivecharsign">▌R6.6.5 signed char 和 unsigned char 对象只应用于数值计算</span>
+### <span id="excessivecharsign">▌R6.6.4 signed char 和 unsigned char 对象只应用于数值计算</span>
 
 ID_excessiveCharSign &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: declaration suggestion
 
@@ -8608,7 +8549,7 @@ MISRA C++ 2008 5-0-12
 <br/>
 <br/>
 
-### <span id="plainbinarychar">▌R6.6.6 字节的类型应为 std::byte 或 unsigned char</span>
+### <span id="plainbinarychar">▌R6.6.5 字节的类型应为 std::byte 或 unsigned char</span>
 
 ID_plainBinaryChar &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: declaration warning
 
@@ -10141,48 +10082,62 @@ MISRA C++ 2008 0-1-10
 <br/>
 <br/>
 
-### <span id="missingtype">▌R6.11.7 不应省略声明对象或函数的类型</span>
+### <span id="invalidlocaldeclaration">▌R6.11.7 不应存在没有被用到的局部声明</span>
 
-ID_missingType &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: declaration warning
+ID_invalidLocalDeclaration &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: declaration warning
 
 <hr/>
 
-C 语言在早期阶段曾允许省略声明对象或函数的类型，然而实践表明这种编程方式并不理想，已从 C99 标准中移出。  
-  
-本规则针对 C 语言，C\+\+ 语言没有这种特性，不受本规则限制。  
+没有被用到的局部声明是没有意义的，往往意味着代码冗余或功能不完整，也可能导致严重的逻辑错误。  
   
 示例：
 ```
-extern a;     // Non-compliant
-const b;      // Non-compliant
-fun(void);    // Non-compliant
-typedef tp;   // Non-compliant
+int foo(int n) {
+    int x = 0;
+    if (n) {
+        int x = 100 / n;   // Non-compliant
+    }
+    return x;
+}
 ```
-例中 a、b、fun、tp 的类型为 int，可被省略声明，但可读性较差。  
+在 if 作用域中声明的 x 对象没有被使用，与其相关的计算过程是无效的。  
   
 应改为：
 ```
-extern int a;     // Compliant
-const int b;      // Compliant
-int fun(void);    // Compliant
-typedef int tp;   // Compliant
+int foo(int n) {
+    int x = 0;
+    if (n) {
+        x = 100 / n;   // Compliant
+    }
+    return x;
+}
+```
+具有特定构造或析构函数的 C\+\+ 对象可以做到“声明即使用”，但要注意如下情况：
+```
+class LockGuard {
+    LockGuard();
+   ~LockGuard();
+};
+
+void bar() {
+    LockGuard guard();   // Non-compliant, this is a function
+    do_something();
+}
+```
+例中 guard 意在实现某种 RAII 锁，但 LockGuard guard(); 声明的是函数而不是对象，构造和析构函数不会按预期执行，这也是一种常见笔误。  
+  
+应改为：
+```
+void bar() {
+    LockGuard guard;   // Compliant
+    do_something();
+}
 ```
 <br/>
 <br/>
 
-#### 相关
-ID_oldStyleParamList  
-<br/>
-
-#### 依据
-ISO/IEC 9899:1999 6.7.2(2)  
-ISO/IEC 9899:2011 6.7.2(2)  
-<br/>
-
 #### 参考
-MISRA C 2004 8.2  
-MISRA C 2012 8.1  
-SEI CERT DCL31-C  
+MISRA C++ 2008 0-1-3  
 <br/>
 <br/>
 
@@ -10289,7 +10244,52 @@ ISO/IEC 14882:2017 20.5.4.3.1(1)
 <br/>
 <br/>
 
-### <span id="implicitdeclaration">▌R6.11.10 避免隐式声明</span>
+### <span id="missingtype">▌R6.11.10 不应省略声明对象或函数的类型</span>
+
+ID_missingType &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: declaration warning
+
+<hr/>
+
+C 语言在早期阶段曾允许省略声明对象或函数的类型，然而实践表明这种编程方式并不理想，已从 C99 标准中移出。  
+  
+本规则针对 C 语言，C\+\+ 语言没有这种特性，不受本规则限制。  
+  
+示例：
+```
+extern a;     // Non-compliant
+const b;      // Non-compliant
+fun(void);    // Non-compliant
+typedef tp;   // Non-compliant
+```
+例中 a、b、fun、tp 的类型为 int，可被省略声明，但可读性较差。  
+  
+应改为：
+```
+extern int a;     // Compliant
+const int b;      // Compliant
+int fun(void);    // Compliant
+typedef int tp;   // Compliant
+```
+<br/>
+<br/>
+
+#### 相关
+ID_oldStyleParamList  
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.7.2(2)  
+ISO/IEC 9899:2011 6.7.2(2)  
+<br/>
+
+#### 参考
+MISRA C 2004 8.2  
+MISRA C 2012 8.1  
+SEI CERT DCL31-C  
+<br/>
+<br/>
+
+### <span id="implicitdeclaration">▌R6.11.11 避免隐式声明</span>
 
 ID_implicitDeclaration &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: declaration warning
 
@@ -10331,7 +10331,7 @@ SEI CERT DCL31-C
 <br/>
 <br/>
 
-### <span id="oldstyleparamlist">▌R6.11.11 弃用老式声明与定义</span>
+### <span id="oldstyleparamlist">▌R6.11.12 弃用老式声明与定义</span>
 
 ID_oldStyleParamList &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: declaration warning
 
@@ -16719,13 +16719,13 @@ MISRA C++ 2008 5-0-18
 <br/>
 <br/>
 
-### <span id="illbooloperation">▌R10.2.6 bool 值不应参与位运算、大小比较、数值增减</span>
+### <span id="illbooloperation">▌R10.2.6 bool 对象不应参与位运算、大小比较、数值增减</span>
 
 ID_illBoolOperation &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
 <hr/>
 
-bool 值只能为真或假，不具有“大小”等数值意义，bool 值参与位运算、大小比较、数值增减是不合理的。  
+bool 对象的值只能为真或假，不具有“大小”等数值意义，bool 对象参与位运算、大小比较、数值增减是不合理的。  
   
 示例：
 ```
@@ -16764,7 +16764,45 @@ MISRA C++ 2008 5-0-21
 <br/>
 <br/>
 
-### <span id="illformedcompoundassignment">▌R10.2.7 不应出现复合赋值的错误形式</span>
+### <span id="illenumoperation">▌R10.2.7 枚举对象不应参与位运算或算数运算</span>
+
+ID_illEnumOperation &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
+
+<hr/>
+
+枚举类型的底层整数类型由实现定义，应避免枚举对象参与位运算或算数运算，以防止意料之外的错误并提高可移植性。  
+  
+示例：
+```
+enum  {
+    FlagA = 0x1234,
+    FlagB = 0xABCD
+};
+
+bool foo(uint16_t x) {
+    return (x & FlagA) != 0;   // Non-compliant
+}
+```
+<br/>
+<br/>
+
+#### 相关
+ID_bitwiseOperOnSigned  
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.7.2.2(4)-implementation  
+ISO/IEC 9899:2011 6.7.2.2(4)-implementation  
+ISO/IEC 14882:2011 7.2(6)-implementation  
+ISO/IEC 14882:2017 10.2(7)-implementation  
+<br/>
+
+#### 参考
+MISRA C 2012 10.1  
+<br/>
+<br/>
+
+### <span id="illformedcompoundassignment">▌R10.2.8 不应出现复合赋值的错误形式</span>
 
 ID_illFormedCompoundAssignment &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -16787,7 +16825,7 @@ CWE-682
 <br/>
 <br/>
 
-### <span id="suspiciouscompoundassignment">▌R10.2.8 避免出现复合赋值的可疑形式</span>
+### <span id="suspiciouscompoundassignment">▌R10.2.9 避免出现复合赋值的可疑形式</span>
 
 ID_suspiciousCompoundAssignment &emsp;&emsp;&emsp;&emsp;&nbsp; :question: expression suspicious
 
@@ -16813,34 +16851,6 @@ a = a + x;
 a = 2 * a + x;
 a = a + (a + x);
 ```
-<br/>
-<br/>
-
-#### 参考
-CWE-682  
-<br/>
-<br/>
-
-### <span id="illselfcompoundassignment">▌R10.2.9 &=、|=、-=、/=、%= 左右子表达式不应相同</span>
-
-ID_illSelfCompoundAssignment &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
-
-<hr/>
-
-&=、|= 左右子表达式如果相同则没有任何效果，\-=、/=、%= 左右子表达式相同则结果总为 1 或 0，这种表达式往往意味着笔误或逻辑错误。  
-  
-示例（设 a 为变量或表达式）：
-```
-a &= a;  // Non-compliant, no effect
-a |= a;  // Non-compliant, no effect
-```
-如果目的是清零或置 1，也不建议使用下列表达式：
-```
-a -= a;  // Non-compliant, tedious
-a /= a;  // Non-compliant, low efficiency
-a %= a;  // Non-compliant, low efficiency
-```
-对于高级语言来说，应该直接将变量赋值为 0 或 1，而不是采用更繁琐甚至低效的方式。
 <br/>
 <br/>
 
@@ -17053,7 +17063,35 @@ CWE-682
 <br/>
 <br/>
 
-### <span id="minusonunsigned">▌R10.2.17 负号不应作用于无符号整数</span>
+### <span id="illselfcompoundassignment">▌R10.2.17 &=、|=、-=、/=、%= 左右子表达式不应相同</span>
+
+ID_illSelfCompoundAssignment &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
+
+<hr/>
+
+&=、|= 左右子表达式如果相同则没有任何效果，\-=、/=、%= 左右子表达式相同则结果总为 1 或 0，这种表达式往往意味着笔误或逻辑错误。  
+  
+示例（设 a 为变量或表达式）：
+```
+a &= a;  // Non-compliant, no effect
+a |= a;  // Non-compliant, no effect
+```
+如果目的是清零或置 1，也不建议使用下列表达式：
+```
+a -= a;  // Non-compliant, tedious
+a /= a;  // Non-compliant, low efficiency
+a %= a;  // Non-compliant, low efficiency
+```
+对于高级语言来说，应该直接将变量赋值为 0 或 1，而不是采用更繁琐甚至低效的方式。
+<br/>
+<br/>
+
+#### 参考
+CWE-682  
+<br/>
+<br/>
+
+### <span id="minusonunsigned">▌R10.2.18 负号不应作用于无符号整数</span>
 
 ID_minusOnUnsigned &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -17089,7 +17127,7 @@ MISRA C++ 2008 5-3-2
 <br/>
 <br/>
 
-### <span id="repeatedunaryoperators">▌R10.2.18 不应重复使用一元运算符</span>
+### <span id="repeatedunaryoperators">▌R10.2.19 不应重复使用一元运算符</span>
 
 ID_repeatedUnaryOperators &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -17113,7 +17151,7 @@ bool e = !!a;   // Let it go
 <br/>
 <br/>
 
-### <span id="evaloverflow">▌R10.2.19 运算结果不应溢出</span>
+### <span id="evaloverflow">▌R10.2.20 运算结果不应溢出</span>
 
 ID_evalOverflow &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -17166,7 +17204,7 @@ C++ Core Guidelines ES.104
 <br/>
 <br/>
 
-### <span id="bitwiseoperonsigned">▌R10.2.20 位运算符不应作用于有符号整数</span>
+### <span id="bitwiseoperonsigned">▌R10.2.21 位运算符不应作用于有符号整数</span>
 
 ID_bitwiseOperOnSigned &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -17216,7 +17254,7 @@ SEI CERT INT13-C
 <br/>
 <br/>
 
-### <span id="illshiftcount">▌R10.2.21 移位数量不应超过相关类型比特位的数量</span>
+### <span id="illshiftcount">▌R10.2.22 移位数量不应超过相关类型比特位的数量</span>
 
 ID_illShiftCount &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: expression error
 
@@ -17263,7 +17301,7 @@ MISRA C++ 2008 5-8-1
 <br/>
 <br/>
 
-### <span id="suspiciouspromotion">▌R10.2.22 按位取反需避免由类型提升产生的多余数据</span>
+### <span id="suspiciouspromotion">▌R10.2.23 按位取反需避免由类型提升产生的多余数据</span>
 
 ID_suspiciousPromotion &emsp;&emsp;&emsp;&emsp;&nbsp; :question: expression suspicious
 
@@ -17291,7 +17329,7 @@ MISRA C++ 2008 5-0-10
 <br/>
 <br/>
 
-### <span id="invalidcommasubexpression">▌R10.2.23 逗号表达式的子表达式应具有必要的副作用</span>
+### <span id="invalidcommasubexpression">▌R10.2.24 逗号表达式的子表达式应具有必要的副作用</span>
 
 ID_invalidCommaSubExpression &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -17328,44 +17366,6 @@ void foo(int& a, int& b) {
 
 #### 相关
 ID_forbidCommaExpression  
-<br/>
-<br/>
-
-### <span id="illenumoperation">▌R10.2.24 枚举对象不应参与位运算或算数运算</span>
-
-ID_illEnumOperation &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
-
-<hr/>
-
-枚举类型的底层整数类型由实现定义，应避免枚举对象参与位运算或算数运算，以防止意料之外的错误并提高可移植性。  
-  
-示例：
-```
-enum  {
-    FlagA = 0x1234,
-    FlagB = 0xABCD
-};
-
-bool foo(uint16_t x) {
-    return (x & FlagA) != 0;   // Non-compliant
-}
-```
-<br/>
-<br/>
-
-#### 相关
-ID_bitwiseOperOnSigned  
-<br/>
-
-#### 依据
-ISO/IEC 9899:1999 6.7.2.2(4)-implementation  
-ISO/IEC 9899:2011 6.7.2.2(4)-implementation  
-ISO/IEC 14882:2011 7.2(6)-implementation  
-ISO/IEC 14882:2017 10.2(7)-implementation  
-<br/>
-
-#### 参考
-MISRA C 2012 10.1  
 <br/>
 <br/>
 
@@ -17427,256 +17427,7 @@ CWE-1025
 <br/>
 <br/>
 
-### <span id="illfloatcomparison">▌R10.3.2 不应使用 == 或 != 判断浮点数是否相等</span>
-
-ID_illFloatComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
-
-<hr/>
-
-一般来说，除了可以记作 a \* 2<sup>n</sup>（a、n 为整数）的浮点数值可以被精确存储之外，其他均为近似值。用 == 或 != 判断浮点数（float、double、long double）是否相等往往得不到预期的结果。  
-  
-如 0、1、2、3、1.5、1.25、… 可以被精确存储，而除此之外绝大部分数值如 0.1、0.2、0.3、… 只能存储其近似值。  
-  
-示例：
-```
-float f = 1;
-f /= 10;
-if (f == 0.1) {     // Non-compliant, do not use ‘==’ or ‘!=’
-    cout << "OK";
-} else {
-    cout << "Oops";
-}
-```
-输出 Oops，这是因为 f == 0.1 在运算时将变量和常量转为 double 型，而转换过程中生成了两个不同的对 0.1 的近似值（如 0.10000000149011611938 和 0.10000000000000000555），其结果自然为 false。  
-这非常容易造成意料之外的混乱，所以判断浮点数是否相等不应直接使用 == 或 != 运算符，即使浮点数可以被精确存储。  
-  
-解决方法：
-```
-bool feq(float a, float b, float e = 0.0001f) {
-    return fabs(a - b) < e;
-}
-```
-利用 feq 函数判断浮点数是否相等，如果两个浮点数的差值非常小则可以认为相等，其中 fabs 为计算浮点数差值绝对值的函数，如果差值绝对值小于 e 则认为相等，否则不等。
-```
-if (feq(f, 0.1)) {   // Compliant
-    cout << "OK";
-}
-```
-<br/>
-<br/>
-
-#### 参考
-CWE-1025  
-MISRA C 2004 13.3  
-MISRA C++ 2008 6-2-2  
-<br/>
-<br/>
-
-### <span id="illptrstrcomparison">▌R10.3.3 指针不应与字符串常量直接比较</span>
-
-ID_illPtrStrComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: expression error
-
-<hr/>
-
-直接比较指针和字符串常量的结果往往总是 false，应改用字符串比较函数。  
-  
-示例：
-```
-bool is_name(const char* p) {
-    return p == "bar";          // Non-compliant
-}
-```
-如果例中 is\_name 函数只接受常量字符串作为参数，该函数在某些环境中也可能正常工作，如：
-```
-if (is_name("foo")) {   // May be false
-    ....
-}
-if (is_name("bar")) {   // May be true
-    ....
-}
-```
-然而相同的字符串常量是否一定拥有相同的地址呢？对这个问题不同的编译器有不同的实现，有可移植性要求的代码要规避这种问题，而且这种问题极易导致错误，一般的程序都应该避免这种问题。  
-  
-应改为：
-```
-bool is_name(const char* p) {
-    return !strcmp(p, "bar");   // Compliant
-}
-```
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 9899:1999 6.4.5(6)-unspecified  
-ISO/IEC 9899:2011 6.4.5(7)-unspecified  
-ISO/IEC 14882:2003 2.13.4(2)-implementation  
-ISO/IEC 14882:2011 2.14.5(12)-implementation  
-ISO/IEC 14882:2017 5.13.5(16)-unspecified  
-<br/>
-
-#### 参考
-CWE-595  
-CWE-697  
-CWE-1024  
-CWE-1025  
-<br/>
-<br/>
-
-### <span id="differentenumcomparison">▌R10.3.4 不应比较非同类枚举值</span>
-
-ID_differentEnumComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
-
-<hr/>
-
-比较非同类枚举值相当于比较不同类别的事物，没有逻辑意义，往往是设计缺陷或逻辑错误。  
-  
-示例：
-```
-enum Fruit { apple, orange, banana };
-enum Pet { hamster, chipmunk, chinchilla };
-
-void foo(Fruit f) {
-    if (f == hamster) {  // Non-compliant
-        ....
-    }
-}
-
-void bar(Pet p) {
-    switch (p) {
-    case apple:     // Non-compliant
-        ....
-        break;
-    case chipmunk:  // Compliant
-        ....
-        break;
-    }
-}
-```
-<br/>
-<br/>
-
-#### 参考
-CWE-697  
-MISRA C 2012 10.4  
-<br/>
-<br/>
-
-### <span id="selfcomparison">▌R10.3.5 比较运算符左右子表达式不应相同</span>
-
-ID_selfComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
-
-<hr/>
-
-与自身的比较是没意义的，往往是某种笔误。  
-  
-示例（设 a 为变量或表达式）：
-```
-a == a   // Non-compliant
-a != a   // Non-compliant
-a > a    // Non-compliant
-a >= a   // Non-compliant
-a < a    // Non-compliant
-a <= a   // Non-compliant
-```
-例外：
-```
-void foo(float a) {
-    if (a != a) {     // Let it go
-        ....
-    }
-}
-```
-当 a != a 为真时表示 a 为无效值“[NaN](https://en.wikipedia.org/wiki/NaN)”，这是判断浮点数是否有效的惯用方法，可不受本规则约束。
-<br/>
-<br/>
-
-#### 参考
-CWE-1025  
-<br/>
-<br/>
-
-### <span id="successivecomparison">▌R10.3.6 比较运算不可作为另一个比较运算的直接子表达式</span>
-
-ID_successiveComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: expression error
-
-<hr/>
-
-在 C/C\+\+ 语言中，连续的比较运算是没有意义的，本规则是 ID\_illBoolOperation 的特化。  
-  
-示例：
-```
-bool foo(int a, int b, int c) {
-    return a >= b >= c;           // Non-compliant, logic error
-}
-```
-例中 a >= b 的结果为 bool 型，bool 型数据是没有大小概念的，这个结果再与 c 比较大小是没有意义的。  
-  
-例外：
-```
-a > b == true        // Compliant, but odd
-a != b != true       // Compliant, but odd
-(a > b) == (c > d)   // Compliant, but complex
-```
-如果是判断两个 bool 表达式是否相等，可不受本规则约束，但这种复杂的形式并不值得提倡。
-<br/>
-<br/>
-
-#### 相关
-ID_illBoolOperation  
-<br/>
-
-#### 参考
-CWE-697  
-CWE-1024  
-CWE-1025  
-<br/>
-<br/>
-
-### <span id="inconsistentsigncomparison">▌R10.3.7 有符号数不应和无符号数比较</span>
-
-ID_inconsistentSignComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
-
-<hr/>
-
-有符号数和无符号数比较时，有符号数会被转换成无符号数，易产生意料之外的错误。  
-  
-本规则是 ID\_signChangeCast 的特化。  
-  
-示例：
-```
-void foo(signed s, unsigned u) {
-    if (s < u) {   // Non-compliant
-        ....
-    }
-}
-```
-<br/>
-<br/>
-
-#### 配置
-allowSmallUnsignedTypes：是否允许 unsigned char、unsigned short 型表达式与 int 及更大取值范围的表达式比较  
-allowPtrdiffTypeToSizeType：是否允许 ptrdiff_t 型表达式与 size_t 型表达式比较  
-<br/>
-
-#### 相关
-ID_signChangeCast  
-<br/>
-
-#### 依据
-ISO/IEC 9899:1999 6.3.1.3  
-ISO/IEC 9899:2011 6.3.1.3  
-ISO/IEC 14882:2003 4.7  
-ISO/IEC 14882:2011 4.7  
-<br/>
-
-#### 参考
-C++ Core Guidelines ES.100  
-MISRA C 2012 10.4  
-MISRA C++ 2008 5-0-4  
-<br/>
-<br/>
-
-### <span id="illptrcomparison">▌R10.3.8 不在同一数组或对象中的地址不可比较大小</span>
+### <span id="illptrcomparison">▌R10.3.2 不在同一数组或对象中的地址不可比较大小</span>
 
 ID_illPtrComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -17746,6 +17497,255 @@ MISRA C 2012 18.3
 MISRA C++ 2008 5-0-16  
 MISRA C++ 2008 5-0-17  
 MISRA C++ 2008 5-0-18  
+<br/>
+<br/>
+
+### <span id="illfloatcomparison">▌R10.3.3 不应使用 == 或 != 判断浮点数是否相等</span>
+
+ID_illFloatComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
+
+<hr/>
+
+一般来说，除了可以记作 a \* 2<sup>n</sup>（a、n 为整数）的浮点数值可以被精确存储之外，其他均为近似值。用 == 或 != 判断浮点数（float、double、long double）是否相等往往得不到预期的结果。  
+  
+如 0、1、2、3、1.5、1.25、… 可以被精确存储，而除此之外绝大部分数值如 0.1、0.2、0.3、… 只能存储其近似值。  
+  
+示例：
+```
+float f = 1;
+f /= 10;
+if (f == 0.1) {     // Non-compliant, do not use ‘==’ or ‘!=’
+    cout << "OK";
+} else {
+    cout << "Oops";
+}
+```
+输出 Oops，这是因为 f == 0.1 在运算时将变量和常量转为 double 型，而转换过程中生成了两个不同的对 0.1 的近似值（如 0.10000000149011611938 和 0.10000000000000000555），其结果自然为 false。  
+这非常容易造成意料之外的混乱，所以判断浮点数是否相等不应直接使用 == 或 != 运算符，即使浮点数可以被精确存储。  
+  
+解决方法：
+```
+bool feq(float a, float b, float e = 0.0001f) {
+    return fabs(a - b) < e;
+}
+```
+利用 feq 函数判断浮点数是否相等，如果两个浮点数的差值非常小则可以认为相等，其中 fabs 为计算浮点数差值绝对值的函数，如果差值绝对值小于 e 则认为相等，否则不等。
+```
+if (feq(f, 0.1)) {   // Compliant
+    cout << "OK";
+}
+```
+<br/>
+<br/>
+
+#### 参考
+CWE-1025  
+MISRA C 2004 13.3  
+MISRA C++ 2008 6-2-2  
+<br/>
+<br/>
+
+### <span id="illptrstrcomparison">▌R10.3.4 指针不应与字符串常量直接比较</span>
+
+ID_illPtrStrComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: expression error
+
+<hr/>
+
+直接比较指针和字符串常量的结果往往总是 false，应改用字符串比较函数。  
+  
+示例：
+```
+bool is_name(const char* p) {
+    return p == "bar";          // Non-compliant
+}
+```
+如果例中 is\_name 函数只接受常量字符串作为参数，该函数在某些环境中也可能正常工作，如：
+```
+if (is_name("foo")) {   // May be false
+    ....
+}
+if (is_name("bar")) {   // May be true
+    ....
+}
+```
+然而相同的字符串常量是否一定拥有相同的地址呢？对这个问题不同的编译器有不同的实现，有可移植性要求的代码要规避这种问题，而且这种问题极易导致错误，一般的程序都应该避免这种问题。  
+  
+应改为：
+```
+bool is_name(const char* p) {
+    return !strcmp(p, "bar");   // Compliant
+}
+```
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.4.5(6)-unspecified  
+ISO/IEC 9899:2011 6.4.5(7)-unspecified  
+ISO/IEC 14882:2003 2.13.4(2)-implementation  
+ISO/IEC 14882:2011 2.14.5(12)-implementation  
+ISO/IEC 14882:2017 5.13.5(16)-unspecified  
+<br/>
+
+#### 参考
+CWE-595  
+CWE-697  
+CWE-1024  
+CWE-1025  
+<br/>
+<br/>
+
+### <span id="inconsistentsigncomparison">▌R10.3.5 有符号数不应和无符号数比较</span>
+
+ID_inconsistentSignComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
+
+<hr/>
+
+有符号数和无符号数比较时，有符号数会被转换成无符号数，易产生意料之外的错误。  
+  
+本规则是 ID\_signChangeCast 的特化。  
+  
+示例：
+```
+void foo(signed s, unsigned u) {
+    if (s < u) {   // Non-compliant
+        ....
+    }
+}
+```
+<br/>
+<br/>
+
+#### 配置
+allowSmallUnsignedTypes：是否允许 unsigned char、unsigned short 型表达式与 int 及更大取值范围的表达式比较  
+allowPtrdiffTypeToSizeType：是否允许 ptrdiff_t 型表达式与 size_t 型表达式比较  
+<br/>
+
+#### 相关
+ID_signChangeCast  
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.3.1.3  
+ISO/IEC 9899:2011 6.3.1.3  
+ISO/IEC 14882:2003 4.7  
+ISO/IEC 14882:2011 4.7  
+<br/>
+
+#### 参考
+C++ Core Guidelines ES.100  
+MISRA C 2012 10.4  
+MISRA C++ 2008 5-0-4  
+<br/>
+<br/>
+
+### <span id="differentenumcomparison">▌R10.3.6 不应比较非同类枚举值</span>
+
+ID_differentEnumComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
+
+<hr/>
+
+比较非同类枚举值相当于比较不同类别的事物，没有逻辑意义，往往是设计缺陷或逻辑错误。  
+  
+示例：
+```
+enum Fruit { apple, orange, banana };
+enum Pet { hamster, chipmunk, chinchilla };
+
+void foo(Fruit f) {
+    if (f == hamster) {  // Non-compliant
+        ....
+    }
+}
+
+void bar(Pet p) {
+    switch (p) {
+    case apple:     // Non-compliant
+        ....
+        break;
+    case chipmunk:  // Compliant
+        ....
+        break;
+    }
+}
+```
+<br/>
+<br/>
+
+#### 参考
+CWE-697  
+MISRA C 2012 10.4  
+<br/>
+<br/>
+
+### <span id="successivecomparison">▌R10.3.7 比较运算不可作为另一个比较运算的直接子表达式</span>
+
+ID_successiveComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: expression error
+
+<hr/>
+
+在 C/C\+\+ 语言中，连续的比较运算是没有意义的，本规则是 ID\_illBoolOperation 的特化。  
+  
+示例：
+```
+bool foo(int a, int b, int c) {
+    return a >= b >= c;           // Non-compliant, logic error
+}
+```
+例中 a >= b 的结果为 bool 型，bool 型数据是没有大小概念的，这个结果再与 c 比较大小是没有意义的。  
+  
+例外：
+```
+a > b == true        // Compliant, but odd
+a != b != true       // Compliant, but odd
+(a > b) == (c > d)   // Compliant, but complex
+```
+如果是判断两个 bool 表达式是否相等，可不受本规则约束，但这种复杂的形式并不值得提倡。
+<br/>
+<br/>
+
+#### 相关
+ID_illBoolOperation  
+<br/>
+
+#### 参考
+CWE-697  
+CWE-1024  
+CWE-1025  
+<br/>
+<br/>
+
+### <span id="selfcomparison">▌R10.3.8 比较运算符左右子表达式不应相同</span>
+
+ID_selfComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
+
+<hr/>
+
+与自身的比较是没意义的，往往是某种笔误。  
+  
+示例（设 a 为变量或表达式）：
+```
+a == a   // Non-compliant
+a != a   // Non-compliant
+a > a    // Non-compliant
+a >= a   // Non-compliant
+a < a    // Non-compliant
+a <= a   // Non-compliant
+```
+例外：
+```
+void foo(float a) {
+    if (a != a) {     // Let it go
+        ....
+    }
+}
+```
+当 a != a 为真时表示 a 为无效值“[NaN](https://en.wikipedia.org/wiki/NaN)”，这是判断浮点数是否有效的惯用方法，可不受本规则约束。
+<br/>
+<br/>
+
+#### 参考
+CWE-1025  
 <br/>
 <br/>
 
@@ -18122,7 +18122,43 @@ SEI CERT FIO47-C
 <br/>
 <br/>
 
-### <span id="forbidcstringformat">▌R10.4.8 在 C++ 代码中禁用 C 字符串格式化方法</span>
+### <span id="inconsistentarraysize">▌R10.4.8 形参与实参均为数组时，数组大小应一致</span>
+
+ID_inconsistentArraySize &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
+
+<hr/>
+
+被声明为数组的形式参数等同于指针，对传入的实际参数起不到限制作用，为了避免潜在的问题，当实际参数也是数组时，应要求实际参数与形式参数具有相同的元素个数。  
+  
+示例：
+```
+int foo(int a[10]);
+
+int bar() {
+    int a[5] = {0};
+    return foo(a);    // Non-compliant
+}
+```
+<br/>
+<br/>
+
+#### 相关
+ID_invalidParamArraySize  
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.7.5.3(7)  
+ISO/IEC 9899:2011 6.7.6.3(7)  
+ISO/IEC 14882:2003 13.1(3)  
+ISO/IEC 14882:2011 13.1(3)  
+<br/>
+
+#### 参考
+MISRA C 2012 17.5  
+<br/>
+<br/>
+
+### <span id="forbidcstringformat">▌R10.4.9 在 C++ 代码中禁用 C 字符串格式化方法</span>
 
 ID_forbidCStringFormat &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: expression suggestion
 
@@ -18185,7 +18221,7 @@ C++ Core Guidelines SL.io.3
 <br/>
 <br/>
 
-### <span id="forbidatox">▌R10.4.9 禁用 atof、atoi、atol 以及 atoll 等函数</span>
+### <span id="forbidatox">▌R10.4.10 禁用 atof、atoi、atol 以及 atoll 等函数</span>
 
 ID_forbidAtox &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: expression warning
 
@@ -18232,7 +18268,7 @@ MISRA C++ 2008 18-0-2
 <br/>
 <br/>
 
-### <span id="implementationdefinedfunction">▌R10.4.10 避免使用由实现定义的库函数</span>
+### <span id="implementationdefinedfunction">▌R10.4.11 避免使用由实现定义的库函数</span>
 
 ID_implementationDefinedFunction &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -18285,7 +18321,7 @@ MISRA C++ 2008 18-7-1
 <br/>
 <br/>
 
-### <span id="unsuitablemove">▌R10.4.11 合理使用 std::move</span>
+### <span id="unsuitablemove">▌R10.4.12 合理使用 std::move</span>
 
 ID_unsuitableMove &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -18350,7 +18386,7 @@ C++ Core Guidelines F.48
 <br/>
 <br/>
 
-### <span id="unsuitableforward">▌R10.4.12 合理使用 std::forward</span>
+### <span id="unsuitableforward">▌R10.4.13 合理使用 std::forward</span>
 
 ID_unsuitableForward &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -18428,42 +18464,6 @@ ISO/IEC 14882:2017 23.2.5(1)
 
 #### 参考
 C++ Core Guidelines F.19  
-<br/>
-<br/>
-
-### <span id="inconsistentarraysize">▌R10.4.13 形参与实参均为数组时，数组大小应一致</span>
-
-ID_inconsistentArraySize &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
-
-<hr/>
-
-被声明为数组的形式参数等同于指针，对传入的实际参数起不到限制作用，为了避免潜在的问题，当实际参数也是数组时，应要求实际参数与形式参数具有相同的元素个数。  
-  
-示例：
-```
-int foo(int a[10]);
-
-int bar() {
-    int a[5] = {0};
-    return foo(a);    // Non-compliant
-}
-```
-<br/>
-<br/>
-
-#### 相关
-ID_invalidParamArraySize  
-<br/>
-
-#### 依据
-ISO/IEC 9899:1999 6.7.5.3(7)  
-ISO/IEC 9899:2011 6.7.6.3(7)  
-ISO/IEC 14882:2003 13.1(3)  
-ISO/IEC 14882:2011 13.1(3)  
-<br/>
-
-#### 参考
-MISRA C 2012 17.5  
 <br/>
 <br/>
 
@@ -19892,7 +19892,40 @@ SEI CERT INT02-C
 <br/>
 <br/>
 
-### <span id="voidcast">▌R12.4 避免与 void* 相互转换</span>
+### <span id="negativeunsignedcast">▌R12.4 不应将负数转为无符号数</span>
+
+ID_negativeUnsignedCast &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: cast warning
+
+<hr/>
+
+负数转为无符号数的适用场景有限，易导致意料之外的错误，应避免负数与无符号数的隐式转换，相关显式转换也应在合理的条件下完成。  
+  
+本规则是 ID\_signChangeCast 的特化。  
+  
+示例：
+```
+size_t foo() {
+    if (cond) {
+        return -1;   // Non-compliant
+    }
+    ....
+}
+```
+<br/>
+<br/>
+
+#### 相关
+ID_signChangeCast  
+ID_minusOnUnsigned  
+<br/>
+
+#### 参考
+CWE-195  
+MISRA C++ 2008 5-0-4  
+<br/>
+<br/>
+
+### <span id="voidcast">▌R12.5 避免与 void* 相互转换</span>
 
 ID_voidCast &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: cast suggestion
 
@@ -19932,7 +19965,7 @@ MISRA C++ 2008 5-2-8
 <br/>
 <br/>
 
-### <span id="downcast">▌R12.5 避免向下类型转换</span>
+### <span id="downcast">▌R12.6 避免向下类型转换</span>
 
 ID_downCast &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: cast suggestion
 
@@ -19987,7 +20020,7 @@ C++ Core Guidelines ES.48
 <br/>
 <br/>
 
-### <span id="ptrintcast">▌R12.6 指针与整数不应相互转换</span>
+### <span id="ptrintcast">▌R12.7 指针与整数不应相互转换</span>
 
 ID_ptrIntCast &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: cast warning
 
@@ -20035,7 +20068,7 @@ SEI CERT INT36-C
 <br/>
 <br/>
 
-### <span id="qualifiercastedaway">▌R12.7 类型转换不应去掉 const、volatile 等属性</span>
+### <span id="qualifiercastedaway">▌R12.8 类型转换不应去掉 const、volatile 等属性</span>
 
 ID_qualifierCastedAway &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: cast warning
 
@@ -20097,7 +20130,7 @@ SEI CERT EXP55-CPP
 <br/>
 <br/>
 
-### <span id="castnoinheritance">▌R12.8 不应转换无继承关系的指针或引用</span>
+### <span id="castnoinheritance">▌R12.9 不应转换无继承关系的指针或引用</span>
 
 ID_castNoInheritance &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: cast warning
 
@@ -20177,7 +20210,7 @@ SEI CERT EXP39-C
 <br/>
 <br/>
 
-### <span id="castnonpublicinheritance">▌R12.9 不应转换无 public 继承关系的指针或引用</span>
+### <span id="castnonpublicinheritance">▌R12.10 不应转换无 public 继承关系的指针或引用</span>
 
 ID_castNonPublicInheritance &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: cast warning
 
@@ -20210,7 +20243,7 @@ ISO/IEC 14882:2011 4.10(3)
 <br/>
 <br/>
 
-### <span id="nonpodbinarycast">▌R12.10 非 POD 类的指针与基本类型的指针不应相互转换</span>
+### <span id="nonpodbinarycast">▌R12.11 非 POD 类的指针与基本类型的指针不应相互转换</span>
 
 ID_nonPODBinaryCast &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: cast warning
 
@@ -20252,7 +20285,7 @@ CWE-843
 <br/>
 <br/>
 
-### <span id="charwcharcast">▌R12.11 不同的字符串类型之间不可直接转换</span>
+### <span id="charwcharcast">▌R12.12 不同的字符串类型之间不可直接转换</span>
 
 ID_charWCharCast &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: cast warning
 
@@ -20285,7 +20318,7 @@ SEI CERT STR38-C
 <br/>
 <br/>
 
-### <span id="stricteralignedcast">▌R12.12 避免向对齐要求更严格的指针转换</span>
+### <span id="stricteralignedcast">▌R12.13 避免向对齐要求更严格的指针转换</span>
 
 ID_stricterAlignedCast &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: cast warning
 
@@ -20334,7 +20367,7 @@ SEI CERT EXP36-C
 <br/>
 <br/>
 
-### <span id="arraypointercast">▌R12.13 避免转换指向数组的指针</span>
+### <span id="arraypointercast">▌R12.14 避免转换指向数组的指针</span>
 
 ID_arrayPointerCast &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: cast warning
 
@@ -20380,7 +20413,7 @@ C++ Core Guidelines C.152
 <br/>
 <br/>
 
-### <span id="functionpointercast">▌R12.14 避免转换函数指针</span>
+### <span id="functionpointercast">▌R12.15 避免转换函数指针</span>
 
 ID_functionPointerCast &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: cast warning
 
@@ -20426,7 +20459,7 @@ MISRA C++ 2008 5-2-6
 <br/>
 <br/>
 
-### <span id="nondynamicdowncast">▌R12.15 向下动态类型转换应使用 dynamic_cast</span>
+### <span id="nondynamicdowncast">▌R12.16 向下动态类型转换应使用 dynamic_cast</span>
 
 ID_nonDynamicDownCast &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: cast warning
 
@@ -20484,7 +20517,7 @@ MISRA C++ 2008 5-2-2
 <br/>
 <br/>
 
-### <span id="oddnewcast">▌R12.16 不应转换 new 表达式的类型</span>
+### <span id="oddnewcast">▌R12.17 不应转换 new 表达式的类型</span>
 
 ID_oddNewCast &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: cast warning
 
@@ -20507,7 +20540,7 @@ ID_arrayPointerCast
 <br/>
 <br/>
 
-### <span id="redundantcast">▌R12.17 不应存在多余的类型转换</span>
+### <span id="redundantcast">▌R12.18 不应存在多余的类型转换</span>
 
 ID_redundantCast &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: cast warning
 
@@ -20560,7 +20593,7 @@ CWE-704
 <br/>
 <br/>
 
-### <span id="unsuitablereinterpretcast">▌R12.18 可用其他方式完成的转换不应使用 reinterpret_cast</span>
+### <span id="unsuitablereinterpretcast">▌R12.19 可用其他方式完成的转换不应使用 reinterpret_cast</span>
 
 ID_unsuitableReinterpretCast &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: cast warning
 
@@ -20598,7 +20631,7 @@ C++ Core Guidelines Pro.safety
 <br/>
 <br/>
 
-### <span id="forbidreinterpretcast">▌R12.19 合理使用 reinterpret_cast</span>
+### <span id="forbidreinterpretcast">▌R12.20 合理使用 reinterpret_cast</span>
 
 ID_forbidReinterpretCast &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: cast suggestion
 
@@ -20643,7 +20676,7 @@ C++ Core Guidelines Pro.safety
 <br/>
 <br/>
 
-### <span id="forbidcstylecast">▌R12.20 在 C++ 代码中禁用 C 风格类型转换</span>
+### <span id="forbidcstylecast">▌R12.21 在 C++ 代码中禁用 C 风格类型转换</span>
 
 ID_forbidCStyleCast &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: cast suggestion
 
@@ -20673,39 +20706,6 @@ void bar(A* a) {
 #### 参考
 C++ Core Guidelines ES.49  
 MISRA C++ 2008 5-2-4  
-<br/>
-<br/>
-
-### <span id="negativeunsignedcast">▌R12.21 不应将负数转为无符号数</span>
-
-ID_negativeUnsignedCast &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: cast warning
-
-<hr/>
-
-负数转为无符号数的适用场景有限，易导致意料之外的错误，应避免负数与无符号数的隐式转换，相关显式转换也应在合理的条件下完成。  
-  
-本规则是 ID\_signChangeCast 的特化。  
-  
-示例：
-```
-size_t foo() {
-    if (cond) {
-        return -1;   // Non-compliant
-    }
-    ....
-}
-```
-<br/>
-<br/>
-
-#### 相关
-ID_signChangeCast  
-ID_minusOnUnsigned  
-<br/>
-
-#### 参考
-CWE-195  
-MISRA C++ 2008 5-0-4  
 <br/>
 <br/>
 
