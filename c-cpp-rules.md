@@ -280,25 +280,25 @@
     - [R6.4.6 数组大小应被显式声明](#missingarraysize)
     - [R6.4.7 不应将类型定义和对象声明写在一个语句中](#mixedtypeobjdefinition)
     - [R6.4.8 不应将不同类别的声明写在一个语句中](#mixeddeclarations)
-  - [6.5 Initializer](#declaration.initializer)
-    - [R6.5.1 用 {} 代替 = 或 () 进行初始化](#missingbracedsyntax)
-    - [R6.5.2 在初始化列表中对聚合体也应使用初始化列表](#missingbracedinitializer)
-    - [R6.5.3 初始化列表中不应存在重复的指派符](#repeateddesignator)
-  - [6.6 Object](#declaration.object)
-    - [R6.6.1 不应产生无效的临时对象](#inaccessibletmpobject)
-    - [R6.6.2 对象初始化不可依赖自身的值](#selfdependentinitialization)
-    - [R6.6.3 参与数值运算的 char 对象应显式声明 signed 或 unsigned](#plainnumericchar)
-    - [R6.6.4 signed char 和 unsigned char 对象只应用于数值计算](#excessivecharsign)
-    - [R6.6.5 字节的类型应为 std::byte 或 unsigned char](#plainbinarychar)
-  - [6.7 Parameter](#declaration.parameter)
-    - [R6.7.1 函数原型声明中的参数应具有合理的名称](#missingparamname)
-    - [R6.7.2 不应将数组作为函数的形式参数](#invalidparamarraysize)
-    - [R6.7.3 parmN 的声明应符合要求](#badparmn)
-    - [R6.7.4 虚函数参数的默认值应与基类中声明的一致](#inconsistentdefaultargument)
-    - [R6.7.5 不建议虚函数的参数有默认值](#deprecateddefaultargument)
-    - [R6.7.6 C 代码中参数列表如果为空应声明为“(void)”](#missingvoid)
-    - [R6.7.7 C\+\+ 代码中参数列表如果为空不应声明为“(void)”](#superfluousvoid)
-    - [R6.7.8 声明数组参数的大小时禁用 static 关键字](#forbidstaticarrsize)
+  - [6.5 Parameter](#declaration.parameter)
+    - [R6.5.1 函数原型声明中的参数应具有合理的名称](#missingparamname)
+    - [R6.5.2 不应将数组作为函数的形式参数](#invalidparamarraysize)
+    - [R6.5.3 parmN 的声明应符合要求](#badparmn)
+    - [R6.5.4 虚函数参数的默认值应与基类中声明的一致](#inconsistentdefaultargument)
+    - [R6.5.5 不建议虚函数的参数有默认值](#deprecateddefaultargument)
+    - [R6.5.6 C 代码中参数列表如果为空应声明为“(void)”](#missingvoid)
+    - [R6.5.7 C\+\+ 代码中参数列表如果为空不应声明为“(void)”](#superfluousvoid)
+    - [R6.5.8 声明数组参数的大小时禁用 static 关键字](#forbidstaticarrsize)
+  - [6.6 Initializer](#declaration.initializer)
+    - [R6.6.1 用 {} 代替 = 或 () 进行初始化](#missingbracedsyntax)
+    - [R6.6.2 在初始化列表中对聚合体也应使用初始化列表](#missingbracedinitializer)
+    - [R6.6.3 初始化列表中不应存在重复的指派符](#repeateddesignator)
+  - [6.7 Object](#declaration.object)
+    - [R6.7.1 不应产生无效的临时对象](#inaccessibletmpobject)
+    - [R6.7.2 对象初始化不可依赖自身的值](#selfdependentinitialization)
+    - [R6.7.3 参与数值运算的 char 对象应显式声明 signed 或 unsigned](#plainnumericchar)
+    - [R6.7.4 signed char 和 unsigned char 对象只应用于数值计算](#excessivecharsign)
+    - [R6.7.5 字节的类型应为 std::byte 或 unsigned char](#plainbinarychar)
   - [6.8 Function](#declaration.function)
     - [R6.8.1 派生类不应重新定义与基类相同的非虚函数](#nonvirtualoverride)
     - [R6.8.2 重载运算符的返回类型应与内置运算符相符](#illoperatorrettype)
@@ -8297,309 +8297,9 @@ C++ Core Guidelines ES.10
 <br/>
 <br/>
 
-### <span id="declaration.initializer">6.5 Initializer</span>
+### <span id="declaration.parameter">6.5 Parameter</span>
 
-### <span id="missingbracedsyntax">▌R6.5.1 用 {} 代替 = 或 () 进行初始化</span>
-
-ID_missingBracedSyntax &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: declaration suggestion
-
-<hr/>
-
-用 = 或 () 初始化不检查类型转换是否安全，可能会造成数据丢失，用 {} 初始化会进行相关检查，避免数据丢失。  
-  
-示例：
-```
-double d = 1.2;
-float x = d;     // Non-compliant, may loss data
-float y(d);      // Non-compliant, may loss data
-float z{d};      // Compliant, compile-time protected
-```
-例中 x 和 y 的初始化可能存在数据丢失等问题，z 的初始化无法通过编译，使问题可以及时修正。
-<br/>
-<br/>
-
-#### 相关
-ID_narrowCast  
-<br/>
-
-#### 依据
-ISO/IEC 14882:2011 8.5.4  
-<br/>
-
-#### 参考
-C++ Core Guidelines ES.23  
-<br/>
-<br/>
-
-### <span id="missingbracedinitializer">▌R6.5.2 在初始化列表中对聚合体也应使用初始化列表</span>
-
-ID_missingBracedInitializer &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: declaration suggestion
-
-<hr/>
-
-结构体、联合体、类对象、数组等聚合体在初始化列表中也应使用由大括号初始化，否则可读性较差。  
-  
-示例：
-```
-int a[2][3] = {1, 2, 3, 4, 5, 6};       // Non-compliant
-int b[2][3] = {{1, 2, 3}, {4, 5, 6}};   // Compliant
-
-struct T {int x, y;};
-struct T u[3] = {1, 2, 3, 4, 5, 6};         // Non-compliant
-struct T v[3] = {{1, 2}, {3, 4}, {5, 6}};   // Compliant
-```
-<br/>
-<br/>
-
-#### 参考
-MISRA C 2012 9.2  
-<br/>
-<br/>
-
-### <span id="repeateddesignator">▌R6.5.3 初始化列表中不应存在重复的指派符</span>
-
-ID_repeatedDesignator &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: declaration error
-
-<hr/>
-
-重复的指派符（designator）会使其指定的元素被重复初始化，往往意味着笔误或复制粘贴错误。  
-  
-示例：
-```
-struct T { int x, y; };
-struct T obj = { .x = 0, .x = 1 };            // Non-compliant
-int arr[3] = { [0] = 0, [1] = 1, [1] = 2 };   // Non-compliant
-```
-例中重复的指派符 .x 和 \[1\] 是没有意义的。
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 9899:1999 6.7.8(6 7)  
-ISO/IEC 9899:2011 6.7.9(6 7)  
-<br/>
-
-#### 参考
-MISRA C 2012 9.4  
-<br/>
-<br/>
-
-### <span id="declaration.object">6.6 Object</span>
-
-### <span id="inaccessibletmpobject">▌R6.6.1 不应产生无效的临时对象</span>
-
-ID_inaccessibleTmpObject &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: declaration error
-
-<hr/>
-
-无名且不受控制的临时对象在构造之后会立即析构，在逻辑上没有意义，往往意味着错误。  
-  
-示例：
-```
-class A {
-    int a;
-
-public:
-    A() {
-        A(0);   // Non-compliant, just created an inaccessible temporary object
-    }
-
-    A(int x): a(x) {}
-};
-```
-示例代码意在调用重载的构造函数，但 A(0); 只生成了一个无效的临时对象，成员并没有被正确初始化，应改用 this\->A::A(0); 等形式，在遵循 C\+\+11 标准的代码中也可将 A(0) 移入初始化列表：
-```
-class A {
-    int a;
-
-public:
-    A(): A(0) {}        // Compliant
-    A(int x): a(x) {}
-};
-```
-又如：
-```
-class LockGuard { .... };
-
-void fun() {
-    LockGuard();   // Non-compliant, meaningless
-    ....
-} 
-```
-设 LockGuard 是某种 RAII 锁，LockGuard(); 只生成了一个临时对象，该对象会立即析构，起不到作用，这也是一种常见的错误。  
-  
-应改为：
-```
-void fun() {
-    LockGuard guard;   // Compliant
-    ....
-}
-```
-<br/>
-<br/>
-
-#### 参考
-CWE-665  
-C++ Core Guidelines ES.84  
-<br/>
-<br/>
-
-### <span id="selfdependentinitialization">▌R6.6.2 对象初始化不可依赖自身的值</span>
-
-ID_selfDependentInitialization &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: declaration error
-
-<hr/>
-
-对象初始化依赖自身的值属于逻辑错误，也是常见的笔误。  
-  
-示例：
-```
-void foo(int i) {
-    if (i > 0) {
-        int i = i + 1;  // Non-compliant
-        ....
-    }
-}
-```
-例中局部变量 i 的初始化依赖自身的值，这种问题往往是错误地定义了与外层作用域中名称相同的对象。  
-  
-应改为：
-```
-void foo(int i) {
-    if (i > 0) {
-        int j = i + 1;  // OK
-        ....
-    }
-}
-```
-<br/>
-<br/>
-<br/>
-
-### <span id="plainnumericchar">▌R6.6.3 参与数值运算的 char 对象应显式声明 signed 或 unsigned</span>
-
-ID_plainNumericChar &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: declaration warning
-
-<hr/>
-
-char 类型是否有符号由实现定义，为了提高可移植性并规避意料之外的错误，参与数值运算的 char 对象应显式声明符号属性。  
-  
-示例：
-```
-int foo(char c) {     // Compliant
-    return c == 'a';
-}
-
-int bar(char c) {     // Non-compliant
-    return c >= 0;    // May be always true
-}
-```
-例中 foo 函数的 char 型参数只与字符有关，可不必声明符号属性；而 bar 函数的参数被当作整数参与了数值运算，应显式声明为 signed，否则在 char 为无符号整型的环境中会得到错误的结果。  
-  
-应改为：
-```
-int bar(signed char c) {   // Compliant
-    return c >= 0;
-}
-```
-<br/>
-<br/>
-
-#### 相关
-ID_excessiveCharSign  
-<br/>
-
-#### 依据
-ISO/IEC 9899:1999 6.2.5(3 15)-implementation  
-ISO/IEC 9899:2011 6.2.5(3 15)-implementation  
-ISO/IEC 14882:2003 3.9.1(1)-implementation  
-ISO/IEC 14882:2011 3.9.1(1)-implementation  
-<br/>
-
-#### 参考
-MISRA C++ 2008 5-0-11  
-SEI CERT INT07-C  
-<br/>
-<br/>
-
-### <span id="excessivecharsign">▌R6.6.4 signed char 和 unsigned char 对象只应用于数值计算</span>
-
-ID_excessiveCharSign &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: declaration suggestion
-
-<hr/>
-
-signed char、unsigned char 以及 int8\_t、uint8\_t 是整数类型，只应用于数值计算，不应用于存储字符。  
-  
-字符类型由整数类型实现，但应分清各自的职责，混用不利于阅读和维护。  
-  
-示例：
-```
-signed char a = 'a';     // Non-compliant
-unsigned char b = 'b';   // Non-compliant
-```
-<br/>
-<br/>
-
-#### 相关
-ID_plainNumericChar  
-<br/>
-
-#### 参考
-MISRA C++ 2008 5-0-12  
-<br/>
-<br/>
-
-### <span id="plainbinarychar">▌R6.6.5 字节的类型应为 std::byte 或 unsigned char</span>
-
-ID_plainBinaryChar &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: declaration warning
-
-<hr/>
-
-字节等二进制概念不应受对齐方式或符号位的干扰，字节的类型应为 std::byte 或 unsigned char。  
-  
-std::byte  是 C\+\+17 的标准字节类型，对字节相关的运算和操作提供了更安全的限定。在 C 代码或不便于遵循新标准的 C\+\+ 代码中，应将字节类型声明为 unsigned char。  
-  
-示例：
-```
-typedef char byte;       // Non-compliant
-byte buf[100];
-FILE* fp = fopen("foo", "rb");
-fread(buf, 1, 100, fp);
-if (buf[0] == 0xff) {    // May be always false
-    ....
-}
-if (buf[1] << 1) {       // May cause undefined behavior
-    ....
-}
-```
-char 类型的符号由实现定义，有符号的 char 变量在数值计算、位运算等方面很容易产生意料之外的结果。  
-  
-应改为：
-```
-typedef unsigned char byte;   // Compliant
-```
-这样做也可有效区分二进制数据与字符串，提高可读性。
-<br/>
-<br/>
-
-#### 相关
-ID_plainNumericChar  
-ID_bitwiseOperOnSigned  
-<br/>
-
-#### 依据
-ISO/IEC 9899:1999 6.2.5(3 15)-implementation  
-ISO/IEC 9899:2011 6.2.5(3 15)-implementation  
-ISO/IEC 14882:2003 3.9.1(1)-implementation  
-ISO/IEC 14882:2011 3.9.1(1)-implementation  
-ISO/IEC 14882:2017 21.2.1  
-ISO/IEC 14882:2017 21.2.5  
-<br/>
-<br/>
-
-### <span id="declaration.parameter">6.7 Parameter</span>
-
-### <span id="missingparamname">▌R6.7.1 函数原型声明中的参数应具有合理的名称</span>
+### <span id="missingparamname">▌R6.5.1 函数原型声明中的参数应具有合理的名称</span>
 
 ID_missingParamName &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: declaration suggestion
 
@@ -8628,7 +8328,7 @@ MISRA C 2012 8.2
 <br/>
 <br/>
 
-### <span id="invalidparamarraysize">▌R6.7.2 不应将数组作为函数的形式参数</span>
+### <span id="invalidparamarraysize">▌R6.5.2 不应将数组作为函数的形式参数</span>
 
 ID_invalidParamArraySize &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: declaration warning
 
@@ -8685,7 +8385,7 @@ MISRA C++ 2008 5-2-12
 <br/>
 <br/>
 
-### <span id="badparmn">▌R6.7.3 parmN 的声明应符合要求</span>
+### <span id="badparmn">▌R6.5.3 parmN 的声明应符合要求</span>
 
 ID_badParmN &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: declaration error
 
@@ -8724,7 +8424,7 @@ SEI CERT EXP58-CPP
 <br/>
 <br/>
 
-### <span id="inconsistentdefaultargument">▌R6.7.4 虚函数参数的默认值应与基类中声明的一致</span>
+### <span id="inconsistentdefaultargument">▌R6.5.4 虚函数参数的默认值应与基类中声明的一致</span>
 
 ID_inconsistentDefaultArgument &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: declaration error
 
@@ -8772,7 +8472,7 @@ MISRA C++ 2008 8-3-1
 <br/>
 <br/>
 
-### <span id="deprecateddefaultargument">▌R6.7.5 不建议虚函数的参数有默认值</span>
+### <span id="deprecateddefaultargument">▌R6.5.5 不建议虚函数的参数有默认值</span>
 
 ID_deprecatedDefaultArgument &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: declaration suggestion
 
@@ -8815,7 +8515,7 @@ MISRA C++ 2008 8-3-1
 <br/>
 <br/>
 
-### <span id="missingvoid">▌R6.7.6 C 代码中参数列表如果为空应声明为“(void)”</span>
+### <span id="missingvoid">▌R6.5.6 C 代码中参数列表如果为空应声明为“(void)”</span>
 
 ID_missingVoid &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: declaration warning
 
@@ -8875,7 +8575,7 @@ MISRA C 2012 8.2
 <br/>
 <br/>
 
-### <span id="superfluousvoid">▌R6.7.7 C++ 代码中参数列表如果为空不应声明为“(void)”</span>
+### <span id="superfluousvoid">▌R6.5.7 C++ 代码中参数列表如果为空不应声明为“(void)”</span>
 
 ID_superfluousVoid &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: declaration suggestion
 
@@ -8908,7 +8608,7 @@ C++ Core Guidelines NL.25
 <br/>
 <br/>
 
-### <span id="forbidstaticarrsize">▌R6.7.8 声明数组参数的大小时禁用 static 关键字</span>
+### <span id="forbidstaticarrsize">▌R6.5.8 声明数组参数的大小时禁用 static 关键字</span>
 
 ID_forbidStaticArrSize &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: declaration warning
 
@@ -8945,6 +8645,306 @@ ISO/IEC 9899:2011 6.7.6.3(7)
 
 #### 参考
 MISRA C 2012 17.6  
+<br/>
+<br/>
+
+### <span id="declaration.initializer">6.6 Initializer</span>
+
+### <span id="missingbracedsyntax">▌R6.6.1 用 {} 代替 = 或 () 进行初始化</span>
+
+ID_missingBracedSyntax &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: declaration suggestion
+
+<hr/>
+
+用 = 或 () 初始化不检查类型转换是否安全，可能会造成数据丢失，用 {} 初始化会进行相关检查，避免数据丢失。  
+  
+示例：
+```
+double d = 1.2;
+float x = d;     // Non-compliant, may loss data
+float y(d);      // Non-compliant, may loss data
+float z{d};      // Compliant, compile-time protected
+```
+例中 x 和 y 的初始化可能存在数据丢失等问题，z 的初始化无法通过编译，使问题可以及时修正。
+<br/>
+<br/>
+
+#### 相关
+ID_narrowCast  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2011 8.5.4  
+<br/>
+
+#### 参考
+C++ Core Guidelines ES.23  
+<br/>
+<br/>
+
+### <span id="missingbracedinitializer">▌R6.6.2 在初始化列表中对聚合体也应使用初始化列表</span>
+
+ID_missingBracedInitializer &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: declaration suggestion
+
+<hr/>
+
+结构体、联合体、类对象、数组等聚合体在初始化列表中也应使用由大括号初始化，否则可读性较差。  
+  
+示例：
+```
+int a[2][3] = {1, 2, 3, 4, 5, 6};       // Non-compliant
+int b[2][3] = {{1, 2, 3}, {4, 5, 6}};   // Compliant
+
+struct T {int x, y;};
+struct T u[3] = {1, 2, 3, 4, 5, 6};         // Non-compliant
+struct T v[3] = {{1, 2}, {3, 4}, {5, 6}};   // Compliant
+```
+<br/>
+<br/>
+
+#### 参考
+MISRA C 2012 9.2  
+<br/>
+<br/>
+
+### <span id="repeateddesignator">▌R6.6.3 初始化列表中不应存在重复的指派符</span>
+
+ID_repeatedDesignator &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: declaration error
+
+<hr/>
+
+重复的指派符（designator）会使其指定的元素被重复初始化，往往意味着笔误或复制粘贴错误。  
+  
+示例：
+```
+struct T { int x, y; };
+struct T obj = { .x = 0, .x = 1 };            // Non-compliant
+int arr[3] = { [0] = 0, [1] = 1, [1] = 2 };   // Non-compliant
+```
+例中重复的指派符 .x 和 \[1\] 是没有意义的。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.7.8(6 7)  
+ISO/IEC 9899:2011 6.7.9(6 7)  
+<br/>
+
+#### 参考
+MISRA C 2012 9.4  
+<br/>
+<br/>
+
+### <span id="declaration.object">6.7 Object</span>
+
+### <span id="inaccessibletmpobject">▌R6.7.1 不应产生无效的临时对象</span>
+
+ID_inaccessibleTmpObject &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: declaration error
+
+<hr/>
+
+无名且不受控制的临时对象在构造之后会立即析构，在逻辑上没有意义，往往意味着错误。  
+  
+示例：
+```
+class A {
+    int a;
+
+public:
+    A() {
+        A(0);   // Non-compliant, just created an inaccessible temporary object
+    }
+
+    A(int x): a(x) {}
+};
+```
+示例代码意在调用重载的构造函数，但 A(0); 只生成了一个无效的临时对象，成员并没有被正确初始化，应改用 this\->A::A(0); 等形式，在遵循 C\+\+11 标准的代码中也可将 A(0) 移入初始化列表：
+```
+class A {
+    int a;
+
+public:
+    A(): A(0) {}        // Compliant
+    A(int x): a(x) {}
+};
+```
+又如：
+```
+class LockGuard { .... };
+
+void fun() {
+    LockGuard();   // Non-compliant, meaningless
+    ....
+} 
+```
+设 LockGuard 是某种 RAII 锁，LockGuard(); 只生成了一个临时对象，该对象会立即析构，起不到作用，这也是一种常见的错误。  
+  
+应改为：
+```
+void fun() {
+    LockGuard guard;   // Compliant
+    ....
+}
+```
+<br/>
+<br/>
+
+#### 参考
+CWE-665  
+C++ Core Guidelines ES.84  
+<br/>
+<br/>
+
+### <span id="selfdependentinitialization">▌R6.7.2 对象初始化不可依赖自身的值</span>
+
+ID_selfDependentInitialization &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: declaration error
+
+<hr/>
+
+对象初始化依赖自身的值属于逻辑错误，也是常见的笔误。  
+  
+示例：
+```
+void foo(int i) {
+    if (i > 0) {
+        int i = i + 1;  // Non-compliant
+        ....
+    }
+}
+```
+例中局部变量 i 的初始化依赖自身的值，这种问题往往是错误地定义了与外层作用域中名称相同的对象。  
+  
+应改为：
+```
+void foo(int i) {
+    if (i > 0) {
+        int j = i + 1;  // OK
+        ....
+    }
+}
+```
+<br/>
+<br/>
+<br/>
+
+### <span id="plainnumericchar">▌R6.7.3 参与数值运算的 char 对象应显式声明 signed 或 unsigned</span>
+
+ID_plainNumericChar &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: declaration warning
+
+<hr/>
+
+char 类型是否有符号由实现定义，为了提高可移植性并规避意料之外的错误，参与数值运算的 char 对象应显式声明符号属性。  
+  
+示例：
+```
+int foo(char c) {     // Compliant
+    return c == 'a';
+}
+
+int bar(char c) {     // Non-compliant
+    return c >= 0;    // May be always true
+}
+```
+例中 foo 函数的 char 型参数只与字符有关，可不必声明符号属性；而 bar 函数的参数被当作整数参与了数值运算，应显式声明为 signed，否则在 char 为无符号整型的环境中会得到错误的结果。  
+  
+应改为：
+```
+int bar(signed char c) {   // Compliant
+    return c >= 0;
+}
+```
+<br/>
+<br/>
+
+#### 相关
+ID_excessiveCharSign  
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.2.5(3 15)-implementation  
+ISO/IEC 9899:2011 6.2.5(3 15)-implementation  
+ISO/IEC 14882:2003 3.9.1(1)-implementation  
+ISO/IEC 14882:2011 3.9.1(1)-implementation  
+<br/>
+
+#### 参考
+MISRA C++ 2008 5-0-11  
+SEI CERT INT07-C  
+<br/>
+<br/>
+
+### <span id="excessivecharsign">▌R6.7.4 signed char 和 unsigned char 对象只应用于数值计算</span>
+
+ID_excessiveCharSign &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: declaration suggestion
+
+<hr/>
+
+signed char、unsigned char 以及 int8\_t、uint8\_t 是整数类型，只应用于数值计算，不应用于存储字符。  
+  
+字符类型由整数类型实现，但应分清各自的职责，混用不利于阅读和维护。  
+  
+示例：
+```
+signed char a = 'a';     // Non-compliant
+unsigned char b = 'b';   // Non-compliant
+```
+<br/>
+<br/>
+
+#### 相关
+ID_plainNumericChar  
+<br/>
+
+#### 参考
+MISRA C++ 2008 5-0-12  
+<br/>
+<br/>
+
+### <span id="plainbinarychar">▌R6.7.5 字节的类型应为 std::byte 或 unsigned char</span>
+
+ID_plainBinaryChar &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: declaration warning
+
+<hr/>
+
+字节等二进制概念不应受对齐方式或符号位的干扰，字节的类型应为 std::byte 或 unsigned char。  
+  
+std::byte  是 C\+\+17 的标准字节类型，对字节相关的运算和操作提供了更安全的限定。在 C 代码或不便于遵循新标准的 C\+\+ 代码中，应将字节类型声明为 unsigned char。  
+  
+示例：
+```
+typedef char byte;       // Non-compliant
+byte buf[100];
+FILE* fp = fopen("foo", "rb");
+fread(buf, 1, 100, fp);
+if (buf[0] == 0xff) {    // May be always false
+    ....
+}
+if (buf[1] << 1) {       // May cause undefined behavior
+    ....
+}
+```
+char 类型的符号由实现定义，有符号的 char 变量在数值计算、位运算等方面很容易产生意料之外的结果。  
+  
+应改为：
+```
+typedef unsigned char byte;   // Compliant
+```
+这样做也可有效区分二进制数据与字符串，提高可读性。
+<br/>
+<br/>
+
+#### 相关
+ID_plainNumericChar  
+ID_bitwiseOperOnSigned  
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.2.5(3 15)-implementation  
+ISO/IEC 9899:2011 6.2.5(3 15)-implementation  
+ISO/IEC 14882:2003 3.9.1(1)-implementation  
+ISO/IEC 14882:2011 3.9.1(1)-implementation  
+ISO/IEC 14882:2017 21.2.1  
+ISO/IEC 14882:2017 21.2.5  
 <br/>
 <br/>
 
