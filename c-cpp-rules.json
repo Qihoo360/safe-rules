@@ -283,7 +283,7 @@
     "ID_insufficientDelete": {
         "checkPoint": "用 delete 释放数组不可漏写中括号",
         "level": "error",
-        "comment": "用 new 分配的数组应该用 delete[] 释放，不可漏写中括号，否则导致标准未定义的行为。",
+        "comment": "用 new[] 分配的数组应该用 delete[] 释放，不可漏写中括号，否则导致标准未定义的行为。",
         "tag": "resource",
         "related": "ID_excessiveDelete",
         "standard": "ISO/IEC 14882:2003 5.3.5(2)-undefined,ISO/IEC 14882:2011 5.3.5(2)-undefined,ISO/IEC 14882:2017 8.3.5(2)-undefined",

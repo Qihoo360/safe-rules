@@ -2262,7 +2262,7 @@ ID_insufficientDelete &emsp;&emsp;&emsp;&emsp;&nbsp; :drop_of_blood: resource er
 
 <hr/>
 
-用 new 分配的数组应该用 delete\[\] 释放，不可漏写中括号，否则导致标准未定义的行为。  
+用 new\[\] 分配的数组应该用 delete\[\] 释放，不可漏写中括号，否则导致标准未定义的行为。  
   
 示例：
 ```
@@ -2547,7 +2547,7 @@ char* pc = new char;   // Non-compliant
 bool b = false;   // Compliant
 char c = 0;       // Compliant
 ```
-用 new 分配数组时方括号被误写成小括号，或使用 unique\_ptr 等智能指针时遗漏了数组括号也是常见笔误，如：
+用 new\[\] 分配数组时方括号被误写成小括号，或使用 unique\_ptr 等智能指针时遗漏了数组括号也是常见笔误，如：
 ```
 int* pi = new int(32);            // Non-compliant
 auto ui = make_unique<int>(32);   // Non-compliant
