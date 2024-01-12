@@ -375,7 +375,7 @@
   - [R8.4 多态类的对象作为参数时不应采用值传递的方式](#parammaybeslicing)
   - [R8.5 不应存在未被使用的具名形式参数](#paramnotused)
   - [R8.6 形式参数不应被修改](#parammodified)
-  - [R8.7 非基本类型的常量参数不应按值传递](#parampassedbyvalue)
+  - [R8.7 复制成本高的参数不应按值传递](#parampassedbyvalue)
   - [R8.8 转发引用只应作为 std::forward 的参数](#illforwardingreference)
   - [R8.9 局部对象在使用前应被初始化](#localinitialization)
   - [R8.10 成员须在声明处或构造时初始化](#memberinitialization)
@@ -548,7 +548,7 @@
     - [R10.4.13 合理使用 std::forward](#unsuitableforward)
   - [10.5 Sizeof](#expression.sizeof)
     - [R10.5.1 sizeof 不应作用于数组参数](#sizeof_arrayparameter)
-    - [R10.5.2 sizeof 不应作用于逻辑表达式](#sizeof_oddexpression)
+    - [R10.5.2 sizeof 不应作用于比较或逻辑表达式](#sizeof_oddexpression)
     - [R10.5.3 sizeof 作用于指针是可疑的](#sizeof_pointer)
     - [R10.5.4 被除数不应是作用于指针的 sizeof 表达式](#sizeof_pointerdivision)
     - [R10.5.5 指针加减偏移量时计入 sizeof 是可疑的](#sizeof_suspiciousadd)
@@ -9834,27 +9834,23 @@ ID_violateODR &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: declaration warning
 
 <hr/>
 
-One Definition Rule 即任何翻译单元不得包含对象、函数、类型或模板的多个定义，否则会导致标准未定义的行为。  
+任何翻译单元不得包含同一对象、函数、类型或模板的不同定义，这一准则称为“[One Definition Rule（ODR）](https://en.cppreference.com/w/cpp/language/definition)”，违反该准则会导致标准未定义的行为。  
   
 示例：
 ```
 // In a.cpp
-struct T {    // One Definition
-    int i;
+struct T {    // One definition
+    short i;
 };
 
-T* foo() {
-    ....
-}
+T* foo() { .... }
 
 // In b.cpp
-struct T {    // Non-compliant, another definition
+struct T {    // Non-compliant, a different definition
     long i;
 };
 
-void bar(T*) {
-    ....
-}
+void bar(T*) { .... }
 
 // In c.cpp
 struct T;
@@ -9865,7 +9861,7 @@ void baz() {
     bar(foo());   // Problems
 }
 ```
-例中 T 类型在两个翻译单元中有不同的定义，违反了 One Definition Rule，易造成难以排查的错误，应在头文件中统一定义类型。
+例中类 T 在两个翻译单元中有不同的定义，违反了 One Definition Rule，会导致未定义的行为，应在头文件中统一定义。
 <br/>
 <br/>
 
@@ -11842,30 +11838,52 @@ MISRA C 2012 17.8
 <br/>
 <br/>
 
-### <span id="parampassedbyvalue">▌R8.7 非基本类型的常量参数不应按值传递</span>
+### <span id="parampassedbyvalue">▌R8.7 复制成本高的参数不应按值传递</span>
 
 ID_paramPassedByValue &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
 <hr/>
 
-常量参数不可被改变，按值传递产生的复制开销是没有意义的，应使用常量引用传递参数。  
+如果参数为基本类型，或只包含少量非静态数据成员，且通过简单赋值即可完成复制，可以通过值传递参数，否则应使用引用或指针的方式以避免额外的复制开销。  
   
-基本类型的参数复制开销可被忽略，故不受本规则限制。  
+一般而言，如果参数的大小超过了两个指针，不应使用值传递的方式。  
   
 示例：
 ```
-void fun(const string s) {    // Non-compliant
+using S = std::string;
+
+void foo(S s) {   // Non-compliant
     ....
 }
 ```
-例中 s 为按值传递的常量参数，每当函数被调用时，传入的参数会被复制成一个新的对象，但其值又不能被改变，所以这种复制是没有意义的，利用常量引用可解决这个问题：
+例中 s 是按值传递的参数，由传入的实际参数复制而成，涉及内存分配和非常量时间复杂度的数据复制，成本较高。  
+  
+应改为常量引用的方式：
 ```
-void fun(const string& s) {   // Compliant
+void foo(const S& s) {   // Compliant
     ....
 }
 ```
-改为常量引用后不会产生额外的复制开销。
+当参数为复制成本较高的常量对象时，往往是漏写了引用符号，为常见笔误，如：
+```
+void bar(const S s);   // Non-compliant, missing ‘&’
+```
+当参数在函数体内被修改，也可能是有意让形式参数作为实际参数的副本，这种情况可不受本规则约束，但也可能是漏写了引用符号，审计工具不妨根据配置给出提醒，如：
+```
+S lower(S s) {  // Let it go?
+    transform(
+        s.begin(), s.end(), s.begin(),  
+        [](unsigned char c) { return static_cast<char>(tolower(c)); }
+    );
+    return s;
+}
+```
 <br/>
+<br/>
+
+#### 配置
+allowModifiedParam：是否放过被修改的参数  
+maxParamSize：允许按值传递的参数对象大小上限  
 <br/>
 
 #### 参考
@@ -18508,13 +18526,13 @@ SEI CERT ARR01-C
 <br/>
 <br/>
 
-### <span id="sizeof_oddexpression">▌R10.5.2 sizeof 不应作用于逻辑表达式</span>
+### <span id="sizeof_oddexpression">▌R10.5.2 sizeof 不应作用于比较或逻辑表达式</span>
 
 ID_sizeof_oddExpression &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
 <hr/>
 
-sizeof 作用于 <、>、<=、>=、==、!=、&&、|| 等逻辑表达式为常见笔误，逻辑运算符往往应该移出 sizeof 表达式。  
+sizeof 作用于 <、>、<=、>=、==、!=、&&、|| 等表达式为常见笔误，相关运算符往往应该移出 sizeof 表达式。  
   
 示例：
 ```
@@ -18535,7 +18553,7 @@ ID_sizeof_pointer &emsp;&emsp;&emsp;&emsp;&nbsp; :question: expression suspiciou
 
 <hr/>
 
-sizeof 作用于指针的结果是指针的大小，而不是指针指向内容的大小，sizeof 作用于指针很容易造成错误。  
+sizeof 作用于指针的结果是指针本身的大小，而不是指针指向对象的大小，sizeof 作用于指针属于常见笔误。  
   
 示例：
 ```
@@ -18549,7 +18567,7 @@ void foo(int* p, int n) {
     memset(p, 0, n * sizeof(*p));   // OK
 }
 ```
-其中参数 n 是数组元素的个数。
+其中 n 是 p 指向数组的元素个数。
 <br/>
 <br/>
 

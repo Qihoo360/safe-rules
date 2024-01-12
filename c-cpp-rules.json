@@ -26,9 +26,9 @@
     ],
 
     "ID_sizeof_oddExpression": {
-        "checkPoint": "sizeof 不应作用于逻辑表达式",
+        "checkPoint": "sizeof 不应作用于比较或逻辑表达式",
         "level": "warning",
-        "comment": "sizeof 作用于 <、>、<=、>=、==、!=、&&、|| 等逻辑表达式为常见笔误，逻辑运算符往往应该移出 sizeof 表达式。",
+        "comment": "sizeof 作用于 <、>、<=、>=、==、!=、&&、|| 等表达式为常见笔误，相关运算符往往应该移出 sizeof 表达式。",
         "tag": "expression"
         },
     "ID_sizeof_pointerDivision": {
@@ -2059,10 +2059,14 @@
         "reference": "CWE-1164"
         },
     "ID_paramPassedByValue": {
-        "checkPoint": "非基本类型的常量参数不应按值传递",
+        "checkPoint": "复制成本高的参数不应按值传递",
         "level": "warning",
-        "comment": "常量参数不可被改变，按值传递产生的复制开销是没有意义的，应使用常量引用传递参数。",
+        "comment": "如果参数为基本类型，或只包含少量非静态数据成员，且通过简单赋值即可完成复制，可以通过值传递参数，否则应使用引用或指针的方式以避免额外的复制开销。",
         "tag": "function",
+        "config": [
+            "allowModifiedParam: 是否放过被修改的参数",
+            "maxParamSize: 允许按值传递的参数对象大小上限"
+            ],
         "reference": "C++ Core Guidelines F.16"
         },
     "ID_paramMayBeSlicing": {
@@ -3153,7 +3157,7 @@
     "ID_sizeof_pointer": {
         "checkPoint": "sizeof 作用于指针是可疑的",
         "level": "suspicious",
-        "comment": "sizeof 作用于指针的结果是指针的大小，而不是指针指向内容的大小，sizeof 作用于指针很容易造成错误。",
+        "comment": "sizeof 作用于指针的结果是指针本身的大小，而不是指针指向对象的大小，sizeof 作用于指针属于常见笔误。",
         "tag": "expression",
         "related": "ID_sizeof_pointerDivision",
         "reference": "CWE-467"
@@ -3707,7 +3711,7 @@
     "ID_violateODR": {
         "checkPoint": "遵循 One Definition Rule",
         "level": "warning",
-        "comment": "One Definition Rule 即任何翻译单元不得包含对象、函数、类型或模板的多个定义，否则会导致标准未定义的行为。",
+        "comment": "任何翻译单元不得包含同一对象、函数、类型或模板的不同定义，这一准则称为“One Definition Rule（ODR）”，违反该准则会导致标准未定义的行为。",
         "tag": "declaration",
         "standard": "ISO/IEC 14882:2003 3.2(5)-undefined,ISO/IEC 14882:2011 3.2(5)-undefined",
         "reference": "MISRA C++ 2008 3-2-2"
