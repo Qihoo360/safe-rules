@@ -1788,9 +1788,9 @@
         "reference": "CWE-770,SEI CERT MEM05-C"
         },
     "ID_forbidMallocAndFree": {
-        "checkPoint": "C++ 代码中禁用 C 内存管理函数",
+        "checkPoint": "在 C++ 代码中禁用 C 资源管理函数",
         "level": "warning",
-        "comment": "在 C++ 代码中不应使用 malloc、free 等 C 内存管理函数，应使用 C++ 内存管理方法。",
+        "comment": "为了简化资源管理并避免潜在的错误，在 C++ 代码中不应直接使用分配、释放普通指针的函数，而应使用容器、智能指针和相关工厂函数。",
         "tag": "resource",
         "related": "ID_ownerlessResource",
         "reference": "C++ Core Guidelines R.10"
@@ -1798,7 +1798,7 @@
     "ID_ownerlessResource": {
         "checkPoint": "资源应接受对象化管理",
         "level": "warning",
-        "comment": "使资源接受对象化管理，免去繁琐易错的手工分配回收过程，是 C++ 程序设计的重要方法。",
+        "comment": "将资源托管于类的对象，使资源的生命周期协同于对象的生命周期，避免分散处理分配与回收等问题，是 C++ 程序设计中的重要方法。",
         "tag": "resource",
         "reference": "C++ Core Guidelines R.11,C++ Core Guidelines R.12"
         },

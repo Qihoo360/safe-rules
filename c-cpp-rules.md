@@ -123,7 +123,7 @@
   - [R2.22 避免不必要的内存分配](#unnecessaryallocation)
   - [R2.23 避免动态内存分配](#dynamicallocation)
   - [R2.24 判断资源分配函数的返回值是否有效](#nullderefallocret)
-  - [R2.25 C\+\+ 代码中禁用 C 内存管理函数](#forbidmallocandfree)
+  - [R2.25 在 C\+\+ 代码中禁用 C 资源管理函数](#forbidmallocandfree)
 <br/>
 
 <span id="__precompile">**[3. Precompile](#precompile)**</span>
@@ -1675,61 +1675,53 @@ ID_ownerlessResource &emsp;&emsp;&emsp;&emsp;&nbsp; :drop_of_blood: resource war
 
 <hr/>
 
-使资源接受对象化管理，免去繁琐易错的手工分配回收过程，是 C\+\+ 程序设计的重要方法。  
+将资源托管于类的对象，使资源的生命周期协同于对象的生命周期，避免分散处理分配与回收等问题，是 C\+\+ 程序设计中的重要方法。  
   
-将资源分配的结果直接在程序中传递是非常不安全的，极易产生泄漏或死锁等问题。动态申请的资源如果只用普通变量引用，不受对象的构造或析构机制控制，则称为“无主”资源，在 C\+\+ 程序设计中应当避免。  
-  
-应尽量使用标准库提供的容器或智能指针，避免显式使用资源管理接口。本规则集合示例中的 new/delete、lock/unlock 意在代指一般的资源操作，仅作示例，在实际代码中应尽量避免。  
+动态申请的资源如果只能通过普通指针或变量访问，不受对象的构造和析构等机制控制，则称为“无主”资源，极易产生泄漏或死锁等问题。应尽量使用标准库提供的容器、智能指针以及资源对应的类，避免直接使用 new、delete 以及底层资源管理接口。  
   
 示例：
 ```
-void foo(size_t size) {
-    int* p = new int[size];   // Bad, ownerless
-    ....                      // If any exception is thrown, or a wrong jump, leak
-    delete[] p;
-}
+int* p = new int[8];   // Non-compliant, ownerless
+....                   // If any exception is thrown, 
+                       // or any wrong jump occurs, the memory leaks
 
-struct X {
-    int* p;
-};
+struct X { int* p; };
+X x;
+x.p = new int[8];      // Non-compliant, no destructor, ‘x’ is not an owner
+....
 
-void bar() {
-    X x;
-    x.p = new int[123];   // Bad, ‘X’ has no destructor, ‘x’ is not an owner
-    ....
-}
-
-class Y {
-    int* p;
-
-public:
-    Y(size_t n): p(new int[n]) {}
-   ~Y() { delete[] p; }
-};
-
-void baz() {
-    Y y(123);   // Good, ‘y’ is the owner of the resource
-    ....
-}
+delete[] p;     // Non-compliant, explicit delete
+delete[] x.p;   // Non-compliant
 ```
-例中 foo 和 bar 函数的资源管理方式是不符合 C\+\+ 理念的，baz 函数中的 y 对象负责资源的分配与回收，称 y 对象具有资源的所有权，相关资源的生命周期与 y 的生命周期一致，有效避免了资源泄漏或错误回收等问题。  
+例中用不受析构函数控制的指针保存 new 表达式的结果，以及对应的 delete 表达式均不符合要求。  
+  
+应将资源托管于类的对象：
+```
+class Mgr {
+    int* p;
+public:
+    Mgr(size_t n): p(new int[n]) {}
+   ~Mgr() { delete[] p; }
+};
+
+Mgr m(8);   // Compliant, ‘m’ is the owner of the resource
+```
+例中 m 对象负责资源的分配与回收，称 m 对象拥有资源的所有权，相关资源的生命周期与对象的生命周期一致，有效避免了资源泄漏或错误回收等问题。针对成员的 new、delete 可不受本规则限制，但应优先使用容器或智能指针。  
   
 资源的所有权可以发生转移，但应保证转移前后均有对象负责管理资源，并且在转移过程中不会产生异常。进一步理解对象化管理方法，可参见“[RAII（Resource Acquisition Is Initialization）](https://en.cppreference.com/w/cpp/language/raii)”等机制。  
   
-与资源相关的系统接口不应直接被业务代码引用，如：
+另外，底层资源管理接口也不应直接在业务代码中使用，如：
 ```
 void foo(const TCHAR* path) {
-    HANDLE h;
     WIN32_FIND_DATA ffd;
-
-    h = FindFirstFile(path, &ffd);  // Bad, ownerless
+    HANDLE h = FindFirstFile(path, &ffd);  // Non-compliant, ownerless
     ....
     CloseHandle(h);  // Is it right?
 }
 ```
-例中 Windows API FindFirstFile 返回资源句柄，是“无主”资源，很可能被后续代码误用或遗忘。  
+例中 FindFirstFile 是 Windows API，返回的资源句柄对应“无主”资源，需要显式回收。  
   
-应进行合理封装：
+应对其合理封装：
 ```
 class MY_FIND_DATA
 {
@@ -1747,7 +1739,7 @@ public:
     HANDLE handle() { return uptr.get(); }
 };
 ```
-本例将 FindFirstFile 及其相关数据封装成一个类，由 unique\_ptr 对象保存 FindFirstFile 的结果，FindClose 是资源的回收方法，将其作为 unique\_ptr 对象的组成部分，使资源可以被自动回收。
+将 FindFirstFile 及其相关数据封装成一个类，由 unique\_ptr 对象保存 FindFirstFile 的结果，FindClose 是资源的回收方法，将其作为 unique\_ptr 对象的组成部分，使资源可以被自动回收。
 <br/>
 <br/>
 
@@ -2637,26 +2629,26 @@ CWE-476
 <br/>
 <br/>
 
-### <span id="forbidmallocandfree">▌R2.25 C++ 代码中禁用 C 内存管理函数</span>
+### <span id="forbidmallocandfree">▌R2.25 在 C++ 代码中禁用 C 资源管理函数</span>
 
 ID_forbidMallocAndFree &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: resource warning
 
 <hr/>
 
-在 C\+\+ 代码中不应使用 malloc、free 等 C 内存管理函数，应使用 C\+\+ 内存管理方法。  
+为了简化资源管理并避免潜在的错误，在 C\+\+ 代码中不应直接使用分配、释放普通指针的函数，而应使用容器、智能指针和相关工厂函数。  
   
 示例：
 ```
 void foo(size_t n) {
-    int* p = (int*)malloc(n * sizeof(int));  // Unsafe and verbose
+    int* p = (int*)malloc(n * sizeof(int));  // Non-compliant
     ....
-    free(p);
+    free(p);  // Non-compliant
 }
 ```
 应改为：
 ```
 void foo(size_t n) {
-    auto p = make_unique<int[]>(n);  // Safe and brief
+    auto p = make_unique<int[]>(n);  // Compliant
     ....
 }
 ```
