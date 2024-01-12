@@ -317,10 +317,11 @@
         "reference": "CWE-672,CWE-908,SEI CERT FIO46-C,SEI CERT MEM30-C,SEI CERT MEM50-CPP,SEI CERT EXP33-C,SEI CERT EXP53-CPP"
         },
     "ID_illDealloc": {
-        "checkPoint": "非动态申请的资源不可被释放",
+        "checkPoint": "不可释放非动态分配的内存",
         "level": "error",
-        "comment": "释放非动态申请的资源会导致标准未定义的行为。",
+        "comment": "释放非动态分配的内存会导致标准未定义的行为。",
         "tag": "resource",
+        "related": "ID_incompatibleDealloc",
         "standard": "ISO/IEC 9899:1999 7.20.3.2(2)-undefined,ISO/IEC 9899:2011 7.22.3.3(2)-undefined,ISO/IEC 14882:2003 5.3.5(2)-undefined,ISO/IEC 14882:2011 5.3.5(2)-undefined",
         "reference": "MISRA C 2012 22.2"
         },
@@ -1231,7 +1232,7 @@
     "ID_nonPODFilling": {
         "checkPoint": "memset 等函数不应作用于非 POD 对象",
         "level": "error",
-        "comment": "memset、memcpy、memmove 等具有填充功能的函数不应作用于非“POD”对象，否则会破坏其数据的内在关系。",
+        "comment": "memset、memcpy、memmove 等具有填充功能的函数不应作用于非“POD 类型”的对象，否则会破坏其数据的内在关系。",
         "tag": "buffer",
         "related": "ID_nonPODBinaryCast",
         "reference": "CWE-463,C++ Core Guidelines SL.con.4,C++ Core Guidelines C.90"
@@ -1390,7 +1391,7 @@
     "ID_nonPODVariadicArgument": {
         "checkPoint": "不应将非 POD 对象传入可变参数列表",
         "level": "error",
-        "comment": "如果将非“POD”对象传入可变参数列表，程序的行为在 C++03 中是未定义的，在 C++11 中是部分由实现定义的。",
+        "comment": "如果将非“POD 类型”的对象传入可变参数列表，程序的行为在 C++03 中是未定义的，在 C++11 中是部分由实现定义的。",
         "tag": "expression",
         "related": "ID_badVaArgType",
         "standard": "ISO/IEC 14882:2003 5.2.2(7)-undefined,ISO/IEC 14882:2011 5.2.2(7)-implementation",
@@ -1466,9 +1467,9 @@
         "reference": "C++ Core Guidelines Pro.safety"
         },
     "ID_nonPODBinaryCast": {
-        "checkPoint": "非 POD 类的指针与基本类型的指针不应相互转换",
+        "checkPoint": "非 POD 类型的指针与基本类型的指针不应相互转换",
         "level": "warning",
-        "comment": "非“POD”对象相关数据之间存在特殊的内在关系，尤其是虚函数表指针、虚基类表指针这种由实现定义的运行时数据，不应当作普通二进制数据处理，非 POD 对象的指针也不应与 void*、unsigned char* 等基本类型的指针相互转换。",
+        "comment": "非“POD 类型”相关数据之间存在特殊的内在关系，尤其是虚函数表指针、虚基类表指针这种由实现定义的运行时数据，不应当作普通二进制数据处理，非 POD 类型的指针也不应与 void*、unsigned char* 等基本类型的指针相互转换。",
         "tag": "cast",
         "related": "ID_nonPODFilling",
         "reference": "CWE-843"
@@ -1762,16 +1763,16 @@
     "ID_variableLengthArray": {
         "checkPoint": "避免使用变长数组",
         "level": "warning",
-        "comment": "使用变长数组（variable length array）可以在栈上动态分配内存，但分配失败时的行为不受程序控制。",
+        "comment": "使用变长数组（variable length array）可以在栈上动态分配内存，但分配失败时难以通过标准方法控制程序的行为。",
         "tag": "resource",
         "related": "ID_stackAllocation",
         "standard": "ISO/IEC 9899:1999 6.7.5.2(5),ISO/IEC 9899:2011 6.7.6.2(5)",
         "reference": "MISRA C 2012 18.8"
         },
     "ID_stackAllocation": {
-        "checkPoint": "避免使用在栈上分配内存的函数",
+        "checkPoint": "避免使用在栈上动态分配内存的函数",
         "level": "warning",
-        "comment": "alloca、strdupa 等函数可以在栈上动态分配内存，但分配失败时的行为不受程序控制。",
+        "comment": "alloca、strdupa 等函数可以在栈上动态分配内存，但分配失败时难以通过标准方法控制程序的行为。",
         "tag": "resource",
         "related": "ID_variableLengthArray,ID_invalidNullCheck",
         "reference": "CWE-770,SEI CERT MEM05-C"
@@ -3032,16 +3033,16 @@
     "ID_wildPtrDeref": {
         "checkPoint": "不可解引用未初始化的指针",
         "level": "error",
-        "comment": "未初始化的指针具有不确定的值，对其解引用会导致标准未定义的行为，往往会造成严重错误。",
+        "comment": "未初始化的指针具有不确定的值，解引用未初始化的指针会导致标准未定义的行为。",
         "tag": "pointer",
         "related": "ID_illAccess,ID_localInitialization",
         "standard": "ISO/IEC 9899:1999 6.5.3.2(4)-undefined,ISO/IEC 9899:2011 6.5.3.2(4)-undefined",
         "reference": "CWE-824,C++ Core Guidelines ES.65"
         },
     "ID_danglingDeref": {
-        "checkPoint": "不可解引用已被释放的指针",
+        "checkPoint": "不可解引用已失效的指针",
         "level": "error",
-        "comment": "已被释放的指针指向失效的内存空间，对其解引用会导致标准未定义的行为，往往会造成严重错误。",
+        "comment": "对象的生命周期结束后，指向该对象的指针即失效，解引用已失效的指针会导致标准未定义的行为。",
         "tag": "pointer",
         "related": "ID_illAccess,ID_illLifetime,ID_localAddressFlowOut,ID_missingResetNull",
         "standard": "ISO/IEC 9899:1999 6.5.3.2(4)-undefined,ISO/IEC 9899:2011 6.5.3.2(4)-undefined",
@@ -3538,9 +3539,9 @@
         "reference": "C++ Core Guidelines NL.25"
         },
     "ID_missingResetNull": {
-        "checkPoint": "释放指针后应将指针赋值为空指针",
+        "checkPoint": "释放指针后应将指针赋值为空或其他有效值",
         "level": "suggestion",
-        "comment": "回收资源后，应立即将指向该资源的指针赋值为空指针，以明确其状态。",
+        "comment": "释放指针后，指针处于失效状态，应立即使用空指针常量或有效地址对其赋值，以避免意料之外的错误。",
         "tag": "pointer",
         "related": "ID_doubleFree,ID_danglingDeref",
         "reference": "SEI CERT MEM01-C"
@@ -3626,9 +3627,9 @@
         "reference": "CWE-1061,MISRA C++ 2008 11-0-1"
         },
     "ID_unsuitableStructTag": {
-        "checkPoint": "非平凡或非标准布局的类应采用 class 关键字定义",
+        "checkPoint": "POD 类和非 POD 类应分别使用 struct 和 class 关键字定义",
         "level": "suggestion",
-        "comment": "“平凡（trivial）”且“标准布局（standard-layout）”的类可用 struct 关键字定义，否则应使用 class 关键字。",
+        "comment": "struct 和 class 关键字应分别对应与 C 兼容的类和具有 C++ 特性的类。",
         "tag": "type",
         "reference": "C++ Core Guidelines C.2,C++ Core Guidelines C.8"
         },

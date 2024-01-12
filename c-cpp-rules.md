@@ -114,11 +114,11 @@
   - [R2.13 用 delete 释放对象需保证其类型完整](#deleteincompletetype)
   - [R2.14 用 delete 释放对象不可多写中括号](#excessivedelete)
   - [R2.15 用 delete 释放数组不可漏写中括号](#insufficientdelete)
-  - [R2.16 非动态申请的资源不可被释放](#illdealloc)
+  - [R2.16 不可释放非动态分配的内存](#illdealloc)
   - [R2.17 在一个表达式语句中最多使用一次 new](#multiallocation)
   - [R2.18 流式资源对象不应被复制](#copiedstream)
   - [R2.19 避免使用变长数组](#variablelengtharray)
-  - [R2.20 避免使用在栈上分配内存的函数](#stackallocation)
+  - [R2.20 避免使用在栈上动态分配内存的函数](#stackallocation)
   - [R2.21 局部数组不应过大](#unsuitablearraysize)
   - [R2.22 避免不必要的内存分配](#unnecessaryallocation)
   - [R2.23 避免动态内存分配](#dynamicallocation)
@@ -224,7 +224,7 @@
     - [R5.1.18 数据成员之间的填充数据不应被忽视](#ignorepaddingdata)
     - [R5.1.19 常量成员函数不应返回数据成员的非常量指针或引用](#returnnonconstdata)
     - [R5.1.20 类成员应按 public、protected、private 的顺序声明](#accessspecifierdisorder)
-    - [R5.1.21 非平凡或非标准布局的类应采用 class 关键字定义](#unsuitablestructtag)
+    - [R5.1.21 POD 类和非 POD 类应分别使用 struct 和 class 关键字定义](#unsuitablestructtag)
     - [R5.1.22 继承层次不应过深](#inherittoodeep)
   - [5.2 Enum](#type.enum)
     - [R5.2.1 同类枚举项的值不应相同](#duplicateenumerator)
@@ -599,7 +599,7 @@
   - [R12.8 类型转换不应去掉 const、volatile 等属性](#qualifiercastedaway)
   - [R12.9 不应转换无继承关系的指针或引用](#castnoinheritance)
   - [R12.10 不应转换无 public 继承关系的指针或引用](#castnonpublicinheritance)
-  - [R12.11 非 POD 类的指针与基本类型的指针不应相互转换](#nonpodbinarycast)
+  - [R12.11 非 POD 类型的指针与基本类型的指针不应相互转换](#nonpodbinarycast)
   - [R12.12 不同的字符串类型之间不可直接转换](#charwcharcast)
   - [R12.13 避免向对齐要求更严格的指针转换](#stricteralignedcast)
   - [R12.14 避免转换指向数组的指针](#arraypointercast)
@@ -625,7 +625,7 @@
   - [R14.1 避免空指针解引用](#nullderefinscp)
   - [R14.2 注意逻辑表达式内的空指针解引用](#nullderefinexp)
   - [R14.3 不可解引用未初始化的指针](#wildptrderef)
-  - [R14.4 不可解引用已被释放的指针](#danglingderef)
+  - [R14.4 不可解引用已失效的指针](#danglingderef)
   - [R14.5 避免无效的空指针检查](#invalidnullcheck)
   - [R14.6 不应重复检查指针是否为空](#repeatednullcheck)
   - [R14.7 不应将非零常量值赋值给指针](#fixedaddrtopointer)
@@ -638,7 +638,7 @@
   - [R14.14 不应判断 this 指针是否为空](#this_zerocomparison)
   - [R14.15 禁用 delete this](#this_forbiddeletethis)
   - [R14.16 判断 dynamic\_cast 转换是否成功](#nullderefdynamiccast)
-  - [R14.17 释放指针后应将指针赋值为空指针](#missingresetnull)
+  - [R14.17 释放指针后应将指针赋值为空或其他有效值](#missingresetnull)
   - [R14.18 函数取地址时应显式使用 & 运算符](#missingaddressoperator)
   - [R14.19 指针运算应使用数组下标的方式](#missingarrayindexing)
 <br/>
@@ -1919,7 +1919,7 @@ ID_ABIConflict &emsp;&emsp;&emsp;&emsp;&nbsp; :drop_of_blood: resource warning
 
 非标准布局类型的运行时特性依赖编译器的具体实现，在不同编译器生成的模块间传递这种类型的对象会导致运行时错误。  
   
-“[标准布局（standard\-layout）](https://en.cppreference.com/w/cpp/language/classes#Standard-layout_class)”类型的主要特点：  
+“[标准布局（standard\-layout）](https://en.cppreference.com/w/cpp/named_req/StandardLayoutType)”类型的主要特点：  
  - 没有虚函数也没有虚基类  
  - 所有非静态数据成员均具有相同的访问权限  
  - 所有非静态数据成员和位域都在同一个类中声明  
@@ -2291,30 +2291,30 @@ C++ Core Guidelines ES.61
 <br/>
 <br/>
 
-### <span id="illdealloc">▌R2.16 非动态申请的资源不可被释放</span>
+### <span id="illdealloc">▌R2.16 不可释放非动态分配的内存</span>
 
 ID_illDealloc &emsp;&emsp;&emsp;&emsp;&nbsp; :drop_of_blood: resource error
 
 <hr/>
 
-释放非动态申请的资源会导致标准未定义的行为。  
+释放非动态分配的内存会导致标准未定义的行为。  
+  
+本规则是 ID\_incompatibleDealloc 的特化。  
   
 示例：
 ```
-void foo(size_t n) {
-    int* p = (int*)alloca(n);
-    ....
-    free(p);    // Non-compliant, ‘p’ should not be freed
-}
-
 void bar() {
     int i;
     ....
-    free(&i);   // Non-compliant, naughty behavior
+    free(&i);   // Non-compliant, undefined behavior
 }
 ```
-释放在栈上分配的空间或者局部对象的地址会造成严重的运行时错误。
+在栈上分配的内存空间不需要显式回收，否则会导致严重的运行时错误。
 <br/>
+<br/>
+
+#### 相关
+ID_incompatibleDealloc  
 <br/>
 
 #### 依据
@@ -2409,7 +2409,7 @@ ID_variableLengthArray &emsp;&emsp;&emsp;&emsp;&nbsp; :drop_of_blood: resource w
 
 <hr/>
 
-使用变长数组（variable length array）可以在栈上动态分配内存，但分配失败时的行为不受程序控制。  
+使用变长数组（variable length array）可以在栈上动态分配内存，但分配失败时难以通过标准方法控制程序的行为。  
   
 变长数组由 C99 标准提出，不在 C\+\+ 标准之内，在 C\+\+ 代码中不应使用。  
   
@@ -2422,7 +2422,7 @@ void foo(int n)
     ....
 }
 ```
-例中数组 a 的长度为变量，其内存空间在运行时动态分配，如果长度参数 n 不是合理的正整数会导致未定义的行为。  
+例中数组 a 的长度为变量，其内存空间在运行时动态分配，如果 n 不是合理的正整数会导致未定义的行为。  
   
 另外，对于本应兼容的数组类型，如果长度不同也会导致未定义的行为，如：
 ```
@@ -2451,17 +2451,19 @@ MISRA C 2012 18.8
 <br/>
 <br/>
 
-### <span id="stackallocation">▌R2.20 避免使用在栈上分配内存的函数</span>
+### <span id="stackallocation">▌R2.20 避免使用在栈上动态分配内存的函数</span>
 
 ID_stackAllocation &emsp;&emsp;&emsp;&emsp;&nbsp; :drop_of_blood: resource warning
 
 <hr/>
 
-alloca、strdupa 等函数可以在栈上动态分配内存，但分配失败时的行为不受程序控制。  
+alloca、strdupa 等函数可以在栈上动态分配内存，但分配失败时难以通过标准方法控制程序的行为。  
+  
+在栈上动态分配内存的函数可能效率更高，分配的内存也不用显式回收，但无法满足分配需求时会直接导致运行时错误，对其返回值的检查是无效的。应避免使用这种后果难以控制的函数，尤其在循环和递归调用过程中更不应使用这种函数，而且这种函数不是标准函数，依赖平台和编译器的具体实现。  
   
 示例：
 ```
-#include <alloca.h>
+#include <alloca.h>  // or <malloc.h>
 
 void fun(size_t n) {
     int* p = (int*)alloca(n * sizeof(int));  // Non-compliant
@@ -2471,7 +2473,7 @@ void fun(size_t n) {
     ....
 }
 ```
-例中 alloca 函数在失败时往往会使程序崩溃，对其返回值的检查是无效的。这种后果不可控的函数应避免使用，尤其在循环和递归调用过程中更不应使用这种函数。
+例中 alloca 函数在栈上分配内存，如果 n 过大会使程序崩溃。
 <br/>
 <br/>
 
@@ -3714,7 +3716,7 @@ short int、signed short int、unsigned short int
 ```
 这些类型的参数在传入可变参数列表时，会被提升为 int、unsigned int、double 等类型，va\_arg 如果再按提升前的类型解析参数的值就会产生错误，参见“[默认参数提升（default argument promotion）](https://en.cppreference.com/w/cpp/language/variadic_arguments#Default_conversions)”机制。  
   
-另外，C\+\+ 代码中非 POD 类型也不可作为 va\_arg 的参数，参见 ID\_nonPODVariadicArgument。  
+另外，在 C\+\+ 代码中，非“[POD 类型](https://en.cppreference.com/w/cpp/named_req/PODType)”也不可作为 va\_arg 的参数，参见 ID\_nonPODVariadicArgument。  
   
 示例：
 ```
@@ -3765,7 +3767,7 @@ ID_deprecatedOffsetof &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: precompile suggestio
 宏 offsetof 很难适用于具有 C\+\+ 特性的类，在 C\+\+ 代码中不应使用。  
   
 如果 offsetof 用于：  
- - 非“[standard\-layout](https://en.cppreference.com/w/cpp/language/classes#Standard-layout_class)”类型  
+ - 非“[standard\-layout](https://en.cppreference.com/w/cpp/named_req/StandardLayoutType)”类型  
  - 计算静态成员或成员函数的偏移量  
   
 会导致标准未定义的行为。  
@@ -6224,13 +6226,15 @@ private:
 <br/>
 <br/>
 
-### <span id="unsuitablestructtag">▌R5.1.21 非平凡或非标准布局的类应采用 class 关键字定义</span>
+### <span id="unsuitablestructtag">▌R5.1.21 POD 类和非 POD 类应分别使用 struct 和 class 关键字定义</span>
 
 ID_unsuitableStructTag &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: type suggestion
 
 <hr/>
 
-“[平凡（trivial）](https://en.cppreference.com/w/cpp/language/classes#Trivial_class)”且“[标准布局（standard\-layout）](https://en.cppreference.com/w/cpp/language/classes#Standard-layout_class)”的类可用 struct 关键字定义，否则应使用 class 关键字。  
+struct 和 class 关键字应分别对应与 C 兼容的类和具有 C\+\+ 特性的类。  
+  
+“[POD 类](https://en.cppreference.com/w/cpp/language/classes#POD_class)”与 C 兼容可配合 C 接口使用，非 POD 类具有 C\+\+ 特性，不应与 C 接口一同使用，用 struct 和 class 关键字显式区分这两种类有助于提高可读性和可维护性。  
   
 示例：
 ```
@@ -17959,7 +17963,7 @@ ID_nonPODVariadicArgument &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: expression error
 
 <hr/>
 
-如果将非“[POD](https://en.cppreference.com/w/cpp/named_req/PODType)”对象传入可变参数列表，程序的行为在 C\+\+03 中是未定义的，在 C\+\+11 中是部分由实现定义的。  
+如果将非“[POD 类型](https://en.cppreference.com/w/cpp/named_req/PODType)”的对象传入可变参数列表，程序的行为在 C\+\+03 中是未定义的，在 C\+\+11 中是部分由实现定义的。  
   
 示例：
 ```
@@ -20243,13 +20247,13 @@ ISO/IEC 14882:2011 4.10(3)
 <br/>
 <br/>
 
-### <span id="nonpodbinarycast">▌R12.11 非 POD 类的指针与基本类型的指针不应相互转换</span>
+### <span id="nonpodbinarycast">▌R12.11 非 POD 类型的指针与基本类型的指针不应相互转换</span>
 
 ID_nonPODBinaryCast &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: cast warning
 
 <hr/>
 
-非“[POD](https://en.cppreference.com/w/cpp/named_req/PODType)”对象相关数据之间存在特殊的内在关系，尤其是虚函数表指针、虚基类表指针这种由实现定义的运行时数据，不应当作普通二进制数据处理，非 POD 对象的指针也不应与 void\*、unsigned char\* 等基本类型的指针相互转换。  
+非“[POD 类型](https://en.cppreference.com/w/cpp/named_req/PODType)”相关数据之间存在特殊的内在关系，尤其是虚函数表指针、虚基类表指针这种由实现定义的运行时数据，不应当作普通二进制数据处理，非 POD 类型的指针也不应与 void\*、unsigned char\* 等基本类型的指针相互转换。  
   
 示例：
 ```
@@ -20868,7 +20872,7 @@ ID_nonPODFilling &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: buffer error
 
 <hr/>
 
-memset、memcpy、memmove 等具有填充功能的函数不应作用于非“[POD](https://en.cppreference.com/w/cpp/named_req/PODType)”对象，否则会破坏其数据的内在关系。  
+memset、memcpy、memmove 等具有填充功能的函数不应作用于非“[POD 类型](https://en.cppreference.com/w/cpp/named_req/PODType)”的对象，否则会破坏其数据的内在关系。  
   
 本规则是 ID\_nonPODBinaryCast 的特化。  
   
@@ -21112,7 +21116,7 @@ ID_wildPtrDeref &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: pointer error
 
 <hr/>
 
-未初始化的指针具有不确定的值，对其解引用会导致标准未定义的行为，往往会造成严重错误。  
+未初始化的指针具有不确定的值，解引用未初始化的指针会导致标准未定义的行为。  
   
 示例：
 ```
@@ -21121,7 +21125,7 @@ int foo() {
     return *p;   // Non-compliant
 }
 ```
-例中指针 p 定义后未被初始化，可能指向不可访问的空间，也可能指向已分配的空间，对其读写可能会导致崩溃，也可能会扰乱程序的行为，造成难以排查的错误。
+例中未初始化的指针 p 指向不可预期的地址，通过这种指针读写数据可能会导致崩溃，也可能会扰乱程序的行为，造成难以排查的错误。
 <br/>
 <br/>
 
@@ -21141,28 +21145,28 @@ C++ Core Guidelines ES.65
 <br/>
 <br/>
 
-### <span id="danglingderef">▌R14.4 不可解引用已被释放的指针</span>
+### <span id="danglingderef">▌R14.4 不可解引用已失效的指针</span>
 
 ID_danglingDeref &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: pointer error
 
 <hr/>
 
-已被释放的指针指向失效的内存空间，对其解引用会导致标准未定义的行为，往往会造成严重错误。  
+对象的生命周期结束后，指向该对象的指针即失效，解引用已失效的指针会导致标准未定义的行为。  
   
 示例：
 ```
 int foo() {
-    int* p = new int[100];
+    int* p = (int*)malloc(8 * sizeof(int));
     if (cond) {
         ....
-        delete[] p;
+        free(p);
     }
-    return p[0];  // Non-compliant, ‘p’ may be deallocated
+    return p[0];   // Non-compliant, ‘p’ may be deallocated
 }
 ```
-本来指针 p 指向有效的内存空间，但由于某种原因相关内存被释放，p 的值不变但已无效，这种情况被形象地称为“指针悬挂”，未初始化的指针和被悬挂的指针统称“野指针”，均指向无效地址不可被解引用。  
+例中指针 p 指向一个数组，数组被释放后生命周期结束，p 的值不变但已无效，这种情况被形象地称为“指针悬挂”，被悬挂的指针和未初始化的指针统称“野指针”，均不可被解引用。  
   
-应关注对象的生命周期，避免内层作用域中的地址向外层传递，如：
+又如：
 ```
 int foo(int i) {
     int* p = &i;
@@ -21171,12 +21175,12 @@ int foo(int i) {
         ....
         p = &j;   // Bad practice
     }
-    return *p;    // Non-compliant, ‘p’ may be deallocated
+    return *p;    // Non-compliant, ‘p’ may be a dangling pointer
 }
 ```
-例中局部变量 j 的地址被传给了外层作域中的指针 p，j 的生命周期结束后，p 会成为野指针。  
+例中局部变量 j 的地址被传给了外层作域中的指针 p，j 的生命周期结束后，p 的值会失效。应避免内层作用域中的地址向外层传递，可参见 ID\_localAddressFlowOut 的进一步讨论。  
   
-另外，在 C\+\+ 代码中，应避免持有可被自动销毁的对象地址，如容器中对象的地址、智能指针所指对象的地址等：
+另外，在 C\+\+ 代码中，还应避免持有可被自动销毁的对象的地址，如：
 ```
 int bar(vector<int>& v) {
     int* p = &v.front();    // Bad practice
@@ -21184,7 +21188,7 @@ int bar(vector<int>& v) {
     return *p;              // ‘p’ may be invalid
 }
 ```
-例中指针 p 记录了 vector 容器中对象的地址，根据 vector 容器持有对象的策略，随着元素的增加原有对象的地址可能不再有效。  
+例中指针 p 持有 vector 容器中对象的地址，随着容器容量的增加原对象的地址可能不再有效。  
   
 又如：
 ```
@@ -21195,7 +21199,7 @@ int baz() {
     return *p;                   // ‘p’ is invalid
 }
 ```
-例中指针 p 记录了 unique\_ptr 所指对象的地址，当 unique\_ptr 指向新的对象时，原对象的地址不再有效。
+例中指针 p 持有智能指针指向对象的地址，当智能指针指向新对象时，原对象的地址不再有效。
 <br/>
 <br/>
 
@@ -21671,29 +21675,48 @@ C++ Core Guidelines C.148
 <br/>
 <br/>
 
-### <span id="missingresetnull">▌R14.17 释放指针后应将指针赋值为空指针</span>
+### <span id="missingresetnull">▌R14.17 释放指针后应将指针赋值为空或其他有效值</span>
 
 ID_missingResetNull &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: pointer suggestion
 
 <hr/>
 
-回收资源后，应立即将指向该资源的指针赋值为空指针，以明确其状态。  
+释放指针后，指针处于失效状态，应立即使用空指针常量或有效地址对其赋值，以避免意料之外的错误。  
   
-本规则是避免“重复释放”和“指针悬挂”等问题的有效措施，参见 ID\_doubleFree、ID\_danglingDeref。  
+非空指针的有效性难以仅通过值来判断，指针失效后易被误用，尤其是全局或成员指针，因此应时刻保持指针处于有效状态，以增强程序的健壮性。本规则是避免“重复释放”和“指针悬挂”等问题的有效措施，参见 ID\_doubleFree、ID\_danglingDeref。  
   
 示例：
 ```
-class A {
-    int* p = new int[10];
-public:
-    void dealloc() {
-        delete[] p;
-        p = nullptr;   // Good
+int* p;
+
+void foo() {
+    ....
+    free(p);
+}                 // Non-compliant
+
+void bar() {
+    if (p) {      // May be invalid
+        *p = 1;
     }
-   ~A() { dealloc(); }
-};
+}
 ```
-例中 dealloc 函数释放指针后将其赋值为空指针，delete、free 等接口可以接受空指针，dealloc 函数被反复调用也没有问题，即使相关接口不接受空指针，也可以使问题立即显现出来，便于修正。
+例中 foo 函数释放指针后未将其赋值为空指针，后续对指针有效性的判断可能会是错误的，应改为：
+```
+void foo() {
+    ....
+    free(p);
+    p = NULL;   // Compliant
+}
+```
+例外：
+```
+void baz() {
+    int* p = (int*)malloc(8 * sizeof(int));
+    ....
+    free(p);
+}               // Let it go
+```
+如果非静态局部指针的生命周期在释放后立即结束，可不受本规则限制。
 <br/>
 <br/>
 
