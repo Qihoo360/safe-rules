@@ -323,7 +323,7 @@
         "tag": "resource",
         "related": "ID_incompatibleDealloc",
         "standard": "ISO/IEC 9899:1999 7.20.3.2(2)-undefined,ISO/IEC 9899:2011 7.22.3.3(2)-undefined,ISO/IEC 14882:2003 5.3.5(2)-undefined,ISO/IEC 14882:2011 5.3.5(2)-undefined",
-        "reference": "MISRA C 2012 22.2"
+        "reference": "MISRA C 2012 22.2,SEI CERT MEM34-C"
         },
     "ID_doubleFree": {
         "checkPoint": "不可重复释放资源",
@@ -1694,7 +1694,7 @@
         "tag": "expression",
         "related": "ID_confusingAssignment",
         "standard": "ISO/IEC 9899:1999 5.1.2.3(2),ISO/IEC 9899:1999 Annex C,ISO/IEC 9899:2011 5.1.2.3(3),ISO/IEC 9899:2011 Annex C",
-        "reference": "C++ Core Guidelines ES.43,C++ Core Guidelines ES.44"
+        "reference": "C++ Core Guidelines ES.43,C++ Core Guidelines ES.44,SEI CERT EXP10-C"
         },
     "ID_complexExpression": {
         "checkPoint": "表达式不应过于复杂",
@@ -1866,7 +1866,7 @@
         "comment": "类成员的初始化顺序是按声明的顺序进行的，初始化前面的成员时不可使用后面成员的值。",
         "tag": "function",
         "standard": "ISO/IEC 14882:2003 12.6.2(5),ISO/IEC 14882:2011 12.6.2(10)",
-        "reference": "C++ Core Guidelines C.47"
+        "reference": "C++ Core Guidelines C.47,SEI CERT OOP53-CPP"
         },
     "ID_memberInitialization": {
         "checkPoint": "成员须在声明处或构造时初始化",
@@ -2379,7 +2379,7 @@
         "level": "error",
         "comment": "if 语句不应被分号隔断。",
         "tag": "control",
-        "reference": "CWE-670"
+        "reference": "CWE-670,SEI CERT EXP15-C"
         },
     "ID_if_identicalCondition": {
         "checkPoint": "在 if...else-if 分枝中不应有重复的条件",
@@ -2471,7 +2471,7 @@
         "comment": "组成 if 分枝的语句应为大括号括起来的复合语句，即使该复合语句只包含一条语句。",
         "tag": "control",
         "related": "ID_do_brace,ID_for_brace,ID_while_brace,ID_switch_brace",
-        "reference": "MISRA C 2004 14.9,MISRA C 2012 15.6,MISRA C++ 2008 6-4-1"
+        "reference": "MISRA C 2004 14.9,MISRA C 2012 15.6,MISRA C++ 2008 6-4-1,SEI CERT EXP19-C"
         },
     "ID_if_emptyBlock": {
         "checkPoint": "if 语句不应为空",
@@ -2493,7 +2493,7 @@
         "level": "error",
         "comment": "while 语句不应被分号隔断。",
         "tag": "control",
-        "reference": "CWE-670"
+        "reference": "CWE-670,SEI CERT EXP15-C"
         },
     "ID_while_uncondBroken": {
         "checkPoint": "while 语句中不应存在无条件的跳转语句",
@@ -2525,7 +2525,7 @@
         "comment": "while 循环体应为大括号括起来的复合语句，即使该复合语句只包含一条语句。",
         "tag": "control",
         "related": "ID_do_brace,ID_for_brace,ID_if_brace,ID_switch_brace,ID_switch_onlyDefault,ID_switch_onlyOneCase",
-        "reference": "MISRA C 2004 14.8,MISRA C 2012 15.6,MISRA C++ 2008 6-3-1"
+        "reference": "MISRA C 2004 14.8,MISRA C 2012 15.6,MISRA C++ 2008 6-3-1,SEI CERT EXP19-C"
         },
     "ID_while_emptyBlock": {
         "checkPoint": "while 循环体不应为空",
@@ -2570,7 +2570,7 @@
         "comment": "for 语句不应被分号隔断。",
         "tag": "control",
         "related": "ID_do_brace,ID_if_brace,ID_switch_brace,ID_while_brace",
-        "reference": "CWE-670"
+        "reference": "CWE-670,SEI CERT EXP15-C"
         },
     "ID_for_uncondBroken": {
         "checkPoint": "for 语句中不应存在无条件的跳转语句",
@@ -2600,7 +2600,7 @@
         "level": "suggestion",
         "comment": "for 循环体应为大括号括起来的复合语句，即使该复合语句只包含一条语句。",
         "tag": "control",
-        "reference": "MISRA C 2004 14.8,MISRA C 2012 15.6,MISRA C++ 2008 6-3-1"
+        "reference": "MISRA C 2004 14.8,MISRA C 2012 15.6,MISRA C++ 2008 6-3-1,SEI CERT EXP19-C"
         },
     "ID_switch_invalidStatement": {
         "checkPoint": "switch 语句中任何子句都应从属于某个 case 或 default 分枝",
@@ -2876,7 +2876,7 @@
         "comment": "预处理器对宏参数只做文本替换，不考虑运算符优先级等问题，所以应将宏参数用括号括起来，从而避免意料之外的错误。",
         "tag": "precompile",
         "standard": "ISO/IEC 9899:1999 6.10.3.5(4),ISO/IEC 9899:2011 6.10.3.5(4)",
-        "reference": "CWE-783,MISRA C 2004 19.10,MISRA C 2012 20.7,MISRA C++ 2008 16-0-6"
+        "reference": "CWE-783,MISRA C 2004 19.10,MISRA C 2012 20.7,MISRA C++ 2008 16-0-6,SEI CERT PRE01-C"
         },
     "ID_macro_expNotEnclosed": {
         "checkPoint": "宏定义为表达式时应该用括号括起来",
@@ -2884,7 +2884,7 @@
         "comment": "宏的展开只是文本替换，不考虑运算符优先级等问题，所以宏定义为表达式时应该用括号括起来，从而避免意料之外的错误。",
         "tag": "precompile",
         "standard": "ISO/IEC 9899:1999 6.10.3.5(4),ISO/IEC 9899:2011 6.10.3.5(4)",
-        "reference": "CWE-783"
+        "reference": "CWE-783,SEI CERT PRE02-C"
         },
     "ID_macro_stmtNotEnclosed": {
         "checkPoint": "由多个语句组成的宏定义应该用 do-while(0) 括起来",
@@ -2893,7 +2893,7 @@
         "tag": "precompile",
         "standard": "ISO/IEC 9899:1999 6.10.3.5(4),ISO/IEC 9899:2011 6.10.3.5(4)",
         "related": "ID_if_scope,ID_while_scope,ID_for_scope",
-        "reference": "CWE-483"
+        "reference": "CWE-483,SEI CERT PRE10-C"
         },
     "ID_macro_defineReserved": {
         "checkPoint": "不可定义具有保留意义的宏名称",
@@ -2955,7 +2955,7 @@
         "comment": "宏用于文本处理，不受作用域、参数传递、重载等语言规则限制，且难以调试，可由函数实现的功能不应使用宏实现。",
         "tag": "precompile",
         "related": "ID_macro_sideEffectArgs,ID_macro_const,ID_macro_typeid",
-        "reference": "C++ Core Guidelines ES.31,MISRA C 2004 19.7,MISRA C 2012 Dir 4.9,MISRA C++ 2008 16-0-4"
+        "reference": "C++ Core Guidelines ES.31,MISRA C 2004 19.7,MISRA C 2012 Dir 4.9,MISRA C++ 2008 16-0-4,SEI CERT PRE00-C"
         },
     "ID_nestedTooDeep": {
         "checkPoint": "作用域及类型嵌套不应过深",
@@ -3241,7 +3241,7 @@
         "level": "warning",
         "comment": "如果拷贝赋值运算符的参数是自身对象，需防止资源分配和回收方面的冲突。",
         "tag": "function",
-        "reference": "C++ Core Guidelines C.62"
+        "reference": "C++ Core Guidelines C.62,SEI CERT OOP54-CPP"
         },
     "ID_this_deleteInDestructor": {
         "checkPoint": "不可递归调用析构函数",
@@ -3390,7 +3390,7 @@
         "comment": "如果控制条件均为 bool 型表达式，可使逻辑结构更清晰，有效避免隐式类型转换造成的问题。",
         "tag": "style",
         "related": "ID_nonBoolSubCondition",
-        "reference": "MISRA C 2012 14.4,MISRA C++ 2008 5-0-13,MISRA C++ 2008 5-0-14"
+        "reference": "MISRA C 2012 14.4,MISRA C++ 2008 5-0-13,MISRA C++ 2008 5-0-14,SEI CERT EXP20-C"
         },
     "ID_nonBoolSubCondition": {
         "checkPoint": "!、&&、|| 的子表达式应为 bool 型表达式",
@@ -3398,7 +3398,7 @@
         "comment": "如果 !、&&、|| 的子表达式均为 bool 型表达式，可使逻辑结构更清晰，有效避免隐式类型转换或运算符误用造成的问题。",
         "tag": "style",
         "related": "ID_nonBoolCondition,ID_illBoolOperation",
-        "reference": "MISRA C++ 2008 5-3-1"
+        "reference": "MISRA C++ 2008 5-3-1,SEI CERT EXP20-C"
         },
     "ID_nonPostfixSubCondition": {
         "checkPoint": "&&、|| 的子表达式应为后缀表达式",
@@ -4003,7 +4003,8 @@
         "checkPoint": "类成员应按 public、protected、private 的顺序声明",
         "level": "suggestion",
         "comment": "类成员统一按 public、protected、private 的顺序声明，有利于提高可读性。",
-        "tag": "type"
+        "tag": "type",
+        "reference": "C++ Core Guidelines NL.16"
         },
     "ID_returnNonConstData": {
         "checkPoint": "常量成员函数不应返回数据成员的非常量指针或引用",

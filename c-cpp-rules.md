@@ -2318,6 +2318,7 @@ ISO/IEC 14882:2011 5.3.5(2)-undefined
 
 #### 参考
 MISRA C 2012 22.2  
+SEI CERT MEM34-C  
 <br/>
 <br/>
 
@@ -3162,6 +3163,7 @@ ISO/IEC 9899:2011 6.10.3.5(4)
 
 #### 参考
 CWE-783  
+SEI CERT PRE02-C  
 <br/>
 <br/>
 
@@ -3204,6 +3206,7 @@ CWE-783
 MISRA C 2004 19.10  
 MISRA C 2012 20.7  
 MISRA C++ 2008 16-0-6  
+SEI CERT PRE01-C  
 <br/>
 <br/>
 
@@ -3254,6 +3257,7 @@ ISO/IEC 9899:2011 6.10.3.5(4)
 
 #### 参考
 CWE-483  
+SEI CERT PRE10-C  
 <br/>
 <br/>
 
@@ -3412,6 +3416,7 @@ C++ Core Guidelines ES.31
 MISRA C 2004 19.7  
 MISRA C 2012 Dir 4.9  
 MISRA C++ 2008 16-0-4  
+SEI CERT PRE00-C  
 <br/>
 <br/>
 
@@ -6215,6 +6220,10 @@ private:
 };
 ```
 <br/>
+<br/>
+
+#### 参考
+C++ Core Guidelines NL.16  
 <br/>
 <br/>
 
@@ -12192,6 +12201,7 @@ ISO/IEC 14882:2011 12.6.2(10)
 
 #### 参考
 C++ Core Guidelines C.47  
+SEI CERT OOP53-CPP  
 <br/>
 <br/>
 
@@ -12478,6 +12488,7 @@ A& A::operator = (const A& rhs) {
 
 #### 参考
 C++ Core Guidelines C.62  
+SEI CERT OOP54-CPP  
 <br/>
 <br/>
 
@@ -13758,6 +13769,7 @@ if (condition);  // Non-compliant, see the semicolon
 
 #### 参考
 CWE-670  
+SEI CERT EXP15-C  
 <br/>
 <br/>
 
@@ -14308,6 +14320,7 @@ ID_switch_brace
 MISRA C 2004 14.9  
 MISRA C 2012 15.6  
 MISRA C++ 2008 6-4-1  
+SEI CERT EXP19-C  
 <br/>
 <br/>
 
@@ -14383,6 +14396,7 @@ ID_while_brace
 
 #### 参考
 CWE-670  
+SEI CERT EXP15-C  
 <br/>
 <br/>
 
@@ -14667,6 +14681,7 @@ for (int i = 0; i < 10; i++) {  // Compliant
 MISRA C 2004 14.8  
 MISRA C 2012 15.6  
 MISRA C++ 2008 6-3-1  
+SEI CERT EXP19-C  
 <br/>
 <br/>
 
@@ -14693,6 +14708,7 @@ while (condition);  // Non-compliant, see the semicolon
 
 #### 参考
 CWE-670  
+SEI CERT EXP15-C  
 <br/>
 <br/>
 
@@ -14874,6 +14890,7 @@ ID_switch_onlyOneCase
 MISRA C 2004 14.8  
 MISRA C 2012 15.6  
 MISRA C++ 2008 6-3-1  
+SEI CERT EXP19-C  
 <br/>
 <br/>
 
@@ -16540,6 +16557,7 @@ ISO/IEC 9899:2011 Annex C
 #### 参考
 C++ Core Guidelines ES.43  
 C++ Core Guidelines ES.44  
+SEI CERT EXP10-C  
 <br/>
 <br/>
 
@@ -22698,6 +22716,7 @@ ID_nonBoolSubCondition
 MISRA C 2012 14.4  
 MISRA C++ 2008 5-0-13  
 MISRA C++ 2008 5-0-14  
+SEI CERT EXP20-C  
 <br/>
 <br/>
 
@@ -22731,6 +22750,7 @@ ID_illBoolOperation
 
 #### 参考
 MISRA C++ 2008 5-3-1  
+SEI CERT EXP20-C  
 <br/>
 <br/>
 
