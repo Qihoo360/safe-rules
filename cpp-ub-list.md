@@ -337,12 +337,12 @@ ISO/IEC 14882:2011 2.14.5(13)-implementation
   
 示例：
 ```
-// In a.cpp 
+// In a.cpp
 struct T {
     int i;
 };
 
-// In b.cpp 
+// In b.cpp
 struct T {
     long i;    // Undefined behavior, violates One Definition Rule
 };
@@ -1836,7 +1836,7 @@ struct B: A {
 
     B(): A(fun()),     // Undefined
          i(fun()) {    // Well-defined
-    }   
+    }
 };
 ```
 例中成员函数 fun 的返回值是基类构造函数的参数，但基类尚未开始构造，会导致未定义的行为，用成员函数 fun 初始化成员 i 则没有问题，因为此时基类对象已构造完毕。

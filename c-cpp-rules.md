@@ -1443,7 +1443,7 @@ void foo() {
     if (somecall() == FAILED) {
         printf("somecall failed\n");
         if (errno == SOME_VALUE) {     // Non-compliant
-            .... 
+            ....
         }
     }
 }
@@ -1682,7 +1682,7 @@ ID_ownerlessResource &emsp;&emsp;&emsp;&emsp;&nbsp; :drop_of_blood: resource war
 示例：
 ```
 int* p = new int[8];   // Non-compliant, ownerless
-....                   // If any exception is thrown, 
+....                   // If any exception is thrown,
                        // or any wrong jump occurs, the memory leaks
 
 struct X { int* p; };
@@ -2679,7 +2679,7 @@ ID_illFormedInclude &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: precompile error
 示例：
 ```
 #include <string.h>         // Compliant
-#include "string.h"         // Compliant 
+#include "string.h"         // Compliant
 
 #define HEADER "string.h"
 #include HEADER             // Compliant
@@ -4841,7 +4841,7 @@ ID_definedInHeader &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: global warning
   
 头文件是项目文档的重要组成部分，有必要保持头文件简洁清晰，头文件的主要内容应是类型或接口的声明。除非函数很简短，否则也不建议在头文件中内联实现，大段的函数实现会影响头文件的可读性。  
   
-注意，定义在头文件中的函数发生变化时，所有相关模块均需重新编译，会增加构建和维护成本，在使用动态链接库时这个问题尤为突出，如果库的导入者没有及时编译，可能会造成严重后果。在头文件中定义的函数是模块二进制接口的一部分，应合理规划以降低维护成本。   
+注意，定义在头文件中的函数发生变化时，所有相关模块均需重新编译，会增加构建和维护成本，在使用动态链接库时这个问题尤为突出，如果库的导入者没有及时编译，可能会造成严重后果。在头文件中定义的函数是模块二进制接口的一部分，应合理规划以降低维护成本。  
   
 示例：
 ```
@@ -5473,7 +5473,7 @@ void foo(D& d) {
 ```
 在 D 类对象 d 中，基类 A 的成员 i 有两个不同的实例，d 不能直接访问 i，只能通过 d.B::i 或 d.C::i 这种怪异的方式访问。  
   
-将共同的基类设为虚基类可以解决这种问题： 
+将共同的基类设为虚基类可以解决这种问题：
 ```
 class B: virtual public A {};
 class C: virtual public A {};
@@ -5930,7 +5930,7 @@ class A   // Compliant
 {
     ....
     A& operator = (const A&);
-    A& operator = (A&&);  
+    A& operator = (A&&);
     ....
 };
 ```
@@ -7980,7 +7980,7 @@ string format(const char* fmt, ...) {
     va_list ap;
     stringstream res;
     va_start(ap, fmt);
-    for (auto* c = fmt; *c; c++) {   
+    for (auto* c = fmt; *c; c++) {
         switch (*c) {
             case '@': res << va_arg(ap, char*); break;
             case '$': res << va_arg(ap, int); break;
@@ -8771,7 +8771,7 @@ class LockGuard { .... };
 void fun() {
     LockGuard();   // Non-compliant, meaningless
     ....
-} 
+}
 ```
 设 LockGuard 是某种 RAII 锁，LockGuard(); 只生成了一个临时对象，该对象会立即析构，起不到作用，这也是一种常见的错误。  
   
@@ -9535,7 +9535,7 @@ struct A {
     uint32_t x: 64;    // Non-compliant
 } a;
 
-a.x = UINT64_MAX;      // Truncated 
+a.x = UINT64_MAX;      // Truncated
 ```
 例中 x 的位域长度超过了类型长度，但有效位域长度仍为 32，有效位域和声明位域不一致易误导维护者，造成截断或溢出等错误。  
   
@@ -10480,7 +10480,7 @@ int main()
     try {
         int i = userInput();
         if (i < 0) {
-            throw A();   // Compliant 
+            throw A();   // Compliant
         }
         if (i == 0) {
             throw B();   // Compliant
@@ -11576,7 +11576,7 @@ int foo() noexcept(false);   // Compliant
 ```
 int bar() throw();   // Let it go?
 ```
-throw() 与 noexcept 等价，C\+\+17 保留了 throw()，但不建议继续使用，审计工具不妨通过配置决定是否放过这种方式。 
+throw() 与 noexcept 等价，C\+\+17 保留了 throw()，但不建议继续使用，审计工具不妨通过配置决定是否放过这种方式。
 <br/>
 <br/>
 
@@ -11784,7 +11784,7 @@ int foo(int x) {   // Compliant in C
 }
 
 int foo(int) {     // Compliant in C++
-    return 0;   
+    return 0;
 }
 ```
 <br/>
@@ -11872,7 +11872,7 @@ void bar(const S s);   // Non-compliant, missing ‘&’
 ```
 S lower(S s) {  // Let it go?
     transform(
-        s.begin(), s.end(), s.begin(),  
+        s.begin(), s.end(), s.begin(),
         [](unsigned char c) { return static_cast<char>(tolower(c)); }
     );
     return s;
@@ -12100,13 +12100,13 @@ public:
     A() try {   // Function-try-block
         ....
     } catch (...) {
-        access(i);    // Non-compliant, ‘i’ may no longer exist 
+        access(i);    // Non-compliant, ‘i’ may no longer exist
     }
 
    ~A() try {
         ....
     } catch (...) {
-        access(i);    // Non-compliant, ‘i’ may no longer exist 
+        access(i);    // Non-compliant, ‘i’ may no longer exist
     }
 };
 ```
@@ -12679,7 +12679,7 @@ int fun() {
     else if (condition2) {
     }                        // Non-compliant, no return value
     else {
-        return 3; 
+        return 3;
     }
 }
 ```
@@ -13425,7 +13425,7 @@ class X {
 };
 
 class Y {
-    ....    // Members and methods for ‘c’, ‘d’, ‘e’ ... 
+    ....    // Members and methods for ‘c’, ‘d’, ‘e’ ...
 };
 
 void foo(X x, Y y) {   // Good
@@ -13535,7 +13535,7 @@ ID_this_deleteInDestructor &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: function error
 
 <hr/>
 
-析构函数开始执行时，对象整体已不存在，再次调用析构函数会导致标准未定义的行为。   
+析构函数开始执行时，对象整体已不存在，再次调用析构函数会导致标准未定义的行为。  
   
 示例：
 ```
@@ -13586,7 +13586,7 @@ if (cond0)
     if (cond1)
         .... nested 10 layers ....
                 if (cond10)  // Terrible
-                    ....   
+                    ....
 ```
 审计工具不妨通过配置决定嵌套层数是否合规。
 <br/>
@@ -13618,7 +13618,7 @@ ID_mixedAsm &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: function suggestion
 示例：
 ```
 int avg(int a, int b) {
-    int sum;               
+    int sum;
     __asm {                // Non-compliant
         mov eax, a
         mov ebx, b
@@ -14179,7 +14179,7 @@ if (!cond) {   // Compliant
 ```
 或者添加注释说明为何为空：
 ```
-if (cond) {  
+if (cond) {
     ;          // Compliant if reasonable comments are provided
 } else {
     ....
@@ -14591,7 +14591,7 @@ ID_for_counterChangedInBody &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: control warnin
 
 <hr/>
 
-用于控制循环次数的变量称为“循环变量”，为了使代码具有清晰的静态结构，循环变量只应在 for 语句的第 3 个表达式中被改变。   
+用于控制循环次数的变量称为“循环变量”，为了使代码具有清晰的静态结构，循环变量只应在 for 语句的第 3 个表达式中被改变。  
   
 示例：
 ```
@@ -15150,15 +15150,15 @@ ID_switch_badFormedCase &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: control suggestion
 ```
 switch (v)
 {
-case 1:         // Compliant 
+case 1:         // Compliant
     if (cond)
     {
-case 2:         // Non-compliant 
+case 2:         // Non-compliant
         ....
     }
     else
     {
-default:        // Non-compliant 
+default:        // Non-compliant
         ....
     }
 }
@@ -15319,7 +15319,7 @@ ID_switch_onlyDefault &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: control warning
 
 只有 default 标签的 switch 语句是没有意义的，起不到分枝选择的作用，往往是残留代码或功能未实现。  
   
-示例： 
+示例：
 ```
 switch (v)
 {
@@ -16022,7 +16022,7 @@ ID_uncondJump &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: control warning
 void foo() {
     if (cond) {
         goto L;   // Non-compliant, unconditional goto
-        bar();    // Unreachable code    
+        bar();    // Unreachable code
     }
 L:
     ....
@@ -16215,7 +16215,7 @@ ID_invalidCondition &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 void foo() {
     int i = 1;
     if (i > 0) {   // Non-compliant, always true
-        ....       
+        ....
     } else {
         ....       // Infeasible path
     }
@@ -17326,7 +17326,7 @@ ID_suspiciousPromotion &emsp;&emsp;&emsp;&emsp;&nbsp; :question: expression susp
 示例：
 ```
 uint8_t a = 0xCD;
-uint8_t b = (~a) >> 4;   // Rather suspicious, ‘b’ is 0xF3 
+uint8_t b = (~a) >> 4;   // Rather suspicious, ‘b’ is 0xF3
 ```
 经“[类型提升](https://en.cppreference.com/w/c/language/conversion#Integer_promotions)”，例中 \~a 在 16 位环境中为 0xFF32，在 32 位环境中为 0xFFFFFF32，高位的数据很可能是多余的。  
   
@@ -17787,7 +17787,7 @@ C\+\+17 nodiscard 属性表示返回值具有重要意义，标准库中以及�
 
 int main() {
     fun();           // Non-compliant
-    int r = fun();   // Compliant, ‘r’ should be used in subsequent code   
+    int r = fun();   // Compliant, ‘r’ should be used in subsequent code
     ....
     (void)fun();     // Let it go?
 }
@@ -18085,7 +18085,7 @@ printf("%lld", d);  // Non-compliant
 ```
 size\_t、ptrdiff\_t 等类型是由实现定义的，标准没有规定其是否一定对应 unsigned、long 或 long long 等类型，而 %u、%d、%lu、%lld 只对应 unsigned、int、unsigned long、long long 等类型，所以示例代码都是不合理的。  
   
-应使 n 对应 %zu，d 对应 %td： 
+应使 n 对应 %zu，d 对应 %td：
 ```
 printf("%zu", n);   // Compliant
 printf("%td", d);   // Compliant
@@ -18910,7 +18910,7 @@ ID_complexExpression &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: expression suggestion
 示例：
 ```
 f(g(h(i(....)));           // Non-compliant
-    
+
 a || b || c || .... || z;  // Non-compliant
 
 ++++++n;                   // Non-compliant
@@ -19056,7 +19056,7 @@ ID_forbidCommaExpression &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: expression su
 fun1(), fun2();                     // Non-compliant, bad
 cond? foo(), bar(): baz(), qux();   // Non-compliant, very bad
 ```
-逗号表达式会使代码的静态结构含混不明，总有更合理的方法替代逗号表达式： 
+逗号表达式会使代码的静态结构含混不明，总有更合理的方法替代逗号表达式：
 ```
 fun1();
 fun2();      // Compliant
@@ -20113,7 +20113,7 @@ private:
 ```
 例中 foo 为常量成员函数，用 const\_cast 去掉 this 指针的 const 限定是不符合要求的。  
   
-如果成员的改变只起辅助作用而不影响对象状态，可将成员设为 mutable，否则应重新设计类，如： 
+如果成员的改变只起辅助作用而不影响对象状态，可将成员设为 mutable，否则应重新设计类，如：
 ```
 struct A {
     void foo() const {
@@ -20396,7 +20396,7 @@ struct B: A { int y; };
 
 void foo(A* p, int n) {
     for (int i = 0; i < n; i++) {
-        p[i].x = 1; 
+        p[i].x = 1;
     }
 }
 
@@ -21582,7 +21582,7 @@ ID_this_zeroComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: pointer warning
 
 正常情况下 this 指针不会为空，而且判断 this 指针是否为空会影响编译器对 this 指针的优化，造成难以预料的后果。  
   
-在某些环境中通过空指针调用非静态成员函数时，this 指针可能为空，但这并不符合标准。对于内建类型，表达式 E1\->E2 与 (\*E1).E2 等价，通过空指针访问非静态成员所导致的行为均是未定义的。值得强调的是，任何情况下都不应逃避解引用空指针造成的问题。    
+在某些环境中通过空指针调用非静态成员函数时，this 指针可能为空，但这并不符合标准。对于内建类型，表达式 E1\->E2 与 (\*E1).E2 等价，通过空指针访问非静态成员所导致的行为均是未定义的。值得强调的是，任何情况下都不应逃避解引用空指针造成的问题。  
   
 示例：
 ```
@@ -22711,14 +22711,14 @@ ID_nonBoolSubCondition &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggest
   
 示例（设 p 为指针，a、b、c 为整型变量）：
 ```
-if (!p)             // Non-compliant 
+if (!p)             // Non-compliant
 if (a && b)         // Non-compliant
 if (a || (b + c))   // Non-compliant
 ```
 应改为：
 ```
-if (p == NULL)                  // Compliant 
-if ((a != 0) && (b != 0))       // Compliant 
+if (p == NULL)                  // Compliant
+if ((a != 0) && (b != 0))       // Compliant
 if ((a != 0) || (b + c != 0))   // Compliant
 ```
 <br/>
@@ -22755,13 +22755,13 @@ ID_nonPostfixSubCondition &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style sugg
   
 示例（设 a、b、c 为 bool 型变量，n 为整型变量）：
 ```
-if (n == 0 && b) {   // Non-compliant 
+if (n == 0 && b) {   // Non-compliant
     ....
 }
 ```
 例中 n == 0 不是后缀表达式，应使用括号括起来：
 ```
-if ((n == 0) && b) {   // Compliant 
+if ((n == 0) && b) {   // Compliant
     ....
 }
 ```

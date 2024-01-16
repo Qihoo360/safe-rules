@@ -3246,7 +3246,7 @@
     "ID_this_deleteInDestructor": {
         "checkPoint": "不可递归调用析构函数",
         "level": "error",
-        "comment": "析构函数开始执行时，对象整体已不存在，再次调用析构函数会导致标准未定义的行为。 ",
+        "comment": "析构函数开始执行时，对象整体已不存在，再次调用析构函数会导致标准未定义的行为。",
         "tag": "function",
         "standard": "ISO/IEC 14882:2003 3.8(1),ISO/IEC 14882:2003 12.4(14)-undefined,ISO/IEC 14882:2011 3.8(1),ISO/IEC 14882:2011 12.4(15)-undefined",
         "related": "ID_recursion",
