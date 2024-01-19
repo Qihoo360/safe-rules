@@ -1075,8 +1075,8 @@
         "comment": "可变参数列表对参数的类型和数量缺乏有效的限定和控制，是公认的不安全因素。",
         "tag": "declaration",
         "related": "ID_badParmN,ID_badVaArgType",
-        "standard": "ISO/IEC 14882:2003 5.2.2(7)-undefined,ISO/IEC 14882:2011 5.2.2(7)-implementation",
-        "reference": "C++ Core Guidelines ES.34,C++ Core Guidelines F.55,MISRA C 2004 16.1,MISRA C 2012 17.1,MISRA C++ 2008 8-4-1"
+        "standard": "ISO/IEC 14882:2003 5.2.2(7)-undefined,ISO/IEC 14882:2011 5.2.2(7)-implementation,ISO/IEC 14882:2011 14.5.3,ISO/IEC 14882:2017 8.1.6",
+        "reference": "C++ Core Guidelines ES.34,C++ Core Guidelines F.55,MISRA C 2004 16.1,MISRA C 2012 17.1,MISRA C++ 2008 8-4-1,SEI CERT DCL50-CPP"
         },
     "ID_redundantVirtual": {
         "checkPoint": "override 或 final 关键字不应与 virtual 关键字同时出现在声明中",
@@ -2269,7 +2269,7 @@
         "comment": "资源的分配和回收方法应在同一库或主程序等可执行模块、类等逻辑模块中提供。",
         "tag": "resource",
         "related": "ID_memberDeallocation,ID_crossModuleTransfer,ID_incompatibleDealloc",
-        "reference": "C++ Core Guidelines R.15"
+        "reference": "C++ Core Guidelines R.15,SEI CERT DCL54-CPP"
         },
     "ID_crossModuleTransfer": {
         "checkPoint": "不应在模块之间传递容器类对象",
@@ -2315,7 +2315,7 @@
         "tag": "global",
         "related": "ID_staticInHeader,ID_unsuitableDeclaration",
         "standard": "ISO/IEC 14882:2003 7.3.1.1,ISO/IEC 14882:2011 7.3.1.1",
-        "reference": "C++ Core Guidelines SF.21,MISRA C++ 2008 7-3-3"
+        "reference": "C++ Core Guidelines SF.21,MISRA C++ 2008 7-3-3,SEI CERT DCL59-CPP"
         },
     "ID_topInlineNamespace": {
         "checkPoint": "不应定义全局 inline 命名空间",
@@ -3088,7 +3088,8 @@
         "level": "error",
         "comment": "在 C++ 语言中，const 或 volatile 可以限定指针，但不可限定引用，否则起不到任何作用。",
         "tag": "declaration",
-        "standard": "ISO/IEC 14882:2003 8.3.2(1),ISO/IEC 14882:2011 8.3.2(1),ISO/IEC 14882:2017 11.3.2(1)"
+        "standard": "ISO/IEC 14882:2003 8.3.2(1),ISO/IEC 14882:2011 8.3.2(1),ISO/IEC 14882:2017 11.3.2(1)",
+        "reference": "SEI CERT DCL52-CPP"
         },
     "ID_qualifierForPtrAlias": {
         "checkPoint": "const、volatile 限定指针类型的别名是可疑的",
@@ -3716,7 +3717,7 @@
         "comment": "任何翻译单元不得包含同一对象、函数、类型或模板的不同定义，这一准则称为“One Definition Rule（ODR）”，违反该准则会导致标准未定义的行为。",
         "tag": "declaration",
         "standard": "ISO/IEC 14882:2003 3.2(5)-undefined,ISO/IEC 14882:2011 3.2(5)-undefined",
-        "reference": "MISRA C++ 2008 3-2-2"
+        "reference": "MISRA C++ 2008 3-2-2,SEI CERT DCL60-CPP"
         },
     "ID_badParmN": {
         "checkPoint": "parmN 的声明应符合要求",

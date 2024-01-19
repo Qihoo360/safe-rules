@@ -1821,6 +1821,7 @@ ID_incompatibleDealloc
 
 #### 参考
 C++ Core Guidelines R.15  
+SEI CERT DCL54-CPP  
 <br/>
 <br/>
 
@@ -4838,6 +4839,7 @@ ISO/IEC 14882:2011 7.3.1.1
 #### 参考
 C++ Core Guidelines SF.21  
 MISRA C++ 2008 7-3-3  
+SEI CERT DCL59-CPP  
 <br/>
 <br/>
 
@@ -7134,6 +7136,10 @@ ISO/IEC 14882:2003 8.3.2(1)
 ISO/IEC 14882:2011 8.3.2(1)  
 ISO/IEC 14882:2017 11.3.2(1)  
 <br/>
+
+#### 参考
+SEI CERT DCL52-CPP  
+<br/>
 <br/>
 
 ### <span id="badqualifierposition">▌R6.2.4 const、volatile 限定类型时的位置应统一</span>
@@ -8009,7 +8015,7 @@ string format(const char* fmt, ...) {
 ```
 例中 va\_start、va\_arg、va\_end 是可变参数列表的标准支持，这种方法只能在运行时以 fmt 为依据获取后续参数，当实际参数与 fmt 不符时会造成严重问题，单纯地要求开发者小心谨慎是不可靠的，改用更安全的方法才是明智的选择。  
   
-在 C\+\+ 代码中应采用“[模板参数包](https://en.cppreference.com/w/cpp/language/parameter_pack)”代替可变参数列表，如：
+在 C\+\+ 代码中应使用“[模板参数包](https://en.cppreference.com/w/cpp/language/parameter_pack)”代替可变参数列表，如：
 ```
 template <class T>
 void get_argstrs(vector<string>& vs, const T& arg) {
@@ -9908,6 +9914,7 @@ ISO/IEC 14882:2011 3.2(5)-undefined
 
 #### 参考
 MISRA C++ 2008 3-2-2  
+SEI CERT DCL60-CPP  
 <br/>
 <br/>
 
@@ -13534,7 +13541,9 @@ ID_recursion &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
 函数直接或间接调用自身可实现递归算法，但调用栈的消耗情况不够直观，易导致栈溢出等错误。  
   
-应使用复杂度更易控制的方法代替函数调用自身这种实现方式，对于难以代替的特殊算法，应做到资源消耗可控。  
+应使用成本更易控制的方法代替递归调用，对于难以代替的特殊算法，应做到调用深度可控。另外，main 函数、析构函数等特殊函数不可调用自身，否则会导致未定义的行为。  
+  
+C\+\+ 模板元编程中的编译期递归调用可不受本规则限制。  
   
 示例：
 ```
