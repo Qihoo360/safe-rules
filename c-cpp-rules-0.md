@@ -2328,7 +2328,7 @@ ID_multiAllocation &emsp;&emsp;&emsp;&emsp;&nbsp; :drop_of_blood: resource warni
 
 <hr/>
 
-由于子表达式的求值顺序存在很多未声明的情况，在表达式中多次显式分配资源易造成资源泄露。  
+由于子表达式求值顺序有较多未声明的情况，在表达式中多次显式分配资源易造成资源泄露。  
   
 示例：
 ```
@@ -7988,7 +7988,7 @@ ID_forbidVariadicFunction &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: declaration 
 ```
 string format(const char* fmt, ...);  // Non-compliant
 ```
-假设 format 函数与 sprintf 函数功能相似，由参数 fmt 设定格式，将其他参数转为字符串后依次替换 fmt 中的占位符并返回结果。设 @ 和 $ 为占位符，分别对应字符串和整数，如调用 format("@: $", "value", 123) 则返回字符串 "value: 123"。  
+假设 format 函数与 sprintf 函数功能相似，由参数 fmt 设定格式，将其他参数转为字符串后依次替换 fmt 中的占位符并返回结果。设 '@' 和 '$' 为占位符，分别对应字符串和整数，如调用 format("@: $", "value", 123) 则返回字符串 "value: 123"。  
   
 如果用可变参数列表实现：
 ```
@@ -8009,52 +8009,39 @@ string format(const char* fmt, ...) {
 ```
 例中 va\_start、va\_arg、va\_end 是可变参数列表的标准支持，这种方法只能在运行时以 fmt 为依据获取后续参数，当实际参数与 fmt 不符时会造成严重问题，单纯地要求开发者小心谨慎是不可靠的，改用更安全的方法才是明智的选择。  
   
-在 C\+\+ 代码中应采用“[模板参数包](https://en.cppreference.com/w/cpp/language/parameter_pack)”代替可变参数列表，如：
+在 C\+\+ 代码中可采用“[模板参数包](https://en.cppreference.com/w/cpp/language/parameter_pack)”来实现这种功能：
 ```
-template <class T>
-void get_argstrs(vector<string>& vs, const T& arg) {
+template <class T, class ...Args>
+void get_argstrs(vector<string>& vs, const T& arg, const Args& ...rest) {
     ostringstream oss;
     oss << arg;
     vs.emplace_back(oss.str());
-}
-
-template <class T, class ...Args>
-void get_argstrs(vector<string>& vs, const T& arg, const Args& ...rest) {
-    get_argstrs(vs, arg);
-    get_argstrs(vs, rest...);  // Parameter pack expansion
+    if constexpr(sizeof...(rest) > 0) {
+        get_argstrs(vs, rest...);
+    }
 }
 
 template <class ...Args>
 string format(const char* fmt, const Args& ...args) {  // Compliant
     string res;
-    vector<string> vs;
-    get_argstrs(vs, args...);
-    auto it = vs.begin();
-    for (auto* c = fmt; *c; c++) {
-        if ((*c == '@' || *c == '$') && it != vs.end())
-            res.append(*it++);
-        else
-            res.push_back(*c);
+    if constexpr(sizeof...(args) > 0) {
+        vector<string> vs;
+        const size_t n = strlen(fmt);
+        get_argstrs(vs, args...);
+        for (size_t i = 0, j = 0; i < n; i++) {
+            if ((fmt[i] == '@' || fmt[j] == '$') && j < vs.size()) {
+                res.append(vs[j++]);
+            } else {
+                res.push_back(fmt[i]);
+            }
+        }
     }
     return res;
 }
 ```
-例中 ...args 是参数包，可以代替可变参数列表，get\_argstrs 函数利用重载和递归将参数都转为 string 对象存入容器，再将 fmt 中的占位符依次替换成容器中的字符串。这种实现可以不区分 @ 和 $，参数的个数和类型可以由代码主动判断，如果参数不能转为字符串则不会通过编译，如果参数个数与占位符不符也容易作出处理。  
+示例代码用 get\_argstrs 函数递归地将参数都转为 string 对象存入容器，再将 fmt 中的 '@' 和 '$' 依次替换成容器中的字符串，实际上这种实现是可以不区分 '@' 和 '$' 的，这个过程中参数的个数和类型是可以由代码主动判断的，如果参数不能转为字符串则不会通过编译，如果参数个数与占位符不符也容易作出处理。  
   
-从 C\+\+17 开始，可利用“[折叠表达式](https://en.cppreference.com/w/cpp/language/fold)”简化 get\_argstrs 函数的实现：
-```
-template <class ...Args>
-void get_argstrs(vector<string>& vs, const Args& ...args) {
-    (
-        [&vs, &args]() {
-            ostringstream oss;
-            oss << args;
-            vs.emplace_back(oss.str());
-        }(), ...
-    );  // Fold expression
-}
-```
-例中 lambda 表达式和 ... 组成折叠表达式，可以免去重载和递归，化简参数包的展开。
+“[模板参数包](https://en.cppreference.com/w/cpp/language/parameter_pack)”、“[constexpr](https://en.cppreference.com/w/cpp/language/constexpr)”等特性是 C\+\+ 语言在编译理论上的重大突破，合理运用这些特性可以有效提升代码的安全性和可维护性。
 <br/>
 <br/>
 
@@ -8066,8 +8053,6 @@ ID_badVaArgType
 #### 依据
 ISO/IEC 14882:2003 5.2.2(7)-undefined  
 ISO/IEC 14882:2011 5.2.2(7)-implementation  
-ISO/IEC 14882:2011 14.5.3  
-ISO/IEC 14882:2017 8.1.6  
 <br/>
 
 #### 参考
@@ -8076,7 +8061,6 @@ C++ Core Guidelines F.55
 MISRA C 2004 16.1  
 MISRA C 2012 17.1  
 MISRA C++ 2008 8-4-1  
-SEI CERT DCL50-CPP  
 <br/>
 <br/>
 
@@ -8865,8 +8849,6 @@ char 类型是否有符号由实现定义，未显式声明 signed、unsigned �
   
 注意，char 和 signed char、unsigned char 是三种不同的类型，signed char、unsigned char 应被当作整数类型，而 char 应被当作字符类型，不应使用整数对 char 对象赋值，也不应使 char 对象参与和字符无关的算术、比较或位运算等数值运算。  
   
-虽然字符类型由整数类型实现，但应分清各自的职责，混用不利于阅读和维护，char、wchar\_t、char16\_t、char32\_t 均不应被当作整数使用。  
-  
 示例：
 ```
 int foo(char c) {     // Compliant
@@ -8913,7 +8895,7 @@ ID_excessiveCharSign &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: declaration suggestio
 
 signed char、unsigned char 以及 int8\_t、uint8\_t 是整数类型，只应用于数值计算，不应用于存储字符。  
   
-虽然字符类型由整数类型实现，但应分清各自的职责，混用不利于阅读和维护。  
+字符类型由整数类型实现，但应分清各自的职责，混用不利于阅读和维护。  
   
 示例：
 ```
@@ -16312,7 +16294,7 @@ ID_constLogicExpression &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
 <hr/>
 
-对不改变程序流程的常量表达式进行逻辑判断是没有意义的。  
+对值不变且不改变程序流程的表达式进行逻辑判断是没有意义的。  
   
 示例：
 ```
