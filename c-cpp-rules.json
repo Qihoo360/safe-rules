@@ -628,7 +628,7 @@
     "ID_plainNumericChar": {
         "checkPoint": "参与数值运算的 char 对象应显式声明 signed 或 unsigned",
         "level": "warning",
-        "comment": "char 类型是否有符号由实现定义，为了提高可移植性并规避意料之外的错误，参与数值运算的 char 对象应显式声明符号属性。",
+        "comment": "char 类型是否有符号由实现定义，未显式声明 signed、unsigned 的 char 对象不应被当作整数使用。",
         "tag": "declaration",
         "related": "ID_excessiveCharSign",
         "standard": "ISO/IEC 9899:1999 6.2.5(3 15)-implementation,ISO/IEC 9899:2011 6.2.5(3 15)-implementation,ISO/IEC 14882:2003 3.9.1(1)-implementation,ISO/IEC 14882:2011 3.9.1(1)-implementation",
@@ -1258,9 +1258,10 @@
     "ID_constLogicExpression": {
         "checkPoint": "逻辑表达式及逻辑子表达式不应为常量",
         "level": "warning",
-        "comment": "不改变程序流程的常量逻辑表达式是没有意义的，而常量逻辑子表达式则是多余的。",
+        "comment": "对不改变程序流程的常量表达式进行逻辑判断是没有意义的。",
         "tag": "expression",
-        "reference": "CWE-570,CWE-571,MISRA C 2004 13.7,MISRA C 2012 14.3,MISRA C++ 2008 0-1-2"
+        "related": "ID_invalidCondition",
+        "reference": "CWE-570,CWE-571,MISRA C 2004 13.7,MISRA C 2012 14.3,MISRA C++ 2008 0-1-2,SEI CERT EXP16-C"
         },
     "ID_invalidCommaSubExpression": {
         "checkPoint": "逗号表达式的子表达式应具有必要的副作用",
@@ -1743,9 +1744,9 @@
         "standard": "ISO/IEC 14882:2003 12.4(14)-undefined,ISO/IEC 14882:2011 12.4(15)-undefined,ISO/IEC 14882:2017 15.4(15),ISO/IEC 14882:2017 15.4(16)-undefined"
         },
     "ID_fixedAddrToPointer": {
-        "checkPoint": "不应将非零常量值赋值给指针",
+        "checkPoint": "不应使用非零常量对指针赋值",
         "level": "warning",
-        "comment": "固定地址是不可移植的，且存在安全隐患。",
+        "comment": "将非零常量作为固定地址是不可移植的，且存在安全隐患。",
         "config": [
             "allowMinusOneAsPointerValue: 是否允许 -1 作为指针的值"
             ],
@@ -1848,9 +1849,10 @@
     "ID_multiAllocation": {
         "checkPoint": "在一个表达式语句中最多使用一次 new",
         "level": "warning",
-        "comment": "如果表达式语句多次使用 new，一旦某个构造函数抛出异常就会造成内存泄漏。",
+        "comment": "由于子表达式的求值顺序存在很多未声明的情况，在表达式中多次显式分配资源易造成资源泄露。",
         "tag": "resource",
         "related": "ID_memoryLeak",
+        "standard": "ISO/IEC 14882:2003 5.2.2(8)-unspecified,ISO/IEC 14882:2011 5.2.2(8),ISO/IEC 14882:2017 8.2.2(5)",
         "reference": "C++ Core Guidelines R.13"
         },
     "ID_recursion": {
@@ -2983,9 +2985,9 @@
         "reference": "CWE-1041,C++ Core Guidelines ES.3"
         },
     "ID_invalidCondition": {
-        "checkPoint": "作为条件的逻辑表达式不应恒为真或恒为假",
+        "checkPoint": "作为控制条件的逻辑表达式不应恒为真或恒为假",
         "level": "warning",
-        "comment": "以恒为真或恒为假的表达式作为条件是没有意义的，属于逻辑错误。",
+        "comment": "恒为真或恒为假的表达式无法改变程序的流程，不应作为控制条件，否则会造成逻辑错误。",
         "tag": "expression",
         "related": "ID_constLogicExpression",
         "reference": "CWE-570,CWE-571,MISRA C 2004 13.7,MISRA C 2012 14.3,MISRA C++ 2008 0-1-2"
@@ -3903,12 +3905,12 @@
         "reference": "MISRA C 2004 8.12,MISRA C 2012 8.11,MISRA C++ 2008 3-1-3,SEI CERT ARR02-C"
         },
     "ID_unportableType": {
-        "checkPoint": "用 stdint.h 中的类型代替 short、int、long 等类型",
+        "checkPoint": "使用便于移植的类型",
         "level": "suggestion",
-        "comment": "short、int、long 等类型的取值范围由执行环境的架构决定，可移植性较差。",
+        "comment": "为了确保数据在各种执行环境中都能被正确处理，避免出现偏差，应使用便于移植的类型。",
         "tag": "declaration",
         "standard": "ISO/IEC 9899:2011 6.2.5(5),ISO/IEC 9899:2011 7.20,ISO/IEC 14882:2011 3.9.1(2)",
-        "reference": "MISRA C 2004 6.3,MISRA C 2012 Dir 4.6"
+        "reference": "MISRA C 2004 6.3,MISRA C 2012 Dir 4.6,MISRA C++ 2008 3-9-2"
         },
     "ID_jumpOutLoop": {
         "checkPoint": "避免使用跳转语句退出循环",

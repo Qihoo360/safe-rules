@@ -331,7 +331,7 @@
     - [R6.11.5 不应存在没有被用到的静态声明](#staticnotused)
     - [R6.11.6 不应存在没有被用到的 private 成员](#privatenotused)
     - [R6.11.7 不应存在没有被用到的局部声明](#invalidlocaldeclaration)
-    - [R6.11.8 用 stdint.h 中的类型代替 short、int、long 等类型](#unportabletype)
+    - [R6.11.8 使用便于移植的类型](#unportabletype)
     - [R6.11.9 避免使用已过时的标准库组件](#obsoletestdfunction)
     - [R6.11.10 不应省略声明对象或函数的类型](#missingtype)
     - [R6.11.11 避免隐式声明](#implicitdeclaration)
@@ -492,7 +492,7 @@
   - [10.1 Logic](#expression.logic)
     - [R10.1.1 不应存在无意义的重复子表达式](#illidentical)
     - [R10.1.2 逻辑子表达式之间不应存在矛盾](#conflictcondition)
-    - [R10.1.3 作为条件的逻辑表达式不应恒为真或恒为假](#invalidcondition)
+    - [R10.1.3 作为控制条件的逻辑表达式不应恒为真或恒为假](#invalidcondition)
     - [R10.1.4 不应存在多余的逻辑子表达式](#redundantcondition)
     - [R10.1.5 逻辑表达式及逻辑子表达式不应为常量](#constlogicexpression)
     - [R10.1.6 逻辑表达式的右子表达式不应有副作用](#shortcircuitsideeffect)
@@ -628,7 +628,7 @@
   - [R14.4 不可解引用已失效的指针](#danglingderef)
   - [R14.5 避免无效的空指针检查](#invalidnullcheck)
   - [R14.6 不应重复检查指针是否为空](#repeatednullcheck)
-  - [R14.7 不应将非零常量值赋值给指针](#fixedaddrtopointer)
+  - [R14.7 不应使用非零常量对指针赋值](#fixedaddrtopointer)
   - [R14.8 不应使用常量 0 表示空指针](#zeroasptrvalue)
   - [R14.9 不应使用 false 对指针赋值](#oddptrboolassignment)
   - [R14.10 不应使用 '\\0' 等字符常量对指针赋值](#oddptrcharassignment)
@@ -2328,7 +2328,7 @@ ID_multiAllocation &emsp;&emsp;&emsp;&emsp;&nbsp; :drop_of_blood: resource warni
 
 <hr/>
 
-如果表达式语句多次使用 new，一旦某个构造函数抛出异常就会造成内存泄漏。  
+由于子表达式的求值顺序存在很多未声明的情况，在表达式中多次显式分配资源易造成资源泄露。  
   
 示例：
 ```
@@ -2337,29 +2337,36 @@ fun(
     shared_ptr<T>(new T)   // Non-compliant, potential memory leak
 );
 ```
-例中 fun 的两个参数均为 new 表达式，实际执行时可以先为两个对象分配内存，再分别执行对象的构造函数，如果某个构造函数抛出异常，已分配的内存就得不到回收了。  
+例中 fun 函数的两个参数均包含 new 表达式，而参数的求值顺序在标准中是未声明的，出于优化等目的，可能会先为两个 T 类对象分配内存，之后再分别执行对象的构造函数，如果某个构造函数抛出异常，已分配的内存就无法回收了。  
   
-保证一次内存分配对应一个构造函数可解决这种问题：
+从 C\+\+17 开始，参数的求值过程不再有所重叠，示例代码的问题在 C\+\+17 后会有所缓解，但为了更广泛的适用性和兼容性，应避免在表达式中多次显式分配资源。  
+  
+应改为：
 ```
-auto a(shared_ptr<T>(new T));   // Compliant
-auto b(shared_ptr<T>(new T));   // Compliant
+shared_ptr<T> a{new T};   // Compliant
+shared_ptr<T> b{new T};   // Compliant
 fun(a, b);
 ```
 这样即使构造函数抛出异常也会自动回收已分配的内存。  
   
-更好的方法是避免显式资源分配：
+更好的方法是避免显式资源分配，用 make\_shared、make\_unique 等函数代替 new 运算符：
 ```
 fun(
     make_shared<T>(),
     make_shared<T>()    // Compliant, safe and brief
 );
 ```
-用 make\_shared、make\_unique 等函数代替 new 运算符可有效规避这种问题。
 <br/>
 <br/>
 
 #### 相关
 ID_memoryLeak  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 5.2.2(8)-unspecified  
+ISO/IEC 14882:2011 5.2.2(8)  
+ISO/IEC 14882:2017 8.2.2(5)  
 <br/>
 
 #### 参考
@@ -8838,7 +8845,11 @@ ID_plainNumericChar &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: declaration warning
 
 <hr/>
 
-char 类型是否有符号由实现定义，为了提高可移植性并规避意料之外的错误，参与数值运算的 char 对象应显式声明符号属性。  
+char 类型是否有符号由实现定义，未显式声明 signed、unsigned 的 char 对象不应被当作整数使用。  
+  
+注意，char 和 signed char、unsigned char 是三种不同的类型，signed char、unsigned char 应被当作整数类型，而 char 应被当作字符类型，不应使用整数对 char 对象赋值，也不应使 char 对象参与和字符无关的算术、比较或位运算等数值运算。  
+  
+虽然字符类型由整数类型实现，但应分清各自的职责，混用不利于阅读和维护，char、wchar\_t、char16\_t、char32\_t 均不应被当作整数使用。  
   
 示例：
 ```
@@ -8850,7 +8861,7 @@ int bar(char c) {     // Non-compliant
     return c >= 0;    // May be always true
 }
 ```
-例中 foo 函数的 char 型参数只与字符有关，可不必声明符号属性；而 bar 函数的参数被当作整数参与了数值运算，应显式声明为 signed，否则在 char 为无符号整型的环境中会得到错误的结果。  
+例中 foo 函数的 char 型参数只与字符有关，可不必声明符号属性，而 bar 函数的参数被当作整数参与了比较运算，应显式声明 signed，否则在 char 为无符号整型的环境中会得到错误的结果。  
   
 应改为：
 ```
@@ -8886,7 +8897,7 @@ ID_excessiveCharSign &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: declaration suggestio
 
 signed char、unsigned char 以及 int8\_t、uint8\_t 是整数类型，只应用于数值计算，不应用于存储字符。  
   
-字符类型由整数类型实现，但应分清各自的职责，混用不利于阅读和维护。  
+虽然字符类型由整数类型实现，但应分清各自的职责，混用不利于阅读和维护。  
   
 示例：
 ```
@@ -10142,35 +10153,31 @@ MISRA C++ 2008 0-1-3
 <br/>
 <br/>
 
-### <span id="unportabletype">▌R6.11.8 用 stdint.h 中的类型代替 short、int、long 等类型</span>
+### <span id="unportabletype">▌R6.11.8 使用便于移植的类型</span>
 
 ID_unportableType &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: declaration suggestion
 
 <hr/>
 
-short、int、long 等类型的取值范围由执行环境的架构决定，可移植性较差。  
+为了确保数据在各种执行环境中都能被正确处理，避免出现偏差，应使用便于移植的类型，如：  
+ - 用定宽类型代替 short、int、long、long long 等原始类型  
+ - 用 char16\_t、char32\_t 代替 wchar\_t  
+ - 避免使用 long double  
   
 示例：
 ```
-struct T {
-    long int x;    // Non-compliant
-    long long y;   // Non-compliant
-    short z;       // Non-compliant
-};
+short b;        // Non-compliant
+long a;         // Non-compliant
+wchar_t c;      // Non-compliant
+long double d;  // Non-compliant
 ```
-例中成员变量在不同的平台会有不同的取值范围，C99 引入 stdint.h 解决了这一问题。  
-  
-应改为：
+例中变量的取值范围在不同的平台上可能会有较大差异，应改为：
 ```
-#include <stdint.h>   // Or <cstdint> in C++
-
-struct T {
-    int32_t x;   // Compliant
-    int64_t y;   // Compliant
-    int16_t z;   // Compliant
-};
+int16_t a;   // Compliant
+int32_t b;   // Compliant, or int64_t
+char16_t c;  // Compliant, or char32_t
+double d;    // Compliant
 ```
-另外，char、wchar\_t 等基本类型均有此问题，在有高可移植性要求的代码中应避免直接使用基本类型。
 <br/>
 <br/>
 
@@ -10183,6 +10190,7 @@ ISO/IEC 14882:2011 3.9.1(2)
 #### 参考
 MISRA C 2004 6.3  
 MISRA C 2012 Dir 4.6  
+MISRA C++ 2008 3-9-2  
 <br/>
 <br/>
 
@@ -16219,13 +16227,15 @@ CWE-571
 <br/>
 <br/>
 
-### <span id="invalidcondition">▌R10.1.3 作为条件的逻辑表达式不应恒为真或恒为假</span>
+### <span id="invalidcondition">▌R10.1.3 作为控制条件的逻辑表达式不应恒为真或恒为假</span>
 
 ID_invalidCondition &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
 <hr/>
 
-以恒为真或恒为假的表达式作为条件是没有意义的，属于逻辑错误。  
+恒为真或恒为假的表达式无法改变程序的流程，不应作为控制条件，否则会造成逻辑错误。  
+  
+当控制条件为常量表达式时，本规则特化为 ID\_constLogicExpression。  
   
 示例：
 ```
@@ -16286,7 +16296,7 @@ ID_constLogicExpression &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
 <hr/>
 
-不改变程序流程的常量逻辑表达式是没有意义的，而常量逻辑子表达式则是多余的。  
+对不改变程序流程的常量表达式进行逻辑判断是没有意义的。  
   
 示例：
 ```
@@ -16294,16 +16304,21 @@ if (false) {  // Non-compliant
     ....
 }
 
-while (false) {  // Non-compliant
-    ....
-}
-
-const bool False = false;
-if (False && other_condition) {  // Non-compliant
+while (true || condition) {  // Non-compliant
     ....
 }
 ```
-这种代码往往是调试或维护过程中产生的残留代码，应及时去除。  
+这种代码会使相应的控制语句或控制条件失效，往往是调试或维护过程中产生的残留代码，应及时去除。  
+  
+又如：
+```
+int* fun();
+
+if (fun == NULL) {  // Non-compliant
+    ....
+}
+```
+函数地址、非动态创建的对象地址不会为空，这种地址与空指针比较往往意味着笔误。  
   
 例外：
 ```
@@ -16315,29 +16330,20 @@ do {
     ....
 } while (0);  // Compliant
 ```
-true 或 1 等常量可作为 while 或 do\-while 循环的条件，false 或 0 等常量可作为 do\-while 循环的条件。  
+true 或 1 可作为 while 或 do\-while 循环的条件，false 或 0 可作为 do\-while 循环的条件。  
   
-由宏定义的常量也不应作为控制语句的条件，如：
+constexpr if 语句的常量条件表达式用于编译期分枝控制，也不受本规则约束：
 ```
-#define M 1
-
-if (M) {  // Non-compliant
+if constexpr (E) {  // Compliant
     ....
 }
 ```
-应采用条件编译的方式，避免占用运行时资源：
-```
-#if M  // Compliant
-    ....
-#endif
-```
-或：
-```
-if constexpr (M) {  // Compliant, since C++17
-    ....
-}
-```
+其中 E 为常量表达式。
 <br/>
+<br/>
+
+#### 相关
+ID_invalidCondition  
 <br/>
 
 #### 参考
@@ -16346,6 +16352,7 @@ CWE-571
 MISRA C 2004 13.7  
 MISRA C 2012 14.3  
 MISRA C++ 2008 0-1-2  
+SEI CERT EXP16-C  
 <br/>
 <br/>
 
@@ -21326,13 +21333,13 @@ ID_invalidNullCheck
 <br/>
 <br/>
 
-### <span id="fixedaddrtopointer">▌R14.7 不应将非零常量值赋值给指针</span>
+### <span id="fixedaddrtopointer">▌R14.7 不应使用非零常量对指针赋值</span>
 
 ID_fixedAddrToPointer &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: pointer warning
 
 <hr/>
 
-固定地址是不可移植的，且存在安全隐患。  
+将非零常量作为固定地址是不可移植的，且存在安全隐患。  
   
 示例：
 ```
