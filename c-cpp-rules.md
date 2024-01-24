@@ -503,7 +503,7 @@
     - [R10.2.2 不可依赖未声明的求值顺序](#evaluationorderreliance)
     - [R10.2.3 在表达式中不应多次读写同一对象](#confusingassignment)
     - [R10.2.4 注意运算符优先级，避免非预期的结果](#unexpectedprecedence)
-    - [R10.2.5 不在同一数组或对象中的地址不可相减](#illptrdiff)
+    - [R10.2.5 未指向同一数组的指针不可相减](#illptrdiff)
     - [R10.2.6 bool 对象不应参与位运算、大小比较、数值增减](#illbooloperation)
     - [R10.2.7 枚举对象不应参与位运算或算数运算](#illenumoperation)
     - [R10.2.8 不应出现复合赋值的错误形式](#illformedcompoundassignment)
@@ -525,7 +525,7 @@
     - [R10.2.24 逗号表达式的子表达式应具有必要的副作用](#invalidcommasubexpression)
   - [10.3 Comparison](#expression.comparison)
     - [R10.3.1 参与比较的对象之间应具备合理的大小关系](#illcomparison)
-    - [R10.3.2 不在同一数组或对象中的地址不可比较大小](#illptrcomparison)
+    - [R10.3.2 未指向同一数组或同一对象的指针不可比较大小](#illptrcomparison)
     - [R10.3.3 不应使用 == 或 != 判断浮点数是否相等](#illfloatcomparison)
     - [R10.3.4 指针不应与字符串常量直接比较](#illptrstrcomparison)
     - [R10.3.5 有符号数不应和无符号数比较](#inconsistentsigncomparison)
@@ -614,7 +614,7 @@
 
 <span id="__buffer">**[13. Buffer](#buffer)**</span>
   - [R13.1 避免缓冲区溢出](#bufferoverflow)
-  - [R13.2 数组下标不可越界](#arrayindexoverflow)
+  - [R13.2 避免指针运算的结果溢出](#arrayindexoverflow)
   - [R13.3 为缓冲区分配足够的空间](#insufficientbuffer)
   - [R13.4 memset 等函数不应作用于非 POD 对象](#nonpodfilling)
   - [R13.5 memset 等函数长度相关的参数不应有误](#badlength)
@@ -2464,7 +2464,7 @@ alloca、strdupa 等函数可以在栈上动态分配内存，但分配失败时
   
 示例：
 ```
-#include <alloca.h>  // or <malloc.h>
+#include <alloca.h>  // Or use malloc.h in MSVC
 
 void fun(size_t n) {
     int* p = (int*)alloca(n * sizeof(int));  // Non-compliant
@@ -7516,7 +7516,6 @@ C++ Core Guidelines Con.1
 C++ Core Guidelines Con.2  
 C++ Core Guidelines Con.3  
 C++ Core Guidelines Con.4  
-MISRA C 2012 18.3  
 MISRA C++ 2008 7-1-1  
 MISRA C++ 2008 7-1-2  
 <br/>
@@ -16720,42 +16719,30 @@ SEI CERT EXP00-C
 <br/>
 <br/>
 
-### <span id="illptrdiff">▌R10.2.5 不在同一数组或对象中的地址不可相减</span>
+### <span id="illptrdiff">▌R10.2.5 未指向同一数组的指针不可相减</span>
 
 ID_illPtrDiff &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
 <hr/>
 
-不在同一数组或对象中的地址之间没有逻辑关系，这种地址相减属于逻辑错误，也会导致标准未定义的行为。  
+不在同一数组中的地址之间没有连续性，未指向同一数组的指针相减往往意味着逻辑错误，也会导致标准未定义的行为。  
   
-对于 C\+\+ 语言，即使在同一对象中：  
- - 静态成员之间  
- - 静态成员与非静态成员之间  
- - 由 access\-specifier 分隔的成员之间  
-  
-也不应对地址求差值或比较大小。  
+如果两个指针的值均为同一数组中的元素地址，或该数组末尾元素的下一个地址，则称两个指针指向同一个数组，其差值为相应地址之间的距离，否则其差值不具备正确意义。  
   
 示例：
 ```
 ptrdiff_t d;
 
 int i, j;
-d = &j - &i;   // Non-compliant, undefined in C and C++ if overflow
+d = &j - &i;   // Non-compliant, undefined if overflow
 
-struct A {
-    int i, j;
-} a;
-d = &a.j - &a.i;   // Compliant, ‘d’ is 1
-
-int x[8];
-int y[8];
-d = &y[1] - &x[0];   // Non-compliant, undefined behavior if overflow
+int x[8], y[8];
 d = &x[1] - &x[0];   // Compliant, ‘d’ is 1
-```
-另外，指针与空指针之间也不应相减：
-```
-int* p = &foo;
-ptrdiff_t d = p - (int*)NULL;   // Non-compliant
+d = &y[1] - &x[0];   // Non-compliant, undefined if overflow
+
+int* p = &i;
+int* q = NULL;
+d = p - q;      // Non-compliant
 ```
 <br/>
 <br/>
@@ -16766,20 +16753,16 @@ ID_illPtrComparison
 
 #### 依据
 ISO/IEC 9899:1999 6.5.6(9)-undefined  
-ISO/IEC 9899:1999 6.5.8(5)-undefined  
 ISO/IEC 9899:2011 6.5.6(9)-undefined  
-ISO/IEC 9899:2011 6.5.8(5)-undefined  
 ISO/IEC 14882:2003 5.7(6)-undefined  
 ISO/IEC 14882:2011 5.7(6)-undefined  
 <br/>
 
 #### 参考
-C++ Core Guidelines ES.62  
-MISRA C 2004 17.3  
-MISRA C 2012 18.3  
-MISRA C++ 2008 5-0-16  
+MISRA C 2004 17.2  
+MISRA C 2012 18.2  
 MISRA C++ 2008 5-0-17  
-MISRA C++ 2008 5-0-18  
+SEI CERT ARR36-C  
 <br/>
 <br/>
 
@@ -17491,20 +17474,20 @@ CWE-1025
 <br/>
 <br/>
 
-### <span id="illptrcomparison">▌R10.3.2 不在同一数组或对象中的地址不可比较大小</span>
+### <span id="illptrcomparison">▌R10.3.2 未指向同一数组或同一对象的指针不可比较大小</span>
 
 ID_illPtrComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
 <hr/>
 
-不在同一数组或对象中的地址之间没有逻辑关系，这种地址比较大小属于逻辑错误，也会导致标准未定义或未声明的行为。  
+不在同一数组或同一对象中的地址之间没有前后关系，比较这种地址的大小往往意味着逻辑错误，也会导致标准未定义或未声明的行为。  
   
 对于 C\+\+ 语言，即使在同一对象中：  
  - 静态成员之间  
  - 静态成员与非静态成员之间  
  - 由 access\-specifier 分隔的成员之间  
   
-也不应对地址比较大小或求差值。  
+也不应比较地址的大小。  
   
 示例：
 ```
@@ -17544,13 +17527,9 @@ ID_oddPtrZeroComparison
 <br/>
 
 #### 依据
-ISO/IEC 9899:1999 6.5.6(9)-undefined  
 ISO/IEC 9899:1999 6.5.8(5)-undefined  
-ISO/IEC 9899:2011 6.5.6(9)-undefined  
 ISO/IEC 9899:2011 6.5.8(5)-undefined  
-ISO/IEC 14882:2003 5.7(6)-undefined  
 ISO/IEC 14882:2003 5.9(2)-unspecified  
-ISO/IEC 14882:2011 5.7(6)-undefined  
 ISO/IEC 14882:2011 5.9(2)-unspecified  
 <br/>
 
@@ -17558,9 +17537,8 @@ ISO/IEC 14882:2011 5.9(2)-unspecified
 C++ Core Guidelines ES.62  
 MISRA C 2004 17.3  
 MISRA C 2012 18.3  
-MISRA C++ 2008 5-0-16  
-MISRA C++ 2008 5-0-17  
 MISRA C++ 2008 5-0-18  
+SEI CERT ARR36-C  
 <br/>
 <br/>
 
@@ -20830,13 +20808,13 @@ CWE-788
 <br/>
 <br/>
 
-### <span id="arrayindexoverflow">▌R13.2 数组下标不可越界</span>
+### <span id="arrayindexoverflow">▌R13.2 避免指针运算的结果溢出</span>
 
 ID_arrayIndexOverflow &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: buffer error
 
 <hr/>
 
-数组下标超过数组大小范围会导致标准未定义的行为。  
+指针运算的结果溢出会导致标准未定义的行为。  
   
 设数组元素个数为 N，p 为指向数组第一个元素的指针，i 为整数，标准规定：  
  - 当 i >= 0 且 i < N 时，p \+ i 的结果不会溢出  
@@ -20874,7 +20852,9 @@ ISO/IEC 14882:2011 5.7(5)-undefined
 <br/>
 
 #### 参考
-C++ Core Guidelines ES.103  
+MISRA C 2004 17.1  
+MISRA C 2012 18.1  
+MISRA C++ 2008 5-0-16  
 SEI CERT ARR30-C  
 <br/>
 <br/>

@@ -358,13 +358,13 @@
         "reference": "MISRA C 2012 22.5"
         },
     "ID_arrayIndexOverflow": {
-        "checkPoint": "数组下标不可越界",
+        "checkPoint": "避免指针运算的结果溢出",
         "level": "error",
-        "comment": "数组下标超过数组大小范围会导致标准未定义的行为。",
+        "comment": "指针运算的结果溢出会导致标准未定义的行为。",
         "tag": "buffer",
         "related": "ID_bufferOverflow",
         "standard": "ISO/IEC 9899:1999 6.5.6(8)-undefined,ISO/IEC 9899:2011 6.5.6(8)-undefined,ISO/IEC 14882:2003 5.7(5)-undefined,ISO/IEC 14882:2011 5.7(5)-undefined",
-        "reference": "C++ Core Guidelines ES.103,SEI CERT ARR30-C"
+        "reference": "MISRA C 2004 17.1,MISRA C 2012 18.1,MISRA C++ 2008 5-0-16,SEI CERT ARR30-C"
         },
     "ID_oddSubscripting": {
         "checkPoint": "数组下标应为整型表达式",
@@ -1350,13 +1350,13 @@
         "reference": "CWE-783,C++ Core Guidelines ES.41,SEI CERT EXP00-C"
         },
     "ID_illPtrDiff": {
-        "checkPoint": "不在同一数组或对象中的地址不可相减",
+        "checkPoint": "未指向同一数组的指针不可相减",
         "level": "warning",
-        "comment": "不在同一数组或对象中的地址之间没有逻辑关系，这种地址相减属于逻辑错误，也会导致标准未定义的行为。",
+        "comment": "不在同一数组中的地址之间没有连续性，未指向同一数组的指针相减往往意味着逻辑错误，也会导致标准未定义的行为。",
         "tag": "expression",
         "related": "ID_illPtrComparison",
-        "standard": "ISO/IEC 9899:1999 6.5.6(9)-undefined,ISO/IEC 9899:1999 6.5.8(5)-undefined,ISO/IEC 9899:2011 6.5.6(9)-undefined,ISO/IEC 9899:2011 6.5.8(5)-undefined,ISO/IEC 14882:2003 5.7(6)-undefined,ISO/IEC 14882:2011 5.7(6)-undefined",
-        "reference": "C++ Core Guidelines ES.62,MISRA C 2004 17.3,MISRA C 2012 18.3,MISRA C++ 2008 5-0-16,MISRA C++ 2008 5-0-17,MISRA C++ 2008 5-0-18"
+        "standard": "ISO/IEC 9899:1999 6.5.6(9)-undefined,ISO/IEC 9899:2011 6.5.6(9)-undefined,ISO/IEC 14882:2003 5.7(6)-undefined,ISO/IEC 14882:2011 5.7(6)-undefined",
+        "reference": "MISRA C 2004 17.2,MISRA C 2012 18.2,MISRA C++ 2008 5-0-17,SEI CERT ARR36-C"
         },
     "ID_illBoolOperation": {
         "checkPoint": "bool 对象不应参与位运算、大小比较、数值增减",
@@ -3877,7 +3877,7 @@
         "comment": "用 const 显式区分数据是只读的还是可写的，细化数据的访问方式可显著提高可读性，并保护数据不被错误修改，有助于编译器优化。",
         "tag": "declaration",
         "related": "ID_constStrToNonConstPtr",
-        "reference": "C++ Core Guidelines Con.1,C++ Core Guidelines Con.2,C++ Core Guidelines Con.3,C++ Core Guidelines Con.4,MISRA C 2012 18.3,MISRA C++ 2008 7-1-1,MISRA C++ 2008 7-1-2"
+        "reference": "C++ Core Guidelines Con.1,C++ Core Guidelines Con.2,C++ Core Guidelines Con.3,C++ Core Guidelines Con.4,MISRA C++ 2008 7-1-1,MISRA C++ 2008 7-1-2"
         },
     "ID_macro_redefined": {
         "checkPoint": "宏不应被重定义",
@@ -4227,12 +4227,12 @@
         "reference": "MISRA C++ 2008 8-4-4"
         },
     "ID_illPtrComparison": {
-        "checkPoint": "不在同一数组或对象中的地址不可比较大小",
+        "checkPoint": "未指向同一数组或同一对象的指针不可比较大小",
         "level": "warning",
-        "comment": "不在同一数组或对象中的地址之间没有逻辑关系，这种地址比较大小属于逻辑错误，也会导致标准未定义或未声明的行为。",
+        "comment": "不在同一数组或同一对象中的地址之间没有前后关系，比较这种地址的大小往往意味着逻辑错误，也会导致标准未定义或未声明的行为。",
         "tag": "expression",
         "related": "ID_illPtrDiff,ID_oddPtrZeroComparison",
-        "standard": "ISO/IEC 9899:1999 6.5.6(9)-undefined,ISO/IEC 9899:1999 6.5.8(5)-undefined,ISO/IEC 9899:2011 6.5.6(9)-undefined,ISO/IEC 9899:2011 6.5.8(5)-undefined,ISO/IEC 14882:2003 5.7(6)-undefined,ISO/IEC 14882:2003 5.9(2)-unspecified,ISO/IEC 14882:2011 5.7(6)-undefined,ISO/IEC 14882:2011 5.9(2)-unspecified",
-        "reference": "C++ Core Guidelines ES.62,MISRA C 2004 17.3,MISRA C 2012 18.3,MISRA C++ 2008 5-0-16,MISRA C++ 2008 5-0-17,MISRA C++ 2008 5-0-18"
+        "standard": "ISO/IEC 9899:1999 6.5.8(5)-undefined,ISO/IEC 9899:2011 6.5.8(5)-undefined,ISO/IEC 14882:2003 5.9(2)-unspecified,ISO/IEC 14882:2011 5.9(2)-unspecified",
+        "reference": "C++ Core Guidelines ES.62,MISRA C 2004 17.3,MISRA C 2012 18.3,MISRA C++ 2008 5-0-18,SEI CERT ARR36-C"
         }
 }
