@@ -667,20 +667,20 @@
 <br/>
 
 <span id="__style">**[17. Style](#style)**</span>
-  - [R17.1 空格应遵循统一风格](#spacestyle)
-  - [R17.2 大括号应遵循统一风格](#bracestyle)
-  - [R17.3 赋值表达式不应作为子表达式](#assignmentassubexpression)
-  - [R17.4 自增、自减表达式不应作为子表达式](#incdecassubexpression)
-  - [R17.5 控制条件应为 bool 型表达式](#nonboolcondition)
-  - [R17.6 !、&&、|| 的子表达式应为 bool 型表达式](#nonboolsubcondition)
-  - [R17.7 &&、|| 的子表达式应为后缀表达式](#nonpostfixsubcondition)
-  - [R17.8 在 C\+\+ 代码中 NULL 和 nullptr 不应混用](#mixnullptrandnull)
-  - [R17.9 在 C\+\+ 代码中用 nullptr 代替 NULL](#deprecatednull)
-  - [R17.10 避免多余的括号](#redundantparentheses)
-  - [R17.11 避免多余的分号](#redundantsemicolon)
-  - [R17.12 遵循统一的代码编写风格](#inconsistentstyle)
-  - [R17.13 遵循统一的命名风格](#inconsistentnaming)
-  - [R17.14 遵循统一的缩进风格](#inconsistentindent)<br/><br/>
+  - [R17.1 遵循统一的代码编写风格](#inconsistentstyle)
+  - [R17.2 遵循统一的命名风格](#inconsistentnaming)
+  - [R17.3 遵循统一的空格风格](#spacestyle)
+  - [R17.4 遵循统一的大括号风格](#bracestyle)
+  - [R17.5 遵循统一的缩进风格](#inconsistentindent)
+  - [R17.6 赋值表达式不应作为子表达式](#assignmentassubexpression)
+  - [R17.7 自增、自减表达式不应作为子表达式](#incdecassubexpression)
+  - [R17.8 控制条件应为 bool 型表达式](#nonboolcondition)
+  - [R17.9 !、&&、|| 的子表达式应为 bool 型表达式](#nonboolsubcondition)
+  - [R17.10 &&、|| 的子表达式应为后缀表达式](#nonpostfixsubcondition)
+  - [R17.11 在 C\+\+ 代码中 NULL 和 nullptr 不应混用](#mixnullptrandnull)
+  - [R17.12 在 C\+\+ 代码中用 nullptr 代替 NULL](#deprecatednull)
+  - [R17.13 避免多余的括号](#redundantparentheses)
+  - [R17.14 避免多余的分号](#redundantsemicolon)<br/><br/>
 ## <span id="security">1. Security</span>
 
 ### <span id="plainsensitiveinfo">▌R1.1 敏感数据不可写入代码</span>
@@ -22677,15 +22677,97 @@ SEI CERT CON37-C
 
 ## <span id="style">17. Style</span>
 
-### <span id="spacestyle">▌R17.1 空格应遵循统一风格</span>
+### <span id="inconsistentstyle">▌R17.1 遵循统一的代码编写风格</span>
+
+ID_inconsistentStyle &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestion
+
+<hr/>
+
+遵循统一的命名、空格、缩进、换行等风格有利于提高代码可读性。  
+  
+示例：
+```
+int a = 0XAB;
+int b = 0xcd;   // Inconsistent
+
+if (p != NULL && nullptr != q) {   // Inconsistent
+    ....
+}
+```
+<br/>
+<br/>
+
+#### 相关
+ID_inconsistentNaming  
+ID_inconsistentIndent  
+ID_spaceStyle  
+ID_braceStyle  
+<br/>
+
+#### 参考
+CWE-1078  
+<br/>
+<br/>
+
+### <span id="inconsistentnaming">▌R17.2 遵循统一的命名风格</span>
+
+ID_inconsistentNaming &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestion
+
+<hr/>
+
+命名风格不统一会严重降低代码可读性，易造成理解上的偏差，增加维护成本。  
+  
+本规则强调命名风格的一致性，对具体的命名方法暂不作量化要求，以下是一些建议：  
+ - 除自定义字面常量后缀之外，避免名称以下划线开头  
+ - 无命名空间限制的全局名称以模块名称开头  
+ - 名称长度与其声明所在的作用域深度成反比  
+ - 从名称上体现作用域，如全局对象名以 g\_ 开头，成员对象名以 m\_ 开头或以 \_ 结尾  
+ - 从名称上体现类别，如宏名采用全大写字母，类型名以大写字母开头，函数或对象名以小写字母开头  
+  
+对于不良名称产生的后果可参见 ID\_badName、ID\_reservedName。  
+  
+示例：
+```
+struct Tp {
+    int foo_;
+    int m_bar;   // Inconsistent
+    int baz;     // Inconsistent
+};
+
+int foo_bar();
+int fooBar();    // Inconsistent
+int FooBar();    // Inconsistent
+```
+例中各名称具有不同的前缀、后缀以及不同的单词连接方式是不符合要求的。
+<br/>
+<br/>
+
+#### 相关
+ID_inconsistentStyle  
+ID_badName  
+ID_macro_badName  
+ID_nameTooShort  
+ID_reservedName  
+<br/>
+
+#### 参考
+CWE-1099  
+C++ Core Guidelines NL.8  
+C++ Core Guidelines NL.10  
+<br/>
+<br/>
+
+### <span id="spacestyle">▌R17.3 遵循统一的空格风格</span>
 
 ID_spaceStyle &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestion
 
 <hr/>
 
-与运算符、标点符、关键字相关的空格应遵循统一风格，过于随意的空格会干扰阅读，甚至形成笔误。  
+与运算符、标点符、关键字相关的空格应遵循统一风格，过于随意的空格会干扰阅读，甚至会造成笔误。  
   
-本规则暂不限定具体风格，但强调一致性，同类运算符、标点符、关键字的空格方式应保持一致，tab 等变长空白符不应用作空格。  
+本规则强调一致性，暂不限定具体风格，同类运算符、标点符、关键字的空格方式应保持一致，tab 等变长空白符不应用作空格。  
+  
+本规则是 ID\_stickyAssignmentOperator 的泛化，该规则描述了一种由空格造成的错误。  
   
 示例：
 ```
@@ -22700,9 +22782,7 @@ baz (1 , 2 ,3);         // Bad
 if (cond)
 if(cond)                // Missing a unified style
 ```
-例中运算符和关键字相关的空格风格不一致，代码显得很混乱。  
-  
-本规则是 ID\_stickyAssignmentOperator 的泛化，该规则描述了一种由空格造成的错误。
+例中运算符和关键字相关的空格风格不一致，代码显得很混乱。
 <br/>
 <br/>
 
@@ -22712,41 +22792,35 @@ ID_stickyAssignmentOperator
 <br/>
 <br/>
 
-### <span id="bracestyle">▌R17.2 大括号应遵循统一风格</span>
+### <span id="bracestyle">▌R17.4 遵循统一的大括号风格</span>
 
 ID_braceStyle &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestion
 
 <hr/>
 
-大括号应遵循统一的换行和缩进风格，否则不利于阅读和维护，甚至形成笔误。  
+大括号应遵循统一的换行和缩进风格，否则不利于阅读和维护，甚至会造成笔误。  
   
 命名空间、类、函数体、复合语句等不同类别的大括号，换行方式可以不同，但同类大括号的换行方式应该是一致的，本规则暂不限定具体风格，但强调一致性。  
   
+本规则是 ID\_if\_mayBeElseIf 的泛化，该规则描述了一种由换行造成的错误。  
+  
 示例：
 ```
-void foo() {     // Non-compliant, missing a unified style
-    if (cond)
-    {
-        ....
-    }
-    else {
+void foo()
+{
+    if (cond) {
         ....
     }
 }
 
-void bar()       // Non-compliant, missing a unified style
-{
-    if (cond) {
-        ....
-    } else
-    {
+void bar() {      // Inconsistent
+    if (cond)
+    {             // Inconsistent
         ....
     }
 }
 ```
-例中大括号换行的方式不一致，代码显得很混乱。  
-  
-本规则是 ID\_if\_mayBeElseIf 的泛化，该规则描述了一种由换行造成的错误。
+例中大括号换行的方式不一致，代码显得很混乱。
 <br/>
 <br/>
 
@@ -22756,7 +22830,42 @@ ID_if_mayBeElseIf
 <br/>
 <br/>
 
-### <span id="assignmentassubexpression">▌R17.3 赋值表达式不应作为子表达式</span>
+### <span id="inconsistentindent">▌R17.5 遵循统一的缩进风格</span>
+
+ID_inconsistentIndent &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestion
+
+<hr/>
+
+缩进方式不统一会使代码结构混乱，严重降低可读性，也易导致逻辑错误。  
+  
+缩进应清晰地体现语句的从属关系，函数、分枝、循环等代码块的内容应相对代码块的起始位置缩进一个层级，建议使用 2、4 或 8 个空格作为一个缩进层级，并避免使用制表符，以便代码在不同的编辑器中可以保持一致的样式。  
+  
+示例：
+```
+switch (a) {
+case 0:
+    switch (b) {
+case 1:           // Inconsistent
+    break;        // Inconsistent
+    }
+    break;
+default:
+    break;
+}
+```
+<br/>
+<br/>
+
+#### 相关
+ID_inconsistentStyle  
+<br/>
+
+#### 参考
+C++ Core Guidelines NL.4  
+<br/>
+<br/>
+
+### <span id="assignmentassubexpression">▌R17.6 赋值表达式不应作为子表达式</span>
 
 ID_assignmentAsSubExpression &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestion
 
@@ -22802,7 +22911,7 @@ MISRA C++ 2008 6-2-1
 <br/>
 <br/>
 
-### <span id="incdecassubexpression">▌R17.4 自增、自减表达式不应作为子表达式</span>
+### <span id="incdecassubexpression">▌R17.7 自增、自减表达式不应作为子表达式</span>
 
 ID_incDecAsSubExpression &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestion
 
@@ -22833,7 +22942,7 @@ MISRA C++ 2008 5-2-10
 <br/>
 <br/>
 
-### <span id="nonboolcondition">▌R17.5 控制条件应为 bool 型表达式</span>
+### <span id="nonboolcondition">▌R17.8 控制条件应为 bool 型表达式</span>
 
 ID_nonBoolCondition &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestion
 
@@ -22895,7 +23004,7 @@ SEI CERT EXP20-C
 <br/>
 <br/>
 
-### <span id="nonboolsubcondition">▌R17.6 !、&&、|| 的子表达式应为 bool 型表达式</span>
+### <span id="nonboolsubcondition">▌R17.9 !、&&、|| 的子表达式应为 bool 型表达式</span>
 
 ID_nonBoolSubCondition &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestion
 
@@ -22929,7 +23038,7 @@ SEI CERT EXP20-C
 <br/>
 <br/>
 
-### <span id="nonpostfixsubcondition">▌R17.7 &&、|| 的子表达式应为后缀表达式</span>
+### <span id="nonpostfixsubcondition">▌R17.10 &&、|| 的子表达式应为后缀表达式</span>
 
 ID_nonPostfixSubCondition &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestion
 
@@ -22994,7 +23103,7 @@ MISRA C++ 2008 5-2-1
 <br/>
 <br/>
 
-### <span id="mixnullptrandnull">▌R17.8 在 C++ 代码中 NULL 和 nullptr 不应混用</span>
+### <span id="mixnullptrandnull">▌R17.11 在 C++ 代码中 NULL 和 nullptr 不应混用</span>
 
 ID_mixNullptrAndNULL &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style warning
 
@@ -23019,7 +23128,7 @@ C++ Core Guidelines ES.47
 <br/>
 <br/>
 
-### <span id="deprecatednull">▌R17.9 在 C++ 代码中用 nullptr 代替 NULL</span>
+### <span id="deprecatednull">▌R17.12 在 C++ 代码中用 nullptr 代替 NULL</span>
 
 ID_deprecatedNULL &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestion
 
@@ -23057,7 +23166,7 @@ C++ Core Guidelines ES.47
 <br/>
 <br/>
 
-### <span id="redundantparentheses">▌R17.10 避免多余的括号</span>
+### <span id="redundantparentheses">▌R17.13 避免多余的括号</span>
 
 ID_redundantParentheses &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestion
 
@@ -23092,7 +23201,7 @@ MISRA C++ 2008 5-0-2
 <br/>
 <br/>
 
-### <span id="redundantsemicolon">▌R17.11 避免多余的分号</span>
+### <span id="redundantsemicolon">▌R17.14 避免多余的分号</span>
 
 ID_redundantSemicolon &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestion
 
@@ -23109,121 +23218,6 @@ namespace N {
 };                 // Non-compliant
 ```
 <br/>
-<br/>
-<br/>
-
-### <span id="inconsistentstyle">▌R17.12 遵循统一的代码编写风格</span>
-
-ID_inconsistentStyle &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestion
-
-<hr/>
-
-遵循统一的命名、空格、缩进、换行等风格有利于提高代码可读性。  
-  
-示例：
-```
-int a = 0XAB;
-int b = 0xcd;   // Inconsistent
-
-if (p != NULL && nullptr != q) {   // Inconsistent
-    ....
-}
-```
-<br/>
-<br/>
-
-#### 相关
-ID_inconsistentNaming  
-ID_inconsistentIndent  
-ID_spaceStyle  
-ID_braceStyle  
-<br/>
-
-#### 参考
-CWE-1078  
-<br/>
-<br/>
-
-### <span id="inconsistentnaming">▌R17.13 遵循统一的命名风格</span>
-
-ID_inconsistentNaming &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestion
-
-<hr/>
-
-命名风格不统一会严重降低代码可读性，易造成理解上的偏差，增加维护成本。  
-  
-本规则强调命名风格的一致性，对具体的命名方法暂不作量化要求，以下是一些建议：  
- - 除自定义字面常量后缀之外，避免名称以下划线开头  
- - 无命名空间限制的全局名称以模块名称开头  
- - 名称长度与其声明所在的作用域深度成反比  
- - 从名称上体现作用域，如全局对象名以 g\_ 开头，成员对象名以 m\_ 开头或以 \_ 结尾  
- - 从名称上体现类别，如宏名采用全大写字母，类型名以大写字母开头，函数或对象名以小写字母开头  
-  
-对于不良名称产生的后果可参见 ID\_badName、ID\_reservedName。  
-  
-示例：
-```
-struct Tp {
-    int foo_;
-    int m_bar;   // Inconsistent
-    int baz;     // Inconsistent
-};
-
-int foo_bar();
-int fooBar();    // Inconsistent
-int FooBar();    // Inconsistent
-```
-例中各名称具有不同的前缀、后缀以及不同的单词连接方式是不符合要求的。
-<br/>
-<br/>
-
-#### 相关
-ID_inconsistentStyle  
-ID_badName  
-ID_macro_badName  
-ID_nameTooShort  
-ID_reservedName  
-<br/>
-
-#### 参考
-CWE-1099  
-C++ Core Guidelines NL.8  
-C++ Core Guidelines NL.10  
-<br/>
-<br/>
-
-### <span id="inconsistentindent">▌R17.14 遵循统一的缩进风格</span>
-
-ID_inconsistentIndent &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestion
-
-<hr/>
-
-缩进方式不统一会使代码结构混乱，严重降低可读性，也易导致逻辑错误。  
-  
-缩进应清晰地体现语句的从属关系，函数、分枝、循环等代码块的内容应相对代码块的起始位置缩进一个层级，建议使用 2、4 或 8 个空格作为一个缩进层级，并避免使用制表符，以便代码在不同的编辑器中可以保持一致的样式。  
-  
-示例：
-```
-switch (a) {
-case 0:
-    switch (b) {
-case 1:           // Inconsistent
-    break;        // Inconsistent
-    }
-    break;
-default:
-    break;
-}
-```
-<br/>
-<br/>
-
-#### 相关
-ID_inconsistentStyle  
-<br/>
-
-#### 参考
-C++ Core Guidelines NL.4  
 <br/>
 <br/>
 

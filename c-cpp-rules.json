@@ -1208,16 +1208,16 @@
         "reference": "MISRA C 2012 21.4,MISRA C 2012 21.5,MISRA C 2012 21.10,MISRA C 2012 21.11,MISRA C 2012 21.12,MISRA C++ 2008 18-0-4,MISRA C++ 2008 18-7-1,MISRA C++ 2008 27-0-1"
         },
     "ID_spaceStyle": {
-        "checkPoint": "空格应遵循统一风格",
+        "checkPoint": "遵循统一的空格风格",
         "level": "suggestion",
-        "comment": "与运算符、标点符、关键字相关的空格应遵循统一风格，过于随意的空格会干扰阅读，甚至形成笔误。",
+        "comment": "与运算符、标点符、关键字相关的空格应遵循统一风格，过于随意的空格会干扰阅读，甚至会造成笔误。",
         "tag": "style",
         "related": "ID_inconsistentStyle,ID_stickyAssignmentOperator"
         },
     "ID_braceStyle": {
-        "checkPoint": "大括号应遵循统一风格",
+        "checkPoint": "遵循统一的大括号风格",
         "level": "suggestion",
-        "comment": "大括号应遵循统一的换行和缩进风格，否则不利于阅读和维护，甚至形成笔误。",
+        "comment": "大括号应遵循统一的换行和缩进风格，否则不利于阅读和维护，甚至会造成笔误。",
         "tag": "style",
         "related": "ID_inconsistentStyle,ID_if_mayBeElseIf"
         },
