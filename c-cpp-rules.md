@@ -4,7 +4,7 @@
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对 C、C++ 语言，本文收录了 512 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对 C、C++ 语言，本文收录了 519 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
@@ -124,6 +124,7 @@
   - [R2.23 避免动态内存分配](#dynamicallocation)
   - [R2.24 判断资源分配函数的返回值是否有效](#nullderefallocret)
   - [R2.25 在 C\+\+ 代码中禁用 C 资源管理函数](#forbidmallocandfree)
+  - [R2.26 避免分配大小为零的内存空间](#zerolengthallocation)
 <br/>
 
 <span id="__precompile">**[3. Precompile](#precompile)**</span>
@@ -181,6 +182,7 @@
     - [R3.7.1 避免出现 trigraph sequences](#literal_trigraphs)
     - [R3.7.2 禁用 digraphs](#forbiddigraphs)
     - [R3.7.3 除转义字符、宏定义之外不应使用反斜杠](#badbackslash)
+    - [R3.7.4 禁用不安全的编译选项](#unsafecompileoption)
 <br/>
 
 <span id="__global">**[4. Global](#global)**</span>
@@ -336,6 +338,7 @@
     - [R6.11.10 不应省略声明对象或函数的类型](#missingtype)
     - [R6.11.11 避免隐式声明](#implicitdeclaration)
     - [R6.11.12 弃用老式声明与定义](#oldstyleparamlist)
+    - [R6.11.13 不应使用具有 deprecated 属性的函数、对象或类型](#usingdeprecatedname)
 <br/>
 
 <span id="__exception">**[7. Exception](#exception)**</span>
@@ -641,6 +644,7 @@
   - [R14.17 释放指针后应将指针赋值为空或其他有效值](#missingresetnull)
   - [R14.18 函数取地址时应显式使用 & 运算符](#missingaddressoperator)
   - [R14.19 指针运算应使用数组下标的方式](#missingarrayindexing)
+  - [R14.20 未指向数组元素的指针不可与整数加减](#illptrarithmetic)
 <br/>
 
 <span id="__interruption">**[15. Interruption](#interruption)**</span>
@@ -673,7 +677,10 @@
   - [R17.8 在 C\+\+ 代码中 NULL 和 nullptr 不应混用](#mixnullptrandnull)
   - [R17.9 在 C\+\+ 代码中用 nullptr 代替 NULL](#deprecatednull)
   - [R17.10 避免多余的括号](#redundantparentheses)
-  - [R17.11 避免多余的分号](#redundantsemicolon)<br/><br/>
+  - [R17.11 避免多余的分号](#redundantsemicolon)
+  - [R17.12 遵循统一的代码编写风格](#inconsistentstyle)
+  - [R17.13 遵循统一的命名风格](#inconsistentnaming)
+  - [R17.14 遵循统一的缩进风格](#inconsistentindent)<br/><br/>
 ## <span id="security">1. Security</span>
 
 ### <span id="plainsensitiveinfo">▌R1.1 敏感数据不可写入代码</span>
@@ -1512,6 +1519,10 @@ cc test.c -o test -fno-stack-protector   # Non-compliant, disable CANARY
 ```
 如果必须屏蔽，应落实相关的评审与测试。
 <br/>
+<br/>
+
+#### 相关
+ID_unsafeCompileOption  
 <br/>
 <br/>
 
@@ -2670,6 +2681,48 @@ ID_ownerlessResource
 
 #### 参考
 C++ Core Guidelines R.10  
+<br/>
+<br/>
+
+### <span id="zerolengthallocation">▌R2.26 避免分配大小为零的内存空间</span>
+
+ID_zeroLengthAllocation &emsp;&emsp;&emsp;&emsp;&nbsp; :drop_of_blood: resource warning
+
+<hr/>
+
+当申请分配的内存空间大小为 0 时，malloc、calloc、realloc 等函数的行为是由实现定义的。  
+  
+示例：
+```
+int n = user_input();
+if (n >= 0) {
+    int* p = (int*)malloc(n * sizeof(int));   // Non-compliant
+    if (p == NULL)
+        log("Required too much memory");   // ‘n’ may also be zero
+    else
+        ....
+}
+```
+当例中 n 为 0 时，malloc 可能会分配元素个数为 0 的数组，也可能会返回空指针。  
+  
+又如：
+```
+int* p = (int*)malloc(n * sizeof(int));
+....
+realloc(p, 0);   // Non-compliant, use free(p) instead
+```
+C90 规定当 realloc 函数的长度参数为 0 时会释放内存，与 free(p) 相同，但在后续标准中废弃了这一特性，不应继续使用。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:1990 7.10.3.4  
+ISO/IEC 9899:1999 7.20.3(1)-implementation  
+ISO/IEC 9899:2011 7.22.3(1)-implementation  
+<br/>
+
+#### 参考
+SEI CERT MEM04-C  
 <br/>
 <br/>
 
@@ -4538,6 +4591,33 @@ ISO/IEC 14882:2011 2.2(1)-undefined
 
 #### 参考
 MISRA C 2012 3.2  
+<br/>
+<br/>
+
+### <span id="unsafecompileoption">▌R3.7.4 禁用不安全的编译选项</span>
+
+ID_unsafeCompileOption &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: precompile warning
+
+<hr/>
+
+掩盖错误、不符合标准、屏蔽安全措施等不安全的编译选项应被禁用。  
+  
+示例：
+```
+c++ test.cpp -o test -fpermissive -w       # Non-compliant
+c++ test.cpp -o test -fno-access-control   # Non-compliant
+c++ test.cpp -o test -ffast-math           # Non-compliant
+```
+例中选项 \-fpermissive 会使一些编译错误降为警告，\-w 会隐藏警告，\-fno\-access\-control 会打破语言规则，使类成员不再受 private、protected 等关键字限制，\-ffast\-math 虽然会提高程序的运算效率，但不再遵守相关 IEEE 或 ISO 标准，这种编译选项均不应使用。
+<br/>
+<br/>
+
+#### 配置
+forbiddenOptions：应被禁用的编译选项  
+<br/>
+
+#### 相关
+ID_missingHardening  
 <br/>
 <br/>
 
@@ -6748,21 +6828,14 @@ size_t operator "" KB(unsigned long long n) {   // Non-compliant
     return n * 1024;
 }
 ```
-例中函数名 \_Size 以一个下划线和一个大写字母开头，自定义字面常量后缀 KB 未以下划线开头，均不符合要求。  
-  
-为避免冲突和误解，以下命名方式可供参考：  
- - 除自定义字面常量后缀之外，避免名称以下划线开头  
- - 无命名空间限制的全局名称以模块名称开头  
- - 从名称上体现作用域，如全局对象名以 g\_ 开头，成员对象名以 m\_ 开头或以 \_ 结尾  
- - 从名称上体现类别，如宏名采用全大写字母，类型名以大写字母开头，函数或对象名以小写字母开头  
-  
-本规则集合对具体的命名方式暂不作量化要求，但读者应具备相关意识。
+例中函数名 \_Size 以一个下划线和一个大写字母开头，自定义字面常量后缀 KB 未以下划线开头，均不符合要求。
 <br/>
 <br/>
 
 #### 相关
 ID_macro_defineReserved  
 ID_macro_undefReserved  
+ID_inconsistentNaming  
 <br/>
 
 #### 依据
@@ -10413,6 +10486,40 @@ ISO/IEC 9899:2011 6.11.7(1)-deprecated
 MISRA C 2004 16.6  
 MISRA C 2012 8.2  
 SEI CERT EXP37-C  
+<br/>
+<br/>
+
+### <span id="usingdeprecatedname">▌R6.11.13 不应使用具有 deprecated 属性的函数、对象或类型</span>
+
+ID_usingDeprecatedName &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: declaration warning
+
+<hr/>
+
+deprecated 属性用于标记已过时的函数、对象或类型，具有该属性的函数、对象或类型不应再被使用。  
+  
+示例：
+```
+[[deprecated]] int fun();   // C++14 attribute
+
+int main() {
+    return fun();   // Non-compliant
+}
+```
+在 C 代码以及遵循 C\+\+14 之前标准的 C\+\+ 代码中可使用相关编译器扩展属性，如：
+```
+#ifdef _MSC_VER
+__declspec(deprecated) int fun();   // MSVC attribute
+#elif defined __GNUC__
+__attribute__((deprecated)) int fun();   // GCC attribute
+#endif
+```
+具有相同属性的函数、对象或类型均受本规则约束。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2014 7.6.5  
+ISO/IEC 14882:2017 10.6.4  
 <br/>
 <br/>
 
@@ -21827,6 +21934,60 @@ SEI CERT EXP08-C
 <br/>
 <br/>
 
+### <span id="illptrarithmetic">▌R14.20 未指向数组元素的指针不可与整数加减</span>
+
+ID_illPtrArithmetic &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: pointer warning
+
+<hr/>
+
+不在同一数组中的地址之间没有连续性，对未指向数组元素的指针进行加减运算往往意味着逻辑错误，也会导致标准未定义的行为。  
+  
+指向单个对象的指针，以及空指针、未初始化的或已被释放的指针均受本规则约束。  
+  
+示例：
+```
+int *p, i;
+
+p = NULL;
+p++;       // Non-compliant
+p--;       // Non-compliant
+
+p = &i;
+p += 1;    // Non-compliant
+p += 2;    // Non-compliant, undefined
+p -= 1;    // Non-compliant, undefined
+```
+又如：
+```
+struct {
+    int x, y;
+    int a[2];
+} obj;
+assert(&obj.x + 1 == &obj.y);         // Non-compliant, no guarantee
+assert(&obj.a[0] + 1 == &obj.a[1]);   // Compliant, well defined
+```
+注意，标准保证排在后面的成员地址大于排在前面的成员地址，但不保证其间是否有填充数据，所以非数组元素的成员之间不应进行指针运算。
+<br/>
+<br/>
+
+#### 相关
+ID_arrayIndexOverflow  
+ID_illPtrDiff  
+ID_illPtrComparison  
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.5.6(8)-undefined  
+ISO/IEC 9899:2011 6.5.6(8)-undefined  
+ISO/IEC 14882:2003 5.7(5)-undefined  
+ISO/IEC 14882:2011 5.7(5)-undefined  
+<br/>
+
+#### 参考
+SEI CERT ARR37-C  
+<br/>
+<br/>
+
 ## <span id="interruption">15. Interruption</span>
 
 ### <span id="sig_dataraces">▌R15.1 避免由信号处理产生的数据竞争</span>
@@ -22546,6 +22707,7 @@ if(cond)                // Missing a unified style
 <br/>
 
 #### 相关
+ID_inconsistentStyle  
 ID_stickyAssignmentOperator  
 <br/>
 <br/>
@@ -22589,6 +22751,7 @@ void bar()       // Non-compliant, missing a unified style
 <br/>
 
 #### 相关
+ID_inconsistentStyle  
 ID_if_mayBeElseIf  
 <br/>
 <br/>
@@ -22949,6 +23112,121 @@ namespace N {
 <br/>
 <br/>
 
+### <span id="inconsistentstyle">▌R17.12 遵循统一的代码编写风格</span>
+
+ID_inconsistentStyle &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestion
+
+<hr/>
+
+遵循统一的命名、空格、缩进、换行等风格有利于提高代码可读性。  
+  
+示例：
+```
+int a = 0XAB;
+int b = 0xcd;   // Inconsistent
+
+if (p != NULL && nullptr != q) {   // Inconsistent
+    ....
+}
+```
+<br/>
+<br/>
+
+#### 相关
+ID_inconsistentNaming  
+ID_inconsistentIndent  
+ID_spaceStyle  
+ID_braceStyle  
+<br/>
+
+#### 参考
+CWE-1078  
+<br/>
+<br/>
+
+### <span id="inconsistentnaming">▌R17.13 遵循统一的命名风格</span>
+
+ID_inconsistentNaming &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestion
+
+<hr/>
+
+命名风格不统一会严重降低代码可读性，易造成理解上的偏差，增加维护成本。  
+  
+本规则强调命名风格的一致性，对具体的命名方法暂不作量化要求，以下是一些建议：  
+ - 除自定义字面常量后缀之外，避免名称以下划线开头  
+ - 无命名空间限制的全局名称以模块名称开头  
+ - 名称长度与其声明所在的作用域深度成反比  
+ - 从名称上体现作用域，如全局对象名以 g\_ 开头，成员对象名以 m\_ 开头或以 \_ 结尾  
+ - 从名称上体现类别，如宏名采用全大写字母，类型名以大写字母开头，函数或对象名以小写字母开头  
+  
+对于不良名称产生的后果可参见 ID\_badName、ID\_reservedName。  
+  
+示例：
+```
+struct Tp {
+    int foo_;
+    int m_bar;   // Inconsistent
+    int baz;     // Inconsistent
+};
+
+int foo_bar();
+int fooBar();    // Inconsistent
+int FooBar();    // Inconsistent
+```
+例中各名称具有不同的前缀、后缀以及不同的单词连接方式是不符合要求的。
+<br/>
+<br/>
+
+#### 相关
+ID_inconsistentStyle  
+ID_badName  
+ID_macro_badName  
+ID_nameTooShort  
+ID_reservedName  
+<br/>
+
+#### 参考
+CWE-1099  
+C++ Core Guidelines NL.8  
+C++ Core Guidelines NL.10  
+<br/>
+<br/>
+
+### <span id="inconsistentindent">▌R17.14 遵循统一的缩进风格</span>
+
+ID_inconsistentIndent &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestion
+
+<hr/>
+
+缩进方式不统一会使代码结构混乱，严重降低可读性，也易导致逻辑错误。  
+  
+缩进应清晰地体现语句的从属关系，函数、分枝、循环等代码块的内容应相对代码块的起始位置缩进一个层级，建议使用 2、4 或 8 个空格作为一个缩进层级，并避免使用制表符，以便代码在不同的编辑器中可以保持一致的样式。  
+  
+示例：
+```
+switch (a) {
+case 0:
+    switch (b) {
+case 1:           // Inconsistent
+    break;        // Inconsistent
+    }
+    break;
+default:
+    break;
+}
+```
+<br/>
+<br/>
+
+#### 相关
+ID_inconsistentStyle  
+<br/>
+
+#### 参考
+C++ Core Guidelines NL.4  
+<br/>
+<br/>
+
 
 ## 附录
 &emsp;&emsp;[`c-ub-list.md`](./c-ub-list.md)：C 未定义行为成因列表  
@@ -22959,7 +23237,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 512 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
+&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 519 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
 
 &emsp;&emsp;此致
 

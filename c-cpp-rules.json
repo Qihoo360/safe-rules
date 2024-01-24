@@ -1212,14 +1212,14 @@
         "level": "suggestion",
         "comment": "与运算符、标点符、关键字相关的空格应遵循统一风格，过于随意的空格会干扰阅读，甚至形成笔误。",
         "tag": "style",
-        "related": "ID_stickyAssignmentOperator"
+        "related": "ID_inconsistentStyle,ID_stickyAssignmentOperator"
         },
     "ID_braceStyle": {
         "checkPoint": "大括号应遵循统一风格",
         "level": "suggestion",
         "comment": "大括号应遵循统一的换行和缩进风格，否则不利于阅读和维护，甚至形成笔误。",
         "tag": "style",
-        "related": "ID_if_mayBeElseIf"
+        "related": "ID_inconsistentStyle,ID_if_mayBeElseIf"
         },
     "ID_returnSuperfluousConst": {
         "checkPoint": "函数返回值不应为基本类型的常量",
@@ -3295,7 +3295,7 @@
         "level": "suggestion",
         "comment": "自定义的名称不应与标准库或编译环境中的名称相同，否则会导致标准未定义的行为，也不利于阅读和维护。",
         "tag": "declaration",
-        "related": "ID_macro_defineReserved,ID_macro_undefReserved",
+        "related": "ID_macro_defineReserved,ID_macro_undefReserved,ID_inconsistentNaming",
         "standard": "ISO/IEC 9899:1999 7.1.3(1),ISO/IEC 9899:2011 7.1.3(1),ISO/IEC 14882:2003 17.4.3.1,ISO/IEC 14882:2011 17.6.4.3,ISO/IEC 14882:2017 20.5.4.3",
         "reference": "MISRA C 2012 21.2,MISRA C++ 2008 17-0-1,MISRA C++ 2008 17-0-2,MISRA C++ 2008 17-0-3,SEI CERT DCL37-C,SEI CERT DCL51-CPP"
         },
@@ -3861,7 +3861,8 @@
         "checkPoint": "启用平台和编译器提供的防御机制",
         "level": "suggestion",
         "comment": "针对一些常见攻击，平台和编译器会提供防御机制，程序应利用这种机制加强自身的安全性。",
-        "tag": "security"
+        "tag": "security",
+        "related": "ID_unsafeCompileOption"
         },
     "ID_exitHandlerNoReturn": {
         "checkPoint": "由 atexit、at_quick_exit 指定的处理函数应正常返回",
@@ -4234,5 +4235,63 @@
         "related": "ID_illPtrDiff,ID_oddPtrZeroComparison",
         "standard": "ISO/IEC 9899:1999 6.5.8(5)-undefined,ISO/IEC 9899:2011 6.5.8(5)-undefined,ISO/IEC 14882:2003 5.9(2)-unspecified,ISO/IEC 14882:2011 5.9(2)-unspecified",
         "reference": "C++ Core Guidelines ES.62,MISRA C 2004 17.3,MISRA C 2012 18.3,MISRA C++ 2008 5-0-18,SEI CERT ARR36-C"
+        },
+    "ID_illPtrArithmetic": {
+        "checkPoint": "未指向数组元素的指针不可与整数加减",
+        "level": "warning",
+        "comment": "不在同一数组中的地址之间没有连续性，对未指向数组元素的指针进行加减运算往往意味着逻辑错误，也会导致标准未定义的行为。",
+        "tag": "pointer",
+        "related": "ID_arrayIndexOverflow,ID_illPtrDiff,ID_illPtrComparison",
+        "standard": "ISO/IEC 9899:1999 6.5.6(8)-undefined,ISO/IEC 9899:2011 6.5.6(8)-undefined,ISO/IEC 14882:2003 5.7(5)-undefined,ISO/IEC 14882:2011 5.7(5)-undefined",
+        "reference": "SEI CERT ARR37-C"
+        },
+    "ID_zeroLengthAllocation": {
+        "checkPoint": "避免分配大小为零的内存空间",
+        "level": "warning",
+        "comment": "当申请分配的内存空间大小为 0 时，malloc、calloc、realloc 等函数的行为是由实现定义的。",
+        "tag": "resource",
+        "standard": "ISO/IEC 9899:1990 7.10.3.4,ISO/IEC 9899:1999 7.20.3(1)-implementation,ISO/IEC 9899:2011 7.22.3(1)-implementation",
+        "reference": "SEI CERT MEM04-C"
+        },
+    "ID_inconsistentStyle": {
+        "checkPoint": "遵循统一的代码编写风格",
+        "level": "suggestion",
+        "comment": "遵循统一的命名、空格、缩进、换行等风格有利于提高代码可读性。",
+        "tag": "style",
+        "related": "ID_inconsistentNaming,ID_inconsistentIndent,ID_spaceStyle,ID_braceStyle",
+        "reference": "CWE-1078"
+        },
+    "ID_inconsistentNaming": {
+        "checkPoint": "遵循统一的命名风格",
+        "level": "suggestion",
+        "comment": "命名风格不统一会严重降低代码可读性，易造成理解上的偏差，增加维护成本。",
+        "tag": "style",
+        "related": "ID_inconsistentStyle,ID_badName,ID_macro_badName,ID_nameTooShort,ID_reservedName",
+        "reference": "CWE-1099,C++ Core Guidelines NL.8,C++ Core Guidelines NL.10"
+        },
+    "ID_inconsistentIndent": {
+        "checkPoint": "遵循统一的缩进风格",
+        "level": "suggestion",
+        "comment": "缩进方式不统一会使代码结构混乱，严重降低可读性，也易导致逻辑错误。",
+        "tag": "style",
+        "related": "ID_inconsistentStyle",
+        "reference": "C++ Core Guidelines NL.4"
+        },
+    "ID_unsafeCompileOption": {
+        "checkPoint": "禁用不安全的编译选项",
+        "level": "warning",
+        "comment": "掩盖错误、不符合标准、屏蔽安全措施等不安全的编译选项应被禁用。",
+        "tag": "precompile",
+        "config": [
+            "forbiddenOptions: 应被禁用的编译选项"
+            ],
+        "related": "ID_missingHardening"
+        },
+    "ID_usingDeprecatedName": {
+        "checkPoint": "不应使用具有 deprecated 属性的函数、对象或类型",
+        "level": "warning",
+        "comment": "deprecated 属性用于标记已过时的函数、对象或类型，具有该属性的函数、对象或类型不应再被使用。",
+        "tag": "declaration",
+        "standard": "ISO/IEC 14882:2014 7.6.5,ISO/IEC 14882:2017 10.6.4"
         }
 }
