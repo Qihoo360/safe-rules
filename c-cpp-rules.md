@@ -495,12 +495,15 @@
   - [10.1 Logic](#expression.logic)
     - [R10.1.1 不应存在无意义的重复子表达式](#illidentical)
     - [R10.1.2 逻辑子表达式之间不应存在矛盾](#conflictcondition)
-    - [R10.1.3 作为控制条件的逻辑表达式不应恒为真或恒为假](#invalidcondition)
-    - [R10.1.4 不应存在多余的逻辑子表达式](#redundantcondition)
+    - [R10.1.3 不应存在多余的逻辑子表达式](#redundantcondition)
+    - [R10.1.4 作为控制条件的逻辑表达式不应恒为真或恒为假](#invalidcondition)
     - [R10.1.5 逻辑表达式及逻辑子表达式不应为常量](#constlogicexpression)
     - [R10.1.6 逻辑表达式的右子表达式不应有副作用](#shortcircuitsideeffect)
     - [R10.1.7 化简可被合并的逻辑子表达式](#simplifiablecondition)
     - [R10.1.8 化简可转换为逻辑表达式的三元表达式](#simplifiableternary)
+    - [R10.1.9 控制条件应为 bool 型表达式](#nonboolcondition)
+    - [R10.1.10 !、&&、|| 的子表达式应为 bool 型表达式](#nonboolsubcondition)
+    - [R10.1.11 &&、|| 的子表达式应为后缀表达式](#nonpostfixsubcondition)
   - [10.2 Evaluation](#expression.evaluation)
     - [R10.2.1 不可依赖不会生效的副作用](#unevaluatedsideeffect)
     - [R10.2.2 不可依赖未声明的求值顺序](#evaluationorderreliance)
@@ -676,13 +679,10 @@
   - [R17.3 遵循统一的空格风格](#spacestyle)
   - [R17.4 遵循统一的大括号风格](#bracestyle)
   - [R17.5 遵循统一的缩进风格](#inconsistentindent)
-  - [R17.6 控制条件应为 bool 型表达式](#nonboolcondition)
-  - [R17.7 !、&&、|| 的子表达式应为 bool 型表达式](#nonboolsubcondition)
-  - [R17.8 &&、|| 的子表达式应为后缀表达式](#nonpostfixsubcondition)
-  - [R17.9 在 C\+\+ 代码中 NULL 和 nullptr 不应混用](#mixnullptrandnull)
-  - [R17.10 在 C\+\+ 代码中用 nullptr 代替 NULL](#deprecatednull)
-  - [R17.11 避免多余的括号](#redundantparentheses)
-  - [R17.12 避免多余的分号](#redundantsemicolon)<br/><br/>
+  - [R17.6 在 C\+\+ 代码中 NULL 和 nullptr 不应混用](#mixnullptrandnull)
+  - [R17.7 在 C\+\+ 代码中用 nullptr 代替 NULL](#deprecatednull)
+  - [R17.8 避免多余的括号](#redundantparentheses)
+  - [R17.9 避免多余的分号](#redundantsemicolon)<br/><br/>
 ## <span id="security">1. Security</span>
 
 ### <span id="plainsensitiveinfo">▌R1.1 敏感数据不可写入代码</span>
@@ -16360,7 +16360,32 @@ CWE-571
 <br/>
 <br/>
 
-### <span id="invalidcondition">▌R10.1.3 作为控制条件的逻辑表达式不应恒为真或恒为假</span>
+### <span id="redundantcondition">▌R10.1.3 不应存在多余的逻辑子表达式</span>
+
+ID_redundantCondition &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
+
+<hr/>
+
+逻辑或、逻辑与的子表达式有包含关系时，其中的一个表达式是多余的。  
+  
+示例：
+```
+a > b && a != b     // None-compliant, a != b is redundant
+a < b || a != b     // None-compliant, a < b is redundant
+a >= b && a == b    // None-compliant, a >= b is redundant
+a == b || a <= b    // None-compliant, a == b is redundant
+```
+多余的子表达式很可能意味着某种错误，需认真对待。
+<br/>
+<br/>
+
+#### 相关
+ID_simplifiableCondition  
+ID_conflictCondition  
+<br/>
+<br/>
+
+### <span id="invalidcondition">▌R10.1.4 作为控制条件的逻辑表达式不应恒为真或恒为假</span>
 
 ID_invalidCondition &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -16395,31 +16420,6 @@ CWE-571
 MISRA C 2004 13.7  
 MISRA C 2012 14.3  
 MISRA C++ 2008 0-1-2  
-<br/>
-<br/>
-
-### <span id="redundantcondition">▌R10.1.4 不应存在多余的逻辑子表达式</span>
-
-ID_redundantCondition &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
-
-<hr/>
-
-逻辑或、逻辑与的子表达式有包含关系时，其中的一个表达式是多余的。  
-  
-示例：
-```
-a > b && a != b     // None-compliant, a != b is redundant
-a < b || a != b     // None-compliant, a < b is redundant
-a >= b && a == b    // None-compliant, a >= b is redundant
-a == b || a <= b    // None-compliant, a == b is redundant
-```
-多余的子表达式很可能意味着某种错误，需认真对待。
-<br/>
-<br/>
-
-#### 相关
-ID_simplifiableCondition  
-ID_conflictCondition  
 <br/>
 <br/>
 
@@ -16583,6 +16583,167 @@ bool bar(int a) {
 }
 ```
 <br/>
+<br/>
+<br/>
+
+### <span id="nonboolcondition">▌R10.1.9 控制条件应为 bool 型表达式</span>
+
+ID_nonBoolCondition &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: expression suggestion
+
+<hr/>
+
+如果控制条件均为 bool 型表达式，可使逻辑结构更清晰，有效避免隐式类型转换造成的问题。  
+  
+示例：
+```
+void foo(int* p, size_t n, bool b)
+{
+    if (p) {     // Non-compliant
+        ....
+    }
+    if (n) {     // Non-compliant
+        ....
+    }
+    if (b) {     // Compliant
+        ....
+    }
+}
+```
+例中 p 和 n 不应直接作为条件，b 为 bool 型，可直接作为条件。  
+  
+应改为：
+```
+void foo(int* p, size_t n, bool b)
+{
+    if (p != NULL) {   // Compliant
+        ....
+    }
+    if (n != 0) {      // Compliant
+        ....
+    }
+    ....
+}
+```
+循环条件、三元表达式的条件等所有可作为控制条件的表达式均受本规则限制。  
+  
+例外：
+```
+if (int* p = bar()) {  // Let it go
+    ....
+}
+```
+C\+\+03 允许将声明作为条件，这种情况可不受本规则限制。
+<br/>
+<br/>
+
+#### 相关
+ID_nonBoolSubCondition  
+<br/>
+
+#### 参考
+MISRA C 2012 14.4  
+MISRA C++ 2008 5-0-13  
+MISRA C++ 2008 5-0-14  
+SEI CERT EXP20-C  
+<br/>
+<br/>
+
+### <span id="nonboolsubcondition">▌R10.1.10 !、&&、|| 的子表达式应为 bool 型表达式</span>
+
+ID_nonBoolSubCondition &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: expression suggestion
+
+<hr/>
+
+如果 !、&&、|| 的子表达式均为 bool 型表达式，可使逻辑结构更清晰，有效避免隐式类型转换或运算符误用造成的问题。  
+  
+示例（设 p 为指针，a、b、c 为整型变量）：
+```
+if (!p)             // Non-compliant
+if (a && b)         // Non-compliant
+if (a || (b + c))   // Non-compliant
+```
+应改为：
+```
+if (p == NULL)                  // Compliant
+if ((a != 0) && (b != 0))       // Compliant
+if ((a != 0) || (b + c != 0))   // Compliant
+```
+<br/>
+<br/>
+
+#### 相关
+ID_nonBoolCondition  
+ID_illBoolOperation  
+<br/>
+
+#### 参考
+MISRA C++ 2008 5-3-1  
+SEI CERT EXP20-C  
+<br/>
+<br/>
+
+### <span id="nonpostfixsubcondition">▌R10.1.11 &&、|| 的子表达式应为后缀表达式</span>
+
+ID_nonPostfixSubCondition &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: expression suggestion
+
+<hr/>
+
+如果 &&、|| 的子表达式均为后缀表达式，可使逻辑结构更清晰，有效避免各种优先级问题。  
+  
+后缀表达式（postfix\-expression）是 C/C\+\+ 语言的文法概念，也是一类表达式的总称：  
+ - 只包含标识符或常量的表达式  
+ - 用小括号括起来的表达式  
+ - 用于数组元素求值的 \[ \] 表达式  
+ - 函数调用、函数式类型转换表达式  
+ - .、\-> 表达式  
+ - 后置 \+\+、\-\- 表达式  
+ - typeid 等表达式  
+  
+本规则意在强调子表达式应适当地用括号括起来，以便提高可读性，并确保程序的行为符合开发者的意图。  
+  
+示例（设 a、b、c 为 bool 型变量，n 为整型变量）：
+```
+if (n == 0 && b) {   // Non-compliant
+    ....
+}
+```
+例中 n == 0 不是后缀表达式，应使用括号括起来：
+```
+if ((n == 0) && b) {   // Compliant
+    ....
+}
+```
+又如：
+```
+if (a || b && c) {   // Non-compliant
+    ....
+}
+```
+即使知道 && 的优先级高于 ||，也应使用括号将 || 的子表达式括起来，如：
+```
+if (a || (b && c)) {   // Compliant
+    ....
+}
+```
+例外：
+```
+if (a || b || c)) {   // Compliant
+    ....
+}
+```
+当 &&、|| 的子表达式运算符与其相同时，可不受本规则约束。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.5.2(1)  
+ISO/IEC 9899:2011 6.5.2(1)  
+ISO/IEC 14882:2003 5.2(1)  
+ISO/IEC 14882:2011 5.2(1)  
+<br/>
+
+#### 参考
+MISRA C++ 2008 5-2-1  
 <br/>
 <br/>
 
@@ -22948,168 +23109,7 @@ C++ Core Guidelines NL.4
 <br/>
 <br/>
 
-### <span id="nonboolcondition">▌R17.6 控制条件应为 bool 型表达式</span>
-
-ID_nonBoolCondition &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestion
-
-<hr/>
-
-如果控制条件均为 bool 型表达式，可使逻辑结构更清晰，有效避免隐式类型转换造成的问题。  
-  
-示例：
-```
-void foo(int* p, size_t n, bool b)
-{
-    if (p) {     // Non-compliant
-        ....
-    }
-    if (n) {     // Non-compliant
-        ....
-    }
-    if (b) {     // Compliant
-        ....
-    }
-}
-```
-例中 p 和 n 不应直接作为条件，b 为 bool 型，可直接作为条件。  
-  
-应改为：
-```
-void foo(int* p, size_t n, bool b)
-{
-    if (p != NULL) {   // Compliant
-        ....
-    }
-    if (n != 0) {      // Compliant
-        ....
-    }
-    ....
-}
-```
-循环条件、三元表达式的条件等所有可作为控制条件的表达式均受本规则限制。  
-  
-例外：
-```
-if (int* p = bar()) {  // Let it go
-    ....
-}
-```
-C\+\+03 允许将声明作为条件，这种情况可不受本规则限制。
-<br/>
-<br/>
-
-#### 相关
-ID_nonBoolSubCondition  
-<br/>
-
-#### 参考
-MISRA C 2012 14.4  
-MISRA C++ 2008 5-0-13  
-MISRA C++ 2008 5-0-14  
-SEI CERT EXP20-C  
-<br/>
-<br/>
-
-### <span id="nonboolsubcondition">▌R17.7 !、&&、|| 的子表达式应为 bool 型表达式</span>
-
-ID_nonBoolSubCondition &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestion
-
-<hr/>
-
-如果 !、&&、|| 的子表达式均为 bool 型表达式，可使逻辑结构更清晰，有效避免隐式类型转换或运算符误用造成的问题。  
-  
-示例（设 p 为指针，a、b、c 为整型变量）：
-```
-if (!p)             // Non-compliant
-if (a && b)         // Non-compliant
-if (a || (b + c))   // Non-compliant
-```
-应改为：
-```
-if (p == NULL)                  // Compliant
-if ((a != 0) && (b != 0))       // Compliant
-if ((a != 0) || (b + c != 0))   // Compliant
-```
-<br/>
-<br/>
-
-#### 相关
-ID_nonBoolCondition  
-ID_illBoolOperation  
-<br/>
-
-#### 参考
-MISRA C++ 2008 5-3-1  
-SEI CERT EXP20-C  
-<br/>
-<br/>
-
-### <span id="nonpostfixsubcondition">▌R17.8 &&、|| 的子表达式应为后缀表达式</span>
-
-ID_nonPostfixSubCondition &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestion
-
-<hr/>
-
-如果 &&、|| 的子表达式均为后缀表达式，可使逻辑结构更清晰，有效避免各种优先级问题。  
-  
-后缀表达式（postfix\-expression）是 C/C\+\+ 语言的文法概念，也是一类表达式的总称：  
- - 只包含标识符或常量的表达式  
- - 用小括号括起来的表达式  
- - 用于数组元素求值的 \[ \] 表达式  
- - 函数调用、函数式类型转换表达式  
- - .、\-> 表达式  
- - 后置 \+\+、\-\- 表达式  
- - typeid 等表达式  
-  
-本规则意在强调子表达式应适当地用括号括起来，以便提高可读性，并确保程序的行为符合开发者的意图。  
-  
-示例（设 a、b、c 为 bool 型变量，n 为整型变量）：
-```
-if (n == 0 && b) {   // Non-compliant
-    ....
-}
-```
-例中 n == 0 不是后缀表达式，应使用括号括起来：
-```
-if ((n == 0) && b) {   // Compliant
-    ....
-}
-```
-又如：
-```
-if (a || b && c) {   // Non-compliant
-    ....
-}
-```
-即使知道 && 的优先级高于 ||，也应使用括号将 || 的子表达式括起来，如：
-```
-if (a || (b && c)) {   // Compliant
-    ....
-}
-```
-例外：
-```
-if (a || b || c)) {   // Compliant
-    ....
-}
-```
-当 &&、|| 的子表达式运算符与其相同时，可不受本规则约束。
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 9899:1999 6.5.2(1)  
-ISO/IEC 9899:2011 6.5.2(1)  
-ISO/IEC 14882:2003 5.2(1)  
-ISO/IEC 14882:2011 5.2(1)  
-<br/>
-
-#### 参考
-MISRA C++ 2008 5-2-1  
-<br/>
-<br/>
-
-### <span id="mixnullptrandnull">▌R17.9 在 C++ 代码中 NULL 和 nullptr 不应混用</span>
+### <span id="mixnullptrandnull">▌R17.6 在 C++ 代码中 NULL 和 nullptr 不应混用</span>
 
 ID_mixNullptrAndNULL &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style warning
 
@@ -23134,7 +23134,7 @@ C++ Core Guidelines ES.47
 <br/>
 <br/>
 
-### <span id="deprecatednull">▌R17.10 在 C++ 代码中用 nullptr 代替 NULL</span>
+### <span id="deprecatednull">▌R17.7 在 C++ 代码中用 nullptr 代替 NULL</span>
 
 ID_deprecatedNULL &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestion
 
@@ -23172,7 +23172,7 @@ C++ Core Guidelines ES.47
 <br/>
 <br/>
 
-### <span id="redundantparentheses">▌R17.11 避免多余的括号</span>
+### <span id="redundantparentheses">▌R17.8 避免多余的括号</span>
 
 ID_redundantParentheses &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestion
 
@@ -23207,7 +23207,7 @@ MISRA C++ 2008 5-0-2
 <br/>
 <br/>
 
-### <span id="redundantsemicolon">▌R17.12 避免多余的分号</span>
+### <span id="redundantsemicolon">▌R17.9 避免多余的分号</span>
 
 ID_redundantSemicolon &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestion
 

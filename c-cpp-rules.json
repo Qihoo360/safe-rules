@@ -3391,7 +3391,7 @@
         "checkPoint": "控制条件应为 bool 型表达式",
         "level": "suggestion",
         "comment": "如果控制条件均为 bool 型表达式，可使逻辑结构更清晰，有效避免隐式类型转换造成的问题。",
-        "tag": "style",
+        "tag": "expression",
         "related": "ID_nonBoolSubCondition",
         "reference": "MISRA C 2012 14.4,MISRA C++ 2008 5-0-13,MISRA C++ 2008 5-0-14,SEI CERT EXP20-C"
         },
@@ -3399,7 +3399,7 @@
         "checkPoint": "!、&&、|| 的子表达式应为 bool 型表达式",
         "level": "suggestion",
         "comment": "如果 !、&&、|| 的子表达式均为 bool 型表达式，可使逻辑结构更清晰，有效避免隐式类型转换或运算符误用造成的问题。",
-        "tag": "style",
+        "tag": "expression",
         "related": "ID_nonBoolCondition,ID_illBoolOperation",
         "reference": "MISRA C++ 2008 5-3-1,SEI CERT EXP20-C"
         },
@@ -3407,7 +3407,7 @@
         "checkPoint": "&&、|| 的子表达式应为后缀表达式",
         "level": "suggestion",
         "comment": "如果 &&、|| 的子表达式均为后缀表达式，可使逻辑结构更清晰，有效避免各种优先级问题。",
-        "tag": "style",
+        "tag": "expression",
         "standard": "ISO/IEC 9899:1999 6.5.2(1),ISO/IEC 9899:2011 6.5.2(1),ISO/IEC 14882:2003 5.2(1),ISO/IEC 14882:2011 5.2(1)",
         "reference": "MISRA C++ 2008 5-2-1"
         },
