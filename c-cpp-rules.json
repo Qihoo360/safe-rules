@@ -629,7 +629,7 @@
         "checkPoint": "参与数值运算的 char 对象应显式声明 signed 或 unsigned",
         "level": "warning",
         "comment": "char 类型是否有符号由实现定义，未显式声明 signed、unsigned 的 char 对象不应被当作整数使用。",
-        "tag": "declaration",
+        "tag": "expression",
         "related": "ID_excessiveCharSign",
         "standard": "ISO/IEC 9899:1999 6.2.5(3 15)-implementation,ISO/IEC 9899:2011 6.2.5(3 15)-implementation,ISO/IEC 14882:2003 3.9.1(1)-implementation,ISO/IEC 14882:2011 3.9.1(1)-implementation",
         "reference": "MISRA C++ 2008 5-0-11,SEI CERT INT07-C"
@@ -3031,7 +3031,7 @@
         "checkPoint": "判断 dynamic_cast 转换是否成功",
         "level": "warning",
         "comment": "dynamic_cast 转换指针失败会返回空指针，转换引用失败会抛出异常，如果不作判断则失去了使用 dynamic_cast 的意义。",
-        "tag": "pointer",
+        "tag": "cast",
         "standard": "ISO/IEC 14882:2003 5.2.7(9),ISO/IEC 14882:2011 5.2.7(9)",
         "related": "ID_nonDynamicDownCast",
         "reference": "CWE-476,C++ Core Guidelines C.148"
@@ -4202,7 +4202,7 @@
         "checkPoint": "signed char 和 unsigned char 对象只应用于数值计算",
         "level": "suggestion",
         "comment": "signed char、unsigned char 以及 int8_t、uint8_t 是整数类型，只应用于数值计算，不应用于存储字符。",
-        "tag": "declaration",
+        "tag": "expression",
         "related": "ID_plainNumericChar",
         "reference": "MISRA C++ 2008 5-0-12"
         },
