@@ -505,71 +505,73 @@
     - [R10.2.1 不可依赖不会生效的副作用](#unevaluatedsideeffect)
     - [R10.2.2 不可依赖未声明的求值顺序](#evaluationorderreliance)
     - [R10.2.3 在表达式中不应多次读写同一对象](#confusingassignment)
-    - [R10.2.4 注意运算符优先级，避免非预期的结果](#unexpectedprecedence)
-    - [R10.2.5 未指向同一数组的指针不可相减](#illptrdiff)
-    - [R10.2.6 bool 对象不应参与位运算、大小比较、数值增减](#illbooloperation)
-    - [R10.2.7 枚举对象不应参与位运算或算数运算](#illenumoperation)
-    - [R10.2.8 不应出现复合赋值的错误形式](#illformedcompoundassignment)
-    - [R10.2.9 避免出现复合赋值的可疑形式](#suspiciouscompoundassignment)
-    - [R10.2.10 不应将 NULL 当作整数使用](#oddnullassignment)
-    - [R10.2.11 注意赋值运算符与一元运算符的空格方式](#stickyassignmentoperator)
-    - [R10.2.12 不可将对象的值赋给具有部分重叠区域的对象](#overlappingassignment)
-    - [R10.2.13 赋值运算符左右子表达式不应相同](#selfassignment)
-    - [R10.2.14 除法和求余运算符左右子表达式不应相同](#selfdivision)
-    - [R10.2.15 减法运算符左右子表达式不应相同](#selfsubtraction)
-    - [R10.2.16 异或运算符左右子表达式不应相同](#selfexclusiveor)
-    - [R10.2.17 &=、|=、\-=、/=、%= 左右子表达式不应相同](#illselfcompoundassignment)
-    - [R10.2.18 负号不应作用于无符号整数](#minusonunsigned)
-    - [R10.2.19 不应重复使用一元运算符](#repeatedunaryoperators)
-    - [R10.2.20 运算结果不应溢出](#evaloverflow)
-    - [R10.2.21 位运算符不应作用于有符号整数](#bitwiseoperonsigned)
-    - [R10.2.22 移位数量不应超过相关类型比特位的数量](#illshiftcount)
-    - [R10.2.23 按位取反需避免由类型提升产生的多余数据](#suspiciouspromotion)
-    - [R10.2.24 逗号表达式的子表达式应具有必要的副作用](#invalidcommasubexpression)
-  - [10.3 Comparison](#expression.comparison)
-    - [R10.3.1 参与比较的对象之间应具备合理的大小关系](#illcomparison)
-    - [R10.3.2 未指向同一数组或同一对象的指针不可比较大小](#illptrcomparison)
-    - [R10.3.3 不应使用 == 或 != 判断浮点数是否相等](#illfloatcomparison)
-    - [R10.3.4 指针不应与字符串常量直接比较](#illptrstrcomparison)
-    - [R10.3.5 有符号数不应和无符号数比较](#inconsistentsigncomparison)
-    - [R10.3.6 不应比较非同类枚举值](#differentenumcomparison)
-    - [R10.3.7 比较运算不可作为另一个比较运算的直接子表达式](#successivecomparison)
-    - [R10.3.8 比较运算符左右子表达式不应相同](#selfcomparison)
-  - [10.4 Call](#expression.call)
-    - [R10.4.1 不应忽略重要的返回值](#returnvalueignored)
-    - [R10.4.2 不可臆断返回值的意义](#wronguseofreturnvalue)
-    - [R10.4.3 避免对象切片](#objectslicing)
-    - [R10.4.4 避免显式调用析构函数](#explicitdtorcall)
-    - [R10.4.5 不应将非 POD 对象传入可变参数列表](#nonpodvariadicargument)
-    - [R10.4.6 C 格式化字符串需要的参数个数与实际传入的参数个数应一致](#inconsistentformatargnum)
-    - [R10.4.7 C 格式化占位符与其对应参数的类型应一致](#inconsistentformatargtype)
-    - [R10.4.8 形参与实参均为数组时，数组大小应一致](#inconsistentarraysize)
-    - [R10.4.9 在 C\+\+ 代码中禁用 C 字符串格式化方法](#forbidcstringformat)
-    - [R10.4.10 禁用 atof、atoi、atol 以及 atoll 等函数](#forbidatox)
-    - [R10.4.11 避免使用由实现定义的库函数](#implementationdefinedfunction)
-    - [R10.4.12 合理使用 std::move](#unsuitablemove)
-    - [R10.4.13 合理使用 std::forward](#unsuitableforward)
-  - [10.5 Sizeof](#expression.sizeof)
-    - [R10.5.1 sizeof 不应作用于数组参数](#sizeof_arrayparameter)
-    - [R10.5.2 sizeof 不应作用于比较或逻辑表达式](#sizeof_oddexpression)
-    - [R10.5.3 sizeof 作用于指针是可疑的](#sizeof_pointer)
-    - [R10.5.4 被除数不应是作用于指针的 sizeof 表达式](#sizeof_pointerdivision)
-    - [R10.5.5 指针加减偏移量时计入 sizeof 是可疑的](#sizeof_suspiciousadd)
-    - [R10.5.6 sizeof 表达式的结果不应与 0 或负数比较](#sizeof_zerocomparison)
-    - [R10.5.7 sizeof 不应再作用于 sizeof 表达式](#sizeof_sizeof)
-    - [R10.5.8 C\+\+ 代码中 sizeof 不应作用于 NULL](#sizeof_null)
-    - [R10.5.9 sizeof 不可作用于 void](#sizeof_void)
-  - [10.6 Assertion](#expression.assertion)
-    - [R10.6.1 断言中的表达式不应恒为真](#badassertion)
-    - [R10.6.2 断言中的表达式不应有副作用](#sideeffectassertion)
-    - [R10.6.3 断言中的表达式不应过于复杂](#complexassertion)
-  - [10.7 Complexity](#expression.complexity)
-    - [R10.7.1 表达式不应过于复杂](#complexexpression)
-  - [10.8 Other](#expression.other)
-    - [R10.8.1 不应访问填充数据](#accesspaddingdata)
-    - [R10.8.2 new 表达式只可用于赋值或当作参数](#oddnew)
-    - [R10.8.3 数组下标应为整型表达式](#oddsubscripting)
-    - [R10.8.4 禁用逗号表达式](#forbidcommaexpression)
+    - [R10.2.4 未指向同一数组的指针不可相减](#illptrdiff)
+    - [R10.2.5 bool 对象不应参与位运算、大小比较、数值增减](#illbooloperation)
+    - [R10.2.6 枚举对象不应参与位运算或算数运算](#illenumoperation)
+    - [R10.2.7 不应将 NULL 当作整数使用](#oddnullassignment)
+    - [R10.2.8 运算结果不应溢出](#evaloverflow)
+    - [R10.2.9 移位数量不应超过相关类型比特位的数量](#illshiftcount)
+    - [R10.2.10 按位取反需避免由类型提升产生的多余数据](#suspiciouspromotion)
+    - [R10.2.11 逗号表达式的子表达式应具有必要的副作用](#invalidcommasubexpression)
+  - [10.3 Operator](#expression.operator)
+    - [R10.3.1 注意运算符优先级，避免非预期的结果](#unexpectedprecedence)
+    - [R10.3.2 负号不应作用于无符号整数](#minusonunsigned)
+    - [R10.3.3 位运算符不应作用于有符号整数](#bitwiseoperonsigned)
+    - [R10.3.4 赋值运算符左右子表达式不应相同](#selfassignment)
+    - [R10.3.5 除法和求余运算符左右子表达式不应相同](#selfdivision)
+    - [R10.3.6 减法运算符左右子表达式不应相同](#selfsubtraction)
+    - [R10.3.7 异或运算符左右子表达式不应相同](#selfexclusiveor)
+    - [R10.3.8 &=、|=、\-=、/=、%= 左右子表达式不应相同](#illselfcompoundassignment)
+    - [R10.3.9 不应重复使用一元运算符](#repeatedunaryoperators)
+  - [10.4 Assignment](#expression.assignment)
+    - [R10.4.1 不应出现复合赋值的错误形式](#illformedcompoundassignment)
+    - [R10.4.2 避免出现复合赋值的可疑形式](#suspiciouscompoundassignment)
+    - [R10.4.3 注意赋值运算符与一元运算符的空格方式](#stickyassignmentoperator)
+    - [R10.4.4 不可将对象的值赋给具有部分重叠区域的对象](#overlappingassignment)
+  - [10.5 Comparison](#expression.comparison)
+    - [R10.5.1 参与比较的对象之间应具备合理的大小关系](#illcomparison)
+    - [R10.5.2 未指向同一数组或同一对象的指针不可比较大小](#illptrcomparison)
+    - [R10.5.3 不应使用 == 或 != 判断浮点数是否相等](#illfloatcomparison)
+    - [R10.5.4 指针不应与字符串常量直接比较](#illptrstrcomparison)
+    - [R10.5.5 有符号数不应和无符号数比较](#inconsistentsigncomparison)
+    - [R10.5.6 不应比较非同类枚举值](#differentenumcomparison)
+    - [R10.5.7 比较运算不可作为另一个比较运算的直接子表达式](#successivecomparison)
+    - [R10.5.8 比较运算符左右子表达式不应相同](#selfcomparison)
+  - [10.6 Call](#expression.call)
+    - [R10.6.1 不应忽略重要的返回值](#returnvalueignored)
+    - [R10.6.2 不可臆断返回值的意义](#wronguseofreturnvalue)
+    - [R10.6.3 避免对象切片](#objectslicing)
+    - [R10.6.4 避免显式调用析构函数](#explicitdtorcall)
+    - [R10.6.5 不应将非 POD 对象传入可变参数列表](#nonpodvariadicargument)
+    - [R10.6.6 C 格式化字符串需要的参数个数与实际传入的参数个数应一致](#inconsistentformatargnum)
+    - [R10.6.7 C 格式化占位符与其对应参数的类型应一致](#inconsistentformatargtype)
+    - [R10.6.8 形参与实参均为数组时，数组大小应一致](#inconsistentarraysize)
+    - [R10.6.9 在 C\+\+ 代码中禁用 C 字符串格式化方法](#forbidcstringformat)
+    - [R10.6.10 禁用 atof、atoi、atol 以及 atoll 等函数](#forbidatox)
+    - [R10.6.11 避免使用由实现定义的库函数](#implementationdefinedfunction)
+    - [R10.6.12 合理使用 std::move](#unsuitablemove)
+    - [R10.6.13 合理使用 std::forward](#unsuitableforward)
+  - [10.7 Sizeof](#expression.sizeof)
+    - [R10.7.1 sizeof 不应作用于数组参数](#sizeof_arrayparameter)
+    - [R10.7.2 sizeof 不应作用于比较或逻辑表达式](#sizeof_oddexpression)
+    - [R10.7.3 sizeof 作用于指针是可疑的](#sizeof_pointer)
+    - [R10.7.4 被除数不应是作用于指针的 sizeof 表达式](#sizeof_pointerdivision)
+    - [R10.7.5 指针加减偏移量时计入 sizeof 是可疑的](#sizeof_suspiciousadd)
+    - [R10.7.6 sizeof 表达式的结果不应与 0 或负数比较](#sizeof_zerocomparison)
+    - [R10.7.7 sizeof 不应再作用于 sizeof 表达式](#sizeof_sizeof)
+    - [R10.7.8 C\+\+ 代码中 sizeof 不应作用于 NULL](#sizeof_null)
+    - [R10.7.9 sizeof 不可作用于 void](#sizeof_void)
+  - [10.8 Assertion](#expression.assertion)
+    - [R10.8.1 断言中的表达式不应恒为真](#badassertion)
+    - [R10.8.2 断言中的表达式不应有副作用](#sideeffectassertion)
+    - [R10.8.3 断言中的表达式不应过于复杂](#complexassertion)
+  - [10.9 Complexity](#expression.complexity)
+    - [R10.9.1 表达式不应过于复杂](#complexexpression)
+  - [10.10 Other](#expression.other)
+    - [R10.10.1 不应访问填充数据](#accesspaddingdata)
+    - [R10.10.2 new 表达式只可用于赋值或当作参数](#oddnew)
+    - [R10.10.3 数组下标应为整型表达式](#oddsubscripting)
+    - [R10.10.4 禁用逗号表达式](#forbidcommaexpression)
 <br/>
 
 <span id="__literal">**[11. Literal](#literal)**</span>
@@ -16783,50 +16785,7 @@ SEI CERT EXP50-CPP
 <br/>
 <br/>
 
-### <span id="unexpectedprecedence">▌R10.2.4 注意运算符优先级，避免非预期的结果</span>
-
-ID_unexpectedPrecedence &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
-
-<hr/>
-
-对运算符优先级的错误理解是产生逻辑错误的主要原因之一。  
-  
-位运算、赋值、三元等表达式作为子表达式时，合理使用括号既能保证正确性，又能提高可读性。由于运算符的特性各不相同，较为灵活，难以用一条规则来规范，本规则集合将分开讨论，与优先级有关的规则均作为本规则的相关规则以供参考。  
-  
-示例：
-```
-int foo(bool cond) {
-    return 1 + cond? 2: 3;  // Rather suspicious
-}
-```
-加号的优先级大于三元运算符，但 cond 是 bool 型变量，所以这种情况十分可疑。  
-  
-应合理使用括号：
-```
-int foo(bool cond) {
-    return 1 + (cond? 2: 3);  // Right
-}
-```
-<br/>
-<br/>
-
-#### 相关
-ID_macro_expNotEnclosed  
-ID_macro_paramNotEnclosed  
-ID_illBoolOperation  
-ID_assignmentAsSubExpression  
-ID_nonPostfixSubCondition  
-ID_oddSubscripting  
-<br/>
-
-#### 参考
-CWE-783  
-C++ Core Guidelines ES.41  
-SEI CERT EXP00-C  
-<br/>
-<br/>
-
-### <span id="illptrdiff">▌R10.2.5 未指向同一数组的指针不可相减</span>
+### <span id="illptrdiff">▌R10.2.4 未指向同一数组的指针不可相减</span>
 
 ID_illPtrDiff &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -16873,7 +16832,7 @@ SEI CERT ARR36-C
 <br/>
 <br/>
 
-### <span id="illbooloperation">▌R10.2.6 bool 对象不应参与位运算、大小比较、数值增减</span>
+### <span id="illbooloperation">▌R10.2.5 bool 对象不应参与位运算、大小比较、数值增减</span>
 
 ID_illBoolOperation &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -16918,7 +16877,7 @@ MISRA C++ 2008 5-0-21
 <br/>
 <br/>
 
-### <span id="illenumoperation">▌R10.2.7 枚举对象不应参与位运算或算数运算</span>
+### <span id="illenumoperation">▌R10.2.6 枚举对象不应参与位运算或算数运算</span>
 
 ID_illEnumOperation &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -16956,64 +16915,7 @@ MISRA C 2012 10.1
 <br/>
 <br/>
 
-### <span id="illformedcompoundassignment">▌R10.2.8 不应出现复合赋值的错误形式</span>
-
-ID_illFormedCompoundAssignment &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
-
-<hr/>
-
-如下形式的复合赋值表达式（设 a 和 x 为变量或表达式）：
-```
-a -= a - x;
-a /= a / x;
-a &= a & x;
-a |= a | x;
-a ^= a ^ x;
-```
-均为常见笔误，应将复合赋值改为普通赋值，或去掉重复的子表达式。
-<br/>
-<br/>
-
-#### 参考
-CWE-682  
-<br/>
-<br/>
-
-### <span id="suspiciouscompoundassignment">▌R10.2.9 避免出现复合赋值的可疑形式</span>
-
-ID_suspiciousCompoundAssignment &emsp;&emsp;&emsp;&emsp;&nbsp; :question: expression suspicious
-
-<hr/>
-
-如下形式的复合赋值表达式（设 a 和 x 为变量或表达式）：
-```
-a += a + x;
-a *= a * x;
-a %= a % x;
-a <<= a << x;
-a >>= a >> x;
-```
-均为常见笔误，但在特定需求下也有其逻辑意义，故对这种表达式应给出可疑提醒。即使这类表达式没有逻辑错误，也应该换成普通赋值表达式以便提高可读性。  
-  
-示例：
-```
-a += a + x;   // Rather suspicious
-```
-应改为：
-```
-a = a + x;
-a = 2 * a + x;
-a = a + (a + x);
-```
-<br/>
-<br/>
-
-#### 参考
-CWE-682  
-<br/>
-<br/>
-
-### <span id="oddnullassignment">▌R10.2.10 不应将 NULL 当作整数使用</span>
+### <span id="oddnullassignment">▌R10.2.7 不应将 NULL 当作整数使用</span>
 
 ID_oddNullAssignment &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -17049,263 +16951,7 @@ MISRA C++ 2008 4-10-1
 <br/>
 <br/>
 
-### <span id="stickyassignmentoperator">▌R10.2.11 注意赋值运算符与一元运算符的空格方式</span>
-
-ID_stickyAssignmentOperator &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
-
-<hr/>
-
-如果 = 与 \+、\-、\*、!、&、\~ 等一元运算符之间没有空格，而一元运算符与其子表达式之间有空格，是一种非常怪异的格式，也可能是 \+=、\-=、\*=、&= 等复合赋值运算符的笔误。  
-  
-示例：
-```
-a =+ b;    // Non-compliant
-a =- b;    // Non-compliant
-a =~ b;    // Non-compliant
-a =! b;    // Non-compliant
-
-a += b;    // Compliant
-a = -b;    // Compliant
-a = ~b;    // Compliant
-a = !b;    // Compliant
-```
-<br/>
-<br/>
-
-#### 参考
-CWE-480  
-<br/>
-<br/>
-
-### <span id="overlappingassignment">▌R10.2.12 不可将对象的值赋给具有部分重叠区域的对象</span>
-
-ID_overlappingAssignment &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
-
-<hr/>
-
-如果两个对象的存储区域有部分重叠，将其中一个对象的值赋给另一个对象会导致标准未定义的行为。  
-  
-示例：
-```
-union U {
-    int16_t x;
-    int16_t y;
-    int64_t z;
-} u;
-
-u.x = u.y;   // Compliant
-u.z = u.x;   // Non-compliant
-```
-例中 x 和 y 的存储区域完全重叠且类型相同，可以相互赋值；x 和 z 有部分重叠，不可相互赋值。
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 9899:1999 6.5.16.1(3)-undefined  
-ISO/IEC 9899:2011 6.5.16.1(3)-undefined  
-ISO/IEC 14882:2003 5.17(8)-undefined  
-ISO/IEC 14882:2011 5.17(8)-undefined  
-<br/>
-
-#### 参考
-MISRA C 2012 19.1  
-MISRA C++ 2008 0-2-1  
-<br/>
-<br/>
-
-### <span id="selfassignment">▌R10.2.13 赋值运算符左右子表达式不应相同</span>
-
-ID_selfAssignment &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
-
-<hr/>
-
-赋值运算符左右子表达式相同是没有逻辑意义的，往往是笔误或残留代码。  
-  
-示例：
-```
-a = a;       // Non-compliant
-a = b = a;   // Non-compliant
-```
-也可能是对语言特性不了解所致，如：
-```
-class A {
-    int a;
-
-public:
-    A(int a) {
-        a = a;   // Non-compliant, ‘a’ is not the member
-    }
-};
-```
-例中构造函数对成员 a 的赋值是无效的，应改为 this\->a = a;  
-  
-有时这种代码被用来消除编译警告，编译器可能会报出没有被用到的参数，将参数赋值给自身可去除警告，但这并不是一种好方法，引入了没有实际意义的代码，改进方法可参见 ID\_paramNotUsed。  
-  
-有时为了设置调试断点，但又找不到合适的位置，可以增加这种代码作为断点，但这种非正式的代码是不应被保留的。
-<br/>
-<br/>
-
-#### 参考
-CWE-682  
-<br/>
-<br/>
-
-### <span id="selfdivision">▌R10.2.14 除法和求余运算符左右子表达式不应相同</span>
-
-ID_selfDivision &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
-
-<hr/>
-
-除法或求余运算符左右子表达式相同，结果总为 1 或 0 以及产生除零异常，往往是某种笔误。  
-  
-示例：
-```
-int foo(int* p) {
-    return p[0] % p[0];  // Non-compliant
-}
-```
-<br/>
-<br/>
-
-#### 参考
-CWE-682  
-<br/>
-<br/>
-
-### <span id="selfsubtraction">▌R10.2.15 减法运算符左右子表达式不应相同</span>
-
-ID_selfSubtraction &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
-
-<hr/>
-
-与自身做减法，结果总为 0，往往是某种笔误。  
-  
-示例：
-```
-int *p0, *p1;
-....
-ptrdiff_t d = p0 - p0;  // Non-compliant
-```
-例中减法表达式是没有意义的，很可能是 p1 被误写成了 p0。
-<br/>
-<br/>
-
-#### 参考
-CWE-682  
-<br/>
-<br/>
-
-### <span id="selfexclusiveor">▌R10.2.16 异或运算符左右子表达式不应相同</span>
-
-ID_selfExclusiveOr &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
-
-<hr/>
-
-与自身异或的结果总为 0，而且也可能意味着某种错误。  
-  
-示例：
-```
-a ^= a;      // Non-compliant
-a = a ^ a;   // Non-compliant
-```
-这种代码可能是为了对变量清零，也可能是笔误，即使没有逻辑错误，也应将变量直接赋值为 0 以提高可读性。
-<br/>
-<br/>
-
-#### 参考
-CWE-682  
-<br/>
-<br/>
-
-### <span id="illselfcompoundassignment">▌R10.2.17 &=、|=、-=、/=、%= 左右子表达式不应相同</span>
-
-ID_illSelfCompoundAssignment &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
-
-<hr/>
-
-&=、|= 左右子表达式如果相同则没有任何效果，\-=、/=、%= 左右子表达式相同则结果总为 1 或 0，这种表达式往往意味着笔误或逻辑错误。  
-  
-示例（设 a 为变量或表达式）：
-```
-a &= a;  // Non-compliant, no effect
-a |= a;  // Non-compliant, no effect
-```
-如果目的是清零或置 1，也不建议使用下列表达式：
-```
-a -= a;  // Non-compliant, tedious
-a /= a;  // Non-compliant, low efficiency
-a %= a;  // Non-compliant, low efficiency
-```
-对于高级语言来说，应该直接将变量赋值为 0 或 1，而不是采用更繁琐甚至低效的方式。
-<br/>
-<br/>
-
-#### 参考
-CWE-682  
-<br/>
-<br/>
-
-### <span id="minusonunsigned">▌R10.2.18 负号不应作用于无符号整数</span>
-
-ID_minusOnUnsigned &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
-
-<hr/>
-
-负号作用于 unsigned int、unsigned long、unsigned long long 等无符号整型表达式的结果仍为无符号整数，易产生意料之外的错误。  
-  
-当 int 类型的取值范围可以包含 unsigned char、unsigned short 等“较小”无符号整型的取值范围时，较小的无符号整型可以被提升为 int 类型，负号作用于这种类型的表达式可以得到有符号的结果，但会降低可移植性。  
-  
-示例：
-```
-unsigned int x = 1;
-signed long long y = -x;        // Non-compliant, ‘y’ equals UINT_MAX, not -1
-unsigned long long z = -1ULL;   // Non-compliant, use ULLONG_MAX instead
-```
-例中 y 的值预期为 \-1，但实际值是无符号整数的最大值；\-1ULL 这种常量是令人困惑的，应使用 ULLONG\_MAX 代替。
-<br/>
-<br/>
-
-#### 配置
-allowSmallUnsignedTypes：是否允许负号作用于 unsigned char、unsigned short 等无符号整型表达式  
-<br/>
-
-#### 依据
-ISO/IEC 9899:1999 6.5.3.3(3)  
-ISO/IEC 9899:2011 6.5.3.3(3)  
-<br/>
-
-#### 参考
-MISRA C 2004 12.9  
-MISRA C 2012 10.1  
-MISRA C++ 2008 5-3-2  
-<br/>
-<br/>
-
-### <span id="repeatedunaryoperators">▌R10.2.19 不应重复使用一元运算符</span>
-
-ID_repeatedUnaryOperators &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
-
-<hr/>
-
-重复的一元运算符没有意义，为常见笔误。  
-  
-示例：
-```
-int a = 1;
-int b = ~~a;    // Non-compliant
-int c = -+a;    // Non-compliant
-int d = - -a;   // Non-compliant
-```
-例外：
-```
-bool e = !!a;   // Let it go
-```
-两个连续的 ! 是 bool 转换的惯用方法，可不受本规则约束。
-<br/>
-<br/>
-<br/>
-
-### <span id="evaloverflow">▌R10.2.20 运算结果不应溢出</span>
+### <span id="evaloverflow">▌R10.2.8 运算结果不应溢出</span>
 
 ID_evalOverflow &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -17358,7 +17004,203 @@ C++ Core Guidelines ES.104
 <br/>
 <br/>
 
-### <span id="bitwiseoperonsigned">▌R10.2.21 位运算符不应作用于有符号整数</span>
+### <span id="illshiftcount">▌R10.2.9 移位数量不应超过相关类型比特位的数量</span>
+
+ID_illShiftCount &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: expression error
+
+<hr/>
+
+如果移位数量为负数、大于或等于相关类型比特位的数量，会导致标准未定义的行为。  
+  
+示例：
+```
+uint32_t foo(uint16_t a) {
+    return a << 16;         // Non-compliant, unportable
+}
+
+uint64_t bar(uint32_t b) {
+    return b << 32;         // Non-compliant, undefined behavior
+}
+```
+例中变量 a 为 16 位整数，是否会被提升为 32 位整型由实现定义，参见“[类型提升](https://en.cppreference.com/w/c/language/conversion#Integer_promotions)”；变量 b 为 32 位整数，将其左移 32 位并不能得到 64 位整数，反而会导致标准未定义的行为。  
+  
+应改为：
+```
+uint32_t foo(uint16_t a) {
+    return uint32_t(a) << 16;   // Compliant
+}
+
+uint64_t bar(uint32_t b) {
+    return uint64_t(b) << 32;   // Compliant
+}
+```
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.5.7(3)-undefined  
+ISO/IEC 9899:2011 6.5.7(3)-undefined  
+ISO/IEC 14882:2003 5.8(1)-undefined  
+ISO/IEC 14882:2011 5.8(1)-undefined  
+ISO/IEC 14882:2017 8.8(1)-undefined  
+<br/>
+
+#### 参考
+MISRA C 2012 12.2  
+MISRA C++ 2008 5-8-1  
+<br/>
+<br/>
+
+### <span id="suspiciouspromotion">▌R10.2.10 按位取反需避免由类型提升产生的多余数据</span>
+
+ID_suspiciousPromotion &emsp;&emsp;&emsp;&emsp;&nbsp; :question: expression suspicious
+
+<hr/>
+
+8 位或 16 位整数按位取反时会被提升为 int 等类型，可能会产生非预期的多余数据。  
+  
+示例：
+```
+uint8_t a = 0xCD;
+uint8_t b = (~a) >> 4;   // Rather suspicious, ‘b’ is 0xF3
+```
+经“[类型提升](https://en.cppreference.com/w/c/language/conversion#Integer_promotions)”，例中 \~a 在 16 位环境中为 0xFF32，在 32 位环境中为 0xFFFFFF32，高位的数据很可能是多余的。  
+  
+应在取反后立即转为目标类型：
+```
+uint8_t a = 0xCD;
+uint8_t b = uint8_t(~a) >> 4;   // OK, ‘b’ is 0x03
+```
+<br/>
+<br/>
+
+#### 参考
+MISRA C++ 2008 5-0-10  
+<br/>
+<br/>
+
+### <span id="invalidcommasubexpression">▌R10.2.11 逗号表达式的子表达式应具有必要的副作用</span>
+
+ID_invalidCommaSubExpression &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
+
+<hr/>
+
+缺少必要副作用的逗号子表达式没有意义，往往意味着逻辑错误。  
+  
+设逗号表达式中逗号运算符的子表达式个数为 n（n >= 2），如果最后一个子表达式的值可影响程序状态，前 n \- 1 个子表达式应具备副作用，否则所有子表达式都应具备副作用。  
+  
+示例：
+```
+void foo(int& a, int& b) {
+    a, b = 0, 1;             // Non-compliant
+}
+```
+例中逗号表达式有 3 个子表达式，只有第 2 个子表达式有效，第 1 和第 3 个没有意义。  
+  
+应改为：
+```
+void foo(int& a, int& b) {
+    a = 0, b = 1;            // Compliant, but bad
+}
+```
+本规则集合不建议使用逗号表达式，将逗号表达式拆分成合理的语句是更好的选择，如：  
+
+```
+void foo(int& a, int& b) {
+    a = 0;
+    b = 1;                   // Compliant, good
+}
+```
+<br/>
+<br/>
+
+#### 相关
+ID_forbidCommaExpression  
+<br/>
+<br/>
+
+### <span id="expression.operator">10.3 Operator</span>
+
+### <span id="unexpectedprecedence">▌R10.3.1 注意运算符优先级，避免非预期的结果</span>
+
+ID_unexpectedPrecedence &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
+
+<hr/>
+
+对运算符优先级的错误理解是产生逻辑错误的主要原因之一。  
+  
+位运算、赋值、三元等表达式作为子表达式时，合理使用括号既能保证正确性，又能提高可读性。由于运算符的特性各不相同，较为灵活，难以用一条规则来规范，本规则集合将分开讨论，与优先级有关的规则均作为本规则的相关规则以供参考。  
+  
+示例：
+```
+int foo(bool cond) {
+    return 1 + cond? 2: 3;  // Rather suspicious
+}
+```
+加号的优先级大于三元运算符，但 cond 是 bool 型变量，所以这种情况十分可疑。  
+  
+应合理使用括号：
+```
+int foo(bool cond) {
+    return 1 + (cond? 2: 3);  // Right
+}
+```
+<br/>
+<br/>
+
+#### 相关
+ID_macro_expNotEnclosed  
+ID_macro_paramNotEnclosed  
+ID_illBoolOperation  
+ID_assignmentAsSubExpression  
+ID_nonPostfixSubCondition  
+ID_oddSubscripting  
+<br/>
+
+#### 参考
+CWE-783  
+C++ Core Guidelines ES.41  
+SEI CERT EXP00-C  
+<br/>
+<br/>
+
+### <span id="minusonunsigned">▌R10.3.2 负号不应作用于无符号整数</span>
+
+ID_minusOnUnsigned &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
+
+<hr/>
+
+负号作用于 unsigned int、unsigned long、unsigned long long 等无符号整型表达式的结果仍为无符号整数，易产生意料之外的错误。  
+  
+当 int 类型的取值范围可以包含 unsigned char、unsigned short 等“较小”无符号整型的取值范围时，较小的无符号整型可以被提升为 int 类型，负号作用于这种类型的表达式可以得到有符号的结果，但会降低可移植性。  
+  
+示例：
+```
+unsigned int x = 1;
+signed long long y = -x;        // Non-compliant, ‘y’ equals UINT_MAX, not -1
+unsigned long long z = -1ULL;   // Non-compliant, use ULLONG_MAX instead
+```
+例中 y 的值预期为 \-1，但实际值是无符号整数的最大值；\-1ULL 这种常量是令人困惑的，应使用 ULLONG\_MAX 代替。
+<br/>
+<br/>
+
+#### 配置
+allowSmallUnsignedTypes：是否允许负号作用于 unsigned char、unsigned short 等无符号整型表达式  
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.5.3.3(3)  
+ISO/IEC 9899:2011 6.5.3.3(3)  
+<br/>
+
+#### 参考
+MISRA C 2004 12.9  
+MISRA C 2012 10.1  
+MISRA C++ 2008 5-3-2  
+<br/>
+<br/>
+
+### <span id="bitwiseoperonsigned">▌R10.3.3 位运算符不应作用于有符号整数</span>
 
 ID_bitwiseOperOnSigned &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -17408,124 +17250,288 @@ SEI CERT INT13-C
 <br/>
 <br/>
 
-### <span id="illshiftcount">▌R10.2.22 移位数量不应超过相关类型比特位的数量</span>
+### <span id="selfassignment">▌R10.3.4 赋值运算符左右子表达式不应相同</span>
 
-ID_illShiftCount &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: expression error
+ID_selfAssignment &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
 <hr/>
 
-如果移位数量为负数、大于或等于相关类型比特位的数量，会导致标准未定义的行为。  
+赋值运算符左右子表达式相同是没有逻辑意义的，往往是笔误或残留代码。  
   
 示例：
 ```
-uint32_t foo(uint16_t a) {
-    return a << 16;         // Non-compliant, unportable
-}
+a = a;       // Non-compliant
+a = b = a;   // Non-compliant
+```
+也可能是对语言特性不了解所致，如：
+```
+class A {
+    int a;
 
-uint64_t bar(uint32_t b) {
-    return b << 32;         // Non-compliant, undefined behavior
+public:
+    A(int a) {
+        a = a;   // Non-compliant, ‘a’ is not the member
+    }
+};
+```
+例中构造函数对成员 a 的赋值是无效的，应改为 this\->a = a;  
+  
+有时这种代码被用来消除编译警告，编译器可能会报出没有被用到的参数，将参数赋值给自身可去除警告，但这并不是一种好方法，引入了没有实际意义的代码，改进方法可参见 ID\_paramNotUsed。  
+  
+有时为了设置调试断点，但又找不到合适的位置，可以增加这种代码作为断点，但这种非正式的代码是不应被保留的。
+<br/>
+<br/>
+
+#### 参考
+CWE-682  
+<br/>
+<br/>
+
+### <span id="selfdivision">▌R10.3.5 除法和求余运算符左右子表达式不应相同</span>
+
+ID_selfDivision &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
+
+<hr/>
+
+除法或求余运算符左右子表达式相同，结果总为 1 或 0 以及产生除零异常，往往是某种笔误。  
+  
+示例：
+```
+int foo(int* p) {
+    return p[0] % p[0];  // Non-compliant
 }
 ```
-例中变量 a 为 16 位整数，是否会被提升为 32 位整型由实现定义，参见“[类型提升](https://en.cppreference.com/w/c/language/conversion#Integer_promotions)”；变量 b 为 32 位整数，将其左移 32 位并不能得到 64 位整数，反而会导致标准未定义的行为。  
+<br/>
+<br/>
+
+#### 参考
+CWE-682  
+<br/>
+<br/>
+
+### <span id="selfsubtraction">▌R10.3.6 减法运算符左右子表达式不应相同</span>
+
+ID_selfSubtraction &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
+
+<hr/>
+
+与自身做减法，结果总为 0，往往是某种笔误。  
   
+示例：
+```
+int *p0, *p1;
+....
+ptrdiff_t d = p0 - p0;  // Non-compliant
+```
+例中减法表达式是没有意义的，很可能是 p1 被误写成了 p0。
+<br/>
+<br/>
+
+#### 参考
+CWE-682  
+<br/>
+<br/>
+
+### <span id="selfexclusiveor">▌R10.3.7 异或运算符左右子表达式不应相同</span>
+
+ID_selfExclusiveOr &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
+
+<hr/>
+
+与自身异或的结果总为 0，而且也可能意味着某种错误。  
+  
+示例：
+```
+a ^= a;      // Non-compliant
+a = a ^ a;   // Non-compliant
+```
+这种代码可能是为了对变量清零，也可能是笔误，即使没有逻辑错误，也应将变量直接赋值为 0 以提高可读性。
+<br/>
+<br/>
+
+#### 参考
+CWE-682  
+<br/>
+<br/>
+
+### <span id="illselfcompoundassignment">▌R10.3.8 &=、|=、-=、/=、%= 左右子表达式不应相同</span>
+
+ID_illSelfCompoundAssignment &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
+
+<hr/>
+
+&=、|= 左右子表达式如果相同则没有任何效果，\-=、/=、%= 左右子表达式相同则结果总为 1 或 0，这种表达式往往意味着笔误或逻辑错误。  
+  
+示例（设 a 为变量或表达式）：
+```
+a &= a;  // Non-compliant, no effect
+a |= a;  // Non-compliant, no effect
+```
+如果目的是清零或置 1，也不建议使用下列表达式：
+```
+a -= a;  // Non-compliant, tedious
+a /= a;  // Non-compliant, low efficiency
+a %= a;  // Non-compliant, low efficiency
+```
+对于高级语言来说，应该直接将变量赋值为 0 或 1，而不是采用更繁琐甚至低效的方式。
+<br/>
+<br/>
+
+#### 参考
+CWE-682  
+<br/>
+<br/>
+
+### <span id="repeatedunaryoperators">▌R10.3.9 不应重复使用一元运算符</span>
+
+ID_repeatedUnaryOperators &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
+
+<hr/>
+
+重复的一元运算符没有意义，为常见笔误。  
+  
+示例：
+```
+int a = 1;
+int b = ~~a;    // Non-compliant
+int c = -+a;    // Non-compliant
+int d = - -a;   // Non-compliant
+```
+例外：
+```
+bool e = !!a;   // Let it go
+```
+两个连续的 ! 是 bool 转换的惯用方法，可不受本规则约束。
+<br/>
+<br/>
+<br/>
+
+### <span id="expression.assignment">10.4 Assignment</span>
+
+### <span id="illformedcompoundassignment">▌R10.4.1 不应出现复合赋值的错误形式</span>
+
+ID_illFormedCompoundAssignment &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
+
+<hr/>
+
+如下形式的复合赋值表达式（设 a 和 x 为变量或表达式）：
+```
+a -= a - x;
+a /= a / x;
+a &= a & x;
+a |= a | x;
+a ^= a ^ x;
+```
+均为常见笔误，应将复合赋值改为普通赋值，或去掉重复的子表达式。
+<br/>
+<br/>
+
+#### 参考
+CWE-682  
+<br/>
+<br/>
+
+### <span id="suspiciouscompoundassignment">▌R10.4.2 避免出现复合赋值的可疑形式</span>
+
+ID_suspiciousCompoundAssignment &emsp;&emsp;&emsp;&emsp;&nbsp; :question: expression suspicious
+
+<hr/>
+
+如下形式的复合赋值表达式（设 a 和 x 为变量或表达式）：
+```
+a += a + x;
+a *= a * x;
+a %= a % x;
+a <<= a << x;
+a >>= a >> x;
+```
+均为常见笔误，但在特定需求下也有其逻辑意义，故对这种表达式应给出可疑提醒。即使这类表达式没有逻辑错误，也应该换成普通赋值表达式以便提高可读性。  
+  
+示例：
+```
+a += a + x;   // Rather suspicious
+```
 应改为：
 ```
-uint32_t foo(uint16_t a) {
-    return uint32_t(a) << 16;   // Compliant
-}
-
-uint64_t bar(uint32_t b) {
-    return uint64_t(b) << 32;   // Compliant
-}
+a = a + x;
+a = 2 * a + x;
+a = a + (a + x);
 ```
+<br/>
+<br/>
+
+#### 参考
+CWE-682  
+<br/>
+<br/>
+
+### <span id="stickyassignmentoperator">▌R10.4.3 注意赋值运算符与一元运算符的空格方式</span>
+
+ID_stickyAssignmentOperator &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
+
+<hr/>
+
+如果 = 与 \+、\-、\*、!、&、\~ 等一元运算符之间没有空格，而一元运算符与其子表达式之间有空格，是一种非常怪异的格式，也可能是 \+=、\-=、\*=、&= 等复合赋值运算符的笔误。  
+  
+示例：
+```
+a =+ b;    // Non-compliant
+a =- b;    // Non-compliant
+a =~ b;    // Non-compliant
+a =! b;    // Non-compliant
+
+a += b;    // Compliant
+a = -b;    // Compliant
+a = ~b;    // Compliant
+a = !b;    // Compliant
+```
+<br/>
+<br/>
+
+#### 参考
+CWE-480  
+<br/>
+<br/>
+
+### <span id="overlappingassignment">▌R10.4.4 不可将对象的值赋给具有部分重叠区域的对象</span>
+
+ID_overlappingAssignment &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
+
+<hr/>
+
+如果两个对象的存储区域有部分重叠，将其中一个对象的值赋给另一个对象会导致标准未定义的行为。  
+  
+示例：
+```
+union U {
+    int16_t x;
+    int16_t y;
+    int64_t z;
+} u;
+
+u.x = u.y;   // Compliant
+u.z = u.x;   // Non-compliant
+```
+例中 x 和 y 的存储区域完全重叠且类型相同，可以相互赋值；x 和 z 有部分重叠，不可相互赋值。
 <br/>
 <br/>
 
 #### 依据
-ISO/IEC 9899:1999 6.5.7(3)-undefined  
-ISO/IEC 9899:2011 6.5.7(3)-undefined  
-ISO/IEC 14882:2003 5.8(1)-undefined  
-ISO/IEC 14882:2011 5.8(1)-undefined  
-ISO/IEC 14882:2017 8.8(1)-undefined  
+ISO/IEC 9899:1999 6.5.16.1(3)-undefined  
+ISO/IEC 9899:2011 6.5.16.1(3)-undefined  
+ISO/IEC 14882:2003 5.17(8)-undefined  
+ISO/IEC 14882:2011 5.17(8)-undefined  
 <br/>
 
 #### 参考
-MISRA C 2012 12.2  
-MISRA C++ 2008 5-8-1  
+MISRA C 2012 19.1  
+MISRA C++ 2008 0-2-1  
 <br/>
 <br/>
 
-### <span id="suspiciouspromotion">▌R10.2.23 按位取反需避免由类型提升产生的多余数据</span>
+### <span id="expression.comparison">10.5 Comparison</span>
 
-ID_suspiciousPromotion &emsp;&emsp;&emsp;&emsp;&nbsp; :question: expression suspicious
-
-<hr/>
-
-8 位或 16 位整数按位取反时会被提升为 int 等类型，可能会产生非预期的多余数据。  
-  
-示例：
-```
-uint8_t a = 0xCD;
-uint8_t b = (~a) >> 4;   // Rather suspicious, ‘b’ is 0xF3
-```
-经“[类型提升](https://en.cppreference.com/w/c/language/conversion#Integer_promotions)”，例中 \~a 在 16 位环境中为 0xFF32，在 32 位环境中为 0xFFFFFF32，高位的数据很可能是多余的。  
-  
-应在取反后立即转为目标类型：
-```
-uint8_t a = 0xCD;
-uint8_t b = uint8_t(~a) >> 4;   // OK, ‘b’ is 0x03
-```
-<br/>
-<br/>
-
-#### 参考
-MISRA C++ 2008 5-0-10  
-<br/>
-<br/>
-
-### <span id="invalidcommasubexpression">▌R10.2.24 逗号表达式的子表达式应具有必要的副作用</span>
-
-ID_invalidCommaSubExpression &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
-
-<hr/>
-
-缺少必要副作用的逗号子表达式没有意义，往往意味着逻辑错误。  
-  
-设逗号表达式中逗号运算符的子表达式个数为 n（n >= 2），如果最后一个子表达式的值可影响程序状态，前 n \- 1 个子表达式应具备副作用，否则所有子表达式都应具备副作用。  
-  
-示例：
-```
-void foo(int& a, int& b) {
-    a, b = 0, 1;             // Non-compliant
-}
-```
-例中逗号表达式有 3 个子表达式，只有第 2 个子表达式有效，第 1 和第 3 个没有意义。  
-  
-应改为：
-```
-void foo(int& a, int& b) {
-    a = 0, b = 1;            // Compliant, but bad
-}
-```
-本规则集合不建议使用逗号表达式，将逗号表达式拆分成合理的语句是更好的选择，如：  
-
-```
-void foo(int& a, int& b) {
-    a = 0;
-    b = 1;                   // Compliant, good
-}
-```
-<br/>
-<br/>
-
-#### 相关
-ID_forbidCommaExpression  
-<br/>
-<br/>
-
-### <span id="expression.comparison">10.3 Comparison</span>
-
-### <span id="illcomparison">▌R10.3.1 参与比较的对象之间应具备合理的大小关系</span>
+### <span id="illcomparison">▌R10.5.1 参与比较的对象之间应具备合理的大小关系</span>
 
 ID_illComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: expression error
 
@@ -17581,7 +17587,7 @@ CWE-1025
 <br/>
 <br/>
 
-### <span id="illptrcomparison">▌R10.3.2 未指向同一数组或同一对象的指针不可比较大小</span>
+### <span id="illptrcomparison">▌R10.5.2 未指向同一数组或同一对象的指针不可比较大小</span>
 
 ID_illPtrComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -17649,7 +17655,7 @@ SEI CERT ARR36-C
 <br/>
 <br/>
 
-### <span id="illfloatcomparison">▌R10.3.3 不应使用 == 或 != 判断浮点数是否相等</span>
+### <span id="illfloatcomparison">▌R10.5.3 不应使用 == 或 != 判断浮点数是否相等</span>
 
 ID_illFloatComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -17694,7 +17700,7 @@ MISRA C++ 2008 6-2-2
 <br/>
 <br/>
 
-### <span id="illptrstrcomparison">▌R10.3.4 指针不应与字符串常量直接比较</span>
+### <span id="illptrstrcomparison">▌R10.5.4 指针不应与字符串常量直接比较</span>
 
 ID_illPtrStrComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: expression error
 
@@ -17744,7 +17750,7 @@ CWE-1025
 <br/>
 <br/>
 
-### <span id="inconsistentsigncomparison">▌R10.3.5 有符号数不应和无符号数比较</span>
+### <span id="inconsistentsigncomparison">▌R10.5.5 有符号数不应和无符号数比较</span>
 
 ID_inconsistentSignComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -17788,7 +17794,7 @@ MISRA C++ 2008 5-0-4
 <br/>
 <br/>
 
-### <span id="differentenumcomparison">▌R10.3.6 不应比较非同类枚举值</span>
+### <span id="differentenumcomparison">▌R10.5.6 不应比较非同类枚举值</span>
 
 ID_differentEnumComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -17827,7 +17833,7 @@ MISRA C 2012 10.4
 <br/>
 <br/>
 
-### <span id="successivecomparison">▌R10.3.7 比较运算不可作为另一个比较运算的直接子表达式</span>
+### <span id="successivecomparison">▌R10.5.7 比较运算不可作为另一个比较运算的直接子表达式</span>
 
 ID_successiveComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: expression error
 
@@ -17864,7 +17870,7 @@ CWE-1025
 <br/>
 <br/>
 
-### <span id="selfcomparison">▌R10.3.8 比较运算符左右子表达式不应相同</span>
+### <span id="selfcomparison">▌R10.5.8 比较运算符左右子表达式不应相同</span>
 
 ID_selfComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -17898,9 +17904,9 @@ CWE-1025
 <br/>
 <br/>
 
-### <span id="expression.call">10.4 Call</span>
+### <span id="expression.call">10.6 Call</span>
 
-### <span id="returnvalueignored">▌R10.4.1 不应忽略重要的返回值</span>
+### <span id="returnvalueignored">▌R10.6.1 不应忽略重要的返回值</span>
 
 ID_returnValueIgnored &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -17946,7 +17952,7 @@ SEI CERT EXP12-C
 <br/>
 <br/>
 
-### <span id="wronguseofreturnvalue">▌R10.4.2 不可臆断返回值的意义</span>
+### <span id="wronguseofreturnvalue">▌R10.6.2 不可臆断返回值的意义</span>
 
 ID_wrongUseOfReturnValue &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: expression error
 
@@ -18009,7 +18015,7 @@ CWE-253
 <br/>
 <br/>
 
-### <span id="objectslicing">▌R10.4.3 避免对象切片</span>
+### <span id="objectslicing">▌R10.6.3 避免对象切片</span>
 
 ID_objectSlicing &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -18058,7 +18064,7 @@ SEI CERT OOP51-CPP
 <br/>
 <br/>
 
-### <span id="explicitdtorcall">▌R10.4.4 避免显式调用析构函数</span>
+### <span id="explicitdtorcall">▌R10.6.4 避免显式调用析构函数</span>
 
 ID_explicitDtorCall &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: expression suggestion
 
@@ -18102,7 +18108,7 @@ ISO/IEC 14882:2017 15.4(16)-undefined
 <br/>
 <br/>
 
-### <span id="nonpodvariadicargument">▌R10.4.5 不应将非 POD 对象传入可变参数列表</span>
+### <span id="nonpodvariadicargument">▌R10.6.5 不应将非 POD 对象传入可变参数列表</span>
 
 ID_nonPODVariadicArgument &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: expression error
 
@@ -18165,7 +18171,7 @@ CWE-686
 <br/>
 <br/>
 
-### <span id="inconsistentformatargnum">▌R10.4.6 C 格式化字符串需要的参数个数与实际传入的参数个数应一致</span>
+### <span id="inconsistentformatargnum">▌R10.6.6 C 格式化字符串需要的参数个数与实际传入的参数个数应一致</span>
 
 ID_inconsistentFormatArgNum &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: expression error
 
@@ -18200,7 +18206,7 @@ SEI CERT FIO47-C
 <br/>
 <br/>
 
-### <span id="inconsistentformatargtype">▌R10.4.7 C 格式化占位符与其对应参数的类型应一致</span>
+### <span id="inconsistentformatargtype">▌R10.6.7 C 格式化占位符与其对应参数的类型应一致</span>
 
 ID_inconsistentFormatArgType &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: expression error
 
@@ -18271,7 +18277,7 @@ SEI CERT FIO47-C
 <br/>
 <br/>
 
-### <span id="inconsistentarraysize">▌R10.4.8 形参与实参均为数组时，数组大小应一致</span>
+### <span id="inconsistentarraysize">▌R10.6.8 形参与实参均为数组时，数组大小应一致</span>
 
 ID_inconsistentArraySize &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -18307,7 +18313,7 @@ MISRA C 2012 17.5
 <br/>
 <br/>
 
-### <span id="forbidcstringformat">▌R10.4.9 在 C++ 代码中禁用 C 字符串格式化方法</span>
+### <span id="forbidcstringformat">▌R10.6.9 在 C++ 代码中禁用 C 字符串格式化方法</span>
 
 ID_forbidCStringFormat &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: expression suggestion
 
@@ -18370,7 +18376,7 @@ C++ Core Guidelines SL.io.3
 <br/>
 <br/>
 
-### <span id="forbidatox">▌R10.4.10 禁用 atof、atoi、atol 以及 atoll 等函数</span>
+### <span id="forbidatox">▌R10.6.10 禁用 atof、atoi、atol 以及 atoll 等函数</span>
 
 ID_forbidAtox &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: expression warning
 
@@ -18417,7 +18423,7 @@ MISRA C++ 2008 18-0-2
 <br/>
 <br/>
 
-### <span id="implementationdefinedfunction">▌R10.4.11 避免使用由实现定义的库函数</span>
+### <span id="implementationdefinedfunction">▌R10.6.11 避免使用由实现定义的库函数</span>
 
 ID_implementationDefinedFunction &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -18470,7 +18476,7 @@ MISRA C++ 2008 18-7-1
 <br/>
 <br/>
 
-### <span id="unsuitablemove">▌R10.4.12 合理使用 std::move</span>
+### <span id="unsuitablemove">▌R10.6.12 合理使用 std::move</span>
 
 ID_unsuitableMove &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -18535,7 +18541,7 @@ C++ Core Guidelines F.48
 <br/>
 <br/>
 
-### <span id="unsuitableforward">▌R10.4.13 合理使用 std::forward</span>
+### <span id="unsuitableforward">▌R10.6.13 合理使用 std::forward</span>
 
 ID_unsuitableForward &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -18616,9 +18622,9 @@ C++ Core Guidelines F.19
 <br/>
 <br/>
 
-### <span id="expression.sizeof">10.5 Sizeof</span>
+### <span id="expression.sizeof">10.7 Sizeof</span>
 
-### <span id="sizeof_arrayparameter">▌R10.5.1 sizeof 不应作用于数组参数</span>
+### <span id="sizeof_arrayparameter">▌R10.7.1 sizeof 不应作用于数组参数</span>
 
 ID_sizeof_arrayParameter &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: expression error
 
@@ -18661,7 +18667,7 @@ SEI CERT ARR01-C
 <br/>
 <br/>
 
-### <span id="sizeof_oddexpression">▌R10.5.2 sizeof 不应作用于比较或逻辑表达式</span>
+### <span id="sizeof_oddexpression">▌R10.7.2 sizeof 不应作用于比较或逻辑表达式</span>
 
 ID_sizeof_oddExpression &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -18682,7 +18688,7 @@ if (sizeof(a >= x)) {  // Non-compliant, may be sizeof(a) >= x
 <br/>
 <br/>
 
-### <span id="sizeof_pointer">▌R10.5.3 sizeof 作用于指针是可疑的</span>
+### <span id="sizeof_pointer">▌R10.7.3 sizeof 作用于指针是可疑的</span>
 
 ID_sizeof_pointer &emsp;&emsp;&emsp;&emsp;&nbsp; :question: expression suspicious
 
@@ -18715,7 +18721,7 @@ CWE-467
 <br/>
 <br/>
 
-### <span id="sizeof_pointerdivision">▌R10.5.4 被除数不应是作用于指针的 sizeof 表达式</span>
+### <span id="sizeof_pointerdivision">▌R10.7.4 被除数不应是作用于指针的 sizeof 表达式</span>
 
 ID_sizeof_pointerDivision &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -18745,7 +18751,7 @@ CWE-467
 <br/>
 <br/>
 
-### <span id="sizeof_suspiciousadd">▌R10.5.5 指针加减偏移量时计入 sizeof 是可疑的</span>
+### <span id="sizeof_suspiciousadd">▌R10.7.5 指针加减偏移量时计入 sizeof 是可疑的</span>
 
 ID_sizeof_suspiciousAdd &emsp;&emsp;&emsp;&emsp;&nbsp; :question: expression suspicious
 
@@ -18778,7 +18784,7 @@ CWE-468
 <br/>
 <br/>
 
-### <span id="sizeof_zerocomparison">▌R10.5.6 sizeof 表达式的结果不应与 0 或负数比较</span>
+### <span id="sizeof_zerocomparison">▌R10.7.6 sizeof 表达式的结果不应与 0 或负数比较</span>
 
 ID_sizeof_zeroComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: expression error
 
@@ -18821,7 +18827,7 @@ CWE-1025
 <br/>
 <br/>
 
-### <span id="sizeof_sizeof">▌R10.5.7 sizeof 不应再作用于 sizeof 表达式</span>
+### <span id="sizeof_sizeof">▌R10.7.7 sizeof 不应再作用于 sizeof 表达式</span>
 
 ID_sizeof_sizeof &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: expression error
 
@@ -18853,7 +18859,7 @@ CWE-682
 <br/>
 <br/>
 
-### <span id="sizeof_null">▌R10.5.8 C++ 代码中 sizeof 不应作用于 NULL</span>
+### <span id="sizeof_null">▌R10.7.8 C++ 代码中 sizeof 不应作用于 NULL</span>
 
 ID_sizeof_NULL &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -18889,7 +18895,7 @@ CWE-351
 <br/>
 <br/>
 
-### <span id="sizeof_void">▌R10.5.9 sizeof 不可作用于 void</span>
+### <span id="sizeof_void">▌R10.7.9 sizeof 不可作用于 void</span>
 
 ID_sizeof_void &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: expression error
 
@@ -18913,9 +18919,9 @@ ISO/IEC 9899:2011 6.3.2.2(1)
 <br/>
 <br/>
 
-### <span id="expression.assertion">10.6 Assertion</span>
+### <span id="expression.assertion">10.8 Assertion</span>
 
-### <span id="badassertion">▌R10.6.1 断言中的表达式不应恒为真</span>
+### <span id="badassertion">▌R10.8.1 断言中的表达式不应恒为真</span>
 
 ID_badAssertion &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: expression error
 
@@ -18947,7 +18953,7 @@ ISO/IEC 9899:2011 7.2
 <br/>
 <br/>
 
-### <span id="sideeffectassertion">▌R10.6.2 断言中的表达式不应有副作用</span>
+### <span id="sideeffectassertion">▌R10.8.2 断言中的表达式不应有副作用</span>
 
 ID_sideEffectAssertion &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: expression error
 
@@ -18988,7 +18994,7 @@ SEI CERT PRE31-C
 <br/>
 <br/>
 
-### <span id="complexassertion">▌R10.6.3 断言中的表达式不应过于复杂</span>
+### <span id="complexassertion">▌R10.8.3 断言中的表达式不应过于复杂</span>
 
 ID_complexAssertion &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: expression suggestion
 
@@ -19023,9 +19029,9 @@ maxLogicOperatorCount：断言表达式中“逻辑与”运算符的最大数�
 <br/>
 <br/>
 
-### <span id="expression.complexity">10.7 Complexity</span>
+### <span id="expression.complexity">10.9 Complexity</span>
 
-### <span id="complexexpression">▌R10.7.1 表达式不应过于复杂</span>
+### <span id="complexexpression">▌R10.9.1 表达式不应过于复杂</span>
 
 ID_complexExpression &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: expression suggestion
 
@@ -19068,9 +19074,9 @@ C++ Core Guidelines ES.40
 <br/>
 <br/>
 
-### <span id="expression.other">10.8 Other</span>
+### <span id="expression.other">10.10 Other</span>
 
-### <span id="accesspaddingdata">▌R10.8.1 不应访问填充数据</span>
+### <span id="accesspaddingdata">▌R10.10.1 不应访问填充数据</span>
 
 ID_accessPaddingData &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -19115,7 +19121,7 @@ ISO/IEC 9899:2011 6.2.6.2(5)-unspecified
 <br/>
 <br/>
 
-### <span id="oddnew">▌R10.8.2 new 表达式只可用于赋值或当作参数</span>
+### <span id="oddnew">▌R10.10.2 new 表达式只可用于赋值或当作参数</span>
 
 ID_oddNew &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -19148,7 +19154,7 @@ ID_multiAllocation
 <br/>
 <br/>
 
-### <span id="oddsubscripting">▌R10.8.3 数组下标应为整型表达式</span>
+### <span id="oddsubscripting">▌R10.10.3 数组下标应为整型表达式</span>
 
 ID_oddSubscripting &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -19178,7 +19184,7 @@ ISO/IEC 14882:2011 8.3.4(6)
 <br/>
 <br/>
 
-### <span id="forbidcommaexpression">▌R10.8.4 禁用逗号表达式</span>
+### <span id="forbidcommaexpression">▌R10.10.4 禁用逗号表达式</span>
 
 ID_forbidCommaExpression &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: expression suggestion
 
