@@ -526,7 +526,8 @@
     - [R10.3.6 减法运算符左右子表达式不应相同](#selfsubtraction)
     - [R10.3.7 异或运算符左右子表达式不应相同](#selfexclusiveor)
     - [R10.3.8 &=、|=、\-=、/=、%= 左右子表达式不应相同](#illselfcompoundassignment)
-    - [R10.3.9 不应重复使用一元运算符](#repeatedunaryoperators)
+    - [R10.3.9 比较运算符左右子表达式不应相同](#selfcomparison)
+    - [R10.3.10 不应重复使用一元运算符](#repeatedunaryoperators)
   - [10.4 Assignment](#expression.assignment)
     - [R10.4.1 不可将对象的值赋给具有部分重叠区域的对象](#overlappingassignment)
     - [R10.4.2 不应出现复合赋值的错误形式](#illformedcompoundassignment)
@@ -540,7 +541,6 @@
     - [R10.5.4 有符号数不应和无符号数比较](#inconsistentsigncomparison)
     - [R10.5.5 不应比较非同类枚举值](#differentenumcomparison)
     - [R10.5.6 比较运算不可作为另一个比较运算的直接子表达式](#successivecomparison)
-    - [R10.5.7 比较运算符左右子表达式不应相同](#selfcomparison)
   - [10.6 Call](#expression.call)
     - [R10.6.1 不应忽略重要的返回值](#returnvalueignored)
     - [R10.6.2 不可臆断返回值的意义](#wronguseofreturnvalue)
@@ -17530,7 +17530,41 @@ CWE-682
 <br/>
 <br/>
 
-### <span id="repeatedunaryoperators">▌R10.3.9 不应重复使用一元运算符</span>
+### <span id="selfcomparison">▌R10.3.9 比较运算符左右子表达式不应相同</span>
+
+ID_selfComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
+
+<hr/>
+
+与自身的比较是没意义的，往往是某种笔误。  
+  
+示例（设 a 为变量或表达式）：
+```
+a == a   // Non-compliant
+a != a   // Non-compliant
+a > a    // Non-compliant
+a >= a   // Non-compliant
+a < a    // Non-compliant
+a <= a   // Non-compliant
+```
+例外：
+```
+void foo(float a) {
+    if (a != a) {     // Let it go
+        ....
+    }
+}
+```
+当 a != a 为真时表示 a 为无效值“[NaN](https://en.wikipedia.org/wiki/NaN)”，这是判断浮点数是否有效的惯用方法，可不受本规则约束。
+<br/>
+<br/>
+
+#### 参考
+CWE-1025  
+<br/>
+<br/>
+
+### <span id="repeatedunaryoperators">▌R10.3.10 不应重复使用一元运算符</span>
 
 ID_repeatedUnaryOperators &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -17992,40 +18026,6 @@ ID_illBoolOperation
 #### 参考
 CWE-697  
 CWE-1024  
-CWE-1025  
-<br/>
-<br/>
-
-### <span id="selfcomparison">▌R10.5.7 比较运算符左右子表达式不应相同</span>
-
-ID_selfComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
-
-<hr/>
-
-与自身的比较是没意义的，往往是某种笔误。  
-  
-示例（设 a 为变量或表达式）：
-```
-a == a   // Non-compliant
-a != a   // Non-compliant
-a > a    // Non-compliant
-a >= a   // Non-compliant
-a < a    // Non-compliant
-a <= a   // Non-compliant
-```
-例外：
-```
-void foo(float a) {
-    if (a != a) {     // Let it go
-        ....
-    }
-}
-```
-当 a != a 为真时表示 a 为无效值“[NaN](https://en.wikipedia.org/wiki/NaN)”，这是判断浮点数是否有效的惯用方法，可不受本规则约束。
-<br/>
-<br/>
-
-#### 参考
 CWE-1025  
 <br/>
 <br/>
