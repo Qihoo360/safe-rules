@@ -3375,7 +3375,7 @@
         "config": [
             "allowSuccessiveAssignment: 是否允许连续赋值"
             ],
-        "tag": "style",
+        "tag": "expression",
         "related": "ID_if_assignment",
         "reference": "CWE-481,MISRA C 2004 13.1,MISRA C 2012 13.4,MISRA C++ 2008 6-2-1"
         },
@@ -3383,7 +3383,7 @@
         "checkPoint": "自增、自减表达式不应作为子表达式",
         "level": "suggestion",
         "comment": "自增、自减表达式作为子表达式易使人费解，也易产生求值顺序相关的问题。",
-        "tag": "style",
+        "tag": "expression",
         "related": "ID_evaluationOrderReliance",
         "reference": "MISRA C 2012 13.3,MISRA C++ 2008 5-2-10"
         },

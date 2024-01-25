@@ -513,6 +513,7 @@
     - [R10.2.9 移位数量不应超过相关类型比特位的数量](#illshiftcount)
     - [R10.2.10 按位取反需避免由类型提升产生的多余数据](#suspiciouspromotion)
     - [R10.2.11 逗号表达式的子表达式应具有必要的副作用](#invalidcommasubexpression)
+    - [R10.2.12 自增、自减表达式不应作为子表达式](#incdecassubexpression)
   - [10.3 Operator](#expression.operator)
     - [R10.3.1 注意运算符优先级，避免非预期的结果](#unexpectedprecedence)
     - [R10.3.2 负号不应作用于无符号整数](#minusonunsigned)
@@ -528,6 +529,7 @@
     - [R10.4.2 避免出现复合赋值的可疑形式](#suspiciouscompoundassignment)
     - [R10.4.3 注意赋值运算符与一元运算符的空格方式](#stickyassignmentoperator)
     - [R10.4.4 不可将对象的值赋给具有部分重叠区域的对象](#overlappingassignment)
+    - [R10.4.5 赋值表达式不应作为子表达式](#assignmentassubexpression)
   - [10.5 Comparison](#expression.comparison)
     - [R10.5.1 参与比较的对象之间应具备合理的大小关系](#illcomparison)
     - [R10.5.2 未指向同一数组或同一对象的指针不可比较大小](#illptrcomparison)
@@ -674,15 +676,13 @@
   - [R17.3 遵循统一的空格风格](#spacestyle)
   - [R17.4 遵循统一的大括号风格](#bracestyle)
   - [R17.5 遵循统一的缩进风格](#inconsistentindent)
-  - [R17.6 赋值表达式不应作为子表达式](#assignmentassubexpression)
-  - [R17.7 自增、自减表达式不应作为子表达式](#incdecassubexpression)
-  - [R17.8 控制条件应为 bool 型表达式](#nonboolcondition)
-  - [R17.9 !、&&、|| 的子表达式应为 bool 型表达式](#nonboolsubcondition)
-  - [R17.10 &&、|| 的子表达式应为后缀表达式](#nonpostfixsubcondition)
-  - [R17.11 在 C\+\+ 代码中 NULL 和 nullptr 不应混用](#mixnullptrandnull)
-  - [R17.12 在 C\+\+ 代码中用 nullptr 代替 NULL](#deprecatednull)
-  - [R17.13 避免多余的括号](#redundantparentheses)
-  - [R17.14 避免多余的分号](#redundantsemicolon)<br/><br/>
+  - [R17.6 控制条件应为 bool 型表达式](#nonboolcondition)
+  - [R17.7 !、&&、|| 的子表达式应为 bool 型表达式](#nonboolsubcondition)
+  - [R17.8 &&、|| 的子表达式应为后缀表达式](#nonpostfixsubcondition)
+  - [R17.9 在 C\+\+ 代码中 NULL 和 nullptr 不应混用](#mixnullptrandnull)
+  - [R17.10 在 C\+\+ 代码中用 nullptr 代替 NULL](#deprecatednull)
+  - [R17.11 避免多余的括号](#redundantparentheses)
+  - [R17.12 避免多余的分号](#redundantsemicolon)<br/><br/>
 ## <span id="security">1. Security</span>
 
 ### <span id="plainsensitiveinfo">▌R1.1 敏感数据不可写入代码</span>
@@ -17119,6 +17119,37 @@ ID_forbidCommaExpression
 <br/>
 <br/>
 
+### <span id="incdecassubexpression">▌R10.2.12 自增、自减表达式不应作为子表达式</span>
+
+ID_incDecAsSubExpression &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: expression suggestion
+
+<hr/>
+
+自增、自减表达式作为子表达式易使人费解，也易产生求值顺序相关的问题。  
+  
+示例：
+```
+a = ++b + c--;   // Non-compliant
+```
+应改为：
+```
+++b;             // Compliant
+a = b + c;
+c--;             // Compliant
+```
+<br/>
+<br/>
+
+#### 相关
+ID_evaluationOrderReliance  
+<br/>
+
+#### 参考
+MISRA C 2012 13.3  
+MISRA C++ 2008 5-2-10  
+<br/>
+<br/>
+
 ### <span id="expression.operator">10.3 Operator</span>
 
 ### <span id="unexpectedprecedence">▌R10.3.1 注意运算符优先级，避免非预期的结果</span>
@@ -17526,6 +17557,52 @@ ISO/IEC 14882:2011 5.17(8)-undefined
 #### 参考
 MISRA C 2012 19.1  
 MISRA C++ 2008 0-2-1  
+<br/>
+<br/>
+
+### <span id="assignmentassubexpression">▌R10.4.5 赋值表达式不应作为子表达式</span>
+
+ID_assignmentAsSubExpression &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: expression suggestion
+
+<hr/>
+
+赋值及复合赋值表达式作为子表达式可读性较差，易产生求值顺序或运算符优先级相关的问题。  
+  
+示例（设 a、b、c 为变量）：
+```
+a = b;    // Compliant
+a += b;   // Compliant
+
+while (a = b) {   // Non-compliant
+    ....
+}
+if (a = b != 0) {   // Non-compliant
+    ....
+}
+a += b += c;     // Non-compliant
+fun(a = b, c);   // Non-compliant
+```
+连续赋值是一种惯用方式，但不值得提倡，如：
+```
+a = b = c;   // Let it go?
+```
+审计工具不妨通过配置决定是否放过这种方式。
+<br/>
+<br/>
+
+#### 配置
+allowSuccessiveAssignment：是否允许连续赋值  
+<br/>
+
+#### 相关
+ID_if_assignment  
+<br/>
+
+#### 参考
+CWE-481  
+MISRA C 2004 13.1  
+MISRA C 2012 13.4  
+MISRA C++ 2008 6-2-1  
 <br/>
 <br/>
 
@@ -22871,84 +22948,7 @@ C++ Core Guidelines NL.4
 <br/>
 <br/>
 
-### <span id="assignmentassubexpression">▌R17.6 赋值表达式不应作为子表达式</span>
-
-ID_assignmentAsSubExpression &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestion
-
-<hr/>
-
-赋值及复合赋值表达式作为子表达式可读性较差，易产生求值顺序或运算符优先级相关的问题。  
-  
-示例（设 a、b、c 为变量）：
-```
-a = b;    // Compliant
-a += b;   // Compliant
-
-while (a = b) {   // Non-compliant
-    ....
-}
-if (a = b != 0) {   // Non-compliant
-    ....
-}
-a += b += c;     // Non-compliant
-fun(a = b, c);   // Non-compliant
-```
-连续赋值是一种惯用方式，但不值得提倡，如：
-```
-a = b = c;   // Let it go?
-```
-审计工具不妨通过配置决定是否放过这种方式。
-<br/>
-<br/>
-
-#### 配置
-allowSuccessiveAssignment：是否允许连续赋值  
-<br/>
-
-#### 相关
-ID_if_assignment  
-<br/>
-
-#### 参考
-CWE-481  
-MISRA C 2004 13.1  
-MISRA C 2012 13.4  
-MISRA C++ 2008 6-2-1  
-<br/>
-<br/>
-
-### <span id="incdecassubexpression">▌R17.7 自增、自减表达式不应作为子表达式</span>
-
-ID_incDecAsSubExpression &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestion
-
-<hr/>
-
-自增、自减表达式作为子表达式易使人费解，也易产生求值顺序相关的问题。  
-  
-示例：
-```
-a = ++b + c--;   // Non-compliant
-```
-应改为：
-```
-++b;             // Compliant
-a = b + c;
-c--;             // Compliant
-```
-<br/>
-<br/>
-
-#### 相关
-ID_evaluationOrderReliance  
-<br/>
-
-#### 参考
-MISRA C 2012 13.3  
-MISRA C++ 2008 5-2-10  
-<br/>
-<br/>
-
-### <span id="nonboolcondition">▌R17.8 控制条件应为 bool 型表达式</span>
+### <span id="nonboolcondition">▌R17.6 控制条件应为 bool 型表达式</span>
 
 ID_nonBoolCondition &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestion
 
@@ -23010,7 +23010,7 @@ SEI CERT EXP20-C
 <br/>
 <br/>
 
-### <span id="nonboolsubcondition">▌R17.9 !、&&、|| 的子表达式应为 bool 型表达式</span>
+### <span id="nonboolsubcondition">▌R17.7 !、&&、|| 的子表达式应为 bool 型表达式</span>
 
 ID_nonBoolSubCondition &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestion
 
@@ -23044,7 +23044,7 @@ SEI CERT EXP20-C
 <br/>
 <br/>
 
-### <span id="nonpostfixsubcondition">▌R17.10 &&、|| 的子表达式应为后缀表达式</span>
+### <span id="nonpostfixsubcondition">▌R17.8 &&、|| 的子表达式应为后缀表达式</span>
 
 ID_nonPostfixSubCondition &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestion
 
@@ -23109,7 +23109,7 @@ MISRA C++ 2008 5-2-1
 <br/>
 <br/>
 
-### <span id="mixnullptrandnull">▌R17.11 在 C++ 代码中 NULL 和 nullptr 不应混用</span>
+### <span id="mixnullptrandnull">▌R17.9 在 C++ 代码中 NULL 和 nullptr 不应混用</span>
 
 ID_mixNullptrAndNULL &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style warning
 
@@ -23134,7 +23134,7 @@ C++ Core Guidelines ES.47
 <br/>
 <br/>
 
-### <span id="deprecatednull">▌R17.12 在 C++ 代码中用 nullptr 代替 NULL</span>
+### <span id="deprecatednull">▌R17.10 在 C++ 代码中用 nullptr 代替 NULL</span>
 
 ID_deprecatedNULL &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestion
 
@@ -23172,7 +23172,7 @@ C++ Core Guidelines ES.47
 <br/>
 <br/>
 
-### <span id="redundantparentheses">▌R17.13 避免多余的括号</span>
+### <span id="redundantparentheses">▌R17.11 避免多余的括号</span>
 
 ID_redundantParentheses &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestion
 
@@ -23207,7 +23207,7 @@ MISRA C++ 2008 5-0-2
 <br/>
 <br/>
 
-### <span id="redundantsemicolon">▌R17.14 避免多余的分号</span>
+### <span id="redundantsemicolon">▌R17.12 避免多余的分号</span>
 
 ID_redundantSemicolon &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestion
 
