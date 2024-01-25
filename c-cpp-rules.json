@@ -361,7 +361,7 @@
         "checkPoint": "避免指针运算的结果溢出",
         "level": "error",
         "comment": "指针运算的结果溢出会导致标准未定义的行为。",
-        "tag": "buffer",
+        "tag": "pointer",
         "related": "ID_bufferOverflow",
         "standard": "ISO/IEC 9899:1999 6.5.6(8)-undefined,ISO/IEC 9899:2011 6.5.6(8)-undefined,ISO/IEC 14882:2003 5.7(5)-undefined,ISO/IEC 14882:2011 5.7(5)-undefined",
         "reference": "MISRA C 2004 17.1,MISRA C 2012 18.1,MISRA C++ 2008 5-0-16,SEI CERT ARR30-C"
@@ -1353,7 +1353,7 @@
         "checkPoint": "未指向同一数组的指针不可相减",
         "level": "warning",
         "comment": "不在同一数组中的地址之间没有连续性，未指向同一数组的指针相减往往意味着逻辑错误，也会导致标准未定义的行为。",
-        "tag": "expression",
+        "tag": "pointer",
         "related": "ID_illPtrComparison",
         "standard": "ISO/IEC 9899:1999 6.5.6(9)-undefined,ISO/IEC 9899:2011 6.5.6(9)-undefined,ISO/IEC 14882:2003 5.7(6)-undefined,ISO/IEC 14882:2011 5.7(6)-undefined",
         "reference": "MISRA C 2004 17.2,MISRA C 2012 18.2,MISRA C++ 2008 5-0-17,SEI CERT ARR36-C"
@@ -3324,7 +3324,7 @@
         "checkPoint": "在 C++ 代码中 NULL 和 nullptr 不应混用",
         "level": "warning",
         "comment": "在 C++ 代码中 NULL 和 nullptr 不应混用，应统一使用 nullptr。",
-        "tag": "style",
+        "tag": "pointer",
         "related": "ID_deprecatedNULL",
         "reference": "C++ Core Guidelines ES.47"
         },
@@ -3332,7 +3332,7 @@
         "checkPoint": "在 C++ 代码中用 nullptr 代替 NULL",
         "level": "suggestion",
         "comment": "标识符 NULL 由实现定义，在 C++ 语言中往往等同于常量 0，无法有效区分整数与指针，用 nullptr 可避免这种问题。",
-        "tag": "style",
+        "tag": "pointer",
         "standard": "ISO/IEC 14882:2003 C.2.2.3(1)-implementation,ISO/IEC 14882:2011 2.14.7(1),ISO/IEC 14882:2011 C.3.2.4(1)-implementation,ISO/IEC 14882:2017 C.5.2.7(1)-implementation",
         "reference": "C++ Core Guidelines ES.47"
         },
@@ -4231,7 +4231,7 @@
         "checkPoint": "未指向同一数组或同一对象的指针不可比较大小",
         "level": "warning",
         "comment": "不在同一数组或同一对象中的地址之间没有前后关系，比较这种地址的大小往往意味着逻辑错误，也会导致标准未定义或未声明的行为。",
-        "tag": "expression",
+        "tag": "pointer",
         "related": "ID_illPtrDiff,ID_oddPtrZeroComparison",
         "standard": "ISO/IEC 9899:1999 6.5.8(5)-undefined,ISO/IEC 9899:2011 6.5.8(5)-undefined,ISO/IEC 14882:2003 5.9(2)-unspecified,ISO/IEC 14882:2011 5.9(2)-unspecified",
         "reference": "C++ Core Guidelines ES.62,MISRA C 2004 17.3,MISRA C 2012 18.3,MISRA C++ 2008 5-0-18,SEI CERT ARR36-C"

@@ -508,15 +508,14 @@
     - [R10.2.1 不可依赖不会生效的副作用](#unevaluatedsideeffect)
     - [R10.2.2 不可依赖未声明的求值顺序](#evaluationorderreliance)
     - [R10.2.3 在表达式中不应多次读写同一对象](#confusingassignment)
-    - [R10.2.4 未指向同一数组的指针不可相减](#illptrdiff)
-    - [R10.2.5 bool 对象不应参与位运算、大小比较、数值增减](#illbooloperation)
-    - [R10.2.6 枚举对象不应参与位运算或算数运算](#illenumoperation)
-    - [R10.2.7 不应将 NULL 当作整数使用](#oddnullassignment)
-    - [R10.2.8 运算结果不应溢出](#evaloverflow)
-    - [R10.2.9 移位数量不应超过相关类型比特位的数量](#illshiftcount)
-    - [R10.2.10 按位取反需避免由类型提升产生的多余数据](#suspiciouspromotion)
-    - [R10.2.11 逗号表达式的子表达式应具有必要的副作用](#invalidcommasubexpression)
-    - [R10.2.12 自增、自减表达式不应作为子表达式](#incdecassubexpression)
+    - [R10.2.4 bool 对象不应参与位运算、大小比较、数值增减](#illbooloperation)
+    - [R10.2.5 枚举对象不应参与位运算或算数运算](#illenumoperation)
+    - [R10.2.6 不应将 NULL 当作整数使用](#oddnullassignment)
+    - [R10.2.7 运算结果不应溢出](#evaloverflow)
+    - [R10.2.8 移位数量不应超过相关类型比特位的数量](#illshiftcount)
+    - [R10.2.9 按位取反需避免由类型提升产生的多余数据](#suspiciouspromotion)
+    - [R10.2.10 逗号表达式的子表达式应具有必要的副作用](#invalidcommasubexpression)
+    - [R10.2.11 自增、自减表达式不应作为子表达式](#incdecassubexpression)
   - [10.3 Operator](#expression.operator)
     - [R10.3.1 注意运算符优先级，避免非预期的结果](#unexpectedprecedence)
     - [R10.3.2 负号不应作用于无符号整数](#minusonunsigned)
@@ -535,13 +534,12 @@
     - [R10.4.5 赋值表达式不应作为子表达式](#assignmentassubexpression)
   - [10.5 Comparison](#expression.comparison)
     - [R10.5.1 参与比较的对象之间应具备合理的大小关系](#illcomparison)
-    - [R10.5.2 未指向同一数组或同一对象的指针不可比较大小](#illptrcomparison)
-    - [R10.5.3 不应使用 == 或 != 判断浮点数是否相等](#illfloatcomparison)
-    - [R10.5.4 指针不应与字符串常量直接比较](#illptrstrcomparison)
-    - [R10.5.5 有符号数不应和无符号数比较](#inconsistentsigncomparison)
-    - [R10.5.6 不应比较非同类枚举值](#differentenumcomparison)
-    - [R10.5.7 比较运算不可作为另一个比较运算的直接子表达式](#successivecomparison)
-    - [R10.5.8 比较运算符左右子表达式不应相同](#selfcomparison)
+    - [R10.5.2 不应使用 == 或 != 判断浮点数是否相等](#illfloatcomparison)
+    - [R10.5.3 指针不应与字符串常量直接比较](#illptrstrcomparison)
+    - [R10.5.4 有符号数不应和无符号数比较](#inconsistentsigncomparison)
+    - [R10.5.5 不应比较非同类枚举值](#differentenumcomparison)
+    - [R10.5.6 比较运算不可作为另一个比较运算的直接子表达式](#successivecomparison)
+    - [R10.5.7 比较运算符左右子表达式不应相同](#selfcomparison)
   - [10.6 Call](#expression.call)
     - [R10.6.1 不应忽略重要的返回值](#returnvalueignored)
     - [R10.6.2 不可臆断返回值的意义](#wronguseofreturnvalue)
@@ -624,11 +622,10 @@
 
 <span id="__buffer">**[13. Buffer](#buffer)**</span>
   - [R13.1 避免缓冲区溢出](#bufferoverflow)
-  - [R13.2 避免指针运算的结果溢出](#arrayindexoverflow)
-  - [R13.3 为缓冲区分配足够的空间](#insufficientbuffer)
-  - [R13.4 memset 等函数不应作用于非 POD 对象](#nonpodfilling)
-  - [R13.5 memset 等函数长度相关的参数不应有误](#badlength)
-  - [R13.6 memset 等函数填充值相关的参数不应有误](#valueoverflow)
+  - [R13.2 为缓冲区分配足够的空间](#insufficientbuffer)
+  - [R13.3 memset 等函数不应作用于非 POD 对象](#nonpodfilling)
+  - [R13.4 memset 等函数长度相关的参数不应有误](#badlength)
+  - [R13.5 memset 等函数填充值相关的参数不应有误](#valueoverflow)
 <br/>
 
 <span id="__pointer">**[14. Pointer](#pointer)**</span>
@@ -636,22 +633,27 @@
   - [R14.2 注意逻辑表达式内的空指针解引用](#nullderefinexp)
   - [R14.3 不可解引用未初始化的指针](#wildptrderef)
   - [R14.4 不可解引用已失效的指针](#danglingderef)
-  - [R14.5 避免无效的空指针检查](#invalidnullcheck)
-  - [R14.6 不应重复检查指针是否为空](#repeatednullcheck)
-  - [R14.7 不应使用非零常量对指针赋值](#fixedaddrtopointer)
-  - [R14.8 不应使用常量 0 表示空指针](#zeroasptrvalue)
-  - [R14.9 不应使用 false 对指针赋值](#oddptrboolassignment)
-  - [R14.10 不应使用 '\\0' 等字符常量对指针赋值](#oddptrcharassignment)
-  - [R14.11 指针不应与 false 比较大小](#oddptrboolcomparison)
-  - [R14.12 指针不应与 '\\0' 等字符常量比较大小](#oddptrcharcomparison)
-  - [R14.13 指针与空指针不应比较大小](#oddptrzerocomparison)
-  - [R14.14 不应判断 this 指针是否为空](#this_zerocomparison)
-  - [R14.15 禁用 delete this](#this_forbiddeletethis)
-  - [R14.16 判断 dynamic\_cast 转换是否成功](#nullderefdynamiccast)
-  - [R14.17 释放指针后应将指针赋值为空或其他有效值](#missingresetnull)
-  - [R14.18 函数取地址时应显式使用 & 运算符](#missingaddressoperator)
-  - [R14.19 指针运算应使用数组下标的方式](#missingarrayindexing)
-  - [R14.20 未指向数组元素的指针不可与整数加减](#illptrarithmetic)
+  - [R14.5 避免指针运算的结果溢出](#arrayindexoverflow)
+  - [R14.6 未指向同一数组的指针不可相减](#illptrdiff)
+  - [R14.7 未指向同一数组或同一对象的指针不可比较大小](#illptrcomparison)
+  - [R14.8 未指向数组元素的指针不可与整数加减](#illptrarithmetic)
+  - [R14.9 避免无效的空指针检查](#invalidnullcheck)
+  - [R14.10 不应重复检查指针是否为空](#repeatednullcheck)
+  - [R14.11 不应使用非零常量对指针赋值](#fixedaddrtopointer)
+  - [R14.12 不应使用常量 0 表示空指针](#zeroasptrvalue)
+  - [R14.13 在 C\+\+ 代码中 NULL 和 nullptr 不应混用](#mixnullptrandnull)
+  - [R14.14 在 C\+\+ 代码中用 nullptr 代替 NULL](#deprecatednull)
+  - [R14.15 不应使用 false 对指针赋值](#oddptrboolassignment)
+  - [R14.16 不应使用 '\\0' 等字符常量对指针赋值](#oddptrcharassignment)
+  - [R14.17 指针不应与 false 比较大小](#oddptrboolcomparison)
+  - [R14.18 指针不应与 '\\0' 等字符常量比较大小](#oddptrcharcomparison)
+  - [R14.19 指针与空指针不应比较大小](#oddptrzerocomparison)
+  - [R14.20 不应判断 this 指针是否为空](#this_zerocomparison)
+  - [R14.21 禁用 delete this](#this_forbiddeletethis)
+  - [R14.22 判断 dynamic\_cast 转换是否成功](#nullderefdynamiccast)
+  - [R14.23 释放指针后应将指针赋值为空或其他有效值](#missingresetnull)
+  - [R14.24 函数取地址时应显式使用 & 运算符](#missingaddressoperator)
+  - [R14.25 指针运算应使用数组下标的方式](#missingarrayindexing)
 <br/>
 
 <span id="__interruption">**[15. Interruption](#interruption)**</span>
@@ -679,10 +681,8 @@
   - [R17.3 遵循统一的空格风格](#spacestyle)
   - [R17.4 遵循统一的大括号风格](#bracestyle)
   - [R17.5 遵循统一的缩进风格](#inconsistentindent)
-  - [R17.6 在 C\+\+ 代码中 NULL 和 nullptr 不应混用](#mixnullptrandnull)
-  - [R17.7 在 C\+\+ 代码中用 nullptr 代替 NULL](#deprecatednull)
-  - [R17.8 避免多余的括号](#redundantparentheses)
-  - [R17.9 避免多余的分号](#redundantsemicolon)<br/><br/>
+  - [R17.6 避免多余的括号](#redundantparentheses)
+  - [R17.7 避免多余的分号](#redundantsemicolon)<br/><br/>
 ## <span id="security">1. Security</span>
 
 ### <span id="plainsensitiveinfo">▌R1.1 敏感数据不可写入代码</span>
@@ -16946,54 +16946,7 @@ SEI CERT EXP50-CPP
 <br/>
 <br/>
 
-### <span id="illptrdiff">▌R10.2.4 未指向同一数组的指针不可相减</span>
-
-ID_illPtrDiff &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
-
-<hr/>
-
-不在同一数组中的地址之间没有连续性，未指向同一数组的指针相减往往意味着逻辑错误，也会导致标准未定义的行为。  
-  
-如果两个指针的值均为同一数组中的元素地址，或该数组末尾元素的下一个地址，则称两个指针指向同一个数组，其差值为相应地址之间的距离，否则其差值不具备正确意义。  
-  
-示例：
-```
-ptrdiff_t d;
-
-int i, j;
-d = &j - &i;   // Non-compliant, undefined if overflow
-
-int x[8], y[8];
-d = &x[1] - &x[0];   // Compliant, ‘d’ is 1
-d = &y[1] - &x[0];   // Non-compliant, undefined if overflow
-
-int* p = &i;
-int* q = NULL;
-d = p - q;      // Non-compliant
-```
-<br/>
-<br/>
-
-#### 相关
-ID_illPtrComparison  
-<br/>
-
-#### 依据
-ISO/IEC 9899:1999 6.5.6(9)-undefined  
-ISO/IEC 9899:2011 6.5.6(9)-undefined  
-ISO/IEC 14882:2003 5.7(6)-undefined  
-ISO/IEC 14882:2011 5.7(6)-undefined  
-<br/>
-
-#### 参考
-MISRA C 2004 17.2  
-MISRA C 2012 18.2  
-MISRA C++ 2008 5-0-17  
-SEI CERT ARR36-C  
-<br/>
-<br/>
-
-### <span id="illbooloperation">▌R10.2.5 bool 对象不应参与位运算、大小比较、数值增减</span>
+### <span id="illbooloperation">▌R10.2.4 bool 对象不应参与位运算、大小比较、数值增减</span>
 
 ID_illBoolOperation &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -17038,7 +16991,7 @@ MISRA C++ 2008 5-0-21
 <br/>
 <br/>
 
-### <span id="illenumoperation">▌R10.2.6 枚举对象不应参与位运算或算数运算</span>
+### <span id="illenumoperation">▌R10.2.5 枚举对象不应参与位运算或算数运算</span>
 
 ID_illEnumOperation &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -17076,7 +17029,7 @@ MISRA C 2012 10.1
 <br/>
 <br/>
 
-### <span id="oddnullassignment">▌R10.2.7 不应将 NULL 当作整数使用</span>
+### <span id="oddnullassignment">▌R10.2.6 不应将 NULL 当作整数使用</span>
 
 ID_oddNullAssignment &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -17112,7 +17065,7 @@ MISRA C++ 2008 4-10-1
 <br/>
 <br/>
 
-### <span id="evaloverflow">▌R10.2.8 运算结果不应溢出</span>
+### <span id="evaloverflow">▌R10.2.7 运算结果不应溢出</span>
 
 ID_evalOverflow &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -17165,7 +17118,7 @@ C++ Core Guidelines ES.104
 <br/>
 <br/>
 
-### <span id="illshiftcount">▌R10.2.9 移位数量不应超过相关类型比特位的数量</span>
+### <span id="illshiftcount">▌R10.2.8 移位数量不应超过相关类型比特位的数量</span>
 
 ID_illShiftCount &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: expression error
 
@@ -17212,7 +17165,7 @@ MISRA C++ 2008 5-8-1
 <br/>
 <br/>
 
-### <span id="suspiciouspromotion">▌R10.2.10 按位取反需避免由类型提升产生的多余数据</span>
+### <span id="suspiciouspromotion">▌R10.2.9 按位取反需避免由类型提升产生的多余数据</span>
 
 ID_suspiciousPromotion &emsp;&emsp;&emsp;&emsp;&nbsp; :question: expression suspicious
 
@@ -17240,7 +17193,7 @@ MISRA C++ 2008 5-0-10
 <br/>
 <br/>
 
-### <span id="invalidcommasubexpression">▌R10.2.11 逗号表达式的子表达式应具有必要的副作用</span>
+### <span id="invalidcommasubexpression">▌R10.2.10 逗号表达式的子表达式应具有必要的副作用</span>
 
 ID_invalidCommaSubExpression &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -17280,7 +17233,7 @@ ID_forbidCommaExpression
 <br/>
 <br/>
 
-### <span id="incdecassubexpression">▌R10.2.12 自增、自减表达式不应作为子表达式</span>
+### <span id="incdecassubexpression">▌R10.2.11 自增、自减表达式不应作为子表达式</span>
 
 ID_incDecAsSubExpression &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: expression suggestion
 
@@ -17825,75 +17778,7 @@ CWE-1025
 <br/>
 <br/>
 
-### <span id="illptrcomparison">▌R10.5.2 未指向同一数组或同一对象的指针不可比较大小</span>
-
-ID_illPtrComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
-
-<hr/>
-
-不在同一数组或同一对象中的地址之间没有前后关系，比较这种地址的大小往往意味着逻辑错误，也会导致标准未定义或未声明的行为。  
-  
-对于 C\+\+ 语言，即使在同一对象中：  
- - 静态成员之间  
- - 静态成员与非静态成员之间  
- - 由 access\-specifier 分隔的成员之间  
-  
-也不应比较地址的大小。  
-  
-示例：
-```
-bool b;
-
-int i, j;
-b = &j > &i;   // Non-compliant, undefined in C, unspecified in C++
-
-struct A {
-    int i, j;
-} a;
-b = &a.j > &a.i;   // Compliant, ‘b’ is true
-
-class B {
-    static int i;
-    int j;
-public:                   // access-specifier
-    int k;
-    int foo() {
-        return &i < &j    // Non-compliant, unspecified
-            || &j < &k;   // Non-compliant, unspecified
-    }
-};
-```
-另外，指针与空指针之间也不应比较大小：
-```
-int* p = &foo;
-bool b = p < NULL;              // Non-compliant
-```
-指针与空指针比较大小是一种常见笔误，对此本规则特化为 ID\_oddPtrZeroComparison。
-<br/>
-<br/>
-
-#### 相关
-ID_illPtrDiff  
-ID_oddPtrZeroComparison  
-<br/>
-
-#### 依据
-ISO/IEC 9899:1999 6.5.8(5)-undefined  
-ISO/IEC 9899:2011 6.5.8(5)-undefined  
-ISO/IEC 14882:2003 5.9(2)-unspecified  
-ISO/IEC 14882:2011 5.9(2)-unspecified  
-<br/>
-
-#### 参考
-C++ Core Guidelines ES.62  
-MISRA C 2004 17.3  
-MISRA C 2012 18.3  
-MISRA C++ 2008 5-0-18  
-SEI CERT ARR36-C  
-<br/>
-<br/>
-
-### <span id="illfloatcomparison">▌R10.5.3 不应使用 == 或 != 判断浮点数是否相等</span>
+### <span id="illfloatcomparison">▌R10.5.2 不应使用 == 或 != 判断浮点数是否相等</span>
 
 ID_illFloatComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -17938,7 +17823,7 @@ MISRA C++ 2008 6-2-2
 <br/>
 <br/>
 
-### <span id="illptrstrcomparison">▌R10.5.4 指针不应与字符串常量直接比较</span>
+### <span id="illptrstrcomparison">▌R10.5.3 指针不应与字符串常量直接比较</span>
 
 ID_illPtrStrComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: expression error
 
@@ -17988,7 +17873,7 @@ CWE-1025
 <br/>
 <br/>
 
-### <span id="inconsistentsigncomparison">▌R10.5.5 有符号数不应和无符号数比较</span>
+### <span id="inconsistentsigncomparison">▌R10.5.4 有符号数不应和无符号数比较</span>
 
 ID_inconsistentSignComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -18032,7 +17917,7 @@ MISRA C++ 2008 5-0-4
 <br/>
 <br/>
 
-### <span id="differentenumcomparison">▌R10.5.6 不应比较非同类枚举值</span>
+### <span id="differentenumcomparison">▌R10.5.5 不应比较非同类枚举值</span>
 
 ID_differentEnumComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -18071,7 +17956,7 @@ MISRA C 2012 10.4
 <br/>
 <br/>
 
-### <span id="successivecomparison">▌R10.5.7 比较运算不可作为另一个比较运算的直接子表达式</span>
+### <span id="successivecomparison">▌R10.5.6 比较运算不可作为另一个比较运算的直接子表达式</span>
 
 ID_successiveComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: expression error
 
@@ -18108,7 +17993,7 @@ CWE-1025
 <br/>
 <br/>
 
-### <span id="selfcomparison">▌R10.5.8 比较运算符左右子表达式不应相同</span>
+### <span id="selfcomparison">▌R10.5.7 比较运算符左右子表达式不应相同</span>
 
 ID_selfComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -21159,58 +21044,7 @@ CWE-788
 <br/>
 <br/>
 
-### <span id="arrayindexoverflow">▌R13.2 避免指针运算的结果溢出</span>
-
-ID_arrayIndexOverflow &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: buffer error
-
-<hr/>
-
-指针运算的结果溢出会导致标准未定义的行为。  
-  
-设数组元素个数为 N，p 为指向数组第一个元素的指针，i 为整数，标准规定：  
- - 当 i >= 0 且 i < N 时，p \+ i 的结果不会溢出  
- - 当 i 等于 N 时，p \+ i 的结果不会溢出，但不可对其解引用  
- - 当 i < 0 或 i > N 时，p \+ i 的结果可能会溢出  
- - 使数组下标超出 \[0, N\] 的运算可能会使指针值溢出，导致未定义的行为  
-  
-示例：
-```
-int a[10];
-int *p, *e;
-
-p = a + 0;    // Compliant
-p = a + 5;    // Compliant
-e = a + 10;   // Compliant, won't overflow
-
-p = a - 1;    // Non-compliant, the array subscript is -1, which exceeds [0, N]
-e = a + 11;   // Non-compliant, the array subscript is 11, which exceeds [0, N]
-
---p;          // Non-compliant, may overflow
-e++;          // Non-compliant, may overflow
-```
-<br/>
-<br/>
-
-#### 相关
-ID_bufferOverflow  
-<br/>
-
-#### 依据
-ISO/IEC 9899:1999 6.5.6(8)-undefined  
-ISO/IEC 9899:2011 6.5.6(8)-undefined  
-ISO/IEC 14882:2003 5.7(5)-undefined  
-ISO/IEC 14882:2011 5.7(5)-undefined  
-<br/>
-
-#### 参考
-MISRA C 2004 17.1  
-MISRA C 2012 18.1  
-MISRA C++ 2008 5-0-16  
-SEI CERT ARR30-C  
-<br/>
-<br/>
-
-### <span id="insufficientbuffer">▌R13.3 为缓冲区分配足够的空间</span>
+### <span id="insufficientbuffer">▌R13.2 为缓冲区分配足够的空间</span>
 
 ID_insufficientBuffer &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: buffer warning
 
@@ -21257,7 +21091,7 @@ CWE-135
 <br/>
 <br/>
 
-### <span id="nonpodfilling">▌R13.4 memset 等函数不应作用于非 POD 对象</span>
+### <span id="nonpodfilling">▌R13.3 memset 等函数不应作用于非 POD 对象</span>
 
 ID_nonPODFilling &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: buffer error
 
@@ -21294,7 +21128,7 @@ C++ Core Guidelines C.90
 <br/>
 <br/>
 
-### <span id="badlength">▌R13.5 memset 等函数长度相关的参数不应有误</span>
+### <span id="badlength">▌R13.4 memset 等函数长度相关的参数不应有误</span>
 
 ID_badLength &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: buffer error
 
@@ -21366,7 +21200,7 @@ CWE-805
 <br/>
 <br/>
 
-### <span id="valueoverflow">▌R13.6 memset 等函数填充值相关的参数不应有误</span>
+### <span id="valueoverflow">▌R13.5 memset 等函数填充值相关的参数不应有误</span>
 
 ID_valueOverflow &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: buffer error
 
@@ -21614,7 +21448,227 @@ SEI CERT EXP54-CPP
 <br/>
 <br/>
 
-### <span id="invalidnullcheck">▌R14.5 避免无效的空指针检查</span>
+### <span id="arrayindexoverflow">▌R14.5 避免指针运算的结果溢出</span>
+
+ID_arrayIndexOverflow &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: pointer error
+
+<hr/>
+
+指针运算的结果溢出会导致标准未定义的行为。  
+  
+设数组元素个数为 N，p 为指向数组第一个元素的指针，i 为整数，标准规定：  
+ - 当 i >= 0 且 i < N 时，p \+ i 的结果不会溢出  
+ - 当 i 等于 N 时，p \+ i 的结果不会溢出，但不可对其解引用  
+ - 当 i < 0 或 i > N 时，p \+ i 的结果可能会溢出  
+ - 使数组下标超出 \[0, N\] 的运算可能会使指针值溢出，导致未定义的行为  
+  
+示例：
+```
+int a[10];
+int *p, *e;
+
+p = a + 0;    // Compliant
+p = a + 5;    // Compliant
+e = a + 10;   // Compliant, won't overflow
+
+p = a - 1;    // Non-compliant, the array subscript is -1, which exceeds [0, N]
+e = a + 11;   // Non-compliant, the array subscript is 11, which exceeds [0, N]
+
+--p;          // Non-compliant, may overflow
+e++;          // Non-compliant, may overflow
+```
+<br/>
+<br/>
+
+#### 相关
+ID_bufferOverflow  
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.5.6(8)-undefined  
+ISO/IEC 9899:2011 6.5.6(8)-undefined  
+ISO/IEC 14882:2003 5.7(5)-undefined  
+ISO/IEC 14882:2011 5.7(5)-undefined  
+<br/>
+
+#### 参考
+MISRA C 2004 17.1  
+MISRA C 2012 18.1  
+MISRA C++ 2008 5-0-16  
+SEI CERT ARR30-C  
+<br/>
+<br/>
+
+### <span id="illptrdiff">▌R14.6 未指向同一数组的指针不可相减</span>
+
+ID_illPtrDiff &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: pointer warning
+
+<hr/>
+
+不在同一数组中的地址之间没有连续性，未指向同一数组的指针相减往往意味着逻辑错误，也会导致标准未定义的行为。  
+  
+如果两个指针的值均为同一数组中的元素地址，或该数组末尾元素的下一个地址，则称两个指针指向同一个数组，其差值为相应地址之间的距离，否则其差值不具备正确意义。  
+  
+示例：
+```
+ptrdiff_t d;
+
+int i, j;
+d = &j - &i;   // Non-compliant, undefined if overflow
+
+int x[8], y[8];
+d = &x[1] - &x[0];   // Compliant, ‘d’ is 1
+d = &y[1] - &x[0];   // Non-compliant, undefined if overflow
+
+int* p = &i;
+int* q = NULL;
+d = p - q;      // Non-compliant
+```
+<br/>
+<br/>
+
+#### 相关
+ID_illPtrComparison  
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.5.6(9)-undefined  
+ISO/IEC 9899:2011 6.5.6(9)-undefined  
+ISO/IEC 14882:2003 5.7(6)-undefined  
+ISO/IEC 14882:2011 5.7(6)-undefined  
+<br/>
+
+#### 参考
+MISRA C 2004 17.2  
+MISRA C 2012 18.2  
+MISRA C++ 2008 5-0-17  
+SEI CERT ARR36-C  
+<br/>
+<br/>
+
+### <span id="illptrcomparison">▌R14.7 未指向同一数组或同一对象的指针不可比较大小</span>
+
+ID_illPtrComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: pointer warning
+
+<hr/>
+
+不在同一数组或同一对象中的地址之间没有前后关系，比较这种地址的大小往往意味着逻辑错误，也会导致标准未定义或未声明的行为。  
+  
+对于 C\+\+ 语言，即使在同一对象中：  
+ - 静态成员之间  
+ - 静态成员与非静态成员之间  
+ - 由 access\-specifier 分隔的成员之间  
+  
+也不应比较地址的大小。  
+  
+示例：
+```
+bool b;
+
+int i, j;
+b = &j > &i;   // Non-compliant, undefined in C, unspecified in C++
+
+struct A {
+    int i, j;
+} a;
+b = &a.j > &a.i;   // Compliant, ‘b’ is true
+
+class B {
+    static int i;
+    int j;
+public:                   // access-specifier
+    int k;
+    int foo() {
+        return &i < &j    // Non-compliant, unspecified
+            || &j < &k;   // Non-compliant, unspecified
+    }
+};
+```
+另外，指针与空指针之间也不应比较大小：
+```
+int* p = &foo;
+bool b = p < NULL;              // Non-compliant
+```
+指针与空指针比较大小是一种常见笔误，对此本规则特化为 ID\_oddPtrZeroComparison。
+<br/>
+<br/>
+
+#### 相关
+ID_illPtrDiff  
+ID_oddPtrZeroComparison  
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.5.8(5)-undefined  
+ISO/IEC 9899:2011 6.5.8(5)-undefined  
+ISO/IEC 14882:2003 5.9(2)-unspecified  
+ISO/IEC 14882:2011 5.9(2)-unspecified  
+<br/>
+
+#### 参考
+C++ Core Guidelines ES.62  
+MISRA C 2004 17.3  
+MISRA C 2012 18.3  
+MISRA C++ 2008 5-0-18  
+SEI CERT ARR36-C  
+<br/>
+<br/>
+
+### <span id="illptrarithmetic">▌R14.8 未指向数组元素的指针不可与整数加减</span>
+
+ID_illPtrArithmetic &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: pointer warning
+
+<hr/>
+
+不在同一数组中的地址之间没有连续性，对未指向数组元素的指针进行加减运算往往意味着逻辑错误，也会导致标准未定义的行为。  
+  
+指向单个对象的指针，以及空指针、未初始化的或已被释放的指针均受本规则约束。  
+  
+示例：
+```
+int *p, i;
+
+p = NULL;
+p++;       // Non-compliant
+p--;       // Non-compliant
+
+p = &i;
+p += 1;    // Non-compliant
+p += 2;    // Non-compliant, undefined
+p -= 1;    // Non-compliant, undefined
+```
+又如：
+```
+struct {
+    int x, y;
+    int a[2];
+} obj;
+assert(&obj.x + 1 == &obj.y);         // Non-compliant, no guarantee
+assert(&obj.a[0] + 1 == &obj.a[1]);   // Compliant, well defined
+```
+注意，标准保证排在后面的成员地址大于排在前面的成员地址，但不保证其间是否有填充数据，所以非数组元素的成员之间不应进行指针运算。
+<br/>
+<br/>
+
+#### 相关
+ID_arrayIndexOverflow  
+ID_illPtrDiff  
+ID_illPtrComparison  
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.5.6(8)-undefined  
+ISO/IEC 9899:2011 6.5.6(8)-undefined  
+ISO/IEC 14882:2003 5.7(5)-undefined  
+ISO/IEC 14882:2011 5.7(5)-undefined  
+<br/>
+
+#### 参考
+SEI CERT ARR37-C  
+<br/>
+<br/>
+
+### <span id="invalidnullcheck">▌R14.9 避免无效的空指针检查</span>
 
 ID_invalidNullCheck &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: pointer warning
 
@@ -21660,7 +21714,7 @@ ISO/IEC 14882:2011 18.6
 <br/>
 <br/>
 
-### <span id="repeatednullcheck">▌R14.6 不应重复检查指针是否为空</span>
+### <span id="repeatednullcheck">▌R14.10 不应重复检查指针是否为空</span>
 
 ID_repeatedNullCheck &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: pointer warning
 
@@ -21689,7 +21743,7 @@ ID_invalidNullCheck
 <br/>
 <br/>
 
-### <span id="fixedaddrtopointer">▌R14.7 不应使用非零常量对指针赋值</span>
+### <span id="fixedaddrtopointer">▌R14.11 不应使用非零常量对指针赋值</span>
 
 ID_fixedAddrToPointer &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: pointer warning
 
@@ -21738,7 +21792,7 @@ CWE-587
 <br/>
 <br/>
 
-### <span id="zeroasptrvalue">▌R14.8 不应使用常量 0 表示空指针</span>
+### <span id="zeroasptrvalue">▌R14.12 不应使用常量 0 表示空指针</span>
 
 ID_zeroAsPtrValue &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: pointer suggestion
 
@@ -21785,7 +21839,70 @@ MISRA C++ 2008 4-10-2
 <br/>
 <br/>
 
-### <span id="oddptrboolassignment">▌R14.9 不应使用 false 对指针赋值</span>
+### <span id="mixnullptrandnull">▌R14.13 在 C++ 代码中 NULL 和 nullptr 不应混用</span>
+
+ID_mixNullptrAndNULL &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: pointer warning
+
+<hr/>
+
+在 C\+\+ 代码中 NULL 和 nullptr 不应混用，应统一使用 nullptr。  
+  
+示例：
+```
+void foo(int* a = NULL, int* b = nullptr);    // Non-compliant
+void bar(int* a = nullptr, int* b = nullptr);    // Compliant
+```
+<br/>
+<br/>
+
+#### 相关
+ID_deprecatedNULL  
+<br/>
+
+#### 参考
+C++ Core Guidelines ES.47  
+<br/>
+<br/>
+
+### <span id="deprecatednull">▌R14.14 在 C++ 代码中用 nullptr 代替 NULL</span>
+
+ID_deprecatedNULL &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: pointer suggestion
+
+<hr/>
+
+标识符 NULL 由实现定义，在 C\+\+ 语言中往往等同于常量 0，无法有效区分整数与指针，用 nullptr 可避免这种问题。  
+  
+示例：
+```
+void foo(int) {
+    cout << "foo-1\n";
+}
+
+void foo(int*) {
+    cout << "foo-2\n";
+}
+
+int main() {
+    foo(NULL);  // Non-compliant, what is output?
+}
+```
+NULL 表示空指针，所以应该调用参数为指针的重载函数，但不同的编译器对这段代码有不同的处理，有的无法通过编译，有的编译执行后会输出 foo\-1，用 nullptr 代替 NULL 可解决这种问题。
+<br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 C.2.2.3(1)-implementation  
+ISO/IEC 14882:2011 2.14.7(1)  
+ISO/IEC 14882:2011 C.3.2.4(1)-implementation  
+ISO/IEC 14882:2017 C.5.2.7(1)-implementation  
+<br/>
+
+#### 参考
+C++ Core Guidelines ES.47  
+<br/>
+<br/>
+
+### <span id="oddptrboolassignment">▌R14.15 不应使用 false 对指针赋值</span>
 
 ID_oddPtrBoolAssignment &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: pointer warning
 
@@ -21819,7 +21936,7 @@ CWE-351
 <br/>
 <br/>
 
-### <span id="oddptrcharassignment">▌R14.10 不应使用 '\0' 等字符常量对指针赋值</span>
+### <span id="oddptrcharassignment">▌R14.16 不应使用 '\0' 等字符常量对指针赋值</span>
 
 ID_oddPtrCharAssignment &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: pointer warning
 
@@ -21853,7 +21970,7 @@ CWE-351
 <br/>
 <br/>
 
-### <span id="oddptrboolcomparison">▌R14.11 指针不应与 false 比较大小</span>
+### <span id="oddptrboolcomparison">▌R14.17 指针不应与 false 比较大小</span>
 
 ID_oddPtrBoolComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: pointer warning
 
@@ -21881,7 +21998,7 @@ CWE-1025
 <br/>
 <br/>
 
-### <span id="oddptrcharcomparison">▌R14.12 指针不应与 '\0' 等字符常量比较大小</span>
+### <span id="oddptrcharcomparison">▌R14.18 指针不应与 '\0' 等字符常量比较大小</span>
 
 ID_oddPtrCharComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: pointer warning
 
@@ -21916,7 +22033,7 @@ CWE-1025
 <br/>
 <br/>
 
-### <span id="oddptrzerocomparison">▌R14.13 指针与空指针不应比较大小</span>
+### <span id="oddptrzerocomparison">▌R14.19 指针与空指针不应比较大小</span>
 
 ID_oddPtrZeroComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: pointer warning
 
@@ -21955,7 +22072,7 @@ CWE-1025
 <br/>
 <br/>
 
-### <span id="this_zerocomparison">▌R14.14 不应判断 this 指针是否为空</span>
+### <span id="this_zerocomparison">▌R14.20 不应判断 this 指针是否为空</span>
 
 ID_this_zeroComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: pointer warning
 
@@ -21987,7 +22104,7 @@ CWE-1025
 <br/>
 <br/>
 
-### <span id="this_forbiddeletethis">▌R14.15 禁用 delete this</span>
+### <span id="this_forbiddeletethis">▌R14.21 禁用 delete this</span>
 
 ID_this_forbidDeleteThis &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: pointer suggestion
 
@@ -22025,7 +22142,7 @@ CWE-1082
 <br/>
 <br/>
 
-### <span id="nullderefdynamiccast">▌R14.16 判断 dynamic_cast 转换是否成功</span>
+### <span id="nullderefdynamiccast">▌R14.22 判断 dynamic_cast 转换是否成功</span>
 
 ID_nullDerefDynamicCast &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: pointer warning
 
@@ -22066,7 +22183,7 @@ C++ Core Guidelines C.148
 <br/>
 <br/>
 
-### <span id="missingresetnull">▌R14.17 释放指针后应将指针赋值为空或其他有效值</span>
+### <span id="missingresetnull">▌R14.23 释放指针后应将指针赋值为空或其他有效值</span>
 
 ID_missingResetNull &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: pointer suggestion
 
@@ -22121,7 +22238,7 @@ SEI CERT MEM01-C
 <br/>
 <br/>
 
-### <span id="missingaddressoperator">▌R14.18 函数取地址时应显式使用 & 运算符</span>
+### <span id="missingaddressoperator">▌R14.24 函数取地址时应显式使用 & 运算符</span>
 
 ID_missingAddressOperator &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: pointer suggestion
 
@@ -22142,7 +22259,7 @@ MISRA C++ 2008 8-4-4
 <br/>
 <br/>
 
-### <span id="missingarrayindexing">▌R14.19 指针运算应使用数组下标的方式</span>
+### <span id="missingarrayindexing">▌R14.25 指针运算应使用数组下标的方式</span>
 
 ID_missingArrayIndexing &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: pointer suggestion
 
@@ -22175,60 +22292,6 @@ MISRA C 2004 17.4
 MISRA C 2012 18.4  
 MISRA C++ 2008 5-0-15  
 SEI CERT EXP08-C  
-<br/>
-<br/>
-
-### <span id="illptrarithmetic">▌R14.20 未指向数组元素的指针不可与整数加减</span>
-
-ID_illPtrArithmetic &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: pointer warning
-
-<hr/>
-
-不在同一数组中的地址之间没有连续性，对未指向数组元素的指针进行加减运算往往意味着逻辑错误，也会导致标准未定义的行为。  
-  
-指向单个对象的指针，以及空指针、未初始化的或已被释放的指针均受本规则约束。  
-  
-示例：
-```
-int *p, i;
-
-p = NULL;
-p++;       // Non-compliant
-p--;       // Non-compliant
-
-p = &i;
-p += 1;    // Non-compliant
-p += 2;    // Non-compliant, undefined
-p -= 1;    // Non-compliant, undefined
-```
-又如：
-```
-struct {
-    int x, y;
-    int a[2];
-} obj;
-assert(&obj.x + 1 == &obj.y);         // Non-compliant, no guarantee
-assert(&obj.a[0] + 1 == &obj.a[1]);   // Compliant, well defined
-```
-注意，标准保证排在后面的成员地址大于排在前面的成员地址，但不保证其间是否有填充数据，所以非数组元素的成员之间不应进行指针运算。
-<br/>
-<br/>
-
-#### 相关
-ID_arrayIndexOverflow  
-ID_illPtrDiff  
-ID_illPtrComparison  
-<br/>
-
-#### 依据
-ISO/IEC 9899:1999 6.5.6(8)-undefined  
-ISO/IEC 9899:2011 6.5.6(8)-undefined  
-ISO/IEC 14882:2003 5.7(5)-undefined  
-ISO/IEC 14882:2011 5.7(5)-undefined  
-<br/>
-
-#### 参考
-SEI CERT ARR37-C  
 <br/>
 <br/>
 
@@ -23109,70 +23172,7 @@ C++ Core Guidelines NL.4
 <br/>
 <br/>
 
-### <span id="mixnullptrandnull">▌R17.6 在 C++ 代码中 NULL 和 nullptr 不应混用</span>
-
-ID_mixNullptrAndNULL &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style warning
-
-<hr/>
-
-在 C\+\+ 代码中 NULL 和 nullptr 不应混用，应统一使用 nullptr。  
-  
-示例：
-```
-void foo(int* a = NULL, int* b = nullptr);    // Non-compliant
-void bar(int* a = nullptr, int* b = nullptr);    // Compliant
-```
-<br/>
-<br/>
-
-#### 相关
-ID_deprecatedNULL  
-<br/>
-
-#### 参考
-C++ Core Guidelines ES.47  
-<br/>
-<br/>
-
-### <span id="deprecatednull">▌R17.7 在 C++ 代码中用 nullptr 代替 NULL</span>
-
-ID_deprecatedNULL &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestion
-
-<hr/>
-
-标识符 NULL 由实现定义，在 C\+\+ 语言中往往等同于常量 0，无法有效区分整数与指针，用 nullptr 可避免这种问题。  
-  
-示例：
-```
-void foo(int) {
-    cout << "foo-1\n";
-}
-
-void foo(int*) {
-    cout << "foo-2\n";
-}
-
-int main() {
-    foo(NULL);  // Non-compliant, what is output?
-}
-```
-NULL 表示空指针，所以应该调用参数为指针的重载函数，但不同的编译器对这段代码有不同的处理，有的无法通过编译，有的编译执行后会输出 foo\-1，用 nullptr 代替 NULL 可解决这种问题。
-<br/>
-<br/>
-
-#### 依据
-ISO/IEC 14882:2003 C.2.2.3(1)-implementation  
-ISO/IEC 14882:2011 2.14.7(1)  
-ISO/IEC 14882:2011 C.3.2.4(1)-implementation  
-ISO/IEC 14882:2017 C.5.2.7(1)-implementation  
-<br/>
-
-#### 参考
-C++ Core Guidelines ES.47  
-<br/>
-<br/>
-
-### <span id="redundantparentheses">▌R17.8 避免多余的括号</span>
+### <span id="redundantparentheses">▌R17.6 避免多余的括号</span>
 
 ID_redundantParentheses &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestion
 
@@ -23207,7 +23207,7 @@ MISRA C++ 2008 5-0-2
 <br/>
 <br/>
 
-### <span id="redundantsemicolon">▌R17.9 避免多余的分号</span>
+### <span id="redundantsemicolon">▌R17.7 避免多余的分号</span>
 
 ID_redundantSemicolon &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestion
 
