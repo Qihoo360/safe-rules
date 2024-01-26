@@ -4360,6 +4360,10 @@ ISO/IEC 9899:2011 6.4.7(3)-undefined
 ISO/IEC 14882:2003 2.8(2)-undefined  
 ISO/IEC 14882:2011 2.9(2)-implementation  
 <br/>
+
+#### 参考
+CWE-1113  
+<br/>
 <br/>
 
 ### <span id="precompile.file">3.6 File</span>
@@ -10205,7 +10209,7 @@ ID_staticNotUsed &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: declaration warning
 
 没有被用到的静态声明往往是没有意义的，应删除或修正引用关系。  
   
-类的静态成员可不受本规则限制。  
+类的静态成员不受本规则限制；当静态对象的构造或析构函数有特殊副作用时可不受规则限制；具有 \[\[maybe\_unused\]\] 或同等属性的对象和函数也不受本规则限制，但应给出合理的解释。  
   
 示例：
 ```
@@ -10216,6 +10220,7 @@ int main() {
     return foo();
 }
 ```
+例中静态函数 bar 没有被用到，可能是冗余代码，也可能是调用关系有误。
 <br/>
 <br/>
 
@@ -10290,7 +10295,7 @@ int foo(int n) {
 ```
 具有特定构造或析构函数的 C\+\+ 对象可以做到“声明即使用”，但要注意如下情况：
 ```
-class LockGuard {
+struct LockGuard {
     LockGuard();
    ~LockGuard();
 };
@@ -10300,7 +10305,7 @@ void bar() {
     do_something();
 }
 ```
-例中 guard 意在实现某种 RAII 锁，但 LockGuard guard(); 声明的是函数而不是对象，构造和析构函数不会按预期执行，这也是一种常见笔误。  
+例中 guard 意在实现某种 RAII 锁，但 LockGuard guard(); 是函数而不是对象，构造和析构函数不会按预期执行，这也是一种常见笔误。  
   
 应改为：
 ```
@@ -10309,7 +10314,20 @@ void bar() {
     do_something();
 }
 ```
+在某些特殊情况中，如断言中的变量在发布版本中没有被用到：
+```
+void test(int a, int b) {
+    [[maybe_unused]] bool x = a > b;  // C++17 attribute,
+                                      // or use __attribute__((unused)) in GCC,
+    assert(x);                        // assert is compiled out in release mode
+}
+```
+例中变量 x 在定义了 NDEBUG 的版本中没有被用到，并使用 \[\[maybe\_unused\]\] 属性声明，这种情况可不受本规则限制。
 <br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2017 10.6.6  
 <br/>
 
 #### 参考
@@ -11842,7 +11860,7 @@ ID_paramNotUsed &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: function suggestion
 
 如果函数的某个参数在函数内没有被用到，意味着函数的功能与设计之间存在差距。  
   
-如果某个参数确实不需要被用到，应尽量从参数列表中将其删除，如果需要遵循某种约定而必须保留参数（如虚函数或回调函数），在 C\+\+ 代码中不妨将参数的名称删掉，在 C 代码中可用 void 转换指明未使用的参数在预期之内，并用注释说明参数未被使用的原因。  
+如果某个参数确实不需要被用到，应尽量从参数列表中将其删除，如果需要遵循某种约定而必须保留参数（如虚函数或回调函数等），在 C\+\+ 代码中不妨将参数的名称删掉，或使用 C\+\+17 属性 \[\[maybe\_unused\]\] 标注，在 C 代码中可用显式 void 转换指明未使用的参数在预期之内，并用注释说明参数未被使用的原因。  
   
 示例：
 ```
@@ -11857,11 +11875,15 @@ int foo(int x) {   // Compliant in C
     return 0;
 }
 
-int foo(int) {     // Compliant in C++
+int foo(int) {     // Compliant in C++, or use ‘[[maybe_unused]] int x’ in C++17
     return 0;
 }
 ```
 <br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2017 10.6.6  
 <br/>
 
 #### 参考
@@ -14826,10 +14848,11 @@ ID_while_assignment &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: control warning
 
 虽然语言允许在 while 语句的条件中赋值，但 = 和 == 极易混淆，建议所有产生 bool 型结果的表达式，都不要包含赋值运算符。  
   
+本规则是 ID\_assignmentAsSubExpression 的特化。  
+  
 示例：
 ```
-while (x = 123)  // Non-compliant
-{
+while (x = 123) { // Non-compliant
     ....
 }
 ```
@@ -14837,7 +14860,7 @@ while (x = 123)  // Non-compliant
 <br/>
 
 #### 相关
-ID_if_assignment  
+ID_assignmentAsSubExpression  
 <br/>
 
 #### 参考
@@ -17724,15 +17747,27 @@ ID_assignmentAsSubExpression &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: expression su
 a = b;    // Compliant
 a += b;   // Compliant
 
+a += b += c;     // Non-compliant
+fun(a = b, c);   // Non-compliant
+
+if (a = b) {   // Non-compliant
+    ....
+}
+switch (a = b) {   // Non-compliant
+    ....
+}
 while (a = b) {   // Non-compliant
     ....
 }
-if (a = b != 0) {   // Non-compliant
+for (; a = b; ) {   // Non-compliant
     ....
 }
-a += b += c;     // Non-compliant
-fun(a = b, c);   // Non-compliant
+do {
+    ....
+} while (a = b);   // Non-compliant
 ```
+赋值表达式的值被使用，或作为控制语句的条件是不符合要求的。  
+  
 连续赋值是一种惯用方式，但不值得提倡，如：
 ```
 a = b = c;   // Let it go?
@@ -18056,10 +18091,10 @@ int main() {
     fun();           // Non-compliant
     int r = fun();   // Compliant, ‘r’ should be used in subsequent code
     ....
-    (void)fun();     // Let it go?
+    static_cast<void>(fun());   // Let it go?
 }
 ```
-经 void 转换的函数调用可以认为是有意放弃返回值，审计工具不妨通过配置决定是否放过这种情况。
+如果确实不需要使用返回值，可对函数调用表达式进行显式 void 转换，但应给出合理的解释，审计工具不妨通过配置决定是否放过这种情况。
 <br/>
 <br/>
 
@@ -18068,6 +18103,8 @@ allowVoidCastedDiscard：是否允许通过 void 转换忽略返回值
 <br/>
 
 #### 依据
+ISO/IEC 14882:2003 5.2.9(4)  
+ISO/IEC 14882:2011 5.2.9(6)  
 ISO/IEC 14882:2017 10.6.7  
 <br/>
 
@@ -20872,7 +20909,7 @@ ID_redundantCast &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: cast warning
   
 不应出现下列情况：  
  - 原类型与转换后的类型完全相同  
- - 非 void 转换的结果没有被读取  
+ - 非 void 转换的结果没有被使用  
   
 示例：
 ```
@@ -20896,7 +20933,7 @@ float bar(int y) {
     return (float)y;   // Compliant
 }
 ```
-可用 void 转换表示有意放弃读取，但对无返回值的函数不应再使用 void 转换，如：
+可用显式 void 转换表示有意放弃表达式的值，但对无返回值的函数调用不应再使用 void 转换，如：
 ```
 char foo();
 void bar();
@@ -22993,17 +23030,23 @@ ID_inconsistentStyle &emsp;&emsp;&emsp;&emsp;&nbsp; :womans_hat: style suggestio
 
 <hr/>
 
-遵循统一的命名、空格、缩进、换行等风格有利于提高代码可读性。  
+统一的代码编写风格有利于相关人员按统一的方式理解和维护代码，避免各种偏差，也有利于排查问题，并增强协作开发效率。  
+  
+软件项目应至少对命名、注释、换行、缩进、空格的风格制定明确规范，可参见相关规则的进一步讨论。  
   
 示例：
 ```
-int a = 0XAB;
-int b = 0xcd;   // Inconsistent
+enum E {
+    e0 = 0XAB, e1 = 0xcd   // Inconsistent
+};
 
-if (p != NULL && nullptr != q) {   // Inconsistent
-    ....
+void foo(E x, E y) {
+    if (x == e0 && e1 == y) {   // Inconsistent
+        ....
+    }
 }
 ```
+例中 16 进制常量大小写应统一，常量与变量比较时，常量也最好出现在运算符的同一侧。
 <br/>
 <br/>
 
@@ -23012,6 +23055,7 @@ ID_inconsistentNaming
 ID_inconsistentIndent  
 ID_spaceStyle  
 ID_braceStyle  
+ID_badCommentPosition  
 <br/>
 
 #### 参考
@@ -23099,6 +23143,10 @@ if(cond)                // Missing a unified style
 #### 相关
 ID_inconsistentStyle  
 ID_stickyAssignmentOperator  
+<br/>
+
+#### 参考
+CWE-1114  
 <br/>
 <br/>
 

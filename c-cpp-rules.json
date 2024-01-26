@@ -1212,7 +1212,8 @@
         "level": "suggestion",
         "comment": "与运算符、标点符、关键字相关的空格应遵循统一风格，过于随意的空格会干扰阅读，甚至会造成笔误。",
         "tag": "style",
-        "related": "ID_inconsistentStyle,ID_stickyAssignmentOperator"
+        "related": "ID_inconsistentStyle,ID_stickyAssignmentOperator",
+        "reference": "CWE-1114"
         },
     "ID_braceStyle": {
         "checkPoint": "遵循统一的大括号风格",
@@ -1541,7 +1542,7 @@
         "config": [
             "allowVoidCastedDiscard: 是否允许通过 void 转换忽略返回值"
             ],
-        "standard": "ISO/IEC 14882:2017 10.6.7",
+        "standard": "ISO/IEC 14882:2003 5.2.9(4),ISO/IEC 14882:2011 5.2.9(6),ISO/IEC 14882:2017 10.6.7",
         "reference": "MISRA C 2012 17.7,MISRA C++ 2008 0-1-7,SEI CERT EXP12-C"
         },
     "ID_oddPtrCharComparison": {
@@ -2113,6 +2114,7 @@
         "level": "warning",
         "comment": "没有被用到的局部声明是没有意义的，往往意味着代码冗余或功能不完整，也可能导致严重的逻辑错误。",
         "tag": "declaration",
+        "standard": "ISO/IEC 14882:2017 10.6.6",
         "reference": "MISRA C++ 2008 0-1-3"
         },
     "ID_tooManyParams": {
@@ -2131,6 +2133,7 @@
         "level": "suggestion",
         "comment": "如果函数的某个参数在函数内没有被用到，意味着函数的功能与设计之间存在差距。",
         "tag": "function",
+        "standard": "ISO/IEC 14882:2017 10.6.6",
         "reference": "C++ Core Guidelines F.9,MISRA C 2012 2.7,MISRA C++ 2008 0-1-11"
         },
     "ID_inconsistentParamName": {
@@ -2510,7 +2513,7 @@
         "level": "warning",
         "comment": "虽然语言允许在 while 语句的条件中赋值，但 = 和 == 极易混淆，建议所有产生 bool 型结果的表达式，都不要包含赋值运算符。",
         "tag": "control",
-        "related": "ID_if_assignment",
+        "related": "ID_assignmentAsSubExpression",
         "reference": "CWE-480,CWE-783"
         },
     "ID_while_scope": {
@@ -3676,7 +3679,8 @@
         "level": "suggestion",
         "comment": "注释应出现在段落的前后或行尾，不应出现在行首或中间，否则干扰阅读，甚至会导致标准未定义的行为。",
         "tag": "precompile",
-        "standard": "ISO/IEC 9899:1999 6.4.7(3)-undefined,ISO/IEC 9899:2011 6.4.7(3)-undefined,ISO/IEC 14882:2003 2.8(2)-undefined,ISO/IEC 14882:2011 2.9(2)-implementation"
+        "standard": "ISO/IEC 9899:1999 6.4.7(3)-undefined,ISO/IEC 9899:2011 6.4.7(3)-undefined,ISO/IEC 14882:2003 2.8(2)-undefined,ISO/IEC 14882:2011 2.9(2)-implementation",
+        "reference": "CWE-1113"
         },
     "ID_badBackslash": {
         "checkPoint": "除转义字符、宏定义之外不应使用反斜杠",
@@ -4256,9 +4260,9 @@
     "ID_inconsistentStyle": {
         "checkPoint": "遵循统一的代码编写风格",
         "level": "suggestion",
-        "comment": "遵循统一的命名、空格、缩进、换行等风格有利于提高代码可读性。",
+        "comment": "统一的代码编写风格有利于相关人员按统一的方式理解和维护代码，避免各种偏差，也有利于排查问题，并增强协作开发效率。",
         "tag": "style",
-        "related": "ID_inconsistentNaming,ID_inconsistentIndent,ID_spaceStyle,ID_braceStyle",
+        "related": "ID_inconsistentNaming,ID_inconsistentIndent,ID_spaceStyle,ID_braceStyle,ID_badCommentPosition",
         "reference": "CWE-1078"
         },
     "ID_inconsistentNaming": {
