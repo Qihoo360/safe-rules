@@ -188,7 +188,7 @@
 <span id="__global">**[4. Global](#global)**</span>
   - [R4.1 全局名称应遵循合理的命名方式](#nametooshort)
   - [R4.2 为代码设定合理的命名空间](#missingnamespace)
-  - [R4.3 main 函数只应处于全局作用域中](#nonglobalmain)
+  - [R4.3 main 函数只应位于全局作用域中](#nonglobalmain)
   - [R4.4 不应在头文件中使用 using directive](#usingnamespaceinheader)
   - [R4.5 不应在头文件中使用静态声明](#staticinheader)
   - [R4.6 不应在头文件中定义匿名命名空间](#anonymousnamespaceinheader)
@@ -525,7 +525,7 @@
     - [R10.3.5 除法和求余运算符左右子表达式不应相同](#selfdivision)
     - [R10.3.6 减法运算符左右子表达式不应相同](#selfsubtraction)
     - [R10.3.7 异或运算符左右子表达式不应相同](#selfexclusiveor)
-    - [R10.3.8 &=、|=、\-=、/=、%= 左右子表达式不应相同](#illselfcompoundassignment)
+    - [R10.3.8 &=、|=、^=、\-=、/=、%= 左右子表达式不应相同](#illselfcompoundassignment)
     - [R10.3.9 比较运算符左右子表达式不应相同](#selfcomparison)
     - [R10.3.10 不应重复使用一元运算符](#repeatedunaryoperators)
   - [10.4 Assignment](#expression.assignment)
@@ -1176,6 +1176,7 @@ ID_obsoleteStdFunction
 
 #### 参考
 CWE-477  
+SEI CERT MSC24-C  
 <br/>
 <br/>
 
@@ -2610,7 +2611,9 @@ int* p = (int*)malloc(n * sizeof(int));
 ....
 realloc(p, 0);   // Non-compliant, use free(p) instead
 ```
-C90 规定当 realloc 函数的长度参数为 0 时会释放内存，与 free(p) 相同，但在后续标准中废弃了这一特性，不应继续使用。
+C90 规定当 realloc 函数的长度参数为 0 时会释放内存，与 free(p) 相同，但在后续标准中废弃了这一特性，不应继续使用。  
+  
+这种情况下 C\+\+ 语言的 new 运算符会分配元素个数为 0 的数组，但这种数组往往没有实际价值，而且要注意，在 C 和 C\+\+ 语言中元素个数为 0 的数组也需要被释放。
 <br/>
 <br/>
 
@@ -2618,6 +2621,8 @@ C90 规定当 realloc 函数的长度参数为 0 时会释放内存，与 free(p
 ISO/IEC 9899:1990 7.10.3.4  
 ISO/IEC 9899:1999 7.20.3(1)-implementation  
 ISO/IEC 9899:2011 7.22.3(1)-implementation  
+ISO/IEC 14882:2003 5.3.4(7)  
+ISO/IEC 14882:2011 5.3.4(7)  
 <br/>
 
 #### 参考
@@ -4724,7 +4729,7 @@ MISRA C++ 2008 7-3-1
 <br/>
 <br/>
 
-### <span id="nonglobalmain">▌R4.3 main 函数只应处于全局作用域中</span>
+### <span id="nonglobalmain">▌R4.3 main 函数只应位于全局作用域中</span>
 
 ID_nonGlobalMain &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: global warning
 
@@ -10314,7 +10319,7 @@ void bar() {
     do_something();
 }
 ```
-在某些特殊情况中，如断言中的变量在发布版本中没有被用到：
+在某些特殊情况下，如断言中的变量在发布版本中没有被用到：
 ```
 void test(int a, int b) {
     [[maybe_unused]] bool x = a > b;  // C++17 attribute,
@@ -12980,6 +12985,7 @@ ISO/IEC 14882:2017 8.1.5.2
 C++ Core Guidelines F.52  
 C++ Core Guidelines F.53  
 C++ Core Guidelines F.54  
+SEI CERT EXP61-CPP  
 <br/>
 <br/>
 
@@ -13620,6 +13626,10 @@ size_t bar(size_t n) {
 ```
 例中 bar 函数设置了递归条件，但仍是不可取的，当参数 n 较大时仍然可以造成栈溢出错误。
 <br/>
+<br/>
+
+#### 依据
+ISO/IEC 14882:2011 5.2.2(9)  
 <br/>
 
 #### 参考
@@ -17427,29 +17437,26 @@ ID_selfAssignment &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
 <hr/>
 
-赋值运算符左右子表达式相同是没有逻辑意义的，往往是笔误或残留代码。  
+左右子表达式相同的赋值表达式不改变对象的值，往往是笔误或残留代码。  
   
 示例：
 ```
 a = a;       // Non-compliant
 a = b = a;   // Non-compliant
 ```
-也可能是对语言特性不了解所致，如：
+有时这种代码被用来消除编译警告，编译器可能会报出没有被用到的参数，将参数赋值给自身可去除警告，但这并不是一种好方法，引入了没有实际意义的代码，改进方法可参见 ID\_paramNotUsed。  
+  
+有时为了设置调试断点，但又找不到合适的位置，可以增加这种代码作为断点，但这种非正式的代码是不应被保留的。  
+  
+又如：
 ```
 class A {
     int a;
-
 public:
-    A(int a) {
-        a = a;   // Non-compliant, ‘a’ is not the member
-    }
+    A(int a) { a = a; }   // Non-compliant, ‘a’ is not the member
 };
 ```
-例中构造函数对成员 a 的赋值是无效的，应改为 this\->a = a;  
-  
-有时这种代码被用来消除编译警告，编译器可能会报出没有被用到的参数，将参数赋值给自身可去除警告，但这并不是一种好方法，引入了没有实际意义的代码，改进方法可参见 ID\_paramNotUsed。  
-  
-有时为了设置调试断点，但又找不到合适的位置，可以增加这种代码作为断点，但这种非正式的代码是不应被保留的。
+例中构造函数对成员 a 的赋值是无效的，应改为 this\->a = a，或在初始化列中完成赋值。
 <br/>
 <br/>
 
@@ -17464,7 +17471,7 @@ ID_selfDivision &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
 <hr/>
 
-除法或求余运算符左右子表达式相同，结果总为 1 或 0 以及产生除零异常，往往是某种笔误。  
+与自身相除的结果总为 1，对自身求余的结果总为 0，往往是某种笔误。  
   
 示例：
 ```
@@ -17486,7 +17493,7 @@ ID_selfSubtraction &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
 <hr/>
 
-与自身做减法，结果总为 0，往往是某种笔误。  
+与自身相减的结果总为 0，往往是某种笔误。  
   
 示例：
 ```
@@ -17509,11 +17516,10 @@ ID_selfExclusiveOr &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
 <hr/>
 
-与自身异或的结果总为 0，而且也可能意味着某种错误。  
+与自身异或的结果总为 0。  
   
 示例：
 ```
-a ^= a;      // Non-compliant
 a = a ^ a;   // Non-compliant
 ```
 这种代码可能是为了对变量清零，也可能是笔误，即使没有逻辑错误，也应将变量直接赋值为 0 以提高可读性。
@@ -17525,26 +17531,26 @@ CWE-682
 <br/>
 <br/>
 
-### <span id="illselfcompoundassignment">▌R10.3.8 &=、|=、-=、/=、%= 左右子表达式不应相同</span>
+### <span id="illselfcompoundassignment">▌R10.3.8 &=、|=、^=、-=、/=、%= 左右子表达式不应相同</span>
 
 ID_illSelfCompoundAssignment &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
 <hr/>
 
-&=、|= 左右子表达式如果相同则没有任何效果，\-=、/=、%= 左右子表达式相同则结果总为 1 或 0，这种表达式往往意味着笔误或逻辑错误。  
+当左右子表达式相同时，&=、|= 表达式不改变对象的值，^=、\-=、/=、%= 表达式的结果总为 0 或 1。  
   
 示例（设 a 为变量或表达式）：
 ```
 a &= a;  // Non-compliant, no effect
 a |= a;  // Non-compliant, no effect
 ```
-如果目的是清零或置 1，也不建议使用下列表达式：
+如果目的是清零或置 1，也不应使用下列表达式：
 ```
 a -= a;  // Non-compliant, tedious
 a /= a;  // Non-compliant, low efficiency
 a %= a;  // Non-compliant, low efficiency
 ```
-对于高级语言来说，应该直接将变量赋值为 0 或 1，而不是采用更繁琐甚至低效的方式。
+对于高级语言来说，应直接将变量赋值为 0 或 1，而不是采用更繁琐甚至低效的方式。
 <br/>
 <br/>
 
@@ -17559,7 +17565,7 @@ ID_selfComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
 <hr/>
 
-与自身的比较是没意义的，往往是某种笔误。  
+与自身比较的结果恒为真或恒为假，往往是某种笔误。  
   
 示例（设 a 为变量或表达式）：
 ```
@@ -17782,6 +17788,7 @@ allowSuccessiveAssignment：是否允许连续赋值
 
 #### 相关
 ID_if_assignment  
+ID_while_assignment  
 <br/>
 
 #### 参考

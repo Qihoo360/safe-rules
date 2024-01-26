@@ -242,7 +242,7 @@
         "tag": "function",
         "standard": "ISO/IEC 14882:2011 5.1.2,ISO/IEC 14882:2017 8.1.5.2",
         "related": "ID_localAddressFlowOut",
-        "reference": "C++ Core Guidelines F.52,C++ Core Guidelines F.53,C++ Core Guidelines F.54"
+        "reference": "C++ Core Guidelines F.52,C++ Core Guidelines F.53,C++ Core Guidelines F.54,SEI CERT EXP61-CPP"
         },
     "ID_tooManyLambdaLines": {
         "checkPoint": "lambda 表达式的行数应在规定范围之内",
@@ -937,7 +937,7 @@
         "reference": "MISRA C++ 2008 7-3-1"
         },
     "ID_nonGlobalMain": {
-        "checkPoint": "main 函数只应处于全局作用域中",
+        "checkPoint": "main 函数只应位于全局作用域中",
         "level": "warning",
         "comment": "main 函数作为程序的入口，链接器需对其特殊处理，不应受命名空间等作用域的限制。",
         "tag": "global",
@@ -1573,42 +1573,42 @@
     "ID_selfComparison": {
         "checkPoint": "比较运算符左右子表达式不应相同",
         "level": "warning",
-        "comment": "与自身的比较是没意义的，往往是某种笔误。",
+        "comment": "与自身比较的结果恒为真或恒为假，往往是某种笔误。",
         "tag": "expression",
         "reference": "CWE-1025"
         },
     "ID_selfSubtraction": {
         "checkPoint": "减法运算符左右子表达式不应相同",
         "level": "warning",
-        "comment": "与自身做减法，结果总为 0，往往是某种笔误。",
+        "comment": "与自身相减的结果总为 0，往往是某种笔误。",
         "tag": "expression",
         "reference": "CWE-682"
         },
     "ID_selfDivision": {
         "checkPoint": "除法和求余运算符左右子表达式不应相同",
         "level": "warning",
-        "comment": "除法或求余运算符左右子表达式相同，结果总为 1 或 0 以及产生除零异常，往往是某种笔误。",
+        "comment": "与自身相除的结果总为 1，对自身求余的结果总为 0，往往是某种笔误。",
         "tag": "expression",
         "reference": "CWE-682"
         },
     "ID_selfAssignment": {
         "checkPoint": "赋值运算符左右子表达式不应相同",
         "level": "warning",
-        "comment": "赋值运算符左右子表达式相同是没有逻辑意义的，往往是笔误或残留代码。",
+        "comment": "左右子表达式相同的赋值表达式不改变对象的值，往往是笔误或残留代码。",
         "tag": "expression",
         "reference": "CWE-682"
         },
     "ID_illSelfCompoundAssignment": {
-        "checkPoint": "&=、|=、-=、/=、%= 左右子表达式不应相同",
+        "checkPoint": "&=、|=、^=、-=、/=、%= 左右子表达式不应相同",
         "level": "warning",
-        "comment": "&=、|= 左右子表达式如果相同则没有任何效果，-=、/=、%= 左右子表达式相同则结果总为 1 或 0，这种表达式往往意味着笔误或逻辑错误。",
+        "comment": "当左右子表达式相同时，&=、|= 表达式不改变对象的值，^=、-=、/=、%= 表达式的结果总为 0 或 1。",
         "tag": "expression",
         "reference": "CWE-682"
         },
     "ID_selfExclusiveOr": {
         "checkPoint": "异或运算符左右子表达式不应相同",
         "level": "warning",
-        "comment": "与自身异或的结果总为 0，而且也可能意味着某种错误。",
+        "comment": "与自身异或的结果总为 0。",
         "tag": "expression",
         "reference": "CWE-682"
         },
@@ -1861,6 +1861,7 @@
         "level": "warning",
         "comment": "函数直接或间接调用自身可实现递归算法，但调用栈的消耗情况不够直观，易导致栈溢出等错误。",
         "tag": "function",
+        "standard": "ISO/IEC 14882:2011 5.2.2(9)",
         "reference": "CWE-674,MISRA C 2012 17.2,MISRA C++ 2008 7-5-4"
         },
     "ID_disorderedInitialization": {
@@ -3379,7 +3380,7 @@
             "allowSuccessiveAssignment: 是否允许连续赋值"
             ],
         "tag": "expression",
-        "related": "ID_if_assignment",
+        "related": "ID_if_assignment,ID_while_assignment",
         "reference": "CWE-481,MISRA C 2004 13.1,MISRA C 2012 13.4,MISRA C++ 2008 6-2-1"
         },
     "ID_incDecAsSubExpression": {
@@ -3513,7 +3514,7 @@
         "comment": "避免使用在相关标准中已过时的接口，应改用更完善的替代方法以规避风险，提高可移植性。",
         "tag": "security",
         "related": "ID_obsoleteStdFunction",
-        "reference": "CWE-477"
+        "reference": "CWE-477,SEI CERT MSC24-C"
         },
     "ID_dangerousFunction": {
         "checkPoint": "避免使用危险接口",
@@ -4254,7 +4255,7 @@
         "level": "warning",
         "comment": "当申请分配的内存空间大小为 0 时，malloc、calloc、realloc 等函数的行为是由实现定义的。",
         "tag": "resource",
-        "standard": "ISO/IEC 9899:1990 7.10.3.4,ISO/IEC 9899:1999 7.20.3(1)-implementation,ISO/IEC 9899:2011 7.22.3(1)-implementation",
+        "standard": "ISO/IEC 9899:1990 7.10.3.4,ISO/IEC 9899:1999 7.20.3(1)-implementation,ISO/IEC 9899:2011 7.22.3(1)-implementation,ISO/IEC 14882:2003 5.3.4(7),ISO/IEC 14882:2011 5.3.4(7)",
         "reference": "SEI CERT MEM04-C"
         },
     "ID_inconsistentStyle": {
