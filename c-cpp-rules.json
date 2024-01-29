@@ -3149,7 +3149,7 @@
         "comment": "有些运算符只关注类型，其子表达式不会被求值，子表达式的副作用也不会有实际效果。",
         "tag": "expression",
         "related": "ID_sideEffectAssertion",
-        "standard": "ISO/IEC 9899:1999 6.5.3.4(2),ISO/IEC 9899:2011 6.5.3.4(2),ISO/IEC 14882:2003 5.3.3(1),ISO/IEC 14882:2011 5.3.3(1),ISO/IEC 14882:2017 8.3.3(1)",
+        "standard": "ISO/IEC 9899:1999 6.5.3.4(2),ISO/IEC 9899:1999 6.7.5.2(5)-unspecified,ISO/IEC 9899:2011 6.5.3.4(2),ISO/IEC 9899:2011 6.7.6.2(5)-unspecified,ISO/IEC 14882:2003 5.3.3(1),ISO/IEC 14882:2011 5.3.3(1),ISO/IEC 14882:2017 8.3.3(1)",
         "reference": "MISRA C 2004 12.3,MISRA C 2012 13.6,MISRA C++ 2008 5-3-4,SEI CERT EXP44-C,SEI CERT EXP52-CPP"
         },
     "ID_sizeof_NULL": {

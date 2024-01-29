@@ -16727,7 +16727,7 @@ sizeof、typeid、noexcept、decltype、declval
 这类运算符不宜作用于逻辑、算术、位运算、函数调用等表达式。  
   
 特殊情况：  
- - 在 C 语言中，如果 sizeof 作用于变长数组类型，数组长度表达式会被求值  
+ - 在 C 语言中，如果 sizeof 作用于变长数组类型，数组长度表达式是否会被求值是未声明的  
  - 在 C\+\+ 语言中，如果 typeid 作用于多态类型的“[泛左值（glvalue）](https://en.cppreference.com/w/cpp/language/value_category#glvalue)”，该泛左值会被求值  
   
 虽然在某些特殊情况下相关子表达式会被求值，但为了避免意料之外的错误，本规则要求这类运算符的子表达式在任何情况下均不可含有任何副作用。  
@@ -16742,7 +16742,7 @@ printf("%d ", a);
 int c = sizeof(int[a++]);   // Non-compliant, variable length array
 printf("%d\n", a);
 ```
-输出 0 1，sizeof(a\+\+) 的副作用不生效，而 sizeof(int\[a\+\+\]) 的副作用会生效，这往往会使人困惑。
+sizeof(a\+\+) 的副作用不生效，而 sizeof(int\[a\+\+\]) 的副作用可能会生效，这往往会使人困惑。
 <br/>
 <br/>
 
@@ -16752,7 +16752,9 @@ ID_sideEffectAssertion
 
 #### 依据
 ISO/IEC 9899:1999 6.5.3.4(2)  
+ISO/IEC 9899:1999 6.7.5.2(5)-unspecified  
 ISO/IEC 9899:2011 6.5.3.4(2)  
+ISO/IEC 9899:2011 6.7.6.2(5)-unspecified  
 ISO/IEC 14882:2003 5.3.3(1)  
 ISO/IEC 14882:2011 5.3.3(1)  
 ISO/IEC 14882:2017 8.3.3(1)  
