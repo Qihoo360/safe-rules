@@ -13557,7 +13557,7 @@ ID_complexInlineFunction &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: function suggesti
 
 <hr/>
 
-是否对函数进行内联优化由实现定义，当函数执行的开销远大于调用的开销时，不会进行内联优化。  
+是否对函数进行内联优化由编译器自行决定，当函数执行的开销远大于调用的开销时，往往不会进行内联优化。  
   
 不适合将函数定义为内联函数的情况：  
  - 语句数量过多  
@@ -13585,9 +13585,9 @@ ID_definedInHeader
 #### 依据
 ISO/IEC 9899:1999 6.7.4(5)-implementation  
 ISO/IEC 9899:2011 6.7.4(6)-implementation  
-ISO/IEC 14882:2003 7.1.2(2 4)-implementation  
-ISO/IEC 14882:2011 7.1.2(2 4)-implementation  
-ISO/IEC 14882:2017 10.1.6(2 3)-implementation  
+ISO/IEC 14882:2003 7.1.2(2 4)  
+ISO/IEC 14882:2011 7.1.2(2 4)  
+ISO/IEC 14882:2017 10.1.6(2 3)  
 <br/>
 
 #### 参考

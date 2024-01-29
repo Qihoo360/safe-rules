@@ -2156,14 +2156,14 @@
     "ID_complexInlineFunction": {
         "checkPoint": "不应定义复杂的内联函数",
         "level": "suggestion",
-        "comment": "是否对函数进行内联优化由实现定义，当函数执行的开销远大于调用的开销时，不会进行内联优化。",
+        "comment": "是否对函数进行内联优化由编译器自行决定，当函数执行的开销远大于调用的开销时，往往不会进行内联优化。",
         "config": [
             "maxStatementsCount: 内联函数语句数量上限，超过则报出",
             "excludedFileExts: 不受限制的文件扩展名"
             ],
         "tag": "function",
         "related": "ID_definedInHeader",
-        "standard": "ISO/IEC 9899:1999 6.7.4(5)-implementation,ISO/IEC 9899:2011 6.7.4(6)-implementation,ISO/IEC 14882:2003 7.1.2(2 4)-implementation,ISO/IEC 14882:2011 7.1.2(2 4)-implementation,ISO/IEC 14882:2017 10.1.6(2 3)-implementation",
+        "standard": "ISO/IEC 9899:1999 6.7.4(5)-implementation,ISO/IEC 9899:2011 6.7.4(6)-implementation,ISO/IEC 14882:2003 7.1.2(2 4),ISO/IEC 14882:2011 7.1.2(2 4),ISO/IEC 14882:2017 10.1.6(2 3)",
         "reference": "C++ Core Guidelines F.5"
         },
     "ID_nonVirtualOverride": {
