@@ -82,15 +82,15 @@
   - [R1.2 敏感数据不可被系统外界感知](#secretleak)
   - [R1.3 敏感数据在使用后应被有效清理](#unsafecleanup)
   - [R1.4 公共成员或全局对象不应记录敏感数据](#sensitivename)
-  - [R1.5 预判用户输入造成的不良后果](#hijack)
-  - [R1.6 对资源设定合理的访问权限](#unlimitedauthority)
-  - [R1.7 对用户落实有效的权限管理](#improperauthorization)
-  - [R1.8 避免引用危险符号名称](#dangerousname)
-  - [R1.9 避免使用危险接口](#dangerousfunction)
-  - [R1.10 避免使用已过时的接口](#obsoletefunction)
-  - [R1.11 避免除 0 等计算异常](#dividebyzero)
-  - [R1.12 与内存空间布局相关的信息不可被外界感知](#addressexposure)
-  - [R1.13 与网络地址相关的信息不应写入代码](#hardcodedip)
+  - [R1.5 与内存空间布局相关的信息不可被外界感知](#addressexposure)
+  - [R1.6 与网络地址相关的信息不应写入代码](#hardcodedip)
+  - [R1.7 预判用户输入造成的不良后果](#hijack)
+  - [R1.8 对资源设定合理的访问权限](#unlimitedauthority)
+  - [R1.9 对用户落实有效的权限管理](#improperauthorization)
+  - [R1.10 避免引用危险符号名称](#dangerousname)
+  - [R1.11 避免使用危险接口](#dangerousfunction)
+  - [R1.12 避免使用已过时的接口](#obsoletefunction)
+  - [R1.13 避免除 0 等计算异常](#dividebyzero)
   - [R1.14 选择安全的异常处理方式](#deprecatederrno)
   - [R1.15 不应产生或依赖未定义的行为](#undefinedbehavior)
   - [R1.16 不应依赖未声明的行为](#unspecifiedbehavior)
@@ -174,9 +174,9 @@
     - [R3.4.9 对编译警告的屏蔽应慎重](#warningdisabled)
     - [R3.4.10 在高级别的警告设置下编译](#warningdefault)
   - [3.5 Comment](#precompile.comment)
-    - [R3.5.1 关注 TODO、FIXME、XXX、BUG 等特殊注释](#specialcomment)
-    - [R3.5.2 注释不可嵌套](#nestedcomment)
-    - [R3.5.3 注释应出现在合理的位置](#badcommentposition)
+    - [R3.5.1 注释不可嵌套](#nestedcomment)
+    - [R3.5.2 注释应出现在合理的位置](#badcommentposition)
+    - [R3.5.3 关注 TODO、FIXME、XXX、BUG 等特殊注释](#specialcomment)
   - [3.6 File](#precompile.file)
     - [R3.6.1 源文件扩展名应一致](#sourcefileext)
     - [R3.6.2 头文件扩展名应一致](#includedfileext)
@@ -906,7 +906,71 @@ CWE-766
 <br/>
 <br/>
 
-### <span id="hijack">▌R1.5 预判用户输入造成的不良后果</span>
+### <span id="addressexposure">▌R1.5 与内存空间布局相关的信息不可被外界感知</span>
+
+ID_addressExposure &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security warning
+
+<hr/>
+
+函数、对象、缓冲区的地址以及相关内存区域的长度等信息不可被外界感知，否则会成为攻击者的线索。  
+  
+示例：
+```
+int foo(int* p, int n) {
+    if (n >= some_value) {
+        log("buffer address: %p, size: %d", p, n);   // Non-compliant
+    }
+}
+```
+示例代码将缓冲区的地址和长度输出到日志是不安全的，这种代码多以调试为目的，不应将其编译到产品的正式版本中。
+<br/>
+<br/>
+
+#### 相关
+ID_bufferOverflow  
+<br/>
+
+#### 参考
+CWE-200  
+<br/>
+<br/>
+
+### <span id="hardcodedip">▌R1.6 与网络地址相关的信息不应写入代码</span>
+
+ID_hardcodedIP &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security warning
+
+<hr/>
+
+在代码中记录网络地址不利于维护和移植，也容易暴露产品的网络结构，属于安全隐患。  
+  
+示例：
+```
+string host = "10.16.25.93";    // Non-compliant
+foo("172.16.10.36:8080");       // Non-compliant
+bar("https://192.168.73.90");   // Non-compliant
+```
+应从配置文件中获取地址，并配以加密措施：
+```
+MyConf cfg;
+string host = cfg.host();   // Compliant
+foo(cfg.port());            // Compliant
+bar(cfg.url());             // Compliant
+```
+特殊的 IP 地址可不受本规则限制，如：
+```
+0.0.0.0
+255.255.255.255
+127.0.0.1-127.255.255.255
+```
+<br/>
+<br/>
+
+#### 相关
+ID_addressExposure  
+<br/>
+<br/>
+
+### <span id="hijack">▌R1.7 预判用户输入造成的不良后果</span>
 
 ID_hijack &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security warning
 
@@ -946,7 +1010,7 @@ CWE-943
 <br/>
 <br/>
 
-### <span id="unlimitedauthority">▌R1.6 对资源设定合理的访问权限</span>
+### <span id="unlimitedauthority">▌R1.8 对资源设定合理的访问权限</span>
 
 ID_unlimitedAuthority &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security warning
 
@@ -1006,7 +1070,7 @@ SEI CERT FIO06-C
 <br/>
 <br/>
 
-### <span id="improperauthorization">▌R1.7 对用户落实有效的权限管理</span>
+### <span id="improperauthorization">▌R1.9 对用户落实有效的权限管理</span>
 
 ID_improperAuthorization &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security warning
 
@@ -1058,7 +1122,7 @@ CWE-350
 <br/>
 <br/>
 
-### <span id="dangerousname">▌R1.8 避免引用危险符号名称</span>
+### <span id="dangerousname">▌R1.10 避免引用危险符号名称</span>
 
 ID_dangerousName &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security warning
 
@@ -1101,7 +1165,7 @@ SEI CERT MSC25-C
 <br/>
 <br/>
 
-### <span id="dangerousfunction">▌R1.9 避免使用危险接口</span>
+### <span id="dangerousfunction">▌R1.11 避免使用危险接口</span>
 
 ID_dangerousFunction &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security warning
 
@@ -1136,7 +1200,7 @@ CWE-676
 <br/>
 <br/>
 
-### <span id="obsoletefunction">▌R1.10 避免使用已过时的接口</span>
+### <span id="obsoletefunction">▌R1.12 避免使用已过时的接口</span>
 
 ID_obsoleteFunction &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security warning
 
@@ -1186,7 +1250,7 @@ SEI CERT MSC24-C
 <br/>
 <br/>
 
-### <span id="dividebyzero">▌R1.11 避免除 0 等计算异常</span>
+### <span id="dividebyzero">▌R1.13 避免除 0 等计算异常</span>
 
 ID_divideByZero &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security error
 
@@ -1225,70 +1289,6 @@ ISO/IEC 14882:2017 8.6(4)-undefined
 CWE-189  
 CWE-369  
 C++ Core Guidelines ES.105  
-<br/>
-<br/>
-
-### <span id="addressexposure">▌R1.12 与内存空间布局相关的信息不可被外界感知</span>
-
-ID_addressExposure &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security warning
-
-<hr/>
-
-函数、对象、缓冲区的地址以及相关内存区域的长度等信息不可被外界感知，否则会成为攻击者的线索。  
-  
-示例：
-```
-int foo(int* p, int n) {
-    if (n >= some_value) {
-        log("buffer address: %p, size: %d", p, n);   // Non-compliant
-    }
-}
-```
-示例代码将缓冲区的地址和长度输出到日志是不安全的，这种代码多以调试为目的，不应将其编译到产品的正式版本中。
-<br/>
-<br/>
-
-#### 相关
-ID_bufferOverflow  
-<br/>
-
-#### 参考
-CWE-200  
-<br/>
-<br/>
-
-### <span id="hardcodedip">▌R1.13 与网络地址相关的信息不应写入代码</span>
-
-ID_hardcodedIP &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security warning
-
-<hr/>
-
-在代码中记录网络地址不利于维护和移植，也容易暴露产品的网络结构，属于安全隐患。  
-  
-示例：
-```
-string host = "10.16.25.93";    // Non-compliant
-foo("172.16.10.36:8080");       // Non-compliant
-bar("https://192.168.73.90");   // Non-compliant
-```
-应从配置文件中获取地址，并配以加密措施：
-```
-MyConf cfg;
-string host = cfg.host();   // Compliant
-foo(cfg.port());            // Compliant
-bar(cfg.url());             // Compliant
-```
-特殊的 IP 地址可不受本规则限制，如：
-```
-0.0.0.0
-255.255.255.255
-127.0.0.1-127.255.255.255
-```
-<br/>
-<br/>
-
-#### 相关
-ID_addressExposure  
 <br/>
 <br/>
 
@@ -4343,44 +4343,7 @@ SEI CERT MSC00-C
 
 ### <span id="precompile.comment">3.5 Comment</span>
 
-### <span id="specialcomment">▌R3.5.1 关注 TODO、FIXME、XXX、BUG 等特殊注释</span>
-
-ID_specialComment &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: precompile warning
-
-<hr/>
-
-TODO、FIXME、XXX、BUG 等特殊注释表示代码中存在问题，这种问题不应被遗忘，应有计划地予以解决。  
-  
-及时记录问题是一种好习惯，而且最好有署名和日期。  
-  
-示例：
-```
-void foo() {
-    /*
-     * Some plans...         // Bad, easy to forget
-     */
-}
-
-void foo() {
-    /* TODO:
-     * Some plans...  -- my name, date     // Good
-     */
-}
-```
-审计工具不妨定期搜索这些关键词对应的注释，以供相关人员核对问题解决情况。
-<br/>
-<br/>
-
-#### 配置
-specialCommentPatterns：特殊注释的模式字符串（如正则表达式等），供审计工具查找  
-<br/>
-
-#### 参考
-CWE-546  
-<br/>
-<br/>
-
-### <span id="nestedcomment">▌R3.5.2 注释不可嵌套</span>
+### <span id="nestedcomment">▌R3.5.1 注释不可嵌套</span>
 
 ID_nestedComment &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: precompile warning
 
@@ -4413,7 +4376,7 @@ MISRA C++ 2008 2-7-1
 <br/>
 <br/>
 
-### <span id="badcommentposition">▌R3.5.3 注释应出现在合理的位置</span>
+### <span id="badcommentposition">▌R3.5.2 注释应出现在合理的位置</span>
 
 ID_badCommentPosition &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: precompile suggestion
 
@@ -4465,6 +4428,43 @@ ISO/IEC 14882:2011 2.9(2)-implementation
 
 #### 参考
 CWE-1113  
+<br/>
+<br/>
+
+### <span id="specialcomment">▌R3.5.3 关注 TODO、FIXME、XXX、BUG 等特殊注释</span>
+
+ID_specialComment &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: precompile warning
+
+<hr/>
+
+TODO、FIXME、XXX、BUG 等特殊注释表示代码中存在问题，这种问题不应被遗忘，应有计划地予以解决。  
+  
+及时记录问题是一种好习惯，而且最好有署名和日期。  
+  
+示例：
+```
+void foo() {
+    /*
+     * Some plans...         // Bad, easy to forget
+     */
+}
+
+void foo() {
+    /* TODO:
+     * Some plans...  -- my name, date     // Good
+     */
+}
+```
+审计工具不妨定期搜索这些关键词对应的注释，以供相关人员核对问题解决情况。
+<br/>
+<br/>
+
+#### 配置
+specialCommentPatterns：特殊注释的模式字符串（如正则表达式等），供审计工具查找  
+<br/>
+
+#### 参考
+CWE-546  
 <br/>
 <br/>
 
