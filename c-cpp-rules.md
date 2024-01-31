@@ -4,7 +4,7 @@
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对 C、C++ 语言，本文收录了 519 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对 C、C++ 语言，本文收录了 525 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
@@ -96,6 +96,11 @@
   - [R1.16 与网络地址相关的信息不应写入代码](#hardcodedip)
   - [R1.17 选择安全的异常处理方式](#deprecatederrno)
   - [R1.18 启用平台和编译器提供的防御机制](#missinghardening)
+  - [R1.19 不应产生或依赖未定义的行为](#undefinedbehavior)
+  - [R1.20 不应依赖未声明的行为](#unspecifiedbehavior)
+  - [R1.21 保证组件的可靠性](#untrustedcomponent)
+  - [R1.22 保证第三方软件的可靠性](#untrustedthirdparty)
+  - [R1.23 隔离非正式功能的代码](#backdoor)
 <br/>
 
 <span id="__resource">**[2. Resource](#resource)**</span>
@@ -662,6 +667,7 @@
   - [R15.2 处理信号时避免使用非异步信号安全函数](#sig_nonasyncsafecall)
   - [R15.3 SIGFPE、SIGILL、SIGSEGV 等信号的处理函数不可返回](#sig_illreturn)
   - [R15.4 禁用 signal 函数](#forbidsignalfunction)
+  - [R15.5 信号处理函数应为 POF](#nonpofhandler)
 <br/>
 
 <span id="__concurrency">**[16. Concurrency](#concurrency)**</span>
@@ -1527,6 +1533,164 @@ cc test.c -o test -fno-stack-protector   # Non-compliant, disable CANARY
 
 #### 相关
 ID_unsafeCompileOption  
+<br/>
+<br/>
+
+### <span id="undefinedbehavior">▌R1.19 不应产生或依赖未定义的行为</span>
+
+ID_undefinedBehavior &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security warning
+
+<hr/>
+
+未定义的行为（undefined behavior）是指程序在中没有定义的行为，一般由错误的代码实现引起，可能是崩溃，也可能没有实质危害，这种行为的结果是不可预期的，不应使程序产生或依赖未定义的行为。  
+  
+对未定义行为的介绍和约束是本规则集合的重要内容，将在后续章节中深入讨论，在附录中也有详细介绍。  
+  
+示例：
+```
+int foo(int i) {
+    if (i + 1 <= i)   // Determine overflow, but it’s undefined
+        ....          // Handle overflow, may be invalid
+    else
+        return i + 1;
+}
+```
+示例代码用 i \+ 1 <= i 判断是否溢出，但有符号整数溢出的后果是未定义的，这种判断可能是无效的，甚至某些编译器会认为 i \+ 1 <= i 恒为假而免去 if 分枝的内容，直接返回 i \+ 1。  
+  
+应改为：
+```
+int foo(int i) {
+    if (i != INT_MAX)   // Well defined
+        return i + 1;
+    else
+        ....            // Handle overflow
+}
+```
+<br/>
+<br/>
+
+#### 相关
+ID_unspecifiedBehavior  
+ID_implementationDefinedFunction  
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 3.4.3  
+ISO/IEC 9899:2011 J.2  
+ISO/IEC 14882:2011 1.3.24  
+<br/>
+
+#### 参考
+CWE-758  
+SEI CERT MSC15-C  
+<br/>
+<br/>
+
+### <span id="unspecifiedbehavior">▌R1.20 不应依赖未声明的行为</span>
+
+ID_unspecifiedBehavior &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security warning
+
+<hr/>
+
+允许程序的某些行为可由编译器自行决定，且无需提供文档说明，这种行为称为未声明的行为（unspecified behavior），具有不确定性，也会导致可移植性问题，故不应使程序依赖未声明的行为。  
+  
+对未声明行为的介绍和约束是本规则集合的重要内容，将在后续章节中深入讨论。  
+  
+示例：
+```
+const char* p = "ABC";
+const char* q = "ABC";
+
+assert(p == q);   // Unspecified behavior
+```
+相同字符串常量的地址是否相同是未声明的，例中的断言可能会失效，而且要注意，未声明的行为即使在同一编译器的不同版本之间也可能会有差异。
+<br/>
+<br/>
+
+#### 相关
+ID_undefinedBehavior  
+ID_implementationDefinedFunction  
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 3.4.4  
+ISO/IEC 9899:2011 J.1  
+ISO/IEC 14882:2011 1.3.25  
+<br/>
+
+#### 参考
+CWE-758  
+<br/>
+<br/>
+
+### <span id="untrustedcomponent">▌R1.21 保证组件的可靠性</span>
+
+ID_untrustedComponent &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security suggestion
+
+<hr/>
+
+导入库、配置、数据等组件时应判断其可靠性，对不受信任的组件予以拒绝。  
+  
+示例：  
+利用数字签名判断 DLL 等动态库的可靠性，代码可参考“[WinVerifyTrust](https://learn.microsoft.com/en-us/windows/win32/seccrypto/example-c-program--verifying-the-signature-of-a-pe-file?redirectedfrom=MSDN)”等 API 的使用。
+<br/>
+<br/>
+
+#### 相关
+ID_untrustedThirdParty  
+<br/>
+
+#### 参考
+CWE-1357  
+<br/>
+<br/>
+
+### <span id="untrustedthirdparty">▌R1.22 保证第三方软件的可靠性</span>
+
+ID_untrustedThirdParty &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security suggestion
+
+<hr/>
+
+应检查引入的第三方代码是否可靠，避免由第三方软件引入安全风险。  
+  
+示例：  
+利用“[软件组成分析（SCA）](https://en.wikipedia.org/wiki/Software_composition_analysis)”工具检查第三方库的安全性。
+<br/>
+<br/>
+
+#### 相关
+ID_untrustedComponent  
+<br/>
+
+#### 参考
+CWE-1395  
+<br/>
+<br/>
+
+### <span id="backdoor">▌R1.23 隔离非正式功能的代码</span>
+
+ID_backDoor &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security warning
+
+<hr/>
+
+非正式功能的代码，如用于调试、测试的代码或历史遗留代码，在产品的发布版本中不应生效，否则会导致泄露信息或打破正常流程等非预期的结果。  
+  
+示例：
+```
+User u = get_user_input();
+if (authenticate(u) || u.name() == "debug")   // Non-compliant, back door
+{
+    ....   // Login successful
+}
+```
+示例代码进行了用户身份验证，但直接放过 debug 这种特殊用户名是不符合要求的。
+<br/>
+<br/>
+
+#### 参考
+CWE-215  
+CWE-489  
+CWE-1295  
 <br/>
 <br/>
 
@@ -16727,7 +16891,7 @@ sizeof、typeid、noexcept、decltype、declval
 这类运算符不宜作用于逻辑、算术、位运算、函数调用等表达式。  
   
 特殊情况：  
- - 在 C 语言中，如果 sizeof 作用于变长数组类型，数组长度表达式是否会被求值是未声明的  
+ - 在 C 语言中，如果 sizeof 作用于变长数组类型，数组长度表达式是否会被求值是标准未声明的  
  - 在 C\+\+ 语言中，如果 typeid 作用于多态类型的“[泛左值（glvalue）](https://en.cppreference.com/w/cpp/language/value_category#glvalue)”，该泛左值会被求值  
   
 虽然在某些特殊情况下相关子表达式会被求值，但为了避免意料之外的错误，本规则要求这类运算符的子表达式在任何情况下均不可含有任何副作用。  
@@ -18620,6 +18784,11 @@ void foo() {
 ```
 调用 abort 函数会终止进程，但打开的流是否会被关闭，缓冲区内的数据是否会写入文件，临时文件是否会被清理则由实现定义。
 <br/>
+<br/>
+
+#### 相关
+ID_undefinedBehavior  
+ID_unspecifiedBehavior  
 <br/>
 
 #### 依据
@@ -22560,6 +22729,43 @@ SEI CERT SIG34-C
 <br/>
 <br/>
 
+### <span id="nonpofhandler">▌R15.5 信号处理函数应为 POF</span>
+
+ID_nonPOFHandler &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: interruption warning
+
+<hr/>
+
+POF（plain old function）是不依赖 C\+\+ 特性且与 C 兼容的函数，信号处理函数应为 POF。  
+  
+异常处理、资源的分配与回收、动态类型转换以及相当一部分的标准库功能是非信号安全的，会导致未定义的行为，详见“[C\+\+ 信号处理函数](https://en.cppreference.com/w/cpp/utility/program/signal#Signal_handler)”，即使某些特性可以用于信号处理，也是由实现定义的。  
+  
+示例：
+```
+void handler(int signum) noexcept;   // Non-compliant
+```
+应改为：
+```
+extern "C" void handler(int signum);   // Compliant
+```
+<br/>
+<br/>
+
+#### 相关
+ID_sig_dataRaces  
+ID_sig_nonAsyncSafeCall  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 18.7(5)-implementation  
+ISO/IEC 14882:2011 18.10(9)-implementation  
+ISO/IEC 14882:2017 21.10.4(3)-undefined  
+<br/>
+
+#### 参考
+SEI CERT MSC54-CPP  
+<br/>
+<br/>
+
 ## <span id="concurrency">16. Concurrency</span>
 
 ### <span id="dataraces">▌R16.1 访问共享数据应遵循合理的同步机制</span>
@@ -23297,7 +23503,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 519 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
+&emsp;&emsp;保障软件安全、提升产品质量是宏大的主题，需要不断地学习、探索与实践，也难以在一篇文章中涵盖所有要点，这 525 条规则就暂且讨论至此了。欢迎提供修订意见和扩展建议，由于本文档是自动生成的，请不要直接编辑本文档，可在 Issue 区发表高见，管理员修正数据库后会在致谢列表中存档。
 
 &emsp;&emsp;此致
 
