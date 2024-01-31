@@ -3207,7 +3207,7 @@
         "checkPoint": "格式化字符串应为常量",
         "level": "warning",
         "comment": "出于可读性和安全性的考量，格式化字符串最好直接写成常量字符串的形式。",
-        "tag": "security",
+        "tag": "expression",
         "related": "ID_hijack",
         "reference": "CWE-134"
         },
@@ -3471,7 +3471,7 @@
         "checkPoint": "确保字符串以空字符结尾",
         "level": "warning",
         "comment": "语言要求字符串以空字符结尾，程序应保证有足够的内存空间安置空字符，否则会破坏程序基本的执行机制，造成严重问题。",
-        "tag": "security",
+        "tag": "buffer",
         "standard": "ISO/IEC 9899:1999 7.21.2.4,ISO/IEC 9899:2011 7.24.2.4",
         "related": "ID_unsafeStringFunction",
         "reference": "CWE-170"
@@ -3487,7 +3487,7 @@
         "checkPoint": "禁用不安全的字符串函数",
         "level": "warning",
         "comment": "由于历史原因，C 标准库中的某些字符串函数不执行边界检查，易造成运行时错误和安全漏洞。",
-        "tag": "security",
+        "tag": "expression",
         "standard": "ISO/IEC 9899:2011 Annex K,ISO/IEC 9899:2011 K.3.7,ISO/IEC 9899:2011 K.3.9",
         "related": "ID_bufferOverflow",
         "reference": "CWE-119,CWE-120,CWE-676,MISRA C++ 2008 18-0-5"

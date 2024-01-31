@@ -88,19 +88,16 @@
   - [R1.8 避免引用危险符号名称](#dangerousname)
   - [R1.9 避免使用危险接口](#dangerousfunction)
   - [R1.10 避免使用已过时的接口](#obsoletefunction)
-  - [R1.11 禁用不安全的字符串函数](#unsafestringfunction)
-  - [R1.12 确保字符串以空字符结尾](#impropernulltermination)
-  - [R1.13 避免除 0 等计算异常](#dividebyzero)
-  - [R1.14 格式化字符串应为常量](#variableformatstring)
-  - [R1.15 与内存空间布局相关的信息不可被外界感知](#addressexposure)
-  - [R1.16 与网络地址相关的信息不应写入代码](#hardcodedip)
-  - [R1.17 选择安全的异常处理方式](#deprecatederrno)
-  - [R1.18 启用平台和编译器提供的防御机制](#missinghardening)
-  - [R1.19 不应产生或依赖未定义的行为](#undefinedbehavior)
-  - [R1.20 不应依赖未声明的行为](#unspecifiedbehavior)
-  - [R1.21 保证组件的可靠性](#untrustedcomponent)
-  - [R1.22 保证第三方软件的可靠性](#untrustedthirdparty)
-  - [R1.23 隔离非正式功能的代码](#backdoor)
+  - [R1.11 避免除 0 等计算异常](#dividebyzero)
+  - [R1.12 与内存空间布局相关的信息不可被外界感知](#addressexposure)
+  - [R1.13 与网络地址相关的信息不应写入代码](#hardcodedip)
+  - [R1.14 选择安全的异常处理方式](#deprecatederrno)
+  - [R1.15 启用平台和编译器提供的防御机制](#missinghardening)
+  - [R1.16 不应产生或依赖未定义的行为](#undefinedbehavior)
+  - [R1.17 不应依赖未声明的行为](#unspecifiedbehavior)
+  - [R1.18 保证组件的可靠性](#untrustedcomponent)
+  - [R1.19 保证第三方软件的可靠性](#untrustedthirdparty)
+  - [R1.20 隔离非正式功能的代码](#backdoor)
 <br/>
 
 <span id="__resource">**[2. Resource](#resource)**</span>
@@ -554,12 +551,14 @@
     - [R10.6.5 不应将非 POD 对象传入可变参数列表](#nonpodvariadicargument)
     - [R10.6.6 C 格式化字符串需要的参数个数与实际传入的参数个数应一致](#inconsistentformatargnum)
     - [R10.6.7 C 格式化占位符与其对应参数的类型应一致](#inconsistentformatargtype)
-    - [R10.6.8 形参与实参均为数组时，数组大小应一致](#inconsistentarraysize)
+    - [R10.6.8 格式化字符串应为常量](#variableformatstring)
     - [R10.6.9 在 C\+\+ 代码中禁用 C 字符串格式化方法](#forbidcstringformat)
-    - [R10.6.10 禁用 atof、atoi、atol 以及 atoll 等函数](#forbidatox)
-    - [R10.6.11 避免使用由实现定义的库函数](#implementationdefinedfunction)
-    - [R10.6.12 合理使用 std::move](#unsuitablemove)
-    - [R10.6.13 合理使用 std::forward](#unsuitableforward)
+    - [R10.6.10 形参与实参均为数组时，数组大小应一致](#inconsistentarraysize)
+    - [R10.6.11 禁用不安全的字符串函数](#unsafestringfunction)
+    - [R10.6.12 禁用 atof、atoi、atol 以及 atoll 等函数](#forbidatox)
+    - [R10.6.13 避免使用由实现定义的库函数](#implementationdefinedfunction)
+    - [R10.6.14 合理使用 std::move](#unsuitablemove)
+    - [R10.6.15 合理使用 std::forward](#unsuitableforward)
   - [10.7 Sizeof](#expression.sizeof)
     - [R10.7.1 sizeof 不应作用于数组参数](#sizeof_arrayparameter)
     - [R10.7.2 sizeof 不应作用于比较或逻辑表达式](#sizeof_oddexpression)
@@ -630,9 +629,10 @@
 <span id="__buffer">**[13. Buffer](#buffer)**</span>
   - [R13.1 避免缓冲区溢出](#bufferoverflow)
   - [R13.2 为缓冲区分配足够的空间](#insufficientbuffer)
-  - [R13.3 memset 等函数不应作用于非 POD 对象](#nonpodfilling)
-  - [R13.4 memset 等函数长度相关的参数不应有误](#badlength)
-  - [R13.5 memset 等函数填充值相关的参数不应有误](#valueoverflow)
+  - [R13.3 确保字符串以空字符结尾](#impropernulltermination)
+  - [R13.4 memset 等函数不应作用于非 POD 对象](#nonpodfilling)
+  - [R13.5 memset 等函数长度相关的参数不应有误](#badlength)
+  - [R13.6 memset 等函数填充值相关的参数不应有误](#valueoverflow)
 <br/>
 
 <span id="__pointer">**[14. Pointer](#pointer)**</span>
@@ -1186,124 +1186,7 @@ SEI CERT MSC24-C
 <br/>
 <br/>
 
-### <span id="unsafestringfunction">▌R1.11 禁用不安全的字符串函数</span>
-
-ID_unsafeStringFunction &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: security warning
-
-<hr/>
-
-由于历史原因，C 标准库中的某些字符串函数不执行边界检查，易造成运行时错误和安全漏洞。  
-  
-这类函数包括：
-```
-gets、strcpy、strcat、wcscpy、wcscat、
-sprintf、vsprintf、swprintf、vswprintf、
-scanf、sscanf、fscanf、vfscanf、vscanf、vsscanf
-```
-与这类函数相似的函数同样受本规则约束，如下列 Windows API：
-```
-StrCpy、StrCpyA、StrCpyW、StrCat、StrCatA、StrCatW、
-lstrcpy、lstrcpyA、lstrcpyW、lstrcat、lstrcatA、lstrcatW
-```
-在 C 代码中应采用更安全的库函数，如用 fgets 代替 gets，snprintf 代替 sprintf。在 C\+\+ 代码中应采用 STL 标准库提供的相关功能。  
-  
-示例：
-```
-char buf[100];
-gets(buf);      // Non-compliant
-```
-例中 gets 函数无法检查缓冲区的大小，一旦输入超过了 buf 数组的边界，程序的数据或流程就会遭到破坏，这种情况会被攻击者利用，可参见 ID\_bufferOverflow 的进一步说明。如果代码中存在 gets 等函数，可以直接判定程序是有漏洞的。  
-  
-应改为：
-```
-char buf[100];
-fgets(buf, sizeof(buf), stdin);  // Compliant
-```
-fgets 与 gets 不同，当输入超过缓冲区大小时会被截断，保证缓冲区之外的数据不会被破坏。  
-  
-又如：
-```
-char buf[100];
-scanf("%s", buf);  // Non-compliant
-```
-例中 scanf 函数与 gets 函数有相同的问题，可改为：
-```
-char buf[100];
-scanf("%99s", buf);  // Let it go, but ‘fgets’ is better
-```
-scanf、sprintf、strcpy 等函数无视缓冲区大小，需要在外部另行实现防止缓冲区溢出的代码，完全依赖于开发者的小心谨慎。历史表明，对人的单方面依赖是不可靠的，改用更安全的方法才是明智的选择。
-<br/>
-<br/>
-
-#### 相关
-ID_bufferOverflow  
-<br/>
-
-#### 依据
-ISO/IEC 9899:2011 Annex K  
-ISO/IEC 9899:2011 K.3.7  
-ISO/IEC 9899:2011 K.3.9  
-<br/>
-
-#### 参考
-CWE-119  
-CWE-120  
-CWE-676  
-MISRA C++ 2008 18-0-5  
-<br/>
-<br/>
-
-### <span id="impropernulltermination">▌R1.12 确保字符串以空字符结尾</span>
-
-ID_improperNullTermination &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security warning
-
-<hr/>
-
-语言要求字符串以空字符结尾，程序应保证有足够的内存空间安置空字符，否则会破坏程序基本的执行机制，造成严重问题。  
-  
-空字符指 '\\0'、L'\\0'、u'\\0'、U'\\0'，分别对应 char\*、wchar\_t\*、char16\_t\*、char32\_t\* 等字符串类型。  
-  
-示例：
-```
-void foo(const char* p) {
-    char a[4];
-    strncpy(a, p, sizeof(a));
-    printf("%s\n", strupr(a));   // To upper case and print, dangerous
-}
-```
-例示代码将字符串复制到数组中，转为大写并打印，然而如果 p 所指字符串的长度超过 3，strncpy 不会在数组的结尾安置空字符 '\\0'，导致 strupr 内存访问越界，程序可能会崩溃，也可能打印出本该隐藏的敏感数据。  
-  
-应改为：
-```
-void foo(const char* p) {
-    char a[4] = "";                 // Initialize all to '\0'
-    strncpy(a, p, sizeof(a));
-    if (a[3] == '\0') {
-        printf("%s\n", strupr(a));  // OK
-    } else {
-        ....                        // Handle string length exceptions
-    }
-}
-```
-将所有数组元素初始化为 '\\0'，调用 strncpy 后如果数组最后一个元素是 '\\0'，说明输入字符串的长度符合要求，否则可作出相应的异常处理。
-<br/>
-<br/>
-
-#### 相关
-ID_unsafeStringFunction  
-<br/>
-
-#### 依据
-ISO/IEC 9899:1999 7.21.2.4  
-ISO/IEC 9899:2011 7.24.2.4  
-<br/>
-
-#### 参考
-CWE-170  
-<br/>
-<br/>
-
-### <span id="dividebyzero">▌R1.13 避免除 0 等计算异常</span>
+### <span id="dividebyzero">▌R1.11 避免除 0 等计算异常</span>
 
 ID_divideByZero &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security error
 
@@ -1345,42 +1228,7 @@ C++ Core Guidelines ES.105
 <br/>
 <br/>
 
-### <span id="variableformatstring">▌R1.14 格式化字符串应为常量</span>
-
-ID_variableFormatString &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security warning
-
-<hr/>
-
-出于可读性和安全性的考量，格式化字符串最好直接写成常量字符串的形式。  
-  
-本规则是 ID\_hijack 的特化。  
-  
-示例：
-```
-int a, b, c;
-const char* fmt = foo();
-....
-printf(fmt, a, b, c);  // Non-compliant
-```
-例中格式化字符串 fmt 是变量，这种方式可读性较差，而且要注意如果 fmt 可受外界影响，则可能被攻击者利用造成不良后果。  
-  
-应将 fmt 改为常量：
-```
-printf("%d %d %d", a, b, c);  // Compliant
-```
-<br/>
-<br/>
-
-#### 相关
-ID_hijack  
-<br/>
-
-#### 参考
-CWE-134  
-<br/>
-<br/>
-
-### <span id="addressexposure">▌R1.15 与内存空间布局相关的信息不可被外界感知</span>
+### <span id="addressexposure">▌R1.12 与内存空间布局相关的信息不可被外界感知</span>
 
 ID_addressExposure &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security warning
 
@@ -1409,7 +1257,7 @@ CWE-200
 <br/>
 <br/>
 
-### <span id="hardcodedip">▌R1.16 与网络地址相关的信息不应写入代码</span>
+### <span id="hardcodedip">▌R1.13 与网络地址相关的信息不应写入代码</span>
 
 ID_hardcodedIP &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security warning
 
@@ -1444,7 +1292,7 @@ ID_addressExposure
 <br/>
 <br/>
 
-### <span id="deprecatederrno">▌R1.17 选择安全的异常处理方式</span>
+### <span id="deprecatederrno">▌R1.14 选择安全的异常处理方式</span>
 
 ID_deprecatedErrno &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security warning
 
@@ -1487,7 +1335,7 @@ MISRA C++ 2008 19-3-1
 <br/>
 <br/>
 
-### <span id="missinghardening">▌R1.18 启用平台和编译器提供的防御机制</span>
+### <span id="missinghardening">▌R1.15 启用平台和编译器提供的防御机制</span>
 
 ID_missingHardening &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security suggestion
 
@@ -1536,7 +1384,7 @@ ID_unsafeCompileOption
 <br/>
 <br/>
 
-### <span id="undefinedbehavior">▌R1.19 不应产生或依赖未定义的行为</span>
+### <span id="undefinedbehavior">▌R1.16 不应产生或依赖未定义的行为</span>
 
 ID_undefinedBehavior &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security warning
 
@@ -1586,7 +1434,7 @@ SEI CERT MSC15-C
 <br/>
 <br/>
 
-### <span id="unspecifiedbehavior">▌R1.20 不应依赖未声明的行为</span>
+### <span id="unspecifiedbehavior">▌R1.17 不应依赖未声明的行为</span>
 
 ID_unspecifiedBehavior &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security warning
 
@@ -1623,7 +1471,7 @@ CWE-758
 <br/>
 <br/>
 
-### <span id="untrustedcomponent">▌R1.21 保证组件的可靠性</span>
+### <span id="untrustedcomponent">▌R1.18 保证组件的可靠性</span>
 
 ID_untrustedComponent &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security suggestion
 
@@ -1645,7 +1493,7 @@ CWE-1357
 <br/>
 <br/>
 
-### <span id="untrustedthirdparty">▌R1.22 保证第三方软件的可靠性</span>
+### <span id="untrustedthirdparty">▌R1.19 保证第三方软件的可靠性</span>
 
 ID_untrustedThirdParty &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security suggestion
 
@@ -1667,7 +1515,7 @@ CWE-1395
 <br/>
 <br/>
 
-### <span id="backdoor">▌R1.23 隔离非正式功能的代码</span>
+### <span id="backdoor">▌R1.20 隔离非正式功能的代码</span>
 
 ID_backDoor &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security warning
 
@@ -18613,39 +18461,38 @@ SEI CERT FIO47-C
 <br/>
 <br/>
 
-### <span id="inconsistentarraysize">▌R10.6.8 形参与实参均为数组时，数组大小应一致</span>
+### <span id="variableformatstring">▌R10.6.8 格式化字符串应为常量</span>
 
-ID_inconsistentArraySize &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
+ID_variableFormatString &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
 <hr/>
 
-被声明为数组的形式参数等同于指针，对传入的实际参数起不到限制作用，为了避免潜在的问题，当实际参数也是数组时，应要求实际参数与形式参数具有相同的元素个数。  
+出于可读性和安全性的考量，格式化字符串最好直接写成常量字符串的形式。  
+  
+本规则是 ID\_hijack 的特化。  
   
 示例：
 ```
-int foo(int a[10]);
-
-int bar() {
-    int a[5] = {0};
-    return foo(a);    // Non-compliant
-}
+int a, b, c;
+const char* fmt = foo();
+....
+printf(fmt, a, b, c);  // Non-compliant
+```
+例中格式化字符串 fmt 是变量，这种方式可读性较差，而且要注意如果 fmt 可受外界影响，则可能被攻击者利用造成不良后果。  
+  
+应将 fmt 改为常量：
+```
+printf("%d %d %d", a, b, c);  // Compliant
 ```
 <br/>
 <br/>
 
 #### 相关
-ID_invalidParamArraySize  
-<br/>
-
-#### 依据
-ISO/IEC 9899:1999 6.7.5.3(7)  
-ISO/IEC 9899:2011 6.7.6.3(7)  
-ISO/IEC 14882:2003 13.1(3)  
-ISO/IEC 14882:2011 13.1(3)  
+ID_hijack  
 <br/>
 
 #### 参考
-MISRA C 2012 17.5  
+CWE-134  
 <br/>
 <br/>
 
@@ -18712,7 +18559,110 @@ C++ Core Guidelines SL.io.3
 <br/>
 <br/>
 
-### <span id="forbidatox">▌R10.6.10 禁用 atof、atoi、atol 以及 atoll 等函数</span>
+### <span id="inconsistentarraysize">▌R10.6.10 形参与实参均为数组时，数组大小应一致</span>
+
+ID_inconsistentArraySize &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
+
+<hr/>
+
+被声明为数组的形式参数等同于指针，对传入的实际参数起不到限制作用，为了避免潜在的问题，当实际参数也是数组时，应要求实际参数与形式参数具有相同的元素个数。  
+  
+示例：
+```
+int foo(int a[10]);
+
+int bar() {
+    int a[5] = {0};
+    return foo(a);    // Non-compliant
+}
+```
+<br/>
+<br/>
+
+#### 相关
+ID_invalidParamArraySize  
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 6.7.5.3(7)  
+ISO/IEC 9899:2011 6.7.6.3(7)  
+ISO/IEC 14882:2003 13.1(3)  
+ISO/IEC 14882:2011 13.1(3)  
+<br/>
+
+#### 参考
+MISRA C 2012 17.5  
+<br/>
+<br/>
+
+### <span id="unsafestringfunction">▌R10.6.11 禁用不安全的字符串函数</span>
+
+ID_unsafeStringFunction &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: expression warning
+
+<hr/>
+
+由于历史原因，C 标准库中的某些字符串函数不执行边界检查，易造成运行时错误和安全漏洞。  
+  
+这类函数包括：
+```
+gets、strcpy、strcat、wcscpy、wcscat、
+sprintf、vsprintf、swprintf、vswprintf、
+scanf、sscanf、fscanf、vfscanf、vscanf、vsscanf
+```
+与这类函数相似的函数同样受本规则约束，如下列 Windows API：
+```
+StrCpy、StrCpyA、StrCpyW、StrCat、StrCatA、StrCatW、
+lstrcpy、lstrcpyA、lstrcpyW、lstrcat、lstrcatA、lstrcatW
+```
+在 C 代码中应采用更安全的库函数，如用 fgets 代替 gets，snprintf 代替 sprintf。在 C\+\+ 代码中应采用 STL 标准库提供的相关功能。  
+  
+示例：
+```
+char buf[100];
+gets(buf);      // Non-compliant
+```
+例中 gets 函数无法检查缓冲区的大小，一旦输入超过了 buf 数组的边界，程序的数据或流程就会遭到破坏，这种情况会被攻击者利用，可参见 ID\_bufferOverflow 的进一步说明。如果代码中存在 gets 等函数，可以直接判定程序是有漏洞的。  
+  
+应改为：
+```
+char buf[100];
+fgets(buf, sizeof(buf), stdin);  // Compliant
+```
+fgets 与 gets 不同，当输入超过缓冲区大小时会被截断，保证缓冲区之外的数据不会被破坏。  
+  
+又如：
+```
+char buf[100];
+scanf("%s", buf);  // Non-compliant
+```
+例中 scanf 函数与 gets 函数有相同的问题，可改为：
+```
+char buf[100];
+scanf("%99s", buf);  // Let it go, but ‘fgets’ is better
+```
+scanf、sprintf、strcpy 等函数无视缓冲区大小，需要在外部另行实现防止缓冲区溢出的代码，完全依赖于开发者的小心谨慎。历史表明，对人的单方面依赖是不可靠的，改用更安全的方法才是明智的选择。
+<br/>
+<br/>
+
+#### 相关
+ID_bufferOverflow  
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 Annex K  
+ISO/IEC 9899:2011 K.3.7  
+ISO/IEC 9899:2011 K.3.9  
+<br/>
+
+#### 参考
+CWE-119  
+CWE-120  
+CWE-676  
+MISRA C++ 2008 18-0-5  
+<br/>
+<br/>
+
+### <span id="forbidatox">▌R10.6.12 禁用 atof、atoi、atol 以及 atoll 等函数</span>
 
 ID_forbidAtox &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: expression warning
 
@@ -18759,7 +18709,7 @@ MISRA C++ 2008 18-0-2
 <br/>
 <br/>
 
-### <span id="implementationdefinedfunction">▌R10.6.11 避免使用由实现定义的库函数</span>
+### <span id="implementationdefinedfunction">▌R10.6.13 避免使用由实现定义的库函数</span>
 
 ID_implementationDefinedFunction &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -18817,7 +18767,7 @@ MISRA C++ 2008 18-7-1
 <br/>
 <br/>
 
-### <span id="unsuitablemove">▌R10.6.12 合理使用 std::move</span>
+### <span id="unsuitablemove">▌R10.6.14 合理使用 std::move</span>
 
 ID_unsuitableMove &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -18882,7 +18832,7 @@ C++ Core Guidelines F.48
 <br/>
 <br/>
 
-### <span id="unsuitableforward">▌R10.6.13 合理使用 std::forward</span>
+### <span id="unsuitableforward">▌R10.6.15 合理使用 std::forward</span>
 
 ID_unsuitableForward &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -21350,7 +21300,57 @@ CWE-135
 <br/>
 <br/>
 
-### <span id="nonpodfilling">▌R13.3 memset 等函数不应作用于非 POD 对象</span>
+### <span id="impropernulltermination">▌R13.3 确保字符串以空字符结尾</span>
+
+ID_improperNullTermination &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: buffer warning
+
+<hr/>
+
+语言要求字符串以空字符结尾，程序应保证有足够的内存空间安置空字符，否则会破坏程序基本的执行机制，造成严重问题。  
+  
+空字符指 '\\0'、L'\\0'、u'\\0'、U'\\0'，分别对应 char\*、wchar\_t\*、char16\_t\*、char32\_t\* 等字符串类型。  
+  
+示例：
+```
+void foo(const char* p) {
+    char a[4];
+    strncpy(a, p, sizeof(a));
+    printf("%s\n", strupr(a));   // To upper case and print, dangerous
+}
+```
+例示代码将字符串复制到数组中，转为大写并打印，然而如果 p 所指字符串的长度超过 3，strncpy 不会在数组的结尾安置空字符 '\\0'，导致 strupr 内存访问越界，程序可能会崩溃，也可能打印出本该隐藏的敏感数据。  
+  
+应改为：
+```
+void foo(const char* p) {
+    char a[4] = "";                 // Initialize all to '\0'
+    strncpy(a, p, sizeof(a));
+    if (a[3] == '\0') {
+        printf("%s\n", strupr(a));  // OK
+    } else {
+        ....                        // Handle string length exceptions
+    }
+}
+```
+将所有数组元素初始化为 '\\0'，调用 strncpy 后如果数组最后一个元素是 '\\0'，说明输入字符串的长度符合要求，否则可作出相应的异常处理。
+<br/>
+<br/>
+
+#### 相关
+ID_unsafeStringFunction  
+<br/>
+
+#### 依据
+ISO/IEC 9899:1999 7.21.2.4  
+ISO/IEC 9899:2011 7.24.2.4  
+<br/>
+
+#### 参考
+CWE-170  
+<br/>
+<br/>
+
+### <span id="nonpodfilling">▌R13.4 memset 等函数不应作用于非 POD 对象</span>
 
 ID_nonPODFilling &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: buffer error
 
@@ -21387,7 +21387,7 @@ C++ Core Guidelines C.90
 <br/>
 <br/>
 
-### <span id="badlength">▌R13.4 memset 等函数长度相关的参数不应有误</span>
+### <span id="badlength">▌R13.5 memset 等函数长度相关的参数不应有误</span>
 
 ID_badLength &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: buffer error
 
@@ -21459,7 +21459,7 @@ CWE-805
 <br/>
 <br/>
 
-### <span id="valueoverflow">▌R13.5 memset 等函数填充值相关的参数不应有误</span>
+### <span id="valueoverflow">▌R13.6 memset 等函数填充值相关的参数不应有误</span>
 
 ID_valueOverflow &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: buffer error
 
