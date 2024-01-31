@@ -1357,7 +1357,7 @@
         "tag": "pointer",
         "related": "ID_illPtrComparison",
         "standard": "ISO/IEC 9899:1999 6.5.6(9)-undefined,ISO/IEC 9899:2011 6.5.6(9)-undefined,ISO/IEC 14882:2003 5.7(6)-undefined,ISO/IEC 14882:2011 5.7(6)-undefined",
-        "reference": "MISRA C 2004 17.2,MISRA C 2012 18.2,MISRA C++ 2008 5-0-17,SEI CERT ARR36-C"
+        "reference": "CWE-469,MISRA C 2004 17.2,MISRA C 2012 18.2,MISRA C++ 2008 5-0-17,SEI CERT ARR36-C"
         },
     "ID_illBoolOperation": {
         "checkPoint": "bool 对象不应参与位运算、大小比较、数值增减",
@@ -3204,9 +3204,9 @@
         "reference": "CWE-686,SEI CERT FIO47-C"
         },
     "ID_variableFormatString": {
-        "checkPoint": "格式化字符串应为常量",
+        "checkPoint": "C 格式化字符串应为常量",
         "level": "warning",
-        "comment": "出于可读性和安全性的考量，格式化字符串最好直接写成常量字符串的形式。",
+        "comment": "出于安全性和可读性的考量，C 格式化字符串最好直接写成常量字符串的形式。",
         "tag": "expression",
         "related": "ID_hijack",
         "reference": "CWE-134"
@@ -3524,9 +3524,9 @@
         "reference": "CWE-242,CWE-676"
         },
     "ID_implementationDefinedFunction": {
-        "checkPoint": "避免使用由实现定义的库函数",
+        "checkPoint": "避免依赖由实现定义的行为",
         "level": "warning",
-        "comment": "由实现定义的（implementation-defined）库函数会增加移植或兼容等方面的成本。",
+        "comment": "语言标准允许程序的某些行为可由编译器自行定义，这种行为称为由实现定义的行为（implementation-defined behavior），虽然有文档支持，但也会增加移植或兼容等方面的成本。",
         "tag": "security",
         "related": "ID_undefinedBehavior,ID_unspecifiedBehavior",
         "standard": "ISO/IEC 9899:2011 7.14.1.1(3)-implementation,ISO/IEC 9899:2011 7.22.4.1(2)-implementation,ISO/IEC 9899:2011 7.22.4.4(5)-implementation,ISO/IEC 9899:2011 7.22.4.5(2)-implementation,ISO/IEC 9899:2011 7.22.4.6(2)-implementation,ISO/IEC 9899:2011 7.22.4.7(4)-implementation,ISO/IEC 9899:2011 7.22.4.8(3)-implementation,ISO/IEC 9899:2011 7.27.2.1(3)-implementation",
@@ -4101,7 +4101,7 @@
         "level": "suggestion",
         "comment": "指针运算可由多种方式完成，为了提高可读性应统一使用数组下标的方式，不宜使用 +、-、+=、-= 等运算符，且应尽量减少指针运算。",
         "tag": "pointer",
-        "reference": "MISRA C 2004 17.4,MISRA C 2012 18.4,MISRA C++ 2008 5-0-15,SEI CERT EXP08-C"
+        "reference": "CWE-468,MISRA C 2004 17.4,MISRA C 2012 18.4,MISRA C++ 2008 5-0-15,SEI CERT EXP08-C"
         },
     "ID_inconsistentArraySize": {
         "checkPoint": "形参与实参均为数组时，数组大小应一致",
@@ -4312,7 +4312,7 @@
     "ID_unspecifiedBehavior": {
         "checkPoint": "不应依赖未声明的行为",
         "level": "warning",
-        "comment": "语言标准允许程序的某些行为可由编译器自行决定，且无需提供文档说明，这种行为称为未声明的行为（unspecified behavior），具有不确定性，也会导致可移植性问题，故不应使程序依赖未声明的行为。",
+        "comment": "语言标准允许程序的某些行为可由编译器自行定义，且无需提供文档说明，这种行为称为未声明的行为（unspecified behavior），具有不确定性，也会导致可移植性问题，故不应使程序依赖未声明的行为。",
         "tag": "security",
         "related": "ID_undefinedBehavior,ID_implementationDefinedFunction",
         "standard": "ISO/IEC 9899:2011 3.4.4,ISO/IEC 9899:2011 J.1,ISO/IEC 14882:2011 1.3.25",

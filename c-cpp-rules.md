@@ -94,7 +94,7 @@
   - [R1.14 选择安全的异常处理方式](#deprecatederrno)
   - [R1.15 不应产生或依赖未定义的行为](#undefinedbehavior)
   - [R1.16 不应依赖未声明的行为](#unspecifiedbehavior)
-  - [R1.17 避免使用由实现定义的库函数](#implementationdefinedfunction)
+  - [R1.17 避免依赖由实现定义的行为](#implementationdefinedfunction)
   - [R1.18 保证组件的可靠性](#untrustedcomponent)
   - [R1.19 保证第三方软件的可靠性](#untrustedthirdparty)
   - [R1.20 隔离非正式功能的代码](#backdoor)
@@ -552,7 +552,7 @@
     - [R10.6.5 不应将非 POD 对象传入可变参数列表](#nonpodvariadicargument)
     - [R10.6.6 C 格式化字符串需要的参数个数与实际传入的参数个数应一致](#inconsistentformatargnum)
     - [R10.6.7 C 格式化占位符与其对应参数的类型应一致](#inconsistentformatargtype)
-    - [R10.6.8 格式化字符串应为常量](#variableformatstring)
+    - [R10.6.8 C 格式化字符串应为常量](#variableformatstring)
     - [R10.6.9 在 C\+\+ 代码中禁用 C 字符串格式化方法](#forbidcstringformat)
     - [R10.6.10 形参与实参均为数组时，数组大小应一致](#inconsistentarraysize)
     - [R10.6.11 禁用不安全的字符串函数](#unsafestringfunction)
@@ -689,7 +689,10 @@
   - [R17.4 遵循统一的大括号风格](#bracestyle)
   - [R17.5 遵循统一的缩进风格](#inconsistentindent)
   - [R17.6 避免多余的括号](#redundantparentheses)
-  - [R17.7 避免多余的分号](#redundantsemicolon)<br/><br/>
+  - [R17.7 避免多余的分号](#redundantsemicolon)
+<br/>
+<br/>
+
 ## <span id="security">1. Security</span>
 
 ### <span id="plainsensitiveinfo">▌R1.1 敏感数据不可写入代码</span>
@@ -1341,7 +1344,7 @@ ID_undefinedBehavior &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security warning
 
 <hr/>
 
-未定义的行为（undefined behavior）是指程序在中没有定义的行为，一般由错误的代码实现引起，可能是崩溃，也可能没有实质危害，这种行为的结果是不可预期的，不应使程序产生或依赖未定义的行为。  
+未定义的行为（undefined behavior）是指程序在语言标准中没有定义的行为，一般由错误的代码实现引起，可能是崩溃，也可能没有实质危害，这种行为的结果是不可预期的，不应使程序产生或依赖未定义的行为。  
   
 对未定义行为的介绍和约束是本规则集合的重要内容，将在后续章节中深入讨论，在附录中也有详细介绍。  
   
@@ -1391,7 +1394,7 @@ ID_unspecifiedBehavior &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security warning
 
 <hr/>
 
-允许程序的某些行为可由编译器自行决定，且无需提供文档说明，这种行为称为未声明的行为（unspecified behavior），具有不确定性，也会导致可移植性问题，故不应使程序依赖未声明的行为。  
+语言标准允许程序的某些行为可由编译器自行定义，且无需提供文档说明，这种行为称为未声明的行为（unspecified behavior），具有不确定性，也会导致可移植性问题，故不应使程序依赖未声明的行为。  
   
 对未声明行为的介绍和约束是本规则集合的重要内容，将在后续章节中深入讨论。  
   
@@ -1422,22 +1425,21 @@ CWE-758
 <br/>
 <br/>
 
-### <span id="implementationdefinedfunction">▌R1.17 避免使用由实现定义的库函数</span>
+### <span id="implementationdefinedfunction">▌R1.17 避免依赖由实现定义的行为</span>
 
 ID_implementationDefinedFunction &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security warning
 
 <hr/>
 
-由实现定义的（implementation\-defined）库函数会增加移植或兼容等方面的成本。  
+语言标准允许程序的某些行为可由编译器自行定义，这种行为称为由实现定义的行为（implementation\-defined behavior），虽然有文档支持，但也会增加移植或兼容等方面的成本。  
   
-如：  
+示例：  
  - cstdlib、stdlib.h 中的 abort、exit、\_Exit、quick\_exit、getenv、system 等函数  
  - ctime、time.h 中的 clock 等函数  
  - csignal、signal.h 中的 signal 等函数  
   
 这些函数的行为取决于编译器、库或环境的生产厂家，同一个函数不同的厂家会有不同的实现，故称这种函数的行为是“由实现定义”的。有高可靠性要求的软件系统应避免使用这种函数，否则需明确各种实现上的具体差异，增加了移植、发布以及兼容性等多方面的成本。  
-  
-示例：
+
 ```
 #include <cstdlib>
 
@@ -14518,7 +14520,7 @@ else if (y < 0){
 else {
     // Comment is the minimum requirement,
     // if here is unreachable logically,
-    // it's better to log or throw an exception
+    // it’s better to log or throw an exception
 }
 ```
 <br/>
@@ -15621,7 +15623,7 @@ case 1:
 default:
     // Comment is the minimum requirement,
     // if here is unreachable logically,
-    // it's better to log or throw an exception
+    // it’s better to log or throw an exception
     break;
 }
 ```
@@ -18519,13 +18521,13 @@ SEI CERT FIO47-C
 <br/>
 <br/>
 
-### <span id="variableformatstring">▌R10.6.8 格式化字符串应为常量</span>
+### <span id="variableformatstring">▌R10.6.8 C 格式化字符串应为常量</span>
 
 ID_variableFormatString &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
 <hr/>
 
-出于可读性和安全性的考量，格式化字符串最好直接写成常量字符串的形式。  
+出于安全性和可读性的考量，C 格式化字符串最好直接写成常量字符串的形式。  
   
 本规则是 ID\_hijack 的特化。  
   
@@ -21798,6 +21800,7 @@ ISO/IEC 14882:2011 5.7(6)-undefined
 <br/>
 
 #### 参考
+CWE-469  
 MISRA C 2004 17.2  
 MISRA C 2012 18.2  
 MISRA C++ 2008 5-0-17  
@@ -22506,6 +22509,7 @@ p = &p[1];      // Compliant
 <br/>
 
 #### 参考
+CWE-468  
 MISRA C 2004 17.4  
 MISRA C 2012 18.4  
 MISRA C++ 2008 5-0-15  
