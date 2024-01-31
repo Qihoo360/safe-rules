@@ -92,12 +92,14 @@
   - [R1.12 与内存空间布局相关的信息不可被外界感知](#addressexposure)
   - [R1.13 与网络地址相关的信息不应写入代码](#hardcodedip)
   - [R1.14 选择安全的异常处理方式](#deprecatederrno)
-  - [R1.15 启用平台和编译器提供的防御机制](#missinghardening)
-  - [R1.16 不应产生或依赖未定义的行为](#undefinedbehavior)
-  - [R1.17 不应依赖未声明的行为](#unspecifiedbehavior)
+  - [R1.15 不应产生或依赖未定义的行为](#undefinedbehavior)
+  - [R1.16 不应依赖未声明的行为](#unspecifiedbehavior)
+  - [R1.17 避免使用由实现定义的库函数](#implementationdefinedfunction)
   - [R1.18 保证组件的可靠性](#untrustedcomponent)
   - [R1.19 保证第三方软件的可靠性](#untrustedthirdparty)
   - [R1.20 隔离非正式功能的代码](#backdoor)
+  - [R1.21 启用平台和编译器提供的防御机制](#missinghardening)
+  - [R1.22 禁用不安全的编译选项](#unsafecompileoption)
 <br/>
 
 <span id="__resource">**[2. Resource](#resource)**</span>
@@ -184,7 +186,6 @@
     - [R3.7.1 避免出现 trigraph sequences](#literal_trigraphs)
     - [R3.7.2 禁用 digraphs](#forbiddigraphs)
     - [R3.7.3 除转义字符、宏定义之外不应使用反斜杠](#badbackslash)
-    - [R3.7.4 禁用不安全的编译选项](#unsafecompileoption)
 <br/>
 
 <span id="__global">**[4. Global](#global)**</span>
@@ -556,9 +557,8 @@
     - [R10.6.10 形参与实参均为数组时，数组大小应一致](#inconsistentarraysize)
     - [R10.6.11 禁用不安全的字符串函数](#unsafestringfunction)
     - [R10.6.12 禁用 atof、atoi、atol 以及 atoll 等函数](#forbidatox)
-    - [R10.6.13 避免使用由实现定义的库函数](#implementationdefinedfunction)
-    - [R10.6.14 合理使用 std::move](#unsuitablemove)
-    - [R10.6.15 合理使用 std::forward](#unsuitableforward)
+    - [R10.6.13 合理使用 std::move](#unsuitablemove)
+    - [R10.6.14 合理使用 std::forward](#unsuitableforward)
   - [10.7 Sizeof](#expression.sizeof)
     - [R10.7.1 sizeof 不应作用于数组参数](#sizeof_arrayparameter)
     - [R10.7.2 sizeof 不应作用于比较或逻辑表达式](#sizeof_oddexpression)
@@ -1335,56 +1335,7 @@ MISRA C++ 2008 19-3-1
 <br/>
 <br/>
 
-### <span id="missinghardening">▌R1.15 启用平台和编译器提供的防御机制</span>
-
-ID_missingHardening &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security suggestion
-
-<hr/>
-
-针对一些常见攻击，平台和编译器会提供防御机制，如：  
- - [数据执行保护（NX、DEP）](https://en.wikipedia.org/wiki/Executable_space_protection)  
- - [栈溢出防护（CANARY、GS）](https://en.wikipedia.org/wiki/Buffer_overflow_protection)  
- - [地址空间布局随机化（ASLR、PIE）](https://en.wikipedia.org/wiki/Address_space_layout_randomization)  
-  
-程序应利用这种机制加强自身的安全性，进一步可参见“[security hardening](https://en.wikipedia.org/wiki/Hardening_(computing))”。  
-  
-示例：
-```
-// In test.c
-#include <stdio.h>
-
-int main(void) {
-    printf("%p\n", main);
-}
-```
-如果在 Linux 等平台上按如下方式编译：
-```
-cc test.c -o test
-```
-各函数的地址在虚拟内存中是固定的，易被攻击者猜中，进而施展攻击手段。  
-  
-当平台启用了“[ASLR](https://en.wikipedia.org/wiki/Address_space_layout_randomization)”机制，再按如下方式编译：
-```
-cc test.c -o test -fPIE -pie
-```
-可使程序各结构的地址随机化，函数的地址在每次运行时均不相同，有效提高了攻击难度。  
-  
-如无特殊原因，在编译程序时不应屏蔽这种防御机制，如：
-```
-cc test.c -o test -z execstack           # Non-compliant, disable NX
-cc test.c -o test -z norelro             # Non-compliant, disable RELRO
-cc test.c -o test -fno-stack-protector   # Non-compliant, disable CANARY
-```
-如果必须屏蔽，应落实相关的评审与测试。
-<br/>
-<br/>
-
-#### 相关
-ID_unsafeCompileOption  
-<br/>
-<br/>
-
-### <span id="undefinedbehavior">▌R1.16 不应产生或依赖未定义的行为</span>
+### <span id="undefinedbehavior">▌R1.15 不应产生或依赖未定义的行为</span>
 
 ID_undefinedBehavior &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security warning
 
@@ -1434,7 +1385,7 @@ SEI CERT MSC15-C
 <br/>
 <br/>
 
-### <span id="unspecifiedbehavior">▌R1.17 不应依赖未声明的行为</span>
+### <span id="unspecifiedbehavior">▌R1.16 不应依赖未声明的行为</span>
 
 ID_unspecifiedBehavior &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security warning
 
@@ -1468,6 +1419,64 @@ ISO/IEC 14882:2011 1.3.25
 
 #### 参考
 CWE-758  
+<br/>
+<br/>
+
+### <span id="implementationdefinedfunction">▌R1.17 避免使用由实现定义的库函数</span>
+
+ID_implementationDefinedFunction &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security warning
+
+<hr/>
+
+由实现定义的（implementation\-defined）库函数会增加移植或兼容等方面的成本。  
+  
+如：  
+ - cstdlib、stdlib.h 中的 abort、exit、\_Exit、quick\_exit、getenv、system 等函数  
+ - ctime、time.h 中的 clock 等函数  
+ - csignal、signal.h 中的 signal 等函数  
+  
+这些函数的行为取决于编译器、库或环境的生产厂家，同一个函数不同的厂家会有不同的实现，故称这种函数的行为是“由实现定义”的。有高可靠性要求的软件系统应避免使用这种函数，否则需明确各种实现上的具体差异，增加了移植、发布以及兼容性等多方面的成本。  
+  
+示例：
+```
+#include <cstdlib>
+
+void foo() {
+    abort();   // Non-compliant
+}
+```
+调用 abort 函数会终止进程，但打开的流是否会被关闭，缓冲区内的数据是否会写入文件，临时文件是否会被清理则由实现定义。
+<br/>
+<br/>
+
+#### 相关
+ID_undefinedBehavior  
+ID_unspecifiedBehavior  
+<br/>
+
+#### 依据
+ISO/IEC 9899:2011 7.14.1.1(3)-implementation  
+ISO/IEC 9899:2011 7.22.4.1(2)-implementation  
+ISO/IEC 9899:2011 7.22.4.4(5)-implementation  
+ISO/IEC 9899:2011 7.22.4.5(2)-implementation  
+ISO/IEC 9899:2011 7.22.4.6(2)-implementation  
+ISO/IEC 9899:2011 7.22.4.7(4)-implementation  
+ISO/IEC 9899:2011 7.22.4.8(3)-implementation  
+ISO/IEC 9899:2011 7.27.2.1(3)-implementation  
+<br/>
+
+#### 参考
+CWE-474  
+CWE-589  
+MISRA C 2004 20.8  
+MISRA C 2004 20.11  
+MISRA C 2004 20.12  
+MISRA C 2012 21.5  
+MISRA C 2012 21.8  
+MISRA C 2012 21.10  
+MISRA C++ 2008 18-0-3  
+MISRA C++ 2008 18-0-4  
+MISRA C++ 2008 18-7-1  
 <br/>
 <br/>
 
@@ -1539,6 +1548,82 @@ if (authenticate(u) || u.name() == "debug")   // Non-compliant, back door
 CWE-215  
 CWE-489  
 CWE-1295  
+<br/>
+<br/>
+
+### <span id="missinghardening">▌R1.21 启用平台和编译器提供的防御机制</span>
+
+ID_missingHardening &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security suggestion
+
+<hr/>
+
+针对一些常见攻击，平台和编译器会提供防御机制，如：  
+ - [数据执行保护（NX、DEP）](https://en.wikipedia.org/wiki/Executable_space_protection)  
+ - [栈溢出防护（CANARY、GS）](https://en.wikipedia.org/wiki/Buffer_overflow_protection)  
+ - [地址空间布局随机化（ASLR、PIE）](https://en.wikipedia.org/wiki/Address_space_layout_randomization)  
+  
+程序应利用这种机制加强自身的安全性，进一步可参见“[security hardening](https://en.wikipedia.org/wiki/Hardening_(computing))”。  
+  
+示例：
+```
+// In test.c
+#include <stdio.h>
+
+int main(void) {
+    printf("%p\n", main);
+}
+```
+如果在 Linux 等平台上按如下方式编译：
+```
+cc test.c -o test
+```
+各函数的地址在虚拟内存中是固定的，易被攻击者猜中，进而施展攻击手段。  
+  
+当平台启用了“[ASLR](https://en.wikipedia.org/wiki/Address_space_layout_randomization)”机制，再按如下方式编译：
+```
+cc test.c -o test -fPIE -pie
+```
+可使程序各结构的地址随机化，函数的地址在每次运行时均不相同，有效提高了攻击难度。  
+  
+如无特殊原因，在编译程序时不应屏蔽这种防御机制，如：
+```
+cc test.c -o test -z execstack           # Non-compliant, disable NX
+cc test.c -o test -z norelro             # Non-compliant, disable RELRO
+cc test.c -o test -fno-stack-protector   # Non-compliant, disable CANARY
+```
+如果必须屏蔽，应落实相关的评审与测试。
+<br/>
+<br/>
+
+#### 相关
+ID_unsafeCompileOption  
+<br/>
+<br/>
+
+### <span id="unsafecompileoption">▌R1.22 禁用不安全的编译选项</span>
+
+ID_unsafeCompileOption &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: security warning
+
+<hr/>
+
+掩盖错误、不符合标准、屏蔽安全措施等不安全的编译选项应被禁用。  
+  
+示例：
+```
+c++ test.cpp -o test -fpermissive -w       # Non-compliant
+c++ test.cpp -o test -fno-access-control   # Non-compliant
+c++ test.cpp -o test -ffast-math           # Non-compliant
+```
+例中选项 \-fpermissive 会使一些编译错误降为警告，\-w 会隐藏警告，\-fno\-access\-control 会打破语言规则，使类成员不再受 private、protected 等关键字限制，\-ffast\-math 虽然会提高程序的运算效率，但不再遵守相关 IEEE 或 ISO 标准，这种编译选项均不应使用。
+<br/>
+<br/>
+
+#### 配置
+forbiddenOptions：应被禁用的编译选项  
+<br/>
+
+#### 相关
+ID_missingHardening  
 <br/>
 <br/>
 
@@ -4615,33 +4700,6 @@ ISO/IEC 14882:2011 2.2(1)-undefined
 
 #### 参考
 MISRA C 2012 3.2  
-<br/>
-<br/>
-
-### <span id="unsafecompileoption">▌R3.7.4 禁用不安全的编译选项</span>
-
-ID_unsafeCompileOption &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: precompile warning
-
-<hr/>
-
-掩盖错误、不符合标准、屏蔽安全措施等不安全的编译选项应被禁用。  
-  
-示例：
-```
-c++ test.cpp -o test -fpermissive -w       # Non-compliant
-c++ test.cpp -o test -fno-access-control   # Non-compliant
-c++ test.cpp -o test -ffast-math           # Non-compliant
-```
-例中选项 \-fpermissive 会使一些编译错误降为警告，\-w 会隐藏警告，\-fno\-access\-control 会打破语言规则，使类成员不再受 private、protected 等关键字限制，\-ffast\-math 虽然会提高程序的运算效率，但不再遵守相关 IEEE 或 ISO 标准，这种编译选项均不应使用。
-<br/>
-<br/>
-
-#### 配置
-forbiddenOptions：应被禁用的编译选项  
-<br/>
-
-#### 相关
-ID_missingHardening  
 <br/>
 <br/>
 
@@ -18709,65 +18767,7 @@ MISRA C++ 2008 18-0-2
 <br/>
 <br/>
 
-### <span id="implementationdefinedfunction">▌R10.6.13 避免使用由实现定义的库函数</span>
-
-ID_implementationDefinedFunction &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
-
-<hr/>
-
-由实现定义的（implementation\-defined）库函数会增加移植或兼容等方面的成本。  
-  
-如：  
- - cstdlib、stdlib.h 中的 abort、exit、\_Exit、quick\_exit、getenv、system 等函数  
- - ctime、time.h 中的 clock 等函数  
- - csignal、signal.h 中的 signal 等函数  
-  
-这些函数的行为取决于编译器、库或环境的生产厂家，同一个函数不同的厂家会有不同的实现，故称这种函数的行为是“由实现定义”的。有高可靠性要求的软件系统应避免使用这种函数，否则需明确各种实现上的具体差异，增加了移植、发布以及兼容性等多方面的成本。  
-  
-示例：
-```
-#include <cstdlib>
-
-void foo() {
-    abort();   // Non-compliant
-}
-```
-调用 abort 函数会终止进程，但打开的流是否会被关闭，缓冲区内的数据是否会写入文件，临时文件是否会被清理则由实现定义。
-<br/>
-<br/>
-
-#### 相关
-ID_undefinedBehavior  
-ID_unspecifiedBehavior  
-<br/>
-
-#### 依据
-ISO/IEC 9899:2011 7.14.1.1(3)-implementation  
-ISO/IEC 9899:2011 7.22.4.1(2)-implementation  
-ISO/IEC 9899:2011 7.22.4.4(5)-implementation  
-ISO/IEC 9899:2011 7.22.4.5(2)-implementation  
-ISO/IEC 9899:2011 7.22.4.6(2)-implementation  
-ISO/IEC 9899:2011 7.22.4.7(4)-implementation  
-ISO/IEC 9899:2011 7.22.4.8(3)-implementation  
-ISO/IEC 9899:2011 7.27.2.1(3)-implementation  
-<br/>
-
-#### 参考
-CWE-474  
-CWE-589  
-MISRA C 2004 20.8  
-MISRA C 2004 20.11  
-MISRA C 2004 20.12  
-MISRA C 2012 21.5  
-MISRA C 2012 21.8  
-MISRA C 2012 21.10  
-MISRA C++ 2008 18-0-3  
-MISRA C++ 2008 18-0-4  
-MISRA C++ 2008 18-7-1  
-<br/>
-<br/>
-
-### <span id="unsuitablemove">▌R10.6.14 合理使用 std::move</span>
+### <span id="unsuitablemove">▌R10.6.13 合理使用 std::move</span>
 
 ID_unsuitableMove &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -18832,7 +18832,7 @@ C++ Core Guidelines F.48
 <br/>
 <br/>
 
-### <span id="unsuitableforward">▌R10.6.15 合理使用 std::forward</span>
+### <span id="unsuitableforward">▌R10.6.14 合理使用 std::forward</span>
 
 ID_unsuitableForward &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
