@@ -12,7 +12,7 @@
 
 规则按如下主题分为 17 个类别：
 
- 1. [Security](#__security)：敏感信息防护
+ 1. [Security](#__security)：敏感信息防护与安全策略
  2. [Resource](#__resource)：资源管理
  3. [Precompile](#__precompile)：预处理、宏、注释
  4. [Global](#__global)：全局及命名空间作用域
@@ -22,7 +22,7 @@
  8. [Function](#__function)：函数实现
  9. [Control](#__control)：流程控制
  10. [Expression](#__expression)：表达式
- 11. [Literal](#__literal)：常量
+ 11. [Literal](#__literal)：字面常量
  12. [Cast](#__cast)：类型转换
  13. [Buffer](#__buffer)：缓冲区
  14. [Pointer](#__pointer)：指针
@@ -663,7 +663,7 @@
 <br/>
 
 <span id="__interruption">**[15. Interruption](#interruption)**</span>
-  - [R15.1 避免由信号处理产生的数据竞争](#sig_dataraces)
+  - [R15.1 避免异步信号处理产生的数据竞争](#sig_dataraces)
   - [R15.2 处理信号时避免使用非异步信号安全函数](#sig_nonasyncsafecall)
   - [R15.3 SIGFPE、SIGILL、SIGSEGV 等信号的处理函数不可返回](#sig_illreturn)
   - [R15.4 禁用 signal 函数](#forbidsignalfunction)
@@ -1699,12 +1699,12 @@ void foo(size_t n) {
 void bar(size_t n) {
     void* p = malloc(n);
     if (n < 100) {
-        p = realloc(p, 100);  // Non-compliant, the original value of ‘p’ is lost
+        p = realloc(p, 100);  // Non-compliant, ‘p’ may be lost
     }
     ....
 }
 ```
-例中 realloc 函数分配失败会返回 NULL，p 未经释放而被重新赋值，导致内存泄露。
+当 realloc 函数分配失败时会返回空指针，p 指向的原内存空间不会被释放，但 p 被赋值为空，导致内存泄露，这是一种常见错误。
 <br/>
 <br/>
 
@@ -7472,6 +7472,7 @@ ISO/IEC 14882:2017 5.13.5(16)-undefined
 
 #### 参考
 MISRA C 2012 7.4  
+SEI CERT STR30-C  
 <br/>
 <br/>
 
@@ -14767,6 +14768,7 @@ ID_illFloatComparison
 MISRA C 2004 13.4  
 MISRA C 2012 14.1  
 MISRA C++ 2008 6-5-1  
+SEI CERT FLP30-C  
 <br/>
 <br/>
 
@@ -17021,6 +17023,7 @@ CWE-1025
 MISRA C 2004 12.7  
 MISRA C 2012 10.1  
 MISRA C++ 2008 5-0-21  
+SEI CERT EXP46-C  
 <br/>
 <br/>
 
@@ -20797,7 +20800,14 @@ void foo(unsigned char* p) {
     ....
 }
 ```
-用 memcpy 等函数将低对齐要求的数据复制到高对齐要求的对象中，是避免相关问题的通用模式。
+用 memcpy 等函数将低对齐要求的数据复制到高对齐要求的对象中，是避免相关问题的通用模式。  
+  
+例外：
+```
+alignas(long) short a[32];
+long* p = (long*)a;          // Compliant
+```
+如果源类型的对齐声明与目标类型相符可不受本规则限制。另外，malloc、calloc 等函数的返回值已具备通用对齐要求，也不受本规则限制。
 <br/>
 <br/>
 
@@ -21349,6 +21359,7 @@ ISO/IEC 9899:2011 7.24.2.4
 
 #### 参考
 CWE-170  
+SEI CERT STR32-C  
 <br/>
 <br/>
 
@@ -22519,7 +22530,7 @@ SEI CERT EXP08-C
 
 ## <span id="interruption">15. Interruption</span>
 
-### <span id="sig_dataraces">▌R15.1 避免由信号处理产生的数据竞争</span>
+### <span id="sig_dataraces">▌R15.1 避免异步信号处理产生的数据竞争</span>
 
 ID_sig_dataRaces &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: interruption warning
 
@@ -22597,6 +22608,7 @@ ID_sig_nonAsyncSafeCall &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: interruption warni
   
 示例：
 ```
+#include <stdio.h>
 #include <signal.h>
 
 void handler(int signum) {
@@ -22697,7 +22709,7 @@ ID_forbidSignalFunction &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: interruption s
 
 <hr/>
 
-signal 函数具有一定的局限性，且各平台实现差异较大，可用 sigaction 函数代替。  
+signal 函数具有一定的局限性，且各平台实现差异较大。  
   
 示例：
 ```
@@ -22710,7 +22722,22 @@ void handler(int signum) {     // #1
 ```
 设例中 handler 是某种信号的处理函数。在某些平台上，signal 指定的函数只能被执行一次，所以需要在 handler 中再次调用 signal 指定处理函数，但如果程序在运行到 `#1` 和 `#2` 之间时收到同样的信号，会执行不符合预期的默认处理函数，这是一种竞态条件；而在另一些平台上，signal 指定的函数会一直有效，handler 再次调用 signal 是多余的。  
   
-sigaction 函数不存在这些问题，也可提供更多的功能，但要注意该函数尚未在语言标准中定义。
+与 signal 函数相似的 sigaction 函数不存在这些问题，也可提供更多的功能，但要注意该函数尚未在语言标准中定义。  
+  
+如果条件允许，也可以使用 sigwait、sigwaitinfo 等函数同步地处理信号，如：
+```
+sigset_t ss;
+sigemptyset(&ss);
+sigaddset(&ss, SIGINT);
+sigprocmask(SIG_BLOCK, &ss, NULL);
+while (1) {
+    int signum = sigwaitinfo(&ss, NULL);   // Wait for signals
+    if (signum == SIGINT) {
+        ....                  // Handle the signal
+    }
+}
+```
+例中 sigwaitinfo 函数在没有信号到达时会阻塞，否则返回相应的信号值，这样可以同步地处理信号，避免了异步信号处理需要面对的数据竞争等问题，也使代码具有更清晰的静态结构。
 <br/>
 <br/>
 
