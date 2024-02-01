@@ -106,7 +106,7 @@
   - [R2.1 不可失去对已分配资源的控制](#resourceleak)
   - [R2.2 不可失去对已分配内存的控制](#memoryleak)
   - [R2.3 不可访问未初始化或已释放的资源](#illaccess)
-  - [R2.4 资源应接受对象化管理](#ownerlessresource)
+  - [R2.4 使资源接受对象化管理](#ownerlessresource)
   - [R2.5 资源的分配与回收方法应成对提供](#incompletenewdeletepair)
   - [R2.6 资源的分配与回收方法应配套使用](#incompatibledealloc)
   - [R2.7 不应在模块之间传递容器类对象](#crossmoduletransfer)
@@ -1783,7 +1783,7 @@ SEI CERT EXP53-CPP
 <br/>
 <br/>
 
-### <span id="ownerlessresource">▌R2.4 资源应接受对象化管理</span>
+### <span id="ownerlessresource">▌R2.4 使资源接受对象化管理</span>
 
 ID_ownerlessResource &emsp;&emsp;&emsp;&emsp;&nbsp; :drop_of_blood: resource warning
 
@@ -6291,10 +6291,12 @@ recv(sockfd, &obj, sizeof obj, flags);   // Non-compliant
   
 应在发送端和接收端统一声明对齐方式：
 ```
-struct alignas(4) T {   // Or use _Alignas in C
+#pragma pack(push, 1)
+struct T {
     int8_t  a;
     int32_t b;
 };
+#pragma pack(pop)
 ```
 注意，敏感数据可能会残留在填充数据中，所以当存储或传输对象前有必要清理填充数据的值，如：
 ```

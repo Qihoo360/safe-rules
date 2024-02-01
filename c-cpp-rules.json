@@ -1798,7 +1798,7 @@
         "reference": "C++ Core Guidelines R.10"
     },
     "ID_ownerlessResource": {
-        "checkPoint": "资源应接受对象化管理",
+        "checkPoint": "使资源接受对象化管理",
         "level": "warning",
         "comment": "将资源托管于类的对象，使资源的生命周期协同于对象的生命周期，避免分散处理分配与回收等问题，是 C++ 程序设计中的重要方法。",
         "tag": "resource",
