@@ -14,7 +14,7 @@
 
  1. [Security](#__security)：敏感信息防护与安全策略
  2. [Resource](#__resource)：资源管理
- 3. [Precompile](#__precompile)：预处理、宏、注释
+ 3. [Precompile](#__precompile)：预处理、宏、注释、文件
  4. [Global](#__global)：全局及命名空间作用域
  5. [Type](#__type)：类型设计与实现
  6. [Declaration](#__declaration)：声明
@@ -67,7 +67,7 @@
  - implementation：可使程序产生由实现定义的行为，这种行为由编译器或环境定义，有明确的文档支持
  - deprecated：已被废弃的或不建议继续使用的编程方式
 
-本文以 ISO/IEC 9899:2011、ISO/IEC 14882:2011 为主要依据，兼顾 C18、C++17 以及历史标准，没有特殊说明的规则同时适用于 C 语言和 C++ 语言，只适用于某一种语言的规则会另有说明。
+本文以 ISO/IEC 9899:2011、ISO/IEC 14882:2011 为主要依据，兼顾 C++17 以及历史标准，没有特殊说明的规则同时适用于 C 语言和 C++ 语言，只适用于某一种语言的规则会另有说明。
 
 ## 规则选取
 本文是适用于不同应用场景的规则集合，读者可选取适合自己需求的规则。
@@ -22553,7 +22553,7 @@ ID_sig_dataRaces &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: interruption warning
 char msg[32];
 
 void handler(int signum) {
-    strcpy(msg, "SIGINT received");      // Non-compliant
+    strcpy(msg, "SIGINT received");   // Non-compliant
 }
 
 int main() {
@@ -22579,7 +22579,7 @@ int main() {
     printf("%s received\n", flag? "SIGINT": "No signal");
 }
 ```
-用 SIG\_ATOMIC\_MIN 和 SIG\_ATOMIC\_MAX 之间的值对 sig\_atomic\_t 类型的对象赋值可以保证原子性，超出范围的赋值，或赋值之外的操作不能保证原子性，需要避免。
+注意，sig\_atomic\_t 由实现定义，其最小值和最大值分别为 SIG\_ATOMIC\_MIN 和 SIG\_ATOMIC\_MAX。标准规定，当 sig\_atomic\_t 是有符号整型时，最小值不会大于 \-127，最大值不会小于 127，当 sig\_atomic\_t 是无符号类型时，最小值为 0，最大值不会小于 255。应避免使用超出范围的数值对 sig\_atomic\_t 型变量赋值。
 <br/>
 <br/>
 
