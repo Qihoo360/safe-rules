@@ -643,7 +643,7 @@
   - [R14.5 避免指针运算的结果溢出](#arrayindexoverflow)
   - [R14.6 未指向同一数组的指针不可相减](#illptrdiff)
   - [R14.7 未指向同一数组或同一对象的指针不可比较大小](#illptrcomparison)
-  - [R14.8 未指向数组元素的指针不可与整数加减](#illptrarithmetic)
+  - [R14.8 未指向数组元素的指针不应与整数加减](#illptrarithmetic)
   - [R14.9 避免无效的空指针检查](#invalidnullcheck)
   - [R14.10 不应重复检查指针是否为空](#repeatednullcheck)
   - [R14.11 不应使用非零常量对指针赋值](#fixedaddrtopointer)
@@ -659,7 +659,7 @@
   - [R14.21 禁用 delete this](#this_forbiddeletethis)
   - [R14.22 释放指针后应将指针赋值为空或其他有效值](#missingresetnull)
   - [R14.23 函数取地址时应显式使用 & 运算符](#missingaddressoperator)
-  - [R14.24 指针运算应使用数组下标的方式](#missingarrayindexing)
+  - [R14.24 指针与整数的加减运算应使用数组下标的方式](#missingarrayindexing)
 <br/>
 
 <span id="__interruption">**[15. Interruption](#interruption)**</span>
@@ -21889,7 +21889,7 @@ SEI CERT ARR36-C
 <br/>
 <br/>
 
-### <span id="illptrarithmetic">▌R14.8 未指向数组元素的指针不可与整数加减</span>
+### <span id="illptrarithmetic">▌R14.8 未指向数组元素的指针不应与整数加减</span>
 
 ID_illPtrArithmetic &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: pointer warning
 
@@ -21909,15 +21909,25 @@ p--;       // Non-compliant
 
 p = &i;
 p += 1;    // Non-compliant
-p += 2;    // Non-compliant, undefined
-p -= 1;    // Non-compliant, undefined
+p += 2;    // Non-compliant, undefined behavior if overflow
+p -= 1;    // Non-compliant, undefined behavior if overflow
 ```
+虽然指向单个对象的指针也相当于指向只有一个元素的数组，但对其值进行增减的实际应用价值不高，而且易导致错误，如增值超过 1，或与非 0 值相减都可能造成指针的值溢出，从而导致未定义的行为。  
+  
+对指向单个对象的指针也不应使用数组下标 \[0\]，如：
+```
+p = &i;
+p[0] = 1;   // Non-compliant
+```
+例中 p 指向变量 i，但 p\[0\] 会使人误以为 p 指向数组元素。  
+  
 又如：
 ```
 struct {
     int x, y;
     int a[2];
 } obj;
+
 assert(&obj.x + 1 == &obj.y);         // Non-compliant, no guarantee
 assert(&obj.a[0] + 1 == &obj.a[1]);   // Compliant, well defined
 ```
@@ -22493,13 +22503,13 @@ MISRA C++ 2008 8-4-4
 <br/>
 <br/>
 
-### <span id="missingarrayindexing">▌R14.24 指针运算应使用数组下标的方式</span>
+### <span id="missingarrayindexing">▌R14.24 指针与整数的加减运算应使用数组下标的方式</span>
 
 ID_missingArrayIndexing &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: pointer suggestion
 
 <hr/>
 
-指针运算可由多种方式完成，为了提高可读性应统一使用数组下标的方式，不宜使用 \+、\-、\+=、\-= 等运算符，且应尽量减少指针运算。  
+指针与整数的加减运算可通过多种方式完成，为了提高可读性应统一使用数组下标的方式，不宜使用 \+、\-、\+=、\-= 等运算符，且应尽量减少指针运算。  
   
 指针的 \+\+、\-\- 运算和两个指针的减法运算可不受本规则限制。  
   
@@ -22579,7 +22589,7 @@ int main() {
     printf("%s received\n", flag? "SIGINT": "No signal");
 }
 ```
-注意，sig\_atomic\_t 由实现定义，其最小值和最大值分别为 SIG\_ATOMIC\_MIN 和 SIG\_ATOMIC\_MAX。标准规定，当 sig\_atomic\_t 是有符号整型时，最小值不会大于 \-127，最大值不会小于 127，当 sig\_atomic\_t 是无符号类型时，最小值为 0，最大值不会小于 255。应避免使用超出范围的数值对 sig\_atomic\_t 型变量赋值。
+注意，sig\_atomic\_t 由实现定义，其最小值和最大值分别为 SIG\_ATOMIC\_MIN 和 SIG\_ATOMIC\_MAX。标准规定，当 sig\_atomic\_t 是有符号整型时，最小值不会大于 \-127，最大值不会小于 127，当 sig\_atomic\_t 是无符号整型时，最小值为 0，最大值不会小于 255。应避免使用超出范围的数值对 sig\_atomic\_t 型变量赋值。
 <br/>
 <br/>
 

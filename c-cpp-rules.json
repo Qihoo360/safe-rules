@@ -4097,9 +4097,9 @@
         "reference": "MISRA C 2004 16.6,MISRA C 2012 8.2,SEI CERT EXP37-C"
         },
     "ID_missingArrayIndexing": {
-        "checkPoint": "指针运算应使用数组下标的方式",
+        "checkPoint": "指针与整数的加减运算应使用数组下标的方式",
         "level": "suggestion",
-        "comment": "指针运算可由多种方式完成，为了提高可读性应统一使用数组下标的方式，不宜使用 +、-、+=、-= 等运算符，且应尽量减少指针运算。",
+        "comment": "指针与整数的加减运算可通过多种方式完成，为了提高可读性应统一使用数组下标的方式，不宜使用 +、-、+=、-= 等运算符，且应尽量减少指针运算。",
         "tag": "pointer",
         "reference": "CWE-468,MISRA C 2004 17.4,MISRA C 2012 18.4,MISRA C++ 2008 5-0-15,SEI CERT EXP08-C"
         },
@@ -4243,7 +4243,7 @@
         "reference": "C++ Core Guidelines ES.62,MISRA C 2004 17.3,MISRA C 2012 18.3,MISRA C++ 2008 5-0-18,SEI CERT ARR36-C"
         },
     "ID_illPtrArithmetic": {
-        "checkPoint": "未指向数组元素的指针不可与整数加减",
+        "checkPoint": "未指向数组元素的指针不应与整数加减",
         "level": "warning",
         "comment": "不在同一数组中的地址之间没有连续性，对未指向数组元素的指针进行加减运算往往意味着逻辑错误，也会导致标准未定义的行为。",
         "tag": "pointer",
