@@ -4099,7 +4099,7 @@
     "ID_missingArrayIndexing": {
         "checkPoint": "指针与整数的加减运算应使用数组下标的方式",
         "level": "suggestion",
-        "comment": "指针与整数的加减运算可通过多种方式完成，为了提高可读性应统一使用数组下标的方式，不宜使用 +、-、+=、-= 等运算符，且应尽量减少指针运算。",
+        "comment": "指针与整数的加减运算可以通过多种方式完成，为了提高可读性应统一使用数组下标的方式，不宜使用 +、-、+=、-= 等运算符，且应尽量减少指针运算。",
         "tag": "pointer",
         "reference": "CWE-468,MISRA C 2004 17.4,MISRA C 2012 18.4,MISRA C++ 2008 5-0-15,SEI CERT EXP08-C"
         },
