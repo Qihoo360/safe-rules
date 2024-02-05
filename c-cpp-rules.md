@@ -664,7 +664,7 @@
 
 <span id="__interruption">**[15. Interruption](#interruption)**</span>
   - [R15.1 避免异步信号处理产生的数据竞争](#sig_dataraces)
-  - [R15.2 处理信号时避免使用非异步信号安全函数](#sig_nonasyncsafecall)
+  - [R15.2 在异步信号处理函数中避免使用非异步信号安全函数](#sig_nonasyncsafecall)
   - [R15.3 SIGFPE、SIGILL、SIGSEGV 等信号的处理函数不可返回](#sig_illreturn)
   - [R15.4 禁用 signal 函数](#forbidsignalfunction)
   - [R15.5 信号处理函数应为 POF](#nonpofhandler)
@@ -2298,28 +2298,30 @@ ID_deleteIncompleteType &emsp;&emsp;&emsp;&emsp;&nbsp; :drop_of_blood: resource 
 
 <hr/>
 
-如果用 delete 释放不完整类型的对象，而对象完整类型声明中有 non\-trivial 析构函数，会导致标准未定义的行为。  
+如果用 delete 释放“[不完整类型（incomplete type）](https://en.cppreference.com/w/cpp/language/type#Incomplete_type)”的对象，且对象的完整类型具有 non\-trivial 析构函数，会导致标准未定义的行为。  
   
 示例：
 ```
-struct T;
+struct T;   // Forward declaration, the type is incomplete
 
 void foo(T* p) {
-    delete p;       // Non-compliant, undefined behavior
+    delete p;      // Non-compliant, undefined behavior
 }
 
 struct T {
-   ~T();            // Non-trivial destructor
+   ~T();     // Non-trivial destructor
 };
 ```
-例中 delete 作用于不完整类型的指针 p，析构函数不会正确执行，应保证 T 在 foo 之前定义：
+例中指针 p 被释放时，其类型是不完整的，如果指针的完整类型以及相关基类或非静态成员具有显式定义的非默认析构函数，即 non\-trivial 析构函数，会导致未定义的行为，相关析构函数可能不会正确执行。  
+  
+应保证指针的类型在释放前具有完整声明：
 ```
 struct T {
    ~T();
 };
 
 void foo(T* p) {
-    delete p;       // Compliant
+    delete p;      // Compliant
 }
 ```
 <br/>
@@ -9337,7 +9339,7 @@ ID_overloadAddressOperator &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: declaration sug
 
 重载的取地址运算符可以返回任意类型的数据，易被误用，非智能指针相关的基础类不应重载取地址运算符。  
   
-获取不完整类型的对象地址时，如果其完整类型重载了取地址运算符，会导致标准未定义的行为。  
+获取“[不完整类型（incomplete type）](https://en.cppreference.com/w/cpp/language/type#Incomplete_type)”的对象地址时，如果其完整类型重载了取地址运算符，会导致标准未定义的行为。  
   
 示例：
 ```
@@ -21908,18 +21910,18 @@ p++;       // Non-compliant
 p--;       // Non-compliant
 
 p = &i;
-p += 1;    // Non-compliant
-p += 2;    // Non-compliant, undefined behavior if overflow
-p -= 1;    // Non-compliant, undefined behavior if overflow
+p -= 1;      // Non-compliant, may overflow
+p += 1;      // Non-compliant
+p = &p[2];   // Non-compliant, may overflow
 ```
-虽然指向单个对象的指针也相当于指向只有一个元素的数组，但对其值进行增减的实际应用价值不高，而且易导致错误，如增值超过 1，或与非 0 值相减都可能造成指针的值溢出，从而导致未定义的行为。  
+虽然指向单个对象的指针也相当于指向了只有一个元素的数组，但对其值进行增减的实用价值有限，且易导致错误，如增值超过 1，或与非 0 值相减都可能造成指针值溢出，从而导致未定义的行为。  
   
 对指向单个对象的指针也不应使用数组下标 \[0\]，如：
 ```
 p = &i;
 p[0] = 1;   // Non-compliant
 ```
-例中 p 指向变量 i，但 p\[0\] 会使人误以为 p 指向数组元素。  
+例中 p 指向变量 i，但 p\[0\] 这种方式会使人误以为 p 指向数组元素。  
   
 又如：
 ```
@@ -22610,13 +22612,13 @@ SEI CERT SIG31-C
 <br/>
 <br/>
 
-### <span id="sig_nonasyncsafecall">▌R15.2 处理信号时避免使用非异步信号安全函数</span>
+### <span id="sig_nonasyncsafecall">▌R15.2 在异步信号处理函数中避免使用非异步信号安全函数</span>
 
 ID_sig_nonAsyncSafeCall &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: interruption warning
 
 <hr/>
 
-不处理共享数据也不会影响程序状态的函数，以及不会被信号中断的函数称为“[异步信号安全](https://man7.org/linux/man-pages/man7/signal-safety.7.html)”函数，处理信号时只应使用这种函数。  
+不处理共享数据也不会影响程序状态的函数，以及不会被信号中断的函数称为“[异步信号安全](https://man7.org/linux/man-pages/man7/signal-safety.7.html)”函数，在异步信号处理函数中只应使用这种函数。  
   
 示例：
 ```
@@ -22673,7 +22675,7 @@ int main() {
     ....
 }
 ```
-当发生除 0 等计算异常时，程序会收到 SIGFPE 信号，这种信号对应的处理函数应使用 abort、\_Exit 等函数终止程序的执行，不可正常返回，否则可能会造成更严重的损失。  
+当发生除 0 等计算异常时，程序会收到 SIGFPE 信号，在这种信号的处理函数中应使用 abort、\_Exit 等函数终止程序的执行，不可正常返回，否则可能会造成更严重的错误。  
   
 应改为：
 ```
@@ -23546,7 +23548,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;软件安全不仅意味着技术挑战，更是对用户信任的承诺。保障软件安全、捍卫用户权益是宏大的主题，虽然难以在一篇文章中详尽阐述，但我们尽力通过这 525 条规则为您提供一个全面的框架。随着编程技术的不断发展，还有更多挑战在等待着我们，愿我们携手共进，不断学习、勇敢探索，打造值得信赖的软件产品，让世界更安全更美好。  
+&emsp;&emsp;软件安全不仅意味着技术挑战，更意味着对用户信任的郑重承诺。保障软件安全、捍卫用户权益是宏大的主题，虽然难以在一篇文章中详尽阐述，但我们尽力通过这 525 条规则为您提供一个全面的框架，并持续更新。随着编程技术的发展，还有更多挑战在等待着我们，愿我们携手共进，不断学习、勇敢探索，打造值得信赖的软件产品，让世界更安全更美好。  
 
 &emsp;&emsp;此致
 

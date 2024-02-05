@@ -3695,7 +3695,7 @@
     "ID_deleteIncompleteType": {
         "checkPoint": "用 delete 释放对象需保证其类型完整",
         "level": "warning",
-        "comment": "如果用 delete 释放不完整类型的对象，而对象完整类型声明中有 non-trivial 析构函数，会导致标准未定义的行为。",
+        "comment": "如果用 delete 释放“不完整类型（incomplete type）”的对象，且对象的完整类型具有 non-trivial 析构函数，会导致标准未定义的行为。",
         "tag": "resource",
         "standard": "ISO/IEC 14882:2003 5.3.5(5)-undefined,ISO/IEC 14882:2011 5.3.5(5)-undefined"
         },
@@ -3762,9 +3762,9 @@
         "reference": "SEI CERT SIG31-C"
         },
     "ID_sig_nonAsyncSafeCall": {
-        "checkPoint": "处理信号时避免使用非异步信号安全函数",
+        "checkPoint": "在异步信号处理函数中避免使用非异步信号安全函数",
         "level": "warning",
-        "comment": "不处理共享数据也不会影响程序状态的函数，以及不会被信号中断的函数称为“异步信号安全”函数，处理信号时只应使用这种函数。",
+        "comment": "不处理共享数据也不会影响程序状态的函数，以及不会被信号中断的函数称为“异步信号安全”函数，在异步信号处理函数中只应使用这种函数。",
         "tag": "interruption",
         "standard": "ISO/IEC 9899:1999 7.14.1.1(5)-undefined,ISO/IEC 9899:2011 7.14.1.1(5)-undefined",
         "related": "ID_sig_dataRaces,ID_dataRaces",
