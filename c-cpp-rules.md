@@ -6602,7 +6602,7 @@ if (foo()) {   // ‘e1’ or ‘e2’??
     ....
 }
 ```
-C 枚举值往往可以与整数类型随意转换，如果 e0 和 e2 表示某种错误情况，e1 表示正确情况，那么例中对 foo 函数返回值的判断就是错误的，这也是一种常见问题。  
+enum 往往可以与整数类型随意转换，如果 e0 和 e2 表示某种错误情况，e1 表示正确情况，那么例中对 foo 函数返回值的判断就是错误的，这也是一种常见问题。  
   
 C\+\+11 提出的 enum class 会受到更严格的类型和作用域限制，在 C\+\+ 代码中应尽量使用 enum class：
 ```
@@ -6619,7 +6619,7 @@ if (foo()) {   // Compile error, cannot cast the enum class casually
     ....
 }
 ```
-enum class 类型不能隐式转为整数类型，使用相关枚举项时也需要声明其所属枚举类型的名称，以避免名称冲突。
+enum class 不能隐式转为整数类型，使用相关枚举项时也需要声明其所属枚举类型的名称，以避免名称冲突。
 <br/>
 <br/>
 
@@ -7495,7 +7495,9 @@ enum E: const unsigned int  // Non-compliant, ‘const’ is invalid
 };
 E e = e0;  // ‘e’ is not const
 ```
-将 E 的底层类型声明为 const 是没有意义的，e 为变量，应改为：
+将例中 E 的底层类型声明为 const 是没有意义的，e 仍为变量。  
+  
+应改为：
 ```
 enum E: unsigned int  // Compliant
 {
