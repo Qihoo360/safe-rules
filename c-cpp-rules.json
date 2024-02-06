@@ -213,7 +213,7 @@
     "ID_incompleteVaMacros": {
         "checkPoint": "va_start 或 va_copy 应配合 va_end 使用",
         "level": "warning",
-        "comment": "可变参数列表相关的 va_start 或 va_copy 和 va_end 应在同一函数中使用，否则会导致标准未定义的错误。",
+        "comment": "可变参数列表相关的 va_start 或 va_copy 和 va_end 应在同一函数中使用，否则会导致标准未定义的行为。",
         "tag": "precompile",
         "related": "ID_forbidVariadicFunction",
         "standard": "ISO/IEC 9899:1999 7.15.1.3(2)-undefined,ISO/IEC 9899:2011 7.16.1.3(2)-undefined"
@@ -376,7 +376,7 @@
     "ID_plainSensitiveInfo": {
         "checkPoint": "敏感数据不可写入代码",
         "level": "warning",
-        "comment": "代码中的敏感数据极易泄露，产品以及相关运维、测试工具的代码均不可记录任何敏感数据。",
+        "comment": "代码中的敏感数据极易泄露，产品及相关运维、测试工具的代码均不可记录任何敏感数据。",
         "tag": "security",
         "related": "ID_secretLeak",
         "reference": "CWE-259,CWE-798,SEI CERT MSC41-C"
@@ -643,9 +643,9 @@
         "standard": "ISO/IEC 9899:1999 6.2.5(3 15)-implementation,ISO/IEC 9899:2011 6.2.5(3 15)-implementation,ISO/IEC 14882:2003 3.9.1(1)-implementation,ISO/IEC 14882:2011 3.9.1(1)-implementation,ISO/IEC 14882:2017 21.2.1,ISO/IEC 14882:2017 21.2.5"
         },
     "ID_uselessQualifier": {
-        "checkPoint": "枚举类型的底层类型不应为 const 或 volatile",
+        "checkPoint": "声明枚举类型的底层类型时不应使用 const 或 volatile",
         "level": "warning",
-        "comment": "将 enum 或 enum class 的底层类型（underlying type）设为 const 或 volatile 是没有意义的，会被编译器忽略，属于语言运用错误。",
+        "comment": "在 C++ 语言中，将 enum 或 enum class 的底层类型（underlying type）设为 const 或 volatile 是没有意义的，会被编译器忽略，属于语言运用错误。",
         "tag": "declaration",
         "standard": "ISO/IEC 14882:2011 7.2(2),ISO/IEC 14882:2011 10.2(2)"
         },
@@ -667,7 +667,7 @@
     "ID_forbidUnscopedEnum": {
         "checkPoint": "用 enum class 取代 enum",
         "level": "suggestion",
-        "comment": "传统 C 枚举没有有效的类型和作用域控制，极易造成类型混淆和名称冲突，在 C++ 语言中建议改用 enum class。",
+        "comment": "enum 受到的限制较为宽松，易造成混淆或冲突等问题，在 C++ 代码中应改用 enum class。",
         "tag": "type",
         "standard": "ISO/IEC 14882:2011 7.2(2),ISO/IEC 14882:2017 10.2(2)",
         "reference": "C++ Core Guidelines Enum.3"
@@ -675,7 +675,7 @@
     "ID_forbidUnnamedEnum": {
         "checkPoint": "不应使用匿名枚举声明",
         "level": "suggestion",
-        "comment": "匿名枚举声明相当于在当前作用域定义常量，类型不够明确，而且如果无法确定枚举类型的名称，也意味着各枚举项不应聚为一类。",
+        "comment": "匿名枚举声明相当于在当前作用域定义常量，但类型不够明确。",
         "tag": "type",
         "reference": "C++ Core Guidelines Enum.6"
         },
@@ -1081,7 +1081,7 @@
     "ID_redundantVirtual": {
         "checkPoint": "override 或 final 关键字不应与 virtual 关键字同时出现在声明中",
         "level": "suggestion",
-        "comment": "只应在定义新的虚函数时使用 virtual 关键字，当重写虚函数时，应使用 override 或 final 关键字，不应再出现 virtual 关键字，使代码更清晰简洁。",
+        "comment": "只应在定义新的虚函数时使用 virtual 关键字，重写虚函数应使用 override 或 final 关键字，不应再出现 virtual 关键字。",
         "tag": "declaration",
         "reference": "C++ Core Guidelines C.128"
         },
@@ -1564,7 +1564,7 @@
     "ID_oddPtrZeroComparison": {
         "checkPoint": "指针与空指针不应比较大小",
         "level": "warning",
-        "comment": "比较指针与空指针的大小往往意味着逻辑错误。",
+        "comment": "指针与空指针比较大小往往意味着逻辑错误，而且只有指向同一数组或对象的指针才能比较大小，否则会导致标准未定义的行为，空指针不指向任何数组或对象，故指针与空指针不应比较大小。",
         "tag": "pointer",
         "related": "ID_illPtrDiff",
         "standard": "ISO/IEC 9899:1999 6.5.8(5)-undefined,ISO/IEC 9899:2011 6.5.8(5)-undefined",
@@ -1807,7 +1807,7 @@
     "ID_dynamicAllocation": {
         "checkPoint": "避免动态内存分配",
         "level": "warning",
-        "comment": "标准库提供的动态内存分配方法，其策略和算法不在使用者的控制之内，很多细节是标准没有明确规定的，而且也是内存耗尽等问题的根源，有高可靠性要求的嵌入式系统应选取本规则。",
+        "comment": "标准库提供的动态内存分配方法，其算法或策略不在使用者的控制之内，很多细节是标准没有规定的，而且也是内存耗尽等问题的根源，有高可靠性要求的嵌入式系统应避免动态内存分配。",
         "tag": "resource",
         "standard": "ISO/IEC 9899:1999 7.20.3,ISO/IEC 9899:2011 7.22.3",
         "reference": "C++ Core Guidelines R.5,MISRA C 2004 20.4,MISRA C 2012 21.3,MISRA C++ 2008 18-4-1"
@@ -2597,7 +2597,7 @@
     "ID_for_simplification": {
         "checkPoint": "for 语句没有明确的循环变量时应改用 while 语句",
         "level": "suggestion",
-        "comment": "如果没有明确的循环变量，则应改用 while 循环，避免误导维护者。",
+        "comment": "for 语句一般用于实现具有明确循环次数和循环变量的迭代算法，循环变量即控制循环次数的变量。for 语句小括号内的三个表达式应分别专注于循环变量的初始化、循环条件的判断、循环变量的增减，这样可以使循环具有清晰的静态结构，便于阅读，利于维护。",
         "tag": "control",
         "reference": "C++ Core Guidelines ES.73"
         },
@@ -2644,7 +2644,7 @@
     "ID_switch_emptyBlock": {
         "checkPoint": "switch 语句不应为空",
         "level": "warning",
-        "comment": "空的 switch 语句没有意义。",
+        "comment": "空的 switch 语句无实际意义，往往是残留代码或功能未实现。",
         "tag": "control",
         "reference": "CWE-1071,MISRA C++ 2008 6-4-8"
         },
@@ -2806,7 +2806,7 @@
     "ID_forbidPragmaDirective": {
         "checkPoint": "避免使用 pragma 指令",
         "level": "warning",
-        "comment": "为了提高可移植性，应避免使用由实现定义的 pragma 指令。",
+        "comment": "应避免使用由实现定义的 pragma 指令以提高可移植性。",
         "tag": "precompile",
         "standard": "ISO/IEC 9899:1999 6.10.6(1)-implementation,ISO/IEC 9899:2011 6.10.6(1)-implementation",
         "reference": "MISRA C++ 2008 16-6-1"
@@ -2879,7 +2879,7 @@
     "ID_macro_paramNotEnclosed": {
         "checkPoint": "表达式中的宏参数应该用括号括起来",
         "level": "warning",
-        "comment": "预处理器对宏参数只做文本替换，不考虑运算符优先级等问题，所以应将宏参数用括号括起来，从而避免意料之外的错误。",
+        "comment": "编译器对宏参数只做文本替换，不考虑运算符优先级等问题，所以应将宏参数用括号括起来，从而避免意料之外的错误。",
         "tag": "precompile",
         "standard": "ISO/IEC 9899:1999 6.10.3.5(4),ISO/IEC 9899:2011 6.10.3.5(4)",
         "reference": "CWE-783,MISRA C 2004 19.10,MISRA C 2012 20.7,MISRA C++ 2008 16-0-6,SEI CERT PRE01-C"
@@ -3017,7 +3017,7 @@
     "ID_divideByZero": {
         "checkPoint": "避免除 0 等计算异常",
         "level": "error",
-        "comment": "除 0 等在数学上没有定义的运算、浮点异常、非法指令、段错误等问题称为“计算异常”，意味着程序发生了严重的底层运行时错误，而且这种异常无法用语言层面的常规方法捕获。",
+        "comment": "除 0 等在数学上没有定义的运算、浮点异常、非法指令、段错误等问题称为“计算异常”，意味着严重的底层运行时错误，而且这种异常无法用语言层面的常规方法捕获。",
         "tag": "security",
         "related": "ID_sig_illReturn",
         "standard": "ISO/IEC 9899:1999 6.5.5(5)-undefined,ISO/IEC 9899:2011 6.5.5(5)-undefined,ISO/IEC 14882:2003 5.6(4)-undefined,ISO/IEC 14882:2011 5.6(4)-undefined,ISO/IEC 14882:2017 8.6(4)-undefined",
@@ -3138,7 +3138,7 @@
     "ID_sizeof_sizeof": {
         "checkPoint": "sizeof 不应再作用于 sizeof 表达式",
         "level": "error",
-        "comment": "sizeof(sizeof(...)) 等价于 sizeof(size_t)，在实际应用中没有任何必要写成连续 sizeof 的形式，属于常见笔误，多数由复制粘贴或错误的宏展开导致。",
+        "comment": "sizeof(sizeof(...)) 等价于 sizeof(size_t)，在实际应用中没有任何必要写成连续 sizeof 的形式，往往意味着逻辑错误，多数由复制粘贴或错误的宏展开导致。",
         "tag": "expression",
         "standard": "ISO/IEC 9899:1999 6.5.3.4(4),ISO/IEC 9899:2011 6.5.3.4(5),ISO/IEC 14882:2003 5.3.3(6),ISO/IEC 14882:2011 5.3.3(6),ISO/IEC 14882:2017 8.3.3(6)",
         "reference": "CWE-682"
@@ -3633,7 +3633,7 @@
     "ID_nonPrivateData": {
         "checkPoint": "类的非常量数据成员均应为 private",
         "level": "suggestion",
-        "comment": "类的数据成员均应设为 private，对外统一由成员函数提供访问方法，且应避免返回 private 成员的非常量引用或指针。",
+        "comment": "类的数据成员均应设为 private，统一由成员函数提供访问方法，并避免返回数据成员的非常量引用或指针。",
         "tag": "type",
         "related": "ID_protectedData,ID_mixPublicPrivateData",
         "reference": "CWE-1061,MISRA C++ 2008 11-0-1"
@@ -4153,7 +4153,7 @@
     "ID_paramModified": {
         "checkPoint": "形式参数不应被修改",
         "level": "suggestion",
-        "comment": "为了提高可读性和可维护性，应分清形式参数和普通局部变量的职责，避免修改形式参数。",
+        "comment": "为了提高可读性和可维护性，应分清形式参数和普通局部对象的职责，避免修改形式参数。",
         "tag": "function",
         "related": "ID_invalidWrite",
         "reference": "MISRA C 2012 17.8"
@@ -4198,7 +4198,7 @@
     "ID_missingBracedSyntax": {
         "checkPoint": "用 {} 代替 = 或 () 进行初始化",
         "level": "suggestion",
-        "comment": "由 C++11 提出的 {} 初始化法有效规避了用 = 或 () 进行初始化的不确定性。",
+        "comment": "用 = 或 () 初始化不检查类型转换是否安全，可能会造成数据丢失，用 {} 初始化会进行相关检查，避免数据丢失。",
         "tag": "declaration",
         "related": "ID_narrowCast",
         "standard": "ISO/IEC 14882:2011 8.5.4",

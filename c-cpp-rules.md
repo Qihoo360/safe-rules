@@ -259,7 +259,7 @@
     - [R6.2.4 const、volatile 限定类型时的位置应统一](#badqualifierposition)
     - [R6.2.5 const、volatile 等关键字不应出现在基本类型名称的中间](#sandwichedmodifier)
     - [R6.2.6 指向常量字符串的指针应使用 const 声明](#conststrtononconstptr)
-    - [R6.2.7 枚举类型的底层类型不应为 const 或 volatile](#uselessqualifier)
+    - [R6.2.7 声明枚举类型的底层类型时不应使用 const 或 volatile](#uselessqualifier)
     - [R6.2.8 对常量的定义不应为引用](#constliteralreference)
     - [R6.2.9 禁用 restrict 指针](#forbidrestrictptr)
     - [R6.2.10 非适当场景禁用 volatile](#forbidvolatile)
@@ -6586,7 +6586,7 @@ ID_forbidUnscopedEnum &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: type suggestion
 
 <hr/>
 
-传统 C 枚举没有有效的类型和作用域控制，极易造成类型混淆和名称冲突，在 C\+\+ 代码中建议改用 enum class。  
+enum 受到的限制较为宽松，易造成混淆或冲突等问题，在 C\+\+ 代码中应改用 enum class。  
   
 示例：
 ```
@@ -6598,15 +6598,13 @@ enum E {      // Non-compliant
 
 E foo();
 
-void bar() {
-    if (foo()) {   // ‘e1’ or ‘e2’??
-        ....
-    }
+if (foo()) {   // ‘e1’ or ‘e2’??
+    ....
 }
 ```
-传统 C 枚举值与 int 等类型可以随意转换，如果 e0 和 e2 表示某种错误情况，e1 表示正确情况，那么 bar 函数中对 foo 返回值的判断就是错误的，这也是一种常见问题，C\+\+11 提出了 enum class 的概念加强了类型检查，提倡在新项目中尽量使用 enum class。  
+C 枚举值往往可以与整数类型随意转换，如果 e0 和 e2 表示某种错误情况，e1 表示正确情况，那么例中对 foo 函数返回值的判断就是错误的，这也是一种常见问题。  
   
-应改为：
+C\+\+11 提出的 enum class 会受到更严格的类型和作用域限制，在 C\+\+ 代码中应尽量使用 enum class：
 ```
 enum class E {   // Compliant
     e0 = 0,
@@ -6614,15 +6612,14 @@ enum class E {   // Compliant
     e2 = -1
 };
 
-void bar() {
-    if (foo() == E::e1) {   // OK
-        ....
-    }
-    if (foo()) {   // Compile error, cannot cast the enum class casually
-        ....
-    }
+if (foo() == E::e1) {   // OK
+    ....
+}
+if (foo()) {   // Compile error, cannot cast the enum class casually
+    ....
 }
 ```
+enum class 类型不能隐式转为整数类型，使用相关枚举项时也需要声明其所属枚举类型的名称，以避免名称冲突。
 <br/>
 <br/>
 
@@ -7480,13 +7477,15 @@ SEI CERT STR30-C
 <br/>
 <br/>
 
-### <span id="uselessqualifier">▌R6.2.7 枚举类型的底层类型不应为 const 或 volatile</span>
+### <span id="uselessqualifier">▌R6.2.7 声明枚举类型的底层类型时不应使用 const 或 volatile</span>
 
 ID_uselessQualifier &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: declaration warning
 
 <hr/>
 
-将 enum 或 enum class 的底层类型（underlying type）设为 const 或 volatile 是没有意义的，会被编译器忽略，属于语言运用错误。  
+在 C\+\+ 语言中，将 enum 或 enum class 的底层类型（underlying type）设为 const 或 volatile 是没有意义的，会被编译器忽略，属于语言运用错误。  
+  
+枚举类型基于整数类型实现，故称枚举类型的底层类型为整数类型。enum 的底层类型在 C 和 C\+\+ 语言中由实现定义，C\+\+11  引入 enum class，并与 enum 一起均可显式声明底层类型，若未显式声明，enum class 的底层类型为 int，enum 的底层类型仍由实现定义。  
   
 示例：
 ```
@@ -7496,7 +7495,7 @@ enum E: const unsigned int  // Non-compliant, ‘const’ is invalid
 };
 E e = e0;  // ‘e’ is not const
 ```
-应改为：
+将 E 的底层类型声明为 const 是没有意义的，e 为变量，应改为：
 ```
 enum E: unsigned int  // Compliant
 {
@@ -20388,7 +20387,7 @@ ID_voidCast &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: cast suggestion
 
 与 void\* 相互转换会打破类型限制，是不安全的类型转换。  
   
-C 语言的某些传统接口会使用 void\*，可不受本规则限制，但在 C\+\+ 代码中应避与 void\* 相互转换。  
+C 语言的某些标准接口会使用 void\*，可不受本规则限制，但在 C\+\+ 代码中应避与 void\* 相互转换。  
   
 示例：
 ```
@@ -22326,7 +22325,7 @@ ID_oddPtrZeroComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: pointer warning
 
 <hr/>
 
-指针与空指针比较大小往往意味着逻辑错误，而且只有指向同一数组或对象的指针才能比较大小，否则会导致标准未定义的行为，空指针不指向任何数组或对象，故不应比较指针与空指针的大小。  
+指针与空指针比较大小往往意味着逻辑错误，而且只有指向同一数组或对象的指针才能比较大小，否则会导致标准未定义的行为，空指针不指向任何数组或对象，故指针与空指针不应比较大小。  
   
 指针与空指针之间只应使用 == 或 != 比较，其他比较运算符均不符合要求。  
   
