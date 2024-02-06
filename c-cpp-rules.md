@@ -2915,12 +2915,12 @@ ID_nonStandardCharInHeaderName &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: precomp
 #include <foo.h>        // Compliant
 #include <foo_bar>      // Compliant
 ```
-可以用 / 作为路径分隔符，但不应出现  // 或 /\*，  如：
+可以用 / 作为路径分隔符，但不应出现  // 或 /\*，  否则会导致未定义的行为，如：
 ```
 #include <foo//bar.h>   // Non-Compliant, undefined behavior
 #include <foo/*bar.h>   // Non-Compliant, undefined behavior
 ```
-另外，某些平台的文件路径不区分大小写，建议在头文件名称中只使用小写字母以提高可移植性。
+另外，某些平台的文件路径不区分大小写，建议头文件以小写字母命名以提高可移植性。
 <br/>
 <br/>
 
@@ -7483,7 +7483,7 @@ ID_uselessQualifier &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: declaration warning
 
 <hr/>
 
-在 C\+\+ 语言中，将 enum 或 enum class 的底层类型（underlying type）设为 const 或 volatile 是没有意义的，会被编译器忽略，属于语言运用错误。  
+在 C\+\+ 语言中，将 enum 或 enum class 的底层类型（underlying type）设为 const 或 volatile 是没有意义的，会被编译器忽略。  
   
 枚举类型基于整数类型实现，故称枚举类型的底层类型为整数类型。enum 的底层类型在 C 和 C\+\+ 语言中由实现定义，C\+\+11  引入 enum class，并与 enum 一起均可显式声明底层类型，若未显式声明，enum class 的底层类型为 int，enum 的底层类型仍由实现定义。  
   

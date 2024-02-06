@@ -645,7 +645,7 @@
     "ID_uselessQualifier": {
         "checkPoint": "声明枚举类型的底层类型时不应使用 const 或 volatile",
         "level": "warning",
-        "comment": "在 C++ 语言中，将 enum 或 enum class 的底层类型（underlying type）设为 const 或 volatile 是没有意义的，会被编译器忽略，属于语言运用错误。",
+        "comment": "在 C++ 语言中，将 enum 或 enum class 的底层类型（underlying type）设为 const 或 volatile 是没有意义的，会被编译器忽略。",
         "tag": "declaration",
         "standard": "ISO/IEC 14882:2011 7.2(2),ISO/IEC 14882:2011 10.2(2)"
         },
