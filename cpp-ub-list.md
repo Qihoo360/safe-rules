@@ -1,5 +1,7 @@
 # 附录：C++ 未定义行为成因列表 ![Version](https://img.shields.io/badge/version-1.3.2-brightgreen) <img src="./logo.png" align="right" width="auto" height="100"/>
 
+> cppreference.com: "*Undefined behavior renders the entire program meaningless if certain rules of the language are violated.*"
+
 &emsp;&emsp;未定义的行为（Undefined Behavior），指程序不可预测的执行效果，一般由错误的代码实现引起。出于效率、兼容性等多方面原因，语言标准不便于定义错误程序的明确行为，而是将其统称为“未定义”的行为，可以是崩溃，也可以是非预期的任意表现，有些问题在编译器和执行环境的特殊处理下也可能不会造成实质性的危害，但不具备可移植性。代码质量管理的一个重要目标就是消除会导致未定义行为的代码。
 
 &emsp;&emsp;C\+\+ 标准声明了导致未定义行为的情况，本文梳理了 ISO/IEC 14882:2003 和 ISO/IEC 14882:2011 前 18 章的相关内容，后 12 章的主题为标准库实现，相关内容的主旨在前 18 章中已有体现，C 语言相关内容可参见《[C 未定义行为成因列表](https://github.com/Qihoo360/safe-rules/blob/main/c-ub-list.md)》。
