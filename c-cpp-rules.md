@@ -2,7 +2,7 @@
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对 C 和 C++ 语言，本文收录了 525 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对 C 和 C++ 语言，本文收录了 526 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
@@ -293,7 +293,7 @@
     - [R6.5.7 C\+\+ 代码中参数列表如果为空不应声明为“(void)”](#superfluousvoid)
     - [R6.5.8 声明数组参数的大小时禁用 static 关键字](#forbidstaticarrsize)
   - [6.6 Initializer](#declaration.initializer)
-    - [R6.6.1 用 {} 代替 = 或 () 进行初始化](#missingbracedsyntax)
+    - [R6.6.1 用列表初始化代替用等号或小括号的方式进行初始化](#missingbracedsyntax)
     - [R6.6.2 在初始化列表中对聚合体也应使用初始化列表](#missingbracedinitializer)
     - [R6.6.3 初始化列表中不应存在重复的指派符](#repeateddesignator)
   - [6.7 Object](#declaration.object)
@@ -381,43 +381,44 @@
   - [R8.7 复制成本高的参数不应按值传递](#parampassedbyvalue)
   - [R8.8 转发引用只应作为 std::forward 的参数](#illforwardingreference)
   - [R8.9 局部对象在使用前应被初始化](#localinitialization)
-  - [R8.10 成员须在声明处或构造时初始化](#memberinitialization)
-  - [R8.11 基类对象构造完毕之前不可调用成员函数](#illmembercall)
-  - [R8.12 在面向构造或析构函数体的 catch 子句中不可访问非静态成员](#illmemberaccess)
-  - [R8.13 成员初始化应遵循声明的顺序](#disorderedinitialization)
-  - [R8.14 在构造函数中不应使用动态类型](#virtualcallinconstructor)
-  - [R8.15 在析构函数中不应使用动态类型](#virtualcallindestructor)
-  - [R8.16 避免在析构函数中调用 exit 函数](#exitcallindestructor)
-  - [R8.17 避免在拷贝构造函数中实现复制之外的功能](#sideeffectcopyconstructor)
-  - [R8.18 避免在移动构造函数中实现数据移动之外的功能](#sideeffectmoveconstructor)
-  - [R8.19 拷贝赋值运算符应处理参数是自身对象时的情况](#this_selfjudgement)
-  - [R8.20 不应存在无效的写入操作](#invalidwrite)
-  - [R8.21 不应存在没有副作用的语句](#missingsideeffect)
-  - [R8.22 不应存在得不到执行机会的代码](#unreachablecode)
-  - [R8.23 有返回值的函数其所有分枝都应显式返回](#notallbranchreturn)
-  - [R8.24 不可返回局部对象的地址或引用](#localaddressflowout)
-  - [R8.25 不可返回临时对象的地址或引用](#tmpaddressflowout)
-  - [R8.26 合理设置 lambda 表达式的捕获方式](#unsuitablecapture)
-  - [R8.27 函数返回值不应为右值引用](#returnrvaluereference)
-  - [R8.28 函数返回值不应为常量对象](#returnconstobject)
-  - [R8.29 函数返回值不应为基本类型的常量](#returnsuperfluousconst)
-  - [R8.30 被返回的表达式应与函数的返回类型一致](#returnodd)
-  - [R8.31 被返回的表达式不应为相同的常量](#returnsameconst)
-  - [R8.32 具有 noreturn 属性的函数不应返回](#unsuitablereturn)
-  - [R8.33 具有 noreturn 属性的函数返回类型只应为 void](#unsuitablereturntype)
-  - [R8.34 由 atexit、at\_quick\_exit 指定的处理函数应正常返回](#exithandlernoreturn)
-  - [R8.35 函数模板不应被特化](#functionspecialization)
-  - [R8.36 函数的退出点数量应在规定范围之内](#toomanyexit)
-  - [R8.37 函数的标签数量应在规定范围之内](#toomanylabels)
-  - [R8.38 函数的行数应在规定范围之内](#toomanylines)
-  - [R8.39 lambda 表达式的行数应在规定范围之内](#toomanylambdalines)
-  - [R8.40 函数参数的数量应在规定范围之内](#toomanyparams)
-  - [R8.41 不应定义复杂的内联函数](#complexinlinefunction)
-  - [R8.42 避免函数调用自身](#recursion)
-  - [R8.43 不可递归调用析构函数](#this_deleteindestructor)
-  - [R8.44 作用域及类型嵌套不应过深](#nestedtoodeep)
-  - [R8.45 汇编代码不应与普通代码混合](#mixedasm)
-  - [R8.46 避免重复的函数实现](#functionrepetition)
+  - [R8.10 动态创建的对象在使用前应被初始化](#dynamicinitialization)
+  - [R8.11 成员须在声明处或构造时初始化](#memberinitialization)
+  - [R8.12 基类对象构造完毕之前不可调用成员函数](#illmembercall)
+  - [R8.13 在面向构造或析构函数体的 catch 子句中不可访问非静态成员](#illmemberaccess)
+  - [R8.14 成员初始化应遵循声明的顺序](#disorderedinitialization)
+  - [R8.15 在构造函数中不应使用动态类型](#virtualcallinconstructor)
+  - [R8.16 在析构函数中不应使用动态类型](#virtualcallindestructor)
+  - [R8.17 避免在析构函数中调用 exit 函数](#exitcallindestructor)
+  - [R8.18 避免在拷贝构造函数中实现复制之外的功能](#sideeffectcopyconstructor)
+  - [R8.19 避免在移动构造函数中实现数据移动之外的功能](#sideeffectmoveconstructor)
+  - [R8.20 拷贝赋值运算符应处理参数是自身对象时的情况](#this_selfjudgement)
+  - [R8.21 不应存在无效的写入操作](#invalidwrite)
+  - [R8.22 不应存在没有副作用的语句](#missingsideeffect)
+  - [R8.23 不应存在得不到执行机会的代码](#unreachablecode)
+  - [R8.24 有返回值的函数其所有分枝都应显式返回](#notallbranchreturn)
+  - [R8.25 不可返回局部对象的地址或引用](#localaddressflowout)
+  - [R8.26 不可返回临时对象的地址或引用](#tmpaddressflowout)
+  - [R8.27 合理设置 lambda 表达式的捕获方式](#unsuitablecapture)
+  - [R8.28 函数返回值不应为右值引用](#returnrvaluereference)
+  - [R8.29 函数返回值不应为常量对象](#returnconstobject)
+  - [R8.30 函数返回值不应为基本类型的常量](#returnsuperfluousconst)
+  - [R8.31 被返回的表达式应与函数的返回类型一致](#returnodd)
+  - [R8.32 被返回的表达式不应为相同的常量](#returnsameconst)
+  - [R8.33 具有 noreturn 属性的函数不应返回](#unsuitablereturn)
+  - [R8.34 具有 noreturn 属性的函数返回类型只应为 void](#unsuitablereturntype)
+  - [R8.35 由 atexit、at\_quick\_exit 指定的处理函数应正常返回](#exithandlernoreturn)
+  - [R8.36 函数模板不应被特化](#functionspecialization)
+  - [R8.37 函数的退出点数量应在规定范围之内](#toomanyexit)
+  - [R8.38 函数的标签数量应在规定范围之内](#toomanylabels)
+  - [R8.39 函数的行数应在规定范围之内](#toomanylines)
+  - [R8.40 lambda 表达式的行数应在规定范围之内](#toomanylambdalines)
+  - [R8.41 函数参数的数量应在规定范围之内](#toomanyparams)
+  - [R8.42 不应定义复杂的内联函数](#complexinlinefunction)
+  - [R8.43 避免函数调用自身](#recursion)
+  - [R8.44 不可递归调用析构函数](#this_deleteindestructor)
+  - [R8.45 作用域及类型嵌套不应过深](#nestedtoodeep)
+  - [R8.46 汇编代码不应与普通代码混合](#mixedasm)
+  - [R8.47 避免重复的函数实现](#functionrepetition)
 <br/>
 
 <span id="__control">**[9. Control](#control)**</span>
@@ -1736,7 +1737,9 @@ ID_illAccess &emsp;&emsp;&emsp;&emsp;&nbsp; :drop_of_blood: resource error
 
 访问未初始化或已释放的资源属于逻辑错误，会导致标准未定义的行为。  
   
-对于访问未初始化的局部对象，本规则特化为 ID\_localInitialization；对于解引用未初始化或已被释放的指针，本规则特化为 ID\_wildPtrDeref 、ID\_danglingDeref。  
+资源在编程语言中往往与对象绑定：  
+ - 对于访问未初始化的对象，本规则特化为 ID\_localInitialization、ID\_dynamicInitialization  
+ - 对于解引用未初始化或已被释放的指针，本规则特化为 ID\_wildPtrDeref、ID\_danglingDeref  
   
 示例：
 ```
@@ -1748,7 +1751,11 @@ void foo(const char* path, char buf[], size_t n) {
     fread(buf, 1, n, f);   // Non-compliant, ‘f’ may be invalid
     fclose(f);
 }
-
+```
+当参数 path 为空时，fread 函数读取未打开的文件会导致严重错误。  
+  
+又如：
+```
 void bar(FILE* f, char buf[], size_t n) {
     if (feof(f)) {
         fclose(f);
@@ -1756,6 +1763,7 @@ void bar(FILE* f, char buf[], size_t n) {
     fread(buf, 1, n, f);   // Non-compliant, ‘f’ may be closed
 }
 ```
+关闭文件后，文件对象已销毁，再次读取也会导致严重错误。
 <br/>
 <br/>
 
@@ -1763,6 +1771,7 @@ void bar(FILE* f, char buf[], size_t n) {
 ID_wildPtrDeref  
 ID_danglingDeref  
 ID_localInitialization  
+ID_dynamicInitialization  
 <br/>
 
 #### 依据
@@ -8853,22 +8862,68 @@ MISRA C 2012 17.6
 
 ### <span id="declaration.initializer">6.6 Initializer</span>
 
-### <span id="missingbracedsyntax">▌R6.6.1 用 {} 代替 = 或 () 进行初始化</span>
+### <span id="missingbracedsyntax">▌R6.6.1 用列表初始化代替用等号或小括号的方式进行初始化</span>
 
 ID_missingBracedSyntax &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: declaration suggestion
 
 <hr/>
 
-用 = 或 () 初始化不检查类型转换是否安全，可能会造成数据丢失，用 {} 初始化会进行相关检查，避免数据丢失。  
+等号或小括号初始化不检查类型转换是否安全，列表初始化会进行相关检查，可避免数据丢失等问题，提高了安全性，而且列表初始化在语法形式上更统一，有助于提高可读性。  
   
 示例：
 ```
-double d = 1.2;
-float x = d;     // Non-compliant, may loss data
-float y(d);      // Non-compliant, may loss data
-float z{d};      // Compliant, compile-time protected
+void foo(double x) {
+    float a = x;   // Non-compliant, may loss data
+    float b(x);    // Non-compliant, may loss data
+    float c{x};    // Compliant, list-initialization, compile-time protected
+    ....
+}
 ```
-例中 x 和 y 的初始化可能存在数据丢失等问题，z 的初始化无法通过编译，使问题可以及时修正。
+例中 a 和 b 的初始化可能存在数据丢失等问题，c 的初始化无法通过编译，使问题得以及时修正。  
+  
+在大多数情况下，列表出初始化均可代替等号或小括号初始化，如初始赋值、调用构造函数等：
+```
+struct A {
+    int x{1};       // x is set to 1
+    A() = default;  // Default constructor
+    A(int i): x{i}  // Overloaded constructor
+    {}
+};
+A a{};        // Calls the default constructor
+A b{1};       // Calls the overloaded constructor
+A c{a};       // Copy-initialization
+A d[]{1, 2};  // Initializate an array
+
+struct B {
+    int i, j;
+};
+B e{};      // Zero-initialization, members are set to 0
+B f{1, 2};  // Members are set to 1 and 2 respectively
+```
+相比于列表初始化，小括号初始化的语法不统一：
+```
+B g();          // This is a function, not an object
+B h = B();      // Zero-initialization, verbose
+```
+注意，例中 B g(); 是函数声明，易与对象定义混淆，改用 B g{}; 可以简练有效的对成员进行零初始化。  
+  
+列表初始化的大括号及之间的内容称为“初始化列表”，初始化列表之前可以有一个等号，但 = {....} 是拷贝初始化，不带等号才是直接初始化，虽然复制成本可被优化，但仍应避免使用多余的符号。
+```
+struct C {
+    int x;
+    explicit C(int i): x{i} {}
+};
+C a{1};     // OK
+C b = {1};  // Compile error
+```
+构造函数被 explicit 关键字限定，故无法进行拷贝初始化。  
+  
+例外：
+```
+std::vector<int> v(5, 0);  // 5 elements with value 0
+std::vector<int> w{5, 0};  // 2 elements, first is 5, second is 0
+```
+初始化列表的类型为 std::initializer\_list，如果相关构造函数对其有重载，则调用重载了的构造函数。std::vector 对 initializer\_list 进行了重载，可以像初始化数组一样初始化 vector，例中 v 有 5 个元素，每个元素都是 0，而 w 有两个元素，第一个是 5，第二个是 0，这一点列表初始化无法代替用括号的方式进行初始化。
 <br/>
 <br/>
 
@@ -8916,7 +8971,7 @@ ID_repeatedDesignator &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: declaration error
 
 <hr/>
 
-重复的指派符（designator）会使其指定的元素被重复初始化，往往意味着笔误或复制粘贴错误。  
+在 C 语言的初始化列表中，可以通过指派符（designator）对指定的结构体成员或数组元素进行初始化，应注意重复的指派符会使其指定的对象被重复初始化，往往意味着笔误或复制粘贴错误。  
   
 示例：
 ```
@@ -8924,7 +8979,15 @@ struct T { int x, y; };
 struct T obj = { .x = 0, .x = 1 };            // Non-compliant
 int arr[3] = { [0] = 0, [1] = 1, [1] = 2 };   // Non-compliant
 ```
-例中重复的指派符 .x 和 \[1\] 是没有意义的。
+例中重复的指派符 .x 和 \[1\] 是没有意义的。  
+  
+C\+\+20 对类对象的初始化也引入了指派符，但要求更为严格，重复的或颠倒次序的指派符无法通过编译，如：
+```
+struct T { int x, y; };
+T a = { .y = 0, .x = 1 };   // Compile error in C++20
+T b = { .x = 0, .x = 1 };   // Compile error in C++20
+T c = { .x = 0, .y = 1 };   // OK
+```
 <br/>
 <br/>
 
@@ -12150,6 +12213,10 @@ ID_localInitialization &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: function error
 
 未初始化的局部对象具有不确定的值，读取未初始化的对象会导致标准未定义的行为。  
   
+在函数作用域内定义的，具有“[自动存储期（automatic storage duration）](https://en.cppreference.com/book/storage_durations)”的对象简称局部对象，具有“[标量类型（scalar type）](https://en.cppreference.com/w/cpp/named_req/ScalarType)”的对象简称基本变量，如果不明确指定初始值，局部基本变量的初始值是不确定的。  
+  
+当局部基本变量作为类成员或数组元素时，这个问题同样存在，如果类对象或数组含有不确定的值，其整体状态也是不确定的，所以应在构造函数或初始化列表中妥善初始化各成员或元素的值。  
+  
 示例：
 ```
 int foo() {
@@ -12169,7 +12236,7 @@ int a = 0;    // Good
 int b;
 b = 123;      // OK
 ```
-不建议的模式：
+不建议的方式：
 ```
 int a;
 if (x) {
@@ -12186,6 +12253,7 @@ if (y) {
 
 #### 相关
 ID_illAccess  
+ID_dynamicInitialization  
 <br/>
 
 #### 依据
@@ -12207,7 +12275,55 @@ MISRA C++ 2008 8-5-1
 <br/>
 <br/>
 
-### <span id="memberinitialization">▌R8.10 成员须在声明处或构造时初始化</span>
+### <span id="dynamicinitialization">▌R8.10 动态创建的对象在使用前应被初始化</span>
+
+ID_dynamicInitialization &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: function error
+
+<hr/>
+
+动态创建的对象在初始化前具有不确定的值，读取未初始化的对象会导致标准未定义的行为。  
+  
+动态创建的对象即通过 malloc、new 等方式创建的对象，如果不指定初始值，动态创建的基本变量的值是不确定的，当这种基本变量作为类成员或数组元素时，问题同样存在。如果类对象或数组含有不确定的值，其整体状态也是不确定的，所以应在构造函数或初始化列表中妥善初始化各成员或元素的值。  
+  
+示例：
+```
+int* a = new int[2];
+use(a[0], a[1]);     // Non-compliant
+
+struct A {
+    int x, y;
+};
+A* b = new A;
+use(b->x, b->y);     // Non-compliant
+```
+建议在创建处初始化：
+```
+int* a = new int[2]();  // Zero-initialization, all elements are 0
+A* b = new A();         // Zero-initialization, all members are 0
+```
+new 表达式结尾的空括号表示将元素或成员初始化为 0，对于类类型，如果存在自定义默认构造函数，则会调用默认构造函数进行初始化。  
+  
+也可以使用列表初始化指定元素或成员的值：
+```
+int* a = new int[2]{1, 2};  // List-initialization
+A* b = new A{3, 4};         // List-initialization
+```
+数组的两个元素分别为 1 和 2，A 对象的两个成员分别为 3 和 4。
+<br/>
+<br/>
+
+#### 相关
+ID_illAccess  
+ID_localInitialization  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 5.3.4(15)  
+ISO/IEC 14882:2011 5.3.4(15)  
+<br/>
+<br/>
+
+### <span id="memberinitialization">▌R8.11 成员须在声明处或构造时初始化</span>
 
 ID_memberInitialization &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -12248,7 +12364,7 @@ C++ Core Guidelines C.41
 <br/>
 <br/>
 
-### <span id="illmembercall">▌R8.11 基类对象构造完毕之前不可调用成员函数</span>
+### <span id="illmembercall">▌R8.12 基类对象构造完毕之前不可调用成员函数</span>
 
 ID_illMemberCall &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -12279,7 +12395,7 @@ ISO/IEC 14882:2011 12.6.2(13)-undefined
 <br/>
 <br/>
 
-### <span id="illmemberaccess">▌R8.12 在面向构造或析构函数体的 catch 子句中不可访问非静态成员</span>
+### <span id="illmemberaccess">▌R8.13 在面向构造或析构函数体的 catch 子句中不可访问非静态成员</span>
 
 ID_illMemberAccess &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: function error
 
@@ -12332,7 +12448,7 @@ SEI CERT ERR53-CPP
 <br/>
 <br/>
 
-### <span id="disorderedinitialization">▌R8.13 成员初始化应遵循声明的顺序</span>
+### <span id="disorderedinitialization">▌R8.14 成员初始化应遵循声明的顺序</span>
 
 ID_disorderedInitialization &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: function error
 
@@ -12392,7 +12508,7 @@ SEI CERT OOP53-CPP
 <br/>
 <br/>
 
-### <span id="virtualcallinconstructor">▌R8.14 在构造函数中不应使用动态类型</span>
+### <span id="virtualcallinconstructor">▌R8.15 在构造函数中不应使用动态类型</span>
 
 ID_virtualCallInConstructor &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -12446,7 +12562,7 @@ Effective C++ item 9
 <br/>
 <br/>
 
-### <span id="virtualcallindestructor">▌R8.15 在析构函数中不应使用动态类型</span>
+### <span id="virtualcallindestructor">▌R8.16 在析构函数中不应使用动态类型</span>
 
 ID_virtualCallInDestructor &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -12507,7 +12623,7 @@ Effective C++ item 9
 <br/>
 <br/>
 
-### <span id="exitcallindestructor">▌R8.16 避免在析构函数中调用 exit 函数</span>
+### <span id="exitcallindestructor">▌R8.17 避免在析构函数中调用 exit 函数</span>
 
 ID_exitCallInDestructor &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -12535,7 +12651,7 @@ ISO/IEC 14882:2011 3.6.1(4)-undefined
 <br/>
 <br/>
 
-### <span id="sideeffectcopyconstructor">▌R8.17 避免在拷贝构造函数中实现复制之外的功能</span>
+### <span id="sideeffectcopyconstructor">▌R8.18 避免在拷贝构造函数中实现复制之外的功能</span>
 
 ID_sideEffectCopyConstructor &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -12587,7 +12703,7 @@ MISRA C++ 2008 12-8-1
 <br/>
 <br/>
 
-### <span id="sideeffectmoveconstructor">▌R8.18 避免在移动构造函数中实现数据移动之外的功能</span>
+### <span id="sideeffectmoveconstructor">▌R8.19 避免在移动构造函数中实现数据移动之外的功能</span>
 
 ID_sideEffectMoveConstructor &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -12636,7 +12752,7 @@ ISO/IEC 14882:2017 15.8.3(1)-implementation
 <br/>
 <br/>
 
-### <span id="this_selfjudgement">▌R8.19 拷贝赋值运算符应处理参数是自身对象时的情况</span>
+### <span id="this_selfjudgement">▌R8.20 拷贝赋值运算符应处理参数是自身对象时的情况</span>
 
 ID_this_selfJudgement &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -12679,7 +12795,7 @@ SEI CERT OOP54-CPP
 <br/>
 <br/>
 
-### <span id="invalidwrite">▌R8.20 不应存在无效的写入操作</span>
+### <span id="invalidwrite">▌R8.21 不应存在无效的写入操作</span>
 
 ID_invalidWrite &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -12737,7 +12853,7 @@ CWE-563
 <br/>
 <br/>
 
-### <span id="missingsideeffect">▌R8.21 不应存在没有副作用的语句</span>
+### <span id="missingsideeffect">▌R8.22 不应存在没有副作用的语句</span>
 
 ID_missingSideEffect &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: function error
 
@@ -12797,7 +12913,7 @@ MISRA C++ 2008 0-1-9
 <br/>
 <br/>
 
-### <span id="unreachablecode">▌R8.22 不应存在得不到执行机会的代码</span>
+### <span id="unreachablecode">▌R8.23 不应存在得不到执行机会的代码</span>
 
 ID_unreachableCode &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: function error
 
@@ -12860,7 +12976,7 @@ SEI CERT MSC12-C
 <br/>
 <br/>
 
-### <span id="notallbranchreturn">▌R8.23 有返回值的函数其所有分枝都应显式返回</span>
+### <span id="notallbranchreturn">▌R8.24 有返回值的函数其所有分枝都应显式返回</span>
 
 ID_notAllBranchReturn &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: function error
 
@@ -12913,7 +13029,7 @@ SEI CERT MSC52-CPP
 <br/>
 <br/>
 
-### <span id="localaddressflowout">▌R8.24 不可返回局部对象的地址或引用</span>
+### <span id="localaddressflowout">▌R8.25 不可返回局部对象的地址或引用</span>
 
 ID_localAddressFlowOut &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: function error
 
@@ -12978,7 +13094,7 @@ MISRA C++ 2008 7-5-2
 <br/>
 <br/>
 
-### <span id="tmpaddressflowout">▌R8.25 不可返回临时对象的地址或引用</span>
+### <span id="tmpaddressflowout">▌R8.26 不可返回临时对象的地址或引用</span>
 
 ID_tmpAddressFlowOut &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: function error
 
@@ -13026,7 +13142,7 @@ MISRA C++ 2008 7-5-3
 <br/>
 <br/>
 
-### <span id="unsuitablecapture">▌R8.26 合理设置 lambda 表达式的捕获方式</span>
+### <span id="unsuitablecapture">▌R8.27 合理设置 lambda 表达式的捕获方式</span>
 
 ID_unsuitableCapture &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -13084,7 +13200,7 @@ SEI CERT EXP61-CPP
 <br/>
 <br/>
 
-### <span id="returnrvaluereference">▌R8.27 函数返回值不应为右值引用</span>
+### <span id="returnrvaluereference">▌R8.28 函数返回值不应为右值引用</span>
 
 ID_returnRValueReference &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: function suggestion
 
@@ -13149,7 +13265,7 @@ C++ Core Guidelines F.45
 <br/>
 <br/>
 
-### <span id="returnconstobject">▌R8.28 函数返回值不应为常量对象</span>
+### <span id="returnconstobject">▌R8.29 函数返回值不应为常量对象</span>
 
 ID_returnConstObject &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: function suggestion
 
@@ -13191,7 +13307,7 @@ C++ Core Guidelines F.20
 <br/>
 <br/>
 
-### <span id="returnsuperfluousconst">▌R8.29 函数返回值不应为基本类型的常量</span>
+### <span id="returnsuperfluousconst">▌R8.30 函数返回值不应为基本类型的常量</span>
 
 ID_returnSuperfluousConst &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -13227,7 +13343,7 @@ ISO/IEC 14882:2011 3.10(1)
 <br/>
 <br/>
 
-### <span id="returnodd">▌R8.30 被返回的表达式应与函数的返回类型一致</span>
+### <span id="returnodd">▌R8.31 被返回的表达式应与函数的返回类型一致</span>
 
 ID_returnOdd &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -13255,7 +13371,7 @@ MISRA C++ 2008 4-10-1
 <br/>
 <br/>
 
-### <span id="returnsameconst">▌R8.31 被返回的表达式不应为相同的常量</span>
+### <span id="returnsameconst">▌R8.32 被返回的表达式不应为相同的常量</span>
 
 ID_returnSameConst &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -13279,7 +13395,7 @@ bool foo(int a) {
 <br/>
 <br/>
 
-### <span id="unsuitablereturn">▌R8.32 具有 noreturn 属性的函数不应返回</span>
+### <span id="unsuitablereturn">▌R8.33 具有 noreturn 属性的函数不应返回</span>
 
 ID_unsuitableReturn &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -13313,7 +13429,7 @@ SEI CERT MSC53-CPP
 <br/>
 <br/>
 
-### <span id="unsuitablereturntype">▌R8.33 具有 noreturn 属性的函数返回类型只应为 void</span>
+### <span id="unsuitablereturntype">▌R8.34 具有 noreturn 属性的函数返回类型只应为 void</span>
 
 ID_unsuitableReturnType &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -13346,7 +13462,7 @@ ISO/IEC 14882:2011 7.6.3(2)-undefined
 <br/>
 <br/>
 
-### <span id="exithandlernoreturn">▌R8.34 由 atexit、at_quick_exit 指定的处理函数应正常返回</span>
+### <span id="exithandlernoreturn">▌R8.35 由 atexit、at_quick_exit 指定的处理函数应正常返回</span>
 
 ID_exitHandlerNoReturn &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -13396,7 +13512,7 @@ SEI CERT ENV32-C
 <br/>
 <br/>
 
-### <span id="functionspecialization">▌R8.35 函数模板不应被特化</span>
+### <span id="functionspecialization">▌R8.36 函数模板不应被特化</span>
 
 ID_functionSpecialization &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -13446,7 +13562,7 @@ MISRA C++ 2008 14-8-1
 <br/>
 <br/>
 
-### <span id="toomanyexit">▌R8.36 函数的退出点数量应在规定范围之内</span>
+### <span id="toomanyexit">▌R8.37 函数的退出点数量应在规定范围之内</span>
 
 ID_tooManyExit &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: function suggestion
 
@@ -13501,7 +13617,7 @@ MISRA C++ 2008 6-6-5
 <br/>
 <br/>
 
-### <span id="toomanylabels">▌R8.37 函数的标签数量应在规定范围之内</span>
+### <span id="toomanylabels">▌R8.38 函数的标签数量应在规定范围之内</span>
 
 ID_tooManyLabels &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -13536,7 +13652,7 @@ CWE-1119
 <br/>
 <br/>
 
-### <span id="toomanylines">▌R8.38 函数的行数应在规定范围之内</span>
+### <span id="toomanylines">▌R8.39 函数的行数应在规定范围之内</span>
 
 ID_tooManyLines &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -13566,7 +13682,7 @@ C++ Core Guidelines F.3
 <br/>
 <br/>
 
-### <span id="toomanylambdalines">▌R8.39 lambda 表达式的行数应在规定范围之内</span>
+### <span id="toomanylambdalines">▌R8.40 lambda 表达式的行数应在规定范围之内</span>
 
 ID_tooManyLambdaLines &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -13599,7 +13715,7 @@ maxLambdaLineCount：lambda 表达式行数上限，超过则报出
 <br/>
 <br/>
 
-### <span id="toomanyparams">▌R8.40 函数参数的数量应在规定范围之内</span>
+### <span id="toomanyparams">▌R8.41 函数参数的数量应在规定范围之内</span>
 
 ID_tooManyParams &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -13646,7 +13762,7 @@ C++ Core Guidelines I.23
 <br/>
 <br/>
 
-### <span id="complexinlinefunction">▌R8.41 不应定义复杂的内联函数</span>
+### <span id="complexinlinefunction">▌R8.42 不应定义复杂的内联函数</span>
 
 ID_complexInlineFunction &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: function suggestion
 
@@ -13690,7 +13806,7 @@ C++ Core Guidelines F.5
 <br/>
 <br/>
 
-### <span id="recursion">▌R8.42 避免函数调用自身</span>
+### <span id="recursion">▌R8.43 避免函数调用自身</span>
 
 ID_recursion &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -13734,7 +13850,7 @@ MISRA C++ 2008 7-5-4
 <br/>
 <br/>
 
-### <span id="this_deleteindestructor">▌R8.43 不可递归调用析构函数</span>
+### <span id="this_deleteindestructor">▌R8.44 不可递归调用析构函数</span>
 
 ID_this_deleteInDestructor &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: function error
 
@@ -13770,7 +13886,7 @@ CWE-674
 <br/>
 <br/>
 
-### <span id="nestedtoodeep">▌R8.44 作用域及类型嵌套不应过深</span>
+### <span id="nestedtoodeep">▌R8.45 作用域及类型嵌套不应过深</span>
 
 ID_nestedTooDeep &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: function suggestion
 
@@ -13810,7 +13926,7 @@ CWE-1124
 <br/>
 <br/>
 
-### <span id="mixedasm">▌R8.45 汇编代码不应与普通代码混合</span>
+### <span id="mixedasm">▌R8.46 汇编代码不应与普通代码混合</span>
 
 ID_mixedAsm &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: function suggestion
 
@@ -13865,7 +13981,7 @@ MISRA C++ 2008 7-4-3
 <br/>
 <br/>
 
-### <span id="functionrepetition">▌R8.46 避免重复的函数实现</span>
+### <span id="functionrepetition">▌R8.47 避免重复的函数实现</span>
 
 ID_functionRepetition &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: function suggestion
 
@@ -23565,7 +23681,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;软件安全不仅是技术挑战，更是对用户的坚定承诺。保障软件安全、捍卫用户权益是宏大的主题，虽然难以在一篇文章中详尽阐述，但我们尽力通过这 525 条规则为您提供一个全面的框架，并持续更新。编程技术在不断发展，会有更多挑战在等待着我们，愿我们携手共进，勇于探索，共筑信赖软件，让世界更安全更美好。  
+&emsp;&emsp;软件安全不仅是技术挑战，更是对用户的坚定承诺。保障软件安全、捍卫用户权益是宏大的主题，虽然难以在一篇文章中详尽阐述，但我们尽力通过这 526 条规则为您提供一个全面的框架，并持续更新。编程技术在不断发展，会有更多挑战在等待着我们，愿我们携手共进，勇于探索，共筑信赖软件，让世界更安全更美好。  
 
 &emsp;&emsp;此致
 

@@ -313,7 +313,7 @@
         "comment": "访问未初始化或已释放的资源属于逻辑错误，会导致标准未定义的行为。",
         "tag": "resource",
         "standard": "ISO/IEC 9899:1999 7.19.3(4),ISO/IEC 9899:2011 7.21.3(4)",
-        "related": "ID_wildPtrDeref,ID_danglingDeref,ID_localInitialization",
+        "related": "ID_wildPtrDeref,ID_danglingDeref,ID_localInitialization,ID_dynamicInitialization",
         "reference": "CWE-672,CWE-908,SEI CERT FIO46-C,SEI CERT MEM30-C,SEI CERT MEM50-CPP,SEI CERT EXP33-C,SEI CERT EXP53-CPP"
         },
     "ID_illDealloc": {
@@ -2023,9 +2023,17 @@
         "level": "error",
         "comment": "未初始化的局部对象具有不确定的值，读取未初始化的对象会导致标准未定义的行为。",
         "tag": "function",
-        "related": "ID_illAccess",
+        "related": "ID_illAccess,ID_dynamicInitialization",
         "standard": "ISO/IEC 9899:1999 6.2.4(5 6),ISO/IEC 9899:2011 6.2.4(6 7),ISO/IEC 9899:2011 6.3.2.1(2)-undefined,ISO/IEC 14882:2003 4.1(1)-undefined,ISO/IEC 14882:2003 8.5(9),ISO/IEC 14882:2011 4.1(1)-undefined,ISO/IEC 14882:2011 8.5(11)",
         "reference": "CWE-457,C++ Core Guidelines ES.20,MISRA C 2004 9.1,MISRA C 2012 9.1,MISRA C++ 2008 8-5-1"
+        },
+    "ID_dynamicInitialization": {
+        "checkPoint": "动态创建的对象在使用前应被初始化",
+        "level": "error",
+        "comment": "动态创建的对象在初始化前具有不确定的值，读取未初始化的对象会导致标准未定义的行为。",
+        "tag": "function",
+        "related": "ID_illAccess,ID_localInitialization",
+        "standard": "ISO/IEC 14882:2003 5.3.4(15),ISO/IEC 14882:2011 5.3.4(15)"
         },
     "ID_notAllBranchReturn": {
         "checkPoint": "有返回值的函数其所有分枝都应显式返回",
@@ -4115,7 +4123,7 @@
     "ID_repeatedDesignator": {
         "checkPoint": "初始化列表中不应存在重复的指派符",
         "level": "error",
-        "comment": "重复的指派符（designator）会使其指定的元素被重复初始化，往往意味着笔误或复制粘贴错误。",
+        "comment": "在 C 语言的初始化列表中，可以通过指派符（designator）对指定的结构体成员或数组元素进行初始化，应注意重复的指派符会使其指定的对象被重复初始化，往往意味着笔误或复制粘贴错误。",
         "tag": "declaration",
         "standard": "ISO/IEC 9899:1999 6.7.8(6 7),ISO/IEC 9899:2011 6.7.9(6 7)",
         "reference": "MISRA C 2012 9.4"
@@ -4196,9 +4204,9 @@
         "reference": "MISRA C 2012 9.2"
         },
     "ID_missingBracedSyntax": {
-        "checkPoint": "用 {} 代替 = 或 () 进行初始化",
+        "checkPoint": "用列表初始化代替用等号或小括号的方式进行初始化",
         "level": "suggestion",
-        "comment": "用 = 或 () 初始化不检查类型转换是否安全，可能会造成数据丢失，用 {} 初始化会进行相关检查，避免数据丢失。",
+        "comment": "等号或小括号初始化不检查类型转换是否安全，列表初始化会进行相关检查，可避免数据丢失等问题，提高了安全性，而且列表初始化在语法形式上更统一，有助于提高可读性。",
         "tag": "declaration",
         "related": "ID_narrowCast",
         "standard": "ISO/IEC 14882:2011 8.5.4",
