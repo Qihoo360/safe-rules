@@ -49,7 +49,7 @@
     "ID_differentEnumComparison": {
         "checkPoint": "不应比较非同类枚举值",
         "level": "warning",
-        "comment": "比较非同类枚举值相当于比较不同类别的事物，没有逻辑意义，往往是设计缺陷或逻辑错误。",
+        "comment": "比较非同类枚举值相当于比较不同类别的事物，往往是设计缺陷或逻辑错误。",
         "tag": "expression",
         "reference": "CWE-697,MISRA C 2012 10.4"
         },
@@ -182,7 +182,7 @@
     "ID_forbidException": {
         "checkPoint": "禁用 C++ 异常",
         "level": "warning",
-        "comment": "禁用 C++ 异常。",
+        "comment": "禁用 try、catch、throw 关键字，并禁用使用异常的库。",
         "tag": "exception",
         "related": "ID_exceptionUnsafe",
         "reference": "C++ Core Guidelines E.6,Google C++ Style Guide.Other C++ Features.Exceptions"
@@ -429,9 +429,9 @@
         "reference": "C++ Core Guidelines ES.85"
         },
     "ID_switch_caseOutOfRange": {
-        "checkPoint": "case 标签的值不可超出 switch 条件的范围",
+        "checkPoint": "case 标签的值不可超出 switch 条件表达式的取值范围",
         "level": "warning",
-        "comment": "如果 case 标签的值超出了 switch 条件的范围，会导致相应分枝永远不会被执行。",
+        "comment": "如果 case 标签的值超出了 switch 条件表达式的取值范围，会导致相应分枝永远不会被执行。",
         "tag": "control",
         "related": "ID_illComparison",
         "reference": "CWE-561"
@@ -1008,7 +1008,7 @@
         "tag": "declaration"
         },
     "ID_virtualInFinal": {
-        "checkPoint": "final 类中不应声明虚函数",
+        "checkPoint": "在 final 类中不应声明虚函数",
         "level": "warning",
         "comment": "final 类不再产生派生类，其中的虚函数也不会再被重写，故不应声明虚函数。",
         "standard": "ISO/IEC 14882:2011 9(3),ISO/IEC 14882:2017 12(3)",
@@ -1025,11 +1025,11 @@
     "ID_throwWhileThrowing": {
         "checkPoint": "异常类的拷贝构造函数不可抛出异常",
         "level": "error",
-        "comment": "异常类的拷贝构造函数抛出异常违反异常处理机制，导致程序异常终止。",
+        "comment": "异常类的拷贝构造函数抛出异常违反异常处理机制，会导致程序异常终止。",
         "tag": "exception",
         "standard": "ISO/IEC 14882:2003 15.1(3),ISO/IEC 14882:2011 15.1(3 7),ISO/IEC 14882:2017 18.1(3 7)",
         "related": "ID_exceptionInException",
-        "reference": "SEI CERT ERR60-CPP"
+        "reference": "C++ Core Guidelines E.16,SEI CERT ERR60-CPP"
         },
     "ID_exceptionInException": {
         "checkPoint": "异常类的构造函数和异常信息相关的函数不应抛出异常",
@@ -1043,7 +1043,7 @@
     "ID_throwOutOfMain": {
         "checkPoint": "全局对象的初始化过程不可抛出异常",
         "level": "warning",
-        "comment": "在全局对象初始化过程中抛出的异常没有被处理的机会，导致程序异常终止。",
+        "comment": "初始化全局对象时抛出的异常无法被处理，会导致程序异常终止。",
         "tag": "exception",
         "related": "ID_uncaughtException",
         "standard": "ISO/IEC 14882:2003 15.3(9)-implementation,ISO/IEC 14882:2003 15.5.1(2)-implementation,ISO/IEC 14882:2011 15.3(9)-implementation,ISO/IEC 14882:2011 15.5.1(2)-implementation",
@@ -1148,9 +1148,9 @@
         "reference": "C++ Core Guidelines ES.76,MISRA C 2012 15.1"
         },
     "ID_forbidAbsPathInHeaderName": {
-        "checkPoint": "include 指令中不应使用绝对路径",
+        "checkPoint": "避免在 include 指令中使用绝对路径",
         "level": "warning",
-        "comment": "绝对路径使代码过分依赖编译环境，意味着项目的编译设置不完善，应使用相对路径。",
+        "comment": "如果 include 指令中的头文件路径为绝对路径，会使项目依赖特定的编译环境，降低可移植性。",
         "tag": "precompile"
         },
     "ID_illFormedInclude": {
@@ -1163,15 +1163,15 @@
         "reference": "MISRA C 2004 19.3,MISRA C 2012 20.3,MISRA C++ 2008 16-2-6"
         },
     "ID_nonStandardCharInHeaderName": {
-        "checkPoint": "include 指令中禁用不合规的字符",
+        "checkPoint": "避免在 include 指令中使用特殊字符",
         "level": "warning",
-        "comment": "字母、数字、下划线、点号之外的字符可能与文件系统存在冲突，也可能导致标准未定义的行为，不应出现在头文件和相关目录名称中。",
+        "comment": "特殊字符，即除英文字母、数字、下划线和点号之外的字符，可能与文件系统发生冲突，也可能导致标准未定义的行为，不应出现在头文件和相关目录的名称中。",
         "tag": "precompile",
         "standard": "ISO/IEC 9899:1999 6.4.7(3)-undefined,ISO/IEC 9899:2011 6.4.7(3)-undefined,ISO/IEC 14882:2003 2.8(2)-undefined,ISO/IEC 14882:2011 2.9(2)-implementation",
         "reference": "MISRA C 2004 19.2,MISRA C 2012 20.2,MISRA C++ 2008 16-2-4"
         },
     "ID_forbidBackslashInHeaderName": {
-        "checkPoint": "include 指令中不应使用反斜杠",
+        "checkPoint": "避免在 include 指令中使用反斜杠",
         "level": "warning",
         "comment": "如果在 include 指令中使用反斜杠，程序的行为在 C 和 C++03 标准中是未定义的，在 C++11 标准中是由实现定义的。",
         "tag": "precompile",
@@ -1179,7 +1179,7 @@
         "reference": "MISRA C++ 2008 16-2-5"
         },
     "ID_forbidCHeaderInCpp": {
-        "checkPoint": "C++ 代码不应引用 C 头文件",
+        "checkPoint": "避免在 C++ 代码中包含 C 头文件",
         "level": "warning",
         "comment": "为了与 C 语言兼容，C++ 标准库也会提供 C 头文件，但在这种 C 头文件在 C++ 标准中是已过时的。",
         "tag": "precompile",
@@ -1196,9 +1196,9 @@
         "reference": "MISRA C 2012 20.1,MISRA C++ 2008 16-0-1"
         },
     "ID_forbiddenHeader": {
-        "checkPoint": "禁用不合规的头文件",
+        "checkPoint": "禁用具有不良影响的头文件",
         "level": "warning",
-        "comment": "已过时的、无意义的或有不良副作用的头文件应禁用。",
+        "comment": "具有危险功能的、已过时或不具备实际意义的头文件应禁用。",
         "config": [
             "inC: C 代码中不合规头文件名称",
             "inCpp: C++ 代码中不合规头文件名称"
@@ -1370,7 +1370,7 @@
     "ID_inaccessibleTmpObject": {
         "checkPoint": "不应产生无效的临时对象",
         "level": "error",
-        "comment": "无名且不受控制的临时对象在构造之后会立即析构，在逻辑上没有意义，往往意味着错误。",
+        "comment": "无名且不受控制的临时对象在构造之后会立即析构，往往意味着错误。",
         "tag": "declaration",
         "reference": "CWE-665,C++ Core Guidelines ES.84"
         },
@@ -1911,14 +1911,14 @@
         "reference": "C++ Core Guidelines C.82,MISRA C++ 2008 12-1-1,Effective C++ item 9"
         },
     "ID_exitCallInDestructor": {
-        "checkPoint": "在析构函数中避免调用 exit 函数",
+        "checkPoint": "避免在析构函数中调用 exit 函数",
         "level": "warning",
         "comment": "程序调用 exit 后，具有静态或线程存储期的对象开始析构，如果这种对象的析构函数再调用 exit 会导致标准未定义的行为，为规避意料之外的错误，应统一要求在析构函数中避免直接或间接地调用 exit。",
         "tag": "function",
         "standard": "ISO/IEC 14882:2003 3.6.1(4)-undefined,ISO/IEC 14882:2011 3.6.1(4)-undefined"
         },
     "ID_sideEffectCopyConstructor": {
-        "checkPoint": "拷贝构造函数应避免实现复制之外的功能",
+        "checkPoint": "避免在拷贝构造函数中实现复制之外的功能",
         "level": "warning",
         "comment": "拷贝构造函数的执行在某些情况下可被省略，其执行次数可能与预期不符，复制之外的功能也可能无法生效。",
         "tag": "function",
@@ -1927,7 +1927,7 @@
         "reference": "MISRA C++ 2008 12-8-1"
         },
     "ID_sideEffectMoveConstructor": {
-        "checkPoint": "移动构造函数应避免实现数据移动之外的功能",
+        "checkPoint": "避免在移动构造函数中实现数据移动之外的功能",
         "level": "warning",
         "comment": "移动构造函数的执行在某些情况下可被省略，其执行次数可能与预期不符，数据移动之外的功能也可能无法生效。",
         "tag": "function",
@@ -1963,7 +1963,7 @@
     "ID_throwInHash": {
         "checkPoint": "与标准库相关的 hash 过程不应抛出异常",
         "level": "suggestion",
-        "comment": "对象的 hash 过程中不应抛出异常，否则相关的容器和算法无法正常工作。",
+        "comment": "在对象的 hash 过程中不应抛出异常，否则相关的容器和算法无法正常工作。",
         "tag": "exception",
         "reference": "C++ Core Guidelines C.89"
         },
@@ -2388,15 +2388,15 @@
         "reference": "CWE-670,SEI CERT EXP15-C"
         },
     "ID_if_identicalCondition": {
-        "checkPoint": "在 if...else-if 分枝中不应有重复的条件",
+        "checkPoint": "if...else-if 分枝的条件不应重复",
         "level": "error",
-        "comment": "if...else-if 分枝的条件不应有重复，否则相同条件排在前面的分枝会得以执行，而排在后面的分枝得不到执行机会。",
+        "comment": "if...else-if 分枝的条件不应有所重复，否则排在前面的分枝会得以执行，排在后面的分枝得不到执行机会。",
         "tag": "control",
         "related": "ID_if_hiddenCondition",
         "reference": "CWE-561,CWE-670"
         },
     "ID_if_hiddenCondition": {
-        "checkPoint": "在 if...else-if 分枝中不应有被遮盖的条件",
+        "checkPoint": "if...else-if 分枝的条件不应被遮盖",
         "level": "error",
         "comment": "if...else-if 分枝中，如果前面的条件被满足，后面的分枝就不会被执行，所以如果前面的条件是后面条件的一部分，或者前面的条件包含后面的条件，即使后面的条件可以被满足，其分枝也得不到执行机会。",
         "tag": "control",
@@ -2412,7 +2412,7 @@
         "reference": "CWE-670"
         },
     "ID_if_identicalElseIfBlock": {
-        "checkPoint": "if...else-if 各分枝的代码不应完全相同",
+        "checkPoint": "不应存在完全相同的 if...else-if 分枝",
         "level": "warning",
         "comment": "内容完全相同的分枝是没有意义的，也可能是由复制粘贴造成的错误。",
         "config": [
@@ -2423,7 +2423,7 @@
         "reference": "CWE-670"
         },
     "ID_if_identicalImplicitElseBlock": {
-        "checkPoint": "if 分枝和隐含的 else 分枝代码不应完全相同",
+        "checkPoint": "if 分枝和隐含的 else 分枝不应完全相同",
         "level": "warning",
         "comment": "带有 return、throw 或 break 等子句的 if 语句，其同一作用域的后续代码相当于它的 else 分枝，显然这种隐含的 else 分枝与 if 分枝完全相同是没有意义的，很可能是由复制粘贴造成的错误。",
         "tag": "control",
@@ -2609,16 +2609,16 @@
         "reference": "MISRA C 2004 14.8,MISRA C 2012 15.6,MISRA C++ 2008 6-3-1,SEI CERT EXP19-C"
         },
     "ID_switch_invalidStatement": {
-        "checkPoint": "switch 语句中任何子句都应从属于某个 case 或 default 分枝",
+        "checkPoint": "switch 语句的子句均应从属于某个 case 或 default 分枝",
         "level": "error",
         "comment": "switch 语句中任何子句都应从属于某个 case 或 default 分枝，否则不会被执行。",
         "tag": "control",
         "reference": "CWE-561,MISRA C 2012 16.1,MISRA C++ 2008 6-4-3"
     },
     "ID_switch_identicalBranch": {
-        "checkPoint": "不应存在内容完全相同的 case 分枝",
+        "checkPoint": "不应存在完全相同的 case 或 default 分枝",
         "level": "warning",
-        "comment": "内容完全相同的分枝应合并为一个分枝，也可能是由复制粘贴造成的错误。",
+        "comment": "完全相同的分枝应合并成一个分枝，也可能是由复制粘贴造成的错误。",
         "tag": "control",
         "config": [
             "branchTokenCountThreshold: 分枝符号数量阈值，不检查符号数量小于该值的分枝"
@@ -2649,9 +2649,9 @@
         "reference": "CWE-1071,MISRA C++ 2008 6-4-8"
         },
     "ID_switch_bool": {
-        "checkPoint": "switch 语句的条件不应为 bool 型",
+        "checkPoint": "switch 语句的条件表达式不应为 bool 型",
         "level": "warning",
-        "comment": "如果条件为 bool 型，应改用 if-else 语句使代码的结构更清晰。",
+        "comment": "如果条件表达式为 bool 型，应改用 if-else 语句使代码的结构更清晰。",
         "tag": "control",
         "reference": "MISRA C 2004 15.4,MISRA C 2012 16.7,MISRA C++ 2008 6-4-7"
         },
@@ -2812,7 +2812,7 @@
         "reference": "MISRA C++ 2008 16-6-1"
         },
     "ID_explicitLineDirective": {
-        "checkPoint": "非自动生成的代码中不应出现 line 指令",
+        "checkPoint": "在非自动生成的代码中不应使用 line 指令",
         "level": "warning",
         "comment": "在非自动生成的代码中没有必要使用 line 指令，否则会干扰编译器的输出，使问题难以定位。",
         "tag": "precompile",
@@ -3671,9 +3671,9 @@
     "ID_nestedComment": {
         "checkPoint": "注释不可嵌套",
         "level": "warning",
-        "comment": "嵌套的 /*...*/ 注释不符合标准，/* 与 */ 之间不应出现 /*，某些编译器可以接受嵌套，但不具备可移植性。",
+        "comment": "嵌套的 /*...*/ 注释不符合标准，/* 与 */ 之间不可出现 /*。",
         "tag": "precompile",
-        "standard": "ISO/IEC 9899:1999 6.4.9(1),ISO/IEC 9899:2011 6.4.9(1)",
+        "standard": "ISO/IEC 9899:1999 6.4.9(1),ISO/IEC 9899:2011 6.4.9(1),ISO/IEC 14882:2003 2.7(1),ISO/IEC 14882:2011 2.8(1)",
         "reference": "MISRA C 2004 2.3,MISRA C 2012 3.1,MISRA C++ 2008 2-7-1"
         },
     "ID_badCommentPosition": {
@@ -3710,7 +3710,7 @@
         "standard": "ISO/IEC 9899:1999 5.1.1.2(1)-undefined,ISO/IEC 9899:2011 5.1.1.2(1)-undefined,ISO/IEC 14882:2003 2.1(1)-undefined,ISO/IEC 14882:2011 2.2(1)"
         },
     "ID_directiveInMacroArgument": {
-        "checkPoint": "宏的参数列表中不应出现预编译指令",
+        "checkPoint": "在宏的参数列表中不应使用预编译指令",
         "level": "warning",
         "comment": "如果预编译指令出现在宏的参数列表中，会导致标准未定义的行为。",
         "tag": "precompile",
@@ -3762,7 +3762,7 @@
         "reference": "SEI CERT SIG31-C"
         },
     "ID_sig_nonAsyncSafeCall": {
-        "checkPoint": "在异步信号处理函数中避免使用非异步信号安全函数",
+        "checkPoint": "避免在异步信号处理函数中使用非异步信号安全函数",
         "level": "warning",
         "comment": "不处理共享数据也不会影响程序状态的函数，以及不会被信号中断的函数称为“异步信号安全”函数，在异步信号处理函数中只应使用这种函数。",
         "tag": "interruption",
@@ -3829,7 +3829,7 @@
         "reference": "SEI CERT CON32-C,SEI CERT CON52-CPP"
         },
     "ID_signalInMultiThreading": {
-        "checkPoint": "多线程环境中不可使用 signal 函数",
+        "checkPoint": "在多线程环境中不可使用 signal 函数",
         "level": "warning",
         "comment": "在多线程环境中使用 signal 函数会导致标准未定义的行为。",
         "tag": "concurrency",
@@ -4312,7 +4312,7 @@
     "ID_unspecifiedBehavior": {
         "checkPoint": "不应依赖未声明的行为",
         "level": "warning",
-        "comment": "语言标准允许程序的某些行为可由编译器自行定义，且无需提供文档说明，这种行为称为未声明的行为（unspecified behavior），具有不确定性，也会导致可移植性问题，故不应使程序依赖未声明的行为。",
+        "comment": "语言标准允许程序的某些行为可由编译器自行定义，且无需提供文档说明，这种行为称为未声明的行为（unspecified behavior），具有不确定性，也会降低可移植性，故不应使程序依赖未声明的行为。",
         "tag": "security",
         "related": "ID_undefinedBehavior,ID_implementationDefinedFunction",
         "standard": "ISO/IEC 9899:2011 3.4.4,ISO/IEC 9899:2011 J.1,ISO/IEC 14882:2011 1.3.25",

@@ -132,12 +132,12 @@
 <span id="__precompile">**[3. Precompile](#precompile)**</span>
   - [3.1 Include](#precompile.include)
     - [R3.1.1 include 指令应符合标准格式](#illformedinclude)
-    - [R3.1.2 include 指令中禁用不合规的字符](#nonstandardcharinheadername)
-    - [R3.1.3 include 指令中不应使用反斜杠](#forbidbackslashinheadername)
-    - [R3.1.4 include 指令中不应使用绝对路径](#forbidabspathinheadername)
+    - [R3.1.2 避免在 include 指令中使用特殊字符](#nonstandardcharinheadername)
+    - [R3.1.3 避免在 include 指令中使用反斜杠](#forbidbackslashinheadername)
+    - [R3.1.4 避免在 include 指令中使用绝对路径](#forbidabspathinheadername)
     - [R3.1.5 include 指令应位于文件的起始部分](#badincludeposition)
-    - [R3.1.6 禁用不合规的头文件](#forbiddenheader)
-    - [R3.1.7 C\+\+ 代码不应引用 C 头文件](#forbidcheaderincpp)
+    - [R3.1.6 禁用具有不良影响的头文件](#forbiddenheader)
+    - [R3.1.7 避免在 C\+\+ 代码中包含 C 头文件](#forbidcheaderincpp)
     - [R3.1.8 源文件不应被包含](#includedsourcefile)
   - [3.2 Macro-definition](#precompile.macro-definition)
     - [R3.2.1 宏应遵循合理的命名方式](#macro_badname)
@@ -165,8 +165,8 @@
     - [R3.4.2 不应出现非标准格式的预编译指令](#illformeddirective)
     - [R3.4.3 不应使用非标准预编译指令](#nonstddirective)
     - [R3.4.4 避免使用 pragma 指令](#forbidpragmadirective)
-    - [R3.4.5 非自动生成的代码中不应出现 line 指令](#explicitlinedirective)
-    - [R3.4.6 宏的参数列表中不应出现预编译指令](#directiveinmacroargument)
+    - [R3.4.5 在非自动生成的代码中不应使用 line 指令](#explicitlinedirective)
+    - [R3.4.6 在宏的参数列表中不应使用预编译指令](#directiveinmacroargument)
     - [R3.4.7 相互关联的条件编译指令应在同一文件中](#incompletedirective)
     - [R3.4.8 条件编译指令控制表达式的值应为 0 或 1](#nonboolppcondition)
     - [R3.4.9 对编译警告的屏蔽应慎重](#warningdisabled)
@@ -313,7 +313,7 @@
     - [R6.8.10 不应重载“逻辑与”和“逻辑或”运算符](#overloadlogicoperator)
     - [R6.8.11 拷贝和移动赋值运算符不应为虚函数](#virtualassignment)
     - [R6.8.12 比较运算符不应为虚函数](#virtualcomparison)
-    - [R6.8.13 final 类中不应声明虚函数](#virtualinfinal)
+    - [R6.8.13 在 final 类中不应声明虚函数](#virtualinfinal)
   - [6.9 Bitfield](#declaration.bitfield)
     - [R6.9.1 对位域声明合理的类型](#improperbitfieldtype)
     - [R6.9.2 位域长度不应超过类型长度](#exceededbitfield)
@@ -387,9 +387,9 @@
   - [R8.13 成员初始化应遵循声明的顺序](#disorderedinitialization)
   - [R8.14 在构造函数中不应使用动态类型](#virtualcallinconstructor)
   - [R8.15 在析构函数中不应使用动态类型](#virtualcallindestructor)
-  - [R8.16 在析构函数中避免调用 exit 函数](#exitcallindestructor)
-  - [R8.17 拷贝构造函数应避免实现复制之外的功能](#sideeffectcopyconstructor)
-  - [R8.18 移动构造函数应避免实现数据移动之外的功能](#sideeffectmoveconstructor)
+  - [R8.16 避免在析构函数中调用 exit 函数](#exitcallindestructor)
+  - [R8.17 避免在拷贝构造函数中实现复制之外的功能](#sideeffectcopyconstructor)
+  - [R8.18 避免在移动构造函数中实现数据移动之外的功能](#sideeffectmoveconstructor)
   - [R8.19 拷贝赋值运算符应处理参数是自身对象时的情况](#this_selfjudgement)
   - [R8.20 不应存在无效的写入操作](#invalidwrite)
   - [R8.21 不应存在没有副作用的语句](#missingsideeffect)
@@ -423,11 +423,11 @@
 <span id="__control">**[9. Control](#control)**</span>
   - [9.1 If](#control.if)
     - [R9.1.1 if 语句不应被分号隔断](#if_semicolon)
-    - [R9.1.2 在 if...else\-if 分枝中不应有重复的条件](#if_identicalcondition)
-    - [R9.1.3 在 if...else\-if 分枝中不应有被遮盖的条件](#if_hiddencondition)
+    - [R9.1.2 if...else\-if 分枝的条件不应重复](#if_identicalcondition)
+    - [R9.1.3 if...else\-if 分枝的条件不应被遮盖](#if_hiddencondition)
     - [R9.1.4 if 分枝和 else 分枝的代码不应完全相同](#if_identicalblock)
-    - [R9.1.5 if...else\-if 各分枝的代码不应完全相同](#if_identicalelseifblock)
-    - [R9.1.6 if 分枝和隐含的 else 分枝代码不应完全相同](#if_identicalimplicitelseblock)
+    - [R9.1.5 不应存在完全相同的 if...else\-if 分枝](#if_identicalelseifblock)
+    - [R9.1.6 if 分枝和隐含的 else 分枝不应完全相同](#if_identicalimplicitelseblock)
     - [R9.1.7 没有 else 子句的 if 语句与其后续代码相同是可疑的](#if_identicalsucceedingblock)
     - [R9.1.8 if 分枝和 else 分枝的起止语句不应相同](#if_commonstatements)
     - [R9.1.9 if 语句作用域的范围不应有误](#if_scope)
@@ -462,12 +462,12 @@
   - [9.5 Switch](#control.switch)
     - [R9.5.1 switch 语句不应被分号隔断](#switch_semicolon)
     - [R9.5.2 switch 语句不应为空](#switch_emptyblock)
-    - [R9.5.3 case 标签的值不可超出 switch 条件的范围](#switch_caseoutofrange)
-    - [R9.5.4 switch 语句中任何子句都应从属于某个 case 或 default 分枝](#switch_invalidstatement)
+    - [R9.5.3 case 标签的值不可超出 switch 条件表达式的取值范围](#switch_caseoutofrange)
+    - [R9.5.4 switch 语句的子句均应从属于某个 case 或 default 分枝](#switch_invalidstatement)
     - [R9.5.5 case 和 default 标签应直接从属于 switch 语句](#switch_badformedcase)
     - [R9.5.6 不应存在紧邻 default 标签的空 case 标签](#switch_uselessfallthrough)
-    - [R9.5.7 不应存在内容完全相同的 case 分枝](#switch_identicalbranch)
-    - [R9.5.8 switch 语句的条件不应为 bool 型](#switch_bool)
+    - [R9.5.7 不应存在完全相同的 case 或 default 分枝](#switch_identicalbranch)
+    - [R9.5.8 switch 语句的条件表达式不应为 bool 型](#switch_bool)
     - [R9.5.9 switch 语句不应只包含 default 标签](#switch_onlydefault)
     - [R9.5.10 switch 语句不应只包含一个 case 标签](#switch_onlyonecase)
     - [R9.5.11 switch 语句分枝数量应在规定范围之内](#switch_toomanycases)
@@ -662,7 +662,7 @@
 
 <span id="__interruption">**[15. Interruption](#interruption)**</span>
   - [R15.1 避免异步信号处理产生的数据竞争](#sig_dataraces)
-  - [R15.2 在异步信号处理函数中避免使用非异步信号安全函数](#sig_nonasyncsafecall)
+  - [R15.2 避免在异步信号处理函数中使用非异步信号安全函数](#sig_nonasyncsafecall)
   - [R15.3 SIGFPE、SIGILL、SIGSEGV 等信号的处理函数不可返回](#sig_illreturn)
   - [R15.4 禁用 signal 函数](#forbidsignalfunction)
   - [R15.5 信号处理函数应为 POF](#nonpofhandler)
@@ -677,7 +677,7 @@
   - [R16.6 避免异步终止共享对象的生命周期](#illlifetime)
   - [R16.7 避免虚假唤醒造成同步错误](#spuriouslywakeup)
   - [R16.8 避免并发访问位域造成的数据竞争](#bitfielddataraces)
-  - [R16.9 多线程环境中不可使用 signal 函数](#signalinmultithreading)
+  - [R16.9 在多线程环境中不可使用 signal 函数](#signalinmultithreading)
 <br/>
 
 <span id="__style">**[17. Style](#style)**</span>
@@ -1355,7 +1355,7 @@ int foo(int i) {
         return i + 1;
 }
 ```
-示例代码用 i \+ 1 <= i 判断是否溢出，但有符号整数溢出的后果是未定义的，这种判断可能是无效的，甚至某些编译器会认为 i \+ 1 <= i 恒为假而免去 if 分枝的内容，直接返回 i \+ 1。  
+示例代码用 i \+ 1 <= i 判断是否溢出，但有符号整数溢出的后果是未定义的，这种判断可能是无效的，甚至某些编译器会认为 i \+ 1 <= i 恒为假而免去 if 分枝，直接返回 i \+ 1。  
   
 应改为：
 ```
@@ -1392,7 +1392,7 @@ ID_unspecifiedBehavior &emsp;&emsp;&emsp;&emsp;&nbsp; :shield: security warning
 
 <hr/>
 
-语言标准允许程序的某些行为可由编译器自行定义，且无需提供文档说明，这种行为称为未声明的行为（unspecified behavior），具有不确定性，也会导致可移植性问题，故不应使程序依赖未声明的行为。  
+语言标准允许程序的某些行为可由编译器自行定义，且无需提供文档说明，这种行为称为未声明的行为（unspecified behavior），具有不确定性，也会降低可移植性，故不应使程序依赖未声明的行为。  
   
 对未声明行为的介绍和约束是本规则集合的重要内容，将在后续章节中深入讨论。  
   
@@ -2198,7 +2198,7 @@ A::A(size_t n) {
     b = holder_b.release();
 }
 ```
-先用 unique\_ptr 对象持有资源，完成可能抛出异常的事务之后，再将资源转移给相关成员，转移的过程不可抛出异常，这种模式可以保证异常安全，如果有异常抛出，资源均可被正常回收。对遵循 C\+\+11 及之后标准的代码，建议用 make\_unique 函数代替 new 运算符。  
+先用 unique\_ptr 对象持有资源，完成可能抛出异常的事务之后，再将资源转移给相关成员，转移的过程不可抛出异常，这种模式可以保证异常安全，如果有异常抛出，资源均可被正常回收。对遵循 C\+\+11 及之后标准的代码，建议用 make\_unique 等工厂函数代替 new 运算符。  
   
 示例代码意在讨论一种通用模式，实际代码可采用更直接的方式：
 ```
@@ -2464,7 +2464,7 @@ fun(a, b);
 ```
 这样即使构造函数抛出异常也会自动回收已分配的内存。  
   
-更好的方法是避免显式资源分配，用 make\_shared、make\_unique 等函数代替 new 运算符：
+更好的方法是避免显式资源分配，用 make\_shared、make\_unique 等工厂函数代替 new 运算符：
 ```
 fun(
     make_shared<T>(),
@@ -2861,7 +2861,7 @@ ID_illFormedInclude &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: precompile error
 ```
 #include "stdlib" ".h"      // Non-compliant, implementation defined
 ```
-是否会将引号中的内容连接成一个路径是由实现定义的，这种代码是不可移植的。  
+例中 "stdlib" ".h" 是否会被连接成 "stdlib.h" 由实现定义，存在可移植性方面的问题。  
   
 另外，如下形式的代码也是不符合标准的：
 ```
@@ -2895,13 +2895,13 @@ MISRA C++ 2008 16-2-6
 <br/>
 <br/>
 
-### <span id="nonstandardcharinheadername">▌R3.1.2 include 指令中禁用不合规的字符</span>
+### <span id="nonstandardcharinheadername">▌R3.1.2 避免在 include 指令中使用特殊字符</span>
 
-ID_nonStandardCharInHeaderName &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: precompile warning
+ID_nonStandardCharInHeaderName &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: precompile warning
 
 <hr/>
 
-字母、数字、下划线、点号之外的字符可能与文件系统存在冲突，也可能导致标准未定义的行为，不应出现在头文件和相关目录名称中。  
+特殊字符，即除英文字母、数字、下划线和点号之外的字符，可能与文件系统发生冲突，也可能导致标准未定义的行为，不应出现在头文件和相关目录的名称中。  
   
 示例：
 ```
@@ -2913,12 +2913,12 @@ ID_nonStandardCharInHeaderName &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: precomp
 #include <foo.h>        // Compliant
 #include <foo_bar>      // Compliant
 ```
-可以用 / 作为路径分隔符，但不应出现 // 或 /\*，否则会导致未定义的行为，如：
+可以使用 / 作为路径分隔符，但路径中不应出现 // 或 /\*，否则会导致未定义的行为，如：
 ```
 #include <foo//bar.h>   // Non-Compliant, undefined behavior
 #include <foo/*bar.h>   // Non-Compliant, undefined behavior
 ```
-另外，某些平台的文件路径不区分大小写，建议头文件以小写字母命名以提高可移植性。
+另外，某些平台的文件路径不区分大小写，建议头文件和相关目录均以小写字母命名以提高可移植性。
 <br/>
 <br/>
 
@@ -2936,7 +2936,7 @@ MISRA C++ 2008 16-2-4
 <br/>
 <br/>
 
-### <span id="forbidbackslashinheadername">▌R3.1.3 include 指令中不应使用反斜杠</span>
+### <span id="forbidbackslashinheadername">▌R3.1.3 避免在 include 指令中使用反斜杠</span>
 
 ID_forbidBackslashInHeaderName &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: precompile warning
 
@@ -2967,18 +2967,23 @@ MISRA C++ 2008 16-2-5
 <br/>
 <br/>
 
-### <span id="forbidabspathinheadername">▌R3.1.4 include 指令中不应使用绝对路径</span>
+### <span id="forbidabspathinheadername">▌R3.1.4 避免在 include 指令中使用绝对路径</span>
 
 ID_forbidAbsPathInHeaderName &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: precompile warning
 
 <hr/>
 
-绝对路径使代码过分依赖编译环境，意味着项目的编译设置不完善，应使用相对路径。  
+如果 include 指令中的头文件路径为绝对路径，会使项目依赖特定的编译环境，降低可移植性。  
   
 示例：
 ```
 #include "C:\\foo\\bar.h"   // Non-compliant
 #include "/foo/bar.h"       // Non-compliant
+```
+应使用相对路径或由构建工具定义的路径：
+```
+#include "../bar.h"   // Compliant, a relative path
+#include BAR_H_PATH   // Compliant, a macro defined by building tools
 ```
 <br/>
 <br/>
@@ -3020,13 +3025,13 @@ MISRA C++ 2008 16-0-1
 <br/>
 <br/>
 
-### <span id="forbiddenheader">▌R3.1.6 禁用不合规的头文件</span>
+### <span id="forbiddenheader">▌R3.1.6 禁用具有不良影响的头文件</span>
 
 ID_forbiddenHeader &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: precompile warning
 
 <hr/>
 
-已过时的、无意义的或有不良副作用的头文件应禁用。  
+具有危险功能的、已过时或不具备实际意义的头文件应禁用。  
   
 示例：
 ```
@@ -3041,11 +3046,13 @@ ID_forbiddenHeader &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: precompile warning
 #include <ccomplex>   // Non-compliant in C++
 #include <cstdalign>  // Non-compliant in C++
 ```
-tgmath.h 和 ctgmath 会使用语言标准之外的技术实现某种重载效果，而且其中的部分函数名称会干扰其他标准库中的名称，setjmp.h 和 csetjmp 则包含危险的过程间跳转函数。  
+tgmath.h 提供模仿泛型数学函数的宏，但宏名称与 math.h、complex.h 等头文件中的函数名称相同，对代码可读性造成不良影响，在 C11 之前编译器只能通过语言标准之外的特殊方法实现相关功能，而且参数类型与要求的类型不兼容也会导致未定义的行为。  
+  
+setjmp.h、csetjmp 提供过程间跳转函数，非特定场景不应使用，详见 ID\_forbidLongjmp。  
   
 iso646.h、stdalign.h、stdbool.h 以及 ciso646、cstdalign、cstdbool 等头文件对 C\+\+ 语言没有意义，ccomplex、cstdalign、cstdbool、ctgmath 等头文件在 C\+\+17 标准中已过时，在 C\+\+ 代码中不应使用这些头文件。  
   
-stdio.h、signal.h、time.h、fenv.h 等头文件含有较多标准未声明或由实现定义的内容，对有高可靠性要求的软件系统也不建议使用。  
+另外，stdio.h、signal.h、time.h、fenv.h 等头文件含有较多标准未声明或由实现定义的内容，对有高可靠性要求的软件系统也不建议使用。  
   
 审计工具不妨通过配置设定不合规头文件的名称，如：
 ```
@@ -3079,7 +3086,7 @@ MISRA C++ 2008 27-0-1
 <br/>
 <br/>
 
-### <span id="forbidcheaderincpp">▌R3.1.7 C++ 代码不应引用 C 头文件</span>
+### <span id="forbidcheaderincpp">▌R3.1.7 避免在 C++ 代码中包含 C 头文件</span>
 
 ID_forbidCHeaderInCpp &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: precompile warning
 
@@ -4149,7 +4156,7 @@ MISRA C++ 2008 16-6-1
 <br/>
 <br/>
 
-### <span id="explicitlinedirective">▌R3.4.5 非自动生成的代码中不应出现 line 指令</span>
+### <span id="explicitlinedirective">▌R3.4.5 在非自动生成的代码中不应使用 line 指令</span>
 
 ID_explicitLineDirective &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: precompile warning
 
@@ -4171,7 +4178,7 @@ ISO/IEC 9899:2011 6.10.4
 <br/>
 <br/>
 
-### <span id="directiveinmacroargument">▌R3.4.6 宏的参数列表中不应出现预编译指令</span>
+### <span id="directiveinmacroargument">▌R3.4.6 在宏的参数列表中不应使用预编译指令</span>
 
 ID_directiveInMacroArgument &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: precompile warning
 
@@ -4351,7 +4358,7 @@ ID_nestedComment &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: precompile warning
 
 <hr/>
 
-嵌套的 /\*...\*/ 注释不符合标准，/\* 与 \*/ 之间不应出现 /\*，某些编译器可以接受嵌套，但不具备可移植性。  
+嵌套的 /\*...\*/ 注释不符合标准，/\* 与 \*/ 之间不可出现 /\*。  
   
 示例：  
 
@@ -4362,13 +4369,15 @@ ID_nestedComment &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: precompile warning
      */                    // #3
 */                         // #4, Non-compliant
 ```
-根据标准，`#1` 处的 /\* 与 `#3` 处的 \*/ 匹配，而 `#4` 处的 \*/ 处于失配状态。
+例中 `#1` 处的 /\* 与 `#3` 处的 \*/ 匹配，而 `#4` 处的 \*/ 处于失配状态。
 <br/>
 <br/>
 
 #### 依据
 ISO/IEC 9899:1999 6.4.9(1)  
 ISO/IEC 9899:2011 6.4.9(1)  
+ISO/IEC 14882:2003 2.7(1)  
+ISO/IEC 14882:2011 2.8(1)  
 <br/>
 
 #### 参考
@@ -8586,7 +8595,7 @@ ID_badParmN &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: declaration error
 <hr/>
 
 可变参数列表中省略号的前一个参数称为 parmN，如果：  
- - 在 C 代码中，parmN 为数组、函数，或具有寄存器存储期，以及与默认参数提升后不兼容的类型  
+ - 在 C 代码中，parmN 为数组、函数，或具有寄存器存储类，以及与默认参数提升后不兼容的类型  
  - 在 C\+\+ 代码中，parmN 为引用、数组、函数，或具有与默认参数提升后不兼容的类型  
   
 会导致标准未定义的行为。  
@@ -8594,10 +8603,10 @@ ID_badParmN &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: declaration error
 示例：
 ```
 void foo(float f, ...);          // Non-compliant
-void bar(int& i, ...);           // Non-compliant in C++
+void bar(int& r, ...);           // Non-compliant in C++
 void baz(register int n, ...);   // Non-compliant in C
 ```
-例中参数 f 为 float 型，与“[默认参数提升（default argument promotion）](https://en.cppreference.com/w/cpp/language/variadic_arguments#Default_conversions)”后的类型 double 不兼容，参数 i 为引用，参数 n 被 register 限定具有寄存器存储期，这种代码均会导致标准未定义的行为。
+例中参数 f 为 float 型，与“[默认参数提升（default argument promotion）](https://en.cppreference.com/w/cpp/language/variadic_arguments#Default_conversions)”后的类型 double 不兼容，参数 r 为引用，参数 n 被 register 关键字限定具有寄存器存储类，这种代码均会导致标准未定义的行为。
 <br/>
 <br/>
 
@@ -8937,7 +8946,7 @@ ID_inaccessibleTmpObject &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: declaration error
 
 <hr/>
 
-无名且不受控制的临时对象在构造之后会立即析构，在逻辑上没有意义，往往意味着错误。  
+无名且不受控制的临时对象在构造之后会立即析构，往往意味着错误。  
   
 示例：
 ```
@@ -8958,7 +8967,7 @@ class A {
     int a;
 
 public:
-    A(): A(0) {}        // Compliant
+    A(): A(0) {}        // Compliant, delegating constructor
     A(int x): a(x) {}
 };
 ```
@@ -9538,7 +9547,7 @@ C++ Core Guidelines C.87
 <br/>
 <br/>
 
-### <span id="virtualinfinal">▌R6.8.13 final 类中不应声明虚函数</span>
+### <span id="virtualinfinal">▌R6.8.13 在 final 类中不应声明虚函数</span>
 
 ID_virtualInFinal &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: declaration warning
 
@@ -10909,7 +10918,7 @@ ID_throwOutOfMain &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: exception warning
 
 <hr/>
 
-在全局对象初始化过程中抛出的异常没有被处理的机会，导致程序异常终止。  
+初始化全局对象时抛出的异常无法被处理，会导致程序异常终止。  
   
 本规则是 ID\_uncaughtException 的特化。  
   
@@ -10974,7 +10983,7 @@ ID_throwInDestructor &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: exception error
 
 析构函数抛出异常会违反异常处理机制。  
   
-当抛出异常时，从异常被抛出到异常被处理之间的对象，也就是从“throw”到“catch”各层调用栈中的对象会被自动析构，如果这个过程中某个对象的析构函数又抛出异常便违反了异常处理机制，这种情况将直接引发 std::terminate 函数的执行，所以从析构函数抛出的异常可能无法被捕获和处理，也可能导致程序异常终止。  
+抛出异常后，从 throw 表达式到相应 catch 子句各层调用栈中的对象会被自动析构，如果这个过程中某个对象的析构函数抛出异常便违反了异常处理机制，这种情况将直接引发 std::terminate 函数的执行，所以从析构函数抛出的异常可能无法被捕获和处理，也可能导致程序异常终止。  
   
 示例（设 E0 和 E1 是不相关的异常类）：
 ```
@@ -10999,9 +11008,9 @@ public:
 与析构相关的过程也不应抛出异常：  
  - 资源回收  
  - delete、delete\[\] 运算符  
- - 具有 free、clear、release 等语义的函数  
+ - 具有 deallocate、free 等语义的函数  
   
-另外，具有 swap、hash 等语义以及移动构造或赋值相关的过程也不应抛出异常，详见相关规则。
+另外，具有 swap、hash 等语义以及移动构造、移动赋值相关的过程也不应抛出异常，详见相关规则。
 <br/>
 <br/>
 
@@ -11033,6 +11042,8 @@ ID_throwInDelete &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: exception error
 <hr/>
 
 内存回收函数抛出异常会导致标准未定义的行为。  
+  
+抛出异常后，从 throw 表达式到相应 catch 子句各层调用栈中的对象会被自动析构，并释放内存空间，如果在这个过程中抛出异常便违反了异常处理机制，导致未定义的行为。  
   
 示例：
 ```
@@ -11153,9 +11164,9 @@ ID_throwWhileThrowing &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: exception error
 
 <hr/>
 
-异常类的拷贝构造函数抛出异常违反异常处理机制，导致程序异常终止。  
+异常类的拷贝构造函数抛出异常违反异常处理机制，会导致程序异常终止。  
   
-当抛出异常时，throw 表达式指定的异常对象会被复制，用以初始化对应的 catch 子句的参数，如果在复制过程中又抛出异常便违反了异常处理机制，这种情况将直接引发 std::terminate 函数的执行，使程序异常终止。  
+当抛出异常时，throw 表达式指定的异常对象会被复制，用以初始化相应 catch 子句的参数，如果在复制过程中又抛出异常便违反了异常处理机制，这种情况将直接引发 std::terminate 函数的执行，使程序异常终止。  
   
 示例：
 ```
@@ -11192,6 +11203,7 @@ ISO/IEC 14882:2017 18.1(3 7)
 <br/>
 
 #### 参考
+C++ Core Guidelines E.16  
 SEI CERT ERR60-CPP  
 <br/>
 <br/>
@@ -11260,7 +11272,7 @@ ID_throwInHash &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: exception suggestion
 
 <hr/>
 
-对象的 hash 过程中不应抛出异常，否则相关的容器和算法无法正常工作。  
+在对象的 hash 过程中不应抛出异常，否则相关的容器和算法无法正常工作。  
   
 示例：
 ```
@@ -11774,15 +11786,17 @@ ID_forbidException &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: exception warning
 
 <hr/>
 
-本规则适用如下场景，可酌情选取。  
- 1. 对时空性能有严格要求的项目  
- 2. 代码所属框架不支持异常处理  
- 3. 与 C 或其他语言兼容的接口实现  
- 4. 项目没有依照异常安全的理念实施  
+禁用 try、catch、throw 关键字，并禁用使用异常的库。  
   
-利用返回值或错误码的错误处理方式要求检查可能产生错误的每一个步骤，有些出错情况可能被遗漏，C\+\+ 的异常机制可大幅简化这种繁琐的方式，使代码更专注于事务或算法的实现，而且 C\+\+ 异常是不可被忽略的，然而 C\+\+ 的异常机制是需要一定开销的，对代码的设计与实现也有更严格的要求。  
+本规则适用场景如下，应酌情选取：  
+ - 对时空性能有严格要求的项目  
+ - 代码所属框架不支持异常处理  
+ - 与 C 或其他语言兼容的接口实现  
+ - 项目没有依照异常安全的理念实施  
   
-如果异常情况频繁出现，其成本是不可被忽视的，不适用于具有高性能要求的实时软件系统。如果代码所属项目没有依照异常安全的理念实施，使用异常反而会造成更多问题，可参见 ID\_exceptionUnsafe 的进一步讨论。
+利用返回值或错误码的错误处理方式要求检查可能产生错误的每一个步骤，有些出错情况可能被遗漏，C\+\+ 的异常机制可大幅简化这种繁琐的方式，使代码更专注于事务或算法的实现，而且 C\+\+ 异常是不可被忽略的。  
+  
+然而，C\+\+ 异常机制需要一定的开销，对代码的设计与实现也有更严格的要求。异常的抛出与捕获会对性能产生影响，可能不适用于具有高性能要求的实时软件系统，如果项目没有依照异常安全的理念实施，使用异常也可能会造成资源泄漏等更多问题，可参见 ID\_exceptionUnsafe 的进一步讨论。
 <br/>
 <br/>
 
@@ -12076,31 +12090,36 @@ ID_illForwardingReference &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
 不应混淆“[转发引用（forwarding references）](https://en.cppreference.com/w/cpp/language/reference#Forwarding_references)”与右值引用，除作为 std::forward 的参数之外，不应对转发引用再有任何操作。  
   
-转发引用是类型为 T&& 的参数，T 为函数模板类型，无论左值还是右值均可被这种参数接受，而且 const、volatile 等属性也会被忽略，由于含有不确定的状态，所以直接操作转发引用是不妥的，只应通过 std::forward<T> 交由合适的接口处理。  
+转发引用是类型为 T&& 的参数，T 为函数模板类型。左值和右值均可与转发引用绑定，但如果绑定右值，右值的相关特性会被隐藏，故不应直接操作转发引用，应通过 std::forward<T> 交由合适的接口处理。  
   
 示例：
 ```
-int func();
-int func(int&);
-int func(const int&);
+int fun(int&) { return 1; }
+int fun(int&&) { return 2; }
+int fun(const int&) { return 3; }
 
 template <class T>
-int wrapper(T&& arg) {
-    return func(arg);   // Non-compliant
+int wrapper(T&& arg) {  // Forwarding reference
+    return fun(arg);    // Non-compliant
 }
 
-template <class... V>
-int wrapper(V&&... args) {
-    return func(args...);   // Non-compliant
+int main() {
+    int n = 1;
+    cout << wrapper(n);  // wrapper<int&>(int&)
+    cout << wrapper(0);  // wrapper<int>(int&&)
 }
 ```
-例中 arg 和 args 为转发引用及相关参数包，不经 std::forward 的转换直接作为接口的参数无法正确选择重载的接口，应改为：
+例中左值 n 和右值 0 均可与转发引用 arg 绑定，但右值相关的特性被隐藏，只能调用 fun(int&)，无法正确选择重载的接口。  
+  
+应改为：
 ```
 template <class T>
 int wrapper(T&& arg) {
     return func(forward<T>(arg));   // Compliant
 }
-
+```
+对转发引用参数包也有相同要求：
+```
 template <class... V>
 int wrapper(V&&... args) {
     return func(forward<V>(args)...);   // Compliant
@@ -12488,7 +12507,7 @@ Effective C++ item 9
 <br/>
 <br/>
 
-### <span id="exitcallindestructor">▌R8.16 在析构函数中避免调用 exit 函数</span>
+### <span id="exitcallindestructor">▌R8.16 避免在析构函数中调用 exit 函数</span>
 
 ID_exitCallInDestructor &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -12516,7 +12535,7 @@ ISO/IEC 14882:2011 3.6.1(4)-undefined
 <br/>
 <br/>
 
-### <span id="sideeffectcopyconstructor">▌R8.17 拷贝构造函数应避免实现复制之外的功能</span>
+### <span id="sideeffectcopyconstructor">▌R8.17 避免在拷贝构造函数中实现复制之外的功能</span>
 
 ID_sideEffectCopyConstructor &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -12568,7 +12587,7 @@ MISRA C++ 2008 12-8-1
 <br/>
 <br/>
 
-### <span id="sideeffectmoveconstructor">▌R8.18 移动构造函数应避免实现数据移动之外的功能</span>
+### <span id="sideeffectmoveconstructor">▌R8.18 避免在移动构造函数中实现数据移动之外的功能</span>
 
 ID_sideEffectMoveConstructor &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -13345,7 +13364,7 @@ int main() {
     atexit(handler);
 }
 ```
-例中程序在调用 exit 时会执行 handler，而 handler 又调用 exit，在逻辑上形成无限递归，其后果在标准中是未定义的。  
+例中程序在调用 exit 时会执行 handler，而 handler 又调用 exit，造成了无限递归，其后果在标准中是未定义的。  
   
 又如：
 ```
@@ -13363,7 +13382,7 @@ int main() {
     return 1;
 }
 ```
-例中 main 返回后会调用 handler，而 handler 又调用 longjmp 跳回 main 函数，在逻辑上形成死循环。
+例中 main 返回后会调用 handler，而 handler 又调用 longjmp 跳回 main，造成了死循环。
 <br/>
 <br/>
 
@@ -13571,7 +13590,7 @@ void foo()
     // use common functions instead
 }
 ```
-建议 lambda 表达式不超过 5 行，一个函数中不应有多个复杂的 lambda 表达式。
+建议 lambda 表达式不超过 5 行。
 <br/>
 <br/>
 
@@ -13948,13 +13967,13 @@ SEI CERT EXP15-C
 <br/>
 <br/>
 
-### <span id="if_identicalcondition">▌R9.1.2 在 if...else-if 分枝中不应有重复的条件</span>
+### <span id="if_identicalcondition">▌R9.1.2 if...else-if 分枝的条件不应重复</span>
 
 ID_if_identicalCondition &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: control error
 
 <hr/>
 
-if...else\-if 分枝的条件不应有重复，否则相同条件排在前面的分枝会得以执行，而排在后面的分枝得不到执行机会。  
+if...else\-if 分枝的条件不应有所重复，否则排在前面的分枝会得以执行，排在后面的分枝得不到执行机会。  
   
 示例：
 ```
@@ -13973,7 +13992,7 @@ else {
 ```
 例中 branch1 和 branch3 的条件是相同的，所以 branch3 不会被执行。  
   
-此问题为常见笔误，多数由复制粘贴造成，也可能是维护代码时对之前的逻辑不够了解造成的错误。
+这种问题为常见笔误，多由复制粘贴或维护代码时对原有逻辑不够了解造成。
 <br/>
 <br/>
 
@@ -13987,7 +14006,7 @@ CWE-670
 <br/>
 <br/>
 
-### <span id="if_hiddencondition">▌R9.1.3 在 if...else-if 分枝中不应有被遮盖的条件</span>
+### <span id="if_hiddencondition">▌R9.1.3 if...else-if 分枝的条件不应被遮盖</span>
 
 ID_if_hiddenCondition &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: control error
 
@@ -14069,13 +14088,13 @@ CWE-670
 <br/>
 <br/>
 
-### <span id="if_identicalelseifblock">▌R9.1.5 if...else-if 各分枝的代码不应完全相同</span>
+### <span id="if_identicalelseifblock">▌R9.1.5 不应存在完全相同的 if...else-if 分枝</span>
 
 ID_if_identicalElseIfBlock &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: control warning
 
 <hr/>
 
-内容完全相同的分枝是没有意义的，也可能是由复制粘贴造成的错误。  
+完全相同的分枝是没有意义的，也可能是由复制粘贴造成的错误。  
   
 示例：
 ```
@@ -14089,7 +14108,7 @@ else {
     branch1  // Non-compliant
 }
 ```
-例中 condition1 对应分枝和 else 分枝的内容完全相同，应该合并成一个分枝，或修正本应存在的差异：
+例中 condition1 对应分枝和 else 分枝完全相同，应该合并成一个分枝，或修正本应存在的差异：
 ```
 if (condition2) {
     branch2
@@ -14099,7 +14118,7 @@ else {
 }
 ```
 例外：  
-如果分枝内容较少，为了使代码更清晰可以接受适当的重复，但如果分枝内容很多就不应重复了，审计工具不妨指定一个数量限制，当重复分枝的符号数量超过这个限制时算作违规，否则放过。
+如果分枝的代码量较少，为了使代码更清晰可以接受适当的重复，但如果代码量很多就不应重复了，审计工具不妨指定一个数量限制，当重复分枝的符号数量超过这个限制时算作违规，否则放过。
 <br/>
 <br/>
 
@@ -14116,7 +14135,7 @@ CWE-670
 <br/>
 <br/>
 
-### <span id="if_identicalimplicitelseblock">▌R9.1.6 if 分枝和隐含的 else 分枝代码不应完全相同</span>
+### <span id="if_identicalimplicitelseblock">▌R9.1.6 if 分枝和隐含的 else 分枝不应完全相同</span>
 
 ID_if_identicalImplicitElseBlock &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: control warning
 
@@ -14349,7 +14368,7 @@ ID_if_emptyBlock &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: control warning
 if (cond);     // Non-compliant
 if (cond) {}   // Non-compliant
 ```
-如果 if 语句没有 else 分枝，且其分枝内容为空，这样的 if 语句无任何意义，即使其条件有副作用，也不应继续保留该 if 结构。  
+如果 if 语句没有 else 分枝，且其分枝为空，这样的 if 语句无任何意义，即使其条件有副作用，也不应继续保留该 if 结构。  
   
 又如：
 ```
@@ -15261,13 +15280,13 @@ MISRA C++ 2008 6-4-8
 <br/>
 <br/>
 
-### <span id="switch_caseoutofrange">▌R9.5.3 case 标签的值不可超出 switch 条件的范围</span>
+### <span id="switch_caseoutofrange">▌R9.5.3 case 标签的值不可超出 switch 条件表达式的取值范围</span>
 
 ID_switch_caseOutOfRange &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: control warning
 
 <hr/>
 
-如果 case 标签的值超出了 switch 条件的范围，会导致相应分枝永远不会被执行。  
+如果 case 标签的值超出了 switch 条件表达式的取值范围，会导致相应分枝永远不会被执行。  
   
 示例：
 ```
@@ -15297,13 +15316,13 @@ CWE-561
 <br/>
 <br/>
 
-### <span id="switch_invalidstatement">▌R9.5.4 switch 语句中任何子句都应从属于某个 case 或 default 分枝</span>
+### <span id="switch_invalidstatement">▌R9.5.4 switch 语句的子句均应从属于某个 case 或 default 分枝</span>
 
 ID_switch_invalidStatement &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: control error
 
 <hr/>
 
-switch 语句中任何子句都应从属于某个 case 或 default 分枝，否则不会被执行。  
+switch 语句的所有子句都应从属于某个 case 或 default 分枝，否则不会被执行。  
   
 示例：
 ```
@@ -15414,13 +15433,13 @@ default:    // Compliant
 <br/>
 <br/>
 
-### <span id="switch_identicalbranch">▌R9.5.7 不应存在内容完全相同的 case 分枝</span>
+### <span id="switch_identicalbranch">▌R9.5.7 不应存在完全相同的 case 或 default 分枝</span>
 
 ID_switch_identicalBranch &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: control warning
 
 <hr/>
 
-内容完全相同的分枝应合并为一个分枝，也可能是由复制粘贴造成的错误。  
+完全相同的分枝应合并成一个分枝，也可能是由复制粘贴造成的错误。  
   
 示例：
 ```
@@ -15437,10 +15456,10 @@ case 3:
     break;
 }
 ```
-例中 case 3 对应的分枝和 case 1 对应的分枝内容完全相同，应将其合并为一个分枝，或修正本应存在的差异。  
+例中 case 3 对应的分枝和 case 1 对应的分枝完全相同，应将其合并为一个分枝，或修正本应存在的差异。  
   
 例外：  
-如果分枝内容较少，为了使代码更清晰可以接受适当的重复，但如果分枝内容很多就不应重复了，审计工具不妨指定一个数量限制，当重复分枝的符号数量超过这个限制时算作违规，否则放过。
+如果分枝代码量较少，为了使代码更清晰可以接受适当的重复，但如果代码量很多就不应重复了，审计工具不妨指定一个数量限制，当重复分枝的符号数量超过这个限制时算作违规，否则放过。
 <br/>
 <br/>
 
@@ -15458,13 +15477,13 @@ C++ Core Guidelines ES.3
 <br/>
 <br/>
 
-### <span id="switch_bool">▌R9.5.8 switch 语句的条件不应为 bool 型</span>
+### <span id="switch_bool">▌R9.5.8 switch 语句的条件表达式不应为 bool 型</span>
 
 ID_switch_bool &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: control warning
 
 <hr/>
 
-如果条件为 bool 型，应改用 if\-else 语句使代码的结构更清晰。  
+如果条件表达式为 bool 型，应改用 if\-else 语句使代码的结构更清晰。  
   
 示例：
 ```
@@ -17962,16 +17981,17 @@ if (f == 0.1) {     // Non-compliant, do not use ‘==’ or ‘!=’
   
 解决方法：
 ```
-bool feq(float a, float b, float e = 0.0001f) {
+bool feq(float a, float b, float e = 0.000001f) {
     return fabs(a - b) < e;
 }
 ```
-利用 feq 函数判断浮点数是否相等，如果两个浮点数的差值非常小则可以认为相等，其中 fabs 为计算浮点数差值绝对值的函数，如果差值绝对值小于 e 则认为相等，否则不等。
+利用 feq 函数判断浮点数 a 和 b 是否相等，如果两个浮点数的差值非常小则可以认为相等，其中 fabs 为计算浮点数差值绝对值的函数，如果差值绝对值小于 e 则认为相等，否则不等。
 ```
 if (feq(f, 0.1)) {   // Compliant
     cout << "OK";
 }
 ```
+在实际代码中，对于 float、double、long double 等不同的浮点类型，可以分别使用 float.h 中定义的 FLT\_EPSILON、DBL\_EPSILON、LDBL\_EPSILON 作为 e 的值，在 C\+\+ 代码中也可以使用 std::numeric\_limits<T>::epsilon()，T 为浮点类型。
 <br/>
 <br/>
 
@@ -18082,7 +18102,7 @@ ID_differentEnumComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warn
 
 <hr/>
 
-比较非同类枚举值相当于比较不同类别的事物，没有逻辑意义，往往是设计缺陷或逻辑错误。  
+比较非同类枚举值相当于比较不同类别的事物，往往是设计缺陷或逻辑错误。  
   
 示例：
 ```
@@ -18848,9 +18868,7 @@ ID_unsuitableForward &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
 std::forward 的参数应为“[转发引用（forwarding references）](https://en.cppreference.com/w/cpp/language/reference#Forwarding_references)”，返回值应直接作为接口的参数，除此之外的使用方式价值有限，且易产生错误。  
   
-转发引用是类型为 T&& 的参数，T 为函数模板类型，无论左值还是右值均可被这种参数接受，而且 const、volatile 等属性也会被忽略，这种参数应通过 std::forward<T> 交由合适的接口处理。  
-  
-关于转发引用，可参见 ID\_illForwardingReference 的进一步说明。  
+转发引用是类型为 T&& 的参数，T 为函数模板类型，左值和右值均可与之绑定，可参见 ID\_illForwardingReference 的进一步说明。  
   
 示例：
 ```
@@ -22611,7 +22629,7 @@ SEI CERT SIG31-C
 <br/>
 <br/>
 
-### <span id="sig_nonasyncsafecall">▌R15.2 在异步信号处理函数中避免使用非异步信号安全函数</span>
+### <span id="sig_nonasyncsafecall">▌R15.2 避免在异步信号处理函数中使用非异步信号安全函数</span>
 
 ID_sig_nonAsyncSafeCall &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: interruption warning
 
@@ -23244,7 +23262,7 @@ SEI CERT CON52-CPP
 <br/>
 <br/>
 
-### <span id="signalinmultithreading">▌R16.9 多线程环境中不可使用 signal 函数</span>
+### <span id="signalinmultithreading">▌R16.9 在多线程环境中不可使用 signal 函数</span>
 
 ID_signalInMultiThreading &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: concurrency warning
 
