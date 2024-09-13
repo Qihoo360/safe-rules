@@ -1690,7 +1690,7 @@ void foo(size_t n) {
     free(p);
 }
 ```
-例中局部变量 p 记录已分配的内存地址，释放前在某种情况下函数返回，之后便再也无法访问到这块内存了，导致内存泄露。  
+例中局部变量 p 记录已分配的内存地址，释放前在某种情况下函数返回，之后便再也无法访问到这块内存了，导致内存泄漏。  
   
 又如：
 ```
@@ -1702,7 +1702,7 @@ void bar(size_t n) {
     ....
 }
 ```
-当 realloc 函数分配失败时会返回空指针，p 指向的原内存空间不会被释放，但 p 被赋值为空，导致内存泄露，这是一种常见错误。
+当 realloc 函数分配失败时会返回空指针，p 指向的原内存空间不会被释放，但 p 被赋值为空，导致内存泄漏，这是一种常见错误。
 <br/>
 <br/>
 
@@ -2443,7 +2443,7 @@ ID_multiAllocation &emsp;&emsp;&emsp;&emsp;&nbsp; :drop_of_blood: resource warni
 
 <hr/>
 
-由于子表达式的求值顺序存在很多未声明的情况，在表达式中多次显式分配资源易造成资源泄露。  
+由于子表达式的求值顺序存在很多未声明的情况，在表达式中多次显式分配资源易造成资源泄漏。  
   
 示例：
 ```
@@ -10581,7 +10581,7 @@ void foo() {
     unlock();
 }
 ```
-设 lock 是某种获取资源的操作，unlock 是释放资源的操作，procedure\_may\_throw 是可能抛出异常的过程，那么 foo 函数就不是异常安全的，一旦有异常抛出会导致死锁或泄露等问题。  
+设 lock 是某种获取资源的操作，unlock 是释放资源的操作，procedure\_may\_throw 是可能抛出异常的过程，那么 foo 函数就不是异常安全的，一旦有异常抛出会导致死锁或泄漏等问题。  
   
 应保证资源从分配到回收的过程不被异常中断，采用对象化管理方法，使分配和回收得以自动完成：
 ```
@@ -16425,10 +16425,10 @@ ID_redundantCondition &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
   
 示例：
 ```
-a > b && a != b     // None-compliant, a != b is redundant
-a < b || a != b     // None-compliant, a < b is redundant
-a >= b && a == b    // None-compliant, a >= b is redundant
-a == b || a <= b    // None-compliant, a == b is redundant
+a > b && a != b     // Non-compliant, a != b is redundant
+a < b || a != b     // Non-compliant, a < b is redundant
+a >= b && a == b    // Non-compliant, a >= b is redundant
+a == b || a <= b    // Non-compliant, a == b is redundant
 ```
 多余的子表达式很可能意味着某种错误，需认真对待。
 <br/>
@@ -16590,10 +16590,10 @@ ID_simplifiableCondition &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warnin
   
 示例：
 ```
-a < b || a > b      // None-compliant, use a != b instead
-a > b || a == b     // None-compliant, use a >= b instead
-a < b || a == b     // None-compliant, use a <= b instead
-a <= b && a >= b    // None-compliant, use a == b instead
+a < b || a > b      // Non-compliant, use a != b instead
+a > b || a == b     // Non-compliant, use a >= b instead
+a < b || a == b     // Non-compliant, use a <= b instead
+a <= b && a >= b    // Non-compliant, use a == b instead
 ```
 不合理的繁琐写法也可能意味着某种错误，需认真对待。
 <br/>

@@ -1850,7 +1850,7 @@
     "ID_multiAllocation": {
         "checkPoint": "在一个表达式语句中最多使用一次 new",
         "level": "warning",
-        "comment": "由于子表达式的求值顺序存在很多未声明的情况，在表达式中多次显式分配资源易造成资源泄露。",
+        "comment": "由于子表达式的求值顺序存在很多未声明的情况，在表达式中多次显式分配资源易造成资源泄漏。",
         "tag": "resource",
         "related": "ID_memoryLeak",
         "standard": "ISO/IEC 14882:2003 5.2.2(8)-unspecified,ISO/IEC 14882:2011 5.2.2(8),ISO/IEC 14882:2017 8.2.2(5)",
