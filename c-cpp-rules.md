@@ -2,7 +2,7 @@
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对 C 和 C++ 语言，本文收录了 531 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对 C 和 C++ 语言，本文收录了 532 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
@@ -402,27 +402,28 @@
   - [R8.24 有返回值的函数其所有分枝都应显式返回](#notallbranchreturn)
   - [R8.25 不可返回局部对象的地址或引用](#localaddressflowout)
   - [R8.26 不可返回临时对象的地址或引用](#tmpaddressflowout)
-  - [R8.27 合理设置 lambda 表达式的捕获方式](#unsuitablecapture)
-  - [R8.28 函数返回值不应为右值引用](#returnrvaluereference)
-  - [R8.29 函数返回值不应为常量对象](#returnconstobject)
-  - [R8.30 函数返回值不应为基本类型的常量](#returnsuperfluousconst)
-  - [R8.31 被返回的表达式应与函数的返回类型一致](#returnodd)
-  - [R8.32 被返回的表达式不应为相同的常量](#returnsameconst)
-  - [R8.33 具有 noreturn 属性的函数不应返回](#unsuitablereturn)
-  - [R8.34 具有 noreturn 属性的函数返回类型只应为 void](#unsuitablereturntype)
-  - [R8.35 由 atexit、at\_quick\_exit 指定的处理函数应正常返回](#exithandlernoreturn)
-  - [R8.36 函数模板不应被特化](#functionspecialization)
-  - [R8.37 函数的退出点数量应在规定范围之内](#toomanyexit)
-  - [R8.38 函数的标签数量应在规定范围之内](#toomanylabels)
-  - [R8.39 函数的行数应在规定范围之内](#toomanylines)
-  - [R8.40 lambda 表达式的行数应在规定范围之内](#toomanylambdalines)
-  - [R8.41 函数参数的数量应在规定范围之内](#toomanyparams)
-  - [R8.42 不应定义复杂的内联函数](#complexinlinefunction)
-  - [R8.43 避免函数调用自身](#recursion)
-  - [R8.44 不可递归调用析构函数](#this_deleteindestructor)
-  - [R8.45 作用域及类型嵌套不应过深](#nestedtoodeep)
-  - [R8.46 汇编代码不应与普通代码混合](#mixedasm)
-  - [R8.47 避免重复的函数实现](#functionrepetition)
+  - [R8.27 不可引用失效的临时对象](#referinvalidtmpobject)
+  - [R8.28 合理设置 lambda 表达式的捕获方式](#unsuitablecapture)
+  - [R8.29 函数返回值不应为右值引用](#returnrvaluereference)
+  - [R8.30 函数返回值不应为常量对象](#returnconstobject)
+  - [R8.31 函数返回值不应为基本类型的常量](#returnsuperfluousconst)
+  - [R8.32 被返回的表达式应与函数的返回类型一致](#returnodd)
+  - [R8.33 被返回的表达式不应为相同的常量](#returnsameconst)
+  - [R8.34 具有 noreturn 属性的函数不应返回](#unsuitablereturn)
+  - [R8.35 具有 noreturn 属性的函数返回类型只应为 void](#unsuitablereturntype)
+  - [R8.36 由 atexit、at\_quick\_exit 指定的处理函数应正常返回](#exithandlernoreturn)
+  - [R8.37 函数模板不应被特化](#functionspecialization)
+  - [R8.38 函数的退出点数量应在规定范围之内](#toomanyexit)
+  - [R8.39 函数的标签数量应在规定范围之内](#toomanylabels)
+  - [R8.40 函数的行数应在规定范围之内](#toomanylines)
+  - [R8.41 lambda 表达式的行数应在规定范围之内](#toomanylambdalines)
+  - [R8.42 函数参数的数量应在规定范围之内](#toomanyparams)
+  - [R8.43 不应定义复杂的内联函数](#complexinlinefunction)
+  - [R8.44 避免函数调用自身](#recursion)
+  - [R8.45 不可递归调用析构函数](#this_deleteindestructor)
+  - [R8.46 作用域及类型嵌套不应过深](#nestedtoodeep)
+  - [R8.47 汇编代码不应与普通代码混合](#mixedasm)
+  - [R8.48 避免重复的函数实现](#functionrepetition)
 <br/>
 
 <span id="__control">**[9. Control](#control)**</span>
@@ -13277,6 +13278,7 @@ S* bar(S&& s) {
 
 #### 相关
 ID_localAddressFlowOut  
+ID_referInvalidTmpObject  
 ID_danglingDeref  
 ID_illLifetime  
 <br/>
@@ -13291,7 +13293,67 @@ MISRA C++ 2008 7-5-3
 <br/>
 <br/>
 
-### <span id="unsuitablecapture">▌R8.27 合理设置 lambda 表达式的捕获方式</span>
+### <span id="referinvalidtmpobject">▌R8.27 不可引用失效的临时对象</span>
+
+ID_referInvalidTmpObject &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: function error
+
+<hr/>
+
+将临时对象与引用绑定可以延长临时对象的生命周期，但并不是在所有情况下都有效，应避免生命周期与预期不符造成的错误。  
+  
+示例：
+```
+struct T {
+    string member = "abc";
+    string val() { return member; }
+    string& ref() { return member; }
+    string* ptr() { return &member; }
+};
+auto&& a = T();         // Compliant
+auto&& b = T().member;  // Compliant
+auto&& c = T().val();   // Compliant
+```
+将纯右值与引用直接绑定可以使其生命周期与引用的生命周期保持一致。例中 T()、T().member、T().val() 均为纯右值，其生命周期可以被延长。  
+
+```
+auto& x = T().ref();      // Non-compliant, dangling reference
+auto* y = T().ptr();      // Non-compliant, dangling pointer
+auto& z = T().member[0];  // Non-compliant, dangling reference
+```
+如果临时对象的成员函数返回成员的引用或地址，表达式执行完毕后临时对象析构，无法延长成员的生命周期。例中 x、z 为无效引用，y 为无效指针。  
+  
+另外，构造函数初始化列表中的绑定不会延长临时对象的生命周期：
+```
+struct A {
+    const string& r;
+    A(): r("abc") {}             // Non-compliant
+    A(const string& s): r(s) {}
+};
+A obj("123");  // Non-compliant
+```
+例中由 "abc" 创建的临时 string 对象在构造函数执行完毕后析构，由 "123" 创建的临时对象生命周期与参数 s 的生命周期相同，均无法正确初始化成员引用。  
+  
+又如：
+```
+struct B { const string& r; };
+B obj{"abc"};
+B* ptr = new B{"123"};  // Non-compliant
+```
+如果不通过构造函数直接进行列表初始化，可以将临时对象与成员引用绑定，但 new 表达式中的临时对象与动态创建的对象具有不同的存储周期，故不能保证可以正常绑定。总之，为了避免意料之外的错误并提高兼容性，不应将临时对象与成员引用绑定。
+<br/>
+<br/>
+
+#### 相关
+ID_tmpAddressFlowOut  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2011 12.2(4 5)  
+ISO/IEC 14882:2017 15.2(5 6)  
+<br/>
+<br/>
+
+### <span id="unsuitablecapture">▌R8.28 合理设置 lambda 表达式的捕获方式</span>
 
 ID_unsuitableCapture &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -13349,7 +13411,7 @@ SEI CERT EXP61-CPP
 <br/>
 <br/>
 
-### <span id="returnrvaluereference">▌R8.28 函数返回值不应为右值引用</span>
+### <span id="returnrvaluereference">▌R8.29 函数返回值不应为右值引用</span>
 
 ID_returnRValueReference &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: function suggestion
 
@@ -13414,7 +13476,7 @@ C++ Core Guidelines F.45
 <br/>
 <br/>
 
-### <span id="returnconstobject">▌R8.29 函数返回值不应为常量对象</span>
+### <span id="returnconstobject">▌R8.30 函数返回值不应为常量对象</span>
 
 ID_returnConstObject &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: function suggestion
 
@@ -13456,7 +13518,7 @@ C++ Core Guidelines F.20
 <br/>
 <br/>
 
-### <span id="returnsuperfluousconst">▌R8.30 函数返回值不应为基本类型的常量</span>
+### <span id="returnsuperfluousconst">▌R8.31 函数返回值不应为基本类型的常量</span>
 
 ID_returnSuperfluousConst &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -13492,7 +13554,7 @@ ISO/IEC 14882:2011 3.10(1)
 <br/>
 <br/>
 
-### <span id="returnodd">▌R8.31 被返回的表达式应与函数的返回类型一致</span>
+### <span id="returnodd">▌R8.32 被返回的表达式应与函数的返回类型一致</span>
 
 ID_returnOdd &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -13520,7 +13582,7 @@ MISRA C++ 2008 4-10-1
 <br/>
 <br/>
 
-### <span id="returnsameconst">▌R8.32 被返回的表达式不应为相同的常量</span>
+### <span id="returnsameconst">▌R8.33 被返回的表达式不应为相同的常量</span>
 
 ID_returnSameConst &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -13544,7 +13606,7 @@ bool foo(int a) {
 <br/>
 <br/>
 
-### <span id="unsuitablereturn">▌R8.33 具有 noreturn 属性的函数不应返回</span>
+### <span id="unsuitablereturn">▌R8.34 具有 noreturn 属性的函数不应返回</span>
 
 ID_unsuitableReturn &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -13578,7 +13640,7 @@ SEI CERT MSC53-CPP
 <br/>
 <br/>
 
-### <span id="unsuitablereturntype">▌R8.34 具有 noreturn 属性的函数返回类型只应为 void</span>
+### <span id="unsuitablereturntype">▌R8.35 具有 noreturn 属性的函数返回类型只应为 void</span>
 
 ID_unsuitableReturnType &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -13611,7 +13673,7 @@ ISO/IEC 14882:2011 7.6.3(2)-undefined
 <br/>
 <br/>
 
-### <span id="exithandlernoreturn">▌R8.35 由 atexit、at_quick_exit 指定的处理函数应正常返回</span>
+### <span id="exithandlernoreturn">▌R8.36 由 atexit、at_quick_exit 指定的处理函数应正常返回</span>
 
 ID_exitHandlerNoReturn &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -13661,7 +13723,7 @@ SEI CERT ENV32-C
 <br/>
 <br/>
 
-### <span id="functionspecialization">▌R8.36 函数模板不应被特化</span>
+### <span id="functionspecialization">▌R8.37 函数模板不应被特化</span>
 
 ID_functionSpecialization &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -13711,7 +13773,7 @@ MISRA C++ 2008 14-8-1
 <br/>
 <br/>
 
-### <span id="toomanyexit">▌R8.37 函数的退出点数量应在规定范围之内</span>
+### <span id="toomanyexit">▌R8.38 函数的退出点数量应在规定范围之内</span>
 
 ID_tooManyExit &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: function suggestion
 
@@ -13766,7 +13828,7 @@ MISRA C++ 2008 6-6-5
 <br/>
 <br/>
 
-### <span id="toomanylabels">▌R8.38 函数的标签数量应在规定范围之内</span>
+### <span id="toomanylabels">▌R8.39 函数的标签数量应在规定范围之内</span>
 
 ID_tooManyLabels &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -13801,7 +13863,7 @@ CWE-1119
 <br/>
 <br/>
 
-### <span id="toomanylines">▌R8.39 函数的行数应在规定范围之内</span>
+### <span id="toomanylines">▌R8.40 函数的行数应在规定范围之内</span>
 
 ID_tooManyLines &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -13831,7 +13893,7 @@ C++ Core Guidelines F.3
 <br/>
 <br/>
 
-### <span id="toomanylambdalines">▌R8.40 lambda 表达式的行数应在规定范围之内</span>
+### <span id="toomanylambdalines">▌R8.41 lambda 表达式的行数应在规定范围之内</span>
 
 ID_tooManyLambdaLines &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -13864,7 +13926,7 @@ maxLambdaLineCount：lambda 表达式行数上限，超过则报出
 <br/>
 <br/>
 
-### <span id="toomanyparams">▌R8.41 函数参数的数量应在规定范围之内</span>
+### <span id="toomanyparams">▌R8.42 函数参数的数量应在规定范围之内</span>
 
 ID_tooManyParams &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -13911,7 +13973,7 @@ C++ Core Guidelines I.23
 <br/>
 <br/>
 
-### <span id="complexinlinefunction">▌R8.42 不应定义复杂的内联函数</span>
+### <span id="complexinlinefunction">▌R8.43 不应定义复杂的内联函数</span>
 
 ID_complexInlineFunction &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: function suggestion
 
@@ -13955,7 +14017,7 @@ C++ Core Guidelines F.5
 <br/>
 <br/>
 
-### <span id="recursion">▌R8.43 避免函数调用自身</span>
+### <span id="recursion">▌R8.44 避免函数调用自身</span>
 
 ID_recursion &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
@@ -13999,7 +14061,7 @@ MISRA C++ 2008 7-5-4
 <br/>
 <br/>
 
-### <span id="this_deleteindestructor">▌R8.44 不可递归调用析构函数</span>
+### <span id="this_deleteindestructor">▌R8.45 不可递归调用析构函数</span>
 
 ID_this_deleteInDestructor &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: function error
 
@@ -14035,7 +14097,7 @@ CWE-674
 <br/>
 <br/>
 
-### <span id="nestedtoodeep">▌R8.45 作用域及类型嵌套不应过深</span>
+### <span id="nestedtoodeep">▌R8.46 作用域及类型嵌套不应过深</span>
 
 ID_nestedTooDeep &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: function suggestion
 
@@ -14075,7 +14137,7 @@ CWE-1124
 <br/>
 <br/>
 
-### <span id="mixedasm">▌R8.46 汇编代码不应与普通代码混合</span>
+### <span id="mixedasm">▌R8.47 汇编代码不应与普通代码混合</span>
 
 ID_mixedAsm &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: function suggestion
 
@@ -14130,7 +14192,7 @@ MISRA C++ 2008 7-4-3
 <br/>
 <br/>
 
-### <span id="functionrepetition">▌R8.47 避免重复的函数实现</span>
+### <span id="functionrepetition">▌R8.48 避免重复的函数实现</span>
 
 ID_functionRepetition &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: function suggestion
 
@@ -23862,7 +23924,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;软件安全不仅是技术挑战，更是对用户的坚定承诺。保障软件安全、捍卫用户权益是宏大的主题，虽然难以在一篇文章中详尽阐述，但我们尽力通过这 531 条规则为您提供一个全面的框架，并持续更新。编程技术在不断发展，会有更多挑战在等待着我们，愿我们携手共进，勇于探索，共筑信赖软件，让世界更安全更美好。  
+&emsp;&emsp;软件安全不仅是技术挑战，更是对用户的坚定承诺。保障软件安全、捍卫用户权益是宏大的主题，虽然难以在一篇文章中详尽阐述，但我们尽力通过这 532 条规则为您提供一个全面的框架，并持续更新。编程技术在不断发展，会有更多挑战在等待着我们，愿我们携手共进，勇于探索，共筑信赖软件，让世界更安全更美好。  
 
 &emsp;&emsp;此致
 

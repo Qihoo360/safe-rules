@@ -2039,9 +2039,17 @@
         "level": "error",
         "comment": "临时对象可以通过常量引用或右值引用等方式作为函数的参数，但生命周期结束后，其地址或引用就会失效，如果继续访问会导致标准未定义的行为，对引用型参数取地址应谨慎。",
         "tag": "function",
-        "related": "ID_localAddressFlowOut,ID_danglingDeref,ID_illLifetime",
+        "related": "ID_localAddressFlowOut,ID_referInvalidTmpObject,ID_danglingDeref,ID_illLifetime",
         "standard": "ISO/IEC 9899:1999 6.2.4(2)-undefined,ISO/IEC 9899:2011 6.2.4(2)-undefined",
         "reference": "MISRA C++ 2008 7-5-3"
+        },
+    "ID_referInvalidTmpObject": {
+        "checkPoint": "不可引用失效的临时对象",
+        "level": "error",
+        "comment": "可以通过将临时对象与引用绑定的方式延长临时对象的生命周期，但并不是在所有情况下都有效，应避免生命周期与预期不符造成的错误。",
+        "tag": "function",
+        "related": "ID_tmpAddressFlowOut",
+        "standard": "ISO/IEC 14882:2011 12.2(4 5),ISO/IEC 14882:2017 15.2(5 6)"
         },
     "ID_unreachableCode": {
         "checkPoint": "不应存在得不到执行机会的代码",
