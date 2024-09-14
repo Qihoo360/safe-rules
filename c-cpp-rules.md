@@ -2,7 +2,7 @@
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对 C 和 C++ 语言，本文收录了 528 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对 C 和 C++ 语言，本文收录了 531 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
@@ -175,6 +175,7 @@
     - [R3.5.1 注释不可嵌套](#nestedcomment)
     - [R3.5.2 注释应出现在合理的位置](#badcommentposition)
     - [R3.5.3 关注 TODO、FIXME、XXX、BUG 等特殊注释](#specialcomment)
+    - [R3.5.4 单行注释不应以反斜杠结尾](#commentendingbackslash)
   - [3.6 File](#precompile.file)
     - [R3.6.1 源文件扩展名应一致](#sourcefileext)
     - [R3.6.2 头文件扩展名应一致](#includedfileext)
@@ -283,6 +284,7 @@
     - [R6.4.6 数组大小应被显式声明](#missingarraysize)
     - [R6.4.7 不应将类型定义和对象声明写在一个语句中](#mixedtypeobjdefinition)
     - [R6.4.8 不应将不同类别的声明写在一个语句中](#mixeddeclarations)
+    - [R6.4.9 在 C\+\+ 代码中用容器代替 C 数组](#forbidcarray)
   - [6.5 Parameter](#declaration.parameter)
     - [R6.5.1 函数原型声明中的参数应具有合理的名称](#missingparamname)
     - [R6.5.2 不应将数组作为函数的形式参数](#invalidparamarraysize)
@@ -358,7 +360,7 @@
   - [R7.14 与标准库相关的 hash 过程不应抛出异常](#throwinhash)
   - [R7.15 异常类的拷贝、移动构造函数和析构函数均应是可访问的](#noncopiableexception)
   - [R7.16 使用 noexcept 关键字标注不抛出异常的函数](#missingnoexcept)
-  - [R7.17 由 noexcept 标记的函数不可产生未处理的异常](#throwinnoexcept)
+  - [R7.17 由 noexcept 关键字标注的函数不可产生未处理的异常](#throwinnoexcept)
   - [R7.18 避免异常类多重继承自同一非虚基类](#diamondexceptioninheritance)
   - [R7.19 通过引用捕获异常](#catch_value)
   - [R7.20 捕获异常时不应产生对象切片问题](#catch_slicing)
@@ -448,8 +450,9 @@
     - [R9.2.5 for 循环体不应为空](#for_emptyblock)
     - [R9.2.6 for 循环变量不应为浮点型](#for_floatcounter)
     - [R9.2.7 for 循环变量不应在循环体内被改变](#for_counterchangedinbody)
-    - [R9.2.8 嵌套的 for 语句不应使用相同的循环变量](#for_counternested)
-    - [R9.2.9 for 循环体应该用大括号括起来](#for_brace)
+    - [R9.2.8 for 循环变量应在循环条件范围内有效增减](#for_invalidcounter)
+    - [R9.2.9 嵌套的 for 语句不应使用相同的循环变量](#for_counternested)
+    - [R9.2.10 for 循环体应该用大括号括起来](#for_brace)
   - [9.3 While](#control.while)
     - [R9.3.1 while 语句不应被分号隔断](#while_semicolon)
     - [R9.3.2 while 语句中不应存在无条件的跳转语句](#while_uncondbroken)
@@ -4489,6 +4492,34 @@ CWE-546
 <br/>
 <br/>
 
+### <span id="commentendingbackslash">▌R3.5.4 单行注释不应以反斜杠结尾</span>
+
+ID_commentEndingBackslash &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: precompile warning
+
+<hr/>
+
+以反斜杠结尾的单行注释会将下一行也注释掉。  
+  
+示例：
+```
+#define M   \
+    fun0(); \
+  //fun1(); \   // Non-compliant, use /*fun1();*/ instead
+    fun2();
+```
+示例代码的本意是注释掉 fun1()，但由于结尾是反斜杠，fun2() 也被注释掉了。这种问题多出现在以反斜杠实现的多行宏定义中。
+<br/>
+<br/>
+
+#### 相关
+ID_badBackslash  
+<br/>
+
+#### 参考
+MISRA C 2012 3.2  
+<br/>
+<br/>
+
 ### <span id="precompile.file">3.6 File</span>
 
 ### <span id="sourcefileext">▌R3.6.1 源文件扩展名应一致</span>
@@ -4714,13 +4745,13 @@ const char* s = "\u4e2d";   // Compliant
 <br/>
 <br/>
 
+#### 相关
+ID_commentEndingBackslash  
+<br/>
+
 #### 依据
 ISO/IEC 14882:2003 2.1(1)-undefined  
 ISO/IEC 14882:2011 2.2(1)-undefined  
-<br/>
-
-#### 参考
-MISRA C 2012 3.2  
 <br/>
 <br/>
 
@@ -8510,6 +8541,40 @@ C++ Core Guidelines ES.10
 <br/>
 <br/>
 
+### <span id="forbidcarray">▌R6.4.9 在 C++ 代码中用容器代替 C 数组</span>
+
+ID_forbidCArray &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: declaration suggestion
+
+<hr/>
+
+相比 C 数组，C\+\+ 的 std::array、std::vector 等容器更安全，且提供成员函数，以及标准库支持。  
+  
+示例：
+```
+int a[3]{}, b[3]{};
+array<int, 3> c{}, d{};
+
+if (a >= b) {  // Undefined behavior
+    ....
+}
+if (c >= d) {  // Well defined
+    ....
+}
+```
+C 数组可以退化成指针，例中 a >= b 比较指针的大小，但比较未指向同一数组的指针会导致未定义的行为；c 和 d 是标准容器，不会退化成指针，比较运算符也由标准库明确定义。
+<br/>
+<br/>
+
+#### 相关
+ID_invalidParamArraySize  
+<br/>
+
+#### 参考
+C++ Core Guidelines SL.con.1  
+C++ Core Guidelines R.14  
+<br/>
+<br/>
+
 ### <span id="declaration.parameter">6.5 Parameter</span>
 
 ### <span id="missingparamname">▌R6.5.1 函数原型声明中的参数应具有合理的名称</span>
@@ -8582,6 +8647,7 @@ int foo(int a[], int n);   // Let it go
 
 #### 相关
 ID_inconsistentArraySize  
+ID_forbidCArray  
 <br/>
 
 #### 依据
@@ -11449,13 +11515,13 @@ C++ Core Guidelines E.12
 <br/>
 <br/>
 
-### <span id="throwinnoexcept">▌R7.17 由 noexcept 标记的函数不可产生未处理的异常</span>
+### <span id="throwinnoexcept">▌R7.17 由 noexcept 关键字标注的函数不可产生未处理的异常</span>
 
 ID_throwInNoexcept &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: exception warning
 
 <hr/>
 
-由 noexcept 标记的函数产生未被处理的异常属于逻辑错误，会引发 std::terminate 函数的执行，使程序异常终止。  
+由 noexcept 关键字标注的函数不会抛出异常，如果存在未被处理的异常会引发 std::terminate 函数的执行，使程序异常终止。  
   
 程序异常终止所产生的问题可参见 ID\_uncaughtException 的进一步讨论。  
   
@@ -14983,6 +15049,7 @@ for (size_t n = 0; n < 1000; n++) {  // Compliant
 
 #### 相关
 ID_illFloatComparison  
+ID_for_invalidCounter  
 <br/>
 
 #### 参考
@@ -15023,7 +15090,38 @@ MISRA C++ 2008 6-5-3
 <br/>
 <br/>
 
-### <span id="for_counternested">▌R9.2.8 嵌套的 for 语句不应使用相同的循环变量</span>
+### <span id="for_invalidcounter">▌R9.2.8 for 循环变量应在循环条件范围内有效增减</span>
+
+ID_for_invalidCounter &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: control error
+
+<hr/>
+
+用于控制循环次数的变量称为“循环变量”，这种变量应在循环条件范围内有效增减，确保循环过程得以正确执行并退出。  
+  
+示例：
+```
+for (int i = 0; i != 31; i += 2) {  // Non-compliant
+    ....
+}
+
+for (int j = 0; j <= 31; j *= 2) {  // Non-compliant
+    ....
+}
+```
+第一个 for 循环的循环变量 i 不可能等于 31，第二个 for 循环的循环变量 j 永远为 0，均为常见笔误。
+<br/>
+<br/>
+
+#### 相关
+ID_for_floatCounter  
+<br/>
+
+#### 参考
+CWE-835  
+<br/>
+<br/>
+
+### <span id="for_counternested">▌R9.2.9 嵌套的 for 语句不应使用相同的循环变量</span>
 
 ID_for_counterNested &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: control warning
 
@@ -15047,7 +15145,7 @@ ID_for_counterChangedInBody
 <br/>
 <br/>
 
-### <span id="for_brace">▌R9.2.9 for 循环体应该用大括号括起来</span>
+### <span id="for_brace">▌R9.2.10 for 循环体应该用大括号括起来</span>
 
 ID_for_brace &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: control suggestion
 
@@ -23764,7 +23862,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;软件安全不仅是技术挑战，更是对用户的坚定承诺。保障软件安全、捍卫用户权益是宏大的主题，虽然难以在一篇文章中详尽阐述，但我们尽力通过这 528 条规则为您提供一个全面的框架，并持续更新。编程技术在不断发展，会有更多挑战在等待着我们，愿我们携手共进，勇于探索，共筑信赖软件，让世界更安全更美好。  
+&emsp;&emsp;软件安全不仅是技术挑战，更是对用户的坚定承诺。保障软件安全、捍卫用户权益是宏大的主题，虽然难以在一篇文章中详尽阐述，但我们尽力通过这 531 条规则为您提供一个全面的框架，并持续更新。编程技术在不断发展，会有更多挑战在等待着我们，愿我们携手共进，勇于探索，共筑信赖软件，让世界更安全更美好。  
 
 &emsp;&emsp;此致
 
