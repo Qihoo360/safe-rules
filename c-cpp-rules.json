@@ -291,7 +291,7 @@
     "ID_insufficientDelete": {
         "checkPoint": "用 delete 释放数组不可漏写中括号",
         "level": "error",
-        "comment": "用 new[] 分配的数组应该用 delete[] 释放，不可漏写中括号，否则导致标准未定义的行为。",
+        "comment": "用 new[] 分配的数组应该用 delete[] 释放，不可漏写中括号，否则会导致标准未定义的行为。",
         "tag": "resource",
         "related": "ID_excessiveDelete",
         "standard": "ISO/IEC 14882:2003 5.3.5(2)-undefined,ISO/IEC 14882:2011 5.3.5(2)-undefined,ISO/IEC 14882:2017 8.3.5(2)-undefined",
@@ -300,7 +300,7 @@
     "ID_excessiveDelete": {
         "checkPoint": "用 delete 释放对象不可多写中括号",
         "level": "error",
-        "comment": "用 new 分配的对象应该用 delete 释放，不可用 delete[] 释放，否则导致标准未定义的行为。",
+        "comment": "用 new 分配的对象应该用 delete 释放，不可用 delete[] 释放，否则会导致标准未定义的行为。",
         "tag": "resource",
         "related": "ID_insufficientDelete",
         "standard": "ISO/IEC 14882:2003 5.3.5(2)-undefined,ISO/IEC 14882:2011 5.3.5(2)-undefined,ISO/IEC 14882:2017 8.3.5(2)-undefined",
@@ -3830,7 +3830,7 @@
     "ID_sig_illReturn": {
         "checkPoint": "SIGFPE、SIGILL、SIGSEGV 等信号的处理函数不可返回",
         "level": "warning",
-        "comment": "与计算异常相关的信号由不可恢复的错误引起，相关信号处理函数应终止程序的执行，否则导致标准未定义的行为。",
+        "comment": "与计算异常相关的信号由不可恢复的错误引起，相关信号处理函数应终止程序的执行，否则会导致标准未定义的行为。",
         "tag": "interruption",
         "standard": "ISO/IEC 9899:1999 7.14.1.1(3)-undefined,ISO/IEC 9899:2011 7.14.1.1(3)-undefined",
         "reference": "SEI CERT SIG35-C"

@@ -1900,7 +1900,7 @@ void bar() {
     free(p);   // Non-compliant, may crash
 }
 ```
-例中 a.dll 和 b.dll 用于动态内存管理的数据结构是各自私有的，相关算法也不一样，如果 a.dll 分配的内存被 b.dll 释放，会造成严重错误。  
+设例中 a.dll 和 b.dll 用于动态内存管理的数据结构是各自私有的，相关算法也不一样，如果 a.dll 分配的内存被 b.dll 释放，就会造成严重错误。  
   
 应改为：
 ```
@@ -2021,7 +2021,7 @@ int main() {
     foo(v);   // Non-compliant, reallocation in a.dll, may crash
 }
 ```
-例中容器 v 的初始内存由 b.exe 分配，b.exe 和 a.dll 从各自私有的空间中动态分配内存，由于模板库的内联实现，reserve 函数会调用 a.dll 的内存管理函数重新分配 b.exe 中的内存，造成严重错误。
+例中 a.dll 和 b.exe 的动态内存管理是在各自的私有空间中进行的，容器 v 的初始内存由 b.exe 分配，由于模板库的内联实现，reserve 函数会调用 a.dll 的内存管理函数重新分配 b.exe 中的内存，造成严重错误。
 <br/>
 <br/>
 
@@ -2352,7 +2352,7 @@ ID_excessiveDelete &emsp;&emsp;&emsp;&emsp;&nbsp; :drop_of_blood: resource error
 
 <hr/>
 
-用 new 分配的对象应该用 delete 释放，不可用 delete\[\] 释放，否则导致标准未定义的行为。  
+用 new 分配的对象应该用 delete 释放，不可用 delete\[\] 释放，否则会导致标准未定义的行为。  
   
 示例：
 ```
@@ -2384,7 +2384,7 @@ ID_insufficientDelete &emsp;&emsp;&emsp;&emsp;&nbsp; :drop_of_blood: resource er
 
 <hr/>
 
-用 new\[\] 分配的数组应该用 delete\[\] 释放，不可漏写中括号，否则导致标准未定义的行为。  
+用 new\[\] 分配的数组应该用 delete\[\] 释放，不可漏写中括号，否则会导致标准未定义的行为。  
   
 示例：
 ```
@@ -8944,10 +8944,11 @@ void foo(double x) {
     float a = x;   // Non-compliant, may loss data
     float b(x);    // Non-compliant, may loss data
     float c{x};    // Compliant, list-initialization, compile-time protected
+    float d{static_cast<float>(x)};   // Compliant, intentional conversion
     ....
 }
 ```
-例中 a 和 b 的初始化可能存在数据丢失等问题，c 的初始化无法通过编译，使问题得以及时修正。  
+例中 a 和 b 的初始化可能存在数据丢失等问题，c 的初始化无法通过编译，使问题得以及时修正，d 为有意转换，可以通过编译。  
   
 在大多数情况下，列表出初始化均可代替等号或小括号初始化，如初始赋值、调用构造函数等：
 ```
@@ -12303,7 +12304,7 @@ ID_illForwardingReference &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
 不应混淆“[转发引用（forwarding references）](https://en.cppreference.com/w/cpp/language/reference#Forwarding_references)”与右值引用，除作为 std::forward 的参数之外，不应对转发引用再有任何操作。  
   
-转发引用是类型为 T&& 的参数，T 为函数模板类型。左值和右值均可与转发引用绑定，但如果绑定右值，右值的相关特性会被隐藏，故不应直接操作转发引用，应通过 std::forward<T> 交由合适的接口处理。  
+转发引用是类型为 T&& 的参数，T 为函数模板类型。左值和右值均可与转发引用绑定，但如果绑定右值，右值的相关特性会被隐藏，故不应直接操作转发引用，应通过 std::forward\<T\> 交由合适的接口处理。  
   
 示例：
 ```
@@ -13339,7 +13340,7 @@ struct B { const string& r; };
 B obj{"abc"};
 B* ptr = new B{"123"};  // Non-compliant
 ```
-如果不通过构造函数直接进行列表初始化，可以将临时对象与成员引用绑定，但 new 表达式中的临时对象与动态创建的对象具有不同的存储周期，故不能保证可以正常绑定。总之，为了避免意料之外的错误并提高兼容性，不应将临时对象与成员引用绑定。
+如果不通过构造函数直接进行列表初始化，可以将临时对象与成员引用绑定，但 new 表达式中的临时对象与动态创建的对象具有不同的存储期，故不能保证可以正常绑定。总之，为了避免意料之外的错误并提高兼容性，不应将临时对象与成员引用绑定。
 <br/>
 <br/>
 
@@ -18350,7 +18351,7 @@ if (feq(f, 0.1)) {   // Compliant
     cout << "OK";
 }
 ```
-在实际代码中，对于 float、double、long double 等不同的浮点类型，可以分别使用 float.h 中定义的 FLT\_EPSILON、DBL\_EPSILON、LDBL\_EPSILON 作为 e 的值，在 C\+\+ 代码中也可以使用 std::numeric\_limits<T>::epsilon()，T 为浮点类型。
+在实际代码中，对于 float、double、long double 等不同的浮点类型，可以分别使用 float.h 中定义的 FLT\_EPSILON、DBL\_EPSILON、LDBL\_EPSILON 作为 e 的值，在 C\+\+ 代码中也可以使用 std::numeric\_limits\<T\>::epsilon()，T 为浮点类型。
 <br/>
 <br/>
 
@@ -19245,9 +19246,7 @@ void bar(T&& x) {        // Forwarding reference
 void baz(const A& a) {
     A b(a);
     bar(b);    // Calls #1
-
     bar(a);    // Calls #2
-
     bar(A());  // Calls #3
 }
 ```
@@ -19280,7 +19279,7 @@ void bar(T&& x) {
     foo(forward<T&>(x));  // Non-compliant, use ‘forward<T>(x)’
 }
 ```
-forward 的返回值应直接作为接口的参数，且只应使用 forward<T>。
+例中 forward 的返回值应直接作为接口的参数，且只应使用 forward\<T\>。
 <br/>
 <br/>
 
@@ -21321,7 +21320,7 @@ void foo(A* a)
 ```
 如果 a 实际指向的不是 B 类对象，使用 dynamic\_cast 会得到一个空值便于进一步处理，其他方式的转换会得到无法判断对错的结果。  
   
-注意，虚基类指针只能通过 dynamic\_cast 转换为派生类指针，否则导致标准未定义的行为：
+注意，虚基类指针只能通过 dynamic\_cast 转换为派生类指针，否则会导致标准未定义的行为：
 ```
 class A { .... };
 class B: virtual A { .... };
@@ -23035,7 +23034,7 @@ ID_sig_illReturn &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: interruption warning
 
 <hr/>
 
-与计算异常相关的信号由不可恢复的错误引起，相关信号处理函数应终止程序的执行，否则导致标准未定义的行为。  
+与计算异常相关的信号由不可恢复的错误引起，相关信号处理函数应终止程序的执行，否则会导致标准未定义的行为。  
   
 示例：
 ```
