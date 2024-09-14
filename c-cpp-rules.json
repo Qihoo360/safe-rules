@@ -1061,7 +1061,7 @@
     "ID_forbidThrowSpecification": {
         "checkPoint": "禁用动态异常说明",
         "level": "warning",
-        "comment": "用 throw 关键字声明的“动态异常说明（dynamic exception specification）”已过时，应使用 noexcept 关键字完成异常说明。",
+        "comment": "用 throw 关键字声明的“动态异常说明（dynamic exception specification）”已过时。",
         "config": [
             "forbidEmptyThrowSpecification: 是否放过空 throw 异常说明"
             ],
@@ -3196,7 +3196,7 @@
     "ID_inconsistentFormatArgNum": {
         "checkPoint": "C 格式化字符串需要的参数个数与实际传入的参数个数应一致",
         "level": "error",
-        "comment": "如果 C 格式化占位符的数量大于参数的数量，会导致标准未定义的行为，反之多余的参数会失去意义，往往意味着逻辑错误。",
+        "comment": "如果参数的数量小于 C 格式化占位符的数量，会导致标准未定义的行为，反之多余的参数会失去意义，往往意味着逻辑错误。",
         "tag": "expression",
         "related": "ID_inconsistentFormatArgType,ID_forbidCStringFormat",
         "standard": "ISO/IEC 9899:1999 7.19.6.1(2)-undefined,ISO/IEC 9899:2011 7.21.6.1(2)-undefined",
@@ -3205,7 +3205,7 @@
     "ID_inconsistentFormatArgType": {
         "checkPoint": "C 格式化占位符与其对应参数的类型应一致",
         "level": "error",
-        "comment": "C 格式化占位符与其对应参数的类型应一致，否则导致标准未定义的行为。",
+        "comment": "C 格式化占位符与其对应参数的类型应一致，否则会导致标准未定义的行为。",
         "tag": "expression",
         "related": "ID_nonPODVariadicArgument,ID_inconsistentFormatArgNum,ID_forbidCStringFormat",
         "standard": "ISO/IEC 9899:1999 7.19.6.1(9)-undefined,ISO/IEC 9899:2011 7.21.6.1(9)-undefined",

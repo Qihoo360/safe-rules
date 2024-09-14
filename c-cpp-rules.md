@@ -1878,7 +1878,7 @@ ID_incompleteNewDeletePair &emsp;&emsp;&emsp;&emsp;&nbsp; :drop_of_blood: resour
 
 资源的分配和回收方法应在同一库或主程序等可执行模块、类等逻辑模块中提供。  
   
-如果一个模块分配的资源需要另一个模块回收，会打破模块之间的独立性，增加维护成本，而且 so、dll、exe 等可执行模块一般都有独立的堆栈，跨模块的分配与回收往往会造成严重错误。  
+如果一个模块分配的资源需要另一个模块回收，会打破模块之间的独立性，增加维护成本，而且 so、dll、exe 等可执行模块的资源管理机制可以是相互独立的，跨模块的分配与回收可能会造成严重错误。  
   
 示例：
 ```
@@ -1891,10 +1891,10 @@ int* foo() {
 void bar() {
     int* p = foo();
     ....
-    free(p);   // Non-compliant, crash
+    free(p);   // Non-compliant, may crash
 }
 ```
-例中 a.dll 分配的内存由 b.dll 释放，相当于混淆了不同堆栈中的数据，程序一般会崩溃。  
+例中 a.dll 和 b.dll 用于动态内存管理的数据结构是各自私有的，相关算法也不一样，如果 a.dll 分配的内存被 b.dll 释放，会造成严重错误。  
   
 应改为：
 ```
@@ -1998,7 +1998,7 @@ ID_crossModuleTransfer &emsp;&emsp;&emsp;&emsp;&nbsp; :drop_of_blood: resource w
   
 与资源管理相关的对象，如流、字符串、智能指针以及自定义对象均不应在模块间传递。  
   
-不同的可执行模块往往具有独立的资源管理机制，跨模块的分配与回收会造成严重错误，而且不同的模块可能由不同的编译器生成，对同一对象的实现也可能存在冲突。  
+不同的可执行模块可以具有独立的资源管理机制，跨模块的分配与回收会造成严重错误，而且不同的模块可能由不同的编译器生成，对同一类对象的实现也可能存在冲突。  
   
 示例：
 ```
@@ -2012,10 +2012,10 @@ int main() {
     vector<int> v {   // Allocation in b.exe
         1, 2, 3
     };
-    foo(v);   // Non-compliant, reallocation in a.dll, crash
+    foo(v);   // Non-compliant, reallocation in a.dll, may crash
 }
 ```
-例中容器 v 的初始内存由 b.exe 分配，b.exe 与 a.dll 具有独立的堆栈，由于模板库的内联实现，reserve 函数会调用 a.dll 的内存管理函数重新分配 b.exe 中的内存，造成严重错误。
+例中容器 v 的初始内存由 b.exe 分配，b.exe 和 a.dll 从各自私有的空间中动态分配内存，由于模板库的内联实现，reserve 函数会调用 a.dll 的内存管理函数重新分配 b.exe 中的内存，造成严重错误。
 <br/>
 <br/>
 
@@ -2629,7 +2629,7 @@ void foo() {
     ....
 }
 ```
-在栈上分配空间难以控制失败情况，如果条件允许可改在堆上分配：
+在栈上分配空间难以控制失败情况，如果条件允许可改用动态内存分配：
 ```
 void foo() {
     int* arr = (int*)malloc(1024 * 1024 * 1024 * sizeof(int));   // Compliant
@@ -3539,21 +3539,20 @@ ID_macro_typeid &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: precompile suggestion
 
 <hr/>
 
-宏用于文本处理，不受作用域等语言规则限制，不应使用宏实现类型等语言层面的概念。  
+宏用于文本处理，不受语言规则限制，不应使用宏实现类型等语言层面的概念。  
   
 示例：
 ```
-namespace U {
-    #define Type int  // Non-compliant
-}
-
-namespace V {
-    #define Type long  // Non-compliant
-}
-
-void foo(Type);  // Unreliable
+#define ptr_type int*   // Non-compliant
+ptr_type p0, p1;        // p0 is a pointer, p1 is an integer
 ```
-例中 Type 的最终定义是 long，第二个宏定义会覆盖第一个宏定义，这显然是不可靠的。
+例中宏展开后相当于 int\* p0, p1，p0 是指针，但 p1 却不是指针，极易引起误解。  
+  
+应使用 typedef 等方法定义类型：
+```
+typedef int* ptr_type;  // Compliant
+ptr_type p0, p1;        // p0 and p1 are all pointers
+```
 <br/>
 <br/>
 
@@ -8884,7 +8883,7 @@ void foo(double x) {
 在大多数情况下，列表出初始化均可代替等号或小括号初始化，如初始赋值、调用构造函数等：
 ```
 struct A {
-    int x{1};       // x is set to 1
+    int x{1};       // ‘x’ is set to 1
     A() = default;  // Default constructor
     A(int i): x{i}  // Overloaded constructor
     {}
@@ -8897,13 +8896,13 @@ A d[]{1, 2};  // Initializate an array
 struct B {
     int i, j;
 };
-B e{};      // Zero-initialization, members are set to 0
-B f{1, 2};  // Members are set to 1 and 2 respectively
+B e{};       // Zero-initialization, members are set to 0
+B f{1, 2};   // Members are set to 1 and 2 respectively
 ```
 相比于列表初始化，小括号初始化的语法不统一：
 ```
-B g();          // This is a function, not an object
-B h = B();      // Zero-initialization, verbose
+B g();       // This is a function, not an object
+B h = B();   // Zero-initialization, verbose
 ```
 注意，例中 B g(); 是函数声明，易与对象定义混淆，改用 B g{}; 可以简练有效的对成员进行零初始化。  
   
@@ -11155,22 +11154,26 @@ ID_throwInSwap &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: exception warning
 示例：
 ```
 struct T {
-    int* ptr = nullptr;
-
-    void swap(T& a) {
-        int* tmp = ptr;
-        ptr = a.ptr;
-        if (!ptr) {
-            throw Exception();   // Non-compliant
-        }
-        a.ptr = tmp;
-    }
-
-   ~T() {
-        delete[] p;  // Problems
+    string m;
+    void swap(T& a) {   // Non-compliant
+        string tmp = m;
+        m = a.m;
+        a.m = tmp;  // If allocation fails, both ‘a’ and *this will be incorrect
     }
 };
 ```
+例中通过复制的方式交换字符串是不符合要求的，如果内存分配失败，被交换的两个对象都将处于错误状态。  
+  
+应使用字符串类提供的交换函数：
+```
+struct T {
+    string m;
+    void swap(T& a) noexcept {  // Compliant
+        m.swap(a.m);
+    }
+};
+```
+std::string::swap 会直接交换字符串对象的成员，避免内存分配和复制，从而避免抛出异常。
 <br/>
 <br/>
 
@@ -11195,20 +11198,23 @@ ID_throwInMove &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: exception warning
   
 示例：
 ```
-struct T {
-    void swap(T&) noexcept(false);   // May throw, breaks ID_throwInSwap
+struct A {
+    A();
+    A(A&& a) noexcept;  // Compliant
+    ....
+};
 
-    T(T&& a) {   // Non-compliant
-        swap(a);
-    }
-
-    T& operator = (T&& a) {   // Non-compliant
-        swap(a);
-        return *this;
+struct B: A {
+    B();
+    B(B&& b): A(move(b)) {
+        if (cond) {
+            throw Exception();   // Non-compliant
+        }
+        ....
     }
 };
 ```
-例中 swap 函数会抛出异常，意味着移动构造函数和移动赋值运算符也会抛出异常，是不符合要求的。
+例中 B 的移动构造函数抛出异常时，基类对象的数据已被转移，被移动的对象将处于错误的状态。
 <br/>
 <br/>
 
@@ -11808,17 +11814,15 @@ ID_forbidThrowSpecification &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: exception 
 
 <hr/>
 
-用 throw 关键字声明的“[动态异常说明（dynamic exception specification）](https://en.cppreference.com/w/cpp/language/except_spec)”已过时，应使用 noexcept 关键字完成异常说明。  
+用 throw 关键字声明的“[动态异常说明（dynamic exception specification）](https://en.cppreference.com/w/cpp/language/except_spec)”已过时。  
   
-动态异常说明将所有可能抛出的异常详细列出，尤其是牵扯到外部不可控代码时，会大幅增加异常管理成本，而且各编译器相关实现并未统一，现已从 C\+\+17 标准中移出。  
+动态异常说明将所有可能抛出的异常详细列出，如果与实际抛出的异常不一致，会使程序异常终止。  
+  
+当抛出的异常有变化时，需要根据调用关系修改所有相关函数的异常说明，尤其是牵扯到外部不可控代码时，会大幅增加维护成本，而且动态异常说明具有一定的运行时开销，现已从 C\+\+17 标准中移出。  
   
 示例：
 ```
-int foo() throw(Exception);   // Non-compliant
-```
-应改为：
-```
-int foo() noexcept(false);   // Compliant
+int foo() throw(A, B, C);   // Non-compliant, drop ‘throw(A, B, C)’
 ```
 例外：
 ```
@@ -18563,15 +18567,15 @@ ID_inconsistentFormatArgNum &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: expression err
 
 <hr/>
 
-如果 C 格式化占位符的数量大于参数的数量，会导致标准未定义的行为，反之多余的参数会失去意义，往往意味着逻辑错误。  
+如果参数的数量小于 C 格式化占位符的数量，会导致标准未定义的行为，反之多余的参数会失去意义，往往意味着逻辑错误。  
   
 示例：
 ```
-void foo(int type, const char* msg) {
-    printf("Error (type %d): %s\n", type);  // Non-compliant, undefined behavior
+void log(int type, const char* msg) {
+    printf("[%d]: %s\n", type);        // Non-compliant, undefined behavior
 }
 ```
-例中格式化字符串需要两个参数，但只传入了一个，往往会引发运行时堆栈错误。  
+例中格式化字符串需要两个参数，但只传入了一个，可能会显示出错误的信息，也可能会使程序异常终止。  
   
 由于可变参数列表自身的局限，很难在编译时发现这种问题，有些编译器会检查 printf、sprintf 等标准函数，但无法检查自定义函数，建议在 C\+\+ 代码中禁用可变参数列表和 C 风格的格式化函数。
 <br/>
@@ -18598,7 +18602,7 @@ ID_inconsistentFormatArgType &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: expression er
 
 <hr/>
 
-C 格式化占位符与其对应参数的类型应一致，否则导致标准未定义的行为。  
+C 格式化占位符与其对应参数的类型应一致，否则会导致标准未定义的行为。  
   
 示例：
 ```
@@ -19037,7 +19041,7 @@ void bar(T&& x) {
     foo(forward<T&>(x));  // Non-compliant, use ‘forward<T>(x)’
 }
 ```
-forward 的返回值应直接作为接口的参数，且只应使用 forward<T>。
+forward 的返回值应直接作为接口的参数，且只应使用 forward\<T\>。
 <br/>
 <br/>
 
@@ -21331,7 +21335,7 @@ void foo(A* a) {
 }
 
 void bar(A* a) {
-    B* b = dynamic_cast<B*>(a);  // Compliant, prevent errors at compile time
+    B* b = dynamic_cast<B*>(a);  // Compliant, prevent errors at compile-time
     ....
 }
 ```
@@ -21372,7 +21376,7 @@ int main() {
 例中 userInput 函数返回用户输入的字符串，其长度不确定，而缓冲区 buf 的长度为 100 字节，如果用户输入超过这个长度就会使程序遭到破坏，这种问题称为“[缓冲区溢出（buffer overflow）](https://en.wikipedia.org/wiki/Buffer_overflow)”，也是程序遭受攻击的常见原因。  
   
 缓冲区溢出可造成严重危害，如：  
- - 破坏堆栈或段结构，扰乱程序执行  
+ - 破坏堆、栈等进程结构，扰乱程序执行  
  - 改写关键信息，篡改程序行为  
  - 注入并运行恶意代码  
  - 攻击高权限进程获取非法权限  
