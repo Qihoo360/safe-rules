@@ -2,7 +2,7 @@
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
-&emsp;&emsp;针对 C 和 C++ 语言，本文收录了 526 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
+&emsp;&emsp;针对 C 和 C++ 语言，本文收录了 528 种需要重点关注的问题，可为制定编程规范提供依据，也可为代码审计以及相关培训提供指导意见，适用于桌面、服务端以及嵌入式等软件系统。  
 &emsp;&emsp;每个问题对应一条规则，每条规则可直接作为规范条款或审计检查点，本文是适用于不同应用场景的规则集合，读者可根据自身需求从中选取某个子集作为规范或审计依据，从而提高软件产品的安全性。
 <br/>
 
@@ -356,19 +356,21 @@
   - [R7.12 异常类的拷贝构造函数不可抛出异常](#throwwhilethrowing)
   - [R7.13 异常类的构造函数和异常信息相关的函数不应抛出异常](#exceptioninexception)
   - [R7.14 与标准库相关的 hash 过程不应抛出异常](#throwinhash)
-  - [R7.15 由 noexcept 标记的函数不可产生未处理的异常](#throwinnoexcept)
-  - [R7.16 避免异常类多重继承自同一非虚基类](#diamondexceptioninheritance)
-  - [R7.17 通过引用捕获异常](#catch_value)
-  - [R7.18 捕获异常时不应产生对象切片问题](#catch_slicing)
-  - [R7.19 捕获异常后不应直接再次抛出异常](#catch_justrethrow)
-  - [R7.20 重新抛出异常时应使用空 throw 表达式（throw;）](#improperrethrow)
-  - [R7.21 不应在 catch 子句外使用空 throw 表达式（throw;）](#rethrowoutofcatch)
-  - [R7.22 不应抛出指针](#throwpointer)
-  - [R7.23 不应抛出 NULL](#thrownull)
-  - [R7.24 不应抛出 nullptr](#thrownullptr)
-  - [R7.25 不应在模块之间传播异常](#crossmoduleexception)
-  - [R7.26 禁用动态异常说明](#forbidthrowspecification)
-  - [R7.27 禁用 C\+\+ 异常](#forbidexception)
+  - [R7.15 异常类的拷贝、移动构造函数和析构函数均应是可访问的](#noncopiableexception)
+  - [R7.16 使用 noexcept 关键字标注不抛出异常的函数](#missingnoexcept)
+  - [R7.17 由 noexcept 标记的函数不可产生未处理的异常](#throwinnoexcept)
+  - [R7.18 避免异常类多重继承自同一非虚基类](#diamondexceptioninheritance)
+  - [R7.19 通过引用捕获异常](#catch_value)
+  - [R7.20 捕获异常时不应产生对象切片问题](#catch_slicing)
+  - [R7.21 捕获异常后不应直接再次抛出异常](#catch_justrethrow)
+  - [R7.22 重新抛出异常时应使用空 throw 表达式（throw;）](#improperrethrow)
+  - [R7.23 不应在 catch 子句外使用空 throw 表达式（throw;）](#rethrowoutofcatch)
+  - [R7.24 不应抛出指针](#throwpointer)
+  - [R7.25 不应抛出 NULL](#thrownull)
+  - [R7.26 不应抛出 nullptr](#thrownullptr)
+  - [R7.27 不应在模块之间传播异常](#crossmoduleexception)
+  - [R7.28 禁用动态异常说明](#forbidthrowspecification)
+  - [R7.29 禁用 C\+\+ 异常](#forbidexception)
 <br/>
 
 <span id="__function">**[8. Function](#function)**</span>
@@ -8896,13 +8898,13 @@ A d[]{1, 2};  // Initializate an array
 struct B {
     int i, j;
 };
-B e{};       // Zero-initialization, members are set to 0
-B f{1, 2};   // Members are set to 1 and 2 respectively
+B e{};        // Zero-initialization, members are set to 0
+B f{1, 2};    // Members are set to 1 and 2 respectively
 ```
 相比于列表初始化，小括号初始化的语法不统一：
 ```
-B g();       // This is a function, not an object
-B h = B();   // Zero-initialization, verbose
+B g();        // This is a function, not an object
+B h = B();    // Zero-initialization, verbose
 ```
 注意，例中 B g(); 是函数声明，易与对象定义混淆，改用 B g{}; 可以简练有效的对成员进行零初始化。  
   
@@ -8912,8 +8914,8 @@ struct C {
     int x;
     explicit C(int i): x{i} {}
 };
-C a{1};     // OK
-C b = {1};  // Compile error
+C a{1};      // OK
+C b = {1};   // Compile error
 ```
 构造函数被 explicit 关键字限定，故无法进行拷贝初始化。  
   
@@ -11158,7 +11160,7 @@ struct T {
     void swap(T& a) {   // Non-compliant
         string tmp = m;
         m = a.m;
-        a.m = tmp;  // If allocation fails, both ‘a’ and *this will be incorrect
+        a.m = tmp;   // If allocation fails, both ‘a’ and *this will be incorrect
     }
 };
 ```
@@ -11262,6 +11264,7 @@ int main() {
 <br/>
 
 #### 相关
+ID_nonCopiableException  
 ID_exceptionInException  
 <br/>
 
@@ -11370,7 +11373,83 @@ C++ Core Guidelines C.89
 <br/>
 <br/>
 
-### <span id="throwinnoexcept">▌R7.15 由 noexcept 标记的函数不可产生未处理的异常</span>
+### <span id="noncopiableexception">▌R7.15 异常类的拷贝、移动构造函数和析构函数均应是可访问的</span>
+
+ID_nonCopiableException &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: exception warning
+
+<hr/>
+
+如果异常类的拷贝、移动构造函数或析构函数不可访问，会使异常对象无法适用于完整的异常处理机制，导致意料之外的错误或降低可移植性。  
+  
+示例：
+```
+auto f = async([]() {
+    throw make_unique<string>("X");  // Non-compliant
+});
+
+try {
+    f.get();
+}
+catch (unique_ptr<string>& e) {
+    cout << *e << '\n';
+}
+```
+例中不可复制的 unique\_ptr 对象被抛出，是不符合要求的。  
+  
+不同编译器对示例代码的处理方式可能存在较大差异，其运行情况可能正常，也可能会崩溃，抑或无法通过编译。  
+  
+在异步过程中，需要将抛出的异常保存起来，回归同步时再重新抛出异常。某些执行环境需要通过复制来保存异常对象，如果复制接口不完备，可能会造成严重错误。
+<br/>
+<br/>
+
+#### 相关
+ID_throwWhileThrowing  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2003 15.1(5)  
+ISO/IEC 14882:2011 15.1(5)  
+ISO/IEC 14882:2017 18.1(5)  
+<br/>
+<br/>
+
+### <span id="missingnoexcept">▌R7.16 使用 noexcept 关键字标注不抛出异常的函数</span>
+
+ID_missingNoexcept &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: exception suggestion
+
+<hr/>
+
+明确标注函数是否会抛出异常可以提升可读性，有助于异常安全理念的实施，编译器也可以其为依据进行优化。  
+  
+示例：
+```
+double area(double x) noexcept {
+    double s = x * 3 / 2;
+    return sqrt(s * pow(s - x, 3));
+}
+```
+为了保障异常安全，首先要明确函数是否会抛出异常，以便调用者妥善安排操作步骤和处理方式。例中 area 函数由数学运算表达式和 C 库函数组成，不会抛出异常，将其标记为 noexcept 是合理的。  
+  
+关于异常安全的进一步讨论，可参见 ID\_exceptionUnsafe。
+<br/>
+<br/>
+
+#### 相关
+ID_exceptionUnsafe  
+ID_throwInNoexcept  
+<br/>
+
+#### 依据
+ISO/IEC 14882:2011 15.4  
+ISO/IEC 14882:2017 18.4  
+<br/>
+
+#### 参考
+C++ Core Guidelines E.12  
+<br/>
+<br/>
+
+### <span id="throwinnoexcept">▌R7.17 由 noexcept 标记的函数不可产生未处理的异常</span>
 
 ID_throwInNoexcept &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: exception warning
 
@@ -11399,6 +11478,7 @@ void foo() noexcept(false)
 
 #### 相关
 ID_uncaughtException  
+ID_missingNoexcept  
 <br/>
 
 #### 依据
@@ -11411,7 +11491,7 @@ SEI CERT ERR55-CPP
 <br/>
 <br/>
 
-### <span id="diamondexceptioninheritance">▌R7.16 避免异常类多重继承自同一非虚基类</span>
+### <span id="diamondexceptioninheritance">▌R7.18 避免异常类多重继承自同一非虚基类</span>
 
 ID_diamondExceptionInheritance &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: exception warning
 
@@ -11460,7 +11540,7 @@ ISO/IEC 14882:2011 10.1(4 5 6 7)
 <br/>
 <br/>
 
-### <span id="catch_value">▌R7.17 通过引用捕获异常</span>
+### <span id="catch_value">▌R7.19 通过引用捕获异常</span>
 
 ID_catch_value &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: exception warning
 
@@ -11503,7 +11583,7 @@ SEI CERT ERR61-CPP
 <br/>
 <br/>
 
-### <span id="catch_slicing">▌R7.18 捕获异常时不应产生对象切片问题</span>
+### <span id="catch_slicing">▌R7.20 捕获异常时不应产生对象切片问题</span>
 
 ID_catch_slicing &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: exception warning
 
@@ -11547,7 +11627,7 @@ C++ Core Guidelines ES.63
 <br/>
 <br/>
 
-### <span id="catch_justrethrow">▌R7.19 捕获异常后不应直接再次抛出异常</span>
+### <span id="catch_justrethrow">▌R7.21 捕获异常后不应直接再次抛出异常</span>
 
 ID_catch_justRethrow &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: exception warning
 
@@ -11571,7 +11651,7 @@ void foo() {
 <br/>
 <br/>
 
-### <span id="improperrethrow">▌R7.20 重新抛出异常时应使用空 throw 表达式（throw;）</span>
+### <span id="improperrethrow">▌R7.22 重新抛出异常时应使用空 throw 表达式（throw;）</span>
 
 ID_improperRethrow &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: exception warning
 
@@ -11612,7 +11692,7 @@ ISO/IEC 14882:2011 15.1(8)
 <br/>
 <br/>
 
-### <span id="rethrowoutofcatch">▌R7.21 不应在 catch 子句外使用空 throw 表达式（throw;）</span>
+### <span id="rethrowoutofcatch">▌R7.23 不应在 catch 子句外使用空 throw 表达式（throw;）</span>
 
 ID_rethrowOutOfCatch &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: exception warning
 
@@ -11652,7 +11732,7 @@ MISRA C++ 2008 15-1-3
 <br/>
 <br/>
 
-### <span id="throwpointer">▌R7.22 不应抛出指针</span>
+### <span id="throwpointer">▌R7.24 不应抛出指针</span>
 
 ID_throwPointer &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: exception suggestion
 
@@ -11689,7 +11769,7 @@ MISRA C++ 2008 15-0-2
 <br/>
 <br/>
 
-### <span id="thrownull">▌R7.23 不应抛出 NULL</span>
+### <span id="thrownull">▌R7.25 不应抛出 NULL</span>
 
 ID_throwNULL &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: exception warning
 
@@ -11735,7 +11815,7 @@ MISRA C++ 2008 15-1-2
 <br/>
 <br/>
 
-### <span id="thrownullptr">▌R7.24 不应抛出 nullptr</span>
+### <span id="thrownullptr">▌R7.26 不应抛出 nullptr</span>
 
 ID_throwNullptr &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: exception warning
 
@@ -11771,7 +11851,7 @@ MISRA C++ 2008 15-0-2
 <br/>
 <br/>
 
-### <span id="crossmoduleexception">▌R7.25 不应在模块之间传播异常</span>
+### <span id="crossmoduleexception">▌R7.27 不应在模块之间传播异常</span>
 
 ID_crossModuleException &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: exception warning
 
@@ -11808,7 +11888,7 @@ SEI CERT ERR59-CPP
 <br/>
 <br/>
 
-### <span id="forbidthrowspecification">▌R7.26 禁用动态异常说明</span>
+### <span id="forbidthrowspecification">▌R7.28 禁用动态异常说明</span>
 
 ID_forbidThrowSpecification &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: exception warning
 
@@ -11842,12 +11922,11 @@ ISO/IEC 14882:2017 D.3-deprecated
 <br/>
 
 #### 参考
-C++ Core Guidelines E.12  
 C++ Core Guidelines E.30  
 <br/>
 <br/>
 
-### <span id="forbidexception">▌R7.27 禁用 C++ 异常</span>
+### <span id="forbidexception">▌R7.29 禁用 C++ 异常</span>
 
 ID_forbidException &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: exception warning
 
@@ -18105,7 +18184,7 @@ bool feq(float a, float b, float e = 0.000001f) {
     return fabs(a - b) < e;
 }
 ```
-利用 feq 函数判断浮点数 a 和 b 是否相等，如果两个浮点数的差值非常小则可以认为相等，其中 fabs 为计算浮点数差值绝对值的函数，如果差值绝对值小于 e 则认为相等，否则不等。
+可以利用 feq 函数判断浮点数 a 和 b 是否相等，如果两个浮点数的差值非常小则可以认为相等，其中 fabs 是计算浮点数差值绝对值的函数，如果差值绝对值小于 e 则认为相等，否则不等。
 ```
 if (feq(f, 0.1)) {   // Compliant
     cout << "OK";
@@ -18575,7 +18654,7 @@ void log(int type, const char* msg) {
     printf("[%d]: %s\n", type);        // Non-compliant, undefined behavior
 }
 ```
-例中格式化字符串需要两个参数，但只传入了一个，可能会显示出错误的信息，也可能会使程序异常终止。  
+例中格式化字符串需要两个参数，但只传入了一个，可能会打印出错误的信息，也可能会使程序异常终止。  
   
 由于可变参数列表自身的局限，很难在编译时发现这种问题，有些编译器会检查 printf、sprintf 等标准函数，但无法检查自定义函数，建议在 C\+\+ 代码中禁用可变参数列表和 C 风格的格式化函数。
 <br/>
@@ -19041,7 +19120,7 @@ void bar(T&& x) {
     foo(forward<T&>(x));  // Non-compliant, use ‘forward<T>(x)’
 }
 ```
-forward 的返回值应直接作为接口的参数，且只应使用 forward\<T\>。
+forward 的返回值应直接作为接口的参数，且只应使用 forward<T>。
 <br/>
 <br/>
 
@@ -23685,7 +23764,7 @@ namespace N {
 
 
 ## 结语
-&emsp;&emsp;软件安全不仅是技术挑战，更是对用户的坚定承诺。保障软件安全、捍卫用户权益是宏大的主题，虽然难以在一篇文章中详尽阐述，但我们尽力通过这 526 条规则为您提供一个全面的框架，并持续更新。编程技术在不断发展，会有更多挑战在等待着我们，愿我们携手共进，勇于探索，共筑信赖软件，让世界更安全更美好。  
+&emsp;&emsp;软件安全不仅是技术挑战，更是对用户的坚定承诺。保障软件安全、捍卫用户权益是宏大的主题，虽然难以在一篇文章中详尽阐述，但我们尽力通过这 528 条规则为您提供一个全面的框架，并持续更新。编程技术在不断发展，会有更多挑战在等待着我们，愿我们携手共进，勇于探索，共筑信赖软件，让世界更安全更美好。  
 
 &emsp;&emsp;此致
 

@@ -1028,7 +1028,7 @@
         "comment": "异常类的拷贝构造函数抛出异常违反异常处理机制，会导致程序异常终止。",
         "tag": "exception",
         "standard": "ISO/IEC 14882:2003 15.1(3),ISO/IEC 14882:2011 15.1(3 7),ISO/IEC 14882:2017 18.1(3 7)",
-        "related": "ID_exceptionInException",
+        "related": "ID_nonCopiableException,ID_exceptionInException",
         "reference": "C++ Core Guidelines E.16,SEI CERT ERR60-CPP"
         },
     "ID_exceptionInException": {
@@ -1067,7 +1067,7 @@
             ],
         "tag": "exception",
         "standard": "ISO/IEC 14882:2011 D.4-deprecated,ISO/IEC 14882:2017 D.3-deprecated",
-        "reference": "C++ Core Guidelines E.12,C++ Core Guidelines E.30"
+        "reference": "C++ Core Guidelines E.30"
         },
     "ID_forbidVariadicFunction": {
         "checkPoint": "禁用可变参数列表",
@@ -1988,9 +1988,26 @@
         "level": "warning",
         "comment": "由 noexcept 标记的函数产生未被处理的异常属于逻辑错误，会引发 std::terminate 函数的执行，使程序异常终止。",
         "tag": "exception",
-        "related": "ID_uncaughtException",
+        "related": "ID_uncaughtException,ID_missingNoexcept",
         "standard": "ISO/IEC 14882:2011 15.4(9),ISO/IEC 14882:2017 18.4(5)",
         "reference": "SEI CERT ERR55-CPP"
+        },
+    "ID_missingNoexcept": {
+        "checkPoint": "使用 noexcept 关键字标注不抛出异常的函数",
+        "level": "suggestion",
+        "comment": "明确标注函数是否会抛出异常可以提升可读性，有助于异常安全理念的实施，编译器也可以其为依据进行优化。",
+        "tag": "exception",
+        "related": "ID_exceptionUnsafe,ID_throwInNoexcept",
+        "standard": "ISO/IEC 14882:2011 15.4,ISO/IEC 14882:2017 18.4",
+        "reference": "C++ Core Guidelines E.12"
+        },
+    "ID_nonCopiableException": {
+        "checkPoint": "异常类的拷贝、移动构造函数和析构函数均应是可访问的",
+        "level": "warning",
+        "comment": "如果异常类的拷贝、移动构造函数或析构函数不可访问，会使异常对象无法适用于完整的异常处理机制，导致意料之外的错误或降低可移植性。",
+        "tag": "exception",
+        "related": "ID_throwWhileThrowing",
+        "standard": "ISO/IEC 14882:2003 15.1(5),ISO/IEC 14882:2011 15.1(5),ISO/IEC 14882:2017 18.1(5)"
         },
     "ID_localAddressFlowOut": {
         "checkPoint": "不可返回局部对象的地址或引用",
