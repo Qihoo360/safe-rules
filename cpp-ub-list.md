@@ -458,7 +458,7 @@ ISO/IEC 14882:2011 3.6.3(4)-undefined
 ```
 void foo(size_t n) {
     int* p = new int[n];
-    *p = 123;              // Undefined behavior if ‘n’ is zero
+    p[0] = 123;            // Undefined behavior if ‘n’ is zero
     ....
     delete[] p;
 }
@@ -1308,12 +1308,12 @@ ISO/IEC 14882:2011 5.5(4)-undefined
 
 示例：
 ```
-struct T { .... };
+struct T { int i; };
+T obj{0};
+int T::* mp = nullptr;
 
-int foo(T& obj) {
-    int T::* mp = nullptr;
-    return obj.*mp;          // Undefined behavior
-}
+cout << obj.*mp;        // Undefined behavior
+cout << (&obj)->*mp;    // Undefined behavior
 ```
 <br/>
 <br/>
@@ -1659,20 +1659,22 @@ ISO/IEC 14882:2011 7.6.3(2)-undefined
   
 示例：
 ```
+int* a = nullptr;
+*a = 1;            // Undefined behavior
+a[5] = 2;          // Undefined behavior
+memset(a, 0, 10);  // Undefined behavior
+
 struct T {
     int i;
-
-    int foo() { return i; }
-    int bar() { return 0; }
-
-    static int baz();
+    int f();
 };
-
 T* p = nullptr;
+p->i = 0;          // Undefined behavior
+p->f();            // Undefined behavior
 
-p->foo();   // Undefined behavior
-p->bar();   // Undefined behavior
-p->baz();   // Well-defined, ‘baz’ is a static member
+using F = void (*)();
+F fp = nullptr;
+fp();              // Undefined behavior
 ```
 <br/>
 <br/>
