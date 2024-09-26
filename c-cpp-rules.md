@@ -390,8 +390,8 @@
   - [R8.12 基类对象构造完毕之前不可调用成员函数](#illmembercall)
   - [R8.13 在面向构造或析构函数体的 catch 子句中不可访问非静态成员](#illmemberaccess)
   - [R8.14 成员初始化应遵循声明的顺序](#disorderedinitialization)
-  - [R8.15 在构造函数中不应使用动态类型](#virtualcallinconstructor)
-  - [R8.16 在析构函数中不应使用动态类型](#virtualcallindestructor)
+  - [R8.15 在对象的构造函数中不应使用其动态类型](#virtualcallinconstructor)
+  - [R8.16 在对象的析构函数中不应使用其动态类型](#virtualcallindestructor)
   - [R8.17 避免在析构函数中调用 exit 函数](#exitcallindestructor)
   - [R8.18 避免在拷贝构造函数中实现复制之外的功能](#sideeffectcopyconstructor)
   - [R8.19 避免在移动构造函数中实现数据移动之外的功能](#sideeffectmoveconstructor)
@@ -2171,7 +2171,7 @@ ID_throwInConstructor &emsp;&emsp;&emsp;&emsp;&nbsp; :drop_of_blood: resource wa
 
 <hr/>
 
-构造函数抛出异常表示对象构造失败，不会再执行相关析构函数，需要保证已分配的资源被有效回收。  
+如果构造函数抛出异常，对应的析构函数将不会被执行，因此应保证已分配的资源能够被有效回收。  
   
 示例：
 ```
@@ -2194,7 +2194,7 @@ public:
     }
 };
 ```
-例中内存分配可能会失败，抛出 bad\_alloc 异常，在某种条件下还会抛出自定义的异常，任何一种异常被抛出析构函数就不会被执行，已分配的资源就无法被回收，但已构造完毕的对象还是会正常析构的，所以应采用对象化资源管理方法，使资源可以被自动回收。  
+例中内存分配可能会失败，抛出 bad\_alloc 异常，在某种条件下还会抛出自定义的异常，任何一种异常被抛出析构函数就不会被执行，已分配的资源就无法被回收，但已构造完毕的基类对象和成员对象还是会正常析构的，所以应采用对象化资源管理方法，使资源可以被自动回收，可参见 ID\_ownerlessResource 的进一步讨论。  
   
 可改为：
 ```
@@ -2226,7 +2226,7 @@ public:
     }
 };
 ```
-保证已分配的资源时刻有对象负责回收是重要的设计原则，可参见 ID\_ownerlessResource 的进一步讨论。  
+保证已分配的资源时刻有对象负责回收是重要的设计原则。  
   
 注意，“未成功初始化的对象”在 C\+\+ 语言中是不存在的，应避免相关逻辑错误，如：
 ```
@@ -2793,9 +2793,11 @@ malloc 等函数在分配失败时返回空指针，如果不加判断直接使�
 示例：
 ```
 void foo(size_t n) {
-    char* p = (char*)malloc(n);
-    p[n - 1] = '\0';              // Non-compliant, check ‘p’ first
-    ....
+    if (n != 0) {
+        char* p = (char*)malloc(n);
+        p[n - 1] = '\0';              // Non-compliant, check ‘p’ first
+        ....
+    }
 }
 ```
 示例代码未检查 p 的有效性便直接使用是不符合要求的。
@@ -4715,8 +4717,8 @@ ID_badBackslash &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: precompile warning
   
 示例：
 ```
-#define M(x, y) if(x) {\    // Compliant
-    foo(y);\                // Compliant
+#define M(x, y) if (x) {\   // Compliant
+    ++(y);\                 // Compliant
 }
 
 void foo() {
@@ -4730,7 +4732,7 @@ b\
 c = 123;
 
 void bar() {
-    // comment  \           // Non-compliant, The next line is also commented out
+    // comment  \           // Non-compliant, the next line is also commented out
     do_something();
 }
 ```
@@ -10699,71 +10701,94 @@ ID_exceptionUnsafe &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: exception warning
 
 <hr/>
 
-当产生异常时，保证：  
- - 相关资源不会泄漏  
- - 相关对象处于正确状态  
+异常安全（exception safety）即保证不会因抛出异常而造成错误或资源泄漏等问题。  
   
-是 C\+\+ 异常机制可以正确工作的重要基础。  
+异常安全的级别：  
+ 1. 基本保证（basic guarantee）：抛出异常后，保证无资源泄漏，所有对象均处于有效状态  
+ 2. 强保证（strong guarantee）：如果某个过程抛出异常，保证程序的状态与执行该过程之前相同  
+ 3. 不抛异常保证（nothrow guarantee）：保证操作不会失败，也不会抛出任何异常  
+  
+程序应至少提供基本保证，关键过程应实现强保证，与异常机制相关的过程，如析构函数、资源回收函数等，则应实现不抛异常保证。  
   
 示例：
 ```
-void foo() {
+void foo(vector<T>& v) {
+    v.push_back(T());      // Strong guarantee
+}
+```
+例中标准容器 vector 的 push\_back 函数提供强保证，如果抛出异常，容器中的元素以及容器的容量均不会发生任何变化。  
+  
+又如：
+```
+void bar() {
     lock();
-    procedure_may_throw();  // Unsafe
+    procedure_may_throw();   // Non-compliant
     unlock();
 }
 ```
-设 lock 是某种获取资源的操作，unlock 是释放资源的操作，procedure\_may\_throw 是可能抛出异常的过程，那么 foo 函数就不是异常安全的，一旦有异常抛出会导致死锁或泄漏等问题。  
+设 lock 是某种获取资源的操作，unlock 是释放资源的操作，procedure\_may\_throw 是可能抛出异常的过程，那么 bar 函数就不是异常安全的，一旦抛出异常就会导致死锁或泄漏等问题。  
   
-应保证资源从分配到回收的过程不被异常中断，采用对象化管理方法，使分配和回收得以自动完成：
+应保证资源从分配到回收的过程不被异常中断，如捕获异常，在重新抛出异常前释放资源：
 ```
-void foo() {
-    LockOwner object;
-    procedure_may_throw();  // Safe
+void bar() {
+    lock();
+    try {
+        procedure_may_throw();   // Compliant, but verbose
+    } catch (...) {
+        unlock();
+        throw;
+    }
+    unlock();
 }
 ```
-将 lock 和 unlock 分别由 object 的构造和析构函数完成，即使 procedure\_may\_throw 抛出异常，相关资源也可被自动回收，实现了异常安全，资源的对象化管理方法可参见 ID\_ownerlessResource。  
+但分散的回收操作容易出错，显式的 try\-cath 语句也不利于维护。  
   
-异常安全的另一个重要方面是抛出异常时应保证相关对象的状态是正确的，事务或算法在处理对象时可能要分多个步骤处理对象的多个成员，要注意中途抛出异常会造成数据不一致等问题。
+将资源托管于类对象，使资源的生命周期协同于对象的生命周期，自动完成分配和回收是更好的方式：
+```
+void bar() {
+    LockOwner object;        // Safe and brief
+    procedure_may_throw();   // Compliant
+}
+```
+使 lock 和 unlock 分别由 object 的构造和析构函数完成，即使 procedure\_may\_throw 抛出异常，相关资源也会被自动回收，资源的对象化管理方法可参见 ID\_ownerlessResource 的进一步讨论。  
+  
+异常安全的另一个重要方面是抛出异常时应保证对象的状态是正确的，事务或算法在处理对象时可能要分多个步骤处理对象的多个成员，要注意中途抛出异常会造成数据不一致等问题。
 ```
 class X {
     T a, b;
 
 public:
-    void foo() {
-        proc(a);
-        // ... if throw an exception ...
-        proc(b);
+    void job() {
+        proc(a);   // May throw exceptions
+        proc(b);   // Unsafe, ‘a’ and ‘b’ may be inconsistent
     }
 };
 ```
-设 a 和 b 是两个密切相关的成员，如账号和金额等，foo 是一个处理事务的函数，如果在中途抛出异常就会使对象处于错误的状态，解决方法可以考虑“复制 \- 交换”模式，如：
+设 a 和 b 是两个密切相关的成员，如账号和金额等，job 是处理事务的函数，如果在中途抛出异常就会使对象处于错误的状态，解决方法可以考虑“复制 \- 交换”模式，如：
 ```
 class X {
     T a, b;
 
 public:
-    void foo() {
+    void job() {
         X copy(*this);
         proc(copy.a);
         proc(copy.b);
-        this->swap(copy);
+        swap(copy);     // Copy-and-swap idiom
     }
 
-    void swap(X& v) noexcept {
-        ....
-    }
+    void swap(X&) noexcept;   // Nothrow guarantee
 };
 ```
-事务先处理对象的副本，处理成功后交换副本与对象的数据，交换过程需要保证不抛出异常，这样从对象副本的生成到事务处理完毕的过程中即使抛出异常也不影响对象的状态。  
-  
-swap 过程不可抛出异常也是一个规则，参见 ID\_throwInSwap。
+先处理对象的副本，处理成功后交换副本与对象的数据，交换过程需要保证不抛出异常，这样从对象副本的生成到事务处理完毕的过程中即使抛出异常也不影响对象的状态，实现了强保证。
 <br/>
 <br/>
 
 #### 相关
 ID_resourceLeak  
 ID_ownerlessResource  
+ID_throwInDestructor  
+ID_throwInDelete  
 ID_throwInSwap  
 <br/>
 
@@ -11179,17 +11204,14 @@ ID_throwInDelete &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: exception error
   
 示例：
 ```
-class A {
-    ....
-public:
-    void operator delete(void* p) {
-        if (!p) {
-            throw Exception();    // Non-compliant, undefined behavior
-        }
-        ....
+void operator delete(void* p) {
+    if (check_invalid(p)) {
+        throw Exception();    // Non-compliant, undefined behavior
     }
-};
+    deallocate(p);
+}
 ```
+例中 operator delete 通过自定义内存管理方法拒绝非法地址，但不应抛出异常，应直接终止程序的执行。
 <br/>
 <br/>
 
@@ -12364,7 +12386,7 @@ ID_localInitialization &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: function error
 
 未初始化的局部对象具有不确定的值，读取未初始化的对象会导致标准未定义的行为。  
   
-在函数作用域内定义的，具有“[自动存储期（automatic storage duration）](https://en.cppreference.com/book/storage_durations)”的对象简称局部对象，具有“[标量类型（scalar type）](https://en.cppreference.com/w/cpp/named_req/ScalarType)”的对象简称基本变量，如果不明确指定初始值，局部基本变量的初始值是不确定的。  
+在函数作用域内定义的，具有“[自动存储期（automatic storage duration）](https://en.cppreference.com/w/cpp/language/storage_duration#Automatic_storage_duration)”的对象简称局部对象，具有“[标量类型（scalar type）](https://en.cppreference.com/w/cpp/named_req/ScalarType)”的对象简称基本变量，如果不明确指定初始值，局部基本变量的初始值是不确定的。  
   
 当局部基本变量作为类成员或数组元素时，这个问题同样存在，如果类对象或数组含有不确定的值，其整体状态也是不确定的，所以应在构造函数或初始化列表中妥善初始化各成员或元素的值。  
   
@@ -12659,13 +12681,13 @@ SEI CERT OOP53-CPP
 <br/>
 <br/>
 
-### <span id="virtualcallinconstructor">▌R8.15 在构造函数中不应使用动态类型</span>
+### <span id="virtualcallinconstructor">▌R8.15 在对象的构造函数中不应使用其动态类型</span>
 
 ID_virtualCallInConstructor &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
 <hr/>
 
-对象的动态类型在其构造过程中不生效。  
+对象的“[动态类型（dynamic type）](https://en.cppreference.com/w/cpp/language/type#Dynamic_type)”在其构造过程中不生效。  
   
 执行基类构造函数时，派生类对象尚未构造完毕，基类构造函数不能使用派生类动态类型。  
   
@@ -12701,6 +12723,10 @@ B b;  // ‘b.tag’ is 1
 <br/>
 <br/>
 
+#### 相关
+ID_virtualCallInDestructor  
+<br/>
+
 #### 依据
 ISO/IEC 14882:2003 10.4(6)-undefined  
 ISO/IEC 14882:2011 10.4(6)-undefined  
@@ -12713,13 +12739,13 @@ Effective C++ item 9
 <br/>
 <br/>
 
-### <span id="virtualcallindestructor">▌R8.16 在析构函数中不应使用动态类型</span>
+### <span id="virtualcallindestructor">▌R8.16 在对象的析构函数中不应使用其动态类型</span>
 
 ID_virtualCallInDestructor &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
 <hr/>
 
-对象的动态类型在其析构过程中不生效。  
+对象的“[动态类型（dynamic type）](https://en.cppreference.com/w/cpp/language/type#Dynamic_type)”在其析构过程中不生效。  
   
 执行基类析构函数时，属于派生类的成员已被析构，基类析构函数不能使用派生类动态类型。  
   
@@ -12760,6 +12786,10 @@ public:
 };
 ```
 <br/>
+<br/>
+
+#### 相关
+ID_virtualCallInConstructor  
 <br/>
 
 #### 依据
@@ -21889,7 +21919,9 @@ ID_nullDerefInScp &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: pointer error
 
 空指针解引用会导致标准未定义的行为。  
   
-使用 \*、\->、.\*、\->\*、\[\]、() 等运算符，通过指针的值访问指针指向的数据称为“解引用（dereference）”。使用 nullptr、NULL、0 等常量初始化的指针是空指针，未指向任何对象或函数，解引用空指针属于逻辑错误，也是一种严重的运行时错误。  
+使用 \*、\->、.\*、\->\*、\[\]、() 等运算符，通过指针的值访问指针指向的数据称为“解引用（dereference）”。使用 nullptr、NULL、0 等常量初始化的指针是空指针，未指向任何对象或函数，解引用空指针属于逻辑错误。  
+  
+空指针与任何已指向对象或函数的指针均不相等，通过空指针访问对象是非法的，其后果在语言标准中是未定义的，执行环境一般会拒绝程序访问空指针对应的地址，使程序无法正常运行。  
   
 示例：
 ```
@@ -21901,22 +21933,55 @@ int foo(int i) {
     return *p;    // Non-compliant
 }
 ```
-例中指针 p 为空的状态可以到达解引用处，往往会引发“[段错误](https://en.wikipedia.org/wiki/Segmentation_fault)”等严重后果。  
+如果例中条件表达式 cond 为假，p 为空指针，\*p 往往会引发“[段错误](https://en.wikipedia.org/wiki/Segmentation_fault)”等严重后果。  
   
 例外：
 ```
+int* p = NULL;
+int* q = &*p;    // Compliant in C
+```
+根据 C 标准，不论指针 p 是否为空，&\*p 均等同于 p，故例中 q 也是空指针，虽然 C\+\+ 编译器会兼容 C 标准，但应注意 C\+\+ 标准并无此规定。  
+  
+在 C\+\+ 理论体系中，如果 P 为指针类型的表达式， \*P 总应指代有效的对象或函数，形如 P\->M、P\->\*M 的表达式等同于 (\*P).M、(\*P).\*M，形如 P\[N\] 的表达式等同于 \*(P \+ N)，如果 P 或 P \+ N 没有指向有效的对象或函数，程序的行为是未定义的。在任何情况下，解引用运算符均不应作用于空指针等未指向有效对象的指针。  
+  
+如通过空指针访问静态成员是不符合要求的：
+```
 struct T {
-    int foo() { return 0; }
     static int bar() { return 1; }
 };
-
 T* p = nullptr;
-int b = p->bar();   // Compliant, but bad, use ‘T::bar()’ instead
-int c = p->foo();   // Non-compliant, even if it may not crash
+cout << p->bar();   // Non-compliant, use ‘T::bar()’ instead
 ```
-在 C\+\+ 代码中通过指针访问静态成员不算作解引用，可不受本规则约束，但这种风格易引起维护者的疑虑而增加维护成本。  
+访问类的静态成员不需要对象实例，通过空指针访问静态成员一般不会造成实际错误，但这种情况下程序的行为是未定义的，可参见“[CWG issue 315](https://cplusplus.github.io/CWG/issues/315.html)”、“[CWG issue 2823](https://cplusplus.github.io/CWG/issues/2823.html)”。另外，通过 . 或 \-> 访问的静态成员会被误认作非静态成员，例中 p\->bar() 应改为 T::bar()，以遵循标准并提高可读性。  
   
-注意，非静态成员函数是对象数据的访问方法，即使非静态成员函数没有实际地访问对象数据，也不应通过空指针调用非静态成员函数，否则仍属于逻辑错误，而且如果调用的是虚函数或虚基类的成员函数也会造成崩溃。
+避免空指针解引用的措施：  
+ - 非必要不使用指针，或使用引用、迭代器、智能指针等方式代替指针  
+ - 封装指针，避免外界直接操作指针，并进行充分的单元测试  
+ - 接口文档应明确标注是否接受空指针作为参数，以及返回值是否有可能为空指针  
+ - 对于有可能为空的指针，在使用前均需判断其是否为空指针  
+ - 利用代码分析工具定期检查代码，并将这种检查作为开发流程的一部分  
+  
+示例：
+```
+size_t len(const T* p) {
+    return p->size();     // Bad, missing documentation or validation
+}
+```
+例中函数不接受空指针作为参数，如果是设计使然，应使用断言进行标注，否则应对参数为空指针的情况作出处理。  
+  
+断言也是接口文档的重要组成部分，可显著提高可读性，并进行运行时检查，如：
+```
+size_t len(const T* p) {
+    assert(p != NULL);    // Good
+    return p->size();
+}
+```
+在 C\+\+ 代码中也可以使用引用代替不为空的参数：
+```
+size_t len(const T& r) {  // Safe and brief
+    return r.size();
+}
+```
 <br/>
 <br/>
 
@@ -21926,9 +21991,9 @@ ID_nullDerefInExp
 
 #### 依据
 ISO/IEC 9899:1999 6.3.2.1(1)-undefined  
-ISO/IEC 9899:1999 6.5.3.2(4)-undefined  
+ISO/IEC 9899:1999 6.5.3.2(3 4)-undefined  
 ISO/IEC 9899:2011 6.3.2.1(1)-undefined  
-ISO/IEC 9899:2011 6.5.3.2(4)-undefined  
+ISO/IEC 9899:2011 6.5.3.2(3 4)-undefined  
 ISO/IEC 14882:2003 8.3.2(4)-undefined  
 ISO/IEC 14882:2011 8.3.2(5)-undefined  
 <br/>
@@ -22115,18 +22180,24 @@ ID_arrayIndexOverflow &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: pointer error
   
 示例：
 ```
-int a[10];
-int *p, *e;
+int a[10];         // 10 elements
 
-p = a + 0;    // Compliant
-p = a + 5;    // Compliant
-e = a + 10;   // Compliant, won't overflow
+int* u = a + 5;    // Compliant
+int* v = a + 10;   // Compliant
 
-p = a - 1;    // Non-compliant, the array subscript is -1, which exceeds [0, N]
-e = a + 11;   // Non-compliant, the array subscript is 11, which exceeds [0, N]
+int* w = a - 1;    // Non-compliant, -1 exceeds [0, 10]
+int* x = a + 11;   // Non-compliant, 11 exceeds [0, 10]
 
---p;          // Non-compliant, may overflow
-e++;          // Non-compliant, may overflow
+int* y = &a[0];    // Compliant
+int* z = &a[10];   // Compliant in C
+```
+C 标准规定，形如 &(E1\[E2\]) 的表达式等同于 (E1 \+ E2)，C\+\+ 编译器可以兼容 C 标准，但 C\+\+ 标准并无此规定。在 C\+\+ 标准中，E1\[E2\] 应指代有效的对象或函数，否则程序的行为是未定义的，可参见“[CWG issue 232](https://cplusplus.github.io/CWG/issues/232.html)”的最新讨论。  
+  
+在 C\+\+ 代码中应使用容器代替数组，使用迭代器代替指针，如：
+```
+array<int, 10> a;
+auto b = a.begin();
+auto e = a.end();     // Safe and brief
 ```
 <br/>
 <br/>
@@ -22136,7 +22207,9 @@ ID_bufferOverflow
 <br/>
 
 #### 依据
+ISO/IEC 9899:1999 6.5.3.2(3)  
 ISO/IEC 9899:1999 6.5.6(8)-undefined  
+ISO/IEC 9899:2011 6.5.3.2(3)  
 ISO/IEC 9899:2011 6.5.6(8)-undefined  
 ISO/IEC 14882:2003 5.7(5)-undefined  
 ISO/IEC 14882:2011 5.7(5)-undefined  
@@ -22742,7 +22815,7 @@ ID_this_zeroComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: pointer warning
 
 正常情况下 this 指针不会为空，而且判断 this 指针是否为空会影响编译器对 this 指针的优化，造成难以预料的后果。  
   
-在某些环境中通过空指针调用非静态成员函数时，this 指针可能为空，但这并不符合标准。对于内建类型，表达式 E1\->E2 与 (\*E1).E2 等价，通过空指针访问非静态成员所导致的行为均是未定义的。值得强调的是，任何情况下都不应逃避解引用空指针造成的问题。  
+在某些环境中通过空指针调用非静态成员函数时，this 指针可能为空，但这并不是语言标准规定的，通过空指针访问对象成员所导致的行为均是未定义的。值得强调的是，任何情况下都不应逃避解引用空指针造成的问题。  
   
 示例：
 ```
@@ -22757,8 +22830,12 @@ A* p = foo();
 // Suppose an error has occurred and a null pointer is returned
 cout << p->getX() << '\n';
 ```
-假设 foo 函数不应返回空指针，而某个错误导致其返回了空指针，程序本应崩溃，而 getX 函数却逃避了崩溃，这非但不能真正地解决问题，反而使问题难以定位，使程序难以调试，大大降低了可维护性。
+假设 foo 函数不应返回空指针，而某个错误导致其返回了空指针，程序本应崩溃，而 getX 函数可能会逃避崩溃，非但不能真正地解决问题，反而使问题难以定位，使程序难以调试，大大降低了可维护性。
 <br/>
+<br/>
+
+#### 相关
+ID_nullDerefInScp  
 <br/>
 
 #### 参考

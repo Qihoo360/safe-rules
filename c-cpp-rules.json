@@ -371,7 +371,7 @@
         "comment": "指针运算的结果溢出会导致标准未定义的行为。",
         "tag": "pointer",
         "related": "ID_bufferOverflow",
-        "standard": "ISO/IEC 9899:1999 6.5.6(8)-undefined,ISO/IEC 9899:2011 6.5.6(8)-undefined,ISO/IEC 14882:2003 5.7(5)-undefined,ISO/IEC 14882:2011 5.7(5)-undefined",
+        "standard": "ISO/IEC 9899:1999 6.5.3.2(3),ISO/IEC 9899:1999 6.5.6(8)-undefined,ISO/IEC 9899:2011 6.5.3.2(3),ISO/IEC 9899:2011 6.5.6(8)-undefined,ISO/IEC 14882:2003 5.7(5)-undefined,ISO/IEC 14882:2011 5.7(5)-undefined",
         "reference": "MISRA C 2004 17.1,MISRA C 2012 18.1,MISRA C++ 2008 5-0-16,SEI CERT ARR30-C"
         },
     "ID_oddSubscripting": {
@@ -1033,9 +1033,9 @@
     "ID_exceptionUnsafe": {
         "checkPoint": "保证异常安全",
         "level": "warning",
-        "comment": "保证异常安全。",
+        "comment": "异常安全（exception safety）即保证不会因抛出异常而造成错误或资源泄漏等问题。",
         "tag": "exception",
-        "related": "ID_resourceLeak,ID_ownerlessResource,ID_throwInSwap",
+        "related": "ID_resourceLeak,ID_ownerlessResource,ID_throwInDestructor,ID_throwInDelete,ID_throwInSwap",
         "reference": "SEI CERT ERR56-CPP,Effective C++ item 29"
         },
     "ID_throwWhileThrowing": {
@@ -1911,18 +1911,20 @@
         "reference": "C++ Core Guidelines C.31,C++ Core Guidelines E.6"
         },
     "ID_virtualCallInConstructor": {
-        "checkPoint": "在构造函数中不应使用动态类型",
+        "checkPoint": "在对象的构造函数中不应使用其动态类型",
         "level": "warning",
-        "comment": "对象的动态类型在其构造过程中不生效。",
+        "comment": "对象的“动态类型（dynamic type）”在其构造过程中不生效。",
         "tag": "function",
+        "related": "ID_virtualCallInDestructor",
         "standard": "ISO/IEC 14882:2003 10.4(6)-undefined,ISO/IEC 14882:2011 10.4(6)-undefined",
         "reference": "C++ Core Guidelines C.82,MISRA C++ 2008 12-1-1,Effective C++ item 9"
         },
     "ID_virtualCallInDestructor": {
-        "checkPoint": "在析构函数中不应使用动态类型",
+        "checkPoint": "在对象的析构函数中不应使用其动态类型",
         "level": "warning",
-        "comment": "对象的动态类型在其析构过程中不生效。",
+        "comment": "对象的“动态类型（dynamic type）”在其析构过程中不生效。",
         "tag": "function",
+        "related": "ID_virtualCallInConstructor",
         "standard": "ISO/IEC 14882:2003 10.4(6)-undefined,ISO/IEC 14882:2011 10.4(6)-undefined",
         "reference": "C++ Core Guidelines C.82,MISRA C++ 2008 12-1-1,Effective C++ item 9"
         },
@@ -1953,7 +1955,7 @@
     "ID_throwInConstructor": {
         "checkPoint": "构造函数抛出异常需避免相关资源泄漏",
         "level": "warning",
-        "comment": "构造函数抛出异常表示对象构造失败，不会再执行相关析构函数，需要保证已分配的资源被有效回收。",
+        "comment": "如果构造函数抛出异常，对应的析构函数将不会被执行，因此应保证已分配的资源能够被有效回收。",
         "tag": "resource",
         "related": "ID_ownerlessResource,ID_multiAllocation,ID_memoryLeak",
         "standard": "ISO/IEC 14882:2003 5.3.4(17),ISO/IEC 14882:2011 5.3.4(18),ISO/IEC 14882:2017 8.3.4(21)"
@@ -3060,7 +3062,7 @@
         "comment": "空指针解引用会导致标准未定义的行为。",
         "tag": "pointer",
         "related": "ID_nullDerefInExp",
-        "standard": "ISO/IEC 9899:1999 6.3.2.1(1)-undefined,ISO/IEC 9899:1999 6.5.3.2(4)-undefined,ISO/IEC 9899:2011 6.3.2.1(1)-undefined,ISO/IEC 9899:2011 6.5.3.2(4)-undefined,ISO/IEC 14882:2003 8.3.2(4)-undefined,ISO/IEC 14882:2011 8.3.2(5)-undefined",
+        "standard": "ISO/IEC 9899:1999 6.3.2.1(1)-undefined,ISO/IEC 9899:1999 6.5.3.2(3 4)-undefined,ISO/IEC 9899:2011 6.3.2.1(1)-undefined,ISO/IEC 9899:2011 6.5.3.2(3 4)-undefined,ISO/IEC 14882:2003 8.3.2(4)-undefined,ISO/IEC 14882:2011 8.3.2(5)-undefined",
         "reference": "CWE-476,C++ Core Guidelines ES.65,SEI CERT EXP34-C"
         },
     "ID_divideByZero": {
@@ -3282,6 +3284,7 @@
         "level": "warning",
         "comment": "正常情况下 this 指针不会为空，而且判断 this 指针是否为空会影响编译器对 this 指针的优化，造成难以预料的后果。",
         "tag": "pointer",
+        "related": "ID_nullDerefInScp",
         "reference": "CWE-1025"
         },
     "ID_illMemberAccess": {
