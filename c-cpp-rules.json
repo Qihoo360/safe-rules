@@ -1891,7 +1891,7 @@
     "ID_memberInitialization": {
         "checkPoint": "成员须在声明处或构造时初始化",
         "level": "warning",
-        "comment": "成员的声明和使用相距较远，更容易造成未初始化先使用的问题，所以应在声明处或构造函数中初始化所有成员。",
+        "comment": "声明成员和使用成员的位置在代码中相距较远，易产生未初始化先使用的问题，所以应在成员声明处或构造函数的成员初始化列表中初始化所有成员。",
         "tag": "function",
         "reference": "CWE-908,C++ Core Guidelines C.41"
         },
@@ -2030,7 +2030,7 @@
     "ID_localAddressFlowOut": {
         "checkPoint": "不可返回局部对象的地址或引用",
         "level": "error",
-        "comment": "局部对象的生命周期结束后，其地址或引用也会失效，如果继续访问会导致标准未定义的行为。",
+        "comment": "函数的参数以及在函数作用域内定义，不受 static、extern、local_thread 等关键字限定的对象简称局部对象，局部对象的生命周期在函数返回后结束，其地址或引用也会失效，如果继续访问会导致标准未定义的行为。",
         "tag": "function",
         "related": "ID_tmpAddressFlowOut,ID_danglingDeref,ID_illLifetime",
         "standard": "ISO/IEC 9899:1999 6.2.4(2)-undefined,ISO/IEC 9899:2011 6.2.4(2)-undefined",
@@ -2048,7 +2048,7 @@
     "ID_referInvalidTmpObject": {
         "checkPoint": "不可引用失效的临时对象",
         "level": "error",
-        "comment": "可以通过将临时对象与引用绑定的方式延长临时对象的生命周期，但并不是在所有情况下都有效，应避免生命周期与预期不符造成的错误。",
+        "comment": "将临时对象与引用绑定可以延长临时对象的生命周期，但并不是在所有情况下都有效，应避免生命周期与预期不符造成的错误。",
         "tag": "function",
         "related": "ID_tmpAddressFlowOut",
         "standard": "ISO/IEC 14882:2011 12.2(4 5),ISO/IEC 14882:2017 15.2(5 6)"
@@ -2064,7 +2064,7 @@
     "ID_localInitialization": {
         "checkPoint": "局部对象在使用前应被初始化",
         "level": "error",
-        "comment": "未初始化的局部对象具有不确定的值，读取未初始化的对象会导致标准未定义的行为。",
+        "comment": "在函数作用域内定义，不受 static、extern、local_thread 等关键字限定的对象简称局部对象，未初始化的局部对象具有不确定的值，读取未初始化的对象会导致标准未定义的行为。",
         "tag": "function",
         "related": "ID_illAccess,ID_dynamicInitialization",
         "standard": "ISO/IEC 9899:1999 6.2.4(5 6),ISO/IEC 9899:2011 6.2.4(6 7),ISO/IEC 9899:2011 6.3.2.1(2)-undefined,ISO/IEC 14882:2003 4.1(1)-undefined,ISO/IEC 14882:2003 8.5(9),ISO/IEC 14882:2011 4.1(1)-undefined,ISO/IEC 14882:2011 8.5(11)",
@@ -2073,7 +2073,7 @@
     "ID_dynamicInitialization": {
         "checkPoint": "动态创建的对象在使用前应被初始化",
         "level": "error",
-        "comment": "动态创建的对象在初始化前具有不确定的值，读取未初始化的对象会导致标准未定义的行为。",
+        "comment": "通过 malloc、new 等方式动态创建的对象在初始化前具有不确定的值，读取未初始化的对象会导致标准未定义的行为。",
         "tag": "function",
         "related": "ID_illAccess,ID_localInitialization",
         "standard": "ISO/IEC 14882:2003 5.3.4(15),ISO/IEC 14882:2011 5.3.4(15)"
@@ -2465,7 +2465,7 @@
     "ID_if_identicalElseIfBlock": {
         "checkPoint": "不应存在完全相同的 if...else-if 分枝",
         "level": "warning",
-        "comment": "内容完全相同的分枝是没有意义的，也可能是由复制粘贴造成的错误。",
+        "comment": "完全相同的分枝是没有意义的，也可能是由复制粘贴造成的错误。",
         "config": [
             "blockTokenCountThreshold: 分枝符号数量阈值，不检查符号数量小于该值的分枝"
             ],
@@ -2662,7 +2662,7 @@
     "ID_switch_invalidStatement": {
         "checkPoint": "switch 语句的子句均应从属于某个 case 或 default 分枝",
         "level": "error",
-        "comment": "switch 语句中任何子句都应从属于某个 case 或 default 分枝，否则不会被执行。",
+        "comment": "switch 语句的所有子句都应从属于某个 case 或 default 分枝，否则不会被执行。",
         "tag": "control",
         "reference": "CWE-561,MISRA C 2012 16.1,MISRA C++ 2008 6-4-3"
     },
@@ -3001,7 +3001,7 @@
     "ID_macro_typeid": {
         "checkPoint": "不应使用宏定义类型",
         "level": "suggestion",
-        "comment": "宏用于文本处理，不受作用域等语言规则限制，不应使用宏实现类型等语言层面的概念。",
+        "comment": "宏用于文本处理，不受语言规则限制，不应使用宏实现类型等语言层面的概念。",
         "tag": "precompile",
         "related": "ID_macro_sideEffectArgs,ID_macro_const,ID_macro_function",
         "reference": "C++ Core Guidelines ES.30"
@@ -3162,9 +3162,9 @@
         "related": "ID_badQualifierPosition"
         },
     "ID_forbidVolatile": {
-        "checkPoint": "非适当场景禁用 volatile",
+        "checkPoint": "非适当场景禁用 volatile 关键字",
         "level": "suggestion",
-        "comment": "应在适当的场景中合理使用 volatile，否则会导致优化或同步相关的多种问题。",
+        "comment": "应在适当的场景中合理使用 volatile 关键字，否则会导致优化或同步相关的多种问题。",
         "tag": "declaration",
         "standard": "ISO/IEC 9899:1999 6.7.3(6),ISO/IEC 9899:2011 6.7.3(7),ISO/IEC 14882:2003 7.1.5.1(8),ISO/IEC 14882:2011 7.1.6.1(7)",
         "reference": "C++ Core Guidelines CP.8,C++ Core Guidelines CP.200"

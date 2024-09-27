@@ -261,7 +261,7 @@
     - [R6.2.7 声明枚举类型的底层类型时不应使用 const 或 volatile](#uselessqualifier)
     - [R6.2.8 对常量的定义不应为引用](#constliteralreference)
     - [R6.2.9 禁用 restrict 指针](#forbidrestrictptr)
-    - [R6.2.10 非适当场景禁用 volatile](#forbidvolatile)
+    - [R6.2.10 非适当场景禁用 volatile 关键字](#forbidvolatile)
     - [R6.2.11 相关对象未被修改时应使用 const 声明](#nonconstunmodified)
   - [6.3 Specifier](#declaration.specifier)
     - [R6.3.1 合理使用 auto 关键字](#abusedauto)
@@ -4380,10 +4380,10 @@ ID_nestedComment &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: precompile warning
 
 ```
 /*                         // #1
-    /*                     // #2, Non-compliant
+    /*                     // #2, non-compliant
     nested comments
      */                    // #3
-*/                         // #4, Non-compliant
+*/                         // #4, non-compliant
 ```
 例中 `#1` 处的 /\* 与 `#3` 处的 \*/ 匹配，而 `#4` 处的 \*/ 处于失配状态。
 <br/>
@@ -7631,35 +7631,47 @@ SEI CERT EXP43-C
 <br/>
 <br/>
 
-### <span id="forbidvolatile">▌R6.2.10 非适当场景禁用 volatile</span>
+### <span id="forbidvolatile">▌R6.2.10 非适当场景禁用 volatile 关键字</span>
 
 ID_forbidVolatile &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: declaration suggestion
 
 <hr/>
 
-应在适当的场景中合理使用 volatile，否则会导致优化或同步相关的多种问题。  
+应在适当的场景中合理使用 volatile 关键字，否则会导致优化或同步相关的多种问题。  
   
-下列场景可使用 volatile：  
+在下列场景中可使用 volatile 关键字：  
  - 对象读写对应外设 IO  
  - 与信号等中断处理过程共享对象  
  - 局部对象在 setjmp、longjmp 之间被修改  
  - 出于安全目的清理内存中的数据  
  - 在 C/C\+\+ 之外，通过与编译优化不兼容的方式访问对象  
   
-在这些场景中，如果相关对象没有用 volatile 限定会导致程序和预期不符，volatile 关键字可以保证对象具有稳定的内存地址，任何读取或写入都可以来源于或作用于内存中的实际数据。  
+在这些场景中，如果相关对象没有用 volatile 关键字限定会导致程序和预期不符，volatile 关键字可以保证对象具有稳定的内存地址，任何读取或写入都可以来源于或作用于内存中的实际数据。  
   
-除此之外不应使用 volatile，不参与过程间跳转的局部 volatile 对象往往意味着 volatile 的滥用，审计工具不妨重点关注这种对象，而且要注意 volatile 和 C/C\+\+ 的并发或同步机制没有直接关系，也无法保证相关操作的原子性。  
+除此之外不应使用 volatile 关键字，不参与过程间跳转的局部 volatile 对象往往意味着 volatile 关键字的滥用。  
   
 示例：
 ```
-volatile int x;  // Non-compliant, ‘volatile’ is abused
+volatile int foo();        // Non-compliant
+int bar(volatile int x);   // Non-compliant
+
+int baz() {
+    volatile int i = 0;    // Non-compliant
+    return i;
+}
+```
+例中用于限定返回值对象、参数对象和局部对象的 volatile 关键字是没有实际意义的。  
+  
+而且要注意 volatile 关键字和 C/C\+\+ 的并发或同步机制没有直接关系，也无法保证相关操作的原子性，如：
+```
+volatile int x;   // ‘volatile’ is nothing to do with synchronization
 
 void thd() {
     LockGuard g;
-    read_and_write(x);
+    read_and_write(x);   // The ‘volatile’ on ‘x’ is abused
 }
 ```
-例中 x 是不涉及外设的共享对象，thd 是线程函数，LockGuard 是某种 RAII 锁，在已落实同步机制的情况下，不应再使用 volatile。
+例中 x 是不涉及外设的共享对象，thd 是线程函数，LockGuard 是某种 RAII 锁，在已落实同步机制的情况下，不应再使用 volatile 关键字。
 <br/>
 <br/>
 
@@ -11513,7 +11525,7 @@ ID_missingNoexcept &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: exception suggestion
   
 示例：
 ```
-double area(double x) noexcept {
+double area(double x) noexcept {   // Compliant
     double s = x * 3 / 2;
     return sqrt(s * pow(s - x, 3));
 }
@@ -12384,30 +12396,26 @@ ID_localInitialization &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: function error
 
 <hr/>
 
-未初始化的局部对象具有不确定的值，读取未初始化的对象会导致标准未定义的行为。  
-  
-在函数作用域内定义的，具有“[自动存储期（automatic storage duration）](https://en.cppreference.com/w/cpp/language/storage_duration#Automatic_storage_duration)”的对象简称局部对象，具有“[标量类型（scalar type）](https://en.cppreference.com/w/cpp/named_req/ScalarType)”的对象简称基本变量，如果不明确指定初始值，局部基本变量的初始值是不确定的。  
-  
-当局部基本变量作为类成员或数组元素时，这个问题同样存在，如果类对象或数组含有不确定的值，其整体状态也是不确定的，所以应在构造函数或初始化列表中妥善初始化各成员或元素的值。  
+在函数作用域内定义，不受 static、extern、local\_thread 等关键字限定的对象简称局部对象，未初始化的局部对象具有不确定的值，读取未初始化的对象会导致标准未定义的行为。  
   
 示例：
 ```
 int foo() {
-    int a;         // A local object(automatic storage duration)
+    int a;        // A local object(automatic storage duration)
     if (cond) {
         a = 0;
     }
-    return a;      // Non-compliant, may be an indeterminate value
+    return a;     // Non-compliant, may be an indeterminate value
 }
 ```
-例中局部对象 a 的初始化依赖某种条件，在条件范围之外读取 a 的值会得到不确定的结果。  
+当例中条件 cond 为假时，局部对象 a 的值是不确定的。  
   
-建议对象在声明处初始化，即使不方便在声明处初始化，也应该在声明的附近进行无条件初始化：
+建议对象在声明处初始化，即使不方便在声明处初始化，也应该在声明的附近设定对象的值：
 ```
-int a = 0;    // Good
+int a = 0;   // Good
 
 int b;
-b = 123;      // OK
+b = 123;     // OK
 ```
 不建议的方式：
 ```
@@ -12420,7 +12428,7 @@ if (y) {
     use(a);   // Dangerous
 }
 ```
-例中 a 的初始化依赖条件 x，并在满足条件 y 时被使用，即使条件 x 和条件 y 有一定相关性可以保证对 a 的使用是正确的，也会造成潜在的维护困难，当条件比较复杂或有变化时极易出错。
+例中 a 是否被初始化依赖条件 x，并在满足条件 y 时被使用，即使条件 x 和条件 y 有一定相关性可以保证对 a 的使用是正确的，也会造成潜在的维护困难，当条件比较复杂或有变化时极易出错。
 <br/>
 <br/>
 
@@ -12454,20 +12462,18 @@ ID_dynamicInitialization &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: function error
 
 <hr/>
 
-动态创建的对象在初始化前具有不确定的值，读取未初始化的对象会导致标准未定义的行为。  
-  
-动态创建的对象即通过 malloc、new 等方式创建的对象，如果不指定初始值，动态创建的基本变量的值是不确定的，当这种基本变量作为类成员或数组元素时，问题同样存在。如果类对象或数组含有不确定的值，其整体状态也是不确定的，所以应在构造函数或初始化列表中妥善初始化各成员或元素的值。  
+通过 malloc、new 等方式动态创建的对象在初始化前具有不确定的值，读取未初始化的对象会导致标准未定义的行为。  
   
 示例：
 ```
 int* a = new int[2];
-use(a[0], a[1]);     // Non-compliant
+use(a[0] + a[1]);     // Non-compliant
 
 struct A {
     int x, y;
 };
 A* b = new A;
-use(b->x, b->y);     // Non-compliant
+use(b->x * b->y);     // Non-compliant
 ```
 建议在创建处初始化：
 ```
@@ -12502,7 +12508,7 @@ ID_memberInitialization &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: function warning
 
 <hr/>
 
-成员的声明和使用相距较远，更容易造成未初始化先使用的问题，所以应在声明处或构造函数中初始化所有成员。  
+声明成员和使用成员的位置在代码中相距较远，易产生未初始化先使用的问题，所以应在成员声明处或构造函数的成员初始化列表中初始化所有成员。  
   
 示例：
 ```
@@ -12511,23 +12517,30 @@ struct A {
     int y = 0;
     int z;
 
-    A(int i): x(i) {  // Non-compliant, Missing the initialization for ‘z’
+    A(int i): x(i) {  // Non-compliant, missing the initialization for ‘z’
     }
 };
 ```
-例中构造函数没有对 z 初始化是不符合要求的，尤其是 public 成员出现这种问题时会造成更大的风险。  
+例中 x 和 y 被正确初始化，而 z 未被初始化是不符合要求的。  
   
-建议所有成员都在声明处初始化：
+应在成员声明处或构造函数的成员初始化列表中初始化所有成员，下列代码也是不符合要求的：
 ```
-struct A {
-    int x = 0;  // Good
-    int y = 0;  // Good
-    int z = 0;  // Good
-
-    A(int i): x(i) {  // Compliant
+struct T {
+    string s;
+    T(const char* p) {
+        s = p;          // Bad, assignment is not initialization
     }
 };
 ```
+程序会先调用 s 的默认构造函数对其进行默认初始化，再调用其赋值运算符，产生不必要的开销，如果将其移到成员初始化列表中：
+```
+struct T {
+    string s;
+    T(const char* p): s(p) {  // Good
+    }
+};
+```
+这样 s 会被直接初始化，提高了效率，也提高了可读性。
 <br/>
 <br/>
 
@@ -13216,7 +13229,7 @@ ID_localAddressFlowOut &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: function error
 
 <hr/>
 
-局部对象的生命周期结束后，其地址或引用也会失效，如果继续访问会导致标准未定义的行为。  
+函数的参数以及在函数作用域内定义，不受 static、extern、local\_thread 等关键字限定的对象简称局部对象，局部对象的生命周期在函数返回后结束，其地址或引用也会失效，如果继续访问会导致标准未定义的行为。  
   
 示例：
 ```
@@ -23147,7 +23160,7 @@ void handler(int x) {
 int main() {
     signal(SIGFPE, handler);
     if (sigsetjmp(buf, 1)) {
-        ....                   // #1, Normal procedure
+        ....                   // #1, normal procedure
         return 0;              // Normal exit
     } else {
         ....                   // #2, handle error
