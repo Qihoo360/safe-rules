@@ -121,7 +121,7 @@
   - [R2.18 流式资源对象不应被复制](#copiedstream)
   - [R2.19 避免使用变长数组](#variablelengtharray)
   - [R2.20 避免使用在栈上动态分配内存的函数](#stackallocation)
-  - [R2.21 局部数组不应过大](#unsuitablearraysize)
+  - [R2.21 非动态分配的数组不应过大](#unsuitablearraysize)
   - [R2.22 避免不必要的内存分配](#unnecessaryallocation)
   - [R2.23 避免分配大小为零的内存空间](#zerolengthallocation)
   - [R2.24 避免动态内存分配](#dynamicallocation)
@@ -537,7 +537,7 @@
     - [R10.3.9 比较运算符左右子表达式不应相同](#selfcomparison)
     - [R10.3.10 不应重复使用一元运算符](#repeatedunaryoperators)
   - [10.4 Assignment](#expression.assignment)
-    - [R10.4.1 不可将对象的值赋给具有部分重叠区域的对象](#overlappingassignment)
+    - [R10.4.1 不可将对象的值赋给具有部分重叠区域的另一个对象](#overlappingassignment)
     - [R10.4.2 不应出现复合赋值的错误形式](#illformedcompoundassignment)
     - [R10.4.3 避免出现复合赋值的可疑形式](#suspiciouscompoundassignment)
     - [R10.4.4 注意赋值运算符与一元运算符的空格方式](#stickyassignmentoperator)
@@ -2618,15 +2618,15 @@ SEI CERT MEM05-C
 <br/>
 <br/>
 
-### <span id="unsuitablearraysize">▌R2.21 局部数组不应过大</span>
+### <span id="unsuitablearraysize">▌R2.21 非动态分配的数组不应过大</span>
 
 ID_unsuitableArraySize &emsp;&emsp;&emsp;&emsp;&nbsp; :drop_of_blood: resource warning
 
 <hr/>
 
-局部数组在栈上分配空间，如果占用空间过大会导致栈溢出错误。  
+对于不具备动态存储期的数组，如果分配失败，难以做出相应处理。  
   
-应关注具有较大数组的函数，评估其在运行时的最大资源消耗是否符合执行环境的要求。  
+应重点关注大型数组，评估其在运行时的最大资源占用是否符合执行环境的要求。  
   
 示例：
 ```
@@ -2635,7 +2635,7 @@ void foo() {
     ....
 }
 ```
-在栈上分配空间难以控制失败情况，如果条件允许可改用动态内存分配：
+如果条件允许应改用动态内存分配，对分配失败的情况作出处理：
 ```
 void foo() {
     int* arr = (int*)malloc(1024 * 1024 * 1024 * sizeof(int));   // Compliant
@@ -2650,7 +2650,9 @@ void foo() {
 <br/>
 
 #### 配置
+maxStaticArraySize：静态数组空间之和的上限，超过则报出  
 maxLocalArraySize：函数内局部数组空间之和的上限，超过则报出  
+maxLocalThreadArraySize：具有线程存储期的数组空间之和的上限，超过则报出  
 <br/>
 
 #### 参考
@@ -5204,9 +5206,9 @@ ID_nonConstNonStaticGlobalObject &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: global wa
 示例：
 ```
 // In global scope
-int i = 0;          // Non-compliant
-static int j = 0;   // Let it go
-const int k = 0;    // Compliant
+int foo;             // Non-compliant
+static int bar;      // Let it go
+const int baz = 0;   // Compliant
 ```
 <br/>
 <br/>
@@ -10792,7 +10794,7 @@ public:
     void swap(X&) noexcept;   // Nothrow guarantee
 };
 ```
-先处理对象的副本，处理成功后交换副本与对象的数据，交换过程需要保证不抛出异常，这样从对象副本的生成到事务处理完毕的过程中即使抛出异常也不影响对象的状态，实现了强保证。
+先处理对象的副本，处理成功后交换副本与对象的数据，交换过程需要保证不抛出异常，这样从对象副本的生成到事务处理完毕的过程中即使抛出异常也不影响对象的状态，实现了强异常安全保证。
 <br/>
 <br/>
 
@@ -11748,7 +11750,7 @@ void foo() {
     }
 }
 ```
-例中的 catch 子句是没有意义的，应将其去掉或对异常进行有效处理。
+例中 catch 子句是没有意义的，往往是残留代码或功能不完整的代码，应将其去掉或对异常进行有效处理。
 <br/>
 <br/>
 <br/>
@@ -12396,7 +12398,7 @@ ID_localInitialization &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: function error
 
 <hr/>
 
-在函数作用域内定义，不受 static、extern、local\_thread 等关键字限定的对象简称局部对象，未初始化的局部对象具有不确定的值，读取未初始化的对象会导致标准未定义的行为。  
+在函数作用域内定义的，不受 static、extern、local\_thread 等关键字限定的对象简称局部对象，未初始化的局部对象具有不确定的值，读取未初始化的对象会导致标准未定义的行为。  
   
 示例：
 ```
@@ -13229,7 +13231,7 @@ ID_localAddressFlowOut &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: function error
 
 <hr/>
 
-函数的参数以及在函数作用域内定义，不受 static、extern、local\_thread 等关键字限定的对象简称局部对象，局部对象的生命周期在函数返回后结束，其地址或引用也会失效，如果继续访问会导致标准未定义的行为。  
+函数的参数以及在函数作用域内定义的，不受 static、extern、local\_thread 等关键字限定的对象简称局部对象，局部对象的生命周期在函数返回后结束，其地址或引用也会失效，如果继续访问会导致标准未定义的行为。  
   
 示例：
 ```
@@ -17906,7 +17908,16 @@ int bar(signed s, unsigned u) {
     return 0;
 }
 ```
-例中 s 为有符号整数，其符号位对位运算没有意义，对负数左移会导致标准未定义的行为，对负数右移则由实现定义。
+例中参数 s 可以是负数，对负数左移会导致未定义的行为，对负数右移则由实现定义。  
+  
+又如：
+```
+unsigned absolute(signed v) {
+    signed m = v >> (sizeof(signed) * CHAR_BIT - 1);  // Non-compliant
+    return (v + m) ^ m;                               // Non-compliant
+}
+```
+例中函数利用补码的特性，通过位运算获取有符号整数的绝对值，在大部分环境中均可得到正确结果，但这属于特殊的优化措施，应在文档中有所说明，否则会对代码的可移植性造成难以排查的影响。
 <br/>
 <br/>
 
@@ -17948,7 +17959,7 @@ a = b = a;   // Non-compliant
 ```
 有时这种代码被用来消除编译警告，编译器可能会报出没有被用到的参数，将参数赋值给自身可去除警告，但这并不是一种好方法，引入了没有实际意义的代码，改进方法可参见 ID\_paramNotUsed。  
   
-有时为了设置调试断点，但又找不到合适的位置，可以增加这种代码作为断点，但这种非正式的代码是不应被保留的。  
+有时为了设置调试断点，但又找不到合适的位置，可以增加这种代码作为断点，但这种非正式的代码不应被保留。  
   
 又如：
 ```
@@ -17958,7 +17969,7 @@ public:
     A(int a) { a = a; }   // Non-compliant, ‘a’ is not the member
 };
 ```
-例中构造函数对成员 a 的赋值是无效的，应改为 this\->a = a，或在初始化列中完成赋值。
+例中对成员 a 的赋值是无效的，如果是为了初始化则应在构造函数的成员初始化列表中完成，还应避免参数与成员重名。
 <br/>
 <br/>
 
@@ -18121,7 +18132,7 @@ bool e = !!a;   // Let it go
 
 ### <span id="expression.assignment">10.4 Assignment</span>
 
-### <span id="overlappingassignment">▌R10.4.1 不可将对象的值赋给具有部分重叠区域的对象</span>
+### <span id="overlappingassignment">▌R10.4.1 不可将对象的值赋给具有部分重叠区域的另一个对象</span>
 
 ID_overlappingAssignment &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
@@ -18138,7 +18149,7 @@ union U {
 } u;
 
 u.x = u.y;   // Compliant
-u.z = u.x;   // Non-compliant
+u.z = u.x;   // Non-compliant, undefined behavior
 ```
 例中 x 和 y 的存储区域完全重叠且类型相同，可以相互赋值；x 和 z 有部分重叠，不可相互赋值。
 <br/>

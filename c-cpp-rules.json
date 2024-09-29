@@ -1629,7 +1629,7 @@
         "reference": "CWE-682"
         },
     "ID_overlappingAssignment": {
-        "checkPoint": "不可将对象的值赋给具有部分重叠区域的对象",
+        "checkPoint": "不可将对象的值赋给具有部分重叠区域的另一个对象",
         "level": "warning",
         "comment": "如果两个对象的存储区域有部分重叠，将其中一个对象的值赋给另一个对象会导致标准未定义的行为。",
         "tag": "expression",
@@ -1796,11 +1796,13 @@
         "reference": "CWE-770,SEI CERT MEM05-C"
         },
     "ID_unsuitableArraySize": {
-        "checkPoint": "局部数组不应过大",
+        "checkPoint": "非动态分配的数组不应过大",
         "level": "warning",
-        "comment": "局部数组在栈上分配空间，如果占用空间过大会导致栈溢出错误。",
+        "comment": "对于不具备动态存储期的数组，如果分配失败，难以做出相应处理。",
         "config": [
-            "maxLocalArraySize: 函数内局部数组空间之和的上限，超过则报出"
+            "maxStaticArraySize: 静态数组空间之和的上限，超过则报出",
+            "maxLocalArraySize: 函数内局部数组空间之和的上限，超过则报出",
+            "maxLocalThreadArraySize: 具有线程存储期的数组空间之和的上限，超过则报出"
             ],
         "tag": "resource",
         "reference": "CWE-770,SEI CERT MEM05-C"
@@ -2030,7 +2032,7 @@
     "ID_localAddressFlowOut": {
         "checkPoint": "不可返回局部对象的地址或引用",
         "level": "error",
-        "comment": "函数的参数以及在函数作用域内定义，不受 static、extern、local_thread 等关键字限定的对象简称局部对象，局部对象的生命周期在函数返回后结束，其地址或引用也会失效，如果继续访问会导致标准未定义的行为。",
+        "comment": "函数的参数以及在函数作用域内定义的，不受 static、extern、local_thread 等关键字限定的对象简称局部对象，局部对象的生命周期在函数返回后结束，其地址或引用也会失效，如果继续访问会导致标准未定义的行为。",
         "tag": "function",
         "related": "ID_tmpAddressFlowOut,ID_danglingDeref,ID_illLifetime",
         "standard": "ISO/IEC 9899:1999 6.2.4(2)-undefined,ISO/IEC 9899:2011 6.2.4(2)-undefined",
@@ -2064,7 +2066,7 @@
     "ID_localInitialization": {
         "checkPoint": "局部对象在使用前应被初始化",
         "level": "error",
-        "comment": "在函数作用域内定义，不受 static、extern、local_thread 等关键字限定的对象简称局部对象，未初始化的局部对象具有不确定的值，读取未初始化的对象会导致标准未定义的行为。",
+        "comment": "在函数作用域内定义的，不受 static、extern、local_thread 等关键字限定的对象简称局部对象，未初始化的局部对象具有不确定的值，读取未初始化的对象会导致标准未定义的行为。",
         "tag": "function",
         "related": "ID_illAccess,ID_dynamicInitialization",
         "standard": "ISO/IEC 9899:1999 6.2.4(5 6),ISO/IEC 9899:2011 6.2.4(6 7),ISO/IEC 9899:2011 6.3.2.1(2)-undefined,ISO/IEC 14882:2003 4.1(1)-undefined,ISO/IEC 14882:2003 8.5(9),ISO/IEC 14882:2011 4.1(1)-undefined,ISO/IEC 14882:2011 8.5(11)",
