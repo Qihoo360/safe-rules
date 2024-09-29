@@ -58,7 +58,7 @@
 | 46 | [未指向同一数组的指针相减](#_46) | [`11-5.7(5)`](#_46) |
 | 47 | [移位运算符右操作数为负数或超过相关类型比特位的数量](#_47) | [`11-5.8(1)`](#_47) |
 | 48 | [对有符号整数进行超出取值范围的左移运算](#_48) | [`11-5.8(2)`](#_48) |
-| 49 | [将对象的值赋给具有部分重叠区域的对象](#_49) | [`11-5.17(8)`](#_49) |
+| 49 | [将对象的值赋给具有部分重叠区域的另一个对象](#_49) | [`11-5.17(8)`](#_49) |
 | 50 | [有返回值的函数没有通过 return 语句返回](#_50) | [`11-6.6.3(2)`](#_50) |
 | 51 | [递归地定义和初始化静态对象](#_51) | [`11-6.7(4)`](#_51) |
 | 52 | [修改非 mutable 常量对象](#_52) | [`11-7.1.6.1(4)`](#_52) |
@@ -1462,30 +1462,23 @@ ISO/IEC 14882:2011 5.8(2)-undefined
 <br/>
 <br/>
 
-### <span id="_49">49. 将对象的值赋给具有部分重叠区域的对象</span>
+### <span id="_49">49. 将对象的值赋给具有部分重叠区域的另一个对象</span>
 <br/>
 
 示例：
 ```
-struct T {
-    int a[10];
+int a[3] {1, 2, 3};
+
+struct A {
+    int x, y;
 };
 
-struct W {
-    int i;
-    T t;
-};
+A* p = reinterpret_cast<A*>(a);
+A* q = reinterpret_cast<A*>(a + 1);
 
-union U {
-    T t;
-    W w;
-};
-
-void foo(U& u) {
-    u.w.t = u.t;    // Undefined behavior
-}
+*p = *q;   // Undefined behavior
 ```
-例中 u.w.t 和 u.t 具有部分重叠区域，导致未定义的行为。
+例中 p 和 q 指向的对象具有部分重叠的区域，\*p = \*q 或 \*q = \*p 均会导致未定义的行为。
 <br/>
 <br/>
 
@@ -1563,13 +1556,14 @@ struct T {
     int j;
 };
 
-const T obj;
-obj.i++;            // Well-defined
-obj.j++;            // Ill-formed
+const T obj {};
+T* p = const_cast<T*>(&obj);
 
-T* p = (T*)&obj;
-p->i = 0;           // Well-defined
-p->j = 1;           // Undefined behavior
+obj.i++;   // Well-defined
+obj.j++;   // Ill-formed, compile error
+
+p->i = 0;  // Well-defined
+p->j = 1;  // Undefined behavior
 ```
 <br/>
 <br/>
@@ -1701,7 +1695,7 @@ struct A { int foo(); };
 struct B { .... };
 
 int bar(void* p) {
-    return ((A*)p)->foo();
+    return static_cast<T*>(p)->foo();
 }
 
 int main() {
@@ -1736,7 +1730,6 @@ struct T {
     virtual ~T() {
         release();   // Undefined behavior
     }
-
     virtual void release() = 0;
 };
 ```
@@ -1761,11 +1754,18 @@ ISO/IEC 14882:2011 10.4(6)-undefined
 
 示例：
 ```
+struct T { .... };
+struct U { .... };
+
 void foo(void* p) {
-    delete (T*)p;      // Undefined if delete an object of type other than T
+    delete static_cast<T*>(p);   // Undefined behavior
+}
+
+void bar() {
+    foo(new U);
 }
 ```
-如果例中 p 指向的不是 T 类型的对象会导致未定义的行为。
+例中 p 实际指向的不是 T 类型的对象，程序的行为是未定义的。
 <br/>
 <br/>
 
