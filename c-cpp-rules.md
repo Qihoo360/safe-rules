@@ -845,16 +845,16 @@ void foo() {
 ```
 示例代码调用 memset 覆盖敏感数据以达到清理目的，然而保存敏感信息的 password 为局部数组且 memset 之后没有再被引用，根据相关标准，编译器可将 memset 过程去掉，使敏感数据没有得到有效清理。C11 提供了 memset\_s 函数以避免这种问题，某些平台和库也提供了相关支持，如 SecureZeroMemory、explicit\_bzero、OPENSSL\_cleanse 等不会被优化掉的函数。  
   
-在 C\+\+ 代码中，可用 volatile 限定相关数据以避免编译器的优化，再用 std::fill\_n 等方法清理，如：
+在 C\+\+ 代码中，可使用 volatile 关键字限定相关对象以避免编译器的优化，再使用 std::fill\_n 等方法清理，如：
 ```
 void foo() {
     char password[8] = {};
     ....
-    volatile char  v_padding = 0;
     volatile char* v_address = password;
-    std::fill_n(v_address, sizeof(password), v_padding);  // Compliant
+    std::fill_n(v_address, sizeof(password), '\0');  // Compliant
 }
 ```
+例中 v\_address 指向的对象由 volatile 关键字限定，对 \*v\_address 的读写不会被优化。
 <br/>
 <br/>
 
@@ -6002,16 +6002,20 @@ public:
     String(int capacity);   // Non-compliant, missing ‘explicit’
     ....
 };
+```
+例中 String 是一个字符串类，String(int) 用于设定字符串对象的初始容量，但下列代码可以通过编译：
+```
+String foo = 100;   // Odd, the string is "100"?
 
-void foo(const String&);
+void bar(const String&);
 
-int bar() {
-    foo(100);   // Can be compiled, but very odd
+void baz() {
+    bar(100);   // Unexpected implicit conversion
 }
 ```
-由于 String 类的构造函数接受一个 int 型参数，foo(100) 相当于将 100 隐式转为 String 类的对象，这种隐式转换是怪异的，也往往意味着意料之外的错误。  
+由于 String 类的构造函数接受一个 int 型参数，例中整数 100 可以被隐式转换为 String 类的对象，这种转换易造成意料之外的错误或开销。  
   
-应改为：
+应使用 explicit 关键字限定可接受一个参数的构造函数：
 ```
 class String {
 public:
@@ -6019,18 +6023,37 @@ public:
     ....
 };
 ```
-这样 foo(100) 这种写法便不会通过编译。  
+这样从 int 到 String 的隐式转换会被禁止。在接口设计中，应尽量减少隐式转换以避免意料之外的问题。  
   
 例外：
 ```
 class String {
 public:
-    String(const String&);   // Explicit or not depends on your design intent
-    String(String&&);        // ditto
+    String(const String&);   // Compliant
+    String(String&&);        // Compliant
     ....
 };
 ```
-拷贝、移动构造函数可不受本规则约束，如果将拷贝、移动构造函数声明为 explicit 则无法再按值传递参数或按值返回对象。在类的接口设计中，应尽量减少隐式转换以避免不易察觉的问题。
+拷贝、移动构造函数可不受本规则约束，如果拷贝、移动构造函数被 explicit 关键字限定则无法再按值传递参数或按值返回对象。  
+  
+另外，为了提高易用性，在类是构造函数参数的扩展、视图等情况下，可以不使用 explicit 关键字，但相关设计需要通过评审，本规则不放宽对这种情况的要求，如：
+```
+class String {
+public:
+    String(const char*);   // Non-compliant, manual review is required
+    ....
+};
+
+class StringView {
+public:
+    StringView(const String&);   // Non-compliant, ditto
+    ....
+};
+
+String s = "a";     // Easy to understand
+StringView v = s;   // Ditto
+```
+例中字符串字面常量转为字符串类对象、字符串对象转为字符串视图是易于理解的，但可能不便于审计工具进行量化分析，需要人工评审。
 <br/>
 <br/>
 
@@ -6355,7 +6378,7 @@ struct T {
 ```
 注意，敏感数据可能会残留在填充数据中，所以当存储或传输对象前有必要清理填充数据的值，如：
 ```
-T obj;
+struct T obj;
 memset(&obj, 0, sizeof(obj));   // Required
 ....
 fwrite(&obj, sizeof(obj), 1, fp);
@@ -9069,9 +9092,9 @@ int arr[3] = { [0] = 0, [1] = 1, [1] = 2 };   // Non-compliant
 C\+\+20 对类对象的初始化也引入了指派符，但要求更为严格，重复的或颠倒次序的指派符无法通过编译，如：
 ```
 struct T { int x, y; };
-T a = { .y = 0, .x = 1 };   // Compile error in C++20
-T b = { .x = 0, .x = 1 };   // Compile error in C++20
-T c = { .x = 0, .y = 1 };   // OK
+T a { .y = 0, .x = 1 };   // Compile error in C++20
+T b { .x = 0, .x = 1 };   // Compile error in C++20
+T c { .x = 0, .y = 1 };   // OK
 ```
 <br/>
 <br/>
@@ -12311,7 +12334,7 @@ void bar(const S s);   // Non-compliant, missing ‘&’
 ```
 当参数在函数体内被修改，也可能是有意让形式参数作为实际参数的副本，这种情况可不受本规则约束，但也可能是漏写了引用符号，审计工具不妨根据配置给出提醒，如：
 ```
-S lower(S s) {  // Let it go?
+S lower(S s) {   // Let it go?
     transform(
         s.begin(), s.end(), s.begin(),
         [](unsigned char c) { return static_cast<char>(tolower(c)); }
@@ -17917,7 +17940,7 @@ unsigned absolute(signed v) {
     return (v + m) ^ m;                               // Non-compliant
 }
 ```
-例中函数利用补码的特性，通过位运算获取有符号整数的绝对值，在大部分环境中均可得到正确结果，但这属于特殊的优化措施，应在文档中有所说明，否则会对代码的可移植性造成难以排查的影响。
+例中函数可以获取有符号整数的绝对值，利用补码的特性通过位运算免去了条件判断，而且在大部分环境中均可正常运行，但这属于特殊的优化措施，应在文档中有所说明，否则会对代码的可移植性造成难以排查的影响。
 <br/>
 <br/>
 
@@ -17927,7 +17950,11 @@ ID_illEnumOperation
 
 #### 依据
 ISO/IEC 9899:1999 6.5.7(3)-undefined  
+ISO/IEC 9899:1999 6.5.7(4)-undefined  
+ISO/IEC 9899:1999 6.5.7(5)-implementation  
 ISO/IEC 9899:2011 6.5.7(3)-undefined  
+ISO/IEC 9899:2011 6.5.7(4)-undefined  
+ISO/IEC 9899:2011 6.5.7(5)-implementation  
 ISO/IEC 14882:2003 5.8(2)  
 ISO/IEC 14882:2003 5.8(3)-implementation  
 ISO/IEC 14882:2011 5.8(2)-undefined  

@@ -105,7 +105,7 @@
         "comment": "符号位在位运算方面没有逻辑意义，对负数进行位运算往往意味着逻辑错误。",
         "tag": "expression",
         "related": "ID_illEnumOperation",
-        "standard": "ISO/IEC 9899:1999 6.5.7(3)-undefined,ISO/IEC 9899:2011 6.5.7(3)-undefined,ISO/IEC 14882:2003 5.8(2),ISO/IEC 14882:2003 5.8(3)-implementation,ISO/IEC 14882:2011 5.8(2)-undefined,ISO/IEC 14882:2011 5.8(3)-implementation",
+        "standard": "ISO/IEC 9899:1999 6.5.7(3)-undefined,ISO/IEC 9899:1999 6.5.7(4)-undefined,ISO/IEC 9899:1999 6.5.7(5)-implementation,ISO/IEC 9899:2011 6.5.7(3)-undefined,ISO/IEC 9899:2011 6.5.7(4)-undefined,ISO/IEC 9899:2011 6.5.7(5)-implementation,ISO/IEC 14882:2003 5.8(2),ISO/IEC 14882:2003 5.8(3)-implementation,ISO/IEC 14882:2011 5.8(2)-undefined,ISO/IEC 14882:2011 5.8(3)-implementation",
         "reference": "CWE-682,C++ Core Guidelines ES.101,MISRA C 2004 12.7,MISRA C 2012 10.1,MISRA C++ 2008 5-0-21,SEI CERT INT13-C"
         },
     "ID_simplifiableTernary": {
