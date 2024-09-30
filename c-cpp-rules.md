@@ -4912,8 +4912,8 @@ namespace NS {
     void foo(short);
 }
 
-using namespace NS;   // Non-compliant
-using namespace std;  // Non-compliant
+using namespace NS;   // Non-compliant, a using-directive in a header
+using namespace std;  // Non-compliant, a using-directive in a header
 ```
 下例展示的问题是头文件不同的包含顺序竟导致同一函数产生了不同的行为：
 ```
@@ -5343,8 +5343,8 @@ void foo() {
 建议用 using 声明 代替 using 指令：
 ```
 void foo() {
-    using myspace::type;       // Compliant
-    using myspace::some_fun;   // Compliant
+    using myspace::type;       // Compliant, using-declaration
+    using myspace::some_fun;   // Compliant, using-declaration
 
     type x;
     some_fun(x);
@@ -18431,12 +18431,12 @@ if (feq(f, 0.1)) {   // Compliant
     cout << "OK";
 }
 ```
-在实际代码中，对于 float、double、long double 等不同的浮点类型，可以分别使用在标准头文件 float.h 中定义的宏 FLT\_EPSILON、DBL\_EPSILON、LDBL\_EPSILON 作为 e 的值，在 C\+\+ 代码中，也可以使用标准模板库提供的 std::numeric\_limits\<T\>::epsilon()，其中 T 为浮点类型。
+在实际代码中，对于 float、double、long double 等不同的浮点类型，可以分别使用在标准头文件 float.h 中定义的宏 FLT\_EPSILON、DBL\_EPSILON、LDBL\_EPSILON 作为 e 的值，在 C\+\+ 代码中，也可以使用标准模板库提供的 std::numeric\_limits\<T\>::epsilon()，其中 T 为指定的浮点类型。
 <br/>
 <br/>
 
 #### 参考
-CWE-1025  
+CWE-1077  
 MISRA C 2004 13.3  
 MISRA C++ 2008 6-2-2  
 <br/>
@@ -21675,7 +21675,7 @@ ID_bufferOverflow &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: buffer warning
 
 <hr/>
 
-缓冲区溢出是一种高度危险的安全漏洞，广泛存在于各类软件系统中。  
+缓冲区溢出是一种高度危险的安全漏洞，而且广泛存在于各类软件系统中。  
   
 “缓冲区（buffer）”的本意是指内存等高速设备上的区域，程序在这种区域内接收或处理数据，之后再一并输出到网络或磁盘等低速环境，起到提高效率的作用，故称缓冲区。连续的内存区域均可称为缓冲区，在 C/C\+\+ 语言中对应数组等结构。  
   
