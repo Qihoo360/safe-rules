@@ -191,7 +191,7 @@
   - [R4.1 全局名称应遵循合理的命名方式](#nametooshort)
   - [R4.2 为代码设定合理的命名空间](#missingnamespace)
   - [R4.3 main 函数只应位于全局作用域中](#nonglobalmain)
-  - [R4.4 不应在头文件中使用 using directive](#usingnamespaceinheader)
+  - [R4.4 不应在头文件中使用 using 指令](#usingnamespaceinheader)
   - [R4.5 不应在头文件中使用静态声明](#staticinheader)
   - [R4.6 不应在头文件中定义匿名命名空间](#anonymousnamespaceinheader)
   - [R4.7 不应在头文件中实现函数或定义对象](#definedinheader)
@@ -200,8 +200,8 @@
   - [R4.10 全局对象只应为常量或静态对象](#nonconstnonstaticglobalobject)
   - [R4.11 全局对象只应为常量](#nonconstglobalobject)
   - [R4.12 全局对象不应同时被 static 和 const 等关键字限定](#staticandconst)
-  - [R4.13 全局及命名空间作用域中禁用 using directive](#forbidusingdirectives)
-  - [R4.14 避免无效的 using directive](#usingself)
+  - [R4.13 全局及命名空间作用域中禁用 using 指令](#forbidusingdirectives)
+  - [R4.14 避免无效的 using 指令](#usingself)
   - [R4.15 不应定义全局 inline 命名空间](#topinlinenamespace)
   - [R4.16 不可修改 std 命名空间](#stdnamespacemodified)
 <br/>
@@ -4895,15 +4895,15 @@ MISRA C++ 2008 7-3-2
 <br/>
 <br/>
 
-### <span id="usingnamespaceinheader">▌R4.4 不应在头文件中使用 using directive</span>
+### <span id="usingnamespaceinheader">▌R4.4 不应在头文件中使用 using 指令</span>
 
 ID_usingNamespaceInHeader &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: global warning
 
 <hr/>
 
-在头文件的全局作用域中使用 using directive 极易造成命名冲突，且影响范围难以控制。  
+在头文件的全局作用域中使用 using 指令极易造成命名冲突，且影响范围难以控制。  
   
-如果代码涉及多个命名空间，而这些命名空间中又有名称相同且功能相似的代码元素时，将造成难以排查的混乱。对于库的头文件，更应该严禁使用全局的 using directive，否则造成对用户命名空间的干扰。  
+如果代码涉及多个命名空间，而这些命名空间中又有名称相同且功能相似的代码元素时，将造成难以排查的混乱。对于库的头文件，更应该严禁使用全局的 using 指令，否则造成对用户命名空间的干扰。  
   
 示例：
 ```
@@ -4948,7 +4948,7 @@ void fun2() {
     bar();      // ‘bar’ calls ‘foo(int)’
 }
 ```
-头文件 a.h 和 b.h 以不同的顺序被包含，使 bar 函数调用了不同的 foo 函数，导致这种混乱的正是 b.h 中的 using directive。
+头文件 a.h 和 b.h 以不同的顺序被包含，使 bar 函数调用了不同的 foo 函数，导致这种混乱的正是 b.h 中的 using 指令。
 <br/>
 <br/>
 
@@ -5313,13 +5313,13 @@ ISO/IEC 14882:2011 7.1.1(7)
 <br/>
 <br/>
 
-### <span id="forbidusingdirectives">▌R4.13 全局及命名空间作用域中禁用 using directive</span>
+### <span id="forbidusingdirectives">▌R4.13 全局及命名空间作用域中禁用 using 指令</span>
 
 ID_forbidUsingDirectives &emsp;&emsp;&emsp;&emsp;&nbsp; :no_entry: global suggestion
 
 <hr/>
 
-通过 using directive 将其他命名空间中的名称一并引入当前命名空间，是对命名空间机制的破坏，会造成难以预料的冲突与混乱。  
+通过 using 指令将其他命名空间中的名称一并引入当前命名空间，是对命名空间机制的破坏，会造成难以预料的冲突与混乱。  
   
 示例：
 ```
@@ -5328,7 +5328,7 @@ using namespace std;           // Non-compliant
 using namespace myspace;       // Non-compliant
 
 namespace myspace {
-    using namespace hisspace   // Non-compliant
+    using namespace hisspace;  // Non-compliant
 }
 ```
 在函数作用域内可适当放宽要求，如：
@@ -5340,7 +5340,7 @@ void foo() {
     some_fun(x);               // Using mysapce::some_fun
 }
 ```
-建议用 using declaration 代替 using directive：
+建议用 using 声明 代替 using 指令：
 ```
 void foo() {
     using myspace::type;       // Compliant
@@ -5363,13 +5363,13 @@ MISRA C++ 2008 7-3-4
 <br/>
 <br/>
 
-### <span id="usingself">▌R4.14 避免无效的 using directive</span>
+### <span id="usingself">▌R4.14 避免无效的 using 指令</span>
 
 ID_usingSelf &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: global warning
 
 <hr/>
 
-用 using directive 引用当前命名空间属于无效代码，可能意味着某种错误。  
+用 using 指令引用当前命名空间属于无效代码，可能意味着某种错误。  
   
 示例：
 ```
@@ -18403,9 +18403,9 @@ ID_illFloatComparison &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: expression warning
 
 <hr/>
 
-一般来说，除了可以记作 a \* 2<sup>n</sup>（a、n 为整数）的浮点数值可以被精确存储之外，其他均为近似值。用 == 或 != 判断浮点数（float、double、long double）是否相等往往得不到预期的结果。  
+用 == 或 != 判断浮点数（float、double、long double）是否相等会得到非预期的结果。  
   
-如 0、1、2、3、1.5、1.25、… 可以被精确存储，而除此之外绝大部分数值如 0.1、0.2、0.3、… 只能存储其近似值。  
+一般来说，除了可以记作 a \* 2<sup>n</sup>（a、n 为整数）的浮点数值可以被精确存储之外，其他均为近似值，如 0、1、2.5、… 可以被精确存储，而除此之外绝大部分数值如 0.1、0.2、0.3、… 只能存储其近似值。  
   
 示例：
 ```
@@ -18417,8 +18417,7 @@ if (f == 0.1) {     // Non-compliant, do not use ‘==’ or ‘!=’
     cout << "Oops";
 }
 ```
-输出 Oops，这是因为 f == 0.1 在运算时将变量和常量转为 double 型，而转换过程中生成了两个不同的对 0.1 的近似值（如 0.10000000149011611938 和 0.10000000000000000555），其结果自然为 false。  
-这非常容易造成意料之外的混乱，所以判断浮点数是否相等不应直接使用 == 或 != 运算符，即使浮点数可以被精确存储。  
+输出 Oops，这是因为 f == 0.1 在运算时将变量和常量转为 double 型，而转换过程中生成了两个不同的对 0.1 的近似值（如 0.10000000149011611938 和 0.10000000000000000555），其结果自然为 false，这非常容易造成意料之外的错误，所以判断浮点数是否相等不应直接使用 == 或 != 运算符，即使浮点数可以被精确存储。  
   
 解决方法：
 ```
@@ -18432,7 +18431,7 @@ if (feq(f, 0.1)) {   // Compliant
     cout << "OK";
 }
 ```
-在实际代码中，对于 float、double、long double 等不同的浮点类型，可以分别使用 float.h 中定义的 FLT\_EPSILON、DBL\_EPSILON、LDBL\_EPSILON 作为 e 的值，在 C\+\+ 代码中也可以使用 std::numeric\_limits\<T\>::epsilon()，T 为浮点类型。
+在实际代码中，对于 float、double、long double 等不同的浮点类型，可以分别使用在标准头文件 float.h 中定义的宏 FLT\_EPSILON、DBL\_EPSILON、LDBL\_EPSILON 作为 e 的值，在 C\+\+ 代码中，也可以使用标准模板库提供的 std::numeric\_limits\<T\>::epsilon()，其中 T 为浮点类型。
 <br/>
 <br/>
 
@@ -21676,6 +21675,8 @@ ID_bufferOverflow &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: buffer warning
 
 <hr/>
 
+缓冲区溢出是一种高度危险的安全漏洞，广泛存在于各类软件系统中。  
+  
 “缓冲区（buffer）”的本意是指内存等高速设备上的区域，程序在这种区域内接收或处理数据，之后再一并输出到网络或磁盘等低速环境，起到提高效率的作用，故称缓冲区。连续的内存区域均可称为缓冲区，在 C/C\+\+ 语言中对应数组等结构。  
   
 缓冲区之外可能是程序的其他数据，也可能是函数返回地址、资源分配信息等重要数据，对缓冲区的越界读写往往意味着逻辑错误，而且会使程序遭到破坏。  

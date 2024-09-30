@@ -1331,7 +1331,7 @@
     "ID_illFloatComparison": {
         "checkPoint": "不应使用 == 或 != 判断浮点数是否相等",
         "level": "warning",
-        "comment": "不应使用 == 或 != 判断浮点数是否相等。",
+        "comment": "用 == 或 != 判断浮点数（float、double、long double）是否相等会得到非预期的结果。",
         "tag": "expression",
         "reference": "CWE-1025,MISRA C 2004 13.3,MISRA C++ 2008 6-2-2"
         },
@@ -2360,9 +2360,9 @@
         "reference": "SEI CERT DCL58-CPP"
         },
     "ID_usingSelf": {
-        "checkPoint": "避免无效的 using directive",
+        "checkPoint": "避免无效的 using 指令",
         "level": "warning",
-        "comment": "用 using directive 引用当前命名空间属于无效代码，可能意味着某种错误。",
+        "comment": "用 using 指令引用当前命名空间属于无效代码，可能意味着某种错误。",
         "tag": "global"
         },
     "ID_anonymousNamespaceInHeader": {
@@ -2381,17 +2381,17 @@
         "tag": "global"
         },
     "ID_usingNamespaceInHeader": {
-        "checkPoint": "不应在头文件中使用 using directive",
+        "checkPoint": "不应在头文件中使用 using 指令",
         "level": "warning",
-        "comment": "在头文件的全局作用域中使用 using directive 极易造成命名冲突，且影响范围难以控制。",
+        "comment": "在头文件的全局作用域中使用 using 指令极易造成命名冲突，且影响范围难以控制。",
         "tag": "global",
         "related": "ID_forbidUsingDirectives",
         "reference": "C++ Core Guidelines SF.7,MISRA C++ 2008 7-3-6"
         },
     "ID_forbidUsingDirectives": {
-        "checkPoint": "全局及命名空间作用域中禁用 using directive",
+        "checkPoint": "全局及命名空间作用域中禁用 using 指令",
         "level": "suggestion",
-        "comment": "通过 using directive 将其他命名空间中的名称一并引入当前命名空间，是对命名空间机制的破坏，会造成难以预料的冲突与混乱。",
+        "comment": "通过 using 指令将其他命名空间中的名称一并引入当前命名空间，是对命名空间机制的破坏，会造成难以预料的冲突与混乱。",
         "tag": "global",
         "related": "ID_usingNamespaceInHeader",
         "reference": "C++ Core Guidelines SF.6,MISRA C++ 2008 7-3-4"
@@ -3647,7 +3647,7 @@
     "ID_bufferOverflow": {
         "checkPoint": "避免缓冲区溢出",
         "level": "warning",
-        "comment": "对缓冲区的读写应在有效边界内进行。",
+        "comment": "缓冲区溢出是一种高度危险的安全漏洞，广泛存在于各类软件系统中。",
         "tag": "buffer",
         "related": "ID_arrayIndexOverflow,ID_unsafeStringFunction",
         "reference": "CWE-119,CWE-125,CWE-787,CWE-788"
