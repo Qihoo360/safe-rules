@@ -101,8 +101,8 @@
 <br/>
 
 <span id="__resource">**[2. Resource](#resource)**</span>
-  - [R2.1 不可失去对已分配资源的控制](#resourceleak)
-  - [R2.2 不可失去对已分配内存的控制](#memoryleak)
+  - [R2.1 避免资源泄露](#resourceleak)
+  - [R2.2 避免内存泄露](#memoryleak)
   - [R2.3 不可访问未初始化或已释放的资源](#illaccess)
   - [R2.4 使资源接受对象化管理](#ownerlessresource)
   - [R2.5 资源的分配与回收方法应成对提供](#incompletenewdeletepair)
@@ -1636,7 +1636,7 @@ ID_missingHardening
 
 ## <span id="resource">2. Resource</span>
 
-### <span id="resourceleak">▌R2.1 不可失去对已分配资源的控制</span>
+### <span id="resourceleak">▌R2.1 避免资源泄露</span>
 
 ID_resourceLeak &emsp;&emsp;&emsp;&emsp;&nbsp; :drop_of_blood: resource warning
 
@@ -1649,7 +1649,7 @@ ID_resourceLeak &emsp;&emsp;&emsp;&emsp;&nbsp; :drop_of_blood: resource warning
  - 生命周期均已结束  
  - 所在线程均被终止  
   
-相关资源便失去了控制，无法再通过正常手段访问相关资源。  
+相关资源便失去了控制，无法再通过正常手段访问。  
   
 示例：
 ```
@@ -1659,13 +1659,25 @@ read(fd, buf1, 100);
 fd = open("b", O_RDONLY);   // Non-compliant, the previous descriptor is lost
 read(fd, buf2, 100);
 ```
-例中变量 fd 记录文件资源描述符，在回收资源之前对其重新赋值会导致资源泄漏。
+例中变量 fd 记录文件资源描述符，在回收资源之前对其重新赋值会导致资源泄漏。  
+  
+另外，动态分配的资源均应在合理的时机回收，避免占用的资源只增不减，最终导致资源耗尽。对于长期运行的服务类程序，如果攻击者能够掌握导致资源分配而又不会释放的外部操作，便形成了可被利用的安全漏洞，攻击者可以耗尽资源使系统瘫痪，这也是“[拒绝服务攻击](https://en.wikipedia.org/wiki/Denial-of-service_attack)”的一种形式。  
+  
+任何动态分配的资源均应有回收过程与之对应，不应依赖进程退出时的自动回收，这一点对于可以多次动态加载的库而言犹为重要。  
+  
+关于避免资源泄露的方法和措施，可参见本规则相关规则的进一步介绍。
 <br/>
 <br/>
 
 #### 相关
 ID_memoryLeak  
+ID_memberDeallocation  
+ID_ownerlessResource  
+ID_throwInConstructor  
+ID_multiAllocation  
+ID_unnecessaryAllocation  
 ID_asynchronousTermination  
+ID_exceptionUnsafe  
 <br/>
 
 #### 参考
@@ -1674,7 +1686,7 @@ C++ Core Guidelines P.8
 <br/>
 <br/>
 
-### <span id="memoryleak">▌R2.2 不可失去对已分配内存的控制</span>
+### <span id="memoryleak">▌R2.2 避免内存泄露</span>
 
 ID_memoryLeak &emsp;&emsp;&emsp;&emsp;&nbsp; :drop_of_blood: resource warning
 
@@ -1709,7 +1721,9 @@ void bar(size_t n) {
     ....
 }
 ```
-当 realloc 函数分配失败时会返回空指针，p 指向的原内存空间不会被释放，但 p 被赋值为空，导致内存泄漏，这是一种常见错误。
+当 realloc 函数分配失败时会返回空指针，p 指向的原内存空间不会被释放，但 p 被赋值为空，导致内存泄漏，这是一种常见错误。  
+  
+在 C\+\+ 语言中，将资源托管于类对象，将资源管理简化为对象管理，避免在复杂的流程分枝中手工分配回收资源是 C\+\+ 程序设计的重要准则，也是避免资源泄露的有效措施，可参见 ID\_ownerlessResource 的进一步介绍。
 <br/>
 <br/>
 
@@ -1719,6 +1733,7 @@ ID_ownerlessResource
 ID_throwInConstructor  
 ID_memberDeallocation  
 ID_multiAllocation  
+ID_exceptionUnsafe  
 <br/>
 
 #### 依据
@@ -1802,9 +1817,9 @@ ID_ownerlessResource &emsp;&emsp;&emsp;&emsp;&nbsp; :drop_of_blood: resource war
 
 <hr/>
 
-将资源托管于类的对象，使资源的生命周期协同于对象的生命周期，避免分散处理分配与回收等问题，是 C\+\+ 程序设计中的重要方法。  
+将资源托管于类的对象，使资源的生命周期协同于对象的生命周期，避免分散地分配回收资源，是 C\+\+ 程序设计的重要方法。  
   
-动态申请的资源如果只能通过普通指针或变量访问，不受对象的构造和析构等机制控制，则称为“无主”资源，极易产生泄漏或死锁等问题。应尽量使用标准库提供的容器、智能指针以及资源对应的类，避免直接使用 new、delete 以及底层资源管理接口。  
+动态分配的资源如果只能通过普通指针或变量访问，不受类对象的构造和析构等机制控制，则称为“无主”资源，极易产生泄漏或死锁等问题。应尽量使用容器、智能指针以及资源对应的类，避免直接使用 malloc、free、new、delete 等底层资源管理接口。  
   
 示例：
 ```
@@ -1822,22 +1837,37 @@ delete[] x.p;   // Non-compliant
 ```
 例中用不受析构函数控制的指针保存 new 表达式的结果，以及对应的 delete 表达式均不符合要求。  
   
-应将资源托管于类的对象：
+应将资源托管于类对象，在构造函数中进行资源分配，在析构函数中完成资源回收，落实拷贝、移动接口，并由成员函数提供访问资源的方法，这样便使资源的生命周期协同于对象的生命周期，将资源管理简化为对象管理，如：
 ```
-class Mgr {
+class Owner {
     int* p;
+    size_t n;
 public:
-    Mgr(size_t n): p(new int[n]) {}
-   ~Mgr() { delete[] p; }
+    Owner(size_t n) : p(new int[n]()), n(n) {}   // Compliant
+   ~Owner() { delete[] p; }                      // Compliant
+    ....
 };
-
-Mgr m(8);   // Compliant, ‘m’ is the owner of the resource
 ```
-例中 m 对象负责资源的分配与回收，称 m 对象拥有资源的所有权，相关资源的生命周期与对象的生命周期一致，有效避免了资源泄漏或错误回收等问题。针对成员的 new、delete 可不受本规则限制，但应优先使用容器或智能指针。  
+例中 Owner 类掌管动态分配的内存资源，如果按下列方式使用：
+```
+int foo() {
+    Owner obj(8);   // Safe and brief, ‘obj’ is the owner of the resource
+    if (cond1) {
+        return 0;   // No need to release memory manually
+    }
+    if (cond2) {
+        throw Exception();   // Ditto
+    }
+    ....
+}
+```
+则称 Owner 类的对象 obj 拥有资源的所有权，当 obj 的生命周期结束后，相关资源会被自动回收，从而避免了在复杂的流程分枝中手工回收资源，有效提高了资源管理的安全性。注意，由于篇幅有限，示例代码未展示拷贝、移动构造函数和相关赋值运算符，在实际代码中均应妥善实现，可参见 ID\_violateRuleOfFive 的进一步介绍。  
   
-资源的所有权可以发生转移，但应保证转移前后均有对象负责管理资源，并且在转移过程中不会产生异常。进一步理解对象化管理方法，可参见“[RAII（Resource Acquisition Is Initialization）](https://en.cppreference.com/w/cpp/language/raii)”等机制。  
+本规则是 C\+\+ 核心资源管理准则 — “[RAII（Resource Acquisition Is Initialization）](https://en.cppreference.com/w/cpp/language/raii)”的量化体现，在构造函数中与成员绑定的底层分配接口以及在析构函数中对应的底层回收接口可不受本规则约束，但应优先使用容器或智能指针。  
   
-另外，底层资源管理接口也不应直接在业务代码中使用，如：
+资源的所有权可以发生转移，但应保证转移前后均有类对象负责管理资源，并且在转移过程中不会产生异常，可参见 ID\_throwInConstructor、ID\_exceptionUnsafe 的进一步介绍。  
+  
+下面给出使用智能指针管理资源的例子：
 ```
 void foo(const TCHAR* path) {
     WIN32_FIND_DATA ffd;
@@ -1846,9 +1876,7 @@ void foo(const TCHAR* path) {
     CloseHandle(h);  // Is it right?
 }
 ```
-例中 FindFirstFile 是 Windows API，返回的资源句柄对应“无主”资源，需要显式回收。  
-  
-应对其合理封装：
+例中 FindFirstFile 是用于资源分配的底层 Windows API，返回的资源句柄对应“无主”资源，需要显式回收，应使其接受类对象的管理：
 ```
 class MY_FIND_DATA
 {
@@ -1868,6 +1896,14 @@ public:
 ```
 将 FindFirstFile 及其相关数据封装成一个类，由 unique\_ptr 对象保存 FindFirstFile 的结果，FindClose 是资源的回收方法，将其作为 unique\_ptr 对象的组成部分，使资源可以被自动回收。
 <br/>
+<br/>
+
+#### 相关
+ID_resourceLeak  
+ID_memoryLeak  
+ID_throwInConstructor  
+ID_violateRuleOfFive  
+ID_exceptionUnsafe  
 <br/>
 
 #### 参考
@@ -2272,24 +2308,48 @@ ID_doubleFree &emsp;&emsp;&emsp;&emsp;&nbsp; :drop_of_blood: resource error
 
 重复释放资源会导致标准未定义的行为。  
   
-由于多种原因，资源管理系统难以甚至无法预先判断资源是否已被回收，一旦重复释放资源，可能会直接破坏资源管理系统的数据结构，导致不可预期的错误。  
+由于多种原因，动态资源管理机制可能难以甚至无法预先判断资源是否已被回收，一旦重复释放资源，会直接破坏程序结构，导致不可预期的错误。  
+  
+在特殊情况下，重复释放内存或写入已被释放的内存会为攻击者构造的恶意指令提供执行机会，严重威胁系统安全。  
   
 示例：
 ```
-void foo(const char* path) {
-    FILE* p = fopen(path, "r");
-    if (p) {
-        ....
-        fclose(p);
-    }
-    fclose(p);  // Non-compliant, closed twice, undefined behavior
+void* p = malloc(n);
+free(p);
+void* q = malloc(n);
+free(p);               // Non-compliant, double free, undefined behavior
+```
+例中指针 p 被连续释放两次，导致未定义的行为，这是一种复制粘贴错误，另一种导致这种问题的常见原因是资源在异常处理流程中被释放，而在正常处理流程中被再次释放。  
+  
+规则 ID\_missingResetNull 提供了一种解决方法。在 C\+\+ 代码中，应使资源接受类对象的管理，避免分散地分配回收操作，可以更有效地解决这种问题，可参见 ID\_ownerlessResource 的进一步介绍。  
+  
+又如：
+```
+class T {
+    char* p;
+public:
+    T(const char* s): p(strdup(s)) {}
+   ~T() { free(p); }
+};
+```
+例中类 T 在构造函数中分配资源，在析构函数中释放资源，但缺少合理的拷贝构造函数和复制赋值运算符，复制对象仍然会导致重复释放：
+```
+void foo() {
+    T a("xyz");
+    T b = a;     // Shallow copy
+    ....
 }
 ```
+例中对象 b 由对象 a 复制而成，a 和 b 在析构时会重复释放同一成员指针，所以存在任一拷贝、移动、析构相关的函数时，应定义所有相关函数，可参见 ID\_violateRuleOfFive 的进一步讨论。
 <br/>
 <br/>
 
 #### 相关
 ID_missingResetNull  
+ID_ownerlessResource  
+ID_missingCopyConstructor  
+ID_missingCopyAssignOperator  
+ID_violateRuleOfFive  
 <br/>
 
 #### 依据
@@ -2706,31 +2766,50 @@ ID_zeroLengthAllocation &emsp;&emsp;&emsp;&emsp;&nbsp; :drop_of_blood: resource 
 
 <hr/>
 
-当申请分配的内存空间大小为 0 时，malloc、calloc、realloc 等函数的行为是由实现定义的。  
+为了避免意料之外的错误，并提高可移植性，不应分配大小为零的内存空间。  
+  
+当申请分配的内存空间大小为 0 时，malloc、calloc、realloc 等函数的行为是由实现定义的，可以分配元素个数为 0 的数组，也可以不进行任何分配，直接返回空指针。  
+  
+在这种情况下，C\+\+ 语言的 new 运算符会分配元素个数为 0 的数组，但这种数组往往没有实际价值，而且要注意元素个数为 0 的数组也需要被释放。  
   
 示例：
 ```
-int n = user_input();
-if (n >= 0) {
-    int* p = (int*)malloc(n * sizeof(int));   // Non-compliant
-    if (p == NULL)
-        log("Required too much memory");   // ‘n’ may also be zero
-    else
-        ....
+char* mkstr(size_t n) {
+    char* p = (char*)malloc(n * sizeof(char));   // ‘n’ may be zero
+    if (p != NULL) {
+        p[0] = '\0';   // May overflow
+    }
+    return p;
 }
 ```
-当例中 n 为 0 时，malloc 可能会分配元素个数为 0 的数组，也可能会返回空指针。  
+如果 malloc 的返回值不为空，并不能保证其分配的内存空间是可用的，如果不加判断就直接访问会导致缓冲区溢出等问题。  
   
+应改为：
+```
+char* mkstr(size_t n) {
+    char* p = NULL;
+    if (n != 0) {
+        p = (char*)malloc(n * sizeof(char));
+        if (p != NULL) {
+            p[0] = '\0';   // OK
+        }
+    }
+    return p;
+}
+```
 又如：
 ```
 int* p = (int*)malloc(n * sizeof(int));
 ....
 realloc(p, 0);   // Non-compliant, use free(p) instead
 ```
-C90 规定当 realloc 函数的长度参数为 0 时会释放内存，与 free(p) 相同，但在后续标准中废弃了这一特性，不应继续使用。  
-  
-这种情况下 C\+\+ 语言的 new 运算符会分配元素个数为 0 的数组，但这种数组往往没有实际价值，而且要注意，在 C 和 C\+\+ 语言中元素个数为 0 的数组也需要被释放。
+C90 规定当 realloc 函数的长度参数为 0 时会释放内存，与 free(p) 相同，但在后续标准中废弃了这一特性，不应继续使用。
 <br/>
+<br/>
+
+#### 相关
+ID_bufferOverflow  
+ID_insufficientBuffer  
 <br/>
 
 #### 依据
@@ -8666,14 +8745,14 @@ int main() {
 ```
 例中 foo 函数声明的数组参数有 5 个元素，传入的实际参数只有 3 个元素，往往意味着错误，但可以通过编译。  
   
-建议在 C\+\+ 代码中采用数组引用或模板的方式：
+在 C\+\+ 代码中可以采用数组引用或模板的方式，建议使用 std::array 代替 C 数组：
 ```
-void foo(int (&a)[5]);    // Compliant
+void foo(int(&a)[5]);    // Compliant
 
 template <size_t n>
-void foo(int (&a)[n]) {   // Compliant
-    ....
-}
+void foo(int(&a)[n]);    // Compliant
+
+void foo(array<int, 5>& a);    // Good
 ```
 这样数组大小不一致便无法通过编译。  
   
@@ -8681,13 +8760,14 @@ void foo(int (&a)[n]) {   // Compliant
 ```
 int foo(int a[], int n);   // Let it go
 ```
-用空的方括号声明数组，并用另一个参数表示数组大小的情况可不受本规则限制。
+用空的方括号声明数组，并用另一个参数表示数组大小的情况可不受本规则限制，但在 C\+\+ 代码中不建议使用这种方式。
 <br/>
 <br/>
 
 #### 相关
 ID_inconsistentArraySize  
 ID_forbidCArray  
+ID_sizeof_arrayParameter  
 <br/>
 
 #### 依据
@@ -19102,11 +19182,15 @@ int bar() {
     return foo(a);    // Non-compliant
 }
 ```
+例中 foo 函数的形式参数被声明为具有 10 个元素的数组，而实际传入的数组只有 5 个参数，但这种代码可以通过编译。  
+  
+在 C\+\+ 代码中建议使用 std::array 等容器代替 C 数组，可参见 ID\_forbidCArray 的进一步讨论。
 <br/>
 <br/>
 
 #### 相关
 ID_invalidParamArraySize  
+ID_forbidCArray  
 <br/>
 
 #### 依据
@@ -19393,20 +19477,28 @@ void fun(char a[10]) {
     memset(a, 0, sizeof(a));   // Non-compliant
 }
 ```
-例中参数 a 是一个指针，sizeof(a) 等同于 sizeof(char\*)。  
+例中参数 a 是一个指针，sizeof(a) 等同于 sizeof(char\*)，而不是 sizeof(char\[10\])。  
   
-在 C\+\+ 代码中，如果有必要将参数设为数组，建议使用引用的方式，如：
+在 C\+\+ 代码中，如果有必要将参数设为数组，可以使用引用的方式，如：
 ```
 void fun(char (&a)[10]) {
     memset(a, 0, sizeof(a));   // Compliant
 }
 ```
-这样 sizeof(a) 便等同于 sizeof(char\[10\])。
+这样 sizeof(a) 便等同于 sizeof(char\[10\])。  
+  
+更好的方法是用安全性更高的 std::array 等容器代替 C 数组，如：
+```
+void fun(array<char, 10>& a) {
+    a.fill(0);                   // Safe and brief
+}
+```
 <br/>
 <br/>
 
 #### 相关
 ID_invalidParamArraySize  
+ID_forbidCArray  
 <br/>
 
 #### 依据
@@ -21675,47 +21767,59 @@ ID_bufferOverflow &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: buffer warning
 
 <hr/>
 
-缓冲区溢出是一种高度危险的安全漏洞，而且广泛存在于各类软件系统中。  
+缓冲区溢出是一种高度危险的安全漏洞，也是很多安全问题的根源。  
   
-“缓冲区（buffer）”的本意是指内存等高速设备上的区域，程序在这种区域内接收或处理数据，之后再一并输出到网络或磁盘等低速环境，起到提高效率的作用，故称缓冲区。连续的内存区域均可称为缓冲区，在 C/C\+\+ 语言中对应数组等结构。  
+“缓冲区（buffer）”的本意是指内存等高速设备上的区域，程序在这种区域内接收或处理数据，之后再一并输出到网络或磁盘等低速环境，起到提高效率的作用，故称缓冲区。连续的内存区域均可称为缓冲区，如数组等。对缓冲区的越界读写称为“[缓冲区溢出（buffer overflow）](https://en.wikipedia.org/wiki/Buffer_overflow)”。  
   
-缓冲区之外可能是程序的其他数据，也可能是函数返回地址、资源分配信息等重要数据，对缓冲区的越界读写往往意味着逻辑错误，而且会使程序遭到破坏。  
+缓冲区之外可能是其他对象的数据，也可能是函数返回地址、资源分配信息等重要数据，缓冲区溢出往往会造成严重后果，如：  
+ - 导致程序崩溃，或产生其他形式的拒绝服务漏洞  
+ - 使攻击者能够篡改程序的行为，窃取或损坏敏感信息  
+ - 为恶意代码的执行提供可乘之机  
+ - 助力攻击者获取非法权限，威胁系统安全  
   
 示例：
 ```
-void foo(const char* s) {
-    char buf[100];
-    strcpy(buf, s);   // Non-compliant
-    ....
+int buffer[10];
+for (int i = 0; i <= 10; i++) {  // Off-by-one error
+    buffer[i] = 0;               // Overflow when ‘i’ is 10
 }
-
+```
+例中循环变量 i 等于 10 时，buffer\[i\] = 0 便造成了缓冲区溢出，此为常见笔误，应将循环条件改为 i != 10。  
+  
+又如：
+```
+int auth() {
+    char pswd[8];
+    gets(pswd);                    // May overflow
+    return !strcmp(pswd, "abc");
+}
+```
+例中 auth 函数验证用户输入的密码，密码存于数组 pswd 中，gets 函数接收用户输入，但不检查输入长度，一旦输入超过 8 个字符就会造成缓冲区溢出。由于 gets 函数过于危险，已被 C11 标准弃用，但在自定义的缓冲区操作中，仍然需要对这种问题保持高度警惕。  
+  
+如果按下列方式调用 auth 函数：
+```
 int main() {
-    foo(userInput());
+    int ret = auth();
+    if (!ret) {
+        return -1;   // May be invalid under attack
+    }
+    show_secret();
 }
 ```
-例中 userInput 函数返回用户输入的字符串，其长度不确定，而缓冲区 buf 的长度为 100 字节，如果用户输入超过这个长度就会使程序遭到破坏，这种问题称为“[缓冲区溢出（buffer overflow）](https://en.wikipedia.org/wiki/Buffer_overflow)”，也是程序遭受攻击的常见原因。  
+在进程的实际内存布局中，pswd 数组之后可以是 auth 函数的返回地址，如果攻击者利用缓冲区溢出将其篡改，便可以扰乱程序的执行，甚至可以绕过用于判断的 if 语句，直接执行用于显示敏感信息的 show\_secret 函数，造成敏感信息泄露。  
   
-缓冲区溢出可造成严重危害，如：  
- - 破坏堆、栈等进程结构，扰乱程序执行  
- - 改写关键信息，篡改程序行为  
- - 注入并运行恶意代码  
- - 攻击高权限进程获取非法权限  
-  
-所以将读写限定在缓冲区边界之内是十分重要的，示例代码应改为：
-```
-void foo(const char* s) {
-    char buf[100] = "";
-    strncpy(buf, s, sizeof(buf) - 1);   // Compliant
-    ....
-}
-```
-strncpy 与 strcpy 不同，当源字符串长度超过指定限制时会结束复制，但要注意 strncpy 对空字符的处理。
+关于避免缓冲区溢出的方法和防御措施，可参见本规则相关规则的进一步介绍。
 <br/>
 <br/>
 
 #### 相关
-ID_arrayIndexOverflow  
+ID_insufficientBuffer  
+ID_improperNullTermination  
+ID_zeroLengthAllocation  
 ID_unsafeStringFunction  
+ID_dangerousFunction  
+ID_missingHardening  
+ID_arrayIndexOverflow  
 <br/>
 
 #### 参考
@@ -21973,7 +22077,7 @@ ID_nullDerefInScp &emsp;&emsp;&emsp;&emsp;&nbsp; :boom: pointer error
   
 使用 \*、\->、.\*、\->\*、\[\]、() 等运算符，通过指针的值访问指针指向的数据称为“解引用（dereference）”。使用 nullptr、NULL、0 等常量初始化的指针是空指针，未指向任何对象或函数，解引用空指针属于逻辑错误。  
   
-空指针与任何已指向对象或函数的指针均不相等，通过空指针访问对象是非法的，其后果在语言标准中是未定义的，执行环境一般会拒绝程序访问空指针对应的地址，使程序无法正常运行。  
+空指针与任何已指向对象或函数的指针均不相等，通过空指针访问对象或函数是非法的，其后果在语言标准中是未定义的。执行环境可以拒绝程序访问空指针对应的地址，终止程序运行，但并非所有环境都具备相关机制。  
   
 示例：
 ```
@@ -21985,7 +22089,9 @@ int foo(int i) {
     return *p;    // Non-compliant
 }
 ```
-如果例中条件表达式 cond 为假，p 为空指针，\*p 往往会引发“[段错误](https://en.wikipedia.org/wiki/Segmentation_fault)”等严重后果。  
+如果例中条件表达式 cond 为假，p 为空指针，\*p 可以引发“[段错误](https://en.wikipedia.org/wiki/Segmentation_fault)”，使程序无法继续运行。  
+  
+对于服务类程序，如果攻击者能够掌握导致空指针解引用的外部操作，会使系统遭受“[拒绝服务攻击](https://en.wikipedia.org/wiki/Denial-of-service_attack)”。在特殊环境中，如某些嵌入式系统或某些超级计算机等，空指针对应的地址是可以被访问的，但其后果是不可预期的，甚至会导致恶意代码的执行。  
   
 例外：
 ```
@@ -22021,7 +22127,7 @@ size_t len(const T* p) {
 ```
 例中函数不接受空指针作为参数，如果是设计使然，应使用断言进行标注，否则应对参数为空指针的情况作出处理。  
   
-断言也是接口文档的重要组成部分，可显著提高可读性，并进行运行时检查，如：
+断言也是接口文档的重要组成部分，可显著提高可读性，并提供运行时检查，如：
 ```
 size_t len(const T* p) {
     assert(p != NULL);    // Good
