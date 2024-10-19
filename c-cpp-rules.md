@@ -462,10 +462,10 @@
     - [R9.3.5 while 循环体不应为空](#while_emptyblock)
     - [R9.3.6 while 循环体应该用大括号括起来](#while_brace)
   - [9.4 Do](#control.do)
-    - [R9.4.1 注意 do\-while(0) 中可疑的 continue 语句](#do_suspiciouscontinue)
+    - [R9.4.1 不建议使用 do 语句](#do_deprecated)
     - [R9.4.2 do\-while 循环体不应为空](#do_emptyblock)
     - [R9.4.3 do\-while 循环体应该用大括号括起来](#do_brace)
-    - [R9.4.4 不建议使用 do 语句](#do_deprecated)
+    - [R9.4.4 注意 do\-while(0) 中可疑的 continue 语句](#do_suspiciouscontinue)
   - [9.5 Switch](#control.switch)
     - [R9.5.1 switch 语句不应被分号隔断](#switch_semicolon)
     - [R9.5.2 switch 语句不应为空](#switch_emptyblock)
@@ -15600,38 +15600,39 @@ SEI CERT EXP19-C
 
 ### <span id="control.do">9.4 Do</span>
 
-### <span id="do_suspiciouscontinue">▌R9.4.1 注意 do-while(0) 中可疑的 continue 语句</span>
+### <span id="do_deprecated">▌R9.4.1 不建议使用 do 语句</span>
 
-ID_do_suspiciousContinue &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: control warning
+ID_do_deprecated &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: control suggestion
 
 <hr/>
 
-continue 语句和 break 语句在语义上是不同的，但在 do\-while(0) 中的功效是一样的。  
+do 语句的终止条件在末尾，且第一次执行时不检查终止条件，易被误用。  
   
-在 do\-while(0) 的循环体中如果既有 break 语句又有 continue 语句，continue 语句被误用的可能性较大。  
+do 语句可用于循环，也可用于定义由 break 等语句跳出的作用域，糅合了循环和流程跳转，使代码变得复杂，不利于阅读和维护，建议将复杂的 do 语句抽取成函数，使代码的静态结构更加清晰。  
+  
+宏定义中的 do\-while(0) 可不受本规则限制。  
   
 示例：
 ```
-int foo() {
+void foo(int n) {
     do {
-        ....
-        if (cond1) {
+        if (n < 0) {
             break;
         }
         ....
-        if (cond2) {
-            continue;   // Rather suspicious
+        if (n > 0) {
+            continue;
         }
         ....
-    } while (0);
+    } while (condition);   // Too complex
+    ....
 }
 ```
-建议在 do\-while(0) 中只使用 break 语句，不使用 continue 语句。
 <br/>
 <br/>
 
 #### 参考
-CWE-670  
+C++ Core Guidelines ES.75  
 <br/>
 <br/>
 
@@ -15707,39 +15708,38 @@ MISRA C++ 2008 6-3-1
 <br/>
 <br/>
 
-### <span id="do_deprecated">▌R9.4.4 不建议使用 do 语句</span>
+### <span id="do_suspiciouscontinue">▌R9.4.4 注意 do-while(0) 中可疑的 continue 语句</span>
 
-ID_do_deprecated &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: control suggestion
+ID_do_suspiciousContinue &emsp;&emsp;&emsp;&emsp;&nbsp; :fire: control warning
 
 <hr/>
 
-do 语句的终止条件在末尾，且第一次执行时不检查终止条件，易被误用。  
+continue 语句和 break 语句在语义上是不同的，但在 do\-while(0) 中的功效是一样的。  
   
-do 语句可用于循环，也可用于定义由 break 等语句跳出的作用域，糅合了循环和流程跳转，使代码变得复杂，不利于阅读和维护，建议将复杂的 do 语句抽取成函数，使代码的静态结构更加清晰。  
-  
-宏定义中的 do\-while(0) 可不受本规则限制。  
+在 do\-while(0) 的循环体中如果既有 break 语句又有 continue 语句，continue 语句被误用的可能性较大。  
   
 示例：
 ```
-void foo(int n) {
+int foo() {
     do {
-        if (n < 0) {
+        ....
+        if (cond1) {
             break;
         }
         ....
-        if (n > 0) {
-            continue;
+        if (cond2) {
+            continue;   // Rather suspicious
         }
         ....
-    } while (condition);   // Too complex
-    ....
+    } while (0);
 }
 ```
+建议在 do\-while(0) 中只使用 break 语句，不使用 continue 语句。
 <br/>
 <br/>
 
 #### 参考
-C++ Core Guidelines ES.75  
+CWE-670  
 <br/>
 <br/>
 
