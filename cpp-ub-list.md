@@ -1,4 +1,4 @@
-# 附录：C++ 未定义行为成因列表 ![Version](https://img.shields.io/badge/version-1.3.2-brightgreen) <img src="./logo.png" align="right" width="auto" height="100"/>
+# 附录：C++ 未定义行为成因列表 ![Version](https://img.shields.io/badge/version-1.4.0-brightgreen) <img src="./logo.png" align="right" width="auto" height="100"/>
 
 > cppreference.com: "*Undefined behavior renders the entire program meaningless if certain rules of the language are violated.*"
 

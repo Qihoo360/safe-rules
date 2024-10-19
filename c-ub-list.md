@@ -1,4 +1,4 @@
-# 附录：C 未定义行为成因列表 ![Version](https://img.shields.io/badge/version-1.3.2-brightgreen) <img src="./logo.png" align="right" width="auto" height="100"/>
+# 附录：C 未定义行为成因列表 ![Version](https://img.shields.io/badge/version-1.4.0-brightgreen) <img src="./logo.png" align="right" width="auto" height="100"/>
 
 > blog.llvm.org: "*Many seemingly reasonable things in C actually have undefined behavior, and this is a common source of bugs in programs.*"
 

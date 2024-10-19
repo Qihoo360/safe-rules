@@ -1,6 +1,6 @@
 {
     "name": "360 安全规则集合",
-    "version": "1.3.2",
+    "version": "1.4.0",
     "encoding": "utf-8",
     "language": "C,C++",
     "url": "https://github.com/Qihoo360/safe-rules/blob/main/c-cpp-rules.md",
@@ -3654,7 +3654,7 @@
         "reference": "CWE-119,CWE-125,CWE-787,CWE-788"
         },
     "ID_protectedData": {
-        "checkPoint": "类的非常量数据成员不应定义为 protected",
+        "checkPoint": "类的非常量数据成员不应为 protected",
         "level": "suggestion",
         "comment": "protected 数据成员在派生类中仍可被随意读写，破坏了封装理念。",
         "tag": "type",

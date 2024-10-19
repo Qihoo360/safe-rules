@@ -1,4 +1,4 @@
-# C/C++ 安全规则集合 ![Version](https://img.shields.io/badge/version-1.3.2-brightgreen) <img src="./logo.png" align="right" width="auto" height="100"/>
+# C/C++ 安全规则集合 ![Version](https://img.shields.io/badge/version-1.4.0-brightgreen) <img src="./logo.png" align="right" width="auto" height="100"/>
 
 > Bjarne Stroustrup: “*C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.*”
 
@@ -209,7 +209,7 @@
 <span id="__type">**[5. Type](#type)**</span>
   - [5.1 Class](#type.class)
     - [R5.1.1 类的非常量数据成员均应为 private](#nonprivatedata)
-    - [R5.1.2 类的非常量数据成员不应定义为 protected](#protecteddata)
+    - [R5.1.2 类的非常量数据成员不应为 protected](#protecteddata)
     - [R5.1.3 类不应既有 public 数据成员又有 private 数据成员](#mixpublicprivatedata)
     - [R5.1.4 有虚函数的基类应具有虚析构函数](#missingvirtualdestructor)
     - [R5.1.5 避免多重继承自同一非虚基类](#diamondinheritance)
@@ -2338,7 +2338,7 @@ void foo() {
     T a("xyz");
     T b = a;     // Shallow copy
     ....
-}
+}                // Double free
 ```
 例中对象 b 由对象 a 复制而成，a 和 b 在析构时会重复释放同一成员指针，所以存在任一拷贝、移动、析构相关的函数时，应定义所有相关函数，可参见 ID\_violateRuleOfFive 的进一步讨论。
 <br/>
@@ -5603,7 +5603,7 @@ MISRA C++ 2008 11-0-1
 <br/>
 <br/>
 
-### <span id="protecteddata">▌R5.1.2 类的非常量数据成员不应定义为 protected</span>
+### <span id="protecteddata">▌R5.1.2 类的非常量数据成员不应为 protected</span>
 
 ID_protectedData &emsp;&emsp;&emsp;&emsp;&nbsp; :bulb: type suggestion
 
